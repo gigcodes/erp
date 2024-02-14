@@ -128,9 +128,6 @@ class TwillioMessageController extends Controller
     {
         $messageGroupDetails = MessagingGroup::find($messageGroupId);
         $customers = Customer::where('store_website_id', $messageGroupDetails['store_website_id'])->get();
-        /*$customersAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
-        ->where('messaging_group_customers.message_group_id', $messageGroupId)->select('customers.*', 'messaging_group_customers.id as groupCustomerId')->get();
-         */
         $customerAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
             ->where('messaging_group_customers.message_group_id', $messageGroupId)->pluck('customers.id')->toArray();
         $marketing_messageId = MarketingMessage::where('message_group_id', $messageGroupId)->pluck('id')->first();

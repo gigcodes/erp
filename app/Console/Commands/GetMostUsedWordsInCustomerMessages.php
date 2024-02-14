@@ -67,8 +67,6 @@ class GetMostUsedWordsInCustomerMessages extends Command
                         if (strlen(trim($word)) <= 3) {
                             continue;
                         }
-
-                        //$this->addOrUpdateCountOfKeyword(trim($word));
                     }
                 }
             }

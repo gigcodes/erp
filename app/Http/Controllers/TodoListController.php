@@ -7,9 +7,9 @@ use App\Setting;
 use App\TodoList;
 use App\TodoStatus;
 use App\TodoCategory;
-use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Http\Request;
 use App\ToDoListRemarkHistoryLog;
+use Illuminate\Database\RecordsNotFoundException;
 
 class TodoListController extends Controller
 {
@@ -45,20 +45,18 @@ class TodoListController extends Controller
 
             $todolists_count = $todolists->count();
 
-            //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
             $statuses = TodoStatus::all()->toArray();
             $todoCategories = TodoCategory::get();
-            //dd($statuses);
             if ($request->ajax()) {
                 return response()->json([
-                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories','statuses', 'todolists_count'))->render(),
+                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories', 'statuses', 'todolists_count'))->render(),
                     'links' => (string) $todolists->render(),
                 ], 200);
             }
 
-            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories','statuses', 'todolists_count'));
+            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories', 'statuses', 'todolists_count'));
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
@@ -92,17 +90,15 @@ class TodoListController extends Controller
             $todolists->todo_category_id = $request->todo_category_id ?? '';
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
-            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+
             return redirect()->back()->with('success', 'Your Todo List has been created!');
         } catch (\Exception $e) {
-            //return response()->json(["code" => 500, "message" => $e->getMessage()]);
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
 
     public function ajax_store(Request $request)
-    {   
-
+    {
         if (! $request->title || $request->subject == '' || $request->status == '' || $request->todo_date == '' || $request->todo_category_id == '') {
             return response()->json(
                 [
@@ -122,9 +118,9 @@ class TodoListController extends Controller
             $todolists->todo_date = $request->todo_date;
             $todolists->remark = $request->remark ?? '-';
 
-            if($request->todo_category_id>0){
+            if ($request->todo_category_id > 0) {
                 $todolists->todo_category_id = $request->todo_category_id ?? '';
-            } else{
+            } else {
                 $todoCategory = new TodoCategory();
                 $todoCategory->name = $request->other;
                 $todoCategory->status = 1;
@@ -134,9 +130,10 @@ class TodoListController extends Controller
 
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
-            return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+
+            return response()->json(['code' => 200, 'data' => $todolists, 'message' => 'Your Todo List has been created!']);
         } catch (\Exception $e) {
-            return response()->json(["code" => 500, "message" => $e->getMessage()]);
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
     }
 
@@ -190,10 +187,9 @@ class TodoListController extends Controller
             if ($request->remark != $request->old_remark) {
                 $this->createTodolistRemarkHistory($request, $todolists->id);
             }
-            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+
             return redirect()->back()->with('success', 'Your Todo List has been Updated!');
         } catch (\Exception $e) {
-            //return response()->json(["code" => 500, "message" => $e->getMessage()]);
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
@@ -322,17 +318,15 @@ class TodoListController extends Controller
                 $todolists->where('todo_category_id', $s);
             }
 
-            //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
             $statuses = TodoStatus::all()->toArray();
             $todoCategories = TodoCategory::get();
-            //dd($statuses);
 
             return response()->json([
-                'items' => (array)$todolists->getIterator(),
+                'items' => (array) $todolists->getIterator(),
                 'page' => $todolists->currentPage(),
-                'total' => $todolists->total()
+                'total' => $todolists->total(),
             ]);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -364,13 +358,11 @@ class TodoListController extends Controller
             if ($request->remark != $request->old_remark) {
                 $this->createTodolistRemarkHistory($request, $todolists->id);
             }
-            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+
             return response()->json(['message' => sprintf('You todolist was successfully updated with id: %s.', $todolists->id)]);
-        }
-        catch (RecordsNotFoundException $foundException) {
+        } catch (RecordsNotFoundException $foundException) {
             return response()->json(['message' => $foundException->getMessage()], 404);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['message' => 'Something went wrong.'], 500);
         }
     }
@@ -378,6 +370,7 @@ class TodoListController extends Controller
     public function destroyJson($id)
     {
         TodoList::where('id', $id)->delete();
+
         return response()->json(['message' => 'Your Todo Task has been deleted successfuly!']);
     }
 
@@ -396,19 +389,17 @@ class TodoListController extends Controller
             return response()->json(['code' => 200, 'data' => $remarks, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
     public function searchTodoListHeader(Request $request)
     {
-
-        //$query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc');
-
-        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderBy('id', 'DESC');
+        $query = \App\TodoList::where('user_id', \Auth()->user()->id)->where('status', 1)->orderBy('id', 'DESC');
 
         if ($request->get('keyword') != '') {
-             $query->where('title', 'LIKE', "%".$request->get('keyword')."%")->orWhere('subject', 'LIKE', "%".$request->get('keyword')."%");
+            $query->where('title', 'LIKE', '%' . $request->get('keyword') . '%')->orWhere('subject', 'LIKE', '%' . $request->get('keyword') . '%');
         }
 
         if ($request->get('todolist_start_date') != '' && $request->get('todolist_end_date') != '') {
@@ -421,7 +412,7 @@ class TodoListController extends Controller
 
         return view('todolist.menu-todata', [
             'todoLists' => $todoLists,
-            'statuses' => $statuses
+            'statuses' => $statuses,
         ]);
     }
 }

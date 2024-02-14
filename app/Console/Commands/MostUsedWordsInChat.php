@@ -54,9 +54,6 @@ class MostUsedWordsInChat extends Command
                 ChatMessageWord::insert($mostUsedWords['words']);
             }
 
-            // Dump
-            // var_dump($mostUsedWords);
-
             // start to phrases
             $allwords = ChatMessageWord::all();
 

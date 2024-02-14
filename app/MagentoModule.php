@@ -2,8 +2,8 @@
 
 namespace App;
 
-use App\Models\MagentoModuleM2ErrorStatus;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MagentoModuleM2ErrorStatus;
 use App\Models\MagentoModuleReturnTypeErrorStatus;
 
 class MagentoModule extends Model
@@ -51,7 +51,7 @@ class MagentoModule extends Model
         'm2_error_remark',
         'unit_test_status_id',
         'unit_test_remark',
-        'unit_test_user_id'
+        'unit_test_user_id',
     ];
 
     public function module_category()

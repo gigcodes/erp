@@ -13,16 +13,16 @@ use App\ProductUpdateLog;
 use App\SimplyDutyCountry;
 use App\SimplyDutySegment;
 use App\Jobs\PushToMagento;
-use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use App\Loggers\LogListMagento;
 use App\CategorySegmentDiscount;
 use App\SimplyDutyCountryHistory;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Container\Container;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductPriceController extends Controller
 {
@@ -42,8 +42,7 @@ class ProductPriceController extends Controller
         $skip = empty($request->page) ? 0 : $request->page;
 
         $product_list = [];
-        if(!empty($request->selectedId)){
-
+        if (! empty($request->selectedId)) {
             $products = \App\StoreWebsite::where('store_websites.is_published', 1)
                 ->crossJoin('products')
                 ->crossJoin('simply_duty_countries')
@@ -125,7 +124,6 @@ class ProductPriceController extends Controller
             $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
 
             $products = $products->skip($skip * 25)->limit(25)->get();
-            //$products = $products->limit(100)->get();
             $product_list = [];
             if (count($products)) {
                 foreach ($products as $p) {
@@ -208,25 +206,24 @@ class ProductPriceController extends Controller
         $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
         $products = \App\StoreWebsiteProductPrice::join('products', 'store_website_product_prices.product_id', 'products.id')
-        ->leftJoin('brands as b', function ($q) {
-            $q->on('b.id', 'products.brand');
-        })
-        ->leftJoin('categories as c', function ($q) {
-            $q->on('c.id', 'products.category');
-        })
-        ->leftJoin('category_segments as cs', function ($q) {
-            $q->on('c.category_segment_id', 'cs.id');
-        })
-        ->leftJoin('scraped_products as sp', function ($q) {
-            $q->on('sp.product_id', 'products.id');
-        })
-        ->leftJoin('product_suppliers as psu', function ($q) {
-            $q->on('psu.product_id', 'products.id');
-        })
-        ->leftJoin('store_websites', 'store_websites.id', 'store_website_product_prices.store_website_id')
-       ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-       // ->leftJoin('websites','store_website_product_prices.store_website_id','websites.store_website_id' )
-        ->select(DB::raw('
+            ->leftJoin('brands as b', function ($q) {
+                $q->on('b.id', 'products.brand');
+            })
+            ->leftJoin('categories as c', function ($q) {
+                $q->on('c.id', 'products.category');
+            })
+            ->leftJoin('category_segments as cs', function ($q) {
+                $q->on('c.category_segment_id', 'cs.id');
+            })
+            ->leftJoin('scraped_products as sp', function ($q) {
+                $q->on('sp.product_id', 'products.id');
+            })
+            ->leftJoin('product_suppliers as psu', function ($q) {
+                $q->on('psu.product_id', 'products.id');
+            })
+            ->leftJoin('store_websites', 'store_websites.id', 'store_website_product_prices.store_website_id')
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->select(DB::raw('
                 products.id as pid, 
                 products.name as product_name,
                 b.name as brand_name,
@@ -248,7 +245,6 @@ class ProductPriceController extends Controller
                 sub_status_id,
                 products.created_at,
                 products.id as pid,
-                
                 store_websites.id as store_websites_id,
                 store_websites.website as product_website,
                 products.brand,
@@ -259,7 +255,7 @@ class ProductPriceController extends Controller
                 store_website_product_prices.override_price,
                 store_website_product_prices.status,
                 websites.name as countries'
-        ));
+            ));
         if (isset($filter_data['websites']) && is_array($filter_data['websites']) && $filter_data['websites'][0] != null) {
             $products = $products->whereIn('store_websites.id', $filter_data['websites']);
         }
@@ -282,8 +278,8 @@ class ProductPriceController extends Controller
             'currentPage' => $page,
             'options' => [
                 'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page'
-            ]
+                'pageName' => 'page',
+            ],
         ]);
 
         $product_list = [];
@@ -424,12 +420,10 @@ class ProductPriceController extends Controller
 
         $categoryIds = Category::pluck('id')->toArray();
         $categories = Category::whereNotIn('parent_id', $categoryIds)
-                        ->where('parent_id', '>', 0)
-                        ->select('id', 'title')
-                        ->orderBy('title', 'asc')
-                        ->get()->toArray();
-
-        //$cat_id = isset($ids['id']) ? $ids['id'] :$categories[0]['id'];
+            ->where('parent_id', '>', 0)
+            ->select('id', 'title')
+            ->orderBy('title', 'asc')
+            ->get()->toArray();
 
         $skip = empty($request->page) ? 0 : $request->page;
 
@@ -437,7 +431,7 @@ class ProductPriceController extends Controller
         $product_list = [];
 
         $countries = SimplyDutyCountry::leftJoin('simply_duty_segments', 'simply_duty_segments.id', '=', 'simply_duty_countries.segment_id')
-        ->select('*', 'simply_duty_segments.segment as country_segment');
+            ->select('*', 'simply_duty_segments.segment as country_segment');
 
         if (isset($request->order) && isset($request->input)) {
             if ($request->input == 'csegment') {
@@ -450,7 +444,6 @@ class ProductPriceController extends Controller
 
         $countries = $countries->get()->toArray();
 
-        //$brands = Brand::select('id', 'name')->get()->toArray();
         $brands = \App\StoreWebsite::where('store_websites.is_published', 1)
             ->crossJoin('products')
             ->leftJoin('brands', 'brands.id', 'products.brand')
@@ -458,13 +451,11 @@ class ProductPriceController extends Controller
             ->leftJoin('category_segments as cs', function ($q) {
                 $q->on('categories.category_segment_id', 'cs.id');
             })
-
             ->whereNotNull('brands.name')
             ->select('brands.id', 'brands.name', 'brands.brand_segment', 'products.category as catId',
                 'store_websites.id as store_websites_id', 'store_websites.website as product_website',
                 'categories.title as cate_title', 'cs.name as country_segment', 'products.id as pid')
             ->groupBy('categories.id', 'store_websites.id', 'brands.brand_segment')
-            //->groupBy('store_websites.id', 'brands.brand_segment')
             ->having(DB::raw('count(*)'), '>=', 1);
 
         $i = 0;
@@ -489,7 +480,7 @@ class ProductPriceController extends Controller
         $numcount = 5000;
         $brands = $brands
             ->skip($skip * Setting::get('pagination'))
-        ->limit(Setting::get('pagination') ?? 10)
+            ->limit(Setting::get('pagination') ?? 10)
             ->get()->toArray();
 
         $countriesCount = count($countries);
@@ -619,24 +610,6 @@ class ProductPriceController extends Controller
         $cats = StoreWebsite::select('id', 'title')->get();
         $country_segments = SimplyDutySegment::pluck('segment')->toArray();
 
-        /*if (! isset($ids['id'])) {
-            $data = $this->genericPricingAll($request);
-            $product_list = $data['product_list'];
-            $category_segments = $data['category_segments'];
-            $numcount = $data['numcount'];
-            $categories = $data['categories'];
-
-            if ($request->ajax()) {
-                $count = $request->count;
-
-                $view = view('product_price.generic_price_ajax', compact('product_list', 'category_segments'))->render();
-
-                return response()->json(['html' => $view, 'page' => $request->page, 'count' => $count]);
-            }
-
-            return view('product_price.generic_price', compact('product_list', 'country_segments', 'category_segments', 'cats', 'categories', 'numcount'));
-        }*/
-
         $categoryIds = Category::pluck('id')->toArray();
         $categories = Category::whereNotIn('parent_id', $categoryIds)->where('parent_id', '>', 0)->select('id', 'title')->orderBy('title', 'asc')->get()->toArray();
 
@@ -646,7 +619,7 @@ class ProductPriceController extends Controller
         $product_list = [];
 
         $countries = SimplyDutyCountry::leftJoin('simply_duty_segments', 'simply_duty_segments.id', '=', 'simply_duty_countries.segment_id')
-        ->select('*', 'simply_duty_segments.segment as country_segment');
+            ->select('*', 'simply_duty_segments.segment as country_segment');
 
         if (isset($request->order) && isset($request->input)) {
             if ($request->input == 'csegment') {
@@ -660,7 +633,6 @@ class ProductPriceController extends Controller
 
         $categoryDetail = Category::where('id', $cat_id)->select('id', 'title')->first();
 
-        //$brands = Brand::select('id', 'name')->get()->toArray();
         $skip = empty($request->page) ? 0 : $request->page;
 
         $countriesCount = count($countries);
@@ -668,8 +640,7 @@ class ProductPriceController extends Controller
 
         $numcount = 10;
         $product_list = [];
-        if(!empty($request->selectedId)){
-
+        if (! empty($request->selectedId)) {
             $brands = \App\StoreWebsite::where('store_websites.is_published', 1)
                 ->crossJoin('products')
                 ->leftJoin('brands', 'brands.id', 'products.brand')
@@ -715,10 +686,9 @@ class ProductPriceController extends Controller
                 }
             }
 
-             // $brands->count();
             $brands = $brands
                 ->skip($skip * Setting::get('pagination'))
-            ->limit(Setting::get('pagination') ?? 10)
+                ->limit(Setting::get('pagination') ?? 10)
                 ->get()->toArray();
             $i = 0;
 
@@ -877,7 +847,6 @@ class ProductPriceController extends Controller
                 'updated_by' => Auth::user()->id,
 
             ];
-            //$duty->default_duty =$request->default_duty;
             $duty->status = 0;
             SimplyDutyCountryHistory::insert($data);
             $dutyPricesProducts = 0;
@@ -886,9 +855,9 @@ class ProductPriceController extends Controller
                 $code = $duty->country_code;
                 $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
                     'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
-                   ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-                   ->where('websites.code', strtolower($code))
-                   ->get(); //dd($ps);
+                    ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+                    ->where('websites.code', strtolower($code))
+                    ->get(); //dd($ps);
                 if ($ps) {
                     foreach ($ps as $p) {
                         \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
@@ -900,9 +869,6 @@ class ProductPriceController extends Controller
             }
 
             if ($request->add_profit > 0) {
-                /*PriceOverride::create(['store_website_id'=>$request->websiteId, 'brand_id'=>$request->input('brandId'), 'category_id'=>$request->input('catId'),
-                    'country_code'=>$request->input('country_code'), 'type'=>'PERCENTAGE', 'calculated'=>'+', 'value'=>$request->add_profit]);
-                */
                 $priceRecords = null;
                 $brand = $request->brand_segment;
                 $category = $request->input('catId');
@@ -958,12 +924,12 @@ class ProductPriceController extends Controller
                 }
             }
             $ps = \App\Product::select('products.id', 'store_website_product_prices.store_website_id')
-            ->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
-                   ->where('store_website_id', $request->input('websiteId'))
-                   ->where(function ($query) use ($request) {
-                       $query->where('brand', $request->input('brandId'))
-                             ->orWhere('category', $request->input('catId'));
-                   })->select('products.id as product_id', 'products.name as product_name', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
+                ->leftJoin('store_website_product_prices', 'store_website_product_prices.product_id', '=', 'products.id')
+                ->where('store_website_id', $request->input('websiteId'))
+                ->where(function ($query) use ($request) {
+                    $query->where('brand', $request->input('brandId'))
+                        ->orWhere('category', $request->input('catId'));
+                })->select('products.id as product_id', 'products.name as product_name', 'store_website_product_prices.store_website_id')->groupBy('products.id')->get();
 
             foreach ($ps as $p) {
                 ProductUpdateLog::create(['store_website_id' => $p->store_website_id, 'created_by' => \Auth::id(), 'product_id' => $p->product_id, 'log' => $p->product_name . ' updated.']);
@@ -1025,9 +991,9 @@ class ProductPriceController extends Controller
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
             'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
-        ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-        ->where('websites.code', strtolower($code))
-        ->get(); //dd($ps);
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->where('websites.code', strtolower($code))
+            ->get();
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
@@ -1041,14 +1007,12 @@ class ProductPriceController extends Controller
     public function update_store_website_product_segment($code, $segmentDiscount)
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
-       ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-       ->where('websites.code', strtolower($code))
-       ->get(); //dd($ps);
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->where('websites.code', strtolower($code))
+            ->get(); //dd($ps);
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0, 'created_at' => date('Y-m-d H:i:s')]);
-                //$note="Country Duty change  from ".$p->duty_price." To ".$amount;
-                //\App\StoreWebsiteProductPriceHistory::insert(['sw_product_prices_id'=>$p->id,'updated_by'=>Auth::id(),'notes'=>$note]);
             }
         }
     }
@@ -1062,8 +1026,6 @@ class ProductPriceController extends Controller
             if ($website == null) {
                 \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
-                //ProductPushErrorLog::log($product->id, $msg, 'error');
-                //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                 echo $msg;
                 exit;
             } else {
@@ -1080,7 +1042,6 @@ class ProductPriceController extends Controller
                     $log->queue = \App\Helpers::createQueueName($website->title);
                     $log->save();
                     PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                    //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
                     $i++;
                 }
             }
@@ -1090,7 +1051,7 @@ class ProductPriceController extends Controller
     public function productUpdateLogs(Request $request)
     {
         $productLogs = ProductUpdateLog::leftJoin('users', 'users.id', '=', 'product_update_logs.created_by')
-        ->select('product_update_logs.*', 'users.name as product_updated_by')->orderBy('product_update_logs.id', 'desc')->paginate(20);
+            ->select('product_update_logs.*', 'users.name as product_updated_by')->orderBy('product_update_logs.id', 'desc')->paginate(20);
 
         if ($request->ajax()) {
             return view('logging.partials.product_update_logs', compact('productLogs'));
@@ -1101,32 +1062,31 @@ class ProductPriceController extends Controller
 
     public function store_website_product_skus(Request $request)
     {
-        
-        if(!empty($request['term'])){
-            $dataDropdown = Product::where('sku', 'LIKE', "%".$request['term']."%")->pluck('sku', 'id')->toArray();
+        if (! empty($request['term'])) {
+            $dataDropdown = Product::where('sku', 'LIKE', '%' . $request['term'] . '%')->pluck('sku', 'id')->toArray();
             echo json_encode($dataDropdown);
         }
     }
-    
+
     public function getProductAutocomplete(Request $request)
     {
         $input = $_GET['term'];
 
         $products = [];
-        if(!empty($input)){
-            $products = Product::where('id', 'like', '%'.$input.'%')->orWhere('sku', 'like', '%'.$input.'%')->pluck('sku', 'id');
+        if (! empty($input)) {
+            $products = Product::where('id', 'like', '%' . $input . '%')->orWhere('sku', 'like', '%' . $input . '%')->pluck('sku', 'id');
         }
 
         return response()->json($products);
     }
-    
+
     public function getProductGenericAutocomplete(Request $request)
     {
         $input = $_GET['term'];
 
         $products = [];
-        if(!empty($input)){
-            $products = Product::where('id', 'like', '%'.$input.'%')->orWhere('sku', 'like', '%'.$input.'%')->pluck('sku', 'id');
+        if (! empty($input)) {
+            $products = Product::where('id', 'like', '%' . $input . '%')->orWhere('sku', 'like', '%' . $input . '%')->pluck('sku', 'id');
         }
 
         return response()->json($products);

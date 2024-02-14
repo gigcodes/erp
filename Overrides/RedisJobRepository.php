@@ -24,7 +24,6 @@ class RedisJobRepository extends \Laravel\Horizon\Repositories\RedisJobRepositor
 
     public function clear($queue)
     {
-        // dd($queue);
         return $this->connection()->eval(
             LuaScripts::clear(),
             4,

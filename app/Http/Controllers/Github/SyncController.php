@@ -21,7 +21,6 @@ class SyncController extends Controller
     public function __construct()
     {
         $this->client = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
@@ -29,7 +28,6 @@ class SyncController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [$userName, $token],
         ]);
 
@@ -85,12 +83,9 @@ class SyncController extends Controller
 
     private function refreshGithubRepos($organizationId, $userName, $token)
     {
-        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
         $url = 'https://api.github.com/orgs/' . $organizationId . '/repos?per_page=100';
 
         $organization = GithubOrganization::where('name', $organizationId)->first();
-
-        // $response = $this->client->get($url);
 
         $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -129,10 +124,7 @@ class SyncController extends Controller
 
     private function refreshUsersForOrganization($organizationId, $userName, $token)
     {
-        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/members";
         $url = 'https://api.github.com/orgs/' . $organizationId . '/members';
-
-        // $response = $this->client->get($url);
 
         $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -165,10 +157,7 @@ class SyncController extends Controller
 
     private function refreshGithubGroups($organizationId, $userName, $token)
     {
-        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams";
         $url = 'https://api.github.com/orgs/' . $organizationId . '/teams';
-
-        // $response = $this->client->get($url);
 
         $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -202,8 +191,6 @@ class SyncController extends Controller
     {
         // https://api.github.com/repos/:org/:repo/collaborators
         $url = 'https://api.github.com/repos/' . $organizationId . '/' . $repositoryName . '/collaborators';
-
-        // $response = $this->client->get($url);
 
         $organization = GithubOrganization::where('name', $organizationId)->first();
 
@@ -246,15 +233,12 @@ class SyncController extends Controller
         );
 
         return $updatedIds;
-        //GithubRepositoryUser::whereNotIn('id', $updatedIds)->delete();
     }
 
     private function refreshUserAccessInTeam($organizationId, $userName, $token, $teamId)
     {
         // https://api.github.com/teams/:team_id/members?role=all
         $url = 'https://api.github.com/teams/' . $teamId . '/members?role=all';
-
-        // $response = $this->client->get($url);
 
         $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -287,8 +271,6 @@ class SyncController extends Controller
     {
         // https://api.github.com/teams/:team_id/repos
         $url = 'https://api.github.com/teams/' . $teamId . '/repos';
-
-        // $response = $this->client->get($url);
 
         $organization = GithubOrganization::where('name', $organizationId)->first();
 

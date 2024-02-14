@@ -37,7 +37,6 @@ class ManualFixBrand extends Command
      */
     public function handle()
     {
-        //
         // start to get brands first
         $skuBrands = \App\SkuFormat::leftJoin('brands as b', 'b.id', 'sku_formats.brand_id')->select(['sku_formats.*', 'b.name as brand_name'])->get();
         foreach ($skuBrands as $sb) {

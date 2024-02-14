@@ -37,7 +37,6 @@ class InsertStoreWebsiteShipping extends Command
      */
     public function handle()
     {
-        //
         $simplycountry = \App\SimplyDutyCountry::all();
         $storeWebsites = \App\StoreWebsite::where('api_token', '!=', '')->where('website_source', 'magento')->get();
 

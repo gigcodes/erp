@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 
-//use InstagramAPI\Instagram;
 
 class PostMediaToInstagramAccounts extends Command
 {
@@ -47,14 +46,12 @@ class PostMediaToInstagramAccounts extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-//            $instagram = new Instagram();
-
             $accounts = 'shrikirtiraha23,balachander83,ashnauppalapati81,vinayafalodiya55';
             $accounts = explode(',', $accounts);
 
             foreach ($accounts as $account) {
                 try {
-//                    $instagram->login($account, 'This123!@#');
+                    //
                 } catch (\Exception $exception) {
                     continue;
                 }
@@ -72,8 +69,6 @@ class PostMediaToInstagramAccounts extends Command
                     imagecopyresampled($destination, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
 
                     imagejpeg($destination, __DIR__ . '/images/' . $i . '.jpeg', 100);
-
-//                    $instagram->timeline->uploadPhoto($filename);
 
                     sleep(10);
                 }

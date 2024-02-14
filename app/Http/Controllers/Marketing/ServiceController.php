@@ -43,8 +43,6 @@ class ServiceController extends Controller
 
     public function update(Request $request)
     {
-        /*        dd($request->id);*/
-
         $updated = Service::findOrFail($request->id);
 
         $updated->name = $request->name;

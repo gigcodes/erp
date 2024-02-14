@@ -24,8 +24,8 @@ class GoogleAdReportController extends Controller
             DB::raw('SUM(impression) as sum_impression'),
             DB::raw('SUM(click) as sum_click')
         )
-                            ->has('adgroup')
-                            ->with('account', 'campaign', 'adgroup')->latest();
+            ->has('adgroup')
+            ->with('account', 'campaign', 'adgroup')->latest();
 
         if (! empty($request->campaign_id)) {
             $records->where('adgroup_google_campaign_id', $request->campaign_id);

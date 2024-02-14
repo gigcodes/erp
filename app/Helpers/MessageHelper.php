@@ -10,7 +10,7 @@ use App\WatsonChatJourney;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\KeywordAutoGenratedMessageLog;
-use GuzzleHttp\Client as GuzzleClient; //Purpose : Add KeywordAutoGenratedMessageLog - DEVTASK-4233
+use GuzzleHttp\Client as GuzzleClient;
 use App\Library\Watson\Model as WatsonManager;
 
 class MessageHelper
@@ -145,7 +145,7 @@ class MessageHelper
      * Send whatsApp Message
      *
      * @param $customer [ object ]
-     * @param $message  [ string ]
+     * @param $message [ string ]
      * @return mixed
      */
     public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
@@ -161,7 +161,6 @@ class MessageHelper
             }
             //END - DEVTASK-4233
 
-            // $exp_mesaages = explode(" ", $message);
             $exp_mesaages = explode(' ', $message);
 
             $temp_log_params['keyword'] = implode(', ', $exp_mesaages); //Purpose : Add keyword in array - DEVTASK-4233
@@ -446,8 +445,6 @@ class MessageHelper
                                 if (! empty($mediable)) {
                                     \Log::info('#9 last message mediable found');
 
-                                    // $log_comment = $log_comment.' Mediable Found  >> ';//Purpose : Log Comment - DEVTASK-4233
-
                                     $product = \App\Product::find($mediable->mediable_id);
                                     if (! empty($product)) {
                                         \Log::info('#9 last message product found');
@@ -482,9 +479,7 @@ class MessageHelper
                             $product = \App\Product::where('id', $pid)->first();
                             $quick_lead = \App\ErpLeads::create([
                                 'customer_id' => $customer->id,
-                                //'rating' => 1,
                                 'lead_status_id' => 3,
-                                //'assigned_user' => 6,
                                 'product_id' => $pid,
                                 'brand_id' => $product ? $product->brand : null,
                                 'category_id' => $product ? $product->category : null,
@@ -612,12 +607,6 @@ class MessageHelper
                     if ($message != '' && $customer) {
                         $keyword = $reply->question;
                         if (($keyword == $message || strpos(strtolower(trim($message)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
-                            /*if($reply->auto_approve) {
-                            $status = 2;
-                            }
-                            else {
-                            $status = 8;
-                            }*/
                             $status = ChatMessage::CHAT_AUTO_WATSON_REPLY;
                             $temp_params = $params;
                             $temp_params['message'] = $reply->suggested_reply;

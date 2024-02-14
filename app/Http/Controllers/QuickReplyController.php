@@ -7,7 +7,6 @@ use App\QuickReply;
 use App\StoreWebsite;
 use App\ReplyCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Zend\Diactoros\Response\JsonResponse;
 
 class QuickReplyController extends Controller
@@ -102,7 +101,6 @@ class QuickReplyController extends Controller
         try {
             $subcat = '';
             $all_categories = ReplyCategory::where('parent_id', 0);
-            // return $all_categories = $all_categories->with(['childrenRecursive'])->get();
 
             if ($request->sub_category) {
                 $subcat = $request->sub_category;
@@ -114,8 +112,6 @@ class QuickReplyController extends Controller
             $sub_categories = ['' => 'Select Sub Category'] + ReplyCategory::where('parent_id', '!=', 0)->pluck('name', 'id')->toArray();
             $website_length = count($store_websites);
 
-            //all categories replies related to store website id
-//            $all_replies = DB::select("SELECT * from replies");
             $all_replies = Reply::whereNotNull('store_website_id')->select('id', 'category_id', 'reply', 'store_website_id')->get();
             $category_wise_reply = [];
             foreach ($all_replies as $replies) {
@@ -152,8 +148,8 @@ class QuickReplyController extends Controller
     {
         try {
             $replies = ($store_website_id)
-            ? Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get()
-            : Reply::where(['category_id' => $category_id])->get();
+                ? Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get()
+                : Reply::where(['category_id' => $category_id])->get();
 
             return new JsonResponse(['status' => 1, 'data' => $replies]);
         } catch (\Exception $e) {

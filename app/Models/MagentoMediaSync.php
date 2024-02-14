@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
 use App\StoreWebsite;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoMediaSync extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['created_by', 'source_store_website_id', 'dest_store_website_id', 'source_server_ip', 'source_server_dir', 'dest_server_ip' ,'dest_server_dir' ,'request_data', 'response_data'];
+    protected $fillable = ['created_by', 'source_store_website_id', 'dest_store_website_id', 'source_server_ip', 'source_server_dir', 'dest_server_ip', 'dest_server_dir', 'request_data', 'response_data'];
 
     public function user()
     {

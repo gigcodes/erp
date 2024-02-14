@@ -41,8 +41,6 @@ class SocialAdsController extends Controller
         $adsets = \App\Social\SocialAdset::pluck('name', 'ref_adset_id')->where('ref_adset_id', '!=', '');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            //  $query = SocialAd::where('config_id',$id);
-
             $ads = SocialAd::orderby('id', 'desc');
         } else {
             $ads = SocialAd::latest();
@@ -134,12 +132,10 @@ class SocialAdsController extends Controller
             'default_graph_version' => 'v15.0',
         ]);
         $this->user_access_token = $config->token;
-        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
         $this->ad_acc_id = $config->ads_manager;
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        //  $this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
@@ -166,7 +162,6 @@ class SocialAdsController extends Controller
 
                     LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
 
-                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         $post->save();
@@ -186,7 +181,6 @@ class SocialAdsController extends Controller
                 }
             } else {
                 try {
-                    //        dd($data);
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/ads';
 
@@ -207,7 +201,6 @@ class SocialAdsController extends Controller
                     curl_close($curl);
                     LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
 
-                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         Session::flash('message', $resp->error->message);
                     } else {
@@ -261,7 +254,6 @@ class SocialAdsController extends Controller
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
-        // $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
@@ -394,7 +386,6 @@ class SocialAdsController extends Controller
         $postData = $this->getPostData($config);
 
         return response()->json($postData);
-        //   return $postData;
     }
 
     public function getPostData($config)
@@ -407,8 +398,6 @@ class SocialAdsController extends Controller
         ]);
 
         $this->ad_acc_id = $config->ads_manager;
-        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, 0);
-        // $this->ad_acc_id = 'act_723851186073937';
 
         $url = "https://graph.facebook.com/v15.0/$this->ad_acc_id?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);

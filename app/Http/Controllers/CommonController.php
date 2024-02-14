@@ -90,7 +90,6 @@ class CommonController extends Controller
 
     public function sendCommonEmail(request $request)
     {
-        //$multi_id = explode(',',$request->id);
         $multi_email = explode(',', $request->sendto);
 
         try {
@@ -102,8 +101,6 @@ class CommonController extends Controller
                 'sendto' => 'required',
             ]);
 
-            // $fromEmail = 'buying@amourint.com';
-            // $fromName  = "buying";
             if (! empty($request->datatype == 'multi_user')) {
                 foreach ($multi_email as $data) {
                     if ($request->from_mail) {
@@ -129,33 +126,6 @@ class CommonController extends Controller
                             (new \Illuminate\Mail\MailServiceProvider(app()))->register();
                         }
                     }
-
-                    /* if ($request->vendor_ids) {
-                    $vendor_ids = explode(',', $request->vendor_ids);
-                    $vendors = Vendor::whereIn('id', $vendor_ids)->get();
-                    }
-
-                    if ($request->vendors) {
-                    $vendors = Vendor::where('id', $request->vendors)->get();
-                    } else {
-                    if ($request->not_received != 'on' && $request->received != 'on') {
-                    return redirect()->route('vendors.index')->withErrors(['Please select vendors']);
-                    }
-                    }
-
-                    if ($request->not_received == 'on') {
-                    $vendors = Vendor::doesnthave('emails')->where(function ($query) {
-                    $query->whereNotNull('email');
-                    })->get();
-                    }
-
-                    if ($request->received == 'on') {
-                    $vendors = Vendor::whereDoesntHave('emails', function ($query) {
-                    $query->where('type', 'incoming');
-                    })->where(function ($query) {
-                    $query->orWhereNotNull('email');
-                    })->where('has_error', 0)->get();
-                    } */
 
                     $file_paths = [];
 
@@ -248,33 +218,6 @@ class CommonController extends Controller
                     }
                 }
 
-                /* if ($request->vendor_ids) {
-                $vendor_ids = explode(',', $request->vendor_ids);
-                $vendors = Vendor::whereIn('id', $vendor_ids)->get();
-                }
-
-                if ($request->vendors) {
-                $vendors = Vendor::where('id', $request->vendors)->get();
-                } else {
-                if ($request->not_received != 'on' && $request->received != 'on') {
-                return redirect()->route('vendors.index')->withErrors(['Please select vendors']);
-                }
-                }
-
-                if ($request->not_received == 'on') {
-                $vendors = Vendor::doesnthave('emails')->where(function ($query) {
-                $query->whereNotNull('email');
-                })->get();
-                }
-
-                if ($request->received == 'on') {
-                $vendors = Vendor::whereDoesntHave('emails', function ($query) {
-                $query->where('type', 'incoming');
-                })->where(function ($query) {
-                $query->orWhereNotNull('email');
-                })->where('has_error', 0)->get();
-                } */
-
                 $file_paths = [];
 
                 if ($request->hasFile('file')) {
@@ -350,8 +293,6 @@ class CommonController extends Controller
 
     public function sendClanaderLinkEmail(request $request)
     {
-        //$multi_id = explode(',',$request->id);
-        // $multi_email = explode(',', $request->sendto);
         $objects = [
             'vendor' => Vendor::class,
             'user' => User::class,
@@ -465,7 +406,6 @@ class CommonController extends Controller
             $msg = $e->getMessage();
 
             return redirect()->back()->withErrors($msg);
-            // return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 

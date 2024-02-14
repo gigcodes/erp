@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use Carbon\Carbon;
 use App\Helpers\StatusHelper;
 use App\Helpers\ProductHelper;
@@ -64,21 +65,6 @@ class MagentoSoapHelper
 
         // Set Magento categories
         $categories = Category::getCategoryTreeMagento($product->category);
-
-        // Get brand
-        // $brand = $product->brands()->get();
-
-        // Push brand to categories array
-        // 04NOV19 Brands is an attribute
-        //if ($brand !== null && isset($brand[ 0 ]->magento_id)) {
-        //    array_push($categories, $brand[ 0 ]->magento_id);
-        //}
-
-        // Add the product to the sales category
-        // 03NOV19 We now set an attribute for bestbuys
-        //if ($product->is_on_sale) {
-        //    $categories[] = 1237;
-        //}
 
         // No categories found?
         if (count($categories) == 0) {
@@ -415,8 +401,6 @@ class MagentoSoapHelper
                 }
             }
         }
-
-        // Return
     }
 
     public function catalogCategoryInfo($magentoId = 0)

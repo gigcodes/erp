@@ -5,7 +5,6 @@ namespace App\Helpers;
 use Storage;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Exception\ClientException;
 
@@ -70,19 +69,6 @@ trait HubstaffTrait
 
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
         } catch (Exception $e) {
-            // we need to send email and whatsapp
-            /*$requestData = new Request();
-            $requestData->setMethod('POST');
-            $requestData->request->add([
-                'priority'    => 1,
-                'issue'       => $e->getMessage(),
-                'status'      => "Planned",
-                'module'      => "Hubstaff",
-                'subject'     => "Hubstaff token regenerate issue - create a personal token if expired",
-                'assigned_to' => \App\Setting::get("cron_issue_assinged_to",6),
-            ]);
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');*/
-
             \Log::info('Hubstaff token regenerate issue - create a personal token if expired');
 
             return false;
@@ -116,7 +102,6 @@ trait HubstaffTrait
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
-                    // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
                     $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
 
                     $q = [];

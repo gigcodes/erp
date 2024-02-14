@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class DeleteWiseProducts extends Command
 {

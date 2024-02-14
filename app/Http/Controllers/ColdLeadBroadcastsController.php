@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\ImQueue;
 use App\ColdLeads;
 use Carbon\Carbon;
-//use InstagramAPI\Instagram;
 use App\CompetitorPage;
 use App\ColdLeadBroadcasts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
-//use App\Marketing\InstagramConfig;
 
 class ColdLeadBroadcastsController extends Controller
 {
@@ -173,72 +168,11 @@ class ColdLeadBroadcastsController extends Controller
             //Giving BroadCast to Least Count
             $count = [];
 
-//            if($request->account_id){
-//                $instagramAccount = InstagramConfig::find($request->account_id);
-//
-//                if($instagramAccount){
-//                    $queue = new ImQueue();
-//                    $queue->im_client = 'instagram';
-//                    $queue->number_to = $coldlead->platform_id;
-//                    $queue->number_from = $instagramAccount->username;
-//                    $queue->text = $request->message;
-//                    $queue->priority = null;
-//                    $queue->marketing_message_type_id = 1;
-//                    $queue->broadcast_id = $broadcast->id;
-//                    $queue->send_after = $sendAfter;
-//                    $queue->save();
-//                }
-//
-//
-//            }
-//            else{
-//
-//                $instagramAccounts = InstagramConfig::where('status','1')->get();
-//                foreach ($instagramAccounts  as $instagramAccount) {
-//                    $count[] = array($instagramAccount->imQueueBroadcast->count() => $instagramAccount->username);
-//                }
-//
-//                ksort($count);
-//
-//                if(isset($count[0][key($count[0])])){
-//                    $username = $count[0][key($count[0])];
-//                    $queue = new ImQueue();
-//                    $queue->im_client = 'instagram';
-//                    $queue->number_to = $coldlead->platform_id;
-//                    $queue->number_from = $username;
-//                    $queue->text = $request->message;
-//                    $queue->priority = null;
-//                    $queue->marketing_message_type_id = 1;
-//                    $queue->broadcast_id = $broadcast->id;
-//                    $queue->send_after = $sendAfter;
-//                    $queue->save();
-//                }
-//
-//            }
-
             $coldlead->status = 2;
             $coldlead->save();
         }
 
         return redirect()->back();
-
-        // $coldleads = ColdLeads::whereNotIn('status', [0])->whereNotIn('id', $leads)->where('messages_sent', '<', 5)->take($limit-$count)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
-
-        // $count = 0;
-        // foreach ($coldleads as $coldlead) {
-        //     $count++;
-
-        //     $broadcast->lead()->attach($coldlead->id, [
-        //         'status' => 0
-        //     ]);
-
-        //     $coldlead->status = 2;
-        //     $coldlead->save();
-        // }
-
-        // return response()->json([
-        //     'status' => 'success'
-        // ]);
     }
 
     /**

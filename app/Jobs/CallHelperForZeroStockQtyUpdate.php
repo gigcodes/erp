@@ -50,7 +50,7 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
                         foreach ($websiteArrays as $websiteArray) {
                             $zeroStock[$websiteArray]['stock'][] = ['sku' => $item['sku'], 'qty' => 0];
                             \App\StoreWebsiteProduct::where('product_id', $item['id'])
-                ->where('store_website_id', $websiteArray)->delete();
+                                ->where('store_website_id', $websiteArray)->delete();
                         }
                     }
                 }

@@ -51,12 +51,12 @@ class SubmitSiteToGoogleWebmaster extends Command
             ]);
 
             $fetchStores = WebsiteStoreView::whereNotNull('website_store_id')
-                    ->whereNotIn('site_submit_webmaster', [1])
-                    ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-                    ->join('websites as w', 'w.id', 'ws.website_id')
-                    ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
-                    ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
-                    ->get()->toArray();
+                ->whereNotIn('site_submit_webmaster', [1])
+                ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+                ->join('websites as w', 'w.id', 'ws.website_id')
+                ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+                ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
+                ->get()->toArray();
 
             foreach ($fetchStores as $key => $value) {
                 $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
@@ -116,7 +116,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

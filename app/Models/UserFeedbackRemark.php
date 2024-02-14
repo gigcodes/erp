@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserFeedbackRemark extends Model
 {
@@ -13,7 +14,7 @@ class UserFeedbackRemark extends Model
         'user_feedback_category_id',
         'user_feedback_vendor_id',
         'remarks',
-        'added_by'
+        'added_by',
     ];
 
     public function user()

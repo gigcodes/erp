@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Helpers\LogHelper;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DeleteDatabaseItems extends Command

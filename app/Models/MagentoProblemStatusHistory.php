@@ -3,15 +3,14 @@
 namespace App\Models;
 
 use App\User;
-use App\Models\MagentoProblemStatus;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoProblemStatusHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['magento_problem_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['magento_problem_id', 'old_value', 'new_value', 'user_id'];
 
     public function user()
     {

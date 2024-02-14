@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EmailReceiverMaster;
 use Auth;
 use Exception;
 use App\ResourceImage;
 use App\ResourceCategory;
-use App\Models\ResourceStatusHistory;
-use App\Models\ResourceStatus;
-use App\Models\ResourceRemarksHistory;
 use Illuminate\Http\Request;
+use App\Models\ResourceStatus;
+use App\Models\EmailReceiverMaster;
 use Illuminate\Support\Facades\Log;
+use App\Models\ResourceStatusHistory;
+use App\Models\ResourceRemarksHistory;
 
 class ResourceImgController extends Controller
 {
@@ -30,12 +30,11 @@ class ResourceImgController extends Controller
         }
         \DB::enableQueryLog();
 
-        // Log::info("termmmm" . $request->term);
         $query->where(function ($query) use ($request) {
             if ($request->term) {
                 $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
             }
             if ($request->category) {
                 $query = $query->orwhereIn('cat_id', $request->category);
@@ -52,12 +51,12 @@ class ResourceImgController extends Controller
         $allresources = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->except(['page']));
 
         //Email Reciever
-        $emailReceivRec = EmailReceiverMaster::where('module_name','resource')->first();
-        if($emailReceivRec) {
-            if($emailReceivRec->configs) {
+        $emailReceivRec = EmailReceiverMaster::where('module_name', 'resource')->first();
+        if ($emailReceivRec) {
+            if ($emailReceivRec->configs) {
                 $emailRecConfig = json_decode($emailReceivRec->configs);
-                
-                if($emailRecConfig->cat) {
+
+                if ($emailRecConfig->cat) {
                     $emailReceivRec->sub_cat_list = ResourceCategory::where('parent_id', $emailRecConfig->cat)->get();
                 }
             }
@@ -73,18 +72,17 @@ class ResourceImgController extends Controller
                 'count' => $allresources->total(),
             ], 200);
         } else {
-            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories', 'ResourceStatus','emailReceivRec'))
+            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories', 'ResourceStatus', 'emailReceivRec'))
                 ->with('i', ($request->input('page', 1) - 1) * 5);
         }
     }
 
-
     public function resourceimgStatusHistories($id)
     {
         $datas = ResourceStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('resource_images_id', $id)
-                ->latest()
-                ->get();
+            ->where('resource_images_id', $id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -140,7 +138,7 @@ class ResourceImgController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
-  
+
     public function searchResourceimg(Request $request)
     {
         $query = ResourceImage::where('is_pending', '=', 0)->select();
@@ -148,8 +146,8 @@ class ResourceImgController extends Controller
         $query->where(function ($query) use ($request) {
             if ($request->term) {
                 $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
-                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
             }
             if ($request->category) {
                 $query = $query->orwhereIn('cat_id', $request->category);
@@ -226,7 +224,6 @@ class ResourceImgController extends Controller
     public function addResource(Request $request)
     {
         $input = $request->all();
-        // dd($request->all());
         $request->validate([
             'cat_id' => 'required',
             'sub_cat_id' => 'required',
@@ -235,9 +232,6 @@ class ResourceImgController extends Controller
             'image' => 'sometimes',
             'image2' => 'sometimes',
         ]);
-        // if ($request->input('cat_id') == 1) {
-        //     return back()->with('danger', 'Please Select Category.');
-        // }
         try {
             if ($request->hasFile('image')) {
                 $images = $request->file('image');
@@ -255,7 +249,6 @@ class ResourceImgController extends Controller
                 $image = str_replace(' ', '+', $image);
                 $imageName = uniqid() . time() . '.' . 'png';
                 $destinationPath = public_path('/category_images');
-                // dd();
                 \File::put($destinationPath . '/' . $imageName, base64_decode($image));
                 $input['images'][] = $imageName;
             }
@@ -296,7 +289,6 @@ class ResourceImgController extends Controller
             }
         } elseif ($request->input('button_type') == 'edit') {
             $allresources = ResourceImage::getData();
-            // $Image = $ResourceImage->find($request->input('id'));
             $old = $request->old('cat_id');
             $allCategoriesDropdown = Category::attr(['name' => 'cat_id', 'class' => 'form-control'])->selected($old ? $old : 1)->renderAsDropdown();
 
@@ -431,8 +423,7 @@ class ResourceImgController extends Controller
     }
 
     public function saveRemarks(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -440,7 +431,7 @@ class ResourceImgController extends Controller
             'remarks' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         ResourceRemarksHistory::create($input);
 
@@ -450,9 +441,9 @@ class ResourceImgController extends Controller
     public function getRemarksHistories(Request $request)
     {
         $datas = ResourceRemarksHistory::with(['user'])
-                ->where('resource_images_id', $request->resource_images_id)
-                ->latest()
-                ->get();
+            ->where('resource_images_id', $request->resource_images_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -467,28 +458,25 @@ class ResourceImgController extends Controller
         $datas = ResourceImage::where('id', $request->resource_images_id)->first();
 
         $html = '';
-        if(!empty($datas)){
+        if (! empty($datas)) {
+            if (isset($datas->image1)) {
+                $image1Url = url('/category_images/' . $datas->image1);
 
-            if(isset($datas->image1)){
-                $image1Url = url('/category_images/'.$datas->image1);
-
-                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg1" class="myImg" src="'.$image1Url.'" alt="'.$image1Url.'" style="width: 100% !important;height: 50px !important;"> </div>';
+                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg1" class="myImg" src="' . $image1Url . '" alt="' . $image1Url . '" style="width: 100% !important;height: 50px !important;"> </div>';
             }
 
-            if(isset($datas->image2)){
+            if (isset($datas->image2)) {
+                $image2Url = url('/category_images/' . $datas->image2);
 
-                $image2Url = url('/category_images/'.$datas->image2);
-
-                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg2" class="myImg" src="'.$image2Url.'" alt="'.$image2Url.'" style="width: 100% !important;height: 50px !important;"> </div>';
+                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg2" class="myImg" src="' . $image2Url . '" alt="' . $image2Url . '" style="width: 100% !important;height: 50px !important;"> </div>';
             }
 
-            if(isset($datas->images)){
-                if($datas->images!=null){
+            if (isset($datas->images)) {
+                if ($datas->images != null) {
                     foreach (json_decode($datas->images) as $key => $image) {
+                        $imageUrl = url('/category_images/' . $image);
 
-                        $imageUrl = url('/category_images/'.$image);
-
-                        $html .= '<div class="col-md-3" style="margin-top: 15px"> <img id="myShowImg" img-id="'.$datas->id.'" src="'.$imageUrl.'" style="width: 100% !important;height: 50px !important;"> </div>';
+                        $html .= '<div class="col-md-3" style="margin-top: 15px"> <img id="myShowImg" img-id="' . $datas->id . '" src="' . $imageUrl . '" style="width: 100% !important;height: 50px !important;"> </div>';
                     }
                 }
             }
@@ -502,8 +490,10 @@ class ResourceImgController extends Controller
         ], 200);
     }
 
-    public function show($id) {
+    public function show($id)
+    {
         $resImg = ResourceImage::find($id);
-        return ['status'=>true,'data'=>$resImg];
+
+        return ['status' => true, 'data' => $resImg];
     }
 }

@@ -13,7 +13,6 @@ use App\EmailRemark;
 use Illuminate\Http\Request;
 use App\DigitalMarketingPlatform;
 use App\Mails\Manual\ForwardEmail;
-use App\Mails\Manual\ReplyToEmail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Support\Facades\Validator;
@@ -453,9 +452,7 @@ class EmailDataExtractionController extends Controller
             'store_website_id' => null,
             'is_draft' => 1,
         ]);
-        //$replyemails = (new ReplyToEmail($email, $request->message))->build();
         \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue('send_email');
-        //Mail::send(new ReplyToEmail($email, $request->message));
 
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
@@ -494,8 +491,6 @@ class EmailDataExtractionController extends Controller
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-
-        //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
         return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
     }
@@ -538,13 +533,8 @@ class EmailDataExtractionController extends Controller
 
     public function getAllEmails()
     {
-        //$available_models = ["supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
-        //    "customer" => \App\Customer::class, "users" => \App\User::class];
         $email_list = [];
-        // foreach ($available_models as $key => $value) {
-        //     $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
-        // }
-        // dd($email_list);
+
         return array_values(array_unique($email_list));
     }
 
@@ -758,10 +748,7 @@ class EmailDataExtractionController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $curlURL, 'POST', json_encode([]), $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
-        //dd($urlResponse);
-
         if (isset($urlResponse->direct_link)) {
-            //echo $real;
             $downloadURL = $urlResponse->direct_link;
 
             $d = explode('?', $downloadURL);
@@ -847,7 +834,6 @@ class EmailDataExtractionController extends Controller
         $attachedFileDataArray = [];
         while (($data = fgetcsv($file, 4000, ',')) !== false) {
             if ($rowincrement > $skiprowupto) {
-                //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
                 if (isset($data[0]) && ! empty($data[0])) {
                     try {
                         $due_date = date('Y-m-d', strtotime($data[9]));
@@ -857,7 +843,6 @@ class EmailDataExtractionController extends Controller
                             'original_invoice_number' => $data[2],
                             'invoice_number' => $data[3],
                             'invoice_identifier' => $data[5],
-                            'invoice_type' => $data[6],
                             'invoice_currency' => $data[69],
                             'invoice_amount' => $data[70],
                             'invoice_type' => $data[6],

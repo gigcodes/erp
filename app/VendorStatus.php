@@ -16,5 +16,5 @@ class VendorStatus extends Model
      */
     protected $table = 'vendor_status';
 
-    protected $fillable = ['name','color'];
+    protected $fillable = ['name', 'color'];
 }

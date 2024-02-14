@@ -169,8 +169,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/suggest/values', [TagController::class, 'getValueSuggestions']);
     });
 
-//    Route::get('/ajax/search/entities', 'SearchController@searchEntitiesAjax');
-
     // Comments
     Route::post('/ajax/page/{pageId}/comment', [CommentController::class, 'savePageComment']);
     Route::put('/ajax/comment/{id}', [CommentController::class, 'update']);
@@ -189,9 +187,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/custom-head-content', [HomeController::class, 'customHeadContent']);
 
     // Search
-//    Route::get('/search', 'SearchController@search');
     Route::get('/searchGrid', [SearchController::class, 'searchGrid'])->name('searchGrid');
-//    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
-//    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
-//    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
 });

@@ -33,14 +33,14 @@ class SystemSizeController extends Controller
             'system_size_managers.created_at',
             'system_size_managers.updated_at'
         )
-                                                    ->leftjoin('categories', 'categories.id', 'system_size_managers.category_id')
-                                                    ->where('system_size_managers.status', 1)
-                                                    ->paginate(Setting::get('pagination'));
+            ->leftjoin('categories', 'categories.id', 'system_size_managers.category_id')
+            ->where('system_size_managers.status', 1)
+            ->paginate(Setting::get('pagination'));
         $managers = [];
         foreach ($systemSizesManagers as $key => $value) {
             $related = SystemSizeRelation::select('system_size_relations.size', 'system_sizes.name')
-                                            ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
-                                            ->where('system_size_manager_id', $value->id)->get();
+                ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
+                ->where('system_size_manager_id', $value->id)->get();
             $value->sizes = '';
             foreach ($related as $v) {
                 $string = $v->name . ' => ' . $v->size;
@@ -93,7 +93,6 @@ class SystemSizeController extends Controller
         $systemsize = SystemSize::find($request->input('id'));
         $systemsize->status = 0;
         if ($systemsize->save()) {
-            // SystemSizeManager::where('system_size_id',$request->input('id'))->update(['status' => 0]);
             return response()->json(['success' => true, 'message' => 'System size delete successfully']);
         }
 
@@ -135,8 +134,8 @@ class SystemSizeController extends Controller
             'system_size_relations.system_size',
             'system_size_relations.size'
         )
-                                                ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
-                                                ->where('system_size_manager_id', $sm->id);
+            ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
+            ->where('system_size_manager_id', $sm->id);
         $exitIds = $systemSizeRelated->pluck('system_size')->toArray();
         $systemSizeRelated = $systemSizeRelated->get();
         $html = '<div class="col-md-12 mt-3 sizevarintinput1">

@@ -46,16 +46,6 @@ class StoreWebsiteCategorySeo extends Model
                 ];
                 \App\StoreWebsiteCategorySeosHistories::insert($insert_data);
             }
-
-            // if( $newDescription != $oldDescription ) {
-            //     $insert_data = array(
-            //         'store_website_cate_seos_id' => $data->id,
-            //         'old_description' => $newDescription,
-            //         'new_description' => $oldDescription,
-            //         'created_at' => date("Y-m-d H:i:s")
-            //     );
-            //     \App\store_website_category_seos_histories::insert( $insert_data );
-            // }
         });
     }
 }

@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 class TaskCategoriesController extends Controller
 {
-    //
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -19,9 +18,9 @@ class TaskCategoriesController extends Controller
 
             if (isset($request->category_name) && ! empty($request->category_name)) {
                 $items = TaskSubCategory::with(['task_subject', 'task_category'])
-                ->whereHas('task_category', function ($q) use ($request) {
-                    $q->where('task_category.name', 'Like', '%' . $request->category_name . '%');
-                });
+                    ->whereHas('task_category', function ($q) use ($request) {
+                        $q->where('task_category.name', 'Like', '%' . $request->category_name . '%');
+                    });
             }
             if (isset($request->sub_category_name) && ! empty($request->sub_category_name)) {
                 $items->where('task_sub_categories.name', 'Like', '%' . $request->sub_category_name . '%');
@@ -79,7 +78,6 @@ class TaskCategoriesController extends Controller
             }
 
             return response()->json(['code' => 200, 'message' => 'Record added Successfully!']);
-            //return datatables()->eloquent($items)->toJson();
         }
     }
 

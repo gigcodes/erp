@@ -38,7 +38,6 @@ class Facebook
         $this->page_id = '507935072915757';
         $this->ad_acc_id = 'act_128125721296439';
         $this->instagram_id = '17841406743743390';
-        // 291175945035620 ;  business id
     }
 
     public function getMentions($tag)

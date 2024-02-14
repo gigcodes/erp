@@ -27,7 +27,6 @@ class MagentoModuleTypeController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // dd($request->all(), $request->module_category_id);
 
             $items = MagentoModuleType::query();
 
@@ -63,7 +62,6 @@ class MagentoModuleTypeController extends Controller
      */
     public function store(MagentoModuleTypeRequest $request)
     {
-        // dd($request->all());
         $input = $request->except(['_token']);
 
         $data = MagentoModuleType::create($input);
@@ -82,9 +80,6 @@ class MagentoModuleTypeController extends Controller
                 'status_name' => 'error',
             ], 500);
         }
-
-        // return redirect()->route('magento_module_types.index')
-        //     ->with('success', "Created Successfully ");
     }
 
     /**

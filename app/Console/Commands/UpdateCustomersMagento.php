@@ -54,30 +54,11 @@ class UpdateCustomersMagento extends Command
 
             $proxy = new \SoapClient(config('magentoapi.url'), $options);
             $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-            // $lastid    = Setting::get('lastid');
-            //
-            // $filter    = array(
-            //     'complex_filter' => array(
-            //         array(
-            //             'key'   => 'order_id',
-            //             'value' => array( 'key' => 'gt', 'value' => $lastid )
-            //         )
-            //     )
-            // );
-
             $orderlist = $proxy->salesOrderList($sessionId);
 
             for ($j = 0; $j < count($orderlist); $j++) {
                 $results = json_decode(json_encode($proxy->salesOrderInfo($sessionId, $orderlist[$j]->increment_id)), true);
                 $atts = unserialize($results['items'][0]['product_options']);
-
-                // if ( ! empty( $results['total_paid'] ) ) {
-                //     $paid = $results['total_paid'];
-                // } else {
-                //     $paid = 0;
-                // }
-                //
-                // $balance_amount = $results['base_grand_total'] - $paid;
 
                 $full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
@@ -104,17 +85,6 @@ class UpdateCustomersMagento extends Command
                         $final_phone = $customer_phone;
                     }
 
-                    // if ($customer->credit > 0) {
-                    //     if (($balance_amount - $customer->credit) < 0) {
-                    //         $left_credit = ($balance_amount - $customer->credit) * -1;
-                    //         $balance_amount = 0;
-                    //         $customer->credit = $left_credit;
-                    //     } else {
-                    //         $balance_amount -= $customer->credit;
-                    //         $customer->credit = 0;
-                    //     }
-                    // }
-
                     if ($customer->email == '' || $customer->address == '' || $customer->city == '' || $customer->country == '' || $customer->pincode == '') {
                         $customer->name = $full_name;
                         $customer->email = $results['customer_email'];
@@ -129,29 +99,6 @@ class UpdateCustomersMagento extends Command
                 } else {
                     dump("$j - NOT UPDATING");
                 }
-                // else {
-                //     $customer = new Customer;
-                //     $customer->name = $full_name;
-                //     $customer->email = $results['customer_email'];
-                //     $customer->address = $results['billing_address']['street'];
-                //     $customer->city = $results['billing_address']['city'];
-                //     $customer->country = $results['billing_address']['country_id'];
-                //     $customer->pincode = $results['billing_address']['postcode'];
-                //     $temp_number = [];
-                //
-                //     if ($customer_phone != null) {
-                //         $temp_number['phone'] = $customer_phone;
-                //     } else {
-                //         $temp_number['phone'] = self::generateRandomString();
-                //     }
-                //
-                //     $final_phone = self::validatePhone($temp_number);
-                //     $customer->phone = $final_phone;
-                //
-                //     $customer->save();
-                //
-                //     $customer_id = $customer->id;
-                // }
                 dump('______________');
             }
 

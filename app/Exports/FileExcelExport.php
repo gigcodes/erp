@@ -9,8 +9,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
 {
     /***
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
 
     protected $report_data;
 

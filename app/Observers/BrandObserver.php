@@ -5,7 +5,6 @@ namespace App\Observers;
 use Auth;
 use App\User;
 use App\Brand;
-use App\Activity;
 
 class BrandObserver
 {
@@ -21,12 +20,6 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        /*Activity::create([
-            'subject_type' => 'Brand',
-            'subject_id' => $brand->id,
-            'causer_id' => $user->id,
-            'description' => $user->name.' has created brand '.$brand->name,
-        ]);*/
     }
 
     /**
@@ -41,12 +34,6 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        /*Activity::create([
-            'subject_type' => 'Brand',
-            'subject_id' => $brand->id,
-            'causer_id' => $user->id,
-            'description' => $user->name.' has updated brand '.$brand->name,
-        ]);*/
     }
 
     /**
@@ -61,12 +48,6 @@ class BrandObserver
         } else {
             $user = User::find(6);
         }
-        /*Activity::create([
-            'subject_type' => 'Brand',
-            'subject_id' => $brand->id,
-            'causer_id' => $user->id,
-            'description' => $user->name.' has deleted brand '.$brand->name,
-        ]);*/
     }
 
     /**

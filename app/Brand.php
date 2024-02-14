@@ -8,9 +8,9 @@
 
 namespace App;
 
-use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Mediable;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -177,11 +177,6 @@ class Brand extends Model
     {
         return \App\ScrapedProducts::where('brand_id', $this->id)->where('is_external_scraper', '>', 0)->count();
     }
-
-    // public function categorySegment()
-    // {
-    //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
-    // }
 
     public static function searchBrand1($keyWord)
     {

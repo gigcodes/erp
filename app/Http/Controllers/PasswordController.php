@@ -233,13 +233,12 @@ class PasswordController extends Controller
         return response()->json($autosuggestions);
     }
 
-
     public function manage(request $request)
     {
         $query = User::query();
         if ($request->username) {
             $dataArray = json_decode($request->username, true);
-            $query = $query->where(function($query) use ($dataArray) {
+            $query = $query->where(function ($query) use ($dataArray) {
                 foreach ($dataArray as $username) {
                     $query->orWhere('name', 'LIKE', $username . '%');
                 }
@@ -247,7 +246,7 @@ class PasswordController extends Controller
         }
         if ($request->email) {
             $dataArrayEmail = json_decode($request->email, true);
-            $query = $query->where(function($query) use ($dataArrayEmail) {
+            $query = $query->where(function ($query) use ($dataArrayEmail) {
                 foreach ($dataArrayEmail as $email) {
                     $query->orWhere('email', 'LIKE', $email . '%');
                 }
@@ -287,8 +286,6 @@ class PasswordController extends Controller
             $user->password = $hashPassword;
             $user->save();
             $data[$key] = $newPassword;
-            // Output new ones
-            //echo $user->name . "\t" . $user->email . "\t" . $newPassword . "\n";
         }
 
         return view('passwords.send-whatsapp', ['data' => $data]);

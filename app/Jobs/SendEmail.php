@@ -66,7 +66,6 @@ class SendEmail implements ShouldQueue
                 'email_log' => 'To Email set from SendEmail',
                 'message' => $email->to,
             ]);
-            // $multimail->from($email->from);
 
             if (! empty($email->cc)) {
                 $multimail->cc($email->cc);
@@ -99,10 +98,6 @@ class SendEmail implements ShouldQueue
                     'email_log' => 'Email Attachment set from SendEmail',
                     'message' => $data['attachment'],
                 ]);
-                // foreach ($data['attachment'] as $file_path) {
-                //     $attchments[] =
-                //     $multimail->attachFromStorageDisk('files', $file_path);
-                // }
             }
             \App\EmailLog::create([
                 'email_id' => $email->id,
@@ -137,7 +132,6 @@ class SendEmail implements ShouldQueue
             $email->save();
 
             \Log::info('Issue fom SendEmail ' . $e->getMessage());
-            //\Log::info("Issue fom SendEmail ");
             \App\EmailLog::create([
                 'email_id' => $email->id,
                 'email_log' => 'Error in Sending Email',

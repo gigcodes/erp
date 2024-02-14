@@ -43,8 +43,6 @@ class IosUsageReport extends Command
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
-            // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
-
             $username = env('APPFIGURE_USER_EMAIL');
             $password = env('APPFIGURE_USER_PASS');
             $key = base64_encode($username . ':' . $password);
@@ -54,7 +52,6 @@ class IosUsageReport extends Command
             $end_date = date('Y-m-d');
             $product_id = env('APPFIGURE_PRODUCT_ID');
             $ckey = env('APPFIGURE_CLIENT_KEY');
-            // $app_name=env("APPFIGURE_APP_NAME");
             $array_app_name = explode(',', env('APPFIGURE_APP_NAME'));
             $i = 0;
             $array_app = explode(',', env('APPFIGURE_PRODUCT_ID'));
@@ -78,11 +75,7 @@ class IosUsageReport extends Command
                 ]);
 
                 $result = curl_exec($curl);
-                // print($result);
                 $res = json_decode($result, true); //response decode
-                // print_r($res);
-                // print_r($res["apple:analytics"]);
-                // print($res["apple:analytics"]["crashes"]);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $url, 'GET', json_encode([]), $res, $httpcode, \App\Console\Commands\IosUsageReport::class, 'handle');
                 curl_close($curl);
@@ -122,7 +115,7 @@ class IosUsageReport extends Command
                 $i += 1;
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron job was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

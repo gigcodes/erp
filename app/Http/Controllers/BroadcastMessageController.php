@@ -32,8 +32,6 @@ class BroadcastMessageController extends Controller
             $message_groups = ImQueue::whereNotNull('broadcast_id')->orderBy('id', 'desc')->get()->groupBy('broadcast_id');
         }
 
-        // dd($message_groups);
-
         $message_groups_array = [];
 
         $new_data = [];
@@ -135,8 +133,6 @@ class BroadcastMessageController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
-        // dd($message_groups_array[$group_id]);
-
         // Get all numbers from config
         $configWhatsApp = WhatsappConfig::select('id', 'number')->where('status', 1)->get();
 
@@ -158,11 +154,6 @@ class BroadcastMessageController extends Controller
         $customer->save();
 
         MessageQueue::where('sent', 0)->where('customer_id', $id)->delete();
-
-        // foreach ($message_queues as $message_queue) {
-        //   $message_queue->status = 1; // Message STOPPED
-        //   $message_queue->save();
-        // }
 
         return redirect()->route('broadcast.index')->with('success', 'You have successfully changed status!');
     }
@@ -252,8 +243,6 @@ class BroadcastMessageController extends Controller
         $groups = ImQueue::where('broadcast_id', $id)->get();
 
         foreach ($groups as $group) {
-            // code...
-
             $whatappConfig = WhatsappConfig::find($request->whatsapp_number);
 
             $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $whatappConfig->number)->first();

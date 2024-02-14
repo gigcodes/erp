@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Models;
+
 use App\EmailAddress;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class EMailAcknowledgement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['email_addresses_id','start_date','end_date','ack_message','ack_status','added_by'];
+    protected $fillable = ['email_addresses_id', 'start_date', 'end_date', 'ack_message', 'ack_status', 'added_by'];
 
     public function email_address_record()
     {

@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
 use DB;
 use Mail;
 use App\User;
 use App\Email;
+use App\Reply;
 use App\Setting;
 use App\Tickets;
-use App\Website;
 use App\Customer;
 use App\CreditLog;
 use Carbon\Carbon;
@@ -31,25 +30,20 @@ use App\WatsonChatJourney;
 use App\LivechatincSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\DataTableColumn;
 use App\Helpers\TranslationHelper;
 use App\Mails\Manual\PurchaseEmail;
-use Google\Cloud\Translate\TranslateClient;
 use App\Library\Watson\Model as WatsonManager;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\DataTableColumn;
-use App\Reply;
 
 class LiveChatController extends Controller
 {
     //Webhook
     public function incoming(Request $request)
     {
-        // \Log::channel('chatapi')->info('-- incoming >>');
-
         \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- incoming >>');
 
         \Log::channel('chatapi')->info($request->getContent());
-        // \Log::channel('chatapi')->debug(': ChatApi'."\nMessage :".$request->getContent());
 
         $receivedJson = json_decode($request->getContent());
 
@@ -78,11 +72,9 @@ class LiveChatController extends Controller
         if (isset($receivedJson->event_type)) {
             $eventType = $receivedJson->event_type;
 
-            // \Log::channel('chatapi')->info('--1111 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--event_type >>');
             //When customer Starts chat
             if ($receivedJson->event_type == 'chat_started') {
-                // \Log::channel('chatapi')->info('-- chat_started >>');
                 \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '--chat_started >>');
                 ///Getting the chat
                 $chat = $receivedJson->chat;
@@ -114,10 +106,6 @@ class LiveChatController extends Controller
 
                 $customer = Customer::where('email', $email)->first();
 
-                // if($customer == '' && $customer == null && $phone != ''){
-                //     //$customer = Customer::where('phone',$phone)->first();
-                // }
-
                 //Save Customer
                 if ($customer == null && $customer == '') {
                     \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- save customer >>' . $name);
@@ -136,11 +124,9 @@ class LiveChatController extends Controller
         }
 
         if (isset($receivedJson->action)) {
-            // \Log::channel('chatapi')->info('--2222 >>');
             \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- action >>');
             //Incomg Event
             if ($receivedJson->action == 'incoming_event') {
-                // \Log::channel('chatapi')->info('-- incoming_event >>');
                 \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- incoming_event >>');
 
                 //Chat Details
@@ -158,7 +144,6 @@ class LiveChatController extends Controller
                     $customerLiveChat->update();
                 }
                 if ($chatDetails->event->type == 'message') {
-                    // \Log::channel('chatapi')->info('-- message >>');
                     \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- message >>');
 
                     $message = $chatDetails->event->text;
@@ -177,12 +162,7 @@ class LiveChatController extends Controller
                     $language = $customerDetails->language;
                     LiveChatEventLog::create(['customer_id' => $customerLiveChat->customer_id, 'thread' => $threadId, 'event_type' => '', 'store_website_id' => $websiteId, 'log' => 'customer language  ' . $language]);
 
-                    // if ($language == null) {
                     LiveChatEventLog::create(['customer_id' => $customerLiveChat->customer_id, 'thread' => $threadId, 'event_type' => 'incoming_chat', 'store_website_id' => $websiteId, 'log' => 'google key used  ' . config('env.GOOGLE_TRANSLATE_API_KEY')]);
-                    /*$translate = new TranslateClient([
-                        // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                        'key' => config('env.GOOGLE_TRANSLATE_API_KEY'),
-                    ]);*/
                     $result = (new GoogleTranslate)->detectLanguage($message);
                     if (isset($result['languageCode'])) {
                         $customerDetails->language = $result['languageCode'];
@@ -192,16 +172,13 @@ class LiveChatController extends Controller
                     } elseif (isset($result->message)) {
                         LiveChatEventLog::create(['customer_id' => $customerLiveChat->customer_id, 'thread' => $threadId, 'event_type' => 'incoming_chat', 'store_website_id' => $websiteId, 'log' => 'Googlr translation' . $result->message]);
                     }
-                    //}
 
                     $result = (new GoogleTranslate)->translate($language, $message);
-                    // $message = $result . ' -- ' . $message;
                     if ($result != null) {
                         $message = $result;
                     } else {
                         $result = 'Could not convert Message';
                     }
-                    // $message = $message;
                     LiveChatEventLog::create(['customer_id' => $customerLiveChat->customer_id, 'thread' => $threadId, 'event_type' => '', 'store_website_id' => $websiteId, 'log' => ' translated message ' . $result]);
 
                     if ($author_id == 'buying@amourint.com') {
@@ -254,7 +231,6 @@ class LiveChatController extends Controller
                 }
 
                 if ($chatDetails->event->type == 'file') {
-                    // \Log::channel('chatapi')->info('-- file >>');
                     \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- file >>');
 
                     $author_id = $chatDetails->event->author_id;
@@ -319,18 +295,10 @@ class LiveChatController extends Controller
             }
 
             if ($receivedJson->action == 'incoming_chat') {
-                // \Log::channel('chatapi')->info('-- incoming_chat >>');
-
                 \Log::channel('chatapi')->debug(': ChatApi' . "\nMessage :" . '-- incoming_chat >>');
 
                 $chat = $receivedJson->payload->chat;
                 $chatId = $chat->id;
-
-                //Getting user
-                // if(isset($chat->users[1]->email))
-                //     $userEmail = $chat->users[1]->email;
-                // else
-                //     $userEmail = $chat->users[0]->email;
 
                 if (isset($chat->thread->events[0]->fields[1]->value)) {
                     $userEmail = $chat->thread->events[0]->fields[1]->value;
@@ -341,7 +309,7 @@ class LiveChatController extends Controller
                 }
                 $userName = $chat->users[0]->name;
 
-                $customer_language = 'en'; //$result['languageCode'];
+                $customer_language = 'en';
                 $websiteId = null;
                 try {
                     $websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
@@ -352,7 +320,6 @@ class LiveChatController extends Controller
                 } catch (\Exception $e) {
                     $websiteURL = '';
                 }
-                //dd($websiteURL);
                 $customer = Customer::where('email', $userEmail);
                 if ($websiteId > 0) {
                     $customer = $customer->where('store_website_id', $websiteId);
@@ -440,11 +407,6 @@ class LiveChatController extends Controller
                     LiveChatEventLog::create(['customer_id' => $customer->id, 'store_website_id' => $websiteId, 'thread' => $chatId, 'event_type' => 'incoming_chat', 'log' => 'incoming chat error ' . $e . ' <br>data ' . json_encode($chat->thread->events[1])]);
                     $text = 'Error';
                 }
-
-                /*$translate = new TranslateClient([
-                'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                ]);*/
-                //$result = $translate->detectLanguage($text);
             }
 
             if ($receivedJson->action == 'thread_closed') {
@@ -471,8 +433,6 @@ class LiveChatController extends Controller
         $customerDetails = Customer::find($chatId);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        //LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer details fetched"]);
-
         $language = $customerDetails->language;
         if ($language != null) {
             $message = (new GoogleTranslate)->translate($language, $message);
@@ -497,7 +457,6 @@ class LiveChatController extends Controller
                 LiveChatEventLog::create(['customer_id' => $customer->id, 'thread' => $thread, 'store_website_id' => $websiteId, 'event_type' => $eventType, 'log' => 'message converted from ' . $request->message . ' to ' . $message]);
             }
         } else {
-            //LiveChatLog::create(['customer_id'=>$chatId, 'log'=>"Customer live chat not available"]);
             return response()->json([
                 'status' => 'errors',
             ]);
@@ -783,13 +742,11 @@ class LiveChatController extends Controller
                             $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
                         }
                         $messagess[] = $vals;
-                    //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         if (! $message->approved) {
                             $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
                         } else {
                             $vals = '<div  data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
-                            //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                         }
                         $messagess[] = $vals;
                     }
@@ -798,7 +755,7 @@ class LiveChatController extends Controller
         }
 
         if (! isset($messagess)) {
-            //$messagess[] = '<div  class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Customer For Chat<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime(now()))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+            //
         }
 
         $count = CustomerLiveChat::where('seen', 0)->count();
@@ -838,15 +795,13 @@ class LiveChatController extends Controller
             $customerInital = substr($name, 0, 1);
             if (count($messages) == 0) {
                 if ($lastMessageId == null) {
-                    ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
+                    //
                 }
             } else {
                 foreach ($messages as $message) {
                     if ($message->user_id != 0) {
-                        // if ($message->customer_id != 0) {
                         // Finding Agent
                         $agent = Customer::where('id', $message->customer_id)->first();
-                        // $agent       = User::where('email', $message->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
 
                         if ($message->hasMedia(config('constants.media_tags'))) {
@@ -876,8 +831,6 @@ class LiveChatController extends Controller
                                 $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>';
                             }
                             $messagess[] = $vals;
-
-                            //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                         }
                     } else {
                         if ($message->hasMedia(config('constants.media_tags'))) {
@@ -909,7 +862,6 @@ class LiveChatController extends Controller
                             } else {
                                 $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>';
                             }
-                            //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                         }
                     }
                 }
@@ -930,25 +882,21 @@ class LiveChatController extends Controller
 
     public function getChatLogs($customerId)
     {
-        $logs = LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
-
-        return $logs;
+        return LiveChatLog::where('customer_id', $customerId)->orderBy('id', 'desc')->get();
     }
 
     public function getAllChatEventLogs()
     {
         $logs = LiveChatEventLog::leftJoin('customers', 'customers.id', 'live_chat_event_logs.customer_id')
-        ->leftJoin('store_websites', 'store_websites.id', 'live_chat_event_logs.store_website_id')
-        ->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name', 'store_websites.title as website')->paginate(30);
+            ->leftJoin('store_websites', 'store_websites.id', 'live_chat_event_logs.store_website_id')
+            ->orderBy('live_chat_event_logs.id', 'desc')->select('live_chat_event_logs.*', 'customers.name as customer_name', 'store_websites.title as website')->paginate(30);
 
         return view('livechat.eventLogs', compact('logs'));
     }
 
     public function getChatEventLogs($customerId)
     {
-        $logs = LiveChatEventLog::where('thread', $customerId)->orderBy('id', 'desc')->get();
-
-        return $logs;
+        return LiveChatEventLog::where('thread', $customerId)->orderBy('id', 'desc')->get();
     }
 
     public function getLiveChats(Request $request)
@@ -988,12 +936,12 @@ class LiveChatController extends Controller
             $chatIds->whereHas('customer', function ($query) use ($q) {
                 $query->where('name', 'LIKE', '%' . $q . '%');
             })
-                    ->orWhere('website', 'LIKE', '%' . $q . '%')
-                    ->orWhereHas('customer', function ($query) use ($q) {
-                        $query->where('phone', 'LIKE', '%' . $q . '%');
-                    })->orWhereHas('customer', function ($query) use ($q) {
-                        $query->where('email', 'LIKE', '%' . $q . '%');
-                    });
+                ->orWhere('website', 'LIKE', '%' . $q . '%')
+                ->orWhereHas('customer', function ($query) use ($q) {
+                    $query->where('phone', 'LIKE', '%' . $q . '%');
+                })->orWhereHas('customer', function ($query) use ($q) {
+                    $query->where('email', 'LIKE', '%' . $q . '%');
+                });
         }
 
         $chatIds = $chatIds->latest()->orderBy('seen', 'asc')->orderBy('status', 'desc')->get();
@@ -1012,7 +960,7 @@ class LiveChatController extends Controller
             $name = $customer->name;
             $customerInital = substr($name, 0, 1);
             if (count($chat_message) == 0) {
-                //$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                //
             } else {
                 foreach ($chat_message as $chat) {
                     if ($chat->user_id != 0) {
@@ -1025,7 +973,6 @@ class LiveChatController extends Controller
                         } else {
                             $message[] = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                         }
-                    //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     }
@@ -1122,18 +1069,12 @@ class LiveChatController extends Controller
             $returnVal = '';
             $result = self::curlCall($postURL, $postData, 'application/json');
             if ($result['err']) {
-                // echo "ERROR 1:<br>";
-                // print_r($result['err']);
                 $returnVal = false;
             } else {
                 $response = json_decode($result['response']);
                 if (isset($response->error)) {
-                    // echo "ERROR 2:<br>";
-                    // print_r($response);
                     $returnVal = false;
                 } else {
-                    // echo "SUCSESS:<BR>";
-                    // print_r($response);
                     if (isset($response->customers[0])) {
                         $returnVal = $response->customers[0];
                     } else {
@@ -1161,34 +1102,22 @@ class LiveChatController extends Controller
     public function uploadFileToLiveChatInc(Request $request)
     {
         //To try with static file from local file, uncomment below
-        //$filename = 'delete-red-cross.png';
-        //$fileURL = public_path() . '/images/' . $filename;
         $uploadedFile = $request->file('file');
         $mimeType = $uploadedFile->getMimeType();
         $filename = $uploadedFile->getClientOriginalName();
 
         $postURL = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
 
-        //echo 'File: ' . $fileURL . ', MType: ' . mime_content_type($fileURL) .'<br>';
-        //$postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
-        //echo 'File: ' . $filename . ', MType: ' . $mimeType;
-
         $postData = ['file' => curl_file_create($uploadedFile, $mimeType, $filename)];
 
         $result = self::curlCall($postURL, $postData, 'multipart/form-data');
         if ($result['err']) {
-            // echo "ERROR 1:<br>";
-            // print_r($result['err']);
             return false;
         } else {
             $response = json_decode($result['response']);
             if (isset($response->error)) {
-                // echo "ERROR 2:<br>";
-                // print_r($response);
                 return false;
             } else {
-                // echo "SUCSESS:<BR>";
-                // print_r($response);
                 return ['CDNPath' => $response->url, 'filename' => $filename];
             }
         }
@@ -1243,7 +1172,6 @@ class LiveChatController extends Controller
                 array_push($curlData[CURLOPT_HTTPHEADER], 'Authorization: Bearer ' . \Cache::get('key') . '');
             }
             array_push($curlData[CURLOPT_HTTPHEADER], 'Content-Type: ' . $contentType);
-            // array_push($curlData[CURLOPT_HTTPHEADER], "Content-Length: 0");
         }
 
         if ($data) {
@@ -1285,7 +1213,6 @@ class LiveChatController extends Controller
 
         if (! $fileUploadResult) {
             //There is some error, we didn't get the CDN file path
-            //return false;
             return response()->json(['status' => 'errors', 'errorMsg' => 'Error uploading file'], 200);
         } else {
             $fileCDNPath = $fileUploadResult['CDNPath'];
@@ -1299,20 +1226,12 @@ class LiveChatController extends Controller
 
         $result = self::curlCall($postURL, $postData, 'application/json');
         if ($result['err']) {
-            // echo "ERROR 1:<br>";
-            // print_r($result['err']);
-            //return false;
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
             $response = json_decode($result['response']);
             if (isset($response->error)) {
-                // echo "ERROR 2:<br>";
-                // print_r($response);
                 return response()->json(['status' => 'errors', $response], 403);
             } else {
-                // echo "SUCSESS:<BR>";
-                // print_r($response);
-                //return $response->url;
                 return response()->json(['status' => 'success', 'filename' => $filename, 'fileCDNPath' => $fileCDNPath, 'responseData' => $response], 200);
             }
         }
@@ -1350,7 +1269,6 @@ class LiveChatController extends Controller
     public function saveToken(Request $request)
     {
         if ($request->accessToken) {
-            //dd($request->accessToken);
             $storedCache = \Cache::get('key');
             if ($storedCache) {
                 if ($storedCache != $request->accessToken) {
@@ -1367,9 +1285,6 @@ class LiveChatController extends Controller
                     \Cache::add('key', $request->accessToken, $request->seconds);
                 }
             }
-            //session()->put('livechat_accesstoken', $request->accessToken);
-            //\Session::put('livechat_accesstoken', $request->accessToken);
-            //$request->session()->put('livechat_accesstoken', $request->accessToken);
             return response()->json(['status' => 'success', 'message' => 'AccessToken saved'], 200);
         }
 
@@ -1415,7 +1330,7 @@ class LiveChatController extends Controller
      *
      * https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
      * https://api.livechatinc.com/tickets?assigned=0
-    dal:ZP6x3Uc3QMa9W-Ve4sp86A
+     * dal:ZP6x3Uc3QMa9W-Ve4sp86A
      */
     public function getLiveChatIncTickets()
     {
@@ -1500,11 +1415,6 @@ class LiveChatController extends Controller
             $query = $query->where('tickets.phone_no', 'LIKE', '%' . $request->search_phone_no . '%');
         }
 
-        /* if($request->search_category !=""){
-
-        $query = $query->where('tickets.category', 'LIKE','%'.$request->search_category.'%');
-        } */
-
         if ($request->serach_inquiry_type != '') {
             $query = $query->where('tickets.type_of_inquiry', 'LIKE', '%' . $request->serach_inquiry_type . '%');
         }
@@ -1533,8 +1443,8 @@ class LiveChatController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'livechat-tickets')->first();
 
         $dynamicColumnsToShowLt = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowLt = json_decode($hideColumns, true);
         }
 
@@ -1551,28 +1461,27 @@ class LiveChatController extends Controller
     }
 
     public function getEmailreplies(Request $request)
-    {   
+    {
         $id = $request->id;
         $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
-        
+
         return json_encode($emailReplies);
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','livechat-tickets')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'livechat-tickets')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'livechat-tickets';
-            $column->column_name = json_encode($request->column_lt); 
+            $column->column_name = json_encode($request->column_lt);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'livechat-tickets';
-            $column->column_name = json_encode($request->column_lt); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_lt);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -1669,14 +1578,12 @@ class LiveChatController extends Controller
                         $ch = curl_init();
                         $url = $websiteUrl . '/rest/V1/swarming/credits/add-store-credit/' . $customer->platform_id;
                         curl_setopt($ch, CURLOPT_URL, $url);
-                        //curl_setopt($ch, CURLOPT_URL, 'https://dev3.sololuxury.com/rest/V1/swarming/credits/add-store-credit/50');
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
 
                         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 
                         $headers = [];
-                        //$headers[] = 'Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie';
                         $headers[] = 'Authorization: Bearer ' . $api_token;
                         $headers[] = 'Cookie: PHPSESSID=m261vs1h58pprpilkr720tqtog; country_code=IN; private_content_version=6f2c1b0f27956af2f0669199874878ed';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -1857,7 +1764,7 @@ class LiveChatController extends Controller
 
         $tickets = Tickets::find($request->ticket_id);
         if (! isset($tickets->id)) {
-            // return false;
+            //
         }
         $ticketIdString = '#' . $tickets->ticket_id;
         $fromEmail = 'buying@amourint.com';
@@ -2215,18 +2122,12 @@ class LiveChatController extends Controller
                 $result = self::curlCall($postURL, $postData, 'application/json');
 
                 if ($result['err']) {
-                    // echo "ERROR 1:<br>";
-                    // print_r($result['err']);
                     $returnVal = false;
                 } else {
                     $response = json_decode($result['response']);
                     if (isset($response->error)) {
-                        // echo "ERROR 2:<br>";
-                        // print_r($response);
                         $returnVal = false;
                     } else {
-                        // echo "SUCSESS:<BR>";
-                        // print_r($response);
                         $returnVal = $response->customers[0];
                     }
                 }
@@ -2272,23 +2173,12 @@ class LiveChatController extends Controller
                     $value->sender_phone = '';
                 }
             }
-            // \Log::info('Watson data:'.json_encode($watsonJourney));
         }
 
         return view('livechat.journey', compact('watsonJourney'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
-        //    return view('livechat.journey', compact('watsonJourney'));
     }
 
-    /* Pawan added for ajax call for filter of below
-         1.Chat entered dropdown
-         2.Reply found in database dropdown
-         3.Reply searched in watson dropdown
-         4.Response sent to customer dropdown
-         5.Message received Search
-         6.Reply Search
-         7.sender(name/phone) Search
-     */
     public function ajax(request $request)
     {
         $unsetvalue = null;

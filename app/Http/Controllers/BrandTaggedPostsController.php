@@ -6,11 +6,6 @@ use App\Account;
 use App\BrandTaggedPosts;
 use Illuminate\Http\Request;
 
-//use InstagramAPI\Instagram;
-//use InstagramAPI\Media\Photo\InstagramPhoto;
-
-//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-
 class BrandTaggedPostsController extends Controller
 {
     public function index()
@@ -29,25 +24,14 @@ class BrandTaggedPostsController extends Controller
 
         $account = Account::find($request->get('account_id'));
 
-//        $instagram = new Instagram();
-//        $instagram->login($account->last_name, $account->password);
-
         $message = $request->get('message');
 
         $usernames = $request->get('receipts');
 
         foreach ($usernames as $username) {
-//            $id = $instagram->people->getUserIdForName($username);
-
-//            $rec = ['users' => [$id]];
-//
-//            $instagram->direct->sendText($rec, $message);
-
             if ($request->hasFile('image')) {
-//                dd('here');
                 $file = $request->file('image');
                 $photo = new InstagramPhoto($file);
-//                $instagram->direct->sendPhoto($rec, $photo->getFile());
             }
         }
 

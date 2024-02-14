@@ -58,10 +58,8 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {
-        //  dd( $request->all() );
         $rules = [
             'priority' => 'required',
-            //'date' => 'required',
             'status' => 'required',
         ];
 
@@ -245,7 +243,6 @@ class PlanController extends Controller
         $data = Plan::where('id', $id)->first();
 
         return $data;
-        //return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
     }
 
     public function planActionAddOn(Request $request, $id)
@@ -258,23 +255,11 @@ class PlanController extends Controller
         $threats = $data->getPlanActionThreat;
 
         return view('modal.plan_action', compact('strengths', 'weaknesses', 'opportunities', 'threats'));
-        //return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
     }
 
     public function planActionStore(Request $request)
     {
         $data = Plan::where('id', $request->id)->first();
-
-        //old code
-//        if($data){
-//            $data->strength = $request->strength."\n";
-//            $data->weakness = $request->weakness."\n";
-//            $data->opportunity = $request->opportunity."\n";
-//            $data->threat = $request->threat."\n";
-//            $data->save();
-//            return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
-//        }
-//        return response()->json(["code" => 500,"message" => 'Data not found!']);
 
         //change code by new requirement
         if ($data) {
@@ -435,6 +420,6 @@ class PlanController extends Controller
             $html .= "<td><i class='fa fa-copy copy_remark' data-remark_text='" . $taskRemark->remarks . "'></i></td>";
         }
 
-        return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
+        return response()->json(['code' => 200, 'data' => $html, 'message' => 'Remark listed Successfully']);
     }
 }

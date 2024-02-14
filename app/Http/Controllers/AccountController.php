@@ -4,13 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use GuzzleHttp\Client;
-//use InstagramAPI\Exception\ChallengeRequiredException;
-//use InstagramAPI\Instagram;
 use Illuminate\Http\Request;
-//use InstagramAPI\Response\GenericResponse;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
-
-//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class AccountController extends Controller
 {
@@ -57,8 +52,6 @@ class AccountController extends Controller
 
         $id = $firstScript['entry_data']['ProfilePage'][0]['graphql']['user']['id'];
 
-//        $instagram->login($last_name, $password);
-//        $instagram->direct->sendText(['users' => [$id]], $request->get('message'));
         return response()->json([
             'status' => 'Message Sent successfully!',
         ]);
@@ -67,13 +60,6 @@ class AccountController extends Controller
     public function test($id)
     {
         $account = Account::find($id);
-//        $this->ig = new Instagram();
-//        try {
-//            $this->ig->login($account->last_name, $account->password);
-//        } catch (\Exception $exception) {
-//            dd($exception);
-//            $account->forceDelete();
-//        }
 
         $Instagram = new Instagram();
 
@@ -107,23 +93,6 @@ class AccountController extends Controller
 
         return redirect()->back()->with('message', 'test passed!');
     }
-
-//    public function startAccountGrowth($id) {
-//        $account = Account::findOrFail($id);
-//        $this->ig = new Instagram();
-//
-//        try {
-//            $this->ig->login($account->last_name, $account->password);
-//        } catch (\Exception $exception) {
-//            return redirect()->back()->with('message', 'Please connect your account to server before starting growth!'.$exception->getMessage());
-//        }
-//
-//        $account->is_seeding = 1;
-//        $account->seeding_stage = 0;
-//        $account->save();
-//
-//        return redirect()->back()->with('message', 'Account started for growth!');
-//    }
 
     public function agreeConsentFirstStep()
     {

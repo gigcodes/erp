@@ -44,10 +44,6 @@ class TinEye
             LogTineye::log($url, json_encode($results));
         }
 
-//        For testing
-        /*$results = LogTineye::find(26);
-        $results = json_decode($results->response);*/
-
         // TODO: Check for result count
         if (! $returnAsGoogle) {
             return $results;

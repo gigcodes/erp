@@ -39,7 +39,6 @@ class RefreshHubstaffUsers extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        // $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
         $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
@@ -84,7 +83,6 @@ class RefreshHubstaffUsers extends Command
             $this->hubstaff = $hubstaff->authenticate(true);
             $this->startGetUser();
         }
-        // $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
     }
 
     private function startGetUser($startId = 665240)

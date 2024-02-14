@@ -2,54 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use File;
 use App\Post;
 use App\Account;
-use App\HashTag;
-use App\Setting;
-//use App\InstagramPosts;
-use Carbon\Carbon;
-//use App\InstagramPostsComments;
 use App\LogRequest;
 use UnsplashSearch;
 use App\ChatMessage;
 use App\InstagramPosts;
-//use InstagramAPI\Instagram;
-use App\ScrapInfluencer;
 use Plank\Mediable\Media;
-//use App\InstagramCommentQueue;
 use App\StoreSocialContent;
 use Illuminate\Http\Request;
-//use App\InstagramUsersList;
-//use App\Library\Instagram\PublishPost;
 use App\Helpers\SocialHelper;
 use App\Jobs\InstaSchedulePost;
-//use App\InstagramPostLog;
-//use App\InstagramLog;
-//use App\InstagramUserLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-
-//use App\Jobs\InstaSchedulePost;
-//\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class InstagramPostsController extends Controller
 {
     public function index(Request $request)
     {
-        // Load posts
-//        if($request->hashtag){
-//            $posts = $this->_getFilteredInstagramPosts($request);
-//        }else{
-//            $posts = InstagramPosts::orderBy('id','desc');
-//        }
-//        // Paginate
-//        $posts = $posts->paginate(Setting::get('pagination'));
-//
-//
-//        // Return view
-//        return view('social-media.instagram-posts.index', compact('posts'));
     }
 
     public function post(Request $request)
@@ -60,10 +30,10 @@ class InstagramPostsController extends Controller
         $productArr = null;
         if ($images) {
             $productIdsArr = \DB::table('mediables')
-                                ->whereIn('media_id', json_decode($images))
-                                ->where('mediable_type', 'App\Product')
-                                ->pluck('mediable_id')
-                                ->toArray();
+                ->whereIn('media_id', json_decode($images))
+                ->where('mediable_type', 'App\Product')
+                ->pluck('mediable_id')
+                ->toArray();
 
             if (! empty($productIdsArr)) {
                 $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
@@ -73,14 +43,11 @@ class InstagramPostsController extends Controller
         $mediaIdsArr = null;
         if ($mediaIds) {
             $mediaIdsArr = \DB::table('mediables')
-                        ->whereIn('media_id', explode(',', $mediaIds))
-                        ->where('mediable_type', 'App\StoreWebsite')
-                        ->get();
+                ->whereIn('media_id', explode(',', $mediaIds))
+                ->where('mediable_type', 'App\StoreWebsite')
+                ->get();
         }
-        //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $accounts = \App\Account::where('platform', 'instagram')->where('status', 1)->get();
-
-        //$posts = Post::where('status', 1)->get();
 
         $query = Post::query();
 
@@ -221,7 +188,7 @@ class InstagramPostsController extends Controller
                 return response()->json('Your post has been published', 200);
             } else {
                 return redirect()->route('post.index')
-                ->with('success', __('Your post has been published'));
+                    ->with('success', __('Your post has been published'));
             }
         } else {
             $this->createPostLog($newPost->id, 'error', 'Post failed to published');
@@ -229,78 +196,21 @@ class InstagramPostsController extends Controller
                 return response()->json('Post failed to published', 200);
             } else {
                 return redirect()->route('post.index')
-                ->with('error', __('Post failed to published'));
+                    ->with('error', __('Post failed to published'));
             }
         }
     }
 
     public function publishPost(Request $request, $id)
     {
-//        $post = Post::find($id);
-//        $media = json_decode($post->ig,true);
-//        $ig         = [
-//            'media'    => $post->media,
-//            'location' => '',
-//        ];
-//        $post->ig = $ig;
-//        if (new PublishPost($post)) {
-//            $this->createPostLog($newPost->id,"success",'Your post has been published');
-//            return redirect()->route('post.index')
-//                ->with('success', __('Your post has been published'));
-//        } else {
-//            $this->createPostLog($newPost->id,"error",'Post failed to published');
-//            return redirect()->route('post.index')
-//                ->with('error', __('Post failed to published'));
-//        }
     }
 
     public function grid(Request $request)
     {
-        // Load posts
-//        $posts = $this->_getFilteredInstagramPosts($request);
-//
-//        // Paginate
-//        $posts = $posts->paginate(Setting::get('pagination'));
-//
-//        // For ajax
-//        if ($request->ajax()) {
-//            return response()->json([
-//                'tbody' => view('social-media.instagram-posts.json_grid', compact('posts'))->render(),
-//                'links' => (string)$posts->appends($request->all())->render()
-//            ], 200);
-//        }
-//
-//        // Return view
-//        return view('social-media.instagram-posts.grid', compact('posts', 'request'));
     }
 
     private function _getFilteredInstagramPosts(Request $request)
     {
-        // Base query
-//        $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
-//            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
-//            ->select(['instagram_posts.*','hash_tags.hashtag']);
-//
-//        //Ignore google search result from DB
-//        $instagramPosts->where('source', '!=', 'google');
-//
-//        // Apply hashtag filter
-//        if (!empty($request->hashtag)) {
-//            $instagramPosts->where('hash_tags.hashtag', str_replace('#', '', $request->hashtag));
-//        }
-//
-//        // Apply author filter
-//        if (!empty($request->author)) {
-//            $instagramPosts->where('username', 'LIKE', '%' . $request->author . '%');
-//        }
-//
-//        // Apply author filter
-//        if (!empty($request->post)) {
-//            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
-//        }
-//
-//        // Return instagram posts
-//        return $instagramPosts;
     }
 
     /**
@@ -324,134 +234,6 @@ class InstagramPostsController extends Controller
      */
     public function apiPost(Request $request)
     {
-        // Get raw body
-//        $file = $request->file('file');
-//
-//        $f = File::get($file);
-//
-//        $payLoad = json_decode($f);
-//
-//        // NULL? No valid JSON
-//        if ($payLoad == null) {
-//            return response()->json([
-//                'error' => 'Invalid json'
-//            ], 400);
-//        }
-//
-//        // Process input
-//        if (is_array($payLoad) && count($payLoad) > 0) {
-//            $payLoad = json_decode(json_encode($payLoad), true);
-//
-//            // Loop over posts
-//            foreach ($payLoad as $postJson) {
-//
-//                if(isset($postJson['Followers'])){
-//
-//                    $inf = ScrapInfluencer::where('name',$postJson['Owner'])->first();
-//                    if($inf == null){
-//                        $influencer = new ScrapInfluencer;
-//                        $influencer->name = $postJson['Owner'];
-//                        $influencer->url = $postJson['URL'];
-//                        $influencer->profile_url = $postJson['profile_url'];
-//                        $influencer->followers = $postJson['Followers'];
-//                        $influencer->following = $postJson['Following'];
-//                        $influencer->posts = $postJson['Posts'];
-//                        $influencer->description = $postJson['Bio'];
-//                        if(isset($postJson['keyword'])){
-//                            $influencer->keyword = $postJson['keyword'];
-//                        }
-//                        if(isset($postJson['Email'])){
-//                            $influencer->email = $postJson['Email'];
-//                        }
-//                        if(isset($postJson['Country'])){
-//                            $influencer->country = $postJson['Country'];
-//                        }
-//
-//                        $influencer->platform    = "Instagram";
-//                        $influencer->save();
-//
-//                        try {
-//                            if (!empty($postJson[ 'Screenshot' ])) {
-//                                if (!$influencer->hasMedia('instagram-screenshot')) {
-//                                    $media = MediaUploader::fromString(base64_decode($postJson[ 'Screenshot' ]))
-//                                        ->toDisk('uploads')
-//                                        ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
-//                                        ->useFilename($influencer->id)
-//                                        ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
-//                                            $model->setAttribute('extension', 'jpg');
-//                                        })
-//                                        ->upload();
-//                                    $influencer->attachMedia($media, 'instagram-screenshot');
-//                                }
-//                            }
-//                        } catch(\Exception $e) {
-//                            \Log::info("instagram influencer page error => ".$e->getMessage());
-//                        }
-//
-//                    }
-//                }else{
-//                        // Set tag
-//                    $tag = $postJson[ 'Tag used to search' ];
-//
-//                    // Get hashtag ID
-//                    $hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
-//                    $hashtag->is_processed = 1;
-//                    $hashtag->save();
-//
-//                    // Retrieve instagram post or initiate new
-//                    $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson[ 'URL' ]]);
-//                    $instagramPost->hashtag_id = $hashtag->id;
-//                    $instagramPost->username = $postJson[ 'Owner' ];
-//                    $instagramPost->caption = $postJson[ 'Original Post' ];
-//                    $instagramPost->posted_at = date('Y-m-d H:i:s', strtotime($postJson[ 'Time of Post' ]));
-//                    $instagramPost->media_type = !empty($postJson[ 'Image' ]) ? 'image' : 'other';
-//                    $instagramPost->media_url = !empty($postJson[ 'Image' ]) ? $postJson[ 'Image' ] : $postJson[ 'URL' ];
-//                    $instagramPost->source = 'instagram';
-//                    $instagramPost->save();
-//
-//                    // Store media
-//                    if (!empty($postJson[ 'Image' ])) {
-//                        if (!$instagramPost->hasMedia('instagram-post')) {
-//                            $media = MediaUploader::fromSource($postJson[ 'Image' ])
-//                                ->toDisk('uploads')
-//                                ->toDirectory('social-media/instagram-posts/' . floor($instagramPost->id / 1000))
-//                                ->useFilename($instagramPost->id)
-//                                ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
-//                                    $model->setAttribute('extension', 'jpg');
-//                                })
-//                                ->upload();
-//                            $instagramPost->attachMedia($media, 'instagram-post');
-//                        }
-//                    }
-//
-//                    // Comments
-//                    if (isset($postJson[ 'Comments' ]) && is_array($postJson[ 'Comments' ])) {
-//                        // Loop over comments
-//                        foreach ($postJson[ 'Comments' ] as $comment) {
-//                            // Check if there really is a comment
-//                            if (isset($comment[ 'Comments' ][ 0 ])) {
-//                                // Set hash
-//                                $commentHash = md5($comment[ 'Owner' ] . $comment[ 'Comments' ][ 0 ] . $comment[ 'Time' ]);
-//
-//                                $instagramPostsComment = InstagramPostsComments::firstOrNew(['comment_id' => $commentHash]);
-//                                $instagramPostsComment->instagram_post_id = $instagramPost->id;
-//                                $instagramPostsComment->comment_id = $commentHash;
-//                                $instagramPostsComment->username = $comment[ 'Owner' ];
-//                                $instagramPostsComment->comment = $comment[ 'Comments' ][ 0 ];
-//                                $instagramPostsComment->posted_at = date('Y-m-d H:i:s', strtotime($comment[ 'Time' ]));
-//                                $instagramPostsComment->save();
-//                            }
-//                        }
-//                    }
-//                }
-//
-//            }
-//        }
-//
-//        // Return
-//        return response()->json([
-//            'ok'
-//        ], 200);
     }
 
     /**
@@ -475,12 +257,6 @@ class InstagramPostsController extends Controller
      */
     public function sendAccount($token)
     {
-//      if($token != 'sdcsds'){
-//        return response()->json(['message' => 'Invalid Token'], 400);
-//      }
-//      $account = Account::where('platform','instagram')->where('comment_pending',1)->first();
-//
-//     return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
     }
 
     /**
@@ -504,18 +280,6 @@ class InstagramPostsController extends Controller
      */
     public function getComments($username)
     {
-//        $account = Account::where('last_name',$username)->first();
-//
-//        if($account == null && $account == ''){
-//             return response()->json(['result' =>  false,'message' => 'Account Not Found'], 400);
-//        }
-//
-//        $comments = InstagramCommentQueue::select('id','post_id','message')->where('account_id',$account->id)->where('is_send',0)->take(20)->get();
-//        if(count($comments) != 0){
-//            return response()->json(['result' => true , 'comments' => $comments],200);
-//        }else{
-//            return response()->json(['result' =>  false, 'message' => 'No messages'],200);
-//        }
     }
 
     /**
@@ -539,10 +303,6 @@ class InstagramPostsController extends Controller
      */
     public function commentSent(Request $request)
     {
-//        $id = $request->id;
-//        $comment = InstagramCommentQueue::find($id);
-//        $comment->is_send = 1;
-//        $comment->save();
     }
 
     /**
@@ -566,17 +326,6 @@ class InstagramPostsController extends Controller
      */
     public function getHashtagList()
     {
-//        $hastags = HashTag::select('id','hashtag')->where('is_processed',0)->first();
-//
-//        if(!$hastags){
-//            $hastags = HashTag::select('id','hashtag')->where('is_processed',2)->first();
-//        }
-//
-//        if(!$hastags){
-//            return response()->json(['hastag' => ''],200);
-//        }
-//
-//        return response()->json(['hastag' => $hastags ],200);
     }
 
     /**
@@ -600,88 +349,6 @@ class InstagramPostsController extends Controller
      */
     public function saveFromLocal(Request $request)
     {
-        // Get raw JSON
-//        $receivedJson = json_decode($request->getContent());
-//
-//        //Saving post details
-//        if(isset($receivedJson->post)){
-//
-//            $checkIfExist = InstagramPosts::where('post_id', $receivedJson->post->post_id)->first();
-//
-//            if(empty($checkIfExist)){
-//                $media             = new InstagramPosts();
-//                $media->post_id    = $receivedJson->post->post_id;
-//                $media->caption    = $receivedJson->post->caption;
-//                $media->user_id    = $receivedJson->post->user_id;
-//                $media->username   = $receivedJson->post->username;
-//                $media->media_type = $receivedJson->post->media_type;
-//                $media->code       = $receivedJson->post->code;
-//                $media->location   = $receivedJson->post->location;
-//                $media->hashtag_id = $receivedJson->post->hashtag_id;
-//                $media->likes = $receivedJson->post->likes;
-//                $media->comments_count = $receivedJson->post->comments_count;
-//                $media->media_url = $receivedJson->post->media_url;
-//                $media->posted_at = $receivedJson->post->posted_at;
-//                $media->save();
-//
-//            if($media){
-//                if(isset($receivedJson->comments)){
-//                    $comments = $receivedJson->comments;
-//                        foreach ($comments as $comment) {
-//
-//                            $commentEntry = InstagramPostsComments::where('comment_id', $comment->comment_id)->where('user_id', $comment->user_id)->first();
-//
-//                            if (!$commentEntry) {
-//                                $commentEntry = new InstagramPostsComments();
-//                            }
-//
-//                            $commentEntry = new InstagramPostsComments();
-//                            $commentEntry->user_id = $comment->user_id;
-//                            $commentEntry->name = $comment->name;
-//                            $commentEntry->username = $comment->username;
-//                            $commentEntry->instagram_post_id = $comment->instagram_post_id;
-//                            $commentEntry->comment_id = $comment->comment_id;
-//                            $commentEntry->comment = $comment->comment;
-//                            $commentEntry->profile_pic_url = $comment->profile_pic_url;
-//                            $commentEntry->posted_at = $comment->posted_at;
-//                            $commentEntry->save();
-//                    }
-//                        }
-//                }
-//
-//            if(isset($receivedJson->userdetials)){
-//                $detials = $receivedJson->userdetials;
-//                $userList = InstagramUsersList::where('user_id',$detials->user_id)->first();
-//                if(empty($userList)){
-//                    $user = new InstagramUsersList;
-//                    $user->username = $detials->username;
-//                    $user->user_id = $detials->user_id;
-//                    $user->image_url = $detials->image_url;
-//                    $user->bio = $detials->bio;
-//                    $user->rating = 0;
-//                    $user->location_id = 0;
-//                    $user->because_of = $detials->because_of;
-//                    $user->posts = $detials->posts;
-//                    $user->followers = $detials->followers;
-//                    $user->following = $detials->following;
-//                    $user->location = $detials->location;
-//                    $user->save();
-//                }else{
-//                    if($userList->posts == ''){
-//                        $userList->posts = $detials->posts;
-//                        $userList->followers = $detials->followers;
-//                        $userList->following = $detials->following;
-//                        $userList->location = $detials->location;
-//                        $userList->save();
-//                    }
-//                }
-//            }
-//
-//
-//          }
-//
-//
-//        }
     }
 
     public function viewPost(Request $request)
@@ -698,8 +365,6 @@ class InstagramPostsController extends Controller
 
     public function users(Request $request)
     {
-//        $users = \App\InstagramUsersList::whereNotNull('username')->where('is_manual',1)->orderBy('id','desc')->paginate(25);
-//        return view('instagram.users',compact('users'));
     }
 
     /**
@@ -723,165 +388,14 @@ class InstagramPostsController extends Controller
      */
     public function getUserForLocal()
     {
-//        $users = \App\InstagramUsersList::select('id','user_id')->whereNotNull('username')->where('is_manual',1)->where('is_processed',0)->orderBy('id','desc')->first();
-//        return json_encode($users);
     }
 
     public function instagramUserLogs()
     {
-        //		$logs = InstagramUserLog::orderby('id', 'desc')->paginate(20);
-        //		return view('instagram.log',compact('logs'));
     }
 
     public function userPost($id)
     {
-//        $user  = InstagramUsersList::find($id);
-//
-//        $ig = new \InstagramAPI\Instagram();
-//
-//        try {
-        //			$account = \App\Account::where('platform','instagram')->where('status',1)->first();
-        //			$ig->login($account->last_name, $account->password);
-//          // $ig->login('technodeviser03', '123321deviser*');
-//            //$ig->login('satyam_t', 'Schoolrocks93');
-        //			$this->instagramUserLog($account->id,"success",'Logged In');
-//        } catch (\Exception $e) {
-        //			$msg = 'Instagram login failed:  - '.$e->getMessage();
-        //			$this->instagramUserLog($account->id,"error",$msg);
-//            return response()->json(['message' => $msg, 'code' => 413],413);
-//        }
-//        try {
-//            $user_id = $ig->people->getUserIdForName($user->username);
-        //			$this->instagramUserLog($account->id,"success",'User Id found '. $user_id);
-//        } catch (\Exception $e) {
-//            $msg = 'Something went wrong: '.$e->getMessage();
-        //			$this->instagramUserLog($account->id,"error",$msg);
-//            return response()->json(['message' => $msg, 'code' => 413],413);
-//        }
-//
-//        try {
-//            $feed = $ig->timeline->getUserFeed($user_id);
-        //			$this->instagramUserLog($account->id,"success",'Feed retreived ');
-//        } catch (\Exception $e) {
-//            $msg = 'Something went wrong: '.$e->getMessage();
-        //			$this->instagramUserLog($account->id,"error",$msg);
-//            return response()->json(['message' => $msg, 'code' => 413],413);
-//        }
-//
-//        $medias = $feed->asArray();
-//        $medias = $medias['items'];
-//
-//        $count = 0;
-//        foreach ($medias as $media) {
-//            if($count == 200){
-//                break;
-//            }
-//            $postId = $media['id'];
-//            $caption = $media['caption']['text'];
-//            $user_id = $user_id;
-//            $mediaDetail = [];
-        //			$this->instagramUserLog($account->id,"success",'Media type is '.$media['media_type'] .' for post id '. $postId);
-//            if ($media['media_type'] === 1) {
-//                $mediaDetail[] = [
-//                    'media_type' => 1,
-//                    'url' => $media['image_versions2']['candidates'][1]['url']
-//                ];
-//            } else if ($media['media_type'] === 2) {
-//                $mediaDetail[] = [
-//                    'media_type' => 2,
-//                    'url' => $media['video_versions'][0]['url']
-//                ];
-//            } else if ($media['media_type'] === 8) {
-//                $crousal = $media['carousel_media'];
-//                $mediaDetail = [];
-//                foreach ($crousal as $cro) {
-//                    if ($cro['media_type'] === 1) {
-//                        $mediaDetail[] = [
-//                            'media_type' => 1,
-//                            'url' => $cro['image_versions2']['candidates'][0]['url']
-//                        ];
-//                    } else if ($cro['media_type'] === 2) {
-//                        $mediaDetail[] = [
-//                            'media_type' => 2,
-//                            'url' => $cro['video_versions'][0]['url']
-//                        ];
-//                    }
-//                }
-//            }
-//            $mediaType = $media['media_type'];
-//            $comment_count = $media['comment_count'];
-//            $likes = $media['like_count'];
-//            $code = $media['code'];
-//
-//            if(!$caption) {
-//                $caption = '';
-//            }
-//
-//
-//            $media             = new InstagramPosts();
-//            $media->post_id    = $postId;
-//            $media->caption    = $caption;
-//            $media->user_id    = $user_id;
-//            $media->username   = $user->username;
-//            $media->media_type = $mediaType;
-//            $media->code       = $code;
-//            $media->location   = '';
-//            $media->hashtag_id = 0;
-//            $media->likes = $likes;
-//            $media->comments_count = $comment_count;
-//
-//            if (!is_array($mediaDetail)) {
-//                $mediaDetail = [$mediaDetail];
-//            }
-//
-//            $media->media_url = json_encode($mediaDetail);
-//            $media->posted_at = now();
-//            $media->save();
-        //			$this->instagramUserLog($account->id,"success",'Post saved.');
-//            $mediaId = $media->id;
-//
-//            foreach ($mediaDetail as $mediaFile) {
-//                $file = @file_get_contents($mediaFile['url']);
-//                if (!empty($file)) {
-//                    $mediaFileUpload = MediaUploader::fromString($file)
-//                        ->toDirectory('instagram')
-//                        ->useFilename(md5(date("Y-m-d H:i:s")))
-//                        ->upload();
-//                    $media->attachMedia($mediaFileUpload, 'instagram');
-//                    $imagesSave = true;
-//                }
-//            }
-//
-//            $postData = $media->toArray();
-//
-//
-//            $comments = $ig->media->getComments($postId)->asArray();
-//
-//            if(isset($comments['comments'])){
-//                foreach ($comments['comments'] as $comment) {
-//                    $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
-//
-//                    if (!$commentEntry) {
-//                        $commentEntry = new InstagramPostsComments();
-//                    }
-//
-//                    $commentEntry->user_id = $comment['user']['pk'];
-//                    $commentEntry->name = $comment['user']['full_name'];
-//                    $commentEntry->username = $comment['user']['username'];
-//                    $commentEntry->instagram_post_id = $mediaId;
-//                    $commentEntry->comment_id = $comment['pk'];
-//                    $commentEntry->comment = $comment['text'];
-//                    $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
-//                    $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
-//                    $commentEntry->save();
-//
-//                }
-//            }
-//
-//            sleep(5);
-//            $count++;
-//        }
-//        return redirect()->to('/instagram/users/'.$user->user_id);
     }
 
     public function resizeToRatio()
@@ -890,58 +404,6 @@ class InstagramPostsController extends Controller
 
     public function resize_image_crop($image, $width, $height)
     {
-//        $newImage = $image;
-//        $type = $image->mime_type;
-//
-//        if($type == 'image/jpeg'){
-//            $src_img = imagecreatefromjpeg($image->getAbsolutePath());
-//        }elseif($type == 'image/png'){
-//            $src_img = imagecreatefrompng($image->getAbsolutePath());
-//        }elseif ($type == 'image/gif') {
-//            $src_img = imagecreatefromgif($image->getAbsolutePath());
-//        }
-//
-//        $image = $src_img;
-//        $w = imagesx($image); //current width
-//
-//        $h = @imagesy($image); //current height
-//
-//        if ((!$w) || (!$h)) { $GLOBALS['errors'][] = 'Image could not be resized because it was not a valid image.'; return false; }
-//        if (($w == $width) && ($h == $height)) { return $image; } //no resizing needed
-//
-//        //try max width first...
-//        $ratio = $width / $w;
-//        $new_w = $width;
-//        $new_h = $h * $ratio;
-//
-//        //if that created an image smaller than what we wanted, try the other way
-//        if ($new_h < $height) {
-//            $ratio = $height / $h;
-//            $new_h = $height;
-//            $new_w = $w * $ratio;
-//        }
-//
-//        $image2 = imagecreatetruecolor ($new_w, $new_h);
-//        imagecopyresampled($image2,$image, 0, 0, 0, 0, $new_w, $new_h, $w, $h);
-//
-//        //check to see if cropping needs to happen
-//
-//        $image3 = imagecreatetruecolor($width, $height);
-//        if ($new_h > $height) { //crop vertically
-//            $extra = $new_h - $height;
-//            $x = 0; //source x
-//            $y = round($extra / 2); //source y
-//            imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
-//        }
-//        else {
-//            $extra = $new_w - $width;
-//            $x = round($extra / 2); //source x
-//            $y = 0; //source y
-//            imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
-//        }
-//        imagedestroy($image2);
-//        imagejpeg($image3,$newImage->getAbsolutePath());
-//        return $image3;
     }
 
     public function hashtag(Request $request, $word)
@@ -967,19 +429,6 @@ class InstagramPostsController extends Controller
         } else {
             $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
             $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
-
-        //    $image_upload_url = 'https://api.hashtagify.me/oauth/token';
-
-        //    $fbImage = [
-        //         'grant_type' =>'client_credentials',
-        //         'client_id' =>$consumerKey,
-        //         'client_secret' => $consumerSecret,
-        //     ];
-
-        //     $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
-        //     $response = json_decode($response);
-
-            // die(var_dump($response ));
 
             \Log::error(' hashtagify credentials: ' . $consumerKey . ', ' . $consumerSecret);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
@@ -1029,67 +478,15 @@ class InstagramPostsController extends Controller
 
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), InstagramPostsController::class, 'getHashTashSuggestions');
 
-//        $curl = curl_init();
-//
-//        curl_setopt_array($curl, [
-//            CURLOPT_URL => $url,
-//            CURLOPT_RETURNTRANSFER => true,
-//            CURLOPT_ENCODING => '',
-//            CURLOPT_MAXREDIRS => 10,
-//            CURLOPT_TIMEOUT => 30,
-//            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//            CURLOPT_CUSTOMREQUEST => 'GET',
-//            CURLOPT_HTTPHEADER => [
-//                'authorization: Bearer ' . $token,
-//                'cache-control: no-cache',
-//            ],
-//        ]);
-//
-//        $response = curl_exec($curl);
-//        $err = curl_error($curl);
-//        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-//        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, InstagramPostsController::class, 'getHashTashSuggestions');
-//
-//        curl_close($curl);
-
         if ($err) {
-            //echo "cURL Error #:" . $err;
+            //
         } else {
-            return  $response;
+            return $response;
         }
     }
 
     public function updateHashtagPost(Request $request)
     {
-//        try {
-//            $post_id = $request->get('post_id');
-//            $updateArr = [];
-//
-//
-//            if($request->get('account_id'))
-//            {
-//                $updateArr['account_id'] = $request->get('account_id');
-//            }
-//            if($request->get('comment'))
-//            {
-//                $updateArr['comment'] = $request->get('comment');
-//            }
-//            if($request->get('post_hashtags'))
-//            {
-//                $updateArr['hashtags'] = $request->get('post_hashtags');
-//            }
-//            if($request->get('type'))
-//            {
-//                $updateArr['type'] = $request->get('type');
-//            }
-//            Post::where('id', $post_id)->update($updateArr);
-//            $this->createPostLog($post_id,"success","Data Updated Succesfully");
-//            echo json_encode(array("message"=>"Data Updated Succesfully"));
-//        } catch (\Exception $e) {
-//            //throw $th;
-//            $this->createPostLog($post_id,"error",$e->getMessage());
-//            return response()->json(["message"=>"error while saving data"],500);
-//        }
     }
 
     public function getImages(Request $request)
@@ -1147,304 +544,30 @@ class InstagramPostsController extends Controller
 
     public function postMultiple(Request $request)
     {
-//        try {
-//            if($request->account_id){
-//
-//                $account = \App\Account::find($request->account_id);
-//
-//                $images = $request->imageURI;
-//                $captions = $request->captions;
-//                for ($i=0; $i < count($request->captions); $i++) {
-//                    $media = [];
-//                    $imageURL = $images[$i];
-//                    $captionId = $captions[$i];
-//                    $caption = \App\Caption::find($captionId);
-//
-//                    $file = @file_get_contents($imageURL);
-//                    $savedMedia =   MediaUploader::fromString($file)
-//                    ->useFilename(uniqid(true))
-//                    ->toDirectory('instagram-media')
-//                    ->upload();
-//                    $account->attachMedia($savedMedia, 'instagram-profile');
-//
-//                    //getting media id
-//                    $lastMedia = $account->lastMedia('instagram-profile');
-//
-//                    $media[] = $lastMedia->id;
-//
-//                    $post = new Post();
-//
-//                    $post->account_id = $account->id;
-//                    $post->type       = 'post';
-//                    $post->caption    = isset($caption->caption) ? $caption->caption : "";
-//
-//                    $post->ig         = json_encode([
-//                        'media'    => $media,
-//                        'location' => '',
-//                    ]);
-//
-//                    $post->save();
-//                    $newPost = Post::find($post->id);
-//                    $media   = json_decode($newPost->ig,true);
-//                    $ig      = [
-//                        'media'    => $media['media'],
-//                        'location' => '',
-//                    ];
-//
-//                    $newPost->ig = $ig;
-//
-//                    $mediaFile = Media::where('id',$lastMedia->id)->first();
-//                    $image = self::resize_image_crop($mediaFile,640,640);
-//
-//
-//                    if (new PublishPost($newPost)) {
-//                        sleep(10);
-//                    } else {
-//                        sleep(30);
-//                    }
-//                }
-//                $this->instagramLog($request->account_id,"success","Post Added Succesfully");
-//                return response()->json(['Post Added Succesfully'], 200);
-//            }else{
-//                $this->instagramLog($request->account_id,"error","account id missing");
-//                return response()->json(['error'], 500);
-//            }
-//        } catch (\Exception $e) {
-//            $this->instagramLog($request->account_id,"error",$e->getMessage());
-//            return response()->json([$e->getMessage()], 500);
-//        }
-//    }
-//
-//    public function likeUserPost(Request $request)
-//    {
-//      //  set_time_limit(300);
-//      try {
-//            if($request->account_id){
-//                $account = \App\Account::find($request->account_id);
-//                $instagram = new Instagram();
-//                $instagram->login($account->last_name, $account->password);
-//                $getdatas=$instagram->people->getSelfFollowing($instagram->uuid);
-//                $decode= json_decode($getdatas);
-//                //return response()->json([$decode], 200);
-//                $count = 0;
-//                $lastCount = rand(5,10);
-//                $likedUserNameList = [];
-//                $likePostCount = 0;
-//                foreach ($decode->users as $value) {
-//                    if($count == $lastCount){
-//                        break;
-//                    }
-//                    $getdata=$instagram->timeline->getUserFeed($value->pk);
-//                    $decode_data= json_decode($getdata);
-//                    $likePostCount = 0;
-//                    $likePostCountLast = rand(5,10);
-//
-//                    foreach ($decode_data->items as $data) {
-//                        if($likePostCount == $likePostCountLast){
-//                            break;
-//                        }
-//                        sleep(rand(5,10));
-//                        $getdatass=$instagram->media->like($data->id,'0');
-//                        $likePostCount++;
-//                    }
-//                    $count++;
-//                }
-//
-//                $this->instagramLog($request->account_id,"success","Liked Post : ".$likePostCount);
-//                return response()->json(['Liked User Post Successfully'], 200);
-//            }else{
-//                $this->instagramLog($request->account_id,"error","account id missing");
-//                return response()->json(['error'], 500);
-//            }
-//        } catch (\Exception $e) {
-//            $this->instagramLog($request->account_id,"error",$e->getMessage());
-//            return response()->json([$e->getMessage()], 500);
-//        }
     }
 
     public function acceptRequest(Request $request)
     {
-//        try {
-//            if($request->account_id){
-//                    $account = \App\Account::find($request->account_id);
-//                    $instagram = new Instagram();
-//                    $instagram->login($account->last_name, $account->password);
-//                    $getdatas=$instagram->people->getPendingFriendships();
-//
-//                        $decode= json_decode($getdatas);
-//                        $count = 0;
-//                        $lastCount = rand(5,10);
-//                        foreach($decode->users as $getdata){
-//                            if($count == $lastCount){
-//                                break;
-//                            }
-//                            sleep(rand(5,10));
-//                            $getdata=$instagram->people->approveFriendship($getdata->pk);
-//                            $count++;
-//                        }
-//                    $this->instagramLog($request->account_id,"success","Total request accepted : ".$count);
-//                    return response()->json(['All request accepted Successfully'], 200);
-//
-//            }else{
-//                $this->instagramLog($request->account_id,"error","account id missing");
-//                return response()->json(['error'], 500);
-//            }
-//        } catch (\Exception $e) {
-//            $this->instagramLog($request->account_id,"error",$e->getMessage());
-//            return response()->json([$e->getMessage()], 500);
-//        }
     }
 
     public function sendRequest(Request $request)
     {
-//        try {
-//            if($request->account_id){
-//                $account = \App\Account::find($request->account_id);
-//                $instagram = new Instagram();
-//                $instagram->login($account->last_name, $account->password);
-//                $pk = $instagram->people->getUserIdForName($account->last_name);
-//                $var =$instagram->people->getSuggestedUsers($pk);
-//                $data= json_decode($var);
-//                $count = 0;
-//                $lastCount = rand(5,10);
-//                foreach($data->users as $user){
-//                    if($count == $lastCount){
-//                            break;
-//                    }
-//                  sleep(rand(10,30));
-//                    $instagram->people->follow($user->pk);
-//                    $count++;
-//                }
-//                $this->instagramLog($request->account_id,"success","Total send request : ".$count);
-//                return response()->json(['Post Added Succesfully'], 200);
-//
-//            }else{
-//                $this->instagramLog($request->account_id,"error","account id missing");
-//                return response()->json(['error'], 500);
-//            }
-//        } catch (\Exception $e) {
-//            $this->instagramLog($request->account_id,"error",$e->getMessage());
-//            return response()->json([$e->getMessage()], 500);
-//        }
     }
-
-//    public function instagramLog($account_id,$title,$description){
-//            $InstagramLog = new InstagramLog();
-//            $InstagramLog->account_id = $account_id;
-//            $InstagramLog->log_title = $title;
-//            $InstagramLog->log_description = $description;
-//            $InstagramLog->save();
-//            return true;
-//    }
-
-//    public function instagramUserLog($account_id,$title,$description){
-//            $InstagramLog = new InstagramUserLog();
-//            $InstagramLog->account_id = $account_id;
-//            $InstagramLog->log_title = $title;
-//            $InstagramLog->log_description = $description;
-//            $InstagramLog->save();
-//            return true;
-//    }
-
-//    public function createPostLog($postId=null,$title=null,$message=null)
-//    {
-//        $InstagramPostLog = new InstagramPostLog();
-//        $InstagramPostLog->post_id = $postId;
-//        $InstagramPostLog->log_title = $title;
-//        $InstagramPostLog->log_description = $message;
-//        $InstagramPostLog->save();
-//        return true;
-//    }
 
     public function history(Request $request)
     {
-//    	$productCategory = InstagramLog::where("account_id", $request->account_id)->orderBy("created_at","desc")->get();
-//        return response()->json(["code" => 200 , "data" => $productCategory]);
     }
 
     public function messageQueue(Request $request)
     {
-//        $queueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
-//        ->where("is_queue", ">", 0)
-//        ->where("instagram_user_id", ">", 0)
-//        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
-//        // ->groupBy("c.whatsapp_number")
-//        // ->select(\DB::raw("count(*) as total_message"))
-//        ;
-//
-//        if($request->filterMessage){
-//            $queueList = $queueList->where('message','LIKE','%'.$request->filterMessage.'%');
-//        }
-//
-//        if($request->filterFullName){
-//            $queueList = $queueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
-//        }
-//
-//
-//      $queueList = $queueList->paginate(Setting::get('pagination'));
-//
-//
-//        $accountSettingInfo = Setting::select('val')->where('name','instagram_message_queue_rate_setting')->first();
-//
-        //$accountSettingInformation= null;
-//        if($accountSettingInfo){
-//            $accountSettingInformation = json_decode($accountSettingInfo->val,true);
-//        }
-//
-//        // $instaAccounts = Account::where('platform','instagram')->whereNotNull('email')->get();
-//        $instaAccounts    = Account::where('status', 1)->where('platform', 'instagram')->get();
-//
-//        $filterFullName = $request->filterFullName;
-//        $filterMessage = $request->filterMessage;
-//
-//        return view('social-media.instagram-posts.message-queue',compact('instaAccounts','accountSettingInformation','queueList','filterFullName','filterMessage'));
     }
 
     public function messageQueueSetting(Request $request)
     {
-//        $updatedData =  Setting::updateOrCreate(
-//            [
-//                'name' => 'instagram_message_queue_rate_setting'
-//            ],
-//
-//            [
-//                'val' => json_encode(
-//                    $request->except('_token')
-//
-//                ),
-//                'type' => 'str'
-//            ]
-//        );
-//        return response()->json(['code' => 200, 'message' => 'Data updated succesfully']);
     }
 
     public function messageQueueApprove(Request $request)
     {
-//        $approveQueueList =  ChatMessage::with('getSenderUsername')->join("instagram_users_lists as iul", "iul.id", "chat_messages.instagram_user_id")
-//        ->where("is_queue", 0)
-//        ->where("instagram_user_id", ">", 0)
-//        ->select('iul.*','chat_messages.id as chat_message_id','chat_messages.message as chat_message_message','chat_messages.account_id as chat_message_account_id','chat_messages.created_at as chat_message_created_at','chat_messages.account_id')
-//        ;
-//
-//        if($request->filterMessage){
-//            $approveQueueList = $approveQueueList->where('message','LIKE','%'.$request->filterMessage.'%');
-//        }
-//
-//        if($request->filterFullName){
-//            $approveQueueList = $approveQueueList->where('fullname','LIKE','%'.$request->filterFullName.'%');
-//        }
-//
-//
-//        $approveQueueList= $approveQueueList->paginate(Setting::get('pagination'));
-//
-//        // dd($approveQueueList);
-//        // ->groupBy("c.whatsapp_number")
-//        // ->select(\DB::raw("count(*) as total_message"))
-//        $filterFullName = $request->filterFullName;
-//        $filterMessage = $request->filterMessage;
-//
-//
-//        return view('social-media.instagram-posts.message-queue-approve' ,compact('approveQueueList','filterFullName','filterMessage'));
     }
 
     public function messageQueueApproved(Request $request)

@@ -19,7 +19,6 @@ class CreateKeywordScrapperQueue implements ShouldQueue
      */
     public function __construct(array $data)
     {
-        //
         $this->data = $data;
     }
 
@@ -55,10 +54,6 @@ class CreateKeywordScrapperQueue implements ShouldQueue
             curl_close($curl);
             \Log::info(json_encode($response));
             $result = null;
-            /*if (! empty($response)) {
-                $result = json_decode($response);
-                self::putLog('Job create failed : '. $response .' : '.date('Y-m-d H:i:s'));
-            }*/
             if (empty($err) && ! empty($result) && isset($result->error)) {
                 self::putLog('Job create failed : ' . $result->message . ' : ' . date('Y-m-d H:i:s'));
             }

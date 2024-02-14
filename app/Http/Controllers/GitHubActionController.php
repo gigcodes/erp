@@ -41,9 +41,8 @@ class GitHubActionController extends Controller
     {
         $gitactions = new GitHubAction();
 
-
-        $apiUrls =  GitHubAction::distinct('github_api_url')->pluck('github_api_url');
-        $refUrls =  GitHubAction::distinct('github_ref')->pluck('github_ref');
+        $apiUrls = GitHubAction::distinct('github_api_url')->pluck('github_api_url');
+        $refUrls = GitHubAction::distinct('github_ref')->pluck('github_ref');
         $repos = GitHubAction::distinct('github_repository')->pluck('github_repository');
 
         if ($request->search_event) {
@@ -77,11 +76,8 @@ class GitHubActionController extends Controller
             $gitactions = $gitactions->where('runner_name', 'LIKE', '%' . $request->search_runner . '%');
         }
 
-
         $gitactions = $gitactions->latest()->paginate(\App\Setting::get('pagination', 10));
 
-
-        return view('git-actions.git-action-list', compact('gitactions','apiUrls','repos','refUrls'));
-
+        return view('git-actions.git-action-list', compact('gitactions', 'apiUrls', 'repos', 'refUrls'));
     }
 }

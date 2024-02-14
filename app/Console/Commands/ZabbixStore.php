@@ -54,7 +54,6 @@ class ZabbixStore extends Command
                             'name' => $host->name,
                             'host' => $host->host,
                         ];
-                        //Host::where('hostid', $host->hostid)->update($hostarray);
                         $items = $this->item_api($auth_key, $host->hostid);
                     } else {
                         $hostarray = [
@@ -104,8 +103,9 @@ class ZabbixStore extends Command
 
         $results = json_decode($result);
 
-        if (!isset($results[0])){
-            \Log::channel('general')->info("Response error: " . Carbon::now(). " " . json_encode($results));
+        if (! isset($results[0])) {
+            \Log::channel('general')->info('Response error: ' . Carbon::now() . ' ' . json_encode($results));
+
             return 0;
         }
 
@@ -114,6 +114,7 @@ class ZabbixStore extends Command
                 return $results[0]->result;
             } else {
                 \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+
                 return 0;
             }
         } catch (\Exception|\Throwable $e) {

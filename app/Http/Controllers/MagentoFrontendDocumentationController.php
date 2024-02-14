@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Exception;
 use Illuminate\Http\Request;
 use App\SiteDevelopmentCategory;
 use App\Models\MagentoFrontendRemark;
+use App\Jobs\MagnetoGoogledriveUpload;
 use App\Models\MagentoFrontendHistory;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\Models\MagentoFrontendChildFolder;
 use App\Models\MagentoFrontendParentFolder;
 use App\Models\MagentoFrontendDocumentation;
 use App\Models\MagentoFrontendCategoryHistory;
-use App\Jobs\MagnetoGoogledriveUpload;
-use Exception;
 
 class MagentoFrontendDocumentationController extends Controller
 {
@@ -23,14 +23,14 @@ class MagentoFrontendDocumentationController extends Controller
 
         if ($request->ajax()) {
             $items = MagentoFrontendDocumentation::with('storeWebsiteCategory', 'user')
-            ->select(
-                'magento_frontend_docs.*',
-                'magento_frontend_docs.location',
-                'magento_frontend_docs.admin_configuration',
-                'magento_frontend_docs.frontend_configuration',
-                'magento_frontend_docs.file_name',
-            )
-            ->join('site_development_categories', 'site_development_categories.id', '=', 'magento_frontend_docs.store_website_category_id');
+                ->select(
+                    'magento_frontend_docs.*',
+                    'magento_frontend_docs.location',
+                    'magento_frontend_docs.admin_configuration',
+                    'magento_frontend_docs.frontend_configuration',
+                    'magento_frontend_docs.file_name',
+                )
+                ->join('site_development_categories', 'site_development_categories.id', '=', 'magento_frontend_docs.store_website_category_id');
 
             if (isset($request->frontend_configuration)) {
                 $items->where('magento_frontend_docs.frontend_configuration', 'LIKE', '%' . $request->frontend_configuration . '%');
@@ -64,7 +64,7 @@ class MagentoFrontendDocumentationController extends Controller
         $magentofrontenddoc->admin_configuration = $request->admin_configuration;
         $magentofrontenddoc->frontend_configuration = $request->frontend_configuration;
         $magentofrontenddoc->parent_folder = $request->parent_folder;
-        $magentofrontenddoc->child_folder  = $request->child_folder;
+        $magentofrontenddoc->child_folder = $request->child_folder;
         $magentofrontenddoc->read = $request->read ? implode(',', $request->read) : null;
         $magentofrontenddoc->write = $request->write ? implode(',', $request->write) : null;
         $magentofrontenddoc->save();
@@ -101,25 +101,21 @@ class MagentoFrontendDocumentationController extends Controller
         $magnetohistory->updated_by = \Auth::id();
         $magnetohistory->save();
 
-        if($request->child_folder)
-        { 
+        if ($request->child_folder) {
             $magentofrontendremark = new MagentoFrontendChildFolder();
             $magentofrontendremark->magento_frontend_docs_id = $magentofrontenddoc->id;
             $magentofrontendremark->child_folder_name = $request->child_folder;
             $magentofrontendremark->user_id = \Auth::id();
             $magentofrontendremark->save();
-
         }
 
-        if($request->parent_folder)
-        {
+        if ($request->parent_folder) {
             $magentofrontendremark = new MagentoFrontendParentFolder();
-            $magentofrontendremark->magento_frontend_docs_id = $magentofrontenddoc->id;;
+            $magentofrontendremark->magento_frontend_docs_id = $magentofrontenddoc->id;
             $magentofrontendremark->parent_folder_name = $request->parent_folder;
             $magentofrontendremark->user_id = \Auth::id();
             $magentofrontendremark->save();
         }
-       
 
         return response()->json([
             'status' => true,
@@ -159,7 +155,7 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentoLocationget(Request $request)
     {
-        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('location_type',$request->location)->latest()->get();
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('location_type', $request->location)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -169,10 +165,9 @@ class MagentoFrontendDocumentationController extends Controller
         ], 200);
     }
 
-    
     public function magentoFrontend(Request $request)
     {
-        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('frontend_type',$request->admin)->latest()->get();
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('frontend_type', $request->admin)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -184,7 +179,7 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentoAdminget(Request $request)
     {
-        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('admint_type',$request->admin)->latest()->get();
+        $remarks = MagentoFrontendHistory::with(['user'])->where('magento_frontend_docs_id', $request->id)->where('admint_type', $request->admin)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -194,7 +189,6 @@ class MagentoFrontendDocumentationController extends Controller
         ], 200);
     }
 
-    
     public function magentofrontendEdit($id)
     {
         $magento_module = MagentoFrontendDocumentation::find($id);
@@ -210,7 +204,7 @@ class MagentoFrontendDocumentationController extends Controller
     public function magentofrontendOptions(Request $request)
     {
         $oldData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
-        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data,'user_id' => \Auth::id()]);
+        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data, 'user_id' => \Auth::id()]);
 
         $newData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
 
@@ -239,16 +233,16 @@ class MagentoFrontendDocumentationController extends Controller
     public function magentofrontendUpdate(Request $request)
     {
         $oldData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
-        $oldlocation =$oldData->location;
-        $oldAdminConfig =$oldData->admin_configuration;
-        $oldFrontEndConfig =$oldData->frontend_configuration;
+        $oldlocation = $oldData->location;
+        $oldAdminConfig = $oldData->admin_configuration;
+        $oldFrontEndConfig = $oldData->frontend_configuration;
 
         $oldData->location = $request->location;
         $oldData->admin_configuration = $request->admin_configuration;
         $oldData->frontend_configuration = $request->frontend_configuration;
         $oldData->child_folder = $request->child_folder;
         $oldData->parent_folder = $request->parent_folder;
-        $oldData->user_id =  \Auth::id();
+        $oldData->user_id = \Auth::id();
         $oldData->save();
 
         if ($request->hasFile('child_folder_image')) {
@@ -273,31 +267,27 @@ class MagentoFrontendDocumentationController extends Controller
         $magnetohistory->frontend_configuration = $request->frontend_configuration;
         $magnetohistory->frontend_configuration = $request->frontend_configuration;
         $magnetohistory->updated_by = \Auth::id();
-       
-        if ($oldlocation != $request->location)
-        {
+
+        if ($oldlocation != $request->location) {
             $magnetohistory->old_location = $oldlocation;
-            $magnetohistory->location_type = "location";
+            $magnetohistory->location_type = 'location';
             $magnetohistory->save();
         }
 
-         
-        if ($oldAdminConfig != $request->admin_configuration)
-        {
+        if ($oldAdminConfig != $request->admin_configuration) {
             $magnetohistory->old_admin_configuration = $oldAdminConfig;
-            $magnetohistory->admint_type = "AdminConfig";
+            $magnetohistory->admint_type = 'AdminConfig';
             $magnetohistory->save();
         }
 
-        if ($oldFrontEndConfig != $request->frontend_configuration)
-        {
+        if ($oldFrontEndConfig != $request->frontend_configuration) {
             $magnetohistory->old_frontend_configuration = $oldFrontEndConfig;
-            $magnetohistory->frontend_type = "FrontEndConfig";
+            $magnetohistory->frontend_type = 'FrontEndConfig';
             $magnetohistory->save();
         }
 
         $magnetohistory->save();
-     
+
         return response()->json([
             'status' => true,
             'message' => 'Updated successfully',
@@ -364,21 +354,20 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentofrontendparentFolderImage(Request $request)
     {
-       
         $magentofrontenddoc = MagentoFrontendDocumentation::find($request->magento_frontend_id);
 
-       if ($magentofrontenddoc) {
+        if ($magentofrontenddoc) {
             $FrontendId = $request->magento_frontend_id;
             $newData = $magentofrontenddoc->parent_google_file_drive_id ?? '';
             $columnname = 'parentFolder';
-        
+
             $magnetohistory = new MagentoFrontendHistory();
             $magnetohistory->magento_frontend_docs_id = $FrontendId;
             $magnetohistory->column_name = $columnname;
-            $magnetohistory->new_value = $newData;     
+            $magnetohistory->new_value = $newData;
             $magnetohistory->updated_by = \Auth::id();
             $magnetohistory->save();
-        
+
             if ($request->hasFile('parent_folder_image')) {
                 foreach ($request->parent_folder_image as $file) {
                     $magentofrontenddoc->parent_file_name = $file->getClientOriginalName();
@@ -390,6 +379,7 @@ class MagentoFrontendDocumentationController extends Controller
                     $magnetohistory->file_name = $file->getClientOriginalName();
                     $magnetohistory->save();
                 }
+
                 return response()->json([
                     'status' => true,
                     'data' => $magnetohistory,
@@ -402,7 +392,7 @@ class MagentoFrontendDocumentationController extends Controller
                 'status' => false,
                 'message' => 'magneto frontend Parent Image Added succesfully',
                 'status_name' => 'failed',
-            ], 200);        
+            ], 200);
         }
     }
 
@@ -417,10 +407,9 @@ class MagentoFrontendDocumentationController extends Controller
         $magnetohistory = new MagentoFrontendHistory();
         $magnetohistory->magento_frontend_docs_id = $frontendId;
         $magnetohistory->column_name = $columnname;
-        $magnetohistory->new_value = $newData;     
+        $magnetohistory->new_value = $newData;
         $magnetohistory->updated_by = \Auth::id();
         $magnetohistory->save();
-
 
         if ($request->hasFile('child_folder_image')) {
             foreach ($request->child_folder_image as $file) {
@@ -430,8 +419,8 @@ class MagentoFrontendDocumentationController extends Controller
                 $magentofrontenddoc->save();
                 MagnetoGoogledriveUpload::dispatchNow($magentofrontenddoc, $file);
                 $magnetohistory = MagentoFrontendHistory::find($magnetohistory->id);
-                $magnetohistory->new_value =  $magentofrontenddoc->google_drive_file_id;
-                $magnetohistory->file_name = $file->getClientOriginalName();;
+                $magnetohistory->new_value = $magentofrontenddoc->google_drive_file_id;
+                $magnetohistory->file_name = $file->getClientOriginalName();
                 $magnetohistory->save();
             }
         }
@@ -491,10 +480,10 @@ class MagentoFrontendDocumentationController extends Controller
             $result = [];
             if (isset($request->id)) {
                 $result = MagentoFrontendHistory::where('column_name', $request->type)
-                        ->where('magento_frontend_docs_id', $request->id)
-                        ->whereNotNull('new_value')
-                        ->orderBy('id', 'desc')
-                        ->get();
+                    ->where('magento_frontend_docs_id', $request->id)
+                    ->whereNotNull('new_value')
+                    ->orderBy('id', 'desc')
+                    ->get();
 
                 if (isset($result) && count($result) > 0) {
                     $result = $result->toArray();

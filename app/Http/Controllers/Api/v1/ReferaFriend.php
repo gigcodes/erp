@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Api\v1;
 
 use Exception;
 use App\Coupon;
-use App\Customer;
 use App\ReferFriend;
 use App\StoreWebsite;
-use GuzzleHttp\Client;
 use App\ReferralProgram;
 use App\LogReferalCoupon;
 use Illuminate\Support\Str;
@@ -82,9 +80,6 @@ class ReferaFriend extends Controller
         }
         $storeweb = StoreWebsite::where('website', $request->input('website'))->first();
 
-        //$customer = Customer::where(['store_website_id'=>$storeweb->id,'email'=>$request->input('referrer_email')])->first();
-
-        //$uuid = isset($customer->id)?md5($customer->id):'';
         $uuid = md5(Str::random(15));
         if (! $uuid) {
             $message = $this->generate_erp_response('refera.friend.failed', $storeweb->id, $default = 'Referrer does not exist in records', request('lang_code'));
@@ -136,7 +131,6 @@ class ReferaFriend extends Controller
                 500
             );
         }
-        //$httpClient = new Client;
         $referrer_coupon = Str::random(15);
         $referee_coupon = Str::random(15);
         $refferal_program = ReferralProgram::where(['name' => 'signup_referral', 'store_website_id' => $data['store_website_id']])->first();
@@ -159,10 +153,6 @@ class ReferaFriend extends Controller
         }
         $coupondata = [
             'description' => 'Coupon generated from refer a friend scheme',
-            //'discount_fixed' => 100,
-            //'discount_percentage' => 15,
-            //'minimum_order_amount' => 500,
-            //'maximum_usage' => 1,
             'initial_amount' => $refferal_program->credit,
         ];
         $referrer_coupondata = [];
@@ -188,8 +178,6 @@ class ReferaFriend extends Controller
             $referee_coupondata['coupon_type'] = 'referafriend';
             $referee_coupondata['status'] = 1;
         }
-        //$queryString1 = http_build_query($referrer_coupondata);
-        //$queryString2 = http_build_query($referee_coupondata);
         Coupon::create($referrer_coupondata);
         $referreSuccess = Coupon::create($referee_coupondata);
         if ($referreSuccess) {
@@ -200,12 +188,6 @@ class ReferaFriend extends Controller
             ]);
             ReferFriend::where('id', $data['refer_log_id'])->update(['status' => 'Success: Coupon Created Successfully']);
             try {
-                //$url1 = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString1;
-                //$response1 = $httpClient->get($url1);
-
-                //$url2 = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString2;
-                //$response2 = $httpClient->get($url2);
-
                 $referlink = $data['website'] . '/register?uuid=' . $data['uuid'];
                 $mailData['referee_email'] = $data['referee_email'];
                 $mailData['referrer_email'] = $data['referrer_email'];
@@ -246,7 +228,6 @@ class ReferaFriend extends Controller
                     'status' => 'success',
                     'message' => $message,
                     'referrer_code' => $referrer_coupon,
-                    //'referee_code' => $referee_coupon,
                     'referrer_email' => $data['referrer_email'],
                     'referee_email' => $data['referee_email'],
                 ], 200);

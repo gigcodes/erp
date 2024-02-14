@@ -43,7 +43,6 @@ class ProductSupplierData extends Command
      */
     public function handle()
     {
-        //
         $product_data = Product::get();
 
         $product_suppliers_data = ProductSupplier::get();
@@ -95,44 +94,5 @@ class ProductSupplierData extends Command
         $download_url = '<a href="' . $downloadUrl . '" >Download File</a>';
 
         dd('Please Check This File : ' . $download_url);
-
-        // $chatFileData = '';
-        // $chatFileData .= html_entity_decode("Product Supplier Data", ENT_QUOTES, 'UTF-8');
-        // $chatFileData .= "\n" . "\n";
-
-        // foreach ($supplier_not_exist_product_supplier_table as $k => $v) {
-        //     $chatFileData .= html_entity_decode("Product Id : " . $v['product_id'], ENT_QUOTES, 'UTF-8');
-        //     $chatFileData .= "\n";
-        //     $chatFileData .= html_entity_decode("Prodcuct Name : " . $v['product_name'], ENT_QUOTES, 'UTF-8');
-        //     $chatFileData .= "\n";
-        //     $chatFileData .= html_entity_decode("Supplier Id : " . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
-        //     $chatFileData .= "\n" . "\n";
-        // }
-
-        // $date = date('Y_m_d_H_i_s');
-        // $storagelocation = storage_path() . '/logs/not_mapping_product_supplier';
-        // if (!is_dir($storagelocation)) {
-        //     mkdir($storagelocation, 0777, true);
-        // }
-        // $filename = "not_mapping_supplier_".$date.".txt";
-        // $file = $storagelocation . '/' . $filename;
-        // $downloadUrl = config('env.APP_URL').'/admin-menu/db-query/report-download?file=/logs/not_mapping_product_supplier/'.$filename;
-        // $txt = fopen($file, "w") or die("Unable to open file!");
-
-        // fwrite($txt, $chatFileData);
-        // fclose($txt);
-
-        // header('Content-Description: File Transfer');
-        // header('Content-Disposition: attachment; filename='.basename($file));
-        // header('Expires: 0');
-        // header('Cache-Control: must-revalidate');
-        // header('Pragma: public');
-        // header('Content-Length: ' . filesize($file));
-        // header("Content-Type: text/plain");
-        // readfile($file);
-        // unlink($file);
-
-        // dd("Please Check This File : ".$file);
-        // dd("Please Check This File : ".$downloadUrl);
     }
 }

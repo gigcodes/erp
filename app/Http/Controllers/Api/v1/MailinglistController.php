@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Website;
 use App\Customer;
 use App\Language;
 use App\LogRequest;
@@ -14,9 +13,9 @@ use App\Http\Controllers\Controller;
 class MailinglistController extends Controller
 {
     /**
-     *@create_customer
+     * @create_customer
      *
-     *@author Hitesh
+     * @author Hitesh
      */
     public function create_customer($email, $store_website_id, $storeName = null, $language = null)
     {
@@ -62,7 +61,7 @@ class MailinglistController extends Controller
      *          required=true,
      *          type="string"
      *      ),
-            @SWG\Parameter(
+    @SWG\Parameter(
      *          name="website",
      *          in="path",
      *          required=true,
@@ -71,7 +70,7 @@ class MailinglistController extends Controller
      * )
      */
     /**
-     *@function add
+     * @function add
      *Step1) get store website from request
      *Step2) if store website not present send return message
      *Step3) if it's present get cutomer using store_website_Id and email id
@@ -108,7 +107,7 @@ class MailinglistController extends Controller
 
         $languageId = Language::where('locale', $language)->pluck('id')->first();
         $mailinglist = Mailinglist::where('website_id', $store_website->id)
-         ->where('language', $languageId)->get();
+            ->where('language', $languageId)->get();
 
         // Step5
         foreach ($mailinglist as $key => $m) {
@@ -118,7 +117,6 @@ class MailinglistController extends Controller
         $customer->newsletter = 1;
         $customer->save();
 
-        // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
         $message = $this->generate_erp_response('newsletter.success', $store_website->id, $default = 'Successfully added', request('lang_code'));
 
         return response()->json(['code' => 200, 'message' => $message]);
@@ -149,7 +147,6 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
-                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                 'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
@@ -176,7 +173,6 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'DELETE',
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -201,7 +197,6 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],

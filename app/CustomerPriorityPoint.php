@@ -20,7 +20,6 @@ class CustomerPriorityPoint extends Model
      * @SWG\Property(property="ticket_points",type="integer")
      */
 
-    // protected $appends = ['communication'];
     protected $table = 'customer_priority_points';
 
     protected $fillable = [

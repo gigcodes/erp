@@ -62,36 +62,6 @@ class MonitorCronJobs extends Command
                         if ($cron_job->error_count <= 5) {
                             dump('cron job error');
 
-                            // app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-                            //   'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
-                            //   'timestamps' => ['+0 minutes'],
-                            //   'model_type' => 'MasterControl',
-                            //   'model_id' =>  1,
-                            //   'user_id' => 3,
-                            //   'sent_to' => 6,
-                            //   'role' => '',
-                            // ]);
-                            //
-                            // app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-                            //   'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
-                            //   'timestamps' => ['+0 minutes'],
-                            //   'model_type' => 'MasterControl',
-                            //   'model_id' =>  1,
-                            //   'user_id' => 3,
-                            //   'sent_to' => 56,
-                            //   'role' => '',
-                            // ]);
-                            //
-                            // app('App\Http\Controllers\NotificationQueueController')->createNewNotification([
-                            //   'message' => "Broadcast Cron Job Error - Pending messages: $message_queues_count",
-                            //   'timestamps' => ['+0 minutes'],
-                            //   'model_type' => 'MasterControl',
-                            //   'model_id' =>  1,
-                            //   'user_id' => 3,
-                            //   'sent_to' => 7,
-                            //   'role' => '',
-                            // ]);
-
                             $cron_job->last_status = 'error';
                             $cron_job->error_count += 1;
                             $cron_job->save();

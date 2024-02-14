@@ -47,7 +47,6 @@ class FixErpSizeIssue extends Command
         try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron started to run']);
 
-            // $kkkk
             $products = Product::join('scraped_products as sp', 'sp.product_id', 'products.id')->where('products.status_id', StatusHelper::$sizeVerifyCron)->where('products.supplier_id', '>', 0)
             ->where(function ($q) {
                 $q->where('sp.size', '!=', '')->where('sp.size', '!=', '0');

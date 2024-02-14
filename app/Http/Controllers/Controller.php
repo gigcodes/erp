@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * @SWG\Swagger(
- *	 schemes={"http" , "https"},
+ *     schemes={"http" , "https"},
  *   basePath="/api" ,
  *
  *   @SWG\Info(
@@ -57,7 +57,7 @@ class Controller extends BaseController
                     ->first();
 
                 if (! empty($translated_message)) {
-                    //  return $message = $translated_message->value;
+                    //
                 }
             }
 

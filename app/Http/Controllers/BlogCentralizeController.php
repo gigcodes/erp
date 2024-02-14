@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\BlogCentralize;
+use App\Models\EmailReceiverMaster;
 use App\Http\Requests\StoreBlogCentralizeRequest;
 use App\Http\Requests\UpdateBlogCentralizeRequest;
-use App\Models\EmailReceiverMaster;
-use Illuminate\Http\Request;
 
 class BlogCentralizeController extends Controller
 {
@@ -19,16 +19,16 @@ class BlogCentralizeController extends Controller
     {
         $page_val = config('constants.paginate');
         $allblogCentralize = BlogCentralize::orderBy('id', 'desc')->paginate($page_val)->appends(request()->except(['page']));
-        $emailReceivRec = EmailReceiverMaster::where('module_name','blog')->first();
+        $emailReceivRec = EmailReceiverMaster::where('module_name', 'blog')->first();
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('blog-centralize.partial_index', compact("allblogCentralize"))->render(),
+                'tbody' => view('blog-centralize.partial_index', compact('allblogCentralize'))->render(),
                 'links' => (string) $allblogCentralize->render(),
-                'count' => $allblogCentralize->total()
+                'count' => $allblogCentralize->total(),
             ], 200);
         } else {
-            return view("blog-centralize.index", compact("allblogCentralize","emailReceivRec"));
+            return view('blog-centralize.index', compact('allblogCentralize', 'emailReceivRec'));
         }
     }
 
@@ -45,7 +45,6 @@ class BlogCentralizeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreBlogCentralizeRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreBlogCentralizeRequest $request)
@@ -56,18 +55,16 @@ class BlogCentralizeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\BlogCentralize  $blogCentralize
      * @return \Illuminate\Http\Response
      */
     public function show(BlogCentralize $blogCentralize)
     {
-        return ['status'=>true,'data'=>$blogCentralize];
+        return ['status' => true, 'data' => $blogCentralize];
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\BlogCentralize  $blogCentralize
      * @return \Illuminate\Http\Response
      */
     public function edit(BlogCentralize $blogCentralize)
@@ -78,8 +75,6 @@ class BlogCentralizeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateBlogCentralizeRequest  $request
-     * @param  \App\Models\BlogCentralize  $blogCentralize
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateBlogCentralizeRequest $request, BlogCentralize $blogCentralize)
@@ -90,7 +85,6 @@ class BlogCentralizeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\BlogCentralize  $blogCentralize
      * @return \Illuminate\Http\Response
      */
     public function destroy(BlogCentralize $blogCentralize)

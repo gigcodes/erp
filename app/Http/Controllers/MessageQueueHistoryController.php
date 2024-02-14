@@ -55,14 +55,4 @@ class MessageQueueHistoryController extends Controller
             'page' => $records->currentPage(),
         ]);
     }
-
-    // public function getLoadDataValue(Request $request)
-    // {
-
-    //     $records = MessageQueueHistory::where('id',$request->id)->first();
-
-    //     $fulltextvalue = $records[$request->field];
-
-    //     return response()->json(["code" => 200, "data" => $fulltextvalue]);
-    // }
 }

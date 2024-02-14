@@ -48,7 +48,6 @@ class BringBrunoCompositionFromScraped extends Command
 
             Product::where('supplier', 'BRUNA ROSSO')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
-//                $pro
                 }
             });
 

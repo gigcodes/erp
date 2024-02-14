@@ -27,8 +27,6 @@ class EditRequest extends FormRequest
             'store_website_id' => 'required|exists:store_websites,id',
             'platform' => 'required',
             'name' => 'required',
-            //  'email' => 'required',
-            //   'password' => 'required',
             'status' => 'required',
             'page_id' => 'required',
             'page_token' => 'required',

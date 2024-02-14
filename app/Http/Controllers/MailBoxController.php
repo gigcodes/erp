@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use DB;
-
 use Auth;
 use App\Email;
 use Carbon\Carbon;
@@ -94,7 +93,7 @@ class MailBoxController extends Controller
                 $query->whereIn('model_type', $model_type);
             });
         }
-        
+
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
                 $query->where('from', 'like', '%' . $term . '%')
@@ -117,7 +116,7 @@ class MailBoxController extends Controller
                 $query->whereIn('to', $receiver);
             });
         }
-        
+
         if ($category) {
             $category = explode(',', $request->category);
             $query = $query->where(function ($query) use ($category) {
@@ -127,20 +126,20 @@ class MailBoxController extends Controller
 
         $query->where('email_category_id', '>', 0);
 
-        if (!empty($email_type)) {
-            if($email_type=='Read') {
+        if (! empty($email_type)) {
+            if ($email_type == 'Read') {
                 $query = $query->where('type', 'incoming');
                 $query = $query->where('seen', 1);
-            } else if($email_type=='Unread') {
+            } elseif ($email_type == 'Unread') {
                 $query = $query->where('type', 'incoming');
                 $query = $query->where('seen', 0);
-            } else if($email_type=='Sent') {
+            } elseif ($email_type == 'Sent') {
                 $query = $query->where('type', 'outgoing');
-            } else if($email_type=='Trash') {
+            } elseif ($email_type == 'Trash') {
                 $query = $query->where('status', 'bin');
-            } else if($email_type=='Draft') {
+            } elseif ($email_type == 'Draft') {
                 $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
-            } else if($email_type=='Queue') {
+            } elseif ($email_type == 'Queue') {
                 $query = $query->where('status', 'pre-send');
             }
         }
@@ -206,14 +205,6 @@ class MailBoxController extends Controller
         // suggested search for email forwarding
         $search_suggestions = $this->getAllEmails();
 
-        // dd(array_values($search_suggestions));
-
-        // if($request->AJAX()) {
-        //     return view('emails.search',compact('emails'));
-        // }
-
-        // dont load any data, data will be loaded by tabs based on ajax
-        // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
 
         $totalEmail = Email::whereNotNull('email_box_id')->count();
@@ -295,7 +286,7 @@ class MailBoxController extends Controller
         foreach ($available_models as $key => $value) {
             $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
         }
-        // dd($email_list);
+
         return array_values(array_unique($email_list));
     }
 }

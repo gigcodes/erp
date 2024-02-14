@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskHistories extends Model
 {
-    //
     protected $table = 'task_history';
 
     protected $fillable = [

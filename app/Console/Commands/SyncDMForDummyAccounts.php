@@ -10,10 +10,6 @@ use App\CronJobReport;
 use App\InstagramThread;
 use Illuminate\Console\Command;
 
-//use InstagramAPI\Instagram;
-
-//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-
 class SyncDMForDummyAccounts extends Command
 {
     /**
@@ -36,12 +32,6 @@ class SyncDMForDummyAccounts extends Command
      * @return void
      */
     private $messages;
-
-//    public function __construct(Instagram $messages)
-//    {
-//        parent::__construct();
-//        $this->messages = $messages;
-//    }
 
     /**
      * Execute the console command.

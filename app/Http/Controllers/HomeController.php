@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Session;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -31,7 +31,6 @@ class HomeController extends Controller
     {
         //Read the favicon template from favicon.png
         //file from current directory
-        //header('Content-type: image/png');
         $im = imagecreatefrompng(public_path('favicon/favicon-30X30.png'));
         $char = preg_split("/\s+/", $request->get('title', 'U'));
 

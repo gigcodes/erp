@@ -22,16 +22,13 @@ class ShowMagentoCronDataController extends Controller
 
     public function MagentoCron(Request $request)
     {
-        // $status = $this->cronStatus();
         $status = CronStatus::all();
-
         $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
         $magentoCronWebsites = MagentoCronData::whereNotNull('website')->where('website', '!=', 'NULL')->groupby('website')->pluck('website');
         $magentoCronJobCodes = MagentoCronData::whereNotNull('job_code')->where('job_code', '!=', 'NULL')->groupby('job_code')->pluck('job_code');
 
         $data = new MagentoCronData();
         $skip = empty($request->page) ? 0 : $request->page;
-        //echo"<pre>";print_r($request->all());die;
         if (isset($request->website)) {
             $data = $data->where('website', $request->website);
         }
@@ -60,13 +57,13 @@ class ShowMagentoCronDataController extends Controller
                 ['cronstatus', '=', 'pending'],
                 ['cron_executed_at', '=', null],
             ])
-            ->orWhere([
-                ['cronstatus', '=', 'pending'],
-                ['cron_executed_at', '=', '0000-00-00 00:00:00'],
-            ])
-            ->orWhere('cronstatus', '=', 'error')
-            ->orWhere('cronstatus', '=', 'missed')
-            ->orWhere('cronstatus', '=', 'success');
+                ->orWhere([
+                    ['cronstatus', '=', 'pending'],
+                    ['cron_executed_at', '=', '0000-00-00 00:00:00'],
+                ])
+                ->orWhere('cronstatus', '=', 'error')
+                ->orWhere('cronstatus', '=', 'missed')
+                ->orWhere('cronstatus', '=', 'success');
         });
 
         $data = $data->skip($skip * Setting::get('pagination'))->limit('25');
@@ -169,8 +166,8 @@ class ShowMagentoCronDataController extends Controller
                 $commands_id[] = $command->id;
             }
             $postHis = MagentoCommandRunLog::select('magento_command_run_logs.*', 'u.name AS userName')
-            ->leftJoin('users AS u', 'u.id', 'magento_command_run_logs.user_id')
-            ->whereIn('command_id', $commands_id)->orderby('id', 'DESC')->get();
+                ->leftJoin('users AS u', 'u.id', 'magento_command_run_logs.user_id')
+                ->whereIn('command_id', $commands_id)->orderby('id', 'DESC')->get();
 
             foreach ($postHis as $logs) {
                 $magCom = MagentoCommand::find($logs->command_id);
@@ -203,7 +200,6 @@ class ShowMagentoCronDataController extends Controller
 
                         $headers = [];
                         $headers[] = 'Authorization: Basic ' . $key;
-                        //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
@@ -250,7 +246,7 @@ class ShowMagentoCronDataController extends Controller
         $magentoCronErrorLists = new MagentoCronData();
         $perPage = 25;
         $magentoCronErrorLists = $magentoCronErrorLists->where('cronstatus', '=', 'error')->latest()
-        ->paginate($perPage);
+            ->paginate($perPage);
 
         return response()->json(['code' => 200, 'data' => $magentoCronErrorLists, 'message' => 'Listed successfully!!!']);
     }

@@ -3,11 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use Carbon\Carbon;
 use App\CronJobReport;
-use App\ScrapedProducts;
 use App\Helpers\LogHelper;
-use App\Loggers\LogScraper;
+use App\ScrapedProducts;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command
@@ -62,7 +61,6 @@ class CategoryMissingReferences extends Command
             ->select(['b.name as brand', 'website', 'category'])
             ->get(['website', 'brand', 'category']);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraped products was added.']);
-            //$logScrapers = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
             // Loop over result
             foreach ($logScrapers as $logScraper) {
@@ -88,7 +86,6 @@ class CategoryMissingReferences extends Command
 
                     // Still null
                     if ($exists == null) {
-                        // $arrUnknown[] = $logScraper->website . ':' . $lastCategory;
                         $arrUnknown[] = $lastCategory;
                     }
                 }

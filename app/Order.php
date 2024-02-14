@@ -20,7 +20,6 @@ class Order extends Model
      * @SWG\Property(property="order_type",type="string")
      * @SWG\Property(property="order_date",type="datetime")
      * @SWG\Property(property="awb",type="string")
-
      * @SWG\Property(property="client_name",type="sting")
      * @SWG\Property(property="city",type="sting")
      * @SWG\Property(property="contact_detail",type="sting")
@@ -74,7 +73,6 @@ class Order extends Model
         'order_status_id',
         'estimated_delivery_date',
         'note_if_any',
-
         'date_of_delivery',
         'received_by',
         'payment_mode',
@@ -98,8 +96,6 @@ class Order extends Model
     ];
 
     protected $appends = ['action'];
-    // protected $communication = '';
-    // protected $action = '';
 
     public function order_product()
     {
@@ -233,25 +229,6 @@ class Order extends Model
     {
         return $this->belongsTo(\App\OrderStatus::class);
     }
-    // public function getCommunicationAttribute()
-    // {
-    // 	$message = $this->messages();
-    // 	$whatsapp = $this->whatsapps();
-    //
-    // 	if ($message && $whatsapp) {
-    // 		if ($message->created_at > $whatsapp->created_at) {
-    // 			return $message;
-    // 		}
-    //
-    // 		return $whatsapp;
-    // 	}
-    //
-    // 	if ($message) {
-    // 		return $message;
-    // 	}
-    //
-    // 	return $whatsapp;
-    // }
 
     public function getActionAttribute()
     {
@@ -339,27 +316,4 @@ class Order extends Model
 
         return implode(',', $awbno);
     }
-
-    // public function calculateTotal($order)
-    // {
-    //     $orderTotal = 0;
-
-    //     if (!empty($order)) {
-    //         foreach ($order->order_product as $products) {
-    //             if($products->product) {
-    //                 $string .= '<tr class="item last" style="height: 25px;">
-    //                           <td style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' '. $products->product->short_description .'</td>
-    //                           <td style="height: 25px; width: 100px; text-align: left;"></td>
-    //                           <td style="height: 25px; width: 100px; text-align: left;">' . $products->product->made_in . '</td>
-    //                           <td style="height: 25px; width: 100px; text-align: left;">' . $products->qty . '</td>
-    //                           <td style="height: 25px; width: 100px; text-align: left;">1</td>
-    //                           <td style="height: 25px; width: 100px; text-align: left;">&#8377;' . $products->product_price . '</td>
-    //                        </tr>';
-    //             }
-    //             $orderTotal += $products->product_price;
-    //         }
-    //     }
-
-    //     return $string;
-    // }
 }

@@ -50,34 +50,10 @@ class MoveCropRejectedProductsToReCrop extends Command
 
             foreach ($products as $key => $product) {
                 dump('Reverting....' . $key);
-//            $product->is_image_processed = 0;
-                //            $product->is_being_cropped = 0;
-                //            $product->is_crop_rejected = 0;
                 $product->is_crop_approved = 1;
                 $product->crop_approved_at = Carbon::now()->toDateTimeString();
                 $product->crop_approved_by = 109;
                 $product->save();
-
-                continue;
-//            $medias = $product->getMedia(config('constants.media_tags'));
-                //
-                //
-                //            foreach ($medias as $media) {
-                //                $fileName = $media->filename;
-                //                if (stripos(strtolower($fileName), 'cropped') !== false) {
-                //
-                //                    $m = CroppedImageReference::where('new_media_id', $media->id)->first();
-                //
-                //                    if ($m) {
-                //                        continue;
-                //                    }
-                //
-                //                    $mediaUrl = $media->getAbsolutePath();
-                //                    unlink($mediaUrl);
-                //                    $media->delete();
-                //                }
-                //            }
-                //            $product->save();
             }
 
             $report->update(['end_time' => Carbon::now()]);

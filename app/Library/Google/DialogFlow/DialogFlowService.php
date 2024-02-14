@@ -44,11 +44,6 @@ class DialogFlowService
 
     public function createIntent($parameters, $updateId = null)
     {
-//        $detectIntent = $this->detectIntent(null, $parameters['name']);
-//        if ($detectIntent->getIntent()->getDisplayName() == $parameters['name']) {
-//            $name = explode('/', $detectIntent->getIntent()->getName());
-//            $updateId = $name[count($name) - 1];
-//        }
         if (! $updateId) {
             $intents = $this->listIntents();
             $findIntent = array_search($parameters['name'], array_column($intents, 'display_name'));
@@ -236,7 +231,6 @@ class DialogFlowService
     public function trainAgent()
     {
         $agentsClient = new AgentsClient($this->credentials);
-//        _p($this->googleAccount);die;
         $parent = $agentsClient->projectName($this->googleAccount->project_id);
         $response = $agentsClient->trainAgent($parent);
         $agentsClient->close();

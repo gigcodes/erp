@@ -6,9 +6,9 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\ImageSchedule;
 use App\ScheduleGroup;
-//use App\Services\Instagram\Instagram;
 use Illuminate\Console\Command;
 use App\Services\Facebook\Facebook;
+
 
 class PostScheduledMedia extends Command
 {
@@ -27,7 +27,6 @@ class PostScheduledMedia extends Command
     protected $description = 'Command description';
 
     private $facebook;
-//    private $instagram;
 
     /**
      * Create a new command instance.
@@ -37,7 +36,6 @@ class PostScheduledMedia extends Command
     public function __construct(Facebook $facebook)
     {
         $this->facebook = $facebook;
-//        $this->instagram = $instagram;
         parent::__construct();
     }
 
@@ -64,13 +62,6 @@ class PostScheduledMedia extends Command
                         'status' => 1,
                     ]);
                 }
-//                if ($images[0]->schedule->instagram) {
-//                    $this->instagram->postMedia($images);
-//                    ImageSchedule::whereIn('image_id', $this->instagram->getImageIds())->update([
-//                        'status' => 1,
-//                    ]);
-//                }
-
                 $schedule->status = 2;
                 $schedule->save();
             }

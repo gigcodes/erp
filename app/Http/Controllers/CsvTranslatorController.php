@@ -22,7 +22,7 @@ class CsvTranslatorController extends Controller
         $permissions = [];
 
         foreach ($allCsvPermission as $permission) {
-            if(!in_array($permission['lang_id'], $cols)) {
+            if (! in_array($permission['lang_id'], $cols)) {
                 $cols[] = $permission['lang_id'];
                 $lang[] = ['data' => $permission['lang_id']];
             }
@@ -88,57 +88,57 @@ class CsvTranslatorController extends Controller
                         }
                         if (isset($permissions['es'])) {
                             $res->editColumn('es', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'es');
+                                return $this->commonServiceCheck($permissions, $data, 'es');
                             });
                         }
                         if (isset($permissions['ru'])) {
                             $res->editColumn('ru', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'ru');
+                                return $this->commonServiceCheck($permissions, $data, 'ru');
                             });
                         }
                         if (isset($permissions['ko'])) {
                             $res->editColumn('ko', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'ko');
+                                return $this->commonServiceCheck($permissions, $data, 'ko');
                             });
                         }
                         if (isset($permissions['ja'])) {
                             $res->editColumn('ja', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'ja');
+                                return $this->commonServiceCheck($permissions, $data, 'ja');
                             });
                         }
                         if (isset($permissions['de'])) {
                             $res->editColumn('de', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'de');
+                                return $this->commonServiceCheck($permissions, $data, 'de');
                             });
                         }
                         if (isset($permissions['it'])) {
                             $res->editColumn('it', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'it');
+                                return $this->commonServiceCheck($permissions, $data, 'it');
                             });
                         }
                         if (isset($permissions['fr'])) {
                             $res->editColumn('fr', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'fr');
+                                return $this->commonServiceCheck($permissions, $data, 'fr');
                             });
                         }
                         if (isset($permissions['nl'])) {
                             $res->editColumn('nl', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'nl');
+                                return $this->commonServiceCheck($permissions, $data, 'nl');
                             });
                         }
                         if (isset($permissions['zh'])) {
                             $res->editColumn('zh', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'zh');
+                                return $this->commonServiceCheck($permissions, $data, 'zh');
                             });
                         }
                         if (isset($permissions['ar'])) {
                             $res->editColumn('ar', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'ar');
+                                return $this->commonServiceCheck($permissions, $data, 'ar');
                             });
                         }
                         if (isset($permissions['ur'])) {
                             $res->editColumn('ur', function ($data) use ($permissions) {
-                                return  $this->commonServiceCheck($permissions, $data, 'ur');
+                                return $this->commonServiceCheck($permissions, $data, 'ur');
                             });
                         }
 
@@ -192,9 +192,9 @@ class CsvTranslatorController extends Controller
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
                 if ($data['status_' . $lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                    return '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 } else {
-                    return  '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
+                    return '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
                 }
             }
         }
@@ -202,9 +202,9 @@ class CsvTranslatorController extends Controller
         if (count($permissions[$lang]) == 2) {
             $return = '';
             if ($data['status_' . $lang] == 'checked') {
-                $return .=  '<div class="bg-success text-white show_csv_co">' . $language . "</div>";
+                $return .= '<div class="bg-success text-white show_csv_co">' . $language . '</div>';
             } else {
-                $return .=  '<div class="bg-custom-grey show_csv_co">' . $language . "</div>";
+                $return .= '<div class="bg-custom-grey show_csv_co">' . $language . '</div>';
             }
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
                 $return .= "<a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
@@ -226,11 +226,11 @@ class CsvTranslatorController extends Controller
         }
     }
 
-     public function exportData(Request $request)
-     {
-         \Excel::import(new CsvTranslatorImport(), $request->file);
-         \Session::flash('message', 'Successfully imported');
-     }
+    public function exportData(Request $request)
+    {
+        \Excel::import(new CsvTranslatorImport(), $request->file);
+        \Session::flash('message', 'Successfully imported');
+    }
 
     public function update(Request $request)
     {
@@ -306,13 +306,13 @@ class CsvTranslatorController extends Controller
             $record['status_' . $request->lang_id] = 'checked';
             $record['approved_by_user_id'] = \Auth::user()->id;
             $record->update();
-            
+
             $record_history = CsvTranslatorHistory::where('csv_translator_id', $record->id)->where($request->lang_id, '!=', '')->orderBy('id', 'desc')->first();
-            $record_history['status_' . $request->lang_id] = "checked";
+            $record_history['status_' . $request->lang_id] = 'checked';
             $record_history['approved_by_user_id'] = \Auth::user()->id;
             $record_history->update();
         }
-        
+
         return redirect()->route('csvTranslator.list')->with(['success' => 'Successfully Updated']);
     }
 

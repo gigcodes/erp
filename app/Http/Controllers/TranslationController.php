@@ -23,8 +23,8 @@ class TranslationController extends Controller
         }
         if ($request->term) {
             $query = $query->where('text_original', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
         }
 
         if ($request->translation_from) {
@@ -167,8 +167,8 @@ class TranslationController extends Controller
 
         if ($request->search) {
             $query = $query->where('messages', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('created_at', 'LIKE', '%' . $request->search . '%')
-                    ->orWhere('updated_at', 'LIKE', '%' . $request->search . '%');
+                ->orWhere('created_at', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('updated_at', 'LIKE', '%' . $request->search . '%');
         }
 
         $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));

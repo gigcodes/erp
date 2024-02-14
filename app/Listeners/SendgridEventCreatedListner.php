@@ -23,11 +23,7 @@ class SendgridEventCreatedListner
      */
     public function handle(SendgridEventCreated $event)
     {
-        $eventType = $event->getEventType(); //click, open...
-
-        /**
-         * ...
-         */
+        $eventType = $event->getEventType();
         $sendgridEvent = $event->getSendgridEvent();
         $sendgridEvent->email;
         $sendgridEvent->timestamp;

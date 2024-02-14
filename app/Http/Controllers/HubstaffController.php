@@ -18,7 +18,6 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Validator;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
-// define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 define('SEED_REFRESH_TOKEN', config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 define('STATE_MEMBERS', 'STATE_MEMBERS');
 
@@ -102,7 +101,6 @@ class HubstaffController extends Controller
         // start hubstaff section from here
         $hubstaff = Hubstaff::getInstance();
         $hubstaff = $hubstaff->authenticate();
-        // $organizationProjects = $hubstaff->getRepository('organization')->getOrgProjects(env("HUBSTAFF_ORG_ID"));
         $organizationProjects = $hubstaff->getRepository('organization')->getOrgProjects(config('env.HUBSTAFF_ORG_ID'));
 
         if (! empty($organizationProjects->projects)) {
@@ -217,7 +215,6 @@ class HubstaffController extends Controller
     {
         $tokens = $this->getTokens();
 
-        // $url        = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
         $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/tasks?status=active%2Ccompleted';
 
         $httpClient = new Client();
@@ -564,8 +561,6 @@ class HubstaffController extends Controller
 
         $app_token = '2YuxAoBm9PHUtruFNYTnA9HhvI3xMEGSU-EICdO5VoM';
         $auth_token = 'Bearer 6f2bab2f1813745b689d3446f37d11bf177ca40ede4f9985155fd9e485039f36';
-        //$auth_token = 'Bearer e2f8c8e136c73b1e909bb1021b3b4c29';
-        //$auth_token = 'je_2A29CStS3J-YPasj1UIjlg2qpYNs-hoLmw8SToe8';
 
         $http_header = [
             'App-Token: 2YuxAoBm9PHUtruFNYTnA9HhvI3xMEGSU-EICdO5VoM',
@@ -670,7 +665,6 @@ class HubstaffController extends Controller
         // start hubstaff section from here
         $hubstaff = Hubstaff::getInstance();
         $hubstaff = $hubstaff->authenticate();
-        // $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(env("HUBSTAFF_ORG_ID"), [
         $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(config('env.HUBSTAFF_ORG_ID'), [
             'name' => $request->hubstaff_project_name,
             'description' => $request->hubstaff_project_description,

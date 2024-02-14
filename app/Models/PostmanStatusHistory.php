@@ -12,7 +12,7 @@ class PostmanStatusHistory extends Model
 
     protected $table = 'postman_status_histories';
 
-    protected $fillable = ['postman_create_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['postman_create_id', 'old_value', 'new_value', 'user_id'];
 
     public function user()
     {

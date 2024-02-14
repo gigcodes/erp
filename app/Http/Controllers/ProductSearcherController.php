@@ -11,29 +11,19 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductSearcherController extends Controller
 {
-    //
-    public function __construct()
-    {
-        //		$this->middleware('permission:searcher-list',['only' => ['sList','index']]);
-        //		$this->middleware('permission:searcher-create', ['only' => ['create','store']]);
-        //		$this->middleware('permission:searcher-edit', ['only' => ['edit','update']]);
-//
-//
-        //		$this->middleware('permission:searcher-delete', ['only' => ['destroy']]);
-    }
 
     public function index()
     {
         $products = Product::where('stock', '>=', 1)->latest()
-                                            ->withMedia(config('constants.media_tags'))
-                                            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
-                                            ->paginate(Setting::get('pagination'));
+            ->withMedia(config('constants.media_tags'))
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+            ->paginate(Setting::get('pagination'));
 
         $roletype = 'Searcher';
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                ->selected(1)
-                                                ->renderAsDropdown();
+            ->selected(1)
+            ->renderAsDropdown();
 
         return view('partials.grid', compact('products', 'roletype', 'category_selection'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
@@ -73,7 +63,6 @@ class ProductSearcherController extends Controller
         $productsearcher->last_searcher = Auth::id();
 
         self::replaceImage($request, $productsearcher);
-        //		$product->update($request->all());
 
         $productsearcher->save();
 
@@ -81,7 +70,7 @@ class ProductSearcherController extends Controller
         ActivityConroller::create($productsearcher->id, 'searcher', 'create');
 
         return redirect()->route('productsearcher.index')
-                         ->with('success', 'Searcher updated successfully');
+            ->with('success', 'Searcher updated successfully');
     }
 
     public function replaceImage($request, $productsearcher)
@@ -96,8 +85,8 @@ class ProductSearcherController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('product/' . floor($productsearcher->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('product/' . floor($productsearcher->id / config('constants.image_per_folder')))
+                    ->upload();
                 $productsearcher->attachMedia($media, config('constants.media_tags'));
             }
         }

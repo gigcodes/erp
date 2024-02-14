@@ -11,30 +11,6 @@ use Laravel\Horizon\Contracts\JobRepository;
 
 class MasterDevTaskController extends Controller
 {
-    /*
-    Database
-    - Average load time
-    - Database size now vs Database size 24 hours ago
-
-    Development
-    - Open branches per repository
-    - Number of errors in the current log file
-
-    Cron jobs
-    - Number of failed crons last 24 hours
-
-    Whatsapp
-    - Number of messages last 3 hours
-    - Number of messages last 24 hours
-
-    Scraping
-    - Number of errors per scraper last 24 hours
-    - Number of products per scraper last 24 hours
-
-    Cropping
-    - Number of crops last 3 hours
-    - Number of crops last 24 hours
-     */
     public function index(Request $request)
     {
         $enddate = date('Y-m-d 23:59:59');
@@ -46,11 +22,10 @@ class MasterDevTaskController extends Controller
         $productErrors = $productErrors->get();
 
         $memory_use = MemoryUsage::whereDate('created_at', now()->format('Y-m-d'))
-                ->orderBy('used', 'desc')
-                ->first();
+            ->orderBy('used', 'desc')
+            ->first();
 
         $currentSize = \DB::table('database_historical_records')->orderBy('created_at', 'desc')->first();
-        //echo '<pre>'; print_r($currentSize); echo '</pre>';exit;
         $sizeBefore = null;
         if (! empty($currentSize)) {
             $sizeBefore = \DB::table('database_historical_records')
@@ -60,8 +35,6 @@ class MasterDevTaskController extends Controller
 
         $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at', date('Y-m-d'))->groupBy('database_name')->orderBy('size', 'desc')->limit(5)->get();
         // find the open branches
-        //$github     = new GithubClient;
-        //$repository = $github->getRepository();
         $repoArr = [];
         $github = new GithubClient;
         $repository = $github->getRepository();
@@ -86,10 +59,10 @@ class MasterDevTaskController extends Controller
         $cronjobReports = null;
 
         $cronjobReports = \App\CronJob::join('cron_job_reports as cjr', 'cron_jobs.signature', 'cjr.signature')
-        ->where('cjr.start_time', '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))
-        ->where('cron_jobs.last_status', 'error')
-        ->groupBy('cron_jobs.signature')
-        ->get();
+            ->where('cjr.start_time', '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))
+            ->where('cron_jobs.last_status', 'error')
+            ->groupBy('cron_jobs.signature')
+            ->get();
 
         $scraper1hrsReports = null;
         $scraper1hrsReports = \App\CroppedImageReference::where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 1 HOUR)'))->select(
@@ -150,7 +123,6 @@ class MasterDevTaskController extends Controller
         $scrapeData = \DB::select($sql);
 
         //DB Image size management#3118
-        //$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
         $projectDirectorySql = 'select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1';
 
         $projectDirectoryData = \DB::select($projectDirectorySql);

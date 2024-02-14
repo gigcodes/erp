@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use Auth;
 use App\User;
 use App\Event;
+use App\Remark;
 use App\Vendor;
 use App\TodoList;
 use Carbon\Carbon;
 use App\TodoStatus;
 use App\AssetsManager;
+use App\UserAvaibility;
+use App\VirtualminDomain;
 use App\EventAvailability;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -17,12 +20,9 @@ use App\Models\EventCategory;
 use App\Models\EventSchedule;
 use App\Mails\Manual\EventEmail;
 use App\ToDoListRemarkHistoryLog;
-use App\Models\EventRemarkHistory;
-use App\Remark;
-use App\VirtualminDomain;
-use Illuminate\Support\Collection;
-use App\UserAvaibility;
 use App\Models\AppointmentRequest;
+use App\Models\EventRemarkHistory;
+use Illuminate\Support\Collection;
 
 class EventController extends Controller
 {
@@ -37,16 +37,14 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        //$users = User::where('id','!=', Auth::user()->id)->get()->toArray();
-
         $user = Auth::user();
         $admin = $user->isAdmin();
 
-        if($admin){
+        if ($admin) {
             $users = User::where('id', '!=', Auth::user()->id)->orderBy('name', 'ASC')->get()->toArray();
         } else {
             $users = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
-            ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();    
+                ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
         }
 
         return view(
@@ -59,7 +57,7 @@ class EventController extends Controller
         $events = Event::myEvents(Auth::user()->id);
         $todoLists = [];
         $todo = [];
-    
+
         $todolistStatus = TodoStatus::get();
         $requestData = $request->all();
 
@@ -89,15 +87,13 @@ class EventController extends Controller
             }
             if ($request->search_event_type == 'ToDo') {
                 $todo = TodoStatus::where('name', '=', 'Completed')->first();
-                if($todo)
-                {
+                if ($todo) {
                     $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
                 }
             }
         } else {
             $todo = TodoStatus::where('name', '=', 'Completed')->first();
-            if($todo)
-            {
+            if ($todo) {
                 $todoLists = TodoList::where('status', '!=', $todo->id)->latest()->paginate(25);
             }
         }
@@ -110,7 +106,7 @@ class EventController extends Controller
             ], 200);
         }
 
-        return view('events.index', compact('events', 'todoLists', 'todo','todolistStatus'));
+        return view('events.index', compact('events', 'todoLists', 'todo', 'todolistStatus'));
     }
 
     public function store(Request $request)
@@ -143,7 +139,6 @@ class EventController extends Controller
         $vendorEmail = $request->get('vendor_email');
         $vendorPhone = $request->get('vendor_phone');
         $recurringType = $request->get('recurring_type');
-
 
         $errors = [];
         if (empty(trim($name))) {
@@ -196,15 +191,14 @@ class EventController extends Controller
             return response()->json($errors, 400);
         }
 
-        if($eventcategoryId & $vendorName)
-        {
+        if ($eventcategoryId & $vendorName) {
             $vendor = new Vendor();
             $vendor->category_id = $vendorCategoryId;
             $vendor->name = $vendorName;
             $vendor->email = $vendorEmail;
             $vendor->phone = $vendorPhone;
             $vendor->save();
-    
+
             $vendorId = $vendor->id;
         }
 
@@ -239,10 +233,8 @@ class EventController extends Controller
                 $eventAvailability = new EventAvailability();
                 $eventAvailability->event_id = $event->id;
                 $eventAvailability->numeric_day = $key;
-                // $eventAvailability->start_at = date('H:i:s', strtotime($event_availability['start_at']));
-                // $eventAvailability->end_at = date('H:i:s', strtotime($event_availability['end_at']));
-                $eventAvailability->start_at = $event_availability['start_at'].':00';
-                $eventAvailability->end_at = $event_availability['end_at'].':00';
+                $eventAvailability->start_at = $event_availability['start_at'] . ':00';
+                $eventAvailability->end_at = $event_availability['end_at'] . ':00';
                 $eventAvailability->save();
             }
         }
@@ -449,22 +441,22 @@ class EventController extends Controller
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
 
-        $eventSchedules = EventSchedule::where('start_at','!=','00:00:00')->where('end_at','!=','00:00:00')->
+        $eventSchedules = EventSchedule::where('start_at', '!=', '00:00:00')->where('end_at', '!=', '00:00:00')->
         whereBetween('schedule_date', [$start, $end])->
-            whereHas('event', function ($event) use ($userId,$start,$end) {
-                $event->where('user_id', $userId)->where('event_type', 'PU');
-                $event
+        whereHas('event', function ($event) use ($userId, $start, $end) {
+            $event->where('user_id', $userId)->where('event_type', 'PU');
+            $event
                 ->orWhereBetween('start_date', [$start, $end])
-                    ->orWhereBetween('end_date', [$start, $end])
-                    ->orWhere([
-                        ['start_date', '<=', $start],
-                        ['end_date', '=', null],
-                    ])
-                    ->orWhere([
-                        ['start_date', '<=', $start],
-                        ['end_date', '>=', $end],
-                    ]);
-            })
+                ->orWhereBetween('end_date', [$start, $end])
+                ->orWhere([
+                    ['start_date', '<=', $start],
+                    ['end_date', '=', null],
+                ])
+                ->orWhere([
+                    ['start_date', '<=', $start],
+                    ['end_date', '>=', $end],
+                ]);
+        })
             ->get()
             ->map(function ($eventSchedule) {
                 return [
@@ -485,7 +477,7 @@ class EventController extends Controller
             ->where('user_id', $userId)
             ->where(function ($query) use ($start, $end) {
                 $query
-                ->orWhereBetween('start_date', [$start, $end])
+                    ->orWhereBetween('start_date', [$start, $end])
                     ->orWhereBetween('end_date', [$start, $end])
                     ->orWhere([
                         ['start_date', '<=', $start],
@@ -497,7 +489,6 @@ class EventController extends Controller
                     ]);
             })
             ->get();
-            
 
         $userPrivateEventCollection = new Collection();
 
@@ -506,13 +497,12 @@ class EventController extends Controller
             $startDate = new Carbon($userPrivateEvent->start_date);
             $endDate = new Carbon($eventEndDate);
 
-            if($userPrivateEvent->recuring_type)
-            {
+            if ($userPrivateEvent->recuring_type) {
                 $eventTitle = $userPrivateEvent->name . ' - ' . $userPrivateEvent->recuring_type;
-            }else {
+            } else {
                 $eventTitle = $userPrivateEvent->name;
             }
-            
+
             while ($startDate->lte($endDate)) {
                 if ($startDate->format('N') == $userPrivateEvent->numeric_day) {
                     $userPrivateEventCollection->push((object) [
@@ -540,22 +530,22 @@ class EventController extends Controller
             $assetsManagers = AssetsManager::where([
                 'active' => 1,
             ])
-            ->whereIn('payment_cycle', ['Monthly', 'Yearly', 'One time'])
-            ->whereNotNull('due_date')
-            ->where(function ($query) use ($start, $end) {
-                $query->WhereBetween('due_date', [$start, $end])
-                    ->orWhere([
-                        ['due_date', '<=', $start],
-                    ]);
-            })
-            ->get();
-            
+                ->whereIn('payment_cycle', ['Monthly', 'Yearly', 'One time'])
+                ->whereNotNull('due_date')
+                ->where(function ($query) use ($start, $end) {
+                    $query->WhereBetween('due_date', [$start, $end])
+                        ->orWhere([
+                            ['due_date', '<=', $start],
+                        ]);
+                })
+                ->get();
+
             foreach ($assetsManagers as $assetsManager) {
                 $cDueDate = Carbon::parse($assetsManager->due_date);
                 // Monthly Payment Cycle - Logic
                 if ($assetsManager->payment_cycle == 'Monthly') {
                     if (($cDueDate->month <= $cStartDate->month && $cDueDate->year == $cStartDate->year) ||
-                    ($cDueDate->year < $cStartDate->year)) {
+                        ($cDueDate->year < $cStartDate->year)) {
                         $myAssets->push((object) [
                             'assets_manager_id' => $assetsManager->id,
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
@@ -598,7 +588,7 @@ class EventController extends Controller
             }
         }
 
-        // Virtualmin Domain Expiry 
+        // Virtualmin Domain Expiry
         $virtualminDomainCollections = new Collection();
         if ($admin) {
             $virtualminDomains = VirtualminDomain::whereNotNull('expiry_date')
@@ -612,9 +602,9 @@ class EventController extends Controller
                 if (($cDueDate->month == $cStartDate->month && $cDueDate->year == $cStartDate->year)) {
                     $virtualminDomainCollections->push((object) [
                         'virtualmin_domain_id' => $virtualminDomain->id,
-                        'subject' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
-                        'title' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
-                        'description' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
+                        'subject' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . ' )',
+                        'title' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . ' )',
+                        'description' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . ' )',
                         'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                         'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                         'event_type' => 'VD',
@@ -626,9 +616,9 @@ class EventController extends Controller
         // Task Notes (Remarks)
         $taskRemarkCollections = new Collection();
         $taskRemarks = Remark::where([
-                'module_type' => 'task-note',
-                'is_hide' => 0
-            ])
+            'module_type' => 'task-note',
+            'is_hide' => 0,
+        ])
             ->where(function ($query) use ($start, $end) {
                 $query->WhereBetween('created_at', [$start, $end]);
             })
@@ -647,12 +637,11 @@ class EventController extends Controller
                     'event_type' => 'TR', // Task Remark
                 ]);
             }
-        } 
+        }
 
         $userAvailableSlot = [];
-        if($request->srchUser>0){
-
-            $stDate =  $request->start;
+        if ($request->srchUser > 0) {
+            $stDate = $request->start;
             $enDate = $request->end;
 
             if ($stDate && $enDate) {
@@ -682,11 +671,11 @@ class EventController extends Controller
                 ]);
                 $usersDetails = $q->first();
 
-                if (!empty($usersDetails)) {
+                if (! empty($usersDetails)) {
                     $filterDatesOnly = array_column($filterDates, 'date');
 
                     $userArr = [];
-                
+
                     if ($usersDetails->uaId) {
                         $usersDetails->uaStTime = date('H:i:00', strtotime($usersDetails->uaStTime));
                         $usersDetails->uaEnTime = date('H:i:00', strtotime($usersDetails->uaEnTime));
@@ -697,24 +686,21 @@ class EventController extends Controller
                         $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $usersDetails->uaStTime, $usersDetails->uaEnTime, $usersDetails->uaLunchTime, $usersDetails);
 
                         $iii = 0;
-                        if(!empty($availableSlots)){
+                        if (! empty($availableSlots)) {
                             foreach ($availableSlots as $keyArray => $valueArray) {
-
-                                if(!empty($valueArray)){
+                                if (! empty($valueArray)) {
                                     foreach ($valueArray as $key => $value) {
-
-                                        if($value['type']=='AVL'){
-
+                                        if ($value['type'] == 'AVL') {
                                             $userAvailableSlot[$iii]['event_id'] = $iii;
-                                            $userAvailableSlot[$iii]['subject'] = $value['st'].' - '.$value['en'];
-                                            $userAvailableSlot[$iii]['title'] = 'Slot - '.($key+1);
+                                            $userAvailableSlot[$iii]['subject'] = $value['st'] . ' - ' . $value['en'];
+                                            $userAvailableSlot[$iii]['title'] = 'Slot - ' . ($key + 1);
                                             $userAvailableSlot[$iii]['start'] = $value['st'];
                                             $userAvailableSlot[$iii]['end'] = $value['en'];
                                             $userAvailableSlot[$iii]['event_type'] = 'AV';
 
                                             $iii++;
                                         }
-                                   }
+                                    }
                                 }
                             }
                         }
@@ -773,19 +759,19 @@ class EventController extends Controller
             $assetsManagers = AssetsManager::where([
                 'active' => 1,
             ])
-            ->whereIn('payment_cycle', ['Monthly', 'Yearly', 'One time'])
-            ->whereNotNull('due_date')
-            ->whereDoesntHave('eventAlertLogs', function ($q) use ($dt) {
-                $q->where('is_read', 1);
-                $q->where('event_alert_date', $dt->toDateString());
-            })
-            ->where(function ($query) use ($dt) {
-                $query->WhereDate('due_date', $dt->toDateString())
-                    ->orWhere([
-                        ['due_date', '<=', $dt->toDateString()],
-                    ]);
-            })
-            ->get();
+                ->whereIn('payment_cycle', ['Monthly', 'Yearly', 'One time'])
+                ->whereNotNull('due_date')
+                ->whereDoesntHave('eventAlertLogs', function ($q) use ($dt) {
+                    $q->where('is_read', 1);
+                    $q->where('event_alert_date', $dt->toDateString());
+                })
+                ->where(function ($query) use ($dt) {
+                    $query->WhereDate('due_date', $dt->toDateString())
+                        ->orWhere([
+                            ['due_date', '<=', $dt->toDateString()],
+                        ]);
+                })
+                ->get();
 
             foreach ($assetsManagers as $assetsManager) {
                 $cDueDate = Carbon::parse($assetsManager->due_date);
@@ -1012,7 +998,7 @@ class EventController extends Controller
             }
         }
 
-        return response()->json(['code' => 200, 'data' => $html,  'message' => 'Remark listed Successfully']);
+        return response()->json(['code' => 200, 'data' => $html, 'message' => 'Remark listed Successfully']);
     }
 
     public function statusUpdate(Request $request)
@@ -1020,21 +1006,19 @@ class EventController extends Controller
         $event = [];
         $todolists = [];
 
-        if($request->type == "todo")
-        {
+        if ($request->type == 'todo') {
             $todolists = TodoList::findorfail($request->id);
             $todolists->status = $request->status;
             $todolists->save();
         }
-     
-        if($request->type == "event")
-        {
+
+        if ($request->type == 'event') {
             $event = Event::findorfail($request->id);
             $event->status = $request->status;
             $event->save();
         }
 
-        return response()->json(['code' => 200, 'todo' => $todolists,'event' => $event ,'message' => 'YourStatus has been Updated Succeesfully!']);
+        return response()->json(['code' => 200, 'todo' => $todolists, 'event' => $event, 'message' => 'YourStatus has been Updated Succeesfully!']);
     }
 
     public function sendAppointmentRequest(Request $request)
@@ -1060,41 +1044,40 @@ class EventController extends Controller
         $currentDateTimeFormatted = Carbon::now()->format('Y-m-d H:i:s');
 
         $result = AppointmentRequest::with('user')->where('requested_time', '<=', $currentDateTimeFormatted)
-                    ->where('requested_time_end', '>=', $currentDateTimeFormatted)
-                    ->where('requested_user_id', Auth::user()->id)
-                    ->where('request_status', 0)->orderBy('id', 'DESC')->first();
+            ->where('requested_time_end', '>=', $currentDateTimeFormatted)
+            ->where('requested_user_id', Auth::user()->id)
+            ->where('request_status', 0)->orderBy('id', 'DESC')->first();
 
         $result_rerquest_user = AppointmentRequest::with('userrequest')->where('request_status', '!=', 0)
-                    ->where('user_id', Auth::user()->id)
-                    ->where('is_view', 0)->orderBy('id', 'DESC')->first();
+            ->where('user_id', Auth::user()->id)
+            ->where('is_view', 0)->orderBy('id', 'DESC')->first();
 
-        if (!empty($result) && !empty($result_rerquest_user)) {
+        if (! empty($result) && ! empty($result_rerquest_user)) {
             return response()->json([
                 'code' => 200,
                 'result' => $result,
                 'result_rerquest_user' => $result_rerquest_user,
                 'message' => 'Event Schedule deleted successfully !!',
             ]);
-        } else if (!empty($result)) {
+        } elseif (! empty($result)) {
             return response()->json([
                 'code' => 200,
                 'result' => $result,
                 'result_rerquest_user' => '',
                 'message' => 'Event Schedule deleted successfully !!',
             ]);
-        } else if (!empty($result_rerquest_user)) {
+        } elseif (! empty($result_rerquest_user)) {
             return response()->json([
                 'code' => 200,
                 'result' => '',
                 'result_rerquest_user' => $result_rerquest_user,
                 'message' => 'Event Schedule deleted successfully !!',
             ]);
-        } 
+        }
     }
 
     public function updateAppointmentRequest(Request $request)
     {
-
         $arequest = AppointmentRequest::findorfail($request->id);
         $arequest->request_status = $request->request_status;
         $arequest->save();
@@ -1107,7 +1090,6 @@ class EventController extends Controller
 
     public function updateuserAppointmentRequest(Request $request)
     {
-
         $arequest = AppointmentRequest::findorfail($request->id);
         $arequest->is_view = 1;
         $arequest->save();
@@ -1117,10 +1099,9 @@ class EventController extends Controller
             'message' => 'Updated successfully !!',
         ]);
     }
-    
+
     public function declineRemarks(Request $request)
     {
-     
         $AppointmentRequest = AppointmentRequest::where('id', $request->appointment_requests_id)->first();
 
         if ($AppointmentRequest) {
@@ -1128,8 +1109,7 @@ class EventController extends Controller
             $updatedAppointmentRequest = $AppointmentRequest->save();
 
             if ($AppointmentRequest) {
-
-                return response()->json(["code" => 200, "data" => $AppointmentRequest, "message" => "Your remarks has been added!"]);
+                return response()->json(['code' => 200, 'data' => $AppointmentRequest, 'message' => 'Your remarks has been added!']);
             }
         }
     }
@@ -1137,10 +1117,10 @@ class EventController extends Controller
     public function userOnlineStatusUpdate(Request $request)
     {
         $user = User::find(Auth::user()->id);
-        $user->is_online_flag = ($request->is_online_flag=='Online')?1:0;
+        $user->is_online_flag = ($request->is_online_flag == 'Online') ? 1 : 0;
         $user->save();
 
-        return response()->json(['code' => 200,'message' => 'User Status has been Updated Succeesfully!']);
+        return response()->json(['code' => 200, 'message' => 'User Status has been Updated Succeesfully!']);
     }
 
     public function getUserDetailsForOnline(Request $request)
@@ -1150,15 +1130,15 @@ class EventController extends Controller
         $is_online_flag = 0;
 
         if (Auth::user()->isAdmin()) {
-            if($user->isOnline()==1){
+            if ($user->isOnline() == 1) {
                 $is_online_flag = 1;
             }
         } else {
-            if($user->isOnline()==1 && $user->is_online_flag){
+            if ($user->isOnline() == 1 && $user->is_online_flag) {
                 $is_online_flag = 1;
             }
         }
 
-        return response()->json(['code' => 200,'is_online_flag' => $is_online_flag,'name' => $user->name]);
+        return response()->json(['code' => 200, 'is_online_flag' => $is_online_flag, 'name' => $user->name]);
     }
 }

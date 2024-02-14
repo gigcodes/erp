@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Setting;
-use Carbon\Carbon;
-use App\LogRequest;
 use App\CronJobReport;
-use App\WebsiteStoreView;
 use App\Helpers\LogHelper;
+use App\LogRequest;
+use App\Setting;
 use App\StoreViewsGTMetrix;
+use App\WebsiteStoreView;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GTMetrixTestCMD extends Command
@@ -84,7 +84,6 @@ class GTMetrixTestCMD extends Command
 
             \Log::info('GTMetrix :: Daily cron start ');
             $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')
-            // ->where('website_store_views.id',977)
                 ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
                 ->join('websites as w', 'w.id', 'ws.website_id')
                 ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
@@ -95,18 +94,6 @@ class GTMetrixTestCMD extends Command
             \Log::info('GTMetrix :: store website =>' . count($storeViewList));
 
             $request_too_many_pending = false;
-
-            // foreach ($storeViewList as $value) {
-            //     $webite = $value['magento_url'].'/'.$value['code'];
-            // $webiteUrl = "https://venmo.com";
-            //     $create = [
-            //         'store_view_id' => $value['id'],
-            //         'status'        => 'not_queued',
-            //         'website_url'   =>  $webiteUrl,
-            //     ];
-            //     \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully" );
-            //    StoreViewsGTMetrix::create( $create );
-            // }
 
             if (! empty($storeViewList)) {
                 foreach ($storeViewList as $value) {
@@ -134,7 +121,6 @@ class GTMetrixTestCMD extends Command
                     $err = curl_error($curl);
                     curl_close($curl);
 
-                    //$create = array();
                     if ($err) {
                         \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);
                         echo 'cURL Error #:' . $err;
@@ -188,7 +174,6 @@ class GTMetrixTestCMD extends Command
             }
 
             // Get tested site report
-            // \Artisan::call('GT-metrix-test-get-report');
             \Log::info('GTMetrix :: Daily run complete ');
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

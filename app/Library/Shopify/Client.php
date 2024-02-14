@@ -33,10 +33,6 @@ class Client
     public function __construct()
     {
         // Config ID
-        // $this->_shopUrl      = env('SHOPIFY_SHOP_URL');
-        // $this->_key          = env('SHOPIFY_SHOP_KEY');
-        // $this->_password     = env('SHOPIFY_SHOP_PASSWORD');
-        // $this->_sharedSecret = env('SHOPIFY_SHOP_SHARED_SECRET');
         $this->_shopUrl = config('env.SHOPIFY_SHOP_URL');
         $this->_key = config('env.SHOPIFY_SHOP_KEY');
         $this->_password = config('env.SHOPIFY_SHOP_PASSWORD');
@@ -101,15 +97,6 @@ class Client
 
         // Set cURL options
         $ch = curl_init($url);
-        /*if (stristr($url, $this->_shopUrl)) {
-        } else {
-            if(!is_null($store_id)){
-                $ch = curl_init('https://' . $store_website->api_token . ':' . $store_website->magento_password . '@' . $store_website->magento_url . $url) ;
-            }else{
-                $ch = curl_init('https://' . $this->_key . ':' . $this->_password . '@' . $this->_shopUrl . $url);
-            }
-        }*/
-
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         if (! empty($requestType)) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $requestType);

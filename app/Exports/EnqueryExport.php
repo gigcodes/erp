@@ -12,8 +12,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
 {
     /***
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
 
     protected $products;
 
@@ -30,21 +30,15 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
         $this->path = $path;
     }
 
-    // public function collection()
-    // {
-    //     return Product::all();
-    // }
-
     public function array(): array
     {
         $products_array = [];
-        //$products = Product::whereIn('id', $this->products)->get();
 
         $products = Product::join('order_products', 'order_products.product_id', 'products.id')
-          ->join('product_suppliers', 'product_suppliers.product_id', 'products.id')
-          ->join('brands', 'brands.id', 'products.brand')
-          ->select('product_suppliers.price as product_price', 'products.*', 'brands.name as brand_name')
-          ->whereIn('products.id', $this->products)->whereIn('order_products.id', $this->orders)->groupBy('order_products.sku')->get();
+            ->join('product_suppliers', 'product_suppliers.product_id', 'products.id')
+            ->join('brands', 'brands.id', 'products.brand')
+            ->select('product_suppliers.price as product_price', 'products.*', 'brands.name as brand_name')
+            ->whereIn('products.id', $this->products)->whereIn('order_products.id', $this->orders)->groupBy('order_products.sku')->get();
 
         foreach ($products as $product) {
             $arr = [];
@@ -52,7 +46,6 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
             $arr['brand'] = $product->brand_name;
             $arr['sku'] = $product->sku;
             $arr['short_description'] = $product->short_description;
-            // $arr['price'] = $product->price;
             $arr['product_price'] = $product->price;
             $arr['composition'] = $product->composition;
             $arr['product_link'] = $product->product_link;
@@ -90,28 +83,4 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
             },
         ];
     }
-
-    // public function registerEvents(): array
-    // {
-    //     return [
-    //         // Handle by a closure.
-    //         AfterSheet::class => function(AfterSheet $event) {
-    //           for ($i = 1; $i <= count($this->products); $i++) {
-
-    //             $coordinates = "A" . (string) ($i + 1);
-    //             $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
-    //             $drawing->setName('Logo');
-    //             $drawing->setDescription('Logo');
-    //             $drawing->setPath($this->path);
-    //             $drawing->setCoordinates($coordinates);
-    //             $drawing->setHeight('100');
-    //             $drawing->setOffsetY('10');
-    //             $drawing->setWorksheet($event->sheet->getDelegate());
-    //             $event->sheet->getDelegate()->getRowDimension($i + 1)->setRowHeight(100);
-    //           }
-
-    //           $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(12);
-    //         },
-    //     ];
-    // }
 }

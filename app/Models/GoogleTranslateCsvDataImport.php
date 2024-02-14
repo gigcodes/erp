@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class GoogleTranslateCsvDataImport  implements ToModel, WithHeadingRow
+class GoogleTranslateCsvDataImport implements ToModel, WithHeadingRow
 {
     use HasFactory;
 
-
     private $param1;
-    private $param2;
 
+    private $param2;
 
     public function __construct($param1, $param2)
     {
@@ -21,14 +20,12 @@ class GoogleTranslateCsvDataImport  implements ToModel, WithHeadingRow
         $this->param2 = $param2;
     }
 
-
     /**
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-
     public function model(array $row)
     {
-       return new GoogleTranslateCsvData([
+        return new GoogleTranslateCsvData([
             'key' => reset($row),
             'value' => next($row),
             'lang_id' => $this->param1,

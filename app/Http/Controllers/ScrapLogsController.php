@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use File;
-use Response;
 use Carbon\Carbon;
 use App\DatabaseLog;
 use Illuminate\Support\Str;
@@ -17,10 +16,6 @@ class ScrapLogsController extends Controller
     {
         $name = '';
         $servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
-        /*$scrapLogs = \App\ScrapLog::select('folder_name','scrap_type','log_messages',\DB::raw('count(*) as log_count'))
-    	->whereNotNull('scrap_type')
-    	->groupBy('scrap_type','log_messages')
-    	->get(); */
 
         $scrapLogsStatus = \App\LogMessageStatus::all();
 
@@ -62,16 +57,6 @@ class ScrapLogsController extends Controller
         $dateVal = $dateVal != 'null' ? $dateVal : '';
         $file_list = [];
 
-        /*	$fileName = "spinnaker-16Oct21-13:01.log";
-             $day_of_file = explode('-', $fileName);
-                $day_of_file = str_replace('.log', '', $day_of_file);
-                if( $day_of_file[1] == $dateVal.$month ) {
-                    dd('matched');
-                }
-                echo $dateVal.$month;
-                */
-
-        // $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
         $files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
         $date = $dateVal;
@@ -86,15 +71,12 @@ class ScrapLogsController extends Controller
             $day_of_file = explode('-', $val->getFilename());
             $day_of_file = str_replace('.log', '', $day_of_file);
 
-            // if( ( (end($day_of_file) == $date) || (isset($day_of_file[1]) and  $day_of_file[1] == $date.$month) ) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-
             if (((end($day_of_file) == $date) || (isset($day_of_file[1]) and strtolower($day_of_file[1]) == strtolower($date . $month))) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 if (! in_array($val->getRelativepath(), $serverArray)) {
                     continue;
                 }
 
                 $file_path_new = env('SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
-                //$file_path_new = storage_path(config('env.SCRAP_LOGS_FOLDER'))."/".$val->getRelativepath()."/".$val->getFilename();
 
                 $file = file($file_path_new);
 
@@ -161,7 +143,7 @@ class ScrapLogsController extends Controller
             exit;
         }
 
-        return  response()->json(['file_list' => $file_list]);
+        return response()->json(['file_list' => $file_list]);
     }
 
     public function filtertosavelogdb()
@@ -170,7 +152,6 @@ class ScrapLogsController extends Controller
         $searchVal = '';
         $dateVal = '';
         $file_list = [];
-        // $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
         $files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
         $date = empty($dateVal) ? Carbon::now()->format('d') : sprintf('%02d', $dateVal);
@@ -181,7 +162,6 @@ class ScrapLogsController extends Controller
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
             if (Str::contains(end($day_of_file), sprintf('%02d', $date - 1)) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-                // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
                 $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
                 $file = file($file_path_new);
@@ -203,9 +183,9 @@ class ScrapLogsController extends Controller
 
                 if (count($scrapers_info) > 0) {
                     $scrap_logs_info = DB::table('scrap_logs')
-                    ->select('id', 'scraper_id')
-                    ->where('scraper_id', '=', $scrapers_info[0]->id)
-                    ->get();
+                        ->select('id', 'scraper_id')
+                        ->where('scraper_id', '=', $scrapers_info[0]->id)
+                        ->get();
                     $scrapers_id = $scrapers_info[0]->id;
                 } else {
                     $scrapers_id = 0;
@@ -224,17 +204,15 @@ class ScrapLogsController extends Controller
                 }
             }
         }
-
-        //return  response()->json(["file_list" => $file_list]);
     }
 
     public function logdata()
     {
         return \App\ScrapRemark::select('scraper_name', 'remark', \DB::raw('count(*) as log_count'), \DB::raw("group_concat(scraper_name SEPARATOR ' ') as scraper_name"))
-        ->where('scrap_field', 'last_line_error')
-        ->whereDate('created_at', date('Y-m-d'))
-        ->groupBy('remark')
-        ->get();
+            ->where('scrap_field', 'last_line_error')
+            ->whereDate('created_at', date('Y-m-d'))
+            ->groupBy('remark')
+            ->get();
     }
 
     public function loghistory($filename)
@@ -258,8 +236,8 @@ class ScrapLogsController extends Controller
     {
         $file_list = [];
         $scrap_logs_info = DB::table('scrap_logs')
-        ->select('*')
-        ->get();
+            ->select('*')
+            ->get();
         foreach ($scrap_logs_info as $row_log) {
             array_push($file_list, [
                 'filename' => $row_log->file_name,
@@ -270,7 +248,7 @@ class ScrapLogsController extends Controller
             );
         }
 
-        return  response()->json(['file_list' => $file_list]);
+        return response()->json(['file_list' => $file_list]);
     }
 
     public function history(Request $request)
@@ -286,7 +264,6 @@ class ScrapLogsController extends Controller
 
     public function fileView($filename, $foldername)
     {
-        // $path = env('SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
         $path = config('env.SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
 
         return response()->file($path);
@@ -359,11 +336,11 @@ class ScrapLogsController extends Controller
     {
         try {
             $data = SlowLogsEnableDisable::select('slow_logs_enable_disables.*', 'users.name AS userName')
-            ->leftJoin('users', 'slow_logs_enable_disables.user_id', 'users.id')
-            ->orderBy('slow_logs_enable_disables.id', 'DESC')
-            ->get();
+                ->leftJoin('users', 'slow_logs_enable_disables.user_id', 'users.id')
+                ->orderBy('slow_logs_enable_disables.id', 'DESC')
+                ->get();
 
-            return response()->json(['code' => 200, 'data' => $data,  'message' => 'Listed successfully!!!']);
+            return response()->json(['code' => 200, 'data' => $data, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 

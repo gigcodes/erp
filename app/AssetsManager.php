@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AssetsManager extends Model
 {
-    //use SoftDeletes;
     protected $table = 'assets_manager';
 
     protected $casts = [

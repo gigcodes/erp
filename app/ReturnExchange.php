@@ -75,7 +75,6 @@ class ReturnExchange extends Model
     public function notifyToUser()
     {
         if ($this->type == 'refund') {
-            // notify message we need to add here
         }
     }
 

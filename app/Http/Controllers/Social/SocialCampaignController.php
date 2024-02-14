@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Social;
 
-use Auth;
 use Crypt;
 use Session;
 use Response;
@@ -41,7 +40,6 @@ class SocialCampaignController extends Controller
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            //  $query = SocialCampaign::where('config_id',$id);
 
             $campaigns = SocialCampaign::orderby('id', 'desc');
         } else {
@@ -130,7 +128,6 @@ class SocialCampaignController extends Controller
         $post->daily_budget = $request->daily_budget;
         $post->status = $request->status;
 
-        //   $post->post_by = Auth::user()->id;
         $post->save();
 
         $data['name'] = $request->input('name');
@@ -145,7 +142,6 @@ class SocialCampaignController extends Controller
         }
 
         if ($request->has('daily_budget')) {
-        //    $data['daily_budget'] = $request->input('daily_budget');
         }
 
         $config = SocialConfig::find($post->config_id);
@@ -158,15 +154,12 @@ class SocialCampaignController extends Controller
         $this->user_access_token = $config->token;
 
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        //$this->ad_acc_id = $this->getAdAccount($config,$this->fb,$post->id);
         $this->ad_acc_id = $config->ads_manager;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($this->ad_acc_id != '') {
             if ($config->platform == 'facebook') {
                 try {
-                      //      dd($data);
-                    //$this->ad_acc_id = $config->ads_manager;
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/campaigns';
@@ -209,7 +202,6 @@ class SocialCampaignController extends Controller
                 }
             } else {
                 try {
-                    //        dd($data);
                     $data['special_ad_categories'] = [];
                     $data['access_token'] = $this->user_access_token;
                     $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/campaigns';
@@ -232,7 +224,6 @@ class SocialCampaignController extends Controller
 
                     LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialCampaignController::class, 'store');
 
-                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
                         $post->save();
@@ -291,7 +282,6 @@ class SocialCampaignController extends Controller
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
-        // $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
@@ -363,7 +353,6 @@ class SocialCampaignController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            // $response = $fb->get('/me/adaccounts', $token); //Old
             $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token); //New using graph API
             $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');

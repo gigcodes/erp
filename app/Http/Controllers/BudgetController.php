@@ -7,13 +7,16 @@ use App\Setting;
 use Carbon\Carbon;
 use App\BudgetCategory;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Foundation\Application;
 
 class BudgetController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Application|array|Factory|View
      */
     public function index(Request $request)
     {

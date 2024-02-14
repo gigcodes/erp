@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 
 class DeleteBranches implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels,GithubTrait;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GithubTrait;
 
     private $branches;
 

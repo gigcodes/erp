@@ -69,10 +69,8 @@ class AutoMessenger extends Command
 
             foreach ($communication_histories as $history) {
                 $time_diff = Carbon::parse($history->created_at)->diffInHours($now);
-                // $time_diff = Carbon::parse($history->created_at)->diffInMinutes($now);
 
                 if ($time_diff == 12) {
-                    // if ($time_diff == 10) {
                     $order = Order::find($history->model_id);
                     $params['customer_id'] = $order->customer_id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative')->first()->reply;
@@ -80,16 +78,6 @@ class AutoMessenger extends Command
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
                 }
             }
 
@@ -101,12 +89,10 @@ class AutoMessenger extends Command
 
             foreach ($follow_ups as $follow_up) {
                 $time_diff = Carbon::parse($follow_up->created_at)->diffInHours($now);
-                // $time_diff = Carbon::parse($follow_up->created_at)->diffInMinutes($now);
 
                 dump("FOLLOWUP - $time_diff");
 
                 if ($time_diff == 24) {
-                    // if ($time_diff == 10) {
                     $customer = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-24')->first()->reply;
@@ -114,20 +100,9 @@ class AutoMessenger extends Command
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
                 }
 
                 if ($time_diff == 48) {
-                    // if ($time_diff == 20) {
                     $customer = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-48')->first()->reply;
@@ -135,20 +110,9 @@ class AutoMessenger extends Command
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
                 }
 
                 if ($time_diff == 72) {
-                    // if ($time_diff == 30) {
                     $customer = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-72')->first()->reply;
@@ -156,16 +120,6 @@ class AutoMessenger extends Command
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
 
                     // On last follow up stop it
                     $follow_up->is_stopped = 1;
@@ -182,10 +136,8 @@ class AutoMessenger extends Command
 
             foreach ($refunded_orders as $order) {
                 $time_diff = Carbon::parse($order->refund_answer_date)->diffInHours($now);
-                // $time_diff = Carbon::parse($order->refund_answer_date)->diffInMinutes($now);
                 dump("Refund No - $time_diff");
                 if ($time_diff == 48) {
-                    // if ($time_diff == 10) {
                     $params['customer_id'] = $order->customer_id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-in-process')->first()->reply;
 
@@ -193,49 +145,15 @@ class AutoMessenger extends Command
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
-
-                    // CommunicationHistory::create([
-                    //     'model_id'        => $order->id,
-                    //     'model_type'    => Order::class,
-                    //     'type'                => 'refund-inprocess',
-                    //     'method'            => 'whatsapp'
-                    // ]);
                 }
 
                 if ($time_diff == 72) {
-                    // if ($time_diff == 20) {
                     $params['customer_id'] = $order->customer_id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative-72')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
-
-                    // CommunicationHistory::create([
-                    //     'model_id'        => $order->id,
-                    //     'model_type'    => Order::class,
-                    //     'type'                => 'products-suggestion',
-                    //     'method'            => 'whatsapp'
-                    // ]);
 
                     sleep(5);
 
@@ -252,33 +170,14 @@ class AutoMessenger extends Command
 
             foreach ($private_views as $private_view) {
                 $time_diff = Carbon::parse($private_view->date)->diffInHours($now);
-                // $time_diff = Carbon::parse($private_view->date)->diffInMinutes($now);
                 dump("Private view - $time_diff");
                 if ($time_diff == 24) {
-                    // if ($time_diff == 10) {
                     $params['customer_id'] = $private_view->customer_id;
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-reminder')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
-                    // try {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($private_view->customer->phone, $private_view->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                    // } catch {
-                    //   // ok
-                    // }
-
-                    // $chat_message->update([
-                    //   'approved'  => 1
-                    // ]);
-
-                    // CommunicationHistory::create([
-                    //     'model_id'        => $private_view->id,
-                    //     'model_type'    => PrivateView::class,
-                    //     'type'                => 'private-viewing-alert',
-                    //     'method'            => 'whatsapp'
-                    // ]);
                 }
             }
 

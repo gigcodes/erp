@@ -40,7 +40,6 @@ class InventoryStatusHistory extends Model
 
     public function product_count()
     {
-        //return self::select('product_id')->distinct()->get();
         return $this->hasMany(\App\InventoryStatusHistory::class, 'supplier_id', 'supplier_id');
     }
 

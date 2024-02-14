@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AssetsCategory extends Model
 {
-    //use SoftDeletes;
     protected $table = 'assets_category';
 
     /**
@@ -18,10 +17,6 @@ class AssetsCategory extends Model
      * @SWG\Property(property="cat_name",type="string")
      */
     protected $fillable = [
-        'cat_name', ];
-
-    /*public function Assetscat()
-    {
-      return $this->hasMany('App\AssetsManager', 'category_id')->where('id', 'App\AssetsCategory');
-    }*/
+        'cat_name',
+    ];
 }

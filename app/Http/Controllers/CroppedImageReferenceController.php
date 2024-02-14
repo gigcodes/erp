@@ -9,11 +9,11 @@ use App\Category;
 use App\Supplier;
 use App\LogRequest;
 use GuzzleHttp\Client;
+use App\CropImageGetRequest;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use App\Models\DataTableColumn;
-use App\CropImageGetRequest;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -94,8 +94,6 @@ class CroppedImageReferenceController extends Controller
         \Log::info('#####crop_reference_grid_page_start#####: ' . date('Y-m-d H:i:s'));
         $query = new CroppedImageReference();
         $query = $query->where('product_id', '!=', 0);
-        // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
-        // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
             \Log::info('crop_reference_grid_page_filter_start: ' . date('Y-m-d H:i:s'));
@@ -104,14 +102,12 @@ class CroppedImageReferenceController extends Controller
                     $query->whereHas('product', function ($qu) {
                         $qu->whereIn('category', request('category'));
                     });
-                    // $query->whereIn('products.category', request('category'));
                 }
             } else {
                 if (request('category') != null && request('category') != 1) {
                     $query->whereHas('product', function ($qu) {
                         $qu->where('category', request('category'));
                     });
-                    // $query->where('products.category', request('category'));
                 }
             }
 
@@ -119,33 +115,28 @@ class CroppedImageReferenceController extends Controller
                 $query->whereHas('product', function ($qu) use ($request) {
                     $qu->whereIn('id', $request->filter_id);
                 });
-                // $query->where('products.id', $request->filter_id);
             }
 
             if (request('brand') != null && $request->brand) {
                 $query->whereHas('product', function ($qu) {
                     $qu->whereIn('brand', request('brand'));
                 });
-                // $query->whereIn('products.brand', request('brand'));
             }
 
             if (request('supplier') != null) {
                 $query = $query->whereHas('product', function ($qu) {
                     $qu->whereIn('supplier_id', request('supplier'));
                 });
-                // $query->whereIn('products.supplier', request('supplier'));
             }
 
             if (request('status') != null && request('status') != 0) {
                 $query->whereHas('product', function ($qu) {
                     $qu->where('status_id', request('status'));
                 });
-            // $query->where('products.status_id', request('status'));
             } else {
                 $query->whereHas('product', function ($qu) {
                     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
                 });
-                // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
             }
 
             if (request('crop') != null) {
@@ -162,13 +153,8 @@ class CroppedImageReferenceController extends Controller
             $query->whereHas('product', function ($qu) {
                 $qu->where('status_id', '!=', StatusHelper::$cropRejected);
             });
-            // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
             $products = $query->orderBy('id', 'desc')->paginate(10);
-            // ->groupBy('original_media_id')
-            //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-            //       $q->with('newMedia');
-            //   }])
             \Log::info('crop_reference_grid_page_without_filter_end: ' . date('Y-m-d H:i:s'));
         }
         $total = $products->total();
@@ -203,7 +189,6 @@ class CroppedImageReferenceController extends Controller
             $totalCounts = 0;
         }
         \Log::info('crop_reference_grid_page_customer_range_end: ' . date('Y-m-d H:i:s'));
-        // dd($products);
 
         if ($request->ajax()) {
             return response()->json([
@@ -224,8 +209,6 @@ class CroppedImageReferenceController extends Controller
             $query = CroppedImageReference::query();
             $query = $query->with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category', 'product.brands', 'newMedia']);
             $query = $query->where('product_id', '!=', 0);
-            // $query = CroppedImageReference::with(['differentWebsiteImages', 'product', 'httpRequestData.requestData', 'product.product_category']);
-            // $query = $query->join('products', 'products.id', 'cropped_image_references.product_id');
 
             if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
                 \Log::info('crop_reference_grid_page_filter_start: ' . date('Y-m-d H:i:s'));
@@ -234,14 +217,12 @@ class CroppedImageReferenceController extends Controller
                         $query->whereHas('product', function ($qu) {
                             $qu->whereIn('category', request('category'));
                         });
-                        // $query->whereIn('products.category', request('category'));
                     }
                 } else {
                     if (request('category') != null && request('category') != 1) {
                         $query->whereHas('product', function ($qu) {
                             $qu->where('category', request('category'));
                         });
-                        // $query->where('products.category', request('category'));
                     }
                 }
 
@@ -249,33 +230,28 @@ class CroppedImageReferenceController extends Controller
                     $query->whereHas('product', function ($qu) use ($request) {
                         $qu->whereIn('id', $request->filter_id);
                     });
-                    // $query->where('products.id', $request->filter_id);
                 }
 
                 if (request('brand') != null && $request->brand) {
                     $query->whereHas('product', function ($qu) {
                         $qu->whereIn('brand', request('brand'));
                     });
-                    // $query->whereIn('products.brand', request('brand'));
                 }
 
                 if (request('supplier') != null) {
                     $query = $query->whereHas('product', function ($qu) {
                         $qu->whereIn('supplier_id', request('supplier'));
                     });
-                    // $query->whereIn('products.supplier', request('supplier'));
                 }
 
                 if (request('status') != null && request('status') != 0) {
                     $query->whereHas('product', function ($qu) {
                         $qu->where('status_id', request('status'));
                     });
-                // $query->where('products.status_id', request('status'));
                 } else {
                     $query->whereHas('product', function ($qu) {
                         $qu->where('status_id', '!=', StatusHelper::$cropRejected);
                     });
-                    // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
                 }
 
                 if (request('crop') != null) {
@@ -292,76 +268,71 @@ class CroppedImageReferenceController extends Controller
                 $query->whereHas('product', function ($qu) {
                     $qu->where('status_id', '!=', StatusHelper::$cropRejected);
                 });
-                // $query->where('products.status_id', '!=', StatusHelper::$cropRejected);
 
                 $query->orderBy('id', 'desc');
-                // ->groupBy('original_media_id')
-                //   ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                //       $q->with('newMedia');
-                //   }])
                 \Log::info('crop_reference_grid_page_without_filter_end: ' . date('Y-m-d H:i:s'));
             }
 
             return Datatables::of($query)
-            ->addIndexColumn()
-            ->addColumn('id', function ($row) {
-                $id = '<input type="checkbox" name="issue" value="' . $row->id . '" class="checkBox" data-id="' . $row->product_id . '">';
-                $id .= $row->id;
+                ->addIndexColumn()
+                ->addColumn('id', function ($row) {
+                    $id = '<input type="checkbox" name="issue" value="' . $row->id . '" class="checkBox" data-id="' . $row->product_id . '">';
+                    $id .= $row->id;
 
-                return $id;
-            })
-            ->addColumn('store_website', function ($row) {
-                $websites = [];
-                if (isset($row->product)) {
-                    $listofWebsite = $row->product->getWebsites();
-                    if (! $listofWebsite->isEmpty()) {
-                        foreach ($listofWebsite as $lw) {
-                            $websites[] = $lw->title;
+                    return $id;
+                })
+                ->addColumn('store_website', function ($row) {
+                    $websites = [];
+                    if (isset($row->product)) {
+                        $listofWebsite = $row->product->getWebsites();
+                        if (! $listofWebsite->isEmpty()) {
+                            foreach ($listofWebsite as $lw) {
+                                $websites[] = $lw->title;
+                            }
                         }
                     }
-                }
 
-                return implode('</br>', $websites);
-            })
-            ->addColumn('original_image', function ($row) {
-                $original_image = '<div style="width: 100px;margin-top: 25px; display: inline-block;">';
-                $src = $row->media ? $row->media->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
-                $onclick_url = $row->media ? $row->media->getUrl() : '';
-                $original_image .= '<img src="' . $src . '" alt="" height="100" width="100"  alt="" height="100" width="100" onclick="bigImg(`' . $onclick_url . '`)">';
-                $original_image .= '</div>';
+                    return implode('</br>', $websites);
+                })
+                ->addColumn('original_image', function ($row) {
+                    $original_image = '<div style="width: 100px;margin-top: 25px; display: inline-block;">';
+                    $src = $row->media ? $row->media->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                    $onclick_url = $row->media ? $row->media->getUrl() : '';
+                    $original_image .= '<img src="' . $src . '" alt="" height="100" width="100"  alt="" height="100" width="100" onclick="bigImg(`' . $onclick_url . '`)">';
+                    $original_image .= '</div>';
 
-                return $original_image;
-            })
-            ->addColumn('cropped_image', function ($row) {
-                $cropped_image = '';
-                if ($row->newMedia) {
-                    $cropped_image .= '<table class="table-striped table-bordered table" id="log-table">';
-                    $cropped_image .= '<tbody>';
-                    $cropped_image .= '<tr>';
-                    foreach ($row->differentWebsiteImages as $images) {
-                        $cropped_image .= '<td>';
-                        $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
-                        $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : 'N/A';
-                        $src = $images->newMedia ? $images->newMedia->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
-                        $onclick = $images->newMedia ? $images->newMedia->getUrl() : '';
-                        $cropped_image .= '<img src="' . $src . '" alt="" height="100" width="100" onclick="bigImg(`' . $onclick . '`)">';
-                        $cropped_image .= '</div>';
-                        $cropped_image .= '</td>';
+                    return $original_image;
+                })
+                ->addColumn('cropped_image', function ($row) {
+                    $cropped_image = '';
+                    if ($row->newMedia) {
+                        $cropped_image .= '<table class="table-striped table-bordered table" id="log-table">';
+                        $cropped_image .= '<tbody>';
+                        $cropped_image .= '<tr>';
+                        foreach ($row->differentWebsiteImages as $images) {
+                            $cropped_image .= '<td>';
+                            $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
+                            $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : 'N/A';
+                            $src = $images->newMedia ? $images->newMedia->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                            $onclick = $images->newMedia ? $images->newMedia->getUrl() : '';
+                            $cropped_image .= '<img src="' . $src . '" alt="" height="100" width="100" onclick="bigImg(`' . $onclick . '`)">';
+                            $cropped_image .= '</div>';
+                            $cropped_image .= '</td>';
+                        }
+                        $cropped_image .= '</tr>';
+                        $cropped_image .= '</tbody>';
+                        $cropped_image .= '</table>';
                     }
-                    $cropped_image .= '</tr>';
-                    $cropped_image .= '</tbody>';
-                    $cropped_image .= '</table>';
-                }
 
-                return $cropped_image;
-            })
-            ->addColumn('speed', function ($row) {
-                $speed = number_format((float) str_replace('0:00:', '', $row->speed), 4, '.', '') . ' sec';
+                    return $cropped_image;
+                })
+                ->addColumn('speed', function ($row) {
+                    $speed = number_format((float) str_replace('0:00:', '', $row->speed), 4, '.', '') . ' sec';
 
-                return $speed;
-            })
-            ->addColumn('action', function ($row) {
-                $actionBtn = '<select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" data-id="' . $row->product_id . '">
+                    return $speed;
+                })
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<select class="form-control-sm form-control reject-cropping bg-secondary text-light" name="reject_cropping" data-id="' . $row->product_id . '">
                                 <option value="0">Reject Product</option>
                                 <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
                                 <option value="No Images Shown">No Images Shown</option>
@@ -375,10 +346,10 @@ class CroppedImageReferenceController extends Controller
                                 <option value="Image incorrect">Image incorrect</option>
                         </select>';
 
-                $response = $row->httpRequestData ? $row->httpRequestData->response : 'N/A';
-                $requestData = $row->httpRequestData ? $row->httpRequestData->requestData : 'N/A';
+                    $response = $row->httpRequestData ? $row->httpRequestData->response : 'N/A';
+                    $requestData = $row->httpRequestData ? $row->httpRequestData->requestData : 'N/A';
 
-                $actionBtn .= '<button 
+                    $actionBtn .= '<button 
                     style="float:right;padding-right:0px;" 
                     type="button" 
                     class="btn btn-xs show-http-status" 
@@ -390,20 +361,20 @@ class CroppedImageReferenceController extends Controller
                     <i class="fa fa-info-circle"></i>
                 </button>';
 
-                return $actionBtn;
-            })
-            ->addColumn('date', function ($row) {
-                $date = $row->updated_at->format('d-m-Y : H:i:s');
+                    return $actionBtn;
+                })
+                ->addColumn('date', function ($row) {
+                    $date = $row->updated_at->format('d-m-Y : H:i:s');
 
-                return $date;
-            })
-            ->addColumn('issue', function ($row) {
-                $issue = $row->getProductIssueStatus($row->id);
+                    return $date;
+                })
+                ->addColumn('issue', function ($row) {
+                    $issue = $row->getProductIssueStatus($row->id);
 
-                return $issue;
-            })
-            ->rawColumns(['id', 'store_website', 'original_image', 'cropped_image', 'speed', 'action', 'issue'])
-            ->make(true);
+                    return $issue;
+                })
+                ->rawColumns(['id', 'store_website', 'original_image', 'cropped_image', 'speed', 'action', 'issue'])
+                ->make(true);
         }
 
         \Log::info('crop_reference_grid_page_pending_product_start: ' . date('Y-m-d H:i:s'));
@@ -417,8 +388,8 @@ class CroppedImageReferenceController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'crop-references-grid')->first();
 
         $dynamicColumnsToShowCrop = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowCrop = json_decode($hideColumns, true);
         }
 
@@ -589,10 +560,9 @@ class CroppedImageReferenceController extends Controller
 
     public function cropColumnVisbilityUpdate(Request $request)
     {
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','crop-references-grid')->first();
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'crop-references-grid')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'crop-references-grid';
             $column->column_name = json_encode($request->column_crop);
@@ -601,7 +571,7 @@ class CroppedImageReferenceController extends Controller
             $column = new DataTableColumn();
             $column->section_name = 'crop-references-grid';
             $column->column_name = json_encode($request->column_crop);
-            $column->user_id =  auth()->user()->id;
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 

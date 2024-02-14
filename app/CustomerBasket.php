@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerBasket extends Model
 {
-    //
-
     /**
      * @var string
 

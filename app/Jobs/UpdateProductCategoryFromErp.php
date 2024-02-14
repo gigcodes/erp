@@ -57,15 +57,12 @@ class UpdateProductCategoryFromErp implements ShouldQueue
 
             $affectedProducts = ScrapedProducts::matchedCategory($this->from);
 
-            //$sku = [];
-
             if (! empty($affectedProducts)) {
                 foreach ($affectedProducts as $affectedProduct) {
                     $oldCat = $affectedProduct->category;
                     $affectedProduct->category = $this->to;
                     $affectedProduct->save();
 
-                    //$sku[] = $affectedProduct->sku;
                     // do entry for the history as well
                     $productCatHis = new \App\ProductCategoryHistory;
                     $productCatHis->user_id = ($this->user_id) ? $this->user_id : 6;
@@ -75,8 +72,6 @@ class UpdateProductCategoryFromErp implements ShouldQueue
                     $productCatHis->save();
                 }
             }
-
-            //\Log::info(print_r($sku,true));
 
             self::putLog('Job update product category from erp end time : ' . date('Y-m-d H:i:s'));
 

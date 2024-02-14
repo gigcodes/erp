@@ -10,12 +10,10 @@ use App\Category;
 use App\LogRequest;
 use App\LogGoogleCse;
 use App\ScrapeQueues;
-use Plank\Mediable\Media;
 use App\GoogleSearchImage;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
-use App\Helpers\ProductHelper;
 use App\Services\Search\TinEye;
 use App\GoogleSearchRelatedImage;
 use Illuminate\Support\Facades\Storage;
@@ -248,12 +246,6 @@ class GoogleSearchImageController extends Controller
 
                 // Get SKU from brands
                 if (isset($productImage[$url]['pages_media']) && count($productImage[$url]['pages_media']) > 0) {
-//                    foreach ($productImage[ $url ][ 'pages_media' ] as $result) {
-//                        $sku = ProductHelper::getSkuFromImage($result);
-//                        if (!empty($sku)) {
-//                            exit($sku);
-//                        }
-//                    }
                 }
             } else {
                 $productImage[$url] = GoogleVisionHelper::getImageDetails($path);
@@ -276,9 +268,6 @@ class GoogleSearchImageController extends Controller
                     $search_img->save();
 
                     for ($i = 0; $i < count($z['pages']); $i++) {
-                        // $img_url_array['image'] = $z['pages'][$i];
-                        // $img_url_array['url'] = $z['pages_media'][$i];
-
                         $google_img = new GoogleSearchRelatedImage;
                         $google_img->google_search_image_id = $search_img->id;
                         $google_img->google_image = $z['pages_media'][$i];
@@ -293,11 +282,8 @@ class GoogleSearchImageController extends Controller
             return response()->json(['status' => true, 'message' => 'Search Successfully']);
 
         // Return view
-        // return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
         } else {
             return response()->json(['status' => false, 'message' => 'Please Select Products']);
-
-            // return redirect(route('google.search.image'))->with('message', 'Please Select Products');
         }
 
         abort(403, 'Sorry , it looks like there is no result from the request.');
@@ -826,7 +812,6 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
         $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
@@ -1136,7 +1121,6 @@ class GoogleSearchImageController extends Controller
         $product->attachMedia($media, config('constants.media_tags'));
 
         if ($path) {
-            //$path = 'https://cdn-images.farfetch-contents.com/14/78/88/17/14788817_23873137_480.jpg';
             $urls = GoogleVisionHelper::getImageDetails($path);
             $count = 0;
             if (isset($urls['pages'])) {
@@ -1214,7 +1198,6 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
         $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $parameter['searchImage'] = [
@@ -1299,9 +1282,9 @@ class GoogleSearchImageController extends Controller
     {
         $data['title'] = 'Google Search Images';
         $image_search = GoogleSearchImage::where('user_id', \Auth::id())
-                        ->leftjoin('products as p', 'p.id', '=', 'google_search_images.product_id')
-                        ->select('google_search_images.*', 'p.name as product_name')
-                        ->paginate(30);
+            ->leftjoin('products as p', 'p.id', '=', 'google_search_images.product_id')
+            ->select('google_search_images.*', 'p.name as product_name')
+            ->paginate(30);
         $data['image_search'] = $image_search;
 
         return view('google_search_image.search_image_list', $data);

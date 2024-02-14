@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Auth;
 use Crypt;
-use App\Role;
 use App\Task;
 use App\User;
 use App\Helpers;
@@ -55,14 +53,7 @@ class ContentManagementController extends Controller
         $gmail_data = \App\GmailDataList::get();
 
         foreach ($websites as $w) {
-            // $media = $w->getMedia('website-image-attach');
-            // dd( $media );
             $w->facebookAccount = StoreSocialAccount::where('platform', 'facebook')->where('store_website_id', $w->id)->first();
-            // if($w->facebookAccount) {
-            //     $password = $w->facebookAccount->password;
-            //     $decryptedPassword = decrypt($password);
-            // }
-//            $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
         }
 
         return view('content-management.index', compact('title', 'websites', 'gmail_data', 'content_management_email'));
@@ -122,7 +113,6 @@ class ContentManagementController extends Controller
 
                 $fbImage = [
                     'access_token' => $access_token,
-                    //   'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg',
                     'url' => $source,
                     'caption' => $message,
                 ];
@@ -191,25 +181,8 @@ class ContentManagementController extends Controller
             $categories = $categories->where('title', 'like', '%' . $request->k . '%');
         }
         $ignoredCategory = [];
-        // $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
-
-        // if (request('status') == "ignored") {
-        //     $categories = $categories->whereIn('id', $ignoredCategory);
-        // } else {
-        //     $categories = $categories->whereNotIn('id', $ignoredCategory);
-        // }
 
         $categories = $categories->paginate(Setting::get('pagination'));
-
-        //Getting Roles Developer
-        // $role = Role::where('name', 'LIKE', '%Developer%')->first();
-
-        //User Roles with Developers
-        // $roles = DB::table('role_user')->select('user_id')->where('role_id', $role->id)->get();
-
-        // foreach ($roles as $role) {
-        //     $userIDs[] = $role->user_id;
-        // }
 
         if (! isset($userIDs)) {
             $userIDs = [];
@@ -218,12 +191,6 @@ class ContentManagementController extends Controller
         $allStatus = StoreSocialContentStatus::all();
 
         $statusCount = [];
-        // $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
-        // ->groupBy("sds.id")
-        // ->select(["sds.name",\DB::raw("count(sds.id) as total")])
-        // ->get();
-
-        // $users     = User::select('id', 'name')->whereIn('id', $userIDs)->get();
 
         $users = User::select('id', 'name')->get();
 
@@ -242,7 +209,6 @@ class ContentManagementController extends Controller
         $contentManagemment = StoreSocialContent::where('store_social_content_category_id', $request->category_id)->where('store_website_id', $id)->first();
         $taskLists = [];
         if ($contentManagemment) {
-            // $contentManagemment->creator_id;
             if ($contentManagemment->creator_id) {
                 $taskLists = Task::where('assign_to', $contentManagemment->creator_id)->where('is_completed', null)->orderBy('id', 'desc')->get();
             }
@@ -318,10 +284,6 @@ class ContentManagementController extends Controller
             $social_content->publish_date = $request->publish_date;
         }
 
-        // if ($request->type == 'content') {
-        //     $store_strategy->content_id = $request->text;
-        // }
-
         $social_content->store_social_content_category_id = $request->category;
         $social_content->store_website_id = $request->websiteId;
         $social_content->save();
@@ -369,7 +331,7 @@ class ContentManagementController extends Controller
 
         $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
-        $file->store($path.$name);
+        $file->store($path . $name);
 
         return response()->json([
             'name' => $name,
@@ -401,8 +363,8 @@ class ContentManagementController extends Controller
             foreach ($request->input('document', []) as $file) {
                 $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
-                        ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
-                        ->upload();
+                    ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
+                    ->upload();
                 $site->attachMedia($media, config('constants.media_tags'));
                 $count++;
             }
@@ -520,10 +482,10 @@ class ContentManagementController extends Controller
     public function remarks(Request $request, $id)
     {
         $response = \App\StoreSocialContentRemark::join('users as u', 'u.id', 'store_social_content_remarks.user_id')
-        ->where('store_social_content_id', $id)
-        ->select(['store_social_content_remarks.*', \DB::raw('u.name as created_by')])
-        ->orderBy('store_social_content_remarks.created_at', 'desc')
-        ->get();
+            ->where('store_social_content_id', $id)
+            ->select(['store_social_content_remarks.*', \DB::raw('u.name as created_by')])
+            ->orderBy('store_social_content_remarks.created_at', 'desc')
+            ->get();
 
         return response()->json(['code' => 200, 'data' => $response]);
     }
@@ -537,10 +499,10 @@ class ContentManagementController extends Controller
         ]);
 
         $response = \App\StoreSocialContentRemark::join('users as u', 'u.id', 'store_social_content_remarks.user_id')
-        ->where('store_social_content_id', $id)
-        ->select(['store_social_content_remarks.*', \DB::raw('u.name as created_by')])
-        ->orderBy('store_social_content_remarks.created_at', 'desc')
-        ->get();
+            ->where('store_social_content_id', $id)
+            ->select(['store_social_content_remarks.*', \DB::raw('u.name as created_by')])
+            ->orderBy('store_social_content_remarks.created_at', 'desc')
+            ->get();
 
         return response()->json(['code' => 200, 'data' => $response]);
     }
@@ -611,8 +573,6 @@ class ContentManagementController extends Controller
 
     public function previewImage($id)
     {
-        // $website = StoreWebsite::find($id);
-
         $contents = StoreSocialContent::where('store_website_id', $id)->get();
         $records = [];
         foreach ($contents as $site) {
@@ -766,8 +726,6 @@ class ContentManagementController extends Controller
         $contents = $contents->get();
         foreach ($contents as $site) {
             if ($site) {
-                // $userList = array_filter($userList);
-
                 if ($site->hasMedia(config('constants.media_tags'))) {
                     foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                         $siteName = null;

@@ -96,7 +96,6 @@ class SupplierCategoryController extends Controller
             ->with('success', 'Supplier Category deleted successfully');
     }
 
-//
     public function usersPermission(Request $request)
     {
         $users = User::where('is_active', 1)->orderBy('name', 'asc')->with('supplierCategoryPermission')->get();

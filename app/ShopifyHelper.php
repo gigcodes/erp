@@ -108,7 +108,6 @@ class ShopifyHelper
      */
     public static function syncShopifyOrders($store_id, $order)
     {
-        // \Log::info(print_r($order,true));
 
         //Checking in order table
         $shopify_order_id = $order['id'];
@@ -196,7 +195,7 @@ class ShopifyHelper
         $items = $order['line_items'];
         foreach ($items as $item) {
             if (round($item['price']) > 0) {
-                //
+
                 $size = '';
 
                 // We already have a helper function to get the product attributes
@@ -244,7 +243,6 @@ class ShopifyHelper
      */
     public static function syncShopifyCustomers($store_id, $store_customer)
     {
-        // \Log::info(print_r($store_customer,true));
 
         // Extract customer details from the payload
         $firstName = isset($store_customer) ? (isset($store_customer['first_name']) ? $store_customer['first_name'] : 'N/A') : 'N/A';
@@ -280,7 +278,6 @@ class ShopifyHelper
 
     public static function validateShopifyWebhook($data, $secret, $hmac_header)
     {
-        //$calculated_hmac = base64_encode(hash_hmac('sha256', $data, $secret, true));
         return true; //hash_equals($hmac_header, $calculated_hmac);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\ScrappedCategoryMapping;
 use App\ScrappedProductCategoryMapping;
+use Illuminate\Console\Command;
 
 class CategoryProductMapping extends Command
 {
@@ -39,7 +39,6 @@ class CategoryProductMapping extends Command
      */
     public function handle()
     {
-        //
         $all_category = ScrappedCategoryMapping::where('is_mapped', 0)->get()->pluck('name', 'id')->toArray();
 
         dump('Total Category: ' . count($all_category));

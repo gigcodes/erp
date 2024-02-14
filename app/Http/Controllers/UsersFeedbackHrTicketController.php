@@ -9,7 +9,6 @@ class UsersFeedbackHrTicketController extends Controller
 {
     public function __construct()
     {
-        //dd('gfhgfhgf');
     }
 
     /**
@@ -54,7 +53,7 @@ class UsersFeedbackHrTicketController extends Controller
 
             return response()->json(['code' => '200', 'data' => $task, 'message' => 'Data saved successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -68,12 +67,12 @@ class UsersFeedbackHrTicketController extends Controller
     {
         try {
             $task = UsersFeedbackHrTicket::select('users_feedback_hr_tickets.*', 'users_feedback_hr_tickets.task_subject as subject', 'users.name as assigned_to_name')
-            ->join('users', 'users.id', 'users_feedback_hr_tickets.task_asssigned_to')
-            ->where('feedback_cat_id', $request->id)->get();
+                ->join('users', 'users.id', 'users_feedback_hr_tickets.task_asssigned_to')
+                ->where('feedback_cat_id', $request->id)->get();
 
             return response()->json(['code' => '200', 'data' => $task, 'message' => 'Ticket Details listed successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 

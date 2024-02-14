@@ -63,21 +63,11 @@ class UpdateSizeFromErp implements ShouldQueue
                 $scrapedProductSkuArray[] = $scraped->sku;
             }
 
-            //$sku = [];
             if (count($scrapedProductSkuArray) != 0) {
                 foreach ($scrapedProductSkuArray as $productSku) {
                     self::putLog("Scrapeed Product {$productSku} update start time : " . date('Y-m-d H:i:s'));
                     $oldProduct = Product::where('sku', $productSku)->first();
                     if ($oldProduct->size) {
-                        //$sizes = explode(',', $oldProduct->size);
-                        //$newArray = [];
-                        // foreach ($sizes as $size) {
-                        //     if($size == $this->from){
-                        //         //$newArray[] = $this->to;
-                        //     }else{
-                        //        $newArray[] = $size;
-                        //     }
-                        // }
                         $newSize = $oldProduct->size . ',' . $this->to;
                     } elseif (empty($oldProduct->size)) {
                         $newSize = $this->to;
@@ -89,8 +79,6 @@ class UpdateSizeFromErp implements ShouldQueue
                     }
                 }
             }
-
-            //\Log::info(print_r($sku,true));
 
             self::putLog('Job update product sizes from erp end time : ' . date('Y-m-d H:i:s'));
 
