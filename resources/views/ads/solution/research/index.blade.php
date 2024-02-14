@@ -31,7 +31,7 @@
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="keyword">Keyword:</label>
-                                        @php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) @endphp
+                                        {!! Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) !!}
                                     </div>
                                     <div class="form-group">
                                         <label for="button">&nbsp;</label>
