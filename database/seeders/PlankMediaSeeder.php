@@ -14,8 +14,7 @@ class PlankMediaSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('media')
-            ->where('disk','uploads')
-            ->update(['disk'=>'s3']);
+
+        DB::statement("update IGNORE media SET disk = 's3' where disk = 'uploads'");
     }
 }
