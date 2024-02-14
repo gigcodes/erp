@@ -38,7 +38,6 @@ class ChangeSizeErpWise extends Command
      */
     public function handle()
     {
-        //
         $deleteby = 'supplier'; //$this->ask('Change size product by ?');
         $ids = $this->ask('Enter Ids');
 
@@ -64,7 +63,6 @@ class ChangeSizeErpWise extends Command
                                 $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
                                 $allSize[] = $helperSize;
                                 //find the eu size and update into the field
-                                //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                             }
                             $euSize = ProductHelper::getEuSize($p, $allSize, $supplierModel->size_system_id);
                             $p->size_eu = implode(',', $euSize);
@@ -73,9 +71,6 @@ class ChangeSizeErpWise extends Command
                             }
                             $p->save();
                             \Log::channel('productUpdates')->info("#{$p->id} update with the size {$p->size} to size_eu {$p->size_eu}");
-                            /*if(!empty($euSize)) {
-                                $product->size_eu = implode(',', $euSize);
-                            }*/
                         }
                     }
                 }

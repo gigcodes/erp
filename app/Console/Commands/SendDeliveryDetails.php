@@ -82,7 +82,6 @@ class SendDeliveryDetails extends Command
                 $auto_message = preg_replace('/{customer_address}/i', $address, $auto_message);
                 $auto_message = preg_replace('/{product_information}/i', $product_information, $auto_message);
 
-                // $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
                 $params['message'] = $auto_message;
 
                 foreach ($coordinators as $coordinator) {

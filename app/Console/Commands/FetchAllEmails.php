@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
-use App\EmailAddress;
 use App\CronJobReport;
+use App\EmailAddress;
 use App\Jobs\FetchEmail;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -52,14 +51,7 @@ class FetchAllEmails extends Command
             'signature' => $this->signature,
             'start_time' => Carbon::now(),
         ]);
-//        old code
-//        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
-//
-//        foreach ($emailAddresses as $emailAddress) {
-//            FetchEmail::dispatch($emailAddress)->onQueue('email');
-//        }
 
-        // new code added for optimising
         EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
             foreach ($emailAddresses as $emailAddress) {
                 FetchEmail::dispatch($emailAddress)->onQueue('email');

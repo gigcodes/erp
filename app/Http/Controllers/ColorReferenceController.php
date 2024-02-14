@@ -34,19 +34,22 @@ class ColorReferenceController extends Controller
         return view('color_references.index', compact('colors'));
     }
 
-    public function groupColor(Request $request){
-       $listcolors =  (new \App\Colors())->all();
+    public function groupColor(Request $request)
+    {
+        $listcolors = (new \App\Colors())->all();
+
         return view('color_references.listing', compact('listcolors'));
     }
 
-    public function colorGroupBy(Request $request, $name, $threshold){
-
+    public function colorGroupBy(Request $request, $name, $threshold)
+    {
         $colors = ColorNamesReference::get()->filter(function ($color) use ($name, $threshold) {
             similar_text(strtolower($color->color_name), strtolower($name), $percentage);
 
             return $percentage >= $threshold * 100;
         });
-        $listcolors =  (new \App\Colors())->all();
+        $listcolors = (new \App\Colors())->all();
+
         return view('color_references.update', compact('colors', 'listcolors'));
     }
 
@@ -83,7 +86,6 @@ class ColorReferenceController extends Controller
 
         return redirect()->back();
     }
-    
 
     /**
      * Display the specified resource.
@@ -166,7 +168,7 @@ class ColorReferenceController extends Controller
     {
         $from = $request->from;
         $to = $request->to;
-        foreach($from as $fromname){
+        foreach ($from as $fromname) {
             $updateWithProduct = $request->with_product;
             if ($updateWithProduct == 'yes') {
                 \App\Jobs\UpdateProductColorFromErp::dispatch([
@@ -175,17 +177,16 @@ class ColorReferenceController extends Controller
                     'user_id' => \Auth::user()->id,
                 ])->onQueue('supplier_products');
             }
-    
+
             $c = ColorNamesReference::where('color_name', $fromname)->first();
             if ($c) {
                 $c->erp_name = $to;
                 $c->save();
             }
         }
-        
+
         return response()->json(['code' => 200, 'message' => 'Your request has been pushed successfully']);
     }
-
 
     public function updateColor(Request $request)
     {

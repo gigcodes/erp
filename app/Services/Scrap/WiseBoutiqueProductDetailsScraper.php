@@ -150,8 +150,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 foreach ($product->images as $image_name) {
                     $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                          ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
-                                          ->upload();
+                        ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
+                        ->upload();
                     $old_product->attachMedia($media, config('constants.media_tags'));
                 }
             } else {
@@ -237,8 +237,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 foreach ($product->images as $image_name) {
                     $path = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
-                                          ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
-                                          ->upload();
+                        ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
+                        ->upload();
                     $new_product->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -393,8 +393,8 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             foreach ($images as $image_name) {
                 $path = public_path('uploads') . '/social-media/' . $image_name;
                 $media = MediaUploader::fromSource($path)
-                                      ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                      ->upload();
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
         }

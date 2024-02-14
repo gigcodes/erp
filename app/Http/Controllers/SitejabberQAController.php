@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Review;
 use App\Account;
-use App\Setting;
 use App\QuickReply;
 use App\BrandReviews;
 use App\SitejabberQA;
@@ -198,29 +197,8 @@ class SitejabberQAController extends Controller
         $sjs = SitejabberQA::where('type', 'question')->get();
         $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
         $quickReplies = QuickReply::all();
-//        if (!$setting) {
-//            $setting = new ActivitiesRoutines();
-//            $setting->action = 'sitejabber_review';
-//            $setting->times_a_day = 5;
-//            $setting->save();
-//        }
         $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
-//        if (!$setting2) {
-//            $setting2 = new ActivitiesRoutines();
-//            $setting2->action = 'sitejabber_account_creation';
-//            $setting2->times_a_day = 5;
-//            $setting2->save();
-//        }
-//
         $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
-//        if (!$setting3) {
-//            $setting3 = new ActivitiesRoutines();
-//            $setting3->action = 'sitejabber_qa_post';
-//            $setting3->times_a_week = 1;
-//            $setting3->save();
-//        }
-
-        //return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
         return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
     }
 
@@ -342,8 +320,6 @@ class SitejabberQAController extends Controller
 
         $comment = $request->get('comment');
         $reply = $request->get('reply');
-//        dd($comment, $reply);
-
         $negativeReview->reply = $reply;
         $negativeReview->save();
 

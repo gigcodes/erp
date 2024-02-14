@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\BankStatement;
 use App\BankStatementFile;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 
@@ -69,7 +67,6 @@ class BankStatementController extends Controller
         $excelHeaders = $data[0][$heading_row_number - 1];
 
         // Get the columns of the database table
-        // $dbFields = \Schema::getColumnListing('bank_statement'); // Replace with your actual table name
         $dbFields = [
             'transaction_date' => 'Transaction Date',
             'transaction_reference_no' => 'Transaction Reference Number',
@@ -116,12 +113,11 @@ class BankStatementController extends Controller
         $inputes = $request->all();
         foreach ($data_array as $k => $v) {
             $data_array_new_1 = [];
-            foreach ($fields_db  as $k1 => $v1) {
+            foreach ($fields_db as $k1 => $v1) {
                 $data_array_new_1[trim($v1)] = @$v[trim($inputes[$v1])];
             }
             $data_array_new_1['bank_statement_file_id'] = $id;
             $data_array_new_1['created_at'] = date('Y-m-d H:i:s');
-            // $data_array_new[] = $data_array_new_1;
             foreach ($data_array_new_1 as $k2 => $v2) {
                 if ($v2 == null || trim($v2) == '') {
                     $data_array_new_1[$k2] = '-';

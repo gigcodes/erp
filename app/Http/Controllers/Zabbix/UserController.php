@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Zabbix;
 
-use App\Zabbix\ZabbixException;
 use Exception;
-use Illuminate\Routing\Controller;
-use Illuminate\Http\Request;
 use App\Models\Zabbix\User;
+use Illuminate\Http\Request;
+use App\Zabbix\ZabbixException;
+use Illuminate\Routing\Controller;
 
 class UserController extends Controller
 {
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
@@ -26,17 +25,16 @@ class UserController extends Controller
         $array = [];
 
         foreach ($roles as $value) {
-            $array[(int)$value['roleid']] = $value;
+            $array[(int) $value['roleid']] = $value;
         }
 
         return view('zabbix.user.index', [
             'users' => $users,
-            'roles' => $array
+            'roles' => $array,
         ]);
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function save(Request $request)
@@ -45,45 +43,41 @@ class UserController extends Controller
 
         try {
             $user = new User();
-            $userId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $userId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $user = $user->getById($userId);
             }
 
             $user->setUsername($data['username'] ?? '');
             $user->setName($data['name'] ?? '');
             $user->setSurname($data['surname'] ?? '');
-            $user->setRoleId((int)$data['role_id'] ?? 1);
+            $user->setRoleId((int) $data['role_id'] ?? 1);
 
-            if (!$user->getId()) {
+            if (! $user->getId()) {
                 $user->setPassword($data['password'] ?? '');
             }
 
             $user->save();
-        }
-        catch (ZabbixException $zabbixException)
-        {
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('User with username: %s was edited. Reload page.', $user->getUsername()),
             'user' => $user,
-            'code' => 200
+            'code' => 200,
         ]);
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function roles(Request $request)
@@ -93,7 +87,7 @@ class UserController extends Controller
         $roles = $user->getAllRoles();
 
         return view('zabbix.user.role.index', [
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -103,8 +97,8 @@ class UserController extends Controller
 
         try {
             $user = new User();
-            $userId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $userId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $role = $user->getRoleById($userId);
             } else {
                 $role = [];
@@ -119,24 +113,21 @@ class UserController extends Controller
             }
 
             $user->saveRole($role);
-        }
-        catch (ZabbixException $zabbixException)
-        {
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Role with id: %s was deleted. Reload page.', $userId),
-            'code' => 200
+            'code' => 200,
         ]);
     }
 
@@ -146,32 +137,29 @@ class UserController extends Controller
 
         try {
             $user = new User();
-            $userId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $userId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $user = $user->getById($userId);
             } else {
                 throw new ZabbixException(sprintf('User with id: %s not found.', $userId));
             }
 
             $user->delete();
-        }
-        catch (ZabbixException $zabbixException)
-        {
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('User with id: %s was deleted. Reload page.', $userId),
-            'code' => 200
+            'code' => 200,
         ]);
     }
 
@@ -181,32 +169,29 @@ class UserController extends Controller
 
         try {
             $user = new User();
-            $userId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $userId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $user = $user->getById($userId);
             } else {
                 throw new ZabbixException(sprintf('User with id: %s not found.', $userId));
             }
 
             $user->delete();
-        }
-        catch (ZabbixException $zabbixException)
-        {
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('User with id: %s was deleted. Reload page.', $userId),
-            'code' => 200
+            'code' => 200,
         ]);
     }
 }

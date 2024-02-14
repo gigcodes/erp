@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CheckScraperRunningStatus extends Command
@@ -53,11 +53,6 @@ class CheckScraperRunningStatus extends Command
             $allOutput = [];
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
-
-            /*$allOutput   = [];
-            $allOutput[] = "";
-            $allOutput[] = "#####################   Server -   s01 ################### Server Load - 0.27,###############";
-            $allOutput[] = "Mon Apr  5 20:00:02 2021  /root/scraper_nodejs/commands/completeScraps/conceptstore.js";*/
 
             $serverId = null;
             $scraperNamestr = null;

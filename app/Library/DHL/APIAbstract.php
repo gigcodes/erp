@@ -24,10 +24,6 @@ abstract class APIAbstract
 
     public function __construct()
     {
-        // $this->username      = getenv('DHL_ID') ?: config('dhl.DHL_ID');
-        // $this->password      = getenv('DHL_KEY') ?: config('dhl.DHL_KEY');
-        // $this->_mode         = getenv('DHL_MODE') ?: config('app.env');
-        // $this->accountNumber = getenv('DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
         $this->username = config('env.DHL_ID') ?: config('dhl.DHL_ID');
         $this->password = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
         $this->_mode = config('env.DHL_MODE') ?: config('app.env');
@@ -57,11 +53,6 @@ abstract class APIAbstract
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); //ssl
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); //ssl
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml']);
-        //            curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        //            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        //            curl_setopt($ch, CURLOPT_USERPWD, $this->username . ':' . $this->password);
-        //            curl_setopt($ch, CURLOPT_NOBODY, FALSE);
-        //            curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_HOST']);
         curl_setopt($ch, CURLOPT_PORT, 443);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->document());

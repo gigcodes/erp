@@ -8,12 +8,10 @@ use App\Helpers;
 use App\Setting;
 use App\Customer;
 use Carbon\Carbon;
-use App\ChatMessage;
 use App\Instruction;
 use App\UserActions;
 use App\PushNotification;
 use App\NotificationQueue;
-use Illuminate\Support\Arr;
 use App\InstructionCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,9 +42,7 @@ class InstructionController extends Controller
         if (Auth::user()->hasRole('Admin')) {
             if ($request->user[0] != null) {
                 $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
-                // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
                 $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
-                // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
                 $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user);
                 $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user);
 
@@ -56,22 +52,10 @@ class InstructionController extends Controller
                     $verify_instructions = $verify_instructions->where('category_id', $selected_category);
                     $completed_instructions = $completed_instructions->where('category_id', $selected_category);
                 }
-            // $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user)->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
-
-            // dd($instructions);
-
-            // $instruction_categories = InstructionCategory::with('instructions')->whereHas('instructions', function ($query) use ($request, $orderby) {
-            //   $query->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user)->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby);
-            // })->get();
-
-            // dd($instructions);
             } else {
                 $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at');
-                // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
                 $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at');
-                // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
                 $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at');
-                // $completed_instructions = Instruction::where('verified', 1)->orderBy('category_id', 'ASC')->orderBy('completed_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
                 $completed_instructions = Instruction::where('verified', 1);
 
                 if ($selected_category != '') {
@@ -83,11 +67,8 @@ class InstructionController extends Controller
             }
         } else {
             $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id());
-            // $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page')->groupBy('category_id');
             $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id());
-            // $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'verify-page')->groupBy('category_id');
             $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id());
-            // $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id())->orderBy('category_id', 'ASC')->orderBy('completed_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'completed-page')->groupBy('category_id');
             $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id());
 
             if ($selected_category != '') {
@@ -105,19 +86,6 @@ class InstructionController extends Controller
         $pending_instructions = $pending_instructions->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
         $verify_instructions = $verify_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'verify-page');
         $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
-
-        // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
-        //     if ($value['remarks']) {
-        //       return $value['remarks'][0]['created_at'];
-        //     }
-        //
-        //     return NULL;
-        // 	}));
-        // }
-        //
-        // $instructions = array_reverse($instructions);
-        // dd('at');
         $ids_list = [];
         foreach ($instructions as $data) {
             foreach ($data as $instruction) {
@@ -132,16 +100,6 @@ class InstructionController extends Controller
             $categories_array[$category->id]['name'] = $category->name;
             $categories_array[$category->id]['icon'] = $category->icon;
         }
-
-        // dd($instructions);
-
-        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        // $perPage = Setting::get('pagination');
-        // $currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
-        //
-        // $instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
-        // 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
-        // ]);
 
         return view('instructions.index')->with([
             'instructions' => $instructions,
@@ -222,18 +180,6 @@ class InstructionController extends Controller
         $users_array = Helpers::getUserArray(User::all());
         $user = $request->user ? $request->user : [];
 
-        // if ($request->sortby != 'created_at') {
-        //   $instructions = array_values(Arr::sort($instructions, function ($value) {
-        //     if ($value['remarks']) {
-        //       return $value['remarks'][0]['created_at'];
-        //     }
-        //
-        //     return NULL;
-        // 	}));
-        // }
-        //
-        // $instructions = array_reverse($instructions);
-
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
         $currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
@@ -294,16 +240,6 @@ class InstructionController extends Controller
         $instruction->is_priority = $request->is_priority == 'on' ? 1 : 0;
 
         $instruction->save();
-
-        // NotificationQueueController::createNewNotification([
-        //   'message' => 'Reminder for Instructions',
-        //   'timestamps' => ['+10 minutes'],
-        //   'model_type' => Instruction::class,
-        //   'model_id' =>  $instruction->id,
-        //   'user_id' => Auth::id(),
-        //   'sent_to' => $instruction->assigned_to,
-        //   'role' => '',
-        // ]);
 
         if ($request->send_whatsapp === 'send') {
             $user = User::find($instruction->assigned_to);
@@ -394,35 +330,6 @@ class InstructionController extends Controller
         }
 
         $instruction->save();
-        // if ($instruction->instruction == '') {
-        //   $message_body = 'Images attached!';
-        // } else {
-        //   $message_body = 'Instruction Complete!';
-        // }
-
-        // ChatMessage::create([
-        //   'number'        => NULL,
-        //   'customer_id'   => $instruction->customer_id,
-        //   'status'        => 4,
-        //   'user_id'       => Auth::id(),
-        //   'assigned_to'   => $instruction->assigned_to,
-        //   'message'       => $instruction->instruction . " - Instruction Completed"
-        // ]);
-
-        // $myRequest = new Request();
-        // $myRequest->setMethod('POST');
-        // $myRequest->request->add([
-        //   'moduletype' => (string) 'customer',
-        //   'moduleid' => (int) $instruction->customer_id,
-        //   'status' => (int) 4,
-        //   'userid' => (int) Auth::id(),
-        //   'assigned_user' => (int) $instruction->assigned_to,
-        //   'body' => $message_body
-        // ]);
-        //
-        // // return response($myRequest);
-        //
-        // app('App\Http\Controllers\MessageController')->store($myRequest);
 
         NotificationQueue::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
         PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $instruction->id)->delete();
@@ -482,16 +389,6 @@ class InstructionController extends Controller
         $instruction = Instruction::find($request->id);
 
         PushNotification::where('model_type', \App\Instruction::class)->where('model_id', $request->id)->delete();
-
-        // NotificationQueueController::createNewNotification([
-        //   'message' => 'Reminder for Instructions',
-        //   'timestamps' => ['+10 minutes'],
-        //   'model_type' => Instruction::class,
-        //   'model_id' =>  $instruction->id,
-        //   'user_id' => Auth::id(),
-        //   'sent_to' => $instruction->assigned_to,
-        //   'role' => '',
-        // ]);
 
         return redirect()->route('instruction.index');
     }

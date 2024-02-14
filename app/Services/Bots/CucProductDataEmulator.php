@@ -118,8 +118,6 @@ class CucProductDataEmulator
 
                         $title = $category . ' ' . $brand;
 
-                        //Lukas, can you check here, wht this isn't saving?
-
                         $client = new Client();
                         $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/scrap-products/add', [
                             'form_params' => [

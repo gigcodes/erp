@@ -132,8 +132,6 @@ class ShopifyController extends Controller
         }
 
         $order = $request->all();
-
-        // \Log::info($orders);
         ShopifyHelper::syncShopifyOrders($store_id, $order);
 
         return response()->json(['success'], 200);

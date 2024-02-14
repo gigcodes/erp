@@ -149,48 +149,5 @@ class AddGroupTheme extends Command
             }
         }
         dd('ref groups updated');
-
-        // Optional Method
-        // $website_store_views = WebsiteStoreView::whereNotNull('store_group_id')->whereNull('ref_theme_group_id')->orderByDesc('id')->get();
-        // foreach($website_store_views as $key => $v){
-        //     $store_web = StoreWebsite::withTrashed()->find($v->websiteStore->website->store_website_id);
-        //     $web_title = $store_web->title;
-        //     // dump($web_title);
-        //     if($web_title == 'Demo Store'){
-        //         continue;
-        //     }else if($web_title == 'Vera Lusso' || $web_title == 'VERA LUSSO'){
-        //         $web_title = 'theme_VeraLusso';
-        //     }else if($web_title == 'Brands & Labels'){
-        //         $web_title = 'theme_Brands & Labels';
-        //     }else if($web_title == 'AvoirChic'){
-        //         $web_title = 'theme_AvoirChic';
-        //     }else if($web_title == 'SOLO LUXURY'){
-        //         $web_title = 'theme_Sololuxury';
-        //     }else if($web_title == 'VeraLusso'){
-        //         $web_title = 'theme_VeraLusso';
-        //     }else if($web_title == 'Suv&Nat'){
-        //         $web_title = 'theme_Suv&Nat';
-        //     }else if($web_title == 'o-labels.com'){
-        //         $web_title = 'o-labels.com';
-        //     }else if($web_title == 'Italybrandoutlets'){
-        //         $web_title = 'Italybrandoutlets';
-        //     }else if($web_title == 'Shades Shop'){
-        //         $web_title = 'theme_Shades Shop';
-        //     }else if($web_title == 'TheFitEdit'){
-        //         $web_title = 'theme_TheFitEdit';
-        //     }else if($web_title == 'Upeau'){
-        //         $web_title = 'theme_Upeau';
-        //     }
-        //     if(in_array($web_title, array_keys($all_themes_ids))){
-        //         $postURL1  = 'https://api.livechatinc.com/v2/properties/group/' . $all_themes_ids[$web_title];
-        //         $result1 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL1, [], 'application/json', true, 'GET');
-        //         $postURL2  = 'https://api.livechatinc.com/v2/properties/group/' . $v->store_group_id;
-        //         $result2 = app('App\Http\Controllers\LiveChatController')->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
-        //         WebsiteStoreView::where('id', $v->id)->update(['ref_theme_group_id' => $all_themes_ids[$web_title]]);
-        //         dump($v->id . ' ' . $web_title . ' is updated ' .  $all_themes_ids[$web_title]);
-        //     }else{
-        //         dump($v->id . ' ' . $web_title . ' is not updated ');
-        //     }
-        // }
     }
 }

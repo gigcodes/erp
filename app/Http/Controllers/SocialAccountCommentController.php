@@ -2,27 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Reply;
 use App\LogRequest;
 use App\BusinessPost;
 use App\BusinessComment;
 use App\GoogleTranslate;
 use App\SocialWebhookLog;
-use App\Reply;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
-use App\StoreWebsite;
 
 class SocialAccountCommentController extends Controller
 {
-    public function index(Request $request,  $postId)
+    public function index(Request $request, $postId)
     {
-        //echo "Due to lake of permission we could not load comment section!!"; die();
         $post = BusinessPost::find($postId);
-        //$comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId)->latest('time')->get();
-
         $search = request('search', '');
         $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId);
-        
+
         if (! empty($search)) {
             $comments = $comments->where(function ($q) use ($search) {
                 $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
@@ -50,7 +46,7 @@ class SocialAccountCommentController extends Controller
         $totalcomments = BusinessComment::where('is_parent', 0)->count();
 
         $comments = BusinessComment::with('bussiness_post', 'bussiness_post.bussiness_social_configs', 'bussiness_post.bussiness_social_configs.bussiness_website')->where('is_parent', 0);
-        
+
         if (! empty($search)) {
             $comments = $comments->where(function ($q) use ($search) {
                 $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
@@ -58,14 +54,14 @@ class SocialAccountCommentController extends Controller
         }
 
         // Adding filter condition for bussiness_post.bussiness_social_configs
-        if (!empty($social_config)) {
+        if (! empty($social_config)) {
             $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($social_config) {
                 // Add your filter conditions for bussiness_post.bussiness_social_configs here
                 $query->whereIn('social_configs.platform', $social_config);
             });
         }
 
-        if (!empty($store_website_id)) {
+        if (! empty($store_website_id)) {
             $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($store_website_id) {
                 // Add your filter conditions for bussiness_post.bussiness_social_configs here
                 $query->whereIn('social_configs.store_website_id', $store_website_id);
@@ -73,7 +69,6 @@ class SocialAccountCommentController extends Controller
         }
 
         $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
-
 
         $googleTranslate = new GoogleTranslate();
         $target = 'en';
@@ -140,22 +135,6 @@ class SocialAccountCommentController extends Controller
             // Close the cURL session
             curl_close($ch);
 
-            // Process the response
-            // $result = json_decode($response, true);
-
-            // $token = $socialConfig["token"];
-            // $url = "https://graph.facebook.com/v15.0/$commentId/replies?access_token=$token&message=$message";
-            // $ch = curl_init();
-            // curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded; charset=UTF-8'));
-            // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            // curl_setopt($ch, CURLOPT_POST, 1);
-            // $resp = curl_exec($ch);
-            // $resp = json_decode($resp, true);
             if (isset($response['id'])) {
                 SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Comment Added) => Reply on Comment Successfully', ['data' => $response]);
 
@@ -171,10 +150,10 @@ class SocialAccountCommentController extends Controller
     }
 
     public function getEmailreplies(Request $request)
-    {   
+    {
         $id = $request->id;
         $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
-        
+
         return json_encode($emailReplies);
     }
 }

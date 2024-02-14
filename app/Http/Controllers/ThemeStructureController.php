@@ -92,7 +92,6 @@ class ThemeStructureController extends Controller
         $directory = true;
         $theme = $folder->theme->name;
         $project = $folder->theme->project->name;
-        //dd([$action,$path,$directory,$theme,$project]);
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "' . $directory . '" -t "' . $theme . '" -p "' . $project . '" 2>&1';
 
@@ -167,7 +166,6 @@ class ThemeStructureController extends Controller
         $directory = false;
         $theme = $file->theme->name;
         $project = $file->theme->project->name;
-        //dd([$action,$path,$directory,$theme,$project]);
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "' . $directory . '" -t "' . $theme . '" -p "' . $project . '" 2>&1';
 

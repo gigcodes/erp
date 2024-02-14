@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class SiteDevelopmentStatusHistory extends Model
 {
-    //
     protected $fillable = [
         'site_development_id',
         'status_id',

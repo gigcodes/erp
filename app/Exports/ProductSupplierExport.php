@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Product;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -12,8 +11,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 class ProductSupplierExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
 {
     /***
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
 
     protected $supplier_not_exist_product_supplier_table;
 
@@ -25,17 +24,9 @@ class ProductSupplierExport implements FromArray, WithHeadings, ShouldAutoSize, 
         $this->path = $path;
     }
 
-    // public function collection()
-    // {
-    //     return Product::all();
-    // }
-
     public function array(): array
     {
         $products_array = [];
-        //$products = Product::whereIn('id', $this->products)->get();
-
-        // dd($this->supplier_not_exist_product_supplier_table);
 
         foreach ($this->supplier_not_exist_product_supplier_table as $k => $v) {
             $arr = [];

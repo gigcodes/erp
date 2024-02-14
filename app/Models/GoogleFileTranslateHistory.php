@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GoogleFileTranslateHistory extends Model
 {
@@ -14,7 +14,6 @@ class GoogleFileTranslateHistory extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class,'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
-
 }

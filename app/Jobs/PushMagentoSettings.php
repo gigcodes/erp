@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Website;
 use App\LogRequest;
 use App\StoreWebsite;
 use App\WebsiteStore;
@@ -126,7 +125,6 @@ class PushMagentoSettings implements ShouldQueue
                     curl_close($ch);
                     if ($httpcode == '200') {
                         $m_setting->status = 'Success';
-                        //$m_setting->value_on_magento =$value;
                         $m_setting->save();
                         MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' => 'Success', 'status' => 'Success', 'command_server' => $url, 'job_id' => $httpcode]);
                     } else {
@@ -142,7 +140,6 @@ class PushMagentoSettings implements ShouldQueue
                 $store = isset($entity->store->website->name) ? $entity->store->website->name : '';
                 \Log::info('Setting Pushed to store : ' . $store);
 
-                //$websiteStores = WebsiteStore::with('website.storeWebsite')->where('id', $entity->scope_id)->get();
                 $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
                     $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
                 })->orWhere('id', $entity->scope_id)->get();
@@ -210,7 +207,6 @@ class PushMagentoSettings implements ShouldQueue
                         curl_close($ch);
                         if ($httpcode == '200') {
                             $m_setting->status = 'Success';
-                            //$m_setting->value_on_magento =$value;
                             $m_setting->save();
                             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' => 'Success', 'status' => 'Success', 'command_server' => $url, 'job_id' => $httpcode]);
                         } else {
@@ -233,7 +229,6 @@ class PushMagentoSettings implements ShouldQueue
                 \Log::info('Setting Pushed to store : ' . $store);
                 \Log::info('Setting Pushed to  store_view: ' . $store_view);
 
-                //$websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->with('websiteStore.website')->where('id', $entity->scope_id)->get();
                 $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
                     $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
                 })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
@@ -301,7 +296,6 @@ class PushMagentoSettings implements ShouldQueue
                         curl_close($ch);
                         if ($httpcode == '200') {
                             $m_setting->status = 'Success';
-                            //$m_setting->value_on_magento =$value;
                             $m_setting->save();
                             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' => 'Success', 'status' => 'Success', 'command_server' => $url, 'job_id' => $httpcode]);
                         } else {

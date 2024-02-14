@@ -150,21 +150,21 @@ class MagentoService
 
         // started to check the product rediness test
         if (($this->topParent == 'NEW' && in_array('validate_readiness', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('validate_readiness', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_readiness', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_readiness', 'product_id' => $this->product->id, 'is_checked' => 1]);
             if (! $this->validateReadiness()) {
                 return false;
             }
         }
 
         if (($this->topParent == 'NEW' && in_array('validate_brand', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('validate_brand', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_brand', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_brand', 'product_id' => $this->product->id, 'is_checked' => 1]);
             if (! $this->validateBrand()) {
                 return false;
             }
         }
 
         if (($this->topParent == 'NEW' && in_array('validate_product_category', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('validate_product_category', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_product_category', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'validate_product_category', 'product_id' => $this->product->id, 'is_checked' => 1]);
             if (! $this->validateProductCategory()) {
                 return false;
             }
@@ -172,7 +172,7 @@ class MagentoService
 
         // assign reference
         if (($this->topParent == 'NEW' && in_array('assign_product_references', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('assign_product_references', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'assign_product_references', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'assign_product_references', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->assignReference();
         }
 
@@ -184,30 +184,30 @@ class MagentoService
         //assign all default datas so we can use on calculation
         \Log::info($this->product->id . ' #1 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_website_ids', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_website_ids', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_ids', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_ids', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->websiteIds = $this->getWebsiteIds();
         }
 
         \Log::info($this->product->id . ' #2 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_website_attributes', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_website_attributes', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_attributes', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_website_attributes', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->websiteAttributes = $this->getWebsiteAttributes();
         }
         \Log::info($this->product->id . ' #3 => ' . date('Y-m-d H:i:s'));
         // start for translation
         if (($this->topParent == 'NEW' && in_array('google_translation', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('google_translation', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'google_translation', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'google_translation', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->startTranslation();
         }
         \Log::info($this->product->id . ' #4 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('translate_meta', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('translate_meta', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'translate_meta', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'translate_meta', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->meta = $this->getMeta();
         }
         \Log::info($this->product->id . ' #5 => ' . date('Y-m-d H:i:s'));
         $this->translations = [];
         if (($this->topParent == 'NEW' && in_array('get_langauages_translation', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_langauages_translation', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_langauages_translation', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_langauages_translation', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->translations = $this->getTranslations();
             if (! $this->translations) {
                 $this->storeLog('translation_not_found', 'No translations found for the product total translation ' . count($this->translations), null, null);
@@ -232,13 +232,13 @@ class MagentoService
         $this->sku = $this->getSku();
         \Log::info($this->product->id . ' #9 => ' . date('Y-m-d H:i:s'));
         if (($this->topParent == 'NEW' && in_array('get_description', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_description', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_description', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_description', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->description = $this->getDescription();
         }
         \Log::info($this->product->id . ' #10 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_magento_brand', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_magento_brand', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_magento_brand', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_magento_brand', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->magentoBrand = $this->getMagentoBrand();
             $this->storeLog('success', 'brand found' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_magento_brand']]);
         }
@@ -247,7 +247,7 @@ class MagentoService
         \Log::info($this->product->id . ' #12 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_website_size', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_website_size', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_size', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_size', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeWebsiteSize = $this->storeWebsiteSize();
             $this->storeLog('success', 'get store website size' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_size']]);
             if (($this->topParent == 'NEW' && in_array('validate_store_website_size', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('validate_store_website_size', $this->upteamconditions))) {
@@ -261,35 +261,35 @@ class MagentoService
         \Log::info($this->product->id . ' #13 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_website_color', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_website_color', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_color', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_website_color', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'fetch colors for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_website_color']]);
             $this->storeWebsiteColor = $this->storeWebsiteColor();
         }
         \Log::info($this->product->id . ' #14 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_measurements', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_measurements', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_measurements', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_measurements', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'fetch measurements for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_measurements']]);
             $this->measurement = $this->getMeasurements();
         }
         \Log::info($this->product->id . ' #15 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_estimate_minimum_days', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_estimate_minimum_days', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_estimate_minimum_days', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_estimate_minimum_days', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'estimate minimum for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_estimate_minimum_days']]);
             $this->estMinimumDays = $this->getEstimateMinimumDays();
         }
         \Log::info($this->product->id . ' #16 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_size_chart', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_size_chart', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_size_chart', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_size_chart', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'get size chart for website ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_size_chart']]);
             $this->sizeChart = $this->getSizeChart();
         }
         \Log::info($this->product->id . ' #17 => ' . date('Y-m-d H:i:s'));
 
         if (($this->topParent == 'NEW' && in_array('get_store_color', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_store_color', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_color', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_store_color', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'fetch store color' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_store_color']]);
             $this->storeColor = $this->getStoreColor();
         }
@@ -298,7 +298,7 @@ class MagentoService
         // get normal and special prices
 
         if (($this->topParent == 'NEW' && in_array('get_price', $this->conditions)) || ($this->topParent == 'PREOWNED' && in_array('get_price', $this->upteamconditions))) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_price', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'get_price', 'product_id' => $this->product->id, 'is_checked' => 1]);
             $this->storeLog('success', 'fetch pricing ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
             $this->getPricing();
             $this->storeLog('success', 'fetched pricing ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['get_price']]);
@@ -334,8 +334,6 @@ class MagentoService
             ->groupBy('languages.locale')
             ->pluck('languages.code', 'languages.code')
             ->toArray();
-
-        //return \App\Language::where("status", 1)->where("locale","!=","en")->pluck("code", "code")->toArray();
     }
 
     private function getStoreColor()
@@ -488,7 +486,7 @@ class MagentoService
         Log::info('Main category:' . json_encode($mainCategory));
 
         $pushSingle = false;
-        ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'check_category_pushtype', 'product_id' => $this->product->id,  'is_checked' => 1]);
+        ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'check_category_pushtype', 'product_id' => $this->product->id, 'is_checked' => 1]);
 
         if ($mainCategory->push_type == 0 && ! is_null($mainCategory->push_type)) {
             \Log::info('Product push type single via category');
@@ -533,7 +531,7 @@ class MagentoService
         // started to check that request issue
         $platform_id = 0;
         if (isset($result->id)) {
-            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'add_update_store_website_product', 'product_id' => $this->product->id,  'is_checked' => 1]);
+            ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'add_update_store_website_product', 'product_id' => $this->product->id, 'is_checked' => 1]);
 
             $platform_id = $result->id;
             $sp = \App\StoreWebsiteProduct::where('product_id', $this->product->id)
@@ -1100,7 +1098,6 @@ class MagentoService
         $seoDescription = $this->description;
         $seoKeywords = ($metakeywords != '') ? $metakeywords . ',' . $this->storeWebsite->title : $this->storeWebsite->title;
         if ($seoFormat) {
-            //$metaTitle = $seoFormat->meta_title;
             @eval("\$dbseoTitle = \"$seoFormat->meta_title\";");
             if (! empty($dbseoTitle)) {
                 $seoTitle = $dbseoTitle;
@@ -1164,7 +1161,7 @@ class MagentoService
                         ];
                     }
                 } else {
-                    ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'add_update_price_data', 'product_id' => $this->product->id,  'is_checked' => 1]);
+                    ProductPushJourney::create(['log_list_magento_id' => $this->log->id, 'condition' => 'add_update_price_data', 'product_id' => $this->product->id, 'is_checked' => 1]);
                     $countries = ! empty($webStore->countries) ? json_decode($webStore->countries) : [];
                     $magentoPrice = $product->price;
                     $specialPrice = 0;
@@ -1280,16 +1277,9 @@ class MagentoService
             ->where('l.locale', '!=', 'en')
             ->where('product_translations.title', '!=', '')
             ->where('product_translations.description', '!=', '')
-            //->where('product_translations.composition', "!=", "")
-            //->where('product_translations.color', "!=", "")
-            //->where('product_translations.dimension', "!=", "")
-            //->where('product_translations.size', "!=", "")
-            //->where('product_translations.country_of_manufacture', "!=", "")
             ->groupBy('l.locale')
             ->select(['product_translations.*', 'l.locale', 'l.name as local_name', \DB::raw('group_concat(wsv.code) as store_codes')])
             ->get();
-
-        //echo "<pre>"; print_r($translations);  echo "</pre>";die;
 
         \Log::info('Translation found =>' . json_encode($translations));
 
@@ -1434,7 +1424,6 @@ class MagentoService
         if (empty($brand->name)) {
             $this->storeLog('error', 'Product has no brand found ' . $this->storeWebsite->title, null, null, ['error_condition' => $this->conditionsWithIds['validate_brand']]);
 
-            //$this->storeLog("error", "Product has no brand found");
             return false;
         }
 
@@ -1581,7 +1570,6 @@ class MagentoService
             ->where('type_id', $product->id)
             ->whereDate('start_date', '>=', $date)
             ->whereDate('end_date', '<=', $date)
-            //->whereRaw($date.' between date(start_date) and date(end_date)')
             ->first();
         if ($product_discount) {
             $discount = $product_discount->amount;
@@ -1594,7 +1582,6 @@ class MagentoService
                 ->where('type_id', $storeWebsite->id)
                 ->whereDate('start_date', '>=', $date)
                 ->whereDate('end_date', '<=', $date)
-                //->whereRaw($date.' between date(start_date) and date(end_date)')
                 ->first();
             if ($product_discount1) {
                 $discount = $product_discount1->amount;
@@ -1608,7 +1595,6 @@ class MagentoService
                     ->where('supplier_id', $supplier_id)
                     ->whereDate('start_date', '>=', $date)
                     ->whereDate('end_date', '<=', $date)
-                    //->whereRaw($date.' between date(start_date) and date(end_date)')
                     ->first();
                 if ($product_discount2) {
                     $discount = $product_discount2->amount;
@@ -1623,7 +1609,6 @@ class MagentoService
                             ->where('supplier_id', $supplier_id)
                             ->whereDate('start_date', '>=', $date)
                             ->whereDate('end_date', '<=', $date)
-                            //->whereRaw($date .' between date(start_date) and date(end_date)')
                             ->first();
                         if ($product_discount3) {
                             $discount = $product_discount3->amount;

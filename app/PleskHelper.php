@@ -39,7 +39,6 @@ class PleskHelper
                         $domains[] = $temp;
                     }
                 } catch (\Exception $e) {
-                    // echo $e;
                 }
             }
         }

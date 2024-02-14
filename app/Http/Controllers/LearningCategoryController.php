@@ -45,7 +45,7 @@ class LearningCategoryController extends Controller
         $is_approved = Auth::user()->hasRole('Admin') ? 1 : 0;
 
         if ($request->title != '') {
-            LearningModule::create(['title' => $request->title, 'is_approved' => $is_approved,  'parent_id' => 0]);
+            LearningModule::create(['title' => $request->title, 'is_approved' => $is_approved, 'parent_id' => 0]);
         }
 
         if ($request->parent_id != '' && $request->subcategory != '') {

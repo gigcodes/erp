@@ -130,7 +130,6 @@ class FacebookController extends Controller
                         $influencer->email = isset($postJson['Email']) ? $postJson['Email'] : '';
                         $influencer->followers = $postJson['followers'];
                         $influencer->following = $postJson['friends'];
-                        //$influencer->posts       = $postJson['Posts'];
                         $influencer->description = $postJson['bio'];
 
                         $influencer->profile_pic = $postJson['profile pic'];

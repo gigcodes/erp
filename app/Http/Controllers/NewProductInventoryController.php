@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Stage;
-use App\Category;
-use App\Supplier;
-use App\UpteamLog;
 use App\Product;
+use App\Category;
+use App\UpteamLog;
 use App\ColorReference;
 use Illuminate\Http\Request;
 use App\Library\Product\ProductSearch;
@@ -23,7 +22,6 @@ class NewProductInventoryController extends Controller
 
     public function index(Stage $stage)
     {
-        // dd($stage);
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control'])->selected(request('category'))->renderAsDropdown();
         $suppliersDropList = \Illuminate\Support\Facades\DB::select('SELECT id, supplier FROM suppliers INNER JOIN (
                                     SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
@@ -37,7 +35,6 @@ class NewProductInventoryController extends Controller
         ON scrapers.supplier_id = product_suppliers.supplier_id');
 
         $scrapperDropList = collect($scrapperDropList)->pluck('scraper_name', 'id')->toArray();
-        // $suppliersDropList = Supplier::where('supplier_status_id','1')->pluck('supplier','id')->toArray();
         $typeList = [
             'scraped' => 'Scraped',
             'imported' => 'Imported',
@@ -136,20 +133,6 @@ class NewProductInventoryController extends Controller
 
         return view('product-inventory.upteam_logs', compact('logs'));
     }
-
-    // public function upteamLogs(Request $request) {
-    //        if($request->upteam_log && $request->upteam_log != '') {
-    //            $logs = UpteamLog::where('log_description','LIKE','%'.$request->upteam_log.'%');
-    //        }
-
-    //        if($request->from_date != '' && $request->to_date != '')
-    //        {
-    //           $logs = UpteamLog::whereBetween('created_at', array($request->from_date, $request->to_date))->orderBy('id', 'desc')->paginate(30);
-    //        }else{
-    //            $logs = UpteamLog::orderBy('id', 'desc')->paginate(30);
-    //        }
-    //        return view("product-inventory.upteam_logs", compact('logs'));
-    // }
     public function pushInStore(Request $request)
     {
         if (! empty($request->product_ids)) {

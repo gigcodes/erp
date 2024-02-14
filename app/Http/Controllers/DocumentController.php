@@ -6,7 +6,6 @@ use Auth;
 use Mail;
 use finfo;
 use Storage;
-use App\Task;
 use App\User;
 use App\Email;
 use App\ApiKey;
@@ -98,14 +97,14 @@ class DocumentController extends Controller
     public function documentList(Request $request)
     {
         $developertask = DB::table('developer_task_documents')
-         ->select('subject', 'description', 'developer_task_id', 'developer_task_documents.created_at',
-             'mediables.tag as tag', 'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
-             'media.extension as extension', 'users.name as username', DB::raw("'Devtask' as type"), 'media.id as media_id')
-         ->join('mediables', 'mediables.mediable_id', '=', 'developer_task_documents.id')
-         ->join('users', 'users.id', '=', 'developer_task_documents.created_by')
-         ->join('media', 'media.id', '=', 'mediables.media_id')
-         ->where('mediables.mediable_type', 'App\DeveloperTaskDocument')
-         ->where('mediables.tag', config('constants.media_tags'));
+            ->select('subject', 'description', 'developer_task_id', 'developer_task_documents.created_at',
+                'mediables.tag as tag', 'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
+                'media.extension as extension', 'users.name as username', DB::raw("'Devtask' as type"), 'media.id as media_id')
+            ->join('mediables', 'mediables.mediable_id', '=', 'developer_task_documents.id')
+            ->join('users', 'users.id', '=', 'developer_task_documents.created_by')
+            ->join('media', 'media.id', '=', 'mediables.media_id')
+            ->where('mediables.mediable_type', 'App\DeveloperTaskDocument')
+            ->where('mediables.tag', config('constants.media_tags'));
 
         if ($request->task_subject && $request->task_subject != null) {
             $developertask = $developertask->where('subject', 'LIKE', "%$request->task_subject%");
@@ -119,18 +118,17 @@ class DocumentController extends Controller
         if (! empty($request->date)) {
             $developertask = $developertask->whereDate('developer_task_documents.created_at', $request->date);
         }
-        // $developertask = $developertask->orderBy('developer_task_documents.id', 'desc');
 
         $uploadDocData = DB::table('tasks')
-                ->select('task_subject as subject', 'task_details as description',
-                    'tasks.id as developer_task_id', 'tasks.created_at', 'mediables.tag as tag',
-                    'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
-                    'media.extension as extension', 'users.name as username', DB::raw("'Task' as type"), 'media.id as media_id')
-                ->join('mediables', 'mediables.mediable_id', '=', 'tasks.id')
-                ->join('users', 'users.id', '=', 'tasks.assign_from')
-                ->join('media', 'media.id', '=', 'mediables.media_id')
-                ->where('mediables.mediable_type', 'App\Task')
-                ->where('mediables.tag', config('constants.media_tags'));
+            ->select('task_subject as subject', 'task_details as description',
+                'tasks.id as developer_task_id', 'tasks.created_at', 'mediables.tag as tag',
+                'media.disk as disk', 'media.directory as directory', 'media.filename as filename',
+                'media.extension as extension', 'users.name as username', DB::raw("'Task' as type"), 'media.id as media_id')
+            ->join('mediables', 'mediables.mediable_id', '=', 'tasks.id')
+            ->join('users', 'users.id', '=', 'tasks.assign_from')
+            ->join('media', 'media.id', '=', 'mediables.media_id')
+            ->where('mediables.mediable_type', 'App\Task')
+            ->where('mediables.tag', config('constants.media_tags'));
 
         if ($request->task_subject && $request->task_subject != null) {
             $uplodDocData = $uploadDocData->where('tasks.task_subject', 'LIKE', "%$request->task_subject%");
@@ -144,7 +142,6 @@ class DocumentController extends Controller
         if (! empty($request->date)) {
             $uploadDocData = $uploadDocData->whereDate('tasks.created_at', $request->date);
         }
-        // $uploadDocData = $uploadDocData->orderBy('tasks.id', 'desc');
         $uploadDocData = $uploadDocData->union($developertask);
         $uploadDocData = $uploadDocData->orderBy('media_id', 'desc');
         $DataCount = $uploadDocData->count();
@@ -183,7 +180,6 @@ class DocumentController extends Controller
         ]);
 
         $data = $request->except(['_token', 'file']);
-        // dd($data);
         foreach ($request->file('file') as $file) {
             $data['filename'] = $file->hashName();
             $data['file_contents'] = $file->openFile()->fread($file->getSize());
@@ -206,12 +202,12 @@ class DocumentController extends Controller
             $mime = $finfo->buffer($document->file_contents);
 
             return response($document->file_contents)
-        ->header('Cache-Control', 'no-cache private')
-        ->header('Content-Description', 'File Transfer')
-        ->header('Content-Type', $mime)
-        ->header('Content-length', strlen($document->file_contents))
-        ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
-        ->header('Content-Transfer-Encoding', 'binary');
+                ->header('Cache-Control', 'no-cache private')
+                ->header('Content-Description', 'File Transfer')
+                ->header('Content-Type', $mime)
+                ->header('Content-length', strlen($document->file_contents))
+                ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
+                ->header('Content-Transfer-Encoding', 'binary');
         }
 
         return Storage::download('files/documents/' . $document->filename);
@@ -276,7 +272,6 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
-        //  dd($request->all());
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -299,7 +294,6 @@ class DocumentController extends Controller
             $file_paths[] = "files/documents/$document->filename";
         }
 
-        // dd($file_paths);
         $cc = $bcc = [];
         if ($request->has('cc')) {
             $cc = array_values(array_filter($request->cc));

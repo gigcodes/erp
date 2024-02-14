@@ -18,14 +18,12 @@ use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\V12\Common\AdImageAsset;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
-
 use Google\Ads\GoogleAds\V12\Services\AssetOperation;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Google\Ads\GoogleAds\V12\Enums\AssetTypeEnum\AssetType;
 use Google\Ads\GoogleAds\V12\Common\ResponsiveDisplayAdInfo;
-
 use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
 
 class GoogleResponsiveDisplayAdController extends Controller
@@ -39,7 +37,6 @@ class GoogleResponsiveDisplayAdController extends Controller
     {
         $result = GoogleAdsAccount::find($account_id);
         if (Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
-            // $storagepath = Storage::disk('adsapi')->url($account_id.'/'.$result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
 
             return $storagepath;
@@ -151,8 +148,6 @@ class GoogleResponsiveDisplayAdController extends Controller
             $acDetail = $this->getAccountDetail($campaignId);
             $account_id = $acDetail['account_id'];
             $customerId = $acDetail['google_customer_id'];
-
-            // $storagepath = $this->getstoragepath($account_id);
 
             $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
             $adStatus = $adStatuses[$request->adStatus];
@@ -268,8 +263,6 @@ class GoogleResponsiveDisplayAdController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        // $storagepath = $this->getstoragepath($account_id);
-
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
@@ -327,7 +320,6 @@ class GoogleResponsiveDisplayAdController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
-        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 

@@ -2,51 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
 use Illuminate\Http\Request;
 
 class TestingController extends Controller
 {
-    // public function Demo(Request $request){
-
-    //     $unKnownCategory  = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-
-    // if ($unKnownCategory) {
-
-    //     $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
-
-    //     if (!empty($unKnownCatArr)) {
-
-    //         $storeUnUserCategory = [];
-
-    //         foreach ($unKnownCatArr as $key => $unKnownC) {
-
-    //             $count = \App\Category::ScrapedProducts($unKnownC);
-    //             if ($count > 1) {
-
-    //                 // echo "Added in  {$unKnownC} categories";
-    //                 // echo  PHP_EOL;
-
-    //             }else{
-    //                 $storeUnUserCategory[] = $unKnownC;
-
-    //                 //$key = array_search ($unKnownC, $unKnownCatArr);
-
-    //                 unset($unKnownCatArr[$key]);
-
-    //                 // echo "removed from  {$unKnownC} categories";
-    //                 // echo  PHP_EOL;
-    //             }
-    //         }
-
-    //         $unKnownCategory->references      = implode(',',array_filter($unKnownCatArr));
-    //         $unKnownCategory->ignore_category = implode(',',array_filter($storeUnUserCategory));
-    //         $unKnownCategory->save();
-    //     }
-    // }
-
-    // }
-
     public function testingFunction(Request $request)
     {
         $message = '<!DOCTYPE html>
@@ -269,18 +228,5 @@ class TestingController extends Controller
                     </div>
                     </body>
                     </html>';
-        // dd(123);
-        // $email = \App\Email::create([
-            //     'model_id'        => 2048,
-            //     'model_type'      => 'App\Order',
-            //     'from'            => 'buying@amourint.com',
-            //     'to'              => 'solanki7492+1@gmail.com',
-            //     'subject'         => 'Your order status has been changed!',
-            //     'message'         => $message,
-            //     'template'        => 'birthday-mail',
-            //     'additional_data' => 2068,
-            //     'status'          => 'pre-send',
-            //     'is_draft'        => 1,
-        // ]);
     }
 }

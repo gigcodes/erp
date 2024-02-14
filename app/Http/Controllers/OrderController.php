@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Auth;
 use Cache;
 use Session;
@@ -12,7 +11,6 @@ use App\User;
 use App\Email;
 use App\Order;
 use App\Reply;
-use Exception;
 use App\Refund;
 use SoapClient;
 use App\Comment;
@@ -52,7 +50,6 @@ use App\OrderStatusHistory;
 use App\Store_order_status;
 use App\TwilioActiveNumber;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use App\Events\OrderUpdated;
 use App\Helpers\OrderHelper;
 use App\MailinglistTemplate;
@@ -65,6 +62,7 @@ use App\OrderMagentoErrorLog;
 use App\PurchaseProductOrder;
 use App\CallBusyMessageStatus;
 use App\waybillTrackHistories;
+use App\Models\DataTableColumn;
 use App\EmailCommonExceptionLog;
 use App\OrderEmailSendJourneyLog;
 use App\StoreWebsiteTwilioNumber;
@@ -83,20 +81,11 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Library\DHL\CreateShipmentRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\DataTableColumn;
 use App\Models\OrderStatusMagentoRequestResponseLog;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class OrderController extends Controller
 {
-    public function __construct()
-    {
-        //      $this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
-        //      $this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
-        //      $this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
-        //      $this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
-    }
-
     /**
      * @param  Request  $request
      * Generate the PDf for the orders list page
@@ -112,8 +101,6 @@ class OrderController extends Controller
         } else {
             $orderby = 'ASC';
         }
-
-        // dd($orderby);
 
         switch ($request->input('sortby')) {
             case 'type':
@@ -291,9 +278,6 @@ class OrderController extends Controller
                 $sortby = 'order_date';
         }
 
-        //$orders = (new Order())->newQuery()->with('customer');
-        // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
-        //\DB::enableQueryLog();
         $orders = (new Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id');
 
         if (empty($term)) {
@@ -330,11 +314,11 @@ class OrderController extends Controller
         }
 
         if ($advance_detail != '') {
-            $orders = $orders->where('advance_detail', "<=", $advance_detail);
+            $orders = $orders->where('advance_detail', '<=', $advance_detail);
         }
 
         if ($balance_amount != '') {
-            $orders = $orders->where('balance_amount', "<=", $balance_amount);
+            $orders = $orders->where('balance_amount', '<=', $balance_amount);
         }
 
         $statusFilterList = clone $orders;
@@ -399,14 +383,12 @@ class OrderController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'orders-listing')->first();
 
         $dynamicColumnsToShowPostman = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
-        //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList', 'dynamicColumnsToShowPostman', 'estimated_delivery_date', 'advance_detail', 'balance_amount'));
-
     }
 
     public function orderPreviewSentMails(Request $request)
@@ -439,8 +421,6 @@ class OrderController extends Controller
         } else {
             $orderby = 'ASC';
         }
-
-        // dd($orderby);
 
         switch ($request->input('sortby')) {
             case 'type':
@@ -480,8 +460,6 @@ class OrderController extends Controller
                 $sortby = 'order_date';
         }
 
-        //$orders = (new Order())->newQuery()->with('customer');
-        // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
         $orders = (new Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id');
         if (empty($term)) {
             $orders = $orders;
@@ -566,7 +544,7 @@ class OrderController extends Controller
             }
         }
         $orderStatusList = OrderStatus::all();
-        //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+
         return view('orders.charity_order', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
     }
 
@@ -840,19 +818,6 @@ class OrderController extends Controller
 
         $expiresAt = Carbon::now()->addMinutes(10);
 
-        /*if (Cache::has('last-order')) {
-        if (!Cache::has('user-order-' . Auth::id())) {
-        $last_order = Cache::get('last-order') + 1;
-        Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
-        Cache::put('last-order', $last_order, $expiresAt);
-        }else{
-        $last_order = Cache::get('last-order');
-        }
-        } else {
-        // removed logic for add in cache
-
-        }*/
-
         $last = Order::withTrashed()->latest()->first();
         $last_order = ($last) ? $last->id + 1 : 1;
 
@@ -898,10 +863,6 @@ class OrderController extends Controller
 
     public function createProduct(Request $request)
     {
-        // $this->validate($request,[
-        //     'sku'    => 'required|unique:products',
-        // ]);
-
         $productArr = [
             'sku' => request('sku'),
             'price' => request('price'),
@@ -936,10 +897,6 @@ class OrderController extends Controller
         $data = $request->all();
         $sessionKey = $request->get('key', '');
         $data['user_id'] = Auth::id();
-        /*if ( $request->input( 'order_type' ) == 'offline' ) {
-        $data['order_id'] = $this->generateNextOrderId();
-        }*/
-
         $oPrefix = ($request->input('order_type') == 'offline') ? 'OFF-' . date('Ym') : 'ONN-' . date('Ym');
         $statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
         $nextId = 0;
@@ -955,27 +912,6 @@ class OrderController extends Controller
         if (! empty($request->website_address)) {
             $data['website_address_id'] = $request->website_address;
         }
-
-        // if ($customer = Customer::where('name', $data['client_name'])->first()) {
-        //  $data['customer_id'] = $customer->id;
-        // } else {
-        //  $customer = new Customer;
-        //  $customer->name = $data['client_name'];
-        //
-        //  $validator = Validator::make($data, [
-        //      'contact_detail' => 'unique:customers,phone'
-        //  ]);
-        //
-        //  if ($validator->fails()) {
-        //      return back()->with('phone_error', 'The phone already exists')->withInput();
-        //  }
-        //
-        //  $customer->phone = $data['contact_detail'];
-        //  $customer->city = $data['city'];
-        //  $customer->save();
-        //
-        //  $data['customer_id'] = $customer->id;
-        // }
         $customer = Customer::find($request->customer_id);
 
         $data['client_name'] = $customer->name;
@@ -1143,11 +1079,6 @@ class OrderController extends Controller
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData2, 'customer');
 
-            // $order->update([
-            //  'auto_messaged' => 1,
-            //  'auto_messaged_date' => Carbon::now()
-            // ]);
-
             CommunicationHistory::create([
                 'model_id' => $order->id,
                 'model_type' => Order::class,
@@ -1161,11 +1092,6 @@ class OrderController extends Controller
             $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
 
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
-
-            // $order->update([
-            //  'auto_messaged' => 1,
-            //  'auto_messaged_date' => Carbon::now()
-            // ]);
 
             CommunicationHistory::create([
                 'model_id' => $order->id,
@@ -1218,7 +1144,6 @@ class OrderController extends Controller
             if (! $order->is_sent_offline_confirmation()) {
                 if ($order->order_type == 'offline') {
                     if (! empty($order->customer) && ! empty($order->customer->email)) {
-                        //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
                         $emailClass = (new OrderConfirmation($order))->build();
 
                         $email = Email::create([
@@ -1241,67 +1166,10 @@ class OrderController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-
-                        /*try {
-
-                    $emailClass = (new OrderConfirmation($order))->build();
-                    \MultiMail::to($order->customer->email)->send(new OrderConfirmation($order));
-                    $params = [
-                    'model_id'        => $order->id,
-                    'model_type'      => Order::class,
-                    'from'            => $emailClass->fromMailer,
-                    'to'              => $order->customer->email,
-                    'subject'         => $emailClass->subject,
-                    'message'         => $emailClass->render(),
-                    'template'        => 'order-confirmation',
-                    'additional_data' => $order->id,
-                    'status'          => 'pre-send',
-                    ];
-                    Email::create($params);
-                    CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'offline-confirmation',
-                    'method'     => 'email',
-                    ]);
-                    } catch (\Exception $e) {
-                    \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                    }*/
                     }
                 }
             }
         }
-
-        // NotificationQueueController::createNewNotification([
-        //  'type' => 'button',
-        //  'message' => $data['client_name'],
-        //  // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        //  'timestamps' => ['+0 minutes'],
-        //  'model_type' => Order::class,
-        //  'model_id' =>  $order->id,
-        //  'user_id' => \Auth::id(),
-        //  'sent_to' => $request->input( 'sales_person' ),
-        //  'role' => '',
-        // ]);
-        //
-        // NotificationQueueController::createNewNotification([
-        //  'message' => $data['client_name'],
-        //  'timestamps' => ['+0 minutes'],
-        //  'model_type' => Order::class,
-        //  'model_id' =>  $order->id,
-        //  'user_id' => \Auth::id(),
-        //  'sent_to' => '',
-        //  'role' => 'Admin',
-        // ]);
-
-        /*if($order) {
-        $data["order"]      = $order;
-        $data["customer"]   = $order->customer;
-
-        if($order->customer) {
-        Mail::to($order->customer->email)->send(new OrderInvoice($data));
-        }
-        }*/
 
         // sending order message to the customer
         UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue('customer_message');
@@ -1320,8 +1188,6 @@ class OrderController extends Controller
                 return redirect($defaultData['redirect_back'])->with('message', 'Order created successfully');
             }
         }
-
-        //return $order;
 
         return redirect()->route('order.index')
             ->with('message', 'Order created successfully');
@@ -1392,27 +1258,11 @@ class OrderController extends Controller
     {
         if ($request->type != 'customer') {
             $this->validate($request, [
-                // 'client_name'    => 'required',
                 'advance_detail' => 'numeric|nullable',
                 'balance_amount' => 'numeric|nullable',
                 'contact_detail' => 'sometimes|nullable|numeric',
             ]);
         }
-
-        // if( $order->sales_person != $request->input('sales_person') ){
-        //
-        //  NotificationQueueController::createNewNotification([
-        //      'type' => 'button',
-        //      'message' => $order->client_name,
-        //      // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        //      'timestamps' => ['+0 minutes'],
-        //      'model_type' => Order::class,
-        //      'model_id' =>  $order->id,
-        //      'user_id' => \Auth::id(),
-        //      'sent_to' => $request->input( 'sales_person' ),
-        //      'role' => '',
-        //  ]);
-        // }
 
         if (! empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
@@ -1651,15 +1501,10 @@ class OrderController extends Controller
         $order = Order::find($id);
 
         if (true) {
-            // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
                 $from_email = \App\Helpers::getFromEmail($order->customer->id);
                 $emailClass = (new AdvanceReceipt($order))->build();
 
-                // $order->update([
-                //  'auto_emailed' => 1,
-                //  'auto_emailed_date' => Carbon::now()
-                // ]);
                 $storeWebsiteOrder = $order->storeWebsiteOrder;
                 $email = Email::create([
                     'model_id' => $order->customer->id,
@@ -1691,20 +1536,10 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
 
-        // if ($order->auto_emailed == 0) {
         if (! $order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                // $order->update([
-                //  'auto_emailed' => 1,
-                //  'auto_emailed_date' => Carbon::now()
-                // ]);
-
                 $emailClass = (new OrderConfirmation($order))->build();
 
-                // $order->update([
-                //  'auto_emailed' => 1,
-                //  'auto_emailed_date' => Carbon::now()
-                // ]);
                 $storeWebsiteOrder = $order->storeWebsiteOrder;
                 $email = Email::create([
                     'model_id' => $order->customer->id,
@@ -1726,26 +1561,6 @@ class OrderController extends Controller
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-
-                // $params = [
-                //   'number'      => NULL,
-                //   'user_id'     => Auth::id(),
-                //   'customer_id' => $order->customer->id,
-                //   'approved'    => 1,
-                //   'status'      => 9, // status for automated messages,
-                //  'message'           => ''
-                // ];
-                //
-                // $chat_message = ChatMessage::create($params);
-                //
-                // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
-                //
-                // CommunicationHistory::create([
-                //  'model_id'      => $order->id,
-                //  'model_type'    => Order::class,
-                //  'type'              => 'offline-confirmation',
-                //  'method'            => 'whatsapp'
-                // ]);
             }
         }
 
@@ -1781,13 +1596,6 @@ class OrderController extends Controller
         ]);
 
         $delivery_approval = Order::find($id)->delivery_approval;
-        // if () {
-        //
-        // } else {
-        //  $delivery_approval = new DeliveryApproval;
-        //  $delivery_approval->order_id = $id;
-        //  $delivery_approval->save();
-        // }
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
@@ -1805,11 +1613,8 @@ class OrderController extends Controller
     {
         $delivery_approval = DeliveryApproval::find($id);
 
-        // if ($delivery_approval->approved == 1) {
-        //  $delivery_approval->approved = 2;
-        // } else {
         $delivery_approval->approved = 1;
-        // }
+
         $delivery_approval->save();
 
         return redirect()->back()->with('success', 'You have successfully approved delivery!');
@@ -1893,13 +1698,6 @@ class OrderController extends Controller
                     foreach ($products as $product) {
                         $chat_message->attachMedia($product->getMedia(config('constants.media_tags'))->first(), config('constants.media_tags'));
                     }
-
-                    // CommunicationHistory::create([
-                    //  'model_id'      => $order->id,
-                    //  'model_type'    => Order::class,
-                    //  'type'              => 'order-suggestion',
-                    //  'method'            => 'whatsapp'
-                    // ]);
                 }
             }
         }
@@ -1948,12 +1746,10 @@ class OrderController extends Controller
 
         if ($in_stock >= 1) {
             $express_shipping .= $shipping_times[0];
-            // $express_shipping .= " - within 3 days in India with additional cost; ";
         }
 
         if ($normal_products >= 1) {
             $normal_shipping .= $shipping_times[1];
-            // $normal_shipping .= " - minimum 10 days - no additional cost; ";
         }
 
         $message .= $express_shipping . $normal_shipping . $second_explode[1];
@@ -1962,23 +1758,6 @@ class OrderController extends Controller
         $params['message'] = $message;
 
         $chat_message = ChatMessage::create($params);
-
-        // try {
-        // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $message, false, $chat_message->id);
-        // } catch {
-        //   // ok
-        // }
-        //
-        // $chat_message->update([
-        //   'approved'  => 1
-        // ]);
-
-        // CommunicationHistory::create([
-        //  'model_id'      => $request->order_id,
-        //  'model_type'    => Order::class,
-        //  'type'              => 'order-delivery-info',
-        //  'method'            => 'whatsapp'
-        // ]);
 
         $histories = CommunicationHistory::where('model_id', $customer->id)->where('model_type', Customer::class)->where('type', 'initiate-followup')->where('is_stopped', 0)->get();
 
@@ -2012,7 +1791,6 @@ class OrderController extends Controller
         $order->order_status = $request->status;
         $order->save();
 
-        // if ($order->auto_messaged == 0) {
         if (! $order->is_sent_initial_advance() && $order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
             $product_names = '';
             foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
@@ -2235,16 +2013,13 @@ class OrderController extends Controller
                 ],
                 'Services' => [
                     'ActualWeight' => $actual_weight,
-
                     'CreditReferenceNo' => $order->id,
                     'PickupDate' => $pickup_date,
                     'PickupTime' => $pickup_time,
                     'PieceCount' => $piece_count,
-                    // 'DeclaredValue'  => $total_price,
                     'DeclaredValue' => 500,
                     'ProductCode' => 'D',
                     'ProductType' => 'Dutiables',
-
                     'Dimensions' => [
                         'Dimension' => [
                             'Breadth' => $request->box_width,
@@ -2283,7 +2058,7 @@ class OrderController extends Controller
             } else {
                 $error = $result->Status->WayBillGenerationStatus->StatusInformation;
             }
-            // dd($error);
+
             return redirect()->back()->with('error', "$error");
         } else {
             Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $result->AWBPrintContent);
@@ -2419,7 +2194,6 @@ class OrderController extends Controller
 
             $action = 'Attached';
         } else {
-            //$order_product->delete();
             $action = 'Attached';
         }
 
@@ -2460,14 +2234,12 @@ class OrderController extends Controller
         }
 
         return $orderProducts;
-
-        //      return OrderProduct::with( 'product' )->where( 'order_id', '=', $order_id )->get()->toArray();
     }
 
     public function callManagement(Request $request)
     {
         $reservedCalls = \App\TwilioCallWaiting::with('storeWebsite')->leftJoin('customers as c', 'c.phone', \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy('twilio_call_waitings.created_at', 'desc')
-        ->select(['twilio_call_waitings.*', 'c.name', 'c.email'])->get();
+            ->select(['twilio_call_waitings.*', 'c.name', 'c.email'])->get();
 
         return view('orders.call_management', compact('reservedCalls'));
     }
@@ -2484,7 +2256,6 @@ class OrderController extends Controller
     public function getCurrentCallInformation()
     {
         try {
-            // $getnumbers = \App\TwilioCurrentCall::select('number')->where(['status'=>1])->get()->toArray();
             $getnumber = TwilioDequeueCall::where('agent_id', Auth::id())->first();
             $agent = TwilioAgent::where('user_id', Auth::id())->first();
 
@@ -2492,12 +2263,12 @@ class OrderController extends Controller
 
             $allleads = [];
             $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id')
-            ->leftJoin('order_products as op', 'op.order_id', 'orders.id')
-            ->leftJoin('products as p', 'p.id', 'op.product_id')
-            ->leftJoin('brands as b', 'b.id', 'p.brand')->groupBy('orders.id')
-            ->where('orders.store_id', $agent->store_website_id)
-            ->whereIn('customer_id', $users)
-            ->select(['orders.*', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id'])->orderBy('created_at', 'desc')->limit(5)->get();
+                ->leftJoin('order_products as op', 'op.order_id', 'orders.id')
+                ->leftJoin('products as p', 'p.id', 'op.product_id')
+                ->leftJoin('brands as b', 'b.id', 'p.brand')->groupBy('orders.id')
+                ->where('orders.store_id', $agent->store_website_id)
+                ->whereIn('customer_id', $users)
+                ->select(['orders.*', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id'])->orderBy('created_at', 'desc')->limit(5)->get();
             $allleads[] = $this->getLeadsInformation($users);
             if ($orders->count()) {
                 foreach ($orders as &$value) {
@@ -2558,7 +2329,6 @@ class OrderController extends Controller
         $callBusyMessages = CallBusyMessage::with(['status' => function ($q) {
             return $q->select('id', 'name', 'label');
         }])
-        // ->join("leads", "leads.id", "call_busy_messages.lead_id")
             ->leftjoin('call_recordings as cr', 'cr.twilio_call_sid', 'call_busy_messages.caller_sid')
             ->leftjoin('twilio_call_data as tcd', 'tcd.call_sid', 'call_busy_messages.caller_sid')
             ->select('call_busy_messages.*', 'cr.recording_url as recording_urls', 'tcd.aget_user_id', 'tcd.from', 'tcd.to', 'tcd.call_data')
@@ -2578,7 +2348,6 @@ class OrderController extends Controller
         $callBusyMessages_pagination = $callBusyMessages->paginate(Setting::get('pagination'));
         $callBusyMessages = $callBusyMessages->paginate(Setting::get('pagination'))->toArray();
 
-        // dd($callBusyMessages);
         foreach ($callBusyMessages['data'] as $key => $value) {
             $storeId = null;
             $activeNumber = TwilioActiveNumber::where('phone_number', '+' . trim($value['to'], '+'))->first();
@@ -2587,7 +2356,6 @@ class OrderController extends Controller
             }
 
             if (is_numeric($value['twilio_call_sid'])) {
-                // code...
                 $formatted_phone = str_replace('+', '', $value['twilio_call_sid']);
                 if (! empty($storeId->store_website_id)) {
                     $customer_array = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->where('store_website_id', $storeId->store_website_id)->get()->toArray();
@@ -2600,7 +2368,6 @@ class OrderController extends Controller
                     $agent_name = '';
                 }
 
-                // dd($customer_array);
                 if (! empty($customer_array)) {
                     $callBusyMessages['data'][$key]['customerid'] = $customer_array[0]['id'];
                     $callBusyMessages['data'][$key]['customer_name'] = $customer_array[0]['name'];
@@ -2619,35 +2386,13 @@ class OrderController extends Controller
                         $callBusyMessages['data'][$key]['lead_id'] = $customer_array[0]['lead']['id'];
                     }
                 }
-
-                // dd($callBusyMessages['data']['customerid']);
             }
         }
-
-        // $callBusyMessages =  collect($callBusyMessages)->filter(function($qqq) use ($request){
-        //     return $qqq->store_website_id == $request->filterWebsite;
-
-        // });
 
         $storeWebsite = StoreWebsite::pluck('title', 'id');
         $selectedStatus = $request->filterStatus;
         $selectedWebsite = $request->filterWebsite;
         $allStatuses = CallBusyMessageStatus::get();
-
-        /*$reservedCalls = CallBusyMessage::leftJoin('call_busy_message_statuses', 'call_busy_message_statuses.id', '=', 'call_busy_messages.call_busy_message_statuses_id')->where('call_busy_message_statuses.name', 'Reserved')->select('call_busy_messages.*')->get();
-        foreach($reservedCalls as $key=>$reservedCall) {
-        if (is_numeric($reservedCall['twilio_call_sid'])) {
-        $formatted_phone = str_replace('+91', '', $reservedCall['twilio_call_sid']);
-        $customer_array  = Customer::with('storeWebsite')->where('phone', 'LIKE', "%$formatted_phone%")->first();
-        if(isset($customer_array['store_website']) && count($customer_array['store_website'])){
-        $reservedCalls[$key]['store_website_name'] = $customer_array['store_website']['title'];
-        }
-        if(isset($customer_array['customer_name']) && count($customer_array['customer_name'])){
-        $reservedCalls[$key]['customer_name'] = $customer_array['name'];
-        $reservedCalls[$key]['customer_number'] = $customer_array['phone'];
-        }
-        }
-        }*/
 
         $reservedCalls = \App\TwilioCallWaiting::leftJoin('customers as c', 'c.phone', \DB::raw('REPLACE(twilio_call_waitings.from, "+", "")'))->orderBy('twilio_call_waitings.created_at', 'desc')
             ->select(['twilio_call_waitings.*', 'c.name', 'c.email'])->get();
@@ -2744,13 +2489,9 @@ class OrderController extends Controller
                     }
                 }
             }
-
-            // $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
         }
 
         dd($url_structure, $category_id);
-
-        // dd($order->order_product);
 
         $options = [
             'trace' => true,
@@ -2788,41 +2529,9 @@ class OrderController extends Controller
             'associated_skus' => '',
             // Simple products to associate
             'configurable_attributes' => [155],
-            // 'additional_attributes'   => array(
-            //  'single_data' => array(
-            //      array( 'key' => 'composition', 'value' => $product->composition, ),
-            //      array( 'key' => 'color', 'value' => $product->color, ),
-            //      array( 'key' => 'country_of_manufacture', 'value' => $product->made_in, ),
-            //      array( 'key' => 'brands', 'value' => BrandController::getBrandName( $product->brand ), ),
-            //  ),
-            // ),
         ];
         // Creation of configurable product
         $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, "CUSTOMPRO$order->id", $productData);
-
-        // $images = $product->getMedia(config('constants.media_tags'));
-        //
-        // $i = 0;
-        // $productId = $result;
-        //
-        // foreach ($images as $image){
-        //
-        //  $image->getUrl();
-        //
-        //  $file = array(
-        //      'name' => $image->getBasenameAttribute(),
-        //      'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-        //      'mime' => mime_content_type($image->getAbsolutePath())
-        //  );
-        //
-        //  $types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
-        //
-        //  $result = $proxy->catalogProductAttributeMediaCreate(
-        //      $sessionId,
-        //      $productId,
-        //      array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
-        //  );
-        // }
         $product_url = "https://www.sololuxury.co.in/$url_structure[0]/$url_structure[1]/show-all/test-product-from-erp-$result.html";
         dd($product_url, $result);
 
@@ -2929,7 +2638,6 @@ class OrderController extends Controller
                                     'to' => $order->customer->email,
                                     'subject' => $emailClass->subject,
                                     'message' => $request->custom_email_content,
-                                    // 'message'          => $emailClass->render(),
                                     'template' => 'order-status-update',
                                     'additional_data' => $order->id,
                                     'status' => 'pre-send',
@@ -2954,9 +2662,6 @@ class OrderController extends Controller
                             'from' => $emailClass->fromMailer,
                             'to' => $order->customer->email,
                             'subject' => $emailClass->subject,
-
-                            //'message' => $custom_email_content,
-                            // 'message'          => $emailClass->render(),
                             'template' => 'order-status-update',
                             'additional_data' => $order->id,
                             'status' => 'pre-send',
@@ -3041,17 +2746,11 @@ class OrderController extends Controller
      * This function is use for List Order Exception Error Log
      *
      * @param  Request  $request Request
-     *  @return view;
+     * @return view;
      */
     public function getOrderEmailSendJourneyLog(Request $request)
     {
         try {
-            // $orderJourney = OrderEmailSendJourneyLog::whereIn('id', function ($query) {
-            //     $query->select(DB::raw('MAX(id)'))
-            //         ->from('order_email_send_journey_logs')
-            //         ->groupBy('order_id');
-            // })->get();
-
             $logs = new OrderEmailSendJourneyLog();
 
             $from_email = $request->get('from_email');
@@ -3155,7 +2854,7 @@ class OrderController extends Controller
      * This function is used to list the Order Status Journey
      *
      * @param  Request  $request Request
-     *  @return view;
+     * @return view;
      */
     public function getOrderStatusJourney(Request $request)
     {
@@ -3175,13 +2874,12 @@ class OrderController extends Controller
      * This function is used to list the Order Journey
      *
      * @param  Request  $request Request
-     *  @return view;
+     * @return view;
      */
     public function getOrderJourney(Request $request)
     {
         $filter_order = $request->input('filter_order');
         $filer_customer_list = $request->filer_customer_list ?? '';
-        //$orders = Order::latest('id')->paginate(25);
 
         $orders = Order::with('order_product', 'order_product.order_product_details', 'customer');
 
@@ -3201,8 +2899,8 @@ class OrderController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'get-order-journey')->first();
 
         $dynamicColumnsToShowoj = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowoj = json_decode($hideColumns, true);
         }
 
@@ -3219,10 +2917,9 @@ class OrderController extends Controller
 
     public function columnVisbilityUpdate(Request $request)
     {
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','get-order-journey')->first();
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'get-order-journey')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'get-order-journey';
             $column->column_name = json_encode($request->column_oj);
@@ -3231,7 +2928,7 @@ class OrderController extends Controller
             $column = new DataTableColumn();
             $column->section_name = 'get-order-journey';
             $column->column_name = json_encode($request->column_oj);
-            $column->user_id =  auth()->user()->id;
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -3240,11 +2937,10 @@ class OrderController extends Controller
 
     public function getOrderProductsList(Request $request)
     {
-
         $order = Order::where('id', $request->id)->first();
 
         $productsIds = [];
-        if(!empty($order->order_product)){
+        if (! empty($order->order_product)) {
             foreach ($order->order_product as $key => $value) {
                 $productsIds[] = $value->product_id;
             }
@@ -3264,7 +2960,7 @@ class OrderController extends Controller
      * This function is use for List Order Exception Error Log
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function getOrderExceptionErrorLog(Request $request)
     {
@@ -3285,7 +2981,7 @@ class OrderController extends Controller
      * This function is use for List Order Exception Error Log
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function getOrderEmailSendLog(Request $request)
     {
@@ -3306,7 +3002,7 @@ class OrderController extends Controller
      * This function is use for List Order SMS send Log
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function getOrderSmsSendLog($id)
     {
@@ -3571,7 +3267,6 @@ class OrderController extends Controller
         $this->validate($request, [
             'pickup_time' => 'required',
             'currency' => 'required',
-            //'amount' => 'required',
             'box_length' => 'required',
             'box_width' => 'required',
             'box_height' => 'required',
@@ -3586,7 +3281,6 @@ class OrderController extends Controller
             'items.*.name' => 'required',
             'items.*.qty' => 'required|numeric',
             'items.*.unit_price' => 'required',
-            //'items.*.description' => 'required',
             'items.*.net_weight' => 'required',
             'items.*.gross_weight' => 'required',
             'items.*.manufacturing_country_code' => 'required',
@@ -3743,43 +3437,6 @@ class OrderController extends Controller
 
         return response()->json(['code' => 200, '_h' => 'No records found']);
     }
-
-//    public function viewAllInvoices()
-//    {
-//        // error_reporting(0);
-//        $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
-//
-//        $invoice_array = $invoices->toArray();
-//        $invoice_id = array_column($invoice_array['data'], 'id');
-//
-//        $orders_array = Order::whereIn('invoice_id', $invoice_id)->get();
-//
-//        $duty_shipping = [];
-//        foreach ($orders_array as $key => $order) {
-//            $duty_shipping[$order->id]['id'] = $order->id;
-//
-//            $website_code_data = $order->duty_tax;
-//            if ($website_code_data != null) {
-//                $product_qty = count($order->order_product);
-//
-//                $code = $website_code_data->website_code->code;
-//
-//                $duty_countries = $website_code_data->website_code->duty_of_country;
-//                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
-//
-//                $duty_amount = ($duty_countries->default_duty * $product_qty);
-//                $shipping_amount = ($shipping_countries->price * $product_qty);
-//
-//                $duty_shipping[$order->invoice_id]['shipping'] = $duty_amount;
-//                $duty_shipping[$order->invoice_id]['duty'] = $shipping_amount;
-//            } else {
-//                $duty_shipping[$order->invoice_id]['shipping'] = 0;
-//                $duty_shipping[$order->invoice_id]['duty'] = 0;
-//            }
-//        }
-//
-//        return view('orders.invoices.index', compact('invoices', 'duty_shipping'));
-//    }
 
     public function viewAllInvoices(Request $request)
     {
@@ -3966,7 +3623,6 @@ class OrderController extends Controller
         if (! $firstOrder) {
             return redirect()->back()->with('error', 'This order is already associated with an invoice');
         }
-        // dd($firstOrder->customer);
 
         $customerShippingAddress = [
             'address_type' => 'shipping',
@@ -4135,64 +3791,10 @@ class OrderController extends Controller
         }
     }
 
-    // public function fetchOrders() {
-    //  $website = StoreWebsite::first();
-    //  $magentoHelper = new MagentoHelperv2;
-    //  $result = $magentoHelper->fetchOrders($website);
-    //  if($result) {
-    //      $orders = $result->items;
-    //      foreach($orders as $order) {
-    //          $newOrder = new Order;
-    //          $newOrder->customer_id = $order->customer_id;
-    //          $newOrder->order_id = $order->ENTITY_ID;
-    //          $newOrder->order_type = 'online';
-    //          $newOrder->order_date = $order->created_at;
-    //          $newOrder->awb = null;
-    //          $newOrder->client_name = $order->customer_firstname.' '.$order->customer_lastname;
-    //          $newOrder->city = $order->billing_address->city;
-    //          $newOrder->contact_detail = $order->billing_address->telephone;
-    //          $newOrder->clothing_size = null;
-    //          $newOrder->shoe_size = null;
-    //          $newOrder->advance_detail = null;
-    //          $newOrder->advance_date = null;
-    //          $newOrder->balance_amount = null;
-    //          $newOrder->sales_person = null;
-    //          $newOrder->office_phone_number = null;
-    //          $newOrder->order_status = $order->status;
-    //          $newOrder->order_status_id = null;
-    //          $newOrder->date_of_delivery = null;
-    //          $newOrder->estimated_delivery_date = null;
-    //          $newOrder->note_if_any = null;
-    //          $newOrder->payment_mode = $order->payment->method;
-    //          $newOrder->received_by = null;
-    //          $newOrder->assign_status = null;
-    //          $newOrder->user_id = Auth::user()->id;
-    //          $newOrder->refund_answer = null;
-    //          $newOrder->refund_answer_date = null;
-    //          $newOrder->auto_messaged = 0;
-    //          $newOrder->auto_messaged_date = null;
-    //          $newOrder->auto_emailed = 0;
-    //          $newOrder->auto_emailed_date = null;
-    //          $newOrder->remark = null;
-    //          $newOrder->is_priority = 0;
-    //          $newOrder->coupon_id = null;
-    //          $newOrder->whatsapp_number = null;
-    //          $newOrder->currency = null;
-    //          $newOrder->invoice_id = null;
-    //          $newOrder->save();
-    //          return 'abc';
-    //      }
-    //  }
-    //  else {
-    //      //no result found
-    //  }
-    // }
-
-    //
     public function viewAllStatuses(Request $request)
     {
         $request->order_status_id ? $erp_status = $request->order_status_id :
-        $erp_status = null;
+            $erp_status = null;
         $store = null;
         $query = Store_order_status::query();
         if ($request->order_status_id) {
@@ -4321,15 +3923,9 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order has been archived']);
     }
 
-    // public function viewproducts($id) {
-    //  dd($id);
-    //  return response()->json(['message' => 'Order has been archived']);
-    // }
-
     public function updateCustomer(Request $request)
     {
         if ($request->update_type == 1) {
-            // dd("only send message");
             $ids = explode(',', $request->selected_orders);
             foreach ($ids as $id) {
                 $order = \App\Order::where('id', $id)->first();
@@ -4338,7 +3934,6 @@ class OrderController extends Controller
                 }
             }
         } else {
-            // dd("send message and update status");
             $ids = explode(',', $request->selected_orders);
             foreach ($ids as $id) {
                 if (! empty($id) && $request->order_status) {
@@ -4645,7 +4240,6 @@ class OrderController extends Controller
                 ->select(['order_statuses.*', 'order_status_histories.created_at as created_at_time'])
                 ->orderBy('order_status_histories.created_at', 'asc')
                 ->get();
-            /*$order->status_histories = $histories->toArray();*/
             $return_histories = [];
             if (count($histories) > 0) {
                 foreach ($histories->toArray() as $h) {
@@ -4655,7 +4249,6 @@ class OrderController extends Controller
                     ];
                 }
             }
-            //$order->waybill;
             $waybill_history = waybillTrackHistories::join('waybills', 'waybills.id', 'waybill_track_histories.waybill_id')
                 ->where('waybills.order_id', $order->id)
                 ->select(['waybill_track_histories.*', 'waybill_track_histories.created_at  as created_at_time'])
@@ -4680,7 +4273,6 @@ class OrderController extends Controller
             $order->status_histories = array_reverse($return_histories);
         }
         $orders = $orders->toArray();
-        // $orders = json_encode($orders);
         $message = $this->generate_erp_response('customer.order.success', $store_website->id, $default = 'Orders Fetched successfully', request('lang_code'));
 
         return response()->json(['message' => $message, 'status' => 200, 'data' => $orders]);
@@ -4741,16 +4333,6 @@ class OrderController extends Controller
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         return response()->json(['message' => 'unable to add reply', 'status' => 500]);
-
-        //$view = (new OrderConfirmation($order_new))->build();
-        //echo "<pre>"; print_r($view);  echo "</pre>";die;
-
-        //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
-        //$customer = \App\Customer::first();
-        //\MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
-
-        // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
-        //
     }
 
     public function statusChangeTemplate(Request $request)
@@ -4765,7 +4347,6 @@ class OrderController extends Controller
         }
 
         $template = str_replace(['#{order_id}', '#{order_status}'], [$order->order_id, $statusModal->status], $template);
-        // $from = config('env.MAIL_FROM_ADDRESS');
         $from = '';
         $preview = '';
         if (strtolower($statusModal->status) == 'cancel') {
@@ -4920,18 +4501,10 @@ class OrderController extends Controller
             $order_statuss = OrderStatus::where('id', $order_status_id)->first();
 
             $order_statuss_name = 'Status not assigned';
-            if(!empty($order_statuss)){
+            if (! empty($order_statuss)) {
                 $order_statuss_name = $order_statuss->status;
             }
             if ($order) {
-
-                // $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order->id)->first();
-                // $website = StoreWebsite::find($storeWebsiteOrder->website_id);
-                // $store_order_status = Store_order_status::where('order_status_id', $status)->where('store_website_id', $storeWebsiteOrder->website_id)->first();
-                // $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
-                // $magentoHelper = new MagentoHelperv2;
-                // return $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product, $order_statuss_name);
-
                 $order_product->delivery_status = $request->status;
                 if ($request->status == '10') {
                     $order_product->delivery_date = date('Y-m-d H:s:i');
@@ -5016,9 +4589,6 @@ class OrderController extends Controller
                             'from' => $emailClass->fromMailer,
                             'to' => $order->customer->email,
                             'subject' => $emailClass->subject,
-
-                            //'message' => $custom_email_content,
-                            // 'message'          => $emailClass->render(),
                             'template' => 'order-status-update',
                             'additional_data' => $order->id,
                             'status' => 'pre-send',
@@ -5248,7 +4818,6 @@ class OrderController extends Controller
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($sendTo, $sendFrom, $addRequestData['message']);
                 $shouldSaveInChatMessage = true;
             }
-            // $customer= Customer::where('')
         }
 
         if ($addRequestData['customerId'] && ! empty($addRequestData['email'])) {
@@ -5281,11 +4850,6 @@ class OrderController extends Controller
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
                 $shouldSaveInChatMessage = true;
-
-                // Mail::send('order-misscall.communication', $data, function($message)use($data,$customer) {
-                //     $message->to($customer->email)
-                //     ->subject($data["title"]);
-                // });
             }
         }
 
@@ -5310,7 +4874,7 @@ class OrderController extends Controller
      *
      * @param type [array] inputArray
      * @param  Request  $request Request
-     *  @return void;
+     * @return void;
      */
     public function createOrderLog(Request $request, $logType = '', $log = '')
     {
@@ -5329,7 +4893,7 @@ class OrderController extends Controller
      * This function is use for Payment History
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function paymentHistory(Request $request)
     {
@@ -5368,14 +4932,13 @@ class OrderController extends Controller
      * This function is use for cancel Transaction
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function cancelTransaction(Request $request)
     {
         $order_id = $request->get('order_id');
         $order = \App\Order::where('id', $order_id)->first();
         $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order_id)->first();
-        //print_r($storeWebsiteOrder);
         if ($storeWebsiteOrder) {
             $website = StoreWebsite::find($storeWebsiteOrder->website_id);
 
@@ -5386,7 +4949,6 @@ class OrderController extends Controller
 
                 return response()->json(['message' => $result, 'success' => true], 200);
             }
-        //$storeWebsiteOrder->update(['order_id', $status]);
         } else {
             $this->createOrderLog($request, 'Cancel Transaction', 'Store Website Orders not found');
 
@@ -5398,7 +4960,7 @@ class OrderController extends Controller
      * This function is use for List Order log
      *
      * @param  Request  $request Request
-     *  @return JsonReponse;
+     * @return JsonReponse;
      */
     public function getOrderErrorLog(Request $request)
     {
@@ -5553,7 +5115,7 @@ class OrderController extends Controller
                 'text' => $customer->name,
             ];
         }
-        // dd($result);
+
         return response()->json($result);
     }
 
@@ -5597,7 +5159,7 @@ class OrderController extends Controller
                 'text' => $storewebsite->website,
             ];
         }
-        // dd($result);
+
         return response()->json($result);
     }
 
@@ -5610,7 +5172,7 @@ class OrderController extends Controller
             $emails[] = ['email' => $invoice->orders[0]->customer->email, 'id' => $invoice->id];
         }
 
-        return  $emails;
+        return $emails;
     }
 
     public function orderStatusColorCode(Request $request)
@@ -5618,7 +5180,7 @@ class OrderController extends Controller
         $perPage = 10;
 
         $orderStatus = OrderStatus::latest()
-        ->paginate($perPage);
+            ->paginate($perPage);
 
         $html = view('orders.order-status-modal-html')->with('orderStatus', $orderStatus)->render();
 
@@ -5627,19 +5189,18 @@ class OrderController extends Controller
 
     public function orderStatusColorCodeUpdate(Request $request)
     {
-        $orderstatus =  OrderStatus::find($request->orderId);
+        $orderstatus = OrderStatus::find($request->orderId);
         $orderstatus->color = $request->colorValue;
         $orderstatus->save();
 
-        return response()->json(['code' => 200, 'orderstatus' => $orderstatus,'message' => 'Color Code has been Updated Succeesfully!']);
+        return response()->json(['code' => 200, 'orderstatus' => $orderstatus, 'message' => 'Color Code has been Updated Succeesfully!']);
     }
 
     public function ordersColumnVisbilityUpdate(Request $request)
     {
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','orders-listing')->first();
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'orders-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'orders-listing';
             $column->column_name = json_encode($request->column_orders);
@@ -5648,7 +5209,7 @@ class OrderController extends Controller
             $column = new DataTableColumn();
             $column->section_name = 'orders-listing';
             $column->column_name = json_encode($request->column_orders);
-            $column->user_id =  auth()->user()->id;
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 

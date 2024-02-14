@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use Crypt;
 use Response;
 use App\ImQueue;
 use App\Setting;
@@ -110,7 +109,6 @@ class WhatsappConfigController extends Controller
             'provider' => 'required',
             'customer_support' => 'required',
             'username' => 'required|min:3|max:255',
-            //'password'         => 'required|min:6|max:255',
             'frequency' => 'required',
             'send_start' => 'required',
             'send_end' => 'required',
@@ -119,7 +117,6 @@ class WhatsappConfigController extends Controller
         $defaultFor = implode(',', isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data = $request->except('_token', 'default_for');
-        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for'] = $defaultFor;
         WhatsappConfig::create($data);
@@ -153,7 +150,6 @@ class WhatsappConfigController extends Controller
             'provider' => 'required',
             'customer_support' => 'required',
             'username' => 'required|min:3|max:255',
-            //'password'         => 'required|min:6|max:255',
             'frequency' => 'required',
             'send_start' => 'required',
             'send_end' => 'required',
@@ -165,7 +161,6 @@ class WhatsappConfigController extends Controller
         $defaultFor = implode(',', isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data = $request->except('_token', 'id', 'default_for');
-        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for'] = $defaultFor;
 
@@ -263,7 +258,7 @@ class WhatsappConfigController extends Controller
         } elseif ($config->provider === 'Chat-API') {
             $data = ChatApi::chatQueue($config->number);
         }
-        /*        dd($data);*/
+
         return view('marketing.whatsapp-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 
@@ -319,7 +314,6 @@ class WhatsappConfigController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
 
-        //        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         $url = 'http://136.244.118.102:81/get-barcode';
 
         if ($whatsappConfig->is_use_own == 1) {
@@ -399,13 +393,6 @@ class WhatsappConfigController extends Controller
 
             return Response::json(['success' => true, 'media' => $media->getUrl()]);
         }
-
-        //if($barcode){
-
-        // }else{
-
-        //      return Response::json(array('error' => true));
-        // }
     }
 
     public function deleteChromeData(Request $request)
@@ -541,7 +528,6 @@ class WhatsappConfigController extends Controller
                         CURLOPT_CUSTOMREQUEST => 'GET',
                         CURLOPT_HTTPHEADER => [
                             'content-type: application/json',
-                            // "token: $wa_token"
                         ],
                     ]);
 

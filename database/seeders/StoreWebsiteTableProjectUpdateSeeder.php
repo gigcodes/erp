@@ -2,12 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\WebsiteStoreProject;
 use App\StoreWebsite;
-use App\SiteDevelopment;
 use Illuminate\Database\Seeder;
-use App\SiteDevelopmentCategory;
-use App\SiteDevelopmentMasterCategory;
+use App\Models\WebsiteStoreProject;
 
 class StoreWebsiteTableProjectUpdateSeeder extends Seeder
 {

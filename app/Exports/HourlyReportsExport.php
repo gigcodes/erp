@@ -38,8 +38,8 @@ class HourlyReportsExport implements WithMultipleSheets
         }
 
         $daily_activities = DailyActivity::where('for_date', $date)
-                                          ->whereIn('time_slot', $time_slots)
-                                          ->get()->groupBy('user_id');
+            ->whereIn('time_slot', $time_slots)
+            ->get()->groupBy('user_id');
 
         foreach ($daily_activities as $user_id => $activity) {
             $sheets[] = new ReportPerUserSheet($user_id, $time_slots);

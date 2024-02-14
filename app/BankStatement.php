@@ -14,9 +14,8 @@ class BankStatement extends Model
         'transaction_reference_no',
         'debit_amount',
         'credit_amount',
-        'balance'
+        'balance',
     ];
-
 
     public function user()
     {

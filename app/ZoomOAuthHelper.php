@@ -2,9 +2,6 @@
 
 namespace App;
 
-use Auth;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

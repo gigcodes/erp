@@ -26,14 +26,12 @@ class NotificationQueue extends Model
     protected $fillable = [
         'type',
         'message',
-
         'reminder',
         'time_to_add',
         'model_type',
         'model_id',
         'user_id',
         'message_id',
-
         'sent_to',
         'role',
     ];

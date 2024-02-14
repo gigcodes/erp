@@ -6,10 +6,10 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Plank\Mediable\Mediable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\StoreWebsiteCsvFile;
 use App\Models\WebsiteStoreProject;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StoreWebsite extends Model
 {
@@ -53,8 +53,6 @@ class StoreWebsite extends Model
     use SoftDeletes;
 
     use Mediable;
-
-    //protected $connection = 'mysql';
 
     protected $fillable = [
         'title',
@@ -120,7 +118,7 @@ class StoreWebsite extends Model
         'database_name',
         'instance_number',
         'builder_io_api_key',
-        'website_store_project_id'
+        'website_store_project_id',
     ];
 
     const DB_CONNECTION = [
@@ -234,7 +232,6 @@ class StoreWebsite extends Model
         return false;
     }
 
-    //return exchange status
     public function returnExchangeStatus()
     {
         return $this->hasMany(\App\ReturnExchangeStatus::class, 'store_website_id', 'id');

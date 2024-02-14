@@ -134,7 +134,6 @@ class ImageBarcodeGenerator extends Command
 
                     $media = MediaUploader::fromSource($path . $filenameNew)
                         ->toDirectory('uploads/product-barcode/' . get_folder_number($product->id) . '/')
-                    //->toDirectory($path)
                         ->setOnDuplicateBehavior('replace')
                         ->upload();
                     $barcodeMedia->attachMedia($media, config('constants.media_barcode_tag'));
@@ -168,14 +167,6 @@ class ImageBarcodeGenerator extends Command
                 'png',
                 'pdf',
             ];
-
-            /*$products = \App\Product::join("mediables as m",function($q){
-            $q->on("m.mediable_id","products.id")
-            ->where("m.mediable_type",\App\Product::class)
-            ->whereIn("tag",config('constants.media_tags'));
-            })->join("media as me","me.id","m.media_id")
-            ->select("products.*")
-            ->limit(1)->get();*/
 
             $whereString = 'where is_barcode_check is null and p.has_mediables = 1';
             $havingClause = 'having (total_image != total_barcode or total_barcode is null or bimage_name != bm_name or b_price > bm_price or b_price < bm_price)';

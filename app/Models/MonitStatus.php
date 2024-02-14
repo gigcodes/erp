@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MonitStatus extends Model
 {
@@ -17,5 +17,4 @@ class MonitStatus extends Model
     {
         return $this->belongsTo(\App\AssetsManager::class, 'asset_management_id')->select('id', 'ip', 'ip_name');
     }
-
 }

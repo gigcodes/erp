@@ -13,8 +13,8 @@ class ZoomMeetingParticipant extends Model
     protected $table = 'zoom_meeting_participants';
 
     protected $fillable = [
-        'meeting_id', 
-        'name', 
+        'meeting_id',
+        'name',
         'email',
         'join_time',
         'leave_time',
@@ -23,7 +23,7 @@ class ZoomMeetingParticipant extends Model
         'leave_reason',
         'participant_uuid',
         'recording_path',
-        'zoom_recording_id'
+        'zoom_recording_id',
     ];
 
     public function recording()

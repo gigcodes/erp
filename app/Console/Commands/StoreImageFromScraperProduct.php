@@ -45,12 +45,12 @@ class StoreImageFromScraperProduct extends Command
                 $q->where('med.mediable_type', \App\Product::class);
                 $q->where('med.tag', 'original');
             })
-            ->leftJoin('media as m', 'm.id', 'med.media_id')
-            ->where('products.is_cron_check', 0)
-            ->select(['products.*', 'm.id as media_id'])
-            ->havingRaw('media_id is null')
-            ->groupBy('products.id')
-            ->get();
+                ->leftJoin('media as m', 'm.id', 'med.media_id')
+                ->where('products.is_cron_check', 0)
+                ->select(['products.*', 'm.id as media_id'])
+                ->havingRaw('media_id is null')
+                ->groupBy('products.id')
+                ->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product query finished.']);
             if (! $images->isEmpty()) {
                 foreach ($images as $im) {
@@ -80,7 +80,7 @@ class StoreImageFromScraperProduct extends Command
                 }
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron job ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -57,16 +57,12 @@ class UpdateProductCompositionFromErp implements ShouldQueue
 
             $affectedProducts = ScrapedProducts::matchedComposition($this->from);
 
-            //$sku = [];
             if (! empty($affectedProducts)) {
                 foreach ($affectedProducts as $affectedProduct) {
                     $affectedProduct->composition = $this->to;
                     $affectedProduct->save();
-                    //$sku[] = $affectedProduct->sku;
                 }
             }
-
-            //\Log::info(print_r($sku,true));
 
             self::putLog('Job update product composition from erp end time : ' . date('Y-m-d H:i:s'));
 

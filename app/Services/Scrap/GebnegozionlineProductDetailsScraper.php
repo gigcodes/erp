@@ -9,7 +9,6 @@ use App\Setting;
 use App\ScrapEntries;
 use GuzzleHttp\Client;
 use App\ScrapedProducts;
-use Plank\Mediable\Media;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -107,14 +106,6 @@ class GebnegozionlineProductDetailsScraper extends Scraper
                 $old_product->price_special = round($old_product->price_special, -3);
 
                 $old_product->save();
-
-            // $old_product->detachMediaTags(config('constants.media_tags'));
-            //
-            // foreach ($product->images as $image_name) {
-            //   $path = public_path('uploads') . '/social-media/' . $image_name;
-            //   $media = MediaUploader::fromSource($path)->upload();
-            //   $old_product->attachMedia($media,config('constants.media_tags'));
-            // }
             } else {
                 $new_product = new Product;
                 $new_product->sku = str_replace(' ', '', $product->sku);
@@ -314,8 +305,6 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
-
-//        $this->updateProductOnServer($image);
 
         app(\App\Services\Products\GnbProductsCreator::class)->createGnbProducts($image);
     }

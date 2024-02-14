@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use DB;
-use File;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 
@@ -45,18 +43,11 @@ class ScrapLogs extends Command
         $searchVal = '';
         $dateVal = '';
         $file_list = [];
-        // $files = \File::allFiles(env('SCRAP_LOGS_FOLDER'));
         $files = \File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
-        /*$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
-        if($date == 01)
-        {
-            $date = 32;
-        }*/
         $yesterdayDate = date('j', strtotime('-1 days'));
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
             if (Str::contains(end($day_of_file), $yesterdayDate) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-                // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
                 $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
                 $file = file($file_path_new);
@@ -79,9 +70,9 @@ class ScrapLogs extends Command
 
                 if (count($scrapers_info) > 0) {
                     $scrap_logs_info = DB::table('scrap_logs')
-                    ->select('id', 'scraper_id')
-                    ->where('scraper_id', '=', $scrapers_info[0]->id)
-                    ->get();
+                        ->select('id', 'scraper_id')
+                        ->where('scraper_id', '=', $scrapers_info[0]->id)
+                        ->get();
                     $scrapers_id = $scrapers_info[0]->id;
                 } else {
                     $scrapers_id = 0;
@@ -100,6 +91,5 @@ class ScrapLogs extends Command
                 }
             }
         }
-        //return  response()->json(["file_list" => $file_list]);
     }
 }

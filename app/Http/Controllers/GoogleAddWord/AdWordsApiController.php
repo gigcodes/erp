@@ -129,8 +129,8 @@ class AdWordsApiController extends Controller
         Request $request,
         CampaignService $campaignService,
         array $selectedFields,
-        $entriesPerPage,
-        $pageNo
+                        $entriesPerPage,
+                        $pageNo
     ) {
         $query = (new ServiceQueryBuilder())
             ->select($selectedFields)

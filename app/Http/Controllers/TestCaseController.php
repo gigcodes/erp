@@ -204,7 +204,6 @@ class TestCaseController extends Controller
             });
         }
         if ($keyword = request('assign_to_user')) {
-//            dd($keyword);
             $records = $records->whereIn('assign_to', $keyword);
         }
 
@@ -214,7 +213,7 @@ class TestCaseController extends Controller
                 $q->where('created_by', '=', "$keyword");
             });
         }
-        
+
         if ($keyword = request('test_status')) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->orWhereIn('test_status_id', $keyword);
@@ -229,7 +228,6 @@ class TestCaseController extends Controller
         $records = $records->map(function ($testCase) {
             $testCase->created_by = User::where('id', $testCase->created_by)->value('name');
             $testCase->created_at_date = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y');
-//            $testCase->test_case__history = TestCaseHistory::where('test_case_id', $testCase->id)->get();
             $testCase->website = StoreWebsite::where('id', $testCase->website)->value('title');
             $testCase->step_to_reproduce_short = Str::limit($testCase->step_to_reproduce, 5, '..');
 
@@ -277,7 +275,6 @@ class TestCaseController extends Controller
 
         $data = $request->except('_token', 'id');
         $testCase = TestCase::where('id', $request->id)->first();
-//        dd($testCase,$request->id);
 
         $data['created_by'] = \Auth::user()->id;
         $data['updated_by'] = \Auth::user()->id;
@@ -351,7 +348,6 @@ class TestCaseController extends Controller
 
         if ($user) {
             $params = ChatMessage::create([
-                //                  'id'      => $id,
                 'user_id' => $userid,
                 'erp_user' => $userid,
                 'test_case_id' => $test->id,
@@ -493,13 +489,17 @@ class TestCaseController extends Controller
         }
     }
 
- public function testCasesByModule($module_id) {
-    $testCases = TestCase::where('module_id',$module_id)->select('id','name')->get();
-    return response()->json(['code'=> 200, 'testCases'=> $testCases]);
- }
+    public function testCasesByModule($module_id)
+    {
+        $testCases = TestCase::where('module_id', $module_id)->select('id', 'name')->get();
 
- public function show($id) {
-    $testCase = TestCase::findorFail($id);
-    return response()->json(['code'=> 200, 'testCase'=> $testCase]);
- }
+        return response()->json(['code' => 200, 'testCases' => $testCases]);
+    }
+
+    public function show($id)
+    {
+        $testCase = TestCase::findorFail($id);
+
+        return response()->json(['code' => 200, 'testCase' => $testCase]);
+    }
 }

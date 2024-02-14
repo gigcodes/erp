@@ -34,7 +34,6 @@ class ResourceImage extends Model
 
     public static function create($input)
     {
-        //dd($input);
         $resourceimg = new ResourceImage;
         $resourceimg->cat_id = $input['cat_id'];
         $resourceimg->sub_cat_id = $input['sub_cat_id'];
@@ -88,6 +87,5 @@ class ResourceImage extends Model
         }
 
         return $dataArray;
-        // echo "<pre>"; print_r($dataArray); die;
     }
 }

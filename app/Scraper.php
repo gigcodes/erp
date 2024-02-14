@@ -56,9 +56,7 @@ class Scraper extends Model
     public static function scrapersStatus()
     {
         // Fetch statuses from the database dynamically
-        $statuses = ScrapStatisticsStaus::pluck('status', 'status_value')->toArray();
-        
-        return $statuses;
+        return ScrapStatisticsStaus::pluck('status', 'status_value')->toArray();
     }
 
     public function scraperParent()

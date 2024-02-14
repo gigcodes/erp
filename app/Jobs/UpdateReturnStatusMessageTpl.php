@@ -41,10 +41,6 @@ class UpdateReturnStatusMessageTpl implements ShouldQueue
             $return = \App\ReturnExchange::where('id', $this->returnId)->first();
             if ($return) {
                 $statusModal = \App\ReturnExchangeStatus::where('id', $return->status)->first();
-                // $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
-                // if ($statusModal && !empty($statusModal->message_text_tpl)) {
-                //     $defaultMessageTpl = $statusModal->message_text_tpl;
-                // }
                 if (! $this->message || $this->message == '') {
                     $defaultMessageTpl = \App\ReturnExchangeStatus::STATUS_TEMPLATE;
                     if ($statusModal && ! empty($statusModal->message)) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use App\User;
 use App\UserLoginIp;
 use Illuminate\Http\Request;
@@ -39,10 +40,6 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    // public function login(Request $request) {
-    //
-    // }
-
     public function login(Request $request)
     {
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
@@ -76,7 +73,6 @@ class LoginController extends Controller
             if (! $user->isAdmin() && $user->is_auto_approval != 1) {
                 $date = date('Y-m-d', strtotime('-2 days'));
                 $hubstaff_activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', $date)->where('hubstaff_members.user_id', $user->id)->count();
-                //if(!auth()->user()->isAdmin()) {
 
                 if ($user_ip) {
                     if ($user_ip->is_active == false) {
@@ -101,9 +97,9 @@ class LoginController extends Controller
                 }
             }
 
-            $userData = User::find($user->id);  
+            $userData = User::find($user->id);
             $userData->is_online_flag = 1;
-            $userData->save();              
+            $userData->save();
 
             return $this->sendLoginResponse($request);
         }

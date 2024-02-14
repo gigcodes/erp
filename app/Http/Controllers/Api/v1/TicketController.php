@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Models\TicketsImages;
+use Exception;
+use Throwable;
 use App\Tickets;
 use Carbon\Carbon;
 use App\ChatMessage;
 use Illuminate\Http\Request;
+use App\Models\TicketsImages;
 use App\Mails\Manual\TicketCreate;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
-use Exception;
-use Throwable;
+use Illuminate\Support\Facades\Validator;
 
 class TicketController extends Controller
 {
@@ -69,9 +69,7 @@ class TicketController extends Controller
             'name' => 'required|max:80',
             'last_name' => 'required|max:80',
             'email' => 'required|email',
-            //'order_no' => ['required', 'exists:orders,order_id'],
             'type_of_inquiry' => 'required',
-            //'country' => 'required',
             'subject' => 'required|max:80',
             'message' => 'required',
             'source_of_ticket' => 'required',
@@ -104,18 +102,17 @@ class TicketController extends Controller
         try {
             if ($request->file('images') && is_array($request->file('images'))) {
                 $directoryPath = public_path('images/tickets');
-                if (!File::isDirectory($directoryPath)) {
+                if (! File::isDirectory($directoryPath)) {
                     File::makeDirectory($directoryPath, 0777, true, true);
                 }
                 foreach ($request->file('images') as $image) {
                     $img = new TicketsImages();
-                    $img->setTicketId((int)$success->id);
+                    $img->setTicketId((int) $success->id);
                     $img->setFile($image);
                     $img->save();
                 }
             }
         } catch (Exception|Throwable $e) {
-
         }
 
         $email = \App\Email::create([

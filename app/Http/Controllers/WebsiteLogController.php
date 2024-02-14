@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use File;
+use Auth;
+use App\Task;
+use App\User;
 use App\WebsiteLog;
 use App\CodeShortcut;
-//use InstagramAPI\Instagram;
-use App\StoreWebsite;
+use App\DeveloperTask;
 use Illuminate\Http\Request;
 use App\CodeShortCutPlatform;
-use App\User;
-use App\DeveloperTask;
-use App\Task;
-use Auth;
 use App\Models\WebsiteLogStatus;
-use App\Models\WebsiteLogStatusHistory;
-use App\Models\WebsiteLogUserHistory;
 use Illuminate\Support\Facades\DB;
+use App\Models\WebsiteLogUserHistory;
+use App\Models\WebsiteLogStatusHistory;
 
 class WebsiteLogController extends Controller
 {
@@ -112,33 +109,11 @@ class WebsiteLogController extends Controller
         }
 
         $directories = readFolders($logFiles);
-        // _p($directories);
 
         $listWebsites = $this->prepareWebsites($directories);
 
         $listSrchFiles = array_unique($listSrchFiles);
         ksort($listSrchFiles);
-
-        // _p($logFiles, 1);
-
-        // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
-        // //$filesDirectories = scandir('storage');
-        // $dataArr = [];
-        // //dd($filesDirectories);
-        // foreach ($filesDirectories as $filesDirectory) {
-        //     if ($filesDirectory != '.' && $filesDirectory != '..') {
-        //         $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER') . $filesDirectory);
-        //         //dd(storage_path().'/'.$filesDirectory);
-        //         //$fullPath = \File::allFiles(storage_path().'/'.$filesDirectory);
-        //         foreach ($fullPath as $key => $val) {
-        //             $fileName = $val->getFilename();
-        //             $filePath = env('WEBSITES_LOGS_FOLDER') . $filesDirectory . '/' . $val->getFilename();
-        //             //$filePath = storage_path().'/'.$filesDirectory.'/'.$val->getFilename();
-        //             $website = $filesDirectory;
-        //             $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-        //         }
-        //     }
-        // }
 
         return view('website-logs.index', [
             'dataArr' => $dataArr,
@@ -150,29 +125,6 @@ class WebsiteLogController extends Controller
     public function searchWebsiteLog(Request $request)
     {
         return $this->index();
-
-        // $filesDirectories = scandir(env('WEBSITES_LOGS_FOLDER'));
-        // $dataArr = [];
-
-        // foreach ($filesDirectories as $filesDirectory) {
-        //     if ($filesDirectory != '.' && $filesDirectory != '..') {
-        //         //dd('storage/logs/'.$filesDirectory);
-        //         $fullPath = \File::allFiles(env('WEBSITES_LOGS_FOLDER') . $filesDirectory);
-        //         foreach ($fullPath as $key => $val) {
-        //             $fileName = $val->getFilename();
-        //             $filePath = env('WEBSITES_LOGS_FOLDER') . $filesDirectory . '/' . $val->getFilename();
-        //             $website = $filesDirectory;
-        //             if ($request->file_name == $val->getFilename())
-        //                 $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-        //             if ($request->website == $website && $request->file_name == $val->getFilename())
-        //                 $dataArr[] = array("S_No" => $key + 1, "File_name" => $fileName, "Website" => $website, "File_Path" => $filePath);
-        //         }
-        //     }
-        // }
-        // $dataArr = array_map("unserialize", array_unique(array_map("serialize", $dataArr)));;
-        // $fileName = $request->file_name;
-        // $website = $request->website;
-        // return view('website-logs.index', compact('dataArr', 'fileName', 'website'));
     }
 
     public function runWebsiteLogCommand(Request $request)
@@ -242,72 +194,6 @@ class WebsiteLogController extends Controller
     public function store()
     {
     }
-    /* public function store()
-    {
-        //$fullPath = '/Users/satyamtripathi/Work/sololux-erp/public/db.log';
-        $websiteFolderArr = array('customers', 'chatapi', 'whatsapp', 'logs');
-        foreach($websiteFolderArr as $websiteName) {
-            // find the Directory
-            $mainPath = env('WEBSITES_LOGS_FOLDER');
-            $mainPath = $mainPath.'/'.$websiteName;
-            //dd(File::isDirectory($mainPath));
-            if(File::isDirectory($mainPath)){
-                $website = StoreWebsite::select('website')->where('website',  'like', '%' . $websiteName. '%');
-                $fullPath = File::allFiles($mainPath);
-                //dd($fullPath);
-                foreach ($fullPath as $key => $val) {
-                    //echo ($mainPath.'/'.$val->getFilename()).'</br>';
-                    ///if(\Storage::exists($mainPath.'/'.$val->getFilename()))
-                    if(file_exists($mainPath.'/'.$val->getFilename()) && $val->getFilename() == 'db.log')
-                    {
-                        if($val->getFilename() == 'db.log')
-                            $fileTypeName = 'db';
-                        else
-                            $fileTypeName = $val->getFilename();
-                        $content = File::get($mainPath.'/'.$val->getFilename());
-                        //dd($content);
-                        $logs = preg_split('/\n\n/', $content);
-                        $totalLogs = [];
-                        foreach ($logs as $log) {
-                            $entries = explode(PHP_EOL, $log);
-                            $sql = null;
-                            $time = null;
-                            $module = null;
-                            foreach ($entries as $entry) {
-                                if (strpos($entry, 'SQL') !== false) {
-                                    //dd($entry);
-                                    $sql = $entry;
-                                }
-                                //if (strpos($entry, 'TIME') !== false) {
-                                if (strpos($entry, '[20') !== false) {
-                                    $time = $this->string_between_two_string($entry, '[', ']');
-                                }
-                                if (strpos($entry, '#8') !== false) {
-                                    $module = $entry;
-                                    //dd($module);l
-                                }
-
-                                if(!is_null($sql) && !is_null($time) && !is_null($module)){
-                                    $totalLogs[] = ['sql_query' => $sql,'time'=>$time,'module' => $module ];
-                                    $find = WebsiteLog::where([['sql_query', '=', $sql],['time','=',$time],['module', '=', $module]])->first();
-                                    if(empty($find)){
-                                        $ins = new WebsiteLog;
-                                        $ins->sql_query = $sql;
-                                        $ins->time = $time;
-                                        $ins->module = $module;
-                                        $ins->website_id = $website->website ?? '';
-                                        $ins->type = $fileTypeName;
-                                        $ins->save();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } // if directory exist
-        }
-    }
-    */
 
     public function websiteLogStoreView()
     {
@@ -420,7 +306,6 @@ class WebsiteLogController extends Controller
         $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
         $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
-        //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
@@ -452,9 +337,9 @@ class WebsiteLogController extends Controller
     public function WebsiteLogsStatusHistories($id)
     {
         $datas = WebsiteLogStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('website_log_id', $id)
-                ->latest()
-                ->get();
+            ->where('website_log_id', $id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -486,9 +371,9 @@ class WebsiteLogController extends Controller
     public function WebsiteLogsUserHistories($id)
     {
         $datas = WebsiteLogUserHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('website_log_id', $id)
-                ->latest()
-                ->get();
+            ->where('website_log_id', $id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,

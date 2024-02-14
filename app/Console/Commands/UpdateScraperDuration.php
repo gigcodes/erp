@@ -51,8 +51,8 @@ class UpdateScraperDuration extends Command
             },
             'latestMessageNew' => function ($q) {
                 $q->whereNotIn('chat_messages.status', ['7', '8', '9', '10'])
-                ->take(1)
-                ->orderBy('id', 'desc');
+                    ->take(1)
+                    ->orderBy('id', 'desc');
             },
             'lastErrorFromScrapLogNew',
             'developerTaskNew',
@@ -60,8 +60,8 @@ class UpdateScraperDuration extends Command
             'childrenScraper.scraperMadeBy',
             'mainSupplier',
         ])
-        ->withCount('childrenScraper')
-        ->join('suppliers as s', 's.id', 'scrapers.supplier_id')
+            ->withCount('childrenScraper')
+            ->join('suppliers as s', 's.id', 'scrapers.supplier_id')
             ->where('supplier_status_id', 1)
             ->whereIn('scrapper', [1, 2])
             ->whereNull('parent_id')
@@ -79,7 +79,6 @@ class UpdateScraperDuration extends Command
 
                 /* This curl need to replace with guzzleHttp but for now i am keeping this. */
 
-                // $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
                 $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
                 $curl = curl_init();
@@ -128,7 +127,6 @@ class UpdateScraperDuration extends Command
                     $scrap_duration->process_id = $pid;
                     $scrap_duration->duration = $text;
                     $scrap_duration->save();
-                    // dump($scrap_duration->id . ' => ' . $text);
                 }
             }
         }

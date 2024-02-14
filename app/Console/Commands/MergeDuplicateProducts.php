@@ -47,15 +47,7 @@ class MergeDuplicateProducts extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            // $products = Product::withTrashed()->where('supplier', 'Women Concept Store Cagliari')->get();
-            // $product = Product::find(127805);
-            // dd(count($products));
-
             $products = Product::selectRaw('sku, COUNT(*) as duplicates')->groupBy('sku')->having('duplicates', '>', 1)->get();
-
-            // dd(count($products));
-            //
-            // dd('stap');
 
             foreach ($products as $key => $product) {
                 dump("$key - Product");
@@ -68,8 +60,6 @@ class MergeDuplicateProducts extends Command
 
                         $main_product = $duplicate;
                     } else {
-                        // $main_product
-
                         if ($duplicate->purchases()->count() > 0) {
                             dump("$key - $key2 - Transferring Purchases");
 
@@ -140,14 +130,6 @@ class MergeDuplicateProducts extends Command
                         }
 
                         $duplicate->suppliers()->detach();
-
-                        // if ($duplicate->user()) {
-                        //   dump('user');
-                        //   // $duplicate->user()->detach();
-                        // }
-
-                        // $duplicate->references()->delete();
-                        // $duplicate->suggestions()->detach();
                         $duplicate->forceDelete();
                     }
                 }

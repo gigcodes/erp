@@ -73,7 +73,6 @@ class EmailLeadsController extends Controller
                 $result = curl_exec($ch);
                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 if (curl_errno($ch)) {
-                    // echo 'Error:' . curl_error($ch);
                     return Redirect::back()->with('flash_type', 'alert-danger')->with('message', 'Contact already in list and/or does not exist' . curl_error($ch));
                 }
                 curl_close($ch);
@@ -90,13 +89,6 @@ class EmailLeadsController extends Controller
         }
 
         LeadList::insert($batchArray);
-        // if(!empty($batchArray))
-        // {
-        // 	LeadList::insert($batchArray);
-        // 	return Redirect::back()->with('flash_type', 'alert-success')->with('message', 'List updated with erp lead');
-        // }else{
-        // 	return Redirect::back()->with('flash_type', 'alert-danger')->with('message', 'An error occurred, please try again');
-        // }
 
         return Redirect::back()->with('flash_type', 'alert-success')->with('message', 'List updated with erp lead');
     }
@@ -123,11 +115,11 @@ class EmailLeadsController extends Controller
     {
         if ($id) {
             $leadData = DB::table('email_leads')
-            ->join('lead_lists', 'lead_lists.erp_lead_id', '=', 'email_leads.id')
-            ->join('mailinglists', 'mailinglists.id', '=', 'lead_lists.list_id')
-            ->select('email_leads.*', 'lead_lists.id as lead_list_id', 'mailinglists.name', 'mailinglists.id as mailinglist_id')
-            ->where('email_leads.id', $id)
-            ->get();
+                ->join('lead_lists', 'lead_lists.erp_lead_id', '=', 'email_leads.id')
+                ->join('mailinglists', 'mailinglists.id', '=', 'lead_lists.list_id')
+                ->select('email_leads.*', 'lead_lists.id as lead_list_id', 'mailinglists.name', 'mailinglists.id as mailinglist_id')
+                ->where('email_leads.id', $id)
+                ->get();
 
             $emailLeadData = EmailLead::find($id);
 
@@ -151,7 +143,6 @@ class EmailLeadsController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'DELETE',
             CURLOPT_HTTPHEADER => [
-                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                 'api-key: ' . config('env.SEND_IN_BLUE_API'),
                 'Content-Type: application/json',
             ],

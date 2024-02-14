@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SonarQube extends Model
 {
@@ -35,13 +35,18 @@ class SonarQube extends Model
         'codeVariants',
     ];
 
-    public static function getFilterSeverity(){
-       return SonarQube::select('severity')->where('severity', '!=', '')->groupBy('severity')->pluck('severity', 'severity');
+    public static function getFilterSeverity()
+    {
+        return SonarQube::select('severity')->where('severity', '!=', '')->groupBy('severity')->pluck('severity', 'severity');
     }
-    public static function getFilterAuthor(){
+
+    public static function getFilterAuthor()
+    {
         return SonarQube::select('author')->where('author', '!=', '')->groupBy('author')->pluck('author', 'author');
-    }    
-    public static function getFilterProject(){
+    }
+
+    public static function getFilterProject()
+    {
         return SonarQube::select('project')->where('project', '!=', '')->groupBy('project')->pluck('project', 'project');
-    }        
+    }
 }

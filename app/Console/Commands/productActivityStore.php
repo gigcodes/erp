@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class productActivityStore extends Command
 {
-    //scrappersImagesDelete
     /**
      * The name and signature of the console command.
      *

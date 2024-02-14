@@ -49,9 +49,9 @@ class ProceesPushSystemSize implements ShouldQueue
                 'system_size_relations.size',
                 'system_size_managers.category_id'
             )
-            ->leftjoin('system_size_managers', 'system_size_managers.id', 'system_size_relations.system_size_manager_id')
-            ->where('system_size_manager_id', $systemSizeManagerId)
-            ->get();
+                ->leftjoin('system_size_managers', 'system_size_managers.id', 'system_size_relations.system_size_manager_id')
+                ->where('system_size_manager_id', $systemSizeManagerId)
+                ->get();
 
             if (empty($systemSizeRelations)) {
                 \Log::info('System size manager ID not found in table' . json_encode($systemSizeManagerId));
@@ -76,14 +76,13 @@ class ProceesPushSystemSize implements ShouldQueue
                         $store_website_id = $websitevalue->id;
 
                         //Get stores of every single site
-                        //where('website_store_views.name', $replyInfo->language ?? 'English') ->
 
                         $fetchStores = \App\WebsiteStoreView::join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-                                        ->join('websites as w', 'w.id', 'ws.website_id')
-                                        ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
-                                        ->where('sw.id', $store_website_id)
-                                        ->select('website_store_views.website_store_id', 'website_store_views.*', 'website_store_views.code')
-                                        ->get();
+                            ->join('websites as w', 'w.id', 'ws.website_id')
+                            ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+                            ->where('sw.id', $store_website_id)
+                            ->select('website_store_views.website_store_id', 'website_store_views.*', 'website_store_views.code')
+                            ->get();
 
                         $stores = [];
                         if (! $fetchStores->isEmpty()) {

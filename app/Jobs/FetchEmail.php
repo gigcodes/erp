@@ -7,7 +7,6 @@ use App\CashFlow;
 use Carbon\Carbon;
 use App\EmailRunHistories;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\DB;
 use Webklex\PHPIMAP\ClientManager;
 use Illuminate\Queue\SerializesModels;
 use EmailReplyParser\Parser\EmailParser;
@@ -32,7 +31,6 @@ class FetchEmail implements ShouldQueue
      */
     public function __construct($emailAddress)
     {
-        //
         $this->emailAddress = $emailAddress;
     }
 
@@ -43,7 +41,6 @@ class FetchEmail implements ShouldQueue
      */
     public function handle()
     {
-        //
         $emailAddress = $this->emailAddress;
         try {
             $cm = new ClientManager();
@@ -56,16 +53,6 @@ class FetchEmail implements ShouldQueue
                 'password' => $emailAddress->password,
                 'protocol' => 'imap',
             ]);
-            /*$cm = new ClientManager();
-            $imap = $cm->make([
-                'host' => $emailAddress->host,
-                'port' => 993,
-                'encryption' => 'ssl',
-                'validate_cert' => false,
-                'username' => $emailAddress->username,
-                'password' => $emailAddress->password,
-                'protocol' => 'imap',
-            ]);*/
 
             $imap->connect();
 
@@ -105,8 +92,6 @@ class FetchEmail implements ShouldQueue
                 $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
 
                 dump('Last received at: ' . ($latest_email_date ?: 'never'));
-                // Uncomment below just for testing purpose
-                //                    $latest_email_date = Carbon::parse('2020-01-01');
 
                 if ($latest_email_date) {
                     $emails = ($inbox) ? $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y')) : '';
@@ -118,7 +103,6 @@ class FetchEmail implements ShouldQueue
                     foreach ($emails as $email) {
                         try {
                             $reference_id = $email->references;
-                    //                        dump($reference_id);
                             $origin_id = $email->message_id;
 
                             // Skip if message is already stored
@@ -138,7 +122,6 @@ class FetchEmail implements ShouldQueue
                             $email_subject = $email->getSubject();
                             \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
-                            //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
                             $attachments = $email->getAttachments();
                             $fromThis = $email->getFrom()[0]->mail;
@@ -202,7 +185,6 @@ class FetchEmail implements ShouldQueue
                                 'created_at' => $email->getDate(),
                                 'name' => $name,
                             ];
-                    //                            dump("Received from: ". $email->getFrom()[0]->mail);
                             $email_id = Email::insertGetId($params);
 
                             if ($type['type'] == 'incoming') {
@@ -368,7 +350,6 @@ class FetchEmail implements ShouldQueue
             ];
             EmailRunHistories::create($historyParam);
             \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
-            //throw new \Exception($e->getMessage());
         }
     }
 
@@ -403,21 +384,7 @@ class FetchEmail implements ShouldQueue
         $rowincrement = 1;
         $attachedFileDataArray = [];
         while (($data = fgetcsv($file, 4000, ',')) !== false) {
-            ///echo '<pre>'.print_r($data,true).'</pre>'; die('developer working');
-            /* foreach($data as $d){
-            $d=str_replace('(','',$d);
-            $d=str_replace(')','',$d);
-            $d=str_replace('.','',$d);
-            $d=str_replace('&','',$d);
-            $d=str_replace(' ','_',$d);
-            $d=strtolower($d);
-            //echo $csvArrayIndex.' - $table->string("'.$d.'")->nullable();'."\n";
-            //echo '"'.$d.'"=>$data['.$csvArrayIndex.']'."\n";
-            $csvArrayIndex++;
-            }
-            exit; */
             if ($rowincrement > $skiprowupto) {
-                //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
                 if (isset($data[0]) && ! empty($data[0])) {
                     try {
                         $due_date = date('Y-m-d', strtotime($data[9]));
@@ -430,7 +397,6 @@ class FetchEmail implements ShouldQueue
                             'invoice_type' => $data[6],
                             'invoice_currency' => $data[69],
                             'invoice_amount' => $data[70],
-                            'invoice_type' => $data[6],
                             'invoice_date' => $data[7],
                             'payment_terms' => $data[8],
                             'due_date' => $due_date,

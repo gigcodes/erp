@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\StoreSocialContentStatus;
 use Illuminate\Routing\Controller;
-// use App\StoreDevelopment;
 use Illuminate\Support\Facades\Validator;
 
 class StoreSocialContentStatusController extends Controller

@@ -26,9 +26,6 @@ class MagentoModuleCronJobHistoryRequest extends FormRequest
         return [
             'magento_module_id' => 'required',
             'cron_time' => 'required',
-            // 'frequency' => 'required',
-            // 'cpu_memory' => 'required',
-            // 'comments' => 'required',
         ];
     }
 

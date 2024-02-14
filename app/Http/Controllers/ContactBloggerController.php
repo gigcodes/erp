@@ -11,7 +11,6 @@ class ContactBloggerController extends Controller
 {
     public function __construct()
     {
-        //  $this->middleware('permission:blogger-all');
         $this->middleware(function ($request, $next) {
             session()->flash('active_tab', 'contact_tab');
 

@@ -76,13 +76,11 @@ class SendMessageToCustomer implements ShouldQueue
             }
 
             // if we need to send by images id  direct then use this one
-            //if ($this->type == "by_images") {
             if (! empty($params['images'])) {
                 $ids = is_array($params['images']) ? $params['images'] : json_decode($params['images']);
                 $haveMedia = true;
                 $medias = Media::whereIn('id', $ids)->get();
             }
-            //}
 
             if (isset($params['images']) && is_array($params['images'])) {
                 $medias = Media::whereIn('id', $params['images'])->get();

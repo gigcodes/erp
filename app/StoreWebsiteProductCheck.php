@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StoreWebsiteProductCheck extends Model
 {
-    // use SoftDeletes;
     protected $fillable = ['website_id',
         'website',
         'sku',
@@ -15,7 +14,6 @@ class StoreWebsiteProductCheck extends Model
         'brands',
         'dimensions',
         'composition',
-        //'images' => $value->composition,
         'english' => 'Yes',
         'arabic' => 'Yes',
         'german' => 'Yes',
@@ -25,5 +23,6 @@ class StoreWebsiteProductCheck extends Model
         'japanese' => 'No',
         'korean' => 'No',
         'russian' => 'No',
-        'chinese' => 'No', ];
+        'chinese' => 'No',
+    ];
 }

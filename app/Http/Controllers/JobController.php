@@ -38,7 +38,7 @@ class JobController extends Controller
             $reserved_end = \Carbon\Carbon::Parse($request->reserved_date)->endOfDay()->getTimeStamp();
 
             $jobs->where('reserved_at', '>=', $reserved_start)
-                    ->where('reserved_at', '<', $reserved_end);
+                ->where('reserved_at', '<', $reserved_end);
         }
 
         if ($request->available_date != '') {
@@ -46,7 +46,7 @@ class JobController extends Controller
             $available_end = \Carbon\Carbon::Parse($request->available_date)->endOfDay()->getTimeStamp();
 
             $jobs->where('available_at', '>=', $available_start)
-                 ->where('available_at', '<', $available_end);
+                ->where('available_at', '<', $available_end);
         }
 
         $checkbox = $jobs->pluck('id');
@@ -55,7 +55,7 @@ class JobController extends Controller
         $listQueues = \App\Job::JOBS_LIST;
 
         return view('job.list', compact('jobs', 'filters', 'count', 'checkbox', 'listQueues'))
-                            ->withInput($request->all());
+            ->withInput($request->all());
     }
 
     public function delete(Request $request, $id)

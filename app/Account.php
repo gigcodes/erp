@@ -41,11 +41,6 @@ class Account extends Model
         return $this->hasMany(\App\Review::class);
     }
 
-    //  public function thread()
-    //  {
-//    return $this->hasMany('App\InstagramThread','account_id','id')->whereNotNull('instagram_user_id');
-    //  }
-
     public function has_posted_reviews()
     {
         $count = $this->hasMany(\App\Review::class)->where('status', 'posted')->count();

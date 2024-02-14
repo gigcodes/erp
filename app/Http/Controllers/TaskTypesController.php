@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Task;
 use App\TaskTypes;
 use Illuminate\Http\Request;
 

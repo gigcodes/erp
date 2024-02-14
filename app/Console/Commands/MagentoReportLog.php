@@ -43,7 +43,6 @@ class MagentoReportLog extends Command
             $types = ['unit', 'integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default'];
             foreach ($storewebsite as $stroewebsite) {
                 foreach ($types as $type) {
-                    //$cmd = ' bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server '. $stroewebsite->server_ip .' --type tests --test '. $type;
                     $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server ' . $stroewebsite->server_ip . ' --type tests --test ' . $type;
 
                     $allOutput = [];

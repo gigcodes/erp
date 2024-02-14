@@ -52,11 +52,11 @@ class RejectDuplicateImages extends Command
         $query->where('product_id', $product_id);
 
         $data = $query->orderBy('id', 'desc')
-                ->groupBy('original_media_id')
-                ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
-                    $q->with('newMedia');
-                }])
-                ->first();
+            ->groupBy('original_media_id')
+            ->with(['media', 'newMedia', 'differentWebsiteImages' => function ($q) {
+                $q->with('newMedia');
+            }])
+            ->first();
 
         try {
             if (! empty($data)) {
@@ -124,9 +124,7 @@ class RejectDuplicateImages extends Command
                             $e->content = ['action' => 'CROP_REJECTED', 'page' => 'Approved Listing Page'];
                             $e->action = 'CROP_REJECTED';
                             $e->save();
-                        }
-
-                        // add hash to list
+                        } // add hash to list
                         else {
                             $checksums[] = $hash;
                         }
@@ -134,7 +132,7 @@ class RejectDuplicateImages extends Command
                 }
             }
         } catch (\Exception $e) {
-            //\Log::info("Fix issue on Rejecte duplicate images => ".$e->getMessage());
+            //
         }
 
         $this->output->write('Cron complated', true);

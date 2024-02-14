@@ -7,7 +7,6 @@ use App\Email;
 use App\Order;
 use App\Reply;
 use Exception;
-use App\Product;
 use App\Customer;
 use App\AutoReply;
 use Carbon\Carbon;
@@ -18,6 +17,7 @@ use App\MailinglistTemplate;
 use Illuminate\Http\Request;
 use App\ReturnExchangeStatus;
 use App\ReturnExchangeHistory;
+use App\Models\DataTableColumn;
 use App\Events\RefundDispatched;
 use App\ReturnExchangeStatusLog;
 use App\MailinglistTemplateCategory;
@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\CreateCouponRequest;
 use App\Jobs\UpdateReturnStatusMessageTpl;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-use App\Models\DataTableColumn;
 
 class ReturnExchangeController extends Controller
 {
@@ -201,8 +200,8 @@ class ReturnExchangeController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
 
         $dynamicColumnsToShowPostman = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
@@ -310,8 +309,8 @@ class ReturnExchangeController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
 
         $dynamicColumnsToShowPostman = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
@@ -364,7 +363,6 @@ class ReturnExchangeController extends Controller
             $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
             $template = str_replace(['#{id}', '#{status}'], [$data->id, $data->status], $template);
             $mailing_item_cat = MailinglistTemplateCategory::where('title', 'Status Return exchange')->first();
-            //dd($mailing_item_cat);
             if (empty($mailing_item_cat)) {
                 \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  -> Please add caregory Status Return exchange');
 
@@ -372,7 +370,6 @@ class ReturnExchangeController extends Controller
             }
 
             $mailing_item = MailinglistTemplate::select('html_text')->where('category_id', $mailing_item_cat->id)->where('html_text', '!=', '')->first();
-            //dd($mailing_item);
             $storeWebsiteID = $data->customer->storeWebsite->id;
 
             if ($storeWebsiteID) {
@@ -386,14 +383,12 @@ class ReturnExchangeController extends Controller
                 return response()->json(['code' => 500, 'message' => 'Website Id not found ExchangeID : #"' . $request->id]);
             }
 
-            //dd($data->customer->email, '=='.$mailing_item->html_text. '==='.$data.'==='.$data->returnExchangeProducts. '==='.$from );
             $emailClass = (new \App\Mails\Manual\DefaultEmailPriview($data->customer->email, $mailing_item->html_text, $data, $from))->build();
             if ($emailClass == 'Template not found') {
                 return response()->json(['code' => 500, 'message' => 'Email priview not found. Please check e-mail template ExchangeID : #"' . $request->id]);
             }
 
             $preview = '';
-            //dd($emailClass);
             if ($emailClass != null) {
                 $preview = $emailClass->render();
             } else {
@@ -446,7 +441,6 @@ class ReturnExchangeController extends Controller
 
             try {
                 $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
-                // return $response;
                 $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
                 $email = Email::create([
                     'model_id' => $returnExchange->id,
@@ -463,8 +457,6 @@ class ReturnExchangeController extends Controller
                 ]);
 
                 $receiverNumber = $returnExchange->customer->phone;
-
-                //\App\Jobs\SendEmail::dispatch($email)->onQueue("send_email");
 
                 \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, 'Your refund coupon :' . $code, $returnExchange->customer->storeWebsite->id);
 
@@ -563,9 +555,9 @@ class ReturnExchangeController extends Controller
     {
         try {
             $data = ReturnExchangeStatusLog::select('return_exchange_status_logs.*', 'users.name AS updatedby_name')
-            ->leftJoin('users', 'users.id', '=', 'return_exchange_status_logs.updated_by')
-            ->where('return_exchanges_id', $request->id)
-            ->get();
+                ->leftJoin('users', 'users.id', '=', 'return_exchange_status_logs.updated_by')
+                ->where('return_exchanges_id', $request->id)
+                ->get();
             if (! empty($data->toArray())) {
                 return response()->json(['code' => 200, 'data' => $data]);
             } else {
@@ -615,7 +607,6 @@ class ReturnExchangeController extends Controller
 
             if (isset($status->status_name) && $status->status_name == 'approve') {
                 $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
-                // dd($returnExchange->customer->storeWebsite->id);
 
                 $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
 
@@ -637,7 +628,6 @@ class ReturnExchangeController extends Controller
 
                 try {
                     $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
-                    // return $response;
                     $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
                     $email = Email::create([
                         'model_id' => $returnExchange->id,
@@ -991,7 +981,6 @@ class ReturnExchangeController extends Controller
         $response = (string) view('return-exchange.templates.update-refund', compact('returnExchange', 'id'));
 
         return response()->json(['code' => 200, 'html' => $response]);
-        // return view('',compact('returnExchange'));
     }
 
     public function updateRefund(Request $request)
@@ -1015,7 +1004,6 @@ class ReturnExchangeController extends Controller
 
         //Sending Mail on edit of return and exchange
         $mailingListCategory = MailinglistTemplateCategory::where('title', 'Refund and Exchange')->first();
-        // return $mailingListCategory;
 
         $templateData = MailinglistTemplate::where('store_website_id', $returnExchange->customer->store_website_id)->where('category_id', $mailingListCategory->id)->first();
 
@@ -1263,7 +1251,6 @@ class ReturnExchangeController extends Controller
         $status = $website->returnExchangeStatus;
 
         return view('return-exchange.partial.list-status', compact('status'));
-        //}
     }
 
     public function saveStatusField(Request $request)
@@ -1313,8 +1300,6 @@ class ReturnExchangeController extends Controller
             $status = $website->returnExchangeStatus;
 
             return view('return-exchange.partial.list-status', compact('status'));
-
-            //return response()->json(["code" => 200, "data" => $status, "message" => "Added successfully"]);
         }
 
         return response()->json(['code' => 500, 'data' => [], 'message' => 'No data found']);
@@ -1338,20 +1323,19 @@ class ReturnExchangeController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','return-exchange')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'return-exchange';
-            $column->column_name = json_encode($request->column_returnexchange); 
+            $column->column_name = json_encode($request->column_returnexchange);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'return-exchange';
-            $column->column_name = json_encode($request->column_returnexchange); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_returnexchange);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 

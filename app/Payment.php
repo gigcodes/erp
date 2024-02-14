@@ -36,7 +36,6 @@ class Payment extends Model
 
     protected $dispatchesEvents = [
         'created' => PaymentCreated::class,
-        //'updated' => PaymentUpdated::class,
     ];
 
     public static function getConsidatedUserPayments()

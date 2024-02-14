@@ -63,14 +63,6 @@ class CompositionsController extends Controller
         }
 
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
-        // dd($compositions->get());
-        // foreach($compositions  as  $com){
-        //         dump($com->title);
-        //     }
-
-        // foreach($compositions  as  $com){
-//     dump($com->title);
-        // }
 
         if ($request->with_ref == 1 || $request->user_id != null) {
             $compositions = $compositions->where(function ($q) {
@@ -83,7 +75,6 @@ class CompositionsController extends Controller
         }
         $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
 
-        //  dd($users);
         return view('compositions.index', compact('compositions', 'listcompostions', 'users'));
     }
 
@@ -95,12 +86,12 @@ class CompositionsController extends Controller
     public function compositionsGroups(Request $request)
     {
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with')->toArray();
+
         return view('compositions.listing', compact('listcompostions'));
     }
 
-    public function compositionsGroupBy(Request $request, $threshold){
-
-        //$threshold = 0.9; // Adjust this threshold as needed
+    public function compositionsGroupBy(Request $request, $threshold)
+    {
         $name = $request->search;
         $compositions = Compositions::withCount('productCounts')->where('replace_with', '')->get()->filter(function ($composition) use ($name, $threshold) {
             similar_text(strtolower($composition->name), strtolower($name), $percentage);
@@ -109,12 +100,13 @@ class CompositionsController extends Controller
         });
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
 
-   
         return view('compositions.update', compact('compositions', 'listcompostions'));
     }
 
-    public function deleteComposition(Request $request){
+    public function deleteComposition(Request $request)
+    {
         Compositions::where('replace_with', $request->name)->update(['replace_with' => '']);
+
         return true;
     }
 
@@ -173,7 +165,6 @@ class CompositionsController extends Controller
      */
     public function update(Request $request, Compositions $compositions, $id)
     {
-        //
         $c = $compositions->find($id);
         if ($c) {
             $c->fill($request->all());
@@ -189,7 +180,6 @@ class CompositionsController extends Controller
 
     public function updateName(Request $request)
     {
-        //
         $validator = \Validator::make($request->all(), [
             'id' => 'required',
             'name' => 'required',
@@ -226,7 +216,6 @@ class CompositionsController extends Controller
      */
     public function destroy(Compositions $compositions, $id)
     {
-        //
         $compositions->find($id)->delete();
 
         return redirect()->back();

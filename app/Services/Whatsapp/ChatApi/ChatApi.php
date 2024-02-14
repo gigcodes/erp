@@ -14,7 +14,6 @@ class ChatApi
     public static function chatQueue($number = null)
     {
         $instance = getInstance($number);
-        /*        dd($instance);*/
         $instanceId = isset($instance['instance_id']) ? $instance['instance_id'] : 0;
         $token = isset($instance['token']) ? $instance['token'] : 0;
 
@@ -99,7 +98,6 @@ class ChatApi
     public static function deleteQueues($number = null)
     {
         $instance = getInstance($number);
-        /*        dd($instance);*/
         $instanceId = isset($instance['instance_id']) ? $instance['instance_id'] : 0;
         $token = isset($instance['token']) ? $instance['token'] : 0;
 

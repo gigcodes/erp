@@ -500,9 +500,9 @@ class AutoReplyController extends Controller
         if (! empty($messageIds)) {
             foreach ($messageIds as $id) {
                 $lastReplies = \App\ChatMessage::join('customers', 'customers.id', 'chat_messages.customer_id')->where('chat_messages.id', '>', $id)
-                        ->whereNull('number')
-                        ->orderBy('chat_messages.id', 'ASC')
-                        ->limit(5)->get();
+                    ->whereNull('number')
+                    ->orderBy('chat_messages.id', 'ASC')
+                    ->limit(5)->get();
 
                 if (! $lastReplies->isEmpty()) {
                     foreach ($lastReplies as $lr) {

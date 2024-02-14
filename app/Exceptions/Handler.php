@@ -6,6 +6,8 @@ use App\Email;
 use Exception;
 use Throwable;
 use App\EmailLog;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -43,10 +45,9 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $exception): JsonResponse
     {
         if ($exception instanceof \Symfony\Component\ErrorHandler\Error\FatalError) {
             return response()->json(['status' => 'failed', 'message' => 'Please check Fatal Error.. => ' . $exception->getMessage(), 'code' => $exception->getCode()], 500);
@@ -126,7 +127,7 @@ class Handler extends ExceptionHandler
                     'is_error' => 1,
                     'service_type' => 'SMTP',
                 ]);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 return response()->json(['status' => 'failed', 'message' => 'Mail Compliance issue => ' . $exception->getMessage()], 405);
                 \Log::error($exception);
             }

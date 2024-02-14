@@ -155,10 +155,6 @@ class SearchAttachedImagesNew implements ShouldQueue
 
     public function tags()
     {
-        return ['search_images',  $this->id];
+        return ['search_images', $this->id];
     }
-    // public function tags()
-    // {
-    //     return ['search_images'];
-    // }
 }

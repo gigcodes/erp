@@ -38,7 +38,6 @@ class GetPastHubstaffActivities extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -49,8 +48,6 @@ class GetPastHubstaffActivities extends Command
      */
     public function handle()
     {
-        //
-
         $now = time();
 
         $startString = $this->argument('start');

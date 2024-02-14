@@ -9,7 +9,7 @@ class BuildProcessErrorLog extends Model
 {
     protected $table = 'build_process_error_logs';
 
-    protected $fillable = ['id', 'project_id', 'error_message', 'error_code', 'github_organization_id', 'github_repository_id', 'github_branch_state_name','user_id'];
+    protected $fillable = ['id', 'project_id', 'error_message', 'error_code', 'github_organization_id', 'github_repository_id', 'github_branch_state_name', 'user_id'];
 
     public function project()
     {
@@ -45,6 +45,6 @@ class BuildProcessErrorLog extends Model
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class , 'user_id');
+        return $this->belongsTo(\App\User::class, 'user_id');
     }
 }

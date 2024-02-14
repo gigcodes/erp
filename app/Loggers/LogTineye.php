@@ -16,7 +16,5 @@ class LogTineye extends Model
         $logTineye->md5 = md5(file_get_contents($url));
         $logTineye->response = $result;
         $logTineye->save();
-
-        // Return
     }
 }

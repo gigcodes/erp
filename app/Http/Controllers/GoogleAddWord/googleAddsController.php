@@ -7,20 +7,17 @@ use App\GoogleAdsAccount;
 use Illuminate\Http\Request;
 use Google\ApiCore\ApiException;
 use App\Http\Controllers\Controller;
-use Google\AdsApi\AdWords\v201809\cm\Ad;
 use function League\Uri\UriTemplate\name;
 use Google\AdsApi\Common\Util\MapEntries;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\v201809\cm\Gender;
 use Google\AdsApi\AdWords\v201809\cm\Paging;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
-use Google\AdsApi\AdWords\v201809\cm\Keyword;
 use Google\AdsApi\AdWords\v201809\o\IdeaType;
 use Google\Ads\GoogleAds\V13\Services\UrlSeed;
 use Google\AdsApi\AdWords\v201809\cm\Language;
 use Google\AdsApi\AdWords\v201809\cm\Location;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
-use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\Ads\GoogleAds\Util\V13\ResourceNames;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
 use Google\AdsApi\AdWords\v201809\o\RequestType;
@@ -82,9 +79,9 @@ class googleAddsController extends Controller
                     ->build();
 
                 $session = (new AdWordsSessionBuilder())
-                       ->fromFile(storage_path('adsapi_php.ini'))
-                       ->withOAuth2Credential($oAuth2Credential)
-                       ->build();
+                    ->fromFile(storage_path('adsapi_php.ini'))
+                    ->withOAuth2Credential($oAuth2Credential)
+                    ->build();
 
                 $targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
 
@@ -228,7 +225,6 @@ class googleAddsController extends Controller
                 if (empty($entries)) {
                     echo "No related keywords were found.\n";
                 }
-                // echo "<pre>"; print_r($finalData); die;
                 $data = ['status' => 'success', 'data' => $finalData];
 
                 return $data;
@@ -549,16 +545,16 @@ class googleAddsController extends Controller
                 $loginCustomerId = $account->google_adwords_manager_account_customer_id;
 
                 $oAuth2Credential = (new OAuth2TokenBuilder())
-                                    ->withClientId($clientId)
-                                    ->withClientSecret($clientSecret)
-                                    ->withRefreshToken($refreshToken)
-                                    ->build();
+                    ->withClientId($clientId)
+                    ->withClientSecret($clientSecret)
+                    ->withRefreshToken($refreshToken)
+                    ->build();
 
                 $googleAdsClient = (new GoogleAdsClientBuilder())
-                                    ->withDeveloperToken($developerToken)
-                                    ->withLoginCustomerId($loginCustomerId)
-                                    ->withOAuth2Credential($oAuth2Credential)
-                                    ->build();
+                    ->withDeveloperToken($developerToken)
+                    ->withLoginCustomerId($loginCustomerId)
+                    ->withOAuth2Credential($oAuth2Credential)
+                    ->build();
             } catch (Exception $e) {
                 return ['status' => 'error', 'message' => $e->getMessage()];
             }

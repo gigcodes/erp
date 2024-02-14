@@ -39,9 +39,9 @@ class PurchaseExport extends Mailable
     public function build()
     {
         return $this
-                    ->bcc($this->fromMailer)
-                    ->subject($this->subject)
-                    ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])
-                    ->attachFromStorageDisk('files', $this->path);
+            ->bcc($this->fromMailer)
+            ->subject($this->subject)
+            ->text('emails.purchases.export_plain')->with(['body_message' => $this->message])
+            ->attachFromStorageDisk('files', $this->path);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
-use App\LogRequest;
 use App\CronJobReport;
+use App\LogRequest;
 use App\StoreGTMetrixAccount;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GTMetrixAccount extends Command
@@ -41,7 +41,6 @@ class GTMetrixAccount extends Command
      */
     public function handle()
     {
-        //try {
         \Log::info('GTMetrix :: Report cron start ');
         $report = CronJobReport::create([
             'signature' => $this->signature,
@@ -74,10 +73,8 @@ class GTMetrixAccount extends Command
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
                     curl_close($curl);
-                    // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
                     $credits = $data->data->attributes->api_credits;
-                    // print_r($data->data->attributes->api_credits);
                     if ($credits != 0) {
                         StoreGTMetrixAccount::where('account_id', $value->account_id)
                         ->update(['status' => 'active']
@@ -97,10 +94,5 @@ class GTMetrixAccount extends Command
 
         \Log::info('GTMetrix :: Report cron complete ');
         $report->update(['end_time' => Carbon::now()]);
-
-        /*} catch (\Exception $e) {
-    \Log::error($this->signature.' :: '.$e->getMessage() );
-    \App\CronJob::insertLastError($this->signature, $e->getMessage());
-    }*/
     }
 }

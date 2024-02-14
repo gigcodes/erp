@@ -67,12 +67,6 @@ class HubstaffController extends Controller
         session()->flash('message', 'Authentication Successful');
 
         return view('hubstaff.show-auth-token', compact('users', 'authToken'));
-
-        // }else{
-
-        // 	return 'Credentials do not match!';
-
-        // }
     }
 
     public function authenticationPage()
@@ -416,7 +410,6 @@ class HubstaffController extends Controller
         $curl->close();
 
         $results = $response;
-        // dd($results);
 
         return view('hubstaff.organization.show-organizations', compact('results'));
     }

@@ -38,7 +38,6 @@ class BuildStatus extends Command
      */
     public function handle()
     {
-        //$buildHistory = BuildProcessHistory::where('status', 'running')->get();
         $buildHistory = BuildProcessHistory::all();
         $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
 

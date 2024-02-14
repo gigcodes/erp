@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Mail;
-use App\User;
 use App\GoogleClientAccount;
-use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
+use App\User;
+use Illuminate\Console\Command;
 
 class ConnectGoogleClientAccounts extends Command
 {
@@ -75,17 +74,6 @@ class ConnectGoogleClientAccounts extends Command
                 dump('acc_id : ' . $acc->id . ' | acc_name : ' . $acc->google_account . ' | is connected.');
             } else {
                 foreach ($admins as $admin) {
-                    // // $msg = 'please connect this client id ' . $acc->GOOGLE_CLIENT_ID; // for whatsapp
-                    // try{
-                    //     Mail::send('google_client_accounts.index', ['admin' => $admin, 'google_redirect_url' => $google_redirect_url, 'acc' => $acc], function($message)use($admin) {
-                    //         $message->to($admin['email'])
-                    //         ->subject('Connect google account');
-                    //     });
-                    // }catch(\Exception $e){
-                    //     \Log::error($e);
-                    // }
-                    //$html = view('google_client_accounts.index', ['admin' => $admin, 'acc' => $acc]);
-
                     $msg = 'Google Webmaster:: Your account   has been disconnected. <a href="' . route('googlewebmaster.account.connect', $acc->google_client_account_id) . '">Click here</a> to connect';
 
                     GoogleClientNotification::create([

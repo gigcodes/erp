@@ -18,7 +18,7 @@ class TrackShipmentResponse extends ResponseAbstract
     public function getTrackShipmentResponse()
     {
         $result = ! empty($this->response->Body->trackShipmentRequestResponse->trackingResponse->TrackingResponse->AWBInfo) ?
-        $this->response->Body->trackShipmentRequestResponse->trackingResponse->TrackingResponse->AWBInfo : [];
+            $this->response->Body->trackShipmentRequestResponse->trackingResponse->TrackingResponse->AWBInfo : [];
 
         return $result;
     }

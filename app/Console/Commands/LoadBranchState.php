@@ -13,8 +13,6 @@ class LoadBranchState extends Command
 {
     use GithubTrait;
 
-    // private $githubClient;
-
     /**
      * The name and signature of the console command.
      *
@@ -37,10 +35,6 @@ class LoadBranchState extends Command
     public function __construct()
     {
         parent::__construct();
-        // $this->githubClient = new Client([
-        //     // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-        //     'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
-        // ]);
     }
 
     /**
@@ -123,14 +117,11 @@ class LoadBranchState extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        //echo print_r($comparisons, true);
     }
 
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [$userName, $token],
         ]);
 
@@ -142,8 +133,6 @@ class LoadBranchState extends Command
         $repositories = [];
 
         try {
-            //https://api.github.com/orgs/ludxb/repos
-            // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
             $url = 'https://api.github.com/orgs/' . $organizationId . '/repos';
 
             $githubClient = $this->connectGithubClient($userName, $token);
@@ -158,7 +147,7 @@ class LoadBranchState extends Command
                 },
                 $repositories
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             //
         }
 
@@ -169,9 +158,7 @@ class LoadBranchState extends Command
     {
         $allBranchNames = [];
         try {
-            //https://api.github.com/repositories/:repoId/branches
             $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
-            // $headResponse = $this->githubClient->head($url);
 
             $githubClient = $this->connectGithubClient($userName, $token);
 
@@ -213,8 +200,6 @@ class LoadBranchState extends Command
             while ($page <= $totalPages) {
                 $this->info('page: ' . $page);
 
-                // $response = $this->githubClient->get($url . '?page=' . $page);
-
                 $response = $githubClient->get($url . '?page=' . $page);
 
                 $branches = json_decode($response->getBody()->getContents());
@@ -235,7 +220,7 @@ class LoadBranchState extends Command
 
                 $page++;
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->info($e->getMessage());
         }
         $this->info(json_encode($allBranchNames));

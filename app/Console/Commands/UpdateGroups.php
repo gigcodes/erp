@@ -39,29 +39,6 @@ class UpdateGroups extends Command
      */
     public function handle()
     {
-        // Total groups
-        // $row = [];
-        // $websiteStoreView = WebsiteStoreView::all();
-        // foreach($websiteStoreView as $w){
-        //     if($w->websiteStore == null){
-        //         continue;
-        //     }
-        //     if($w->websiteStore->website == null){
-        //         continue;
-        //     }
-        //     if($w->websiteStore->website->storeWebsite == null){
-        //         continue;
-        //     }
-        //     if($w->code == 1){
-        //         continue;
-        //     }
-        //     $web_title = $w->websiteStore->website->storeWebsite->title;
-        //     $code =  explode('-', $w->code)[1];
-        //     $web_name = $web_title . '_' . $code;
-        //     in_array($web_name, $row) ? '' : $row[] = $web_name;
-        // }
-        // dd($row);
-
         //Delete Old Groups
         $existing_themes_ids = [];
         $websiteStoreView = WebsiteStoreView::whereNotNull('store_group_id')->update(['store_group_id' => null]);
@@ -75,7 +52,7 @@ class UpdateGroups extends Command
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
             $response = json_decode($result['response']);
-            $existing_themes = ['General', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'ShadesShop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau',  'o-labels.com', 'Luxury Space', 'TheFitEdit', 'Italybrandoutlets', 'Lussolicious'];
+            $existing_themes = ['General', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'ShadesShop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau', 'o-labels.com', 'Luxury Space', 'TheFitEdit', 'Italybrandoutlets', 'Lussolicious'];
             foreach ($response as $g) {
                 if (in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
                     dump($g->name . ' not deleted');
@@ -233,7 +210,6 @@ class UpdateGroups extends Command
                 }
             } else {
                 dump($w->id);
-
                 continue;
             }
         }

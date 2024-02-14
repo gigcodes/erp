@@ -15,10 +15,8 @@ class InsertModelColorSeeder extends Seeder
     public function run()
     {
         $filesInFolder = \File::files('app');
-        //$modelArr = [];
         foreach ($filesInFolder as $filesArr) {
             $file = pathinfo($filesArr);
-            //array_push($modelArr,['model_name' => $file['filename'],'color_code' => '#ffffff']);
             ModelColor::create(['model_name' => $file['filename'], 'color_code' => '#ffffff']);
         }
     }

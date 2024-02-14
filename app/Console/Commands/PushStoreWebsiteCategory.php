@@ -39,7 +39,6 @@ class PushStoreWebsiteCategory extends Command
     public function handle()
     {
         $notInclude = [1, 143, 144];
-        //
         $limitOfCat = $this->ask('Which category need to push ?');
         $limit = $this->ask('Which website you need to push');
 

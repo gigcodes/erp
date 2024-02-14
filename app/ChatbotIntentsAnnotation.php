@@ -27,11 +27,6 @@ class ChatbotIntentsAnnotation extends Model
         return $this->hasOne(\App\ChatbotQuestionExample::class, 'id', 'question_example_id');
     }
 
-    // public function chatbotKeyword()
-    // {
-    // 	return $this->hasOne("\App\ChatbotKeyword","id","chatbot_keyword_id");
-    // }
-
     public function chatbotQuestion()
     {
         return $this->hasOne(\App\ChatbotQuestion::class, 'id', 'chatbot_keyword_id');

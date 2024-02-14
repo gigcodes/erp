@@ -14,11 +14,8 @@ class GuzzleHelper
             $response = $httpClient->post(
 
                 $url,
-
                 [
-
                     RequestOptions::HEADERS => $headers,
-
                     RequestOptions::BODY => json_encode($body),
                 ]
             );
@@ -37,11 +34,8 @@ class GuzzleHelper
             $response = $httpClient->get(
 
                 $url,
-
                 [
-
                     RequestOptions::HEADERS => $headers,
-
                 ]
             );
 
@@ -60,11 +54,8 @@ class GuzzleHelper
             $response = $httpClient->patch(
 
                 $url,
-
                 [
-
                     RequestOptions::HEADERS => $headers,
-
                     RequestOptions::BODY => json_encode($body),
                 ]
             );

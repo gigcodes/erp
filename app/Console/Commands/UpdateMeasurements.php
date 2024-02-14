@@ -48,8 +48,6 @@ class UpdateMeasurements extends Command
 
             $scraped_products = ScrapedProducts::whereIn('website', ['alducadaosta', 'biffi', 'brunarosso', 'coltorti', 'leam', 'nugnes1920', 'montiboutique', 'mimmaninnishop', 'linoricci'])->get();
 
-            // dd(count($scraped_products));
-
             foreach ($scraped_products as $key => $scrap) {
                 dump("$key - Scraped Product");
 

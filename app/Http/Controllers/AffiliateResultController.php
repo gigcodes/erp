@@ -27,12 +27,12 @@ class AffiliateResultController extends Controller
         if ($request->term) {
             $query = $query->where(function ($q) use ($request) {
                 $q = $q->orWhere('first_name', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('last_name', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('emailaddress', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('phone', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('website_name', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('url', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('title', 'LIKE', '%' . $request->term . '%');
+                    ->orWhere('last_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('emailaddress', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('phone', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('website_name', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('url', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('title', 'LIKE', '%' . $request->term . '%');
             });
         }
 
@@ -115,12 +115,12 @@ class AffiliateResultController extends Controller
         $id = $request->id;
         if (is_array($id)) {
             \DB::table('affiliates')
-            ->whereIn('id', $id)
-            ->delete();
+                ->whereIn('id', $id)
+                ->delete();
         } else {
             \DB::table('affiliates')
-            ->where('id', $id)
-            ->delete();
+                ->where('id', $id)
+                ->delete();
         }
 
         return redirect()->route('affiliates.list')

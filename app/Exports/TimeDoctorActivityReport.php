@@ -21,7 +21,6 @@ class TimeDoctorActivityReport implements FromArray, ShouldAutoSize, WithHeading
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                // $event->sheet->getDelegate()->setAutoSize(true);
                 $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
                 $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
                 $event->sheet->getDelegate()->getColumnDimension('C')->setAutoSize(true);

@@ -18,9 +18,7 @@ use GuzzleHttp\Client;
 use App\DocumentRemark;
 use App\LearningModule;
 use App\PaymentReceipt;
-use App\PushNotification;
 use App\ScheduledMessage;
-use App\NotificationQueue;
 use App\WhatsAppGroupNumber;
 use Illuminate\Http\Request;
 use App\DeveloperTaskHistory;
@@ -42,7 +40,6 @@ class LearningModuleController extends Controller
 
     public function __construct()
     {
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -87,12 +84,6 @@ class LearningModuleController extends Controller
         if ($request->term != '') {
             $searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
         }
-        // if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
-        //     $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
-        // }
-        // else {
-        // 	$searchWhereClause .= ' AND is_statutory != 3';
-        // }
         $orderByClause = ' ORDER BY';
         if ($request->sort_by == 1) {
             $orderByClause .= ' learnings.created_at desc,';
@@ -298,7 +289,7 @@ class LearningModuleController extends Controller
                 $search_term_suggestions[] = $task->task_details;
             }
         } else {
-            //return;
+            //
         }
 
         $subjectList = Learning::select('learning_subject')->distinct()->pluck('learning_subject');
@@ -307,14 +298,13 @@ class LearningModuleController extends Controller
         $data['users'] = $users;
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
-        // $category = '';
         //My code start
         $selected_user = $request->input('selected_user');
         $users = Helpers::getUserArray(User::orderby('name')->get());
         $task_categories = LearningModule::where('parent_id', 0)->get();
         $learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'learning_module', 'class' => 'form-control input-sm parent-module'])
-        ->selected($request->category)
-        ->renderAsDropdown();
+            ->selected($request->category)
+            ->renderAsDropdown();
 
         $learning_submodule_dropdown = LearningModule::where('is_approved', 1)->where('parent_id', '1')->get();
 
@@ -330,10 +320,10 @@ class LearningModuleController extends Controller
         $priority = \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
 
         $openTask = \App\Learning::join('users as u', 'u.id', 'learnings.assign_to')
-        ->whereNull('learnings.is_completed')
-        ->groupBy('learnings.assign_to')
-        ->select(\DB::raw('count(u.id) as total'), 'u.name as person')
-        ->pluck('total', 'person');
+            ->whereNull('learnings.is_completed')
+            ->groupBy('learnings.assign_to')
+            ->select(\DB::raw('count(u.id) as total'), 'u.name as person')
+            ->pluck('total', 'person');
 
         if ($request->is_statutory_query == 3) {
             $title = 'Discussion learnings';
@@ -391,42 +381,14 @@ class LearningModuleController extends Controller
 
             $last_record_learning = Learning::with('learningUser')->latest()->first();
 
-            // echo "<pre>";
-            // print_r($last_record_learning->toArray());
-            // exit;
-
             return view('learning-module.show', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'learningsListing', 'statusList', 'subjectList', 'last_record_learning'));
         }
     }
-
-    // public function createTask() {
-    // 	$users                     = User::oldest()->get()->toArray();
-    // 	$data['users']             = $users;
-    // 	$task_categories = TaskCategory::where('parent_id', 0)->get();
-    // 	$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
-    // 	                                        ->renderAsDropdown();
-
-    // 	$categories = [];
-    // 	foreach (TaskCategory::all() as $category) {
-    // 		$categories[$category->id] = $category->title;
-    // 	}
-    // 	return view( 'learning-module.create-task',compact('data','task_categories','task_categories_dropdown','categories'));
-    // }
 
     public function updateCost(Request $request)
     {
         $task = Learning::find($request->task_id);
 
-        // if($task && $request->approximate) {
-        //     DeveloperTaskHistory::create([
-        // 		'developer_task_id' => $task->id,
-        // 		'model' => 'App\Task',
-        //         'attribute' => "estimation_minute",
-        //         'old_value' => $task->approximate,
-        //         'new_value' => $request->approximate,
-        //         'user_id' => auth()->id(),
-        //     ]);
-        // }
         if (Auth::user()->isAdmin()) {
             $task->cost = $request->cost;
             $task->save();
@@ -528,10 +490,10 @@ class LearningModuleController extends Controller
         $selected_issue = $request->get('selected_issue', []);
 
         $issues = Learning::select('learnings.id', 'learnings.task_subject', 'learnings.task_details', 'learnings.assign_from')
-                        ->leftJoin('erp_priorities', function ($query) {
-                            $query->on('erp_priorities.model_id', '=', 'learnings.id');
-                            $query->where('erp_priorities.model_type', '=', Learning::class);
-                        })->whereNull('is_verified');
+            ->leftJoin('erp_priorities', function ($query) {
+                $query->on('erp_priorities.model_id', '=', 'learnings.id');
+                $query->where('erp_priorities.model_type', '=', Learning::class);
+            })->whereNull('is_verified');
 
         if (auth()->user()->isAdmin()) {
             $issues = $issues->where(function ($q) use ($selected_issue, $user_id) {
@@ -556,8 +518,6 @@ class LearningModuleController extends Controller
     {
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
-        //get all user task
-        //$developerTask = Learning::where('assign_to', $user_id)->pluck('id')->toArray();
 
         //delete old priority
         \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', Learning::class)->delete();
@@ -572,15 +532,15 @@ class LearningModuleController extends Controller
             }
 
             $developerTask = Learning::select('learnings.id', 'learnings.task_subject', 'learnings.task_details', 'learnings.assign_from')
-                                    ->join('erp_priorities', function ($query) use ($user_id) {
-                                        $user_id = is_null($user_id) ? 0 : $user_id;
-                                        $query->on('erp_priorities.model_id', '=', 'learnings.id');
-                                        $query->where('erp_priorities.model_type', '=', Learning::class);
-                                        $query->where('user_id', $user_id);
-                                    })
-                                    ->whereNull('is_verified')
-                                    ->orderBy('erp_priorities.id')
-                                    ->get();
+                ->join('erp_priorities', function ($query) use ($user_id) {
+                    $user_id = is_null($user_id) ? 0 : $user_id;
+                    $query->on('erp_priorities.model_id', '=', 'learnings.id');
+                    $query->where('erp_priorities.model_type', '=', Learning::class);
+                    $query->where('user_id', $user_id);
+                })
+                ->whereNull('is_verified')
+                ->orderBy('erp_priorities.id')
+                ->get();
 
             $message = '';
             $i = 1;
@@ -646,7 +606,6 @@ class LearningModuleController extends Controller
 
         $task = Learning::create($data);
 
-        // dd($request->all());
         if ($request->is_statutory == 3) {
             foreach ($request->note as $note) {
                 if ($note != null) {
@@ -735,11 +694,9 @@ class LearningModuleController extends Controller
 
         app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
 
-        //   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
-        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 
         $hubstaffUserId = null;
         if ($assignedUser) {
@@ -794,14 +751,9 @@ class LearningModuleController extends Controller
         return redirect()->back()->with('success', 'Task created successfully.');
     }
 
-    // echo "<pre>";
-    // print_r($last_record_learning->toArray());
-    // exit;
-
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
-        // echo '<pre>';print_r($tokens);
 
         $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/learnings';
 
@@ -814,7 +766,6 @@ class LearningModuleController extends Controller
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
                 $body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
@@ -1012,8 +963,8 @@ class LearningModuleController extends Controller
         $users = User::all();
         $users_array = Helpers::getUserArray(User::all());
         $categories = LearningModule::attr(['title' => 'category', 'class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
-                                                                                        ->selected($task->category)
-                                                ->renderAsDropdown();
+            ->selected($task->category)
+            ->renderAsDropdown();
 
         if (request()->has('keyword')) {
             $taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->where('remark', 'like', '%' . request()->keyword . '%')->paginate(20);
@@ -1107,29 +1058,6 @@ class LearningModuleController extends Controller
     public function complete(Request $request, $taskid)
     {
         $task = Learning::find($taskid);
-        // $task->is_completed = date( 'Y-m-d H:i:s' );
-        //		$task->deleted_at = null;
-
-        // if ( $task->assign_to == Auth::id() ) {
-        // 	$task->save();
-        // }
-
-        // $tasks = Learning::where('category', $task->category)->where('assign_from', $task->assign_from)->where('is_statutory', $task->is_statutory)->where('task_details', $task->task_details)->where('task_subject', $task->task_subject)->get();
-        //
-        // foreach ($tasks as $item) {
-        // 	if ($request->type == 'complete') {
-        // 		if ($item->is_completed == '') {
-        // 			$item->is_completed = date( 'Y-m-d H:i:s' );
-        // 		} else if ($item->is_verified == '') {
-        // 			$item->is_verified = date( 'Y-m-d H:i:s' );
-        // 		}
-        // 	} else if ($request->type == 'clear') {
-        // 		$item->is_completed = NULL;
-        // 		$item->is_verified = NULL;
-        // 	}
-        //
-        // 	$item->save();
-        // }
         if ($request->type == 'complete') {
             if (is_null($task->is_completed)) {
                 $task->is_completed = date('Y-m-d H:i:s');
@@ -1145,7 +1073,7 @@ class LearningModuleController extends Controller
                             }
 
                             return redirect()->back()
-                                             ->with('error', 'Please provide cost for fixed price task.');
+                                ->with('error', 'Please provide cost for fixed price task.');
                         }
                         if (! $task->is_milestone) {
                             $payment_receipt = new PaymentReceipt;
@@ -1167,31 +1095,6 @@ class LearningModuleController extends Controller
         }
         $task->save();
 
-        // if($task->is_statutory == 0)
-        // 	$message = 'Task Completed: ' . $task->task_details;
-        // else
-        // 	$message = 'Recurring Task Completed: ' . $task->task_details;
-
-        // PushNotification::create( [
-        // 	'message'    => $message,
-        // 	'model_type' => Learning::class,
-        // 	'model_id'   => $task->id,
-        // 	'user_id'    => Auth::id(),
-        // 	'sent_to'    => $task->assign_from,
-        // 	'role'       => '',
-        // ] );
-        //
-        // PushNotification::create( [
-        // 	'message'    => $message,
-        // 	'model_type' => Learning::class,
-        // 	'model_id'   => $task->id,
-        // 	'user_id'    => Auth::id(),
-        // 	'sent_to'    => '',
-        // 	'role'       => 'Admin',
-        // ] );
-
-        // $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\Task')->delete();
-
         if ($request->ajax()) {
             return response()->json([
                 'task' => $task,
@@ -1199,7 +1102,7 @@ class LearningModuleController extends Controller
         }
 
         return redirect()->back()
-                         ->with('success', 'Task marked as completed.');
+            ->with('success', 'Task marked as completed.');
     }
 
     public function start(Request $request, $taskid)
@@ -1222,7 +1125,6 @@ class LearningModuleController extends Controller
     {
         $task = SatutoryTask::find($taskid);
         $task->completion_date = date('Y-m-d H:i:s');
-        //		$task->deleted_at = null;
 
         if ($task->assign_to == Auth::id()) {
             $task->save();
@@ -1230,19 +1132,8 @@ class LearningModuleController extends Controller
 
         $message = 'Statutory Task Completed: ' . $task->task_details;
 
-        // $notification_queues = NotificationQueue::where('model_id', $task->id)->where('model_type', 'App\StatutoryTask')->delete();
-
-        // PushNotification::create( [
-        // 	'message'    => $message,
-        // 	'model_type' => SatutoryLearning::class,
-        // 	'model_id'   => $task->id,
-        // 	'user_id'    => Auth::id(),
-        // 	'sent_to'    => $task->assign_from,
-        // 	'role'       => '',
-        // ] );
-
         return redirect()->back()
-                         ->with('success', 'Statutory Task marked as completed.');
+            ->with('success', 'Statutory Task marked as completed.');
     }
 
     public function addRemark(Request $request)
@@ -1268,85 +1159,8 @@ class LearningModuleController extends Controller
         }
 
         if ($request->module_type == 'task-discussion') {
-            // NotificationQueueController::createNewNotification([
-            // 	'message' => 'Remark for Developer Task',
-            // 	'timestamps' => ['+0 minutes'],
-            // 	'model_type' => DeveloperLearning::class,
-            // 	'model_id' =>  $id,
-            // 	'user_id' => Auth::id(),
-            // 	'sent_to' => $request->user == Auth::id() ? 6 : $request->user,
-            // 	'role' => '',
-            // ]);
-
-            // NotificationQueueController::createNewNotification([
-            // 	'message' => 'Remark for Developer Task',
-            // 	'timestamps' => ['+0 minutes'],
-            // 	'model_type' => DeveloperLearning::class,
-            // 	'model_id' =>  $id,
-            // 	'user_id' => Auth::id(),
-            // 	'sent_to' => 56,
-            // 	'role' => '',
-            // ]);
+            //
         }
-
-        // if ($request->module_type == 'developer') {
-        // 	$task = DeveloperTask::find($id);
-        //
-        // 	if ($task->user->id == Auth::id()) {
-        // 		NotificationQueueController::createNewNotification([
-        // 			'message' => 'New Task Remark',
-        // 			'timestamps' => ['+0 minutes'],
-        // 			'model_type' => DeveloperLearning::class,
-        // 			'model_id' =>  $task->id,
-        // 			'user_id' => Auth::id(),
-        // 			'sent_to' => 6,
-        // 			'role' => '',
-        // 		]);
-        //
-        // 		NotificationQueueController::createNewNotification([
-        // 			'message' => 'New Task Remark',
-        // 			'timestamps' => ['+0 minutes'],
-        // 			'model_type' => DeveloperLearning::class,
-        // 			'model_id' =>  $task->id,
-        // 			'user_id' => Auth::id(),
-        // 			'sent_to' => 56,
-        // 			'role' => '',
-        // 		]);
-        // 	} else {
-        // 		NotificationQueueController::createNewNotification([
-        // 			'message' => 'New Task Remark',
-        // 			'timestamps' => ['+0 minutes'],
-        // 			'model_type' => DeveloperLearning::class,
-        // 			'model_id' =>  $task->id,
-        // 			'user_id' => Auth::id(),
-        // 			'sent_to' => $task->user_id,
-        // 			'role' => '',
-        // 		]);
-        // 	}
-        // }
-        // $remark_entry = DB::insert('insert into remarks (taskid, remark, created_at, updated_at) values (?, ?, ?, ?)', [$id  ,$remark , $created_at, $update_at]);
-
-        // if (is_null($request->module_type)) {
-        // 	$task = Learning::find($remark_entry->taskid);
-        //
-        // 	PushNotification::create( [
-        // 		'message'    => 'Remark added: ' . $remark,
-        // 		'model_type' => Learning::class,
-        // 		'model_id'   => $task->id,
-        // 		'user_id'    => Auth::id(),
-        // 		'sent_to'    => $task->assign_from,
-        // 		'role'       => '',
-        // 	] );
-        //
-        // 	PushNotification::create( [
-        // 		'message'    => 'Remark added: ' . $remark,
-        // 		'model_type' => Learning::class,
-        // 		'model_id'   => $task->id,
-        // 		'user_id'    => Auth::id(),
-        // 		'sent_to'    => '',
-        // 		'role'       => 'Admin',
-        // 	] );
-        // }
 
         return response()->json(['remark' => $remark], 200);
     }
@@ -1473,7 +1287,6 @@ class LearningModuleController extends Controller
             array_push($tasks_csv, $task_csv);
         }
 
-        // $this->outputCsv('tasks.csv', $tasks_csv);
         return view('learning-module.export')->withTasks($tasks_csv);
     }
 
@@ -1498,7 +1311,6 @@ class LearningModuleController extends Controller
     public static function getClasses($task)
     {
         $classes = ' ';
-        // dump($task);
         $classes .= ' ' . ((empty($task) && $task->assign_from == Auth::user()->id) ? 'mytask' : '') . ' ';
         $classes .= ' ' . ((empty($task) && time() > strtotime($task->completion_date . ' 23:59:59')) ? 'isOverdue' : '') . ' ';
 
@@ -1546,15 +1358,6 @@ class LearningModuleController extends Controller
         $statutory_task['is_statutory'] = 1;
         $statutory_task['statutory_id'] = $statutory_task['id'];
         $task = Learning::create($statutory_task);
-
-        // PushNotification::create([
-        // 	'message'    => 'Recurring Task: ' . $statutory_task['task_details'],
-        // 	'role'       => '',
-        // 	'model_type' => Learning::class,
-        // 	'model_id'   => $task->id,
-        // 	'user_id'    => Auth::id(),
-        // 	'sent_to'    => $statutory_task['assign_to'],
-        // ]);
     }
 
     public function getTaskRemark(Request $request)
@@ -1722,31 +1525,6 @@ class LearningModuleController extends Controller
         $message = '';
         $assignedUserId = 0;
         $data = $request->except('_token');
-        // //print_r($data); die;
-        // $this->validate($request, [
-        // 	'task_subject'	=> 'required',
-        // 	'task_detail'	=> 'required',
-        // 	'category'	=> 'required',
-        // 	'submodule'	=> 'required',
-        // 	'task_asssigned_to' => 'required_without:assign_to_contacts',
-        // 	'cost'=>'sometimes|integer'
-        // ]);
-        // $data['assign_from'] = Auth::id();
-
-        // $taskType = $request->get("task_type");
-
-        // $data = [];
-
-        // $data["learning_user"] 			= $request->learning_user;
-        // $data["learning_vendor"] 		= $request->learning_vendor;
-        // $data["learning_subject"] 		= $request->learning_subject;
-        // $data["learning_module"] 		= $request->learning_module;
-        // $data["learning_submodule"] 	= $request->learning_submodule;
-        // $data["learning_assignment"] 	= $request->learning_assignment;
-        // $data["learning_duedate"] 		= $request->learning_duedate;
-        // $data["learning_status"] 		= $request->learning_status;
-
-        // $task = Learning::create($data);
 
         Learning::create([
             'learning_user' => $request->learning_user,
@@ -1760,75 +1538,8 @@ class LearningModuleController extends Controller
         ]);
 
         $created = 1;
-        // $message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-        // $assignedUserId = $task->assigned_to;
-        // $requestData = new Request();
-        // $requestData->setMethod('POST');
-        // $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
-        // app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-
-        // if($created) {
-        // 	$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-        // 	$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
-
-        // 	  $hubstaffUserId = null;
-        // 	  $hubstaffTaskId = null;
-        // 	  if ($assignedUser) {
-        // 		  $hubstaffUserId = $assignedUser->hubstaff_user_id;
-        // 	  }
-        // 	  $taskSummery = substr($message, 0, 200);
-        // 	  if($hubstaffUserId) {
-        // 		$hubstaffTaskId = $this->createHubstaffTask(
-        // 			$taskSummery,
-        // 			$hubstaffUserId,
-        // 			$hubstaff_project_id
-        // 		);
-        // 	  }
-
-        // 	  if($hubstaffTaskId) {
-        // 		  $task->hubstaff_task_id = $hubstaffTaskId;
-        // 		  $task->save();
-        // 	  }
-        // 	  if ($hubstaffTaskId) {
-
-        // 		  $hubtask = new HubstaffTask();
-        // 		  $hubtask->hubstaff_task_id = $hubstaffTaskId;
-        // 		  $hubtask->project_id = $hubstaff_project_id;
-        // 		  $hubtask->hubstaff_project_id = $hubstaff_project_id;
-        // 		  $hubtask->summary = $message;
-        // 		  $hubtask->save();
-        // 	  }
-        //   }
-
-        // if ($request->ajax() && $request->from == 'task-page') {
-        // 	$hasRender = request("has_render", false);
-
-        // 	$task_statuses=TaskStatus::all();
-
-        // 	if(!empty($hasRender)) {
-
-        // 		$users      = Helpers::getUserArray( User::all() );
-        // 		$priority  	= \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
-
-        // 		if($task->is_statutory == 1) {
-        // 			$mode = "learning-module.partials.statutory-row";
-        // 		}
-        // 		// else if($task->is_statutory == 3) {
-        // 		// 	$mode = "learning-module.partials.discussion-pending-raw";
-        // 		// }
-        // 		else {
-        // 			$mode = "learning-module.partials.pending-row";
-        // 		}
-        // 		//return $users;
-        // 		$view = (string)view($mode,compact('task','priority','users','task_statuses'));
-        // 		return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);
-
-        // 	}
-        // 	return response('success');
-        // }
 
         return redirect()->route('learning.index');
-        // return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
     }
 
     public function getDiscussionSubjects()
@@ -1877,7 +1588,6 @@ class LearningModuleController extends Controller
 
         $issue->save();
 
-        // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
@@ -1962,10 +1672,6 @@ class LearningModuleController extends Controller
         $records = [];
         if ($task) {
             $userList = User::pluck('name', 'id')->all();
-            // $usrSelectBox = "";
-            // if (!empty($userList)) {
-            // 	$usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
-            // }
             if ($task->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
                     $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief', 'jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
@@ -2059,7 +1765,6 @@ class LearningModuleController extends Controller
             } else {
                 $user_id = $task->master_user_id;
             }
-            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
             $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
             $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
@@ -2069,7 +1774,6 @@ class LearningModuleController extends Controller
                 $hubstaffUserId = $assignedUser->hubstaff_user_id;
             }
             $taskSummery = '#' . $task->id . '. ' . $task->task_subject;
-            // $hubstaffUserId = 901839;
             if ($hubstaffUserId) {
                 $hubstaffTaskId = $this->createHubstaffTask(
                     $taskSummery,
@@ -2303,9 +2007,9 @@ class LearningModuleController extends Controller
         $learningid = $request->learningid;
 
         $records = LearningStatusHistory::with('oldstatus', 'newstatus', 'user')
-               ->where('learning_id', $learningid)
-               ->latest()
-               ->get();
+            ->where('learning_id', $learningid)
+            ->latest()
+            ->get();
 
         if ($records) {
             $response = [];
@@ -2350,9 +2054,9 @@ class LearningModuleController extends Controller
         $learningid = $request->learningid;
 
         $records = LearningDueDateHistory::with('user')
-                ->where('learning_id', $learningid)
-                ->latest()
-                ->get();
+            ->where('learning_id', $learningid)
+            ->latest()
+            ->get();
 
         if ($records) {
             $response = [];

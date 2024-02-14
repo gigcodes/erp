@@ -83,13 +83,9 @@
             @endif
 
             @if (!in_array('Error Message', $dynamicColumnsToShowEmails))
-                <td class="expand-row table-hover-cell p-2">
-                    <span class="td-mini-container">
+                <td class="expand-row1 table-hover-cell p-2" data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->error_message}}')">
                     {{ strlen($email->error_message) > 20 ? substr($email->error_message, 0, 20).'...' : $email->error_message }}
-                    </span>
-                    <span class="td-full-container hidden">
-                    {{ $email->error_message }}
-                    </span>
+                    
                 </td>
             @endif
 
@@ -266,14 +262,13 @@
 
             <td  class="chat-msg {{ (!empty($dynamicColumnsToShowb) && in_array('Draft', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
 
-            <td class="expand-row table-hover-cell p-2 {{ (!empty($dynamicColumnsToShowb) && in_array('Error Message', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
-                <span class="td-mini-container">
+           
+
+            <td class="expand-row1 table-hover-cell p-2 {{ (!empty($dynamicColumnsToShowb) && in_array('Error Message', $dynamicColumnsToShowb)) ? 'd-none' : ''}}" data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->error_message}}')">
                 {{ strlen($email->error_message) > 20 ? substr($email->error_message, 0, 20).'...' : $email->error_message }}
-                </span>
-                <span class="td-full-container hidden">
-                {{ $email->error_message }}
-                </span>
+                
             </td>
+            
 
             <td class=" {{ (!empty($dynamicColumnsToShowb) && in_array('Category', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
                 <select class="form-control selecte2 email-category">

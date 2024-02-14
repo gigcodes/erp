@@ -99,7 +99,7 @@ class CharityController extends Controller
             $charityObj->save();
 
             return redirect()->route('charity')
-                         ->with('flash_type', 'success')->with('message', 'Data updated successfully');
+                ->with('flash_type', 'success')->with('message', 'Data updated successfully');
         }
 
         return view('charity.edit', compact('charityData'));

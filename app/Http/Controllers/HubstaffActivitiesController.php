@@ -11,7 +11,6 @@ use App\Payment;
 use App\UserRate;
 use Carbon\Carbon;
 use App\DeveloperTask;
-use App\UserTrackTime;
 use App\PayentMailData;
 use App\PaymentReceipt;
 use Illuminate\Http\Request;
@@ -294,7 +293,6 @@ class HubstaffActivitiesController extends Controller
                 $task->user;
 
                 $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
-                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
                 if ($totalPaid) {
                     $task->paid_amount = number_format($totalPaid, 2);
                     $task->balance = $task->rate_estimated - $totalPaid;
@@ -304,10 +302,8 @@ class HubstaffActivitiesController extends Controller
                     $task->balance = $task->rate_estimated;
                     $task->balance = number_format($task->balance, 2);
                 }
-                // $task->assignedUser;
                 if ($task->task_id) {
                     $task->taskdetails = Task::find($task->task_id);
-                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task_details;
@@ -319,7 +315,6 @@ class HubstaffActivitiesController extends Controller
                     }
                 } elseif ($task->developer_task_id) {
                     $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task;
@@ -337,7 +332,7 @@ class HubstaffActivitiesController extends Controller
 
             $activityUsers = collect([]);
 
-            foreach ($tasks  as $task) {
+            foreach ($tasks as $task) {
                 $a['date'] = $task->date;
                 $a['details'] = $task->details;
 
@@ -435,7 +430,6 @@ class HubstaffActivitiesController extends Controller
             $request->submit = $params['submit'];
             $request->response_type = $params['response_type'];
             Auth::login($request->user);
-            //   dd($params);
         }
 
         if ($where == 'HubstuffActivityCommand') {
@@ -456,12 +450,10 @@ class HubstaffActivitiesController extends Controller
                 $hubstufflog->message = $hubstufflog->message . '-->get payment receipt_in  date ' . json_encode($taskIds);
                 $hubstufflog->save();
             }
-            //            dd($taskIds);
             foreach ($tasks as $task) {
                 $task->user;
 
                 $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
-                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
                 if ($totalPaid) {
                     $task->paid_amount = number_format($totalPaid, 2);
                     $task->balance = $task->rate_estimated - $totalPaid;
@@ -471,10 +463,8 @@ class HubstaffActivitiesController extends Controller
                     $task->balance = $task->rate_estimated;
                     $task->balance = number_format($task->balance, 2);
                 }
-                // $task->assignedUser;
                 if ($task->task_id) {
                     $task->taskdetails = Task::find($task->task_id);
-                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task_details;
@@ -486,7 +476,6 @@ class HubstaffActivitiesController extends Controller
                     }
                 } elseif ($task->developer_task_id) {
                     $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task;
@@ -504,7 +493,7 @@ class HubstaffActivitiesController extends Controller
 
             $activityUsers = collect([]);
 
-            foreach ($tasks  as $task) {
+            foreach ($tasks as $task) {
                 $a['date'] = $task->date;
                 $a['details'] = $task->details;
 
@@ -525,13 +514,6 @@ class HubstaffActivitiesController extends Controller
                 $activityUsers->push($a);
             }
         } else {
-            //START - Purpose : Comment code - DEVATSK-4300
-            // if( request('submit') ==  'report_download'){
-            //    return $this->downloadExcelReport();
-
-            // }
-            //END - DEVATSK-4300
-
             $title = 'Hubstaff Activities';
             $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime('-1 days'));
             $end_date = $request->end_date ? $request->end_date : date('Y-m-d', strtotime('-1 days'));
@@ -582,15 +564,10 @@ class HubstaffActivitiesController extends Controller
             if (! empty($taskIds) || ! empty($task_id) || ! empty($developer_task_id)) {
                 $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             } else {
-                //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
-                // $start_date = '2020-09-01';
-                // $end_date = '2020-09-02';
-                //END - DEVATSK-4300
                 $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             }
 
             if (Auth::user()->isAdmin()) {
-                $query = $query;
                 $users = User::all()->pluck('name', 'id')->toArray();
             } else {
                 $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
@@ -972,19 +949,9 @@ class HubstaffActivitiesController extends Controller
 
             $file_data = $this->downloadExcelReport($activityUsers);
             $path = $file_data;
-            // $z = (array) $file_data;
-            // $path = '';
-            // foreach($z as $zz){
-            //     if($path == null){
-
-            //         $path = $zz->getRealPath();
-
-            //     }
-            // }
 
             $today = Carbon::now()->toDateTimeString();
             $payment_date = Carbon::createFromFormat('Y-m-d H:s:i', $today);
-            // $storage_path = substr($path, strpos($path, 'framework'));
             $storage_path = $path;
 
             PayentMailData::create([
@@ -1019,7 +986,6 @@ class HubstaffActivitiesController extends Controller
             return $file_data;
         }
         //END - DEVATSK-4300
-        //$this->userTreckTime($activityUsers);
         $status = $request->status;
 
         return view('hubstaff.activities.activity-users', compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
@@ -1027,7 +993,6 @@ class HubstaffActivitiesController extends Controller
 
     public function userTreckTime(Request $request, $params = null, $where = null)
     {
-        // _p(request()->all(), 1);
         if (request('directQ')) {
             dd(\DB::select(request('directQ')));
         }
@@ -1045,9 +1010,6 @@ class HubstaffActivitiesController extends Controller
         $task_id = $request->task_id ? $request->task_id : null;
         $developer_task_id = $request->developer_task_id ? $request->developer_task_id : null;
         $status = $request->task_status ? $request->task_status : null;
-
-        // $start_date = '2022-07-29';
-        // $end_date = '2022-07-29';
 
         $taskIds = [];
         if ($developer_task_id) {
@@ -1071,7 +1033,6 @@ class HubstaffActivitiesController extends Controller
             $query->whereIn('hubstaff_activities.task_id', $taskIds);
         }
 
-        // $query->whereBetween('hubstaff_activities.starts_at', [$start_date, $end_date]);
         $query->where('hubstaff_activities.starts_at', '>=', $start_date . ' 00:00:00');
         $query->where('hubstaff_activities.starts_at', '<=', $end_date . ' 23:59:59');
 
@@ -1114,10 +1075,6 @@ class HubstaffActivitiesController extends Controller
             $join->on('hubstaff_activity_summaries.created_at', '=', 'hub_summary.created_at');
         });
 
-        // $query->groupBy("hubstaff_activity_summaries.date", "hubstaff_activity_summaries.user_id");
-
-        // $query->where('hubstaff_activities.user_id', 1873741);
-
         $query->orderBy('hubstaff_activities.starts_at', 'desc');
         $query->groupBy(\DB::raw('DATE(hubstaff_activities.starts_at)'), 'hubstaff_activities.user_id');
 
@@ -1139,15 +1096,10 @@ class HubstaffActivitiesController extends Controller
         );
 
         $activities = $query->get();
-        // $activities = $query->paginate(15);
 
         if ($printExit) {
             _p(\DB::getQueryLog());
-            // exit;
         }
-
-        // _p($activities->count());
-        // _p($activities->toArray());
 
         $userTrack = [];
         foreach ($activities as $activity) {
@@ -1166,45 +1118,6 @@ class HubstaffActivitiesController extends Controller
                 'overall' => $activity->overall,
             ];
         }
-
-        // $userTrack = [];
-        // foreach ($temp as $user) {
-        //     $uId = $user['user_id'] . '_' . $user['date'];
-        //     if (isset($userTrack[$uId]) && $user['date'] == $userTrack[$uId]['date']) {
-        //         $userTrack[$uId] = [
-        //             'date' => $user['date'],
-        //             'user_id' => $user['user_id'],
-        //             'userName' => $user['userName'] ?: $user['user_id'],
-        //             'hubstaff_tracked_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
-        //             'hours_tracked_with' => $userTrack[$uId]['hours_tracked_with'] + $user['hours_tracked_with'],
-        //             'hours_tracked_without' => $userTrack[$uId]['hours_tracked_without'] + $user['hours_tracked_without'],
-        //             'task_id' => $user['task_id'],
-        //             'approved_hours' => $userTrack[$uId]['approved_hours'] + $user['approved_hours'],
-        //             'difference_hours' => $userTrack[$uId]['difference_hours'] + $user['difference_hours'],
-        //             'total_hours' => $userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'],
-        //             'overall' => $userTrack[$uId]['overall'] + $user['overall'],
-        //             'activity_levels' => (($userTrack[$uId]['overall'] + $user['overall']) / ($userTrack[$uId]['hubstaff_tracked_hours'] + $user['hubstaff_tracked_hours'])) * 100,
-        //         ];
-        //     } else {
-        //         $userTrack[$uId] = [
-        //             'date' => $user['date'],
-        //             'user_id' => $user['user_id'],
-        //             'userName' => $user['userName'] ?: $user['user_id'],
-        //             'hubstaff_tracked_hours' => $user['hubstaff_tracked_hours'],
-        //             'hours_tracked_with' => $user['hours_tracked_with'],
-        //             'hours_tracked_without' => $user['hours_tracked_without'],
-        //             'task_id' => $user['task_id'],
-        //             'approved_hours' => $user['approved_hours'],
-        //             'difference_hours' => $user['difference_hours'],
-        //             'total_hours' => $user['hubstaff_tracked_hours'],
-        //             'activity_levels' => ($user['overall'] / $user['hubstaff_tracked_hours']) * 100,
-        //             'overall' => $user['overall'],
-        //         ];
-        //     }
-        // }
-
-        // _p($activities->count());
-        // _p($userTrack, 1);
 
         return view('hubstaff.activities.track-users', compact(
             'activities',
@@ -1256,9 +1169,7 @@ class HubstaffActivitiesController extends Controller
         }
 
         if (! empty($task_id)) {
-            //\DB::enableQueryLog();
             $developer_tasks = \App\Task::where('tasks.id', '=', $task_id)->pluck('tasks.hubstaff_task_id');
-            //dd(\DB::getQueryLog());
 
             if (! empty($developer_tasks)) {
                 if (! empty($developer_tasks->hubstaff_task_id)) {
@@ -1274,22 +1185,14 @@ class HubstaffActivitiesController extends Controller
             if (is_array($taskIds) && ! empty($taskIds)) {
                 $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
             } else {
-                //dd(gettype($developer_tasks->toArray()), count($developer_tasks));
                 $developer_tasks = array_unique($developer_tasks->toArray());
-                //\DB::enableQueryLog();
                 $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $developer_tasks)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
-                //dd(\DB::getQueryLog(), $query);
             }
         } else {
-            //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
-            // $start_date = '2020-09-01';
-            // $end_date = '2020-09-02';
-            //END - DEVATSK-4300
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
         }
 
         if (Auth::user()->isAdmin()) {
-            $query = $query;
             $users = User::all()->pluck('name', 'id')->toArray();
         } else {
             $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
@@ -1322,8 +1225,6 @@ class HubstaffActivitiesController extends Controller
         $userTrack = [];
         foreach ($activities as $activity) {
             $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
-            //dd($hubActivitySummery);
-            //$user = User::find($activity->system_user_id);
 
             $developer_tasks = \App\DeveloperTask::where('hubstaff_task_id', '=', $activity['task_id'])->first();
             if (! empty($developer_tasks)) {
@@ -1362,89 +1263,13 @@ class HubstaffActivitiesController extends Controller
                 'overall' => $activity['overall'],
             ];
         }
-        /*
-        UserTrackTime::create([
-            'user_id' => $activityUsers['user_id'],
-            'user_name' => $activityUsers['userName'],
-            'hubstaff_tracked_hours' => $activityUsers['total_tracked'],
-            'hours_tracked_with' => $activityUsers['total_tracked'] - $activityUsers['totalPending'],
-            'hours_tracked_without' => $activityUsers['totalPending'],
-            'task_id' => $activityUsers['tasks'],
-            'approved_hours' => $activityUsers['totalApproved'],
-            'difference_hours' => ($activityUsers['total_tracked'] - $activityUsers['totalApproved']),
-            'total_hours' => $activityUsers['total_tracked'],
-            'activity_levels' => $activityUsers['total_tracked'],
-            'status' => '',
-            ]);
-        */
-        //dd($userTrack);
-        //$users = User::get();
+
         return view('hubstaff.activities.track-users', compact('userTrack', 'title', 'users', 'start_date', 'end_date', 'status', 'user_id'));
     }
 
     //Purpose : Add activityUsers parameter - DEVATSK-4300
     public function downloadExcelReport($activityUsers)
     {
-        // $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
-
-        // $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
-
-        // $query = $query->where('hubstaff_members.user_id', request('user_id'));
-
-        //  $activities = $query->select(DB::raw("
-        //  SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_members.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
-        //         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
-        // )->groupBy('task_id')->orderBy('date', 'desc')->get();
-
-        // if(request('user_id')){
-        //     $user = User::where('id', request('user_id'))->first();
-        // }else{
-        //     $user = User::where('id', Auth::user()->id)->first();
-        // }
-
-        // $userid = Auth::id();
-        // $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
-        // $test = DB::Select(
-        // '
-        // 	SELECT tasks.*
-
-        // 	FROM (
-        // 	  SELECT * FROM tasks
-        // 	  LEFT JOIN (
-        // 		  SELECT
-        // 		  chat_messages.id as message_id,
-        // 		  chat_messages.task_id,
-        // 		  chat_messages.message,
-        // 		  chat_messages.status as message_status,
-        // 		  chat_messages.sent as message_type,
-        // 		  chat_messages.created_at as message_created_at,
-        // 		  chat_messages.is_reminder AS message_is_reminder,
-        // 		  chat_messages.user_id AS message_user_id
-        // 		  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-        // 	  ) as chat_messages  ON chat_messages.task_id = tasks.id
-        // 	) AS tasks
-        // 	WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$userquery
-        // );
-        // // dd($test);
-        // $activities = $activities->toArray();
-        // foreach($test as $t){
-        //     // dump($t);
-        //     $a["type"] = "task";
-        //     $a["estimated_time"] = "N/A";
-        //     $a["user_id"] = $userid;
-        //     $a["task_id"] = $t->task_id;
-        //     $a["is_manual"] = 0;
-        //     $a["total_tracked"] = 0;
-        //     $a["date"] = $t->message_created_at;
-        //     $a["system_user_id"] = 'N/A';
-        //     $id = $t->id;
-        // 	$task_module = DeveloperTaskHistory::where('developer_task_id', $id)->select('developer_tasks_history.*')->latest()->first();
-        // 	if($task_module) {
-        //         $a["estimated_time"] = $task_module->estimate_minutes ?? 'N/A';
-        //     }
-        //     $activities[] = $a;
-        // }
-
         //START - Purpose : Get User Data - DEVATSK-4300
         if (request('user_id')) {
             $user = User::where('id', request('user_id'))->first();
@@ -1458,7 +1283,6 @@ class HubstaffActivitiesController extends Controller
         Excel::store(new HubstaffActivityReport($activities), $path, 'files');
 
         return $path;
-        // return Excel::download(new HubstaffActivityReport($activities), $user->name.'.xlsx');
     }
 
     public function downloadExcelReportOld($activityUsers, $users)
@@ -1521,7 +1345,6 @@ class HubstaffActivitiesController extends Controller
         GROUP BY 
             hour(starts_at) , day(starts_at)')
         );
-        // _p($activityrecords);
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -1566,7 +1389,6 @@ class HubstaffActivitiesController extends Controller
                 and user_id = " . $request->user_id . ' 
                 and hour(starts_at) = ' . $record->onHour . '')
             );
-            // _p($activities);
 
             $totalApproved = 0;
             $totalPending = 0;
@@ -1653,8 +1475,6 @@ class HubstaffActivitiesController extends Controller
         }
         $date = $request->date;
 
-        // exit;
-
         $member = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
 
         return view(
@@ -1698,7 +1518,6 @@ class HubstaffActivitiesController extends Controller
             $approved = 0;
             foreach ($request->activities as $id) {
                 $hubActivity = HubstaffActivity::where('id', $id)->first();
-                //    $hubActivity->update(['status' => 1]);
                 $approved = $approved + $hubActivity->tracked;
                 $approvedArr[] = $id;
             }
@@ -1736,25 +1555,6 @@ class HubstaffActivitiesController extends Controller
             $hubActivitySummery->forworded_person = $request->forworded_person;
             $hubActivitySummery->rejection_note = $request->rejection_note;
             $hubActivitySummery->save();
-
-            // $hubActivitySummery = HubstaffActivitySummary::where('date',$request->date)->where('user_id',$user_id)->first();
-            // if($hubActivitySummery) {
-            //     $hubActivitySummery->tracked = $totalTracked;
-            //     $hubActivitySummery->accepted = $approved;
-            //     $hubActivitySummery->rejected = $rejected;
-            //     $hubActivitySummery->rejection_note = $request->rejection_note;
-            //     $hubActivitySummery->save();
-            // }
-            // else {
-            //     $hubActivitySummery = new HubstaffActivitySummary;
-            //     $hubActivitySummery->user_id = $user_id;
-            //     $hubActivitySummery->date =  $request->date;
-            //     $hubActivitySummery->tracked = $totalTracked;
-            //     $hubActivitySummery->accepted = $approved;
-            //     $hubActivitySummery->rejected = $rejected;
-            //     $hubActivitySummery->rejection_note = $request->rejection_note;
-            //     $hubActivitySummery->save();
-            // }
 
             return response()->json([
                 'totalApproved' => $approved,
@@ -1982,7 +1782,6 @@ class HubstaffActivitiesController extends Controller
                                 $min = number_format($min, 2);
                                 $info_log[] = "number_format min  -->  $min";
                                 $hour_rate = $user_rate;
-                                // $hour_rate =  $user_rate / 160;
                                 $info_log[] = "hour_rate  -->  $hour_rate";
                                 $hours = $min / 60;
                                 $info_log[] = "hours  -->  $hours";
@@ -1998,7 +1797,6 @@ class HubstaffActivitiesController extends Controller
                                 $min = number_format($min, 2);
                                 $info_log[] = "min  -->  $min";
                                 $hour_rate = $user_rate;
-                                //    $hour_rate =  $user_rate / 160;
                                 $hours = $min / 60;
                                 $info_log[] = "hours  -->  $hours";
                                 $rate_estimated = $hours * $hour_rate;
@@ -2126,17 +1924,14 @@ class HubstaffActivitiesController extends Controller
         if ($hubActivitySummery) {
             $info_log[] = ' get hubActivitySummerys';
 
-            // if( $request->status = '2' ){
             $approved_ids = json_decode($hubActivitySummery->approved_ids);
             if ($approved_ids && $pendingArr) {
                 $approvedJson = json_encode(array_values($this->Arr::except($approved_ids, json_decode($pendingJson))));
             }
-            // }else{
             $pending_ids = json_decode($hubActivitySummery->pending_ids);
             if ($pending_ids && $approvedArr) {
                 $pendingJson = json_encode(array_values($this->Arr::except($pending_ids, json_decode($approvedJson))));
             }
-            // }
 
             $payment_approved = $approved;
 
@@ -2194,7 +1989,6 @@ class HubstaffActivitiesController extends Controller
 
                 PaymentReceipt::where('id', $payment_receipt->id)->update(['worked_minutes' => $min, 'rate_estimated' => $rate_estimated, 'updated_at' => date('Y-m-d H:i:s'), 'hourly_rate' => $hour_rate]);
             } else {
-                //$info_log[]=" get payment_receipt".$payment_receipt->id;
                 $min = $approved / 60;
                 $info_log[] = ' min = ' . $min;
                 $min = number_format($min, 2);
@@ -2313,43 +2107,6 @@ class HubstaffActivitiesController extends Controller
                 } else {
                     $previd = 1;
                 }
-                // if($request->task_type == 'devtask') {
-                //     $devtask = DeveloperTask::find($request->task_id);
-                //     if($devtask) {
-                //         if($request->role == 'developer') {
-                //             $devtask->hubstaff_task_id = $request->task_id;
-                //         }
-                //         else if($request->role == 'lead') {
-                //             $devtask->lead_hubstaff_task_id = $request->task_id;
-                //         }
-                //         else if($request->role == 'tester') {
-                //             $devtask->tester_hubstaff_task_id = $request->task_id;
-                //         }
-                //         else {
-                //             $devtask->hubstaff_task_id = $request->task_id;
-                //         }
-                //         $devtask->save();
-                //     }
-                // }
-
-                // if($request->task_type == 'devtask') {
-                //     $task = Task::find($request->task_id);
-                //     if($task) {
-                //         if($request->role == 'developer') {
-                //             $task->hubstaff_task_id = $request->task_id;
-                //         }
-                //         else if($request->role == 'lead') {
-                //             $task->lead_hubstaff_task_id = $request->task_id;
-                //         }
-                //         else if($request->role == 'tester') {
-                //             $task->tester_hubstaff_task_id = $request->task_id;
-                //         }
-                //         else {
-                //             $task->hubstaff_task_id = $request->task_id;
-                //         }
-                //         $task->save();
-                //     }
-                // }
 
                 if (! $request->user_notes) {
                     $request->user_notes = '';
@@ -2462,21 +2219,6 @@ class HubstaffActivitiesController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->messages()->first()], 500);
         } else {
-            // $requestArr = $request->all();
-
-            // if(Auth::user()->isAdmin())
-            // {
-            //     $admin_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
-            //     $user_input =  '';
-
-            // }else
-            // {
-            //     $admin_input = "";
-            //     $user_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
-
-            // }
-
-            // $user_id = (isset($requestArr['user_id'])) ? $requestArr['user_id'] : '';
             $admin_input = null;
             $user_input = null;
             if ($request->type == 'admin') {
@@ -2513,20 +2255,6 @@ class HubstaffActivitiesController extends Controller
         $task_id = $request->task_id;
         $user_id = $request->user_id;
 
-        /*$query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id);
-
-        $activities  = $query->select(DB::raw("
-        hubstaff_activities.user_id,
-        SUM(hubstaff_activities.tracked) as total_tracked,
-        DATE(hubstaff_activities.starts_at) as date,
-        hubstaff_members.user_id as system_user_id
-        ")
-        )->where("task_id",$task_id)
-        ->where("hubstaff_activities.user_id",$user_id)
-        ->groupBy('task_id')
-        ->orderBy('date','desc')
-        ->get();*/
-
         // check the task created date
         $task = \App\DeveloperTask::where(function ($q) use ($task_id) {
             $q->orWhere('hubstaff_task_id', $task_id)->orWhere('lead_hubstaff_task_id', $task_id)->orWhere('team_lead_hubstaff_task_id', $task_id)->orWhere('tester_hubstaff_task_id', $task_id);
@@ -2543,7 +2271,6 @@ class HubstaffActivitiesController extends Controller
         $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour,status
         FROM hubstaff_activities where task_id = '" . $task_id . "' and user_id = " . $user_id . '
         GROUP BY hour( starts_at ) , day( starts_at ) order by OnDate desc'));
-        // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -2667,7 +2394,6 @@ class HubstaffActivitiesController extends Controller
         if (! $isAdmin && ! $isTeamLeader) {
             $taskOwner = true;
         }
-        //$date = $request->date;
 
         $member = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
         $isTaskWise = true;

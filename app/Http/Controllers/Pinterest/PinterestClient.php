@@ -31,7 +31,6 @@ class PinterestClient
 
     const ADS_WRITE = 'ads:write';
 
-//    private $BASE_API = 'https://api.pinterest.com/v5/';
     private $BASE_API = 'https://api-sandbox.pinterest.com/v5/';
 
     private $BASE_AUTH_API_URL = 'https://www.pinterest.com/oauth/';
@@ -503,7 +502,6 @@ class PinterestClient
         }
 
         $response = curl_exec($curl);
-//        _p([$method, $this->getBASEAPI() . $url, json_encode($params), $this->getAccessToken(), curl_getinfo($curl), $response]);die;
         $err = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, $method, json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');

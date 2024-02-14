@@ -7,13 +7,13 @@ use App\Task;
 use App\User;
 use Exception;
 use Google\Client;
+use App\ChatMessage;
 use App\DeveloperTask;
 use App\GoogleScreencast;
 use Google\Service\Drive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\UploadGoogleDriveScreencast;
-use App\ChatMessage;
 
 class GoogleScreencastController extends Controller
 {
@@ -39,7 +39,6 @@ class GoogleScreencastController extends Controller
         $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
 
         $taskIds = $taskList->pluck('id');
-        //print"<pre>";print_r($taskIds);exit;
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
@@ -75,11 +74,10 @@ class GoogleScreencastController extends Controller
                 $q->where('remarks', 'LIKE', '%' . $keyword . '%');
             });
         }
-        
+
         if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {
             $data->whereIn('developer_task_id', $taskIds)->orWhere('user_id', Auth::id())->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.write)");
         }
-        //$data = $data->get();
 
         $data = $data->paginate(25);
 
@@ -150,9 +148,9 @@ class GoogleScreencastController extends Controller
                 UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
 
                 // Initialize the $params array
-                $params = []; 
+                $params = [];
 
-                $googledriveId  = GoogleScreencast::find($googleScreencast->id);
+                $googledriveId = GoogleScreencast::find($googleScreencast->id);
 
                 $userName = Auth::user()->name;
                 $fileLink = env('GOOGLE_DRIVE_FILE_URL') . $googledriveId->google_drive_file_id . '/view?usp=share_link';

@@ -54,8 +54,6 @@ class BingWebMasterController extends Controller
         }
         $sitesData = $SearchAnalytics->paginate(Setting::get('pagination'));
 
-        // echo '<pre>';print_r($sitesData->toArray());die;
-
         return view('bing-web-master/index', compact('getSites', 'sitesData', 'sites', 'request', 'logs', 'webmaster_logs'));
     }
 
@@ -129,7 +127,6 @@ class BingWebMasterController extends Controller
         $id = \Cache::get('bing_client_account_id');
         $bing_client_account = BingClientAccount::find($id);
         $params = 'code=' . $request->get('code') . "&client_id=$bing_client_account->bing_client_id&client_secret=$bing_client_account->bing_client_secret&redirect_uri=$bing_redirect_url&grant_type=authorization_code";
-//        echo "<pre>";print_r($params);die;
         $response = $this->getAccessTokenFromBing($params);
         if (! isset($response->access_token)) {
             $this->createLog(json_encode($response), 'Failed To Connect Account');

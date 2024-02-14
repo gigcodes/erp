@@ -40,8 +40,6 @@ class IosReport extends Command
      */
     public function handle()
     {
-        // https://api.appfigures.com/v2/reports/usage?group_by=network&start_date=2023-02-13&end_date=2023-02-14&products=280598515284
-
         $username = env('APPFIGURE_USER_EMAIL');
         $password = env('APPFIGURE_USER_PASS');
         $key = base64_encode($username . ':' . $password);
@@ -70,11 +68,7 @@ class IosReport extends Command
         ]);
 
         $result = curl_exec($curl);
-        // print($result);
         $res = json_decode($result, true);
-        // print_r($res);
-        // print_r($res["apple:analytics"]);
-        // print($res["apple:analytics"]["crashes"]);
         curl_close($curl);
 
         if ($res) {

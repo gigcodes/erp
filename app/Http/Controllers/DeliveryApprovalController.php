@@ -13,11 +13,6 @@ use Illuminate\Http\Request;
 
 class DeliveryApprovalController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware('permission:delivery-approval');
-    }
-
     /**
      * Display a listing of the resource.
      *

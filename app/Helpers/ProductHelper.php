@@ -254,11 +254,6 @@ class ProductHelper extends Model
 
     public static function getEuSize($product, $sizes, $scraperSizeSystem = null)
     {
-        // For Italian sizes, return the original
-        // if (strtoupper($sizeSystem) == 'IT') {
-        //     return $size;
-        // }
-        // $sizeSystem = $product->supllier
         $category = $product->categories;
         $ids = [];
         if ($category) {
@@ -289,10 +284,10 @@ class ProductHelper extends Model
 
         if ($needToMatch) {
             $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
-            ->leftjoin('system_size_relations', 'system_size_relations.system_size_manager_id', 'system_size_managers.id')
-            ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
-            ->whereIn('category_id', $ids)
-            ->whereIn('system_size_relations.size', $sizes);
+                ->leftjoin('system_size_relations', 'system_size_relations.system_size_manager_id', 'system_size_managers.id')
+                ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
+                ->whereIn('category_id', $ids)
+                ->whereIn('system_size_relations.size', $sizes);
 
             $sizeManager = $sizeManager->where('system_sizes.name', $scraperSizeSystem);
 
@@ -681,8 +676,6 @@ class ProductHelper extends Model
     {
         // Check for mandatory fields
         if (empty($product->name)) {
-            // Log info
-            //
             if (! $log) {
                 $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO PRODUCT NAME)', 'emergency', $storeWebsiteId);
             }
@@ -694,7 +687,6 @@ class ProductHelper extends Model
 
         if (empty($product->short_description)) {
             // Log info
-            //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
             if (! $log) {
                 $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (NO SHORT DESCRIPTION)', 'emergency', $storeWebsiteId);
             }
@@ -729,11 +721,10 @@ class ProductHelper extends Model
         $priceRangeCheck = PushToMagentoCondition::where(['condition' => 'price_range_check', 'status' => 1])->first();
         if ($priceRangeCheck != null) {
             if ($log) {
-                ProductPushJourney::create(['log_list_magento_id' => $log->id, 'condition' => 'assign_product_references', 'product_id' => $product->id,  'is_checked' => 1]);
+                ProductPushJourney::create(['log_list_magento_id' => $log->id, 'condition' => 'assign_product_references', 'product_id' => $product->id, 'is_checked' => 1]);
             }
             if (((int) $product->price < 62.5 || (int) $product->price > 5000) && ! $product->isCharity()) {
                 // Log info
-                //LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
                 if (! $log) {
                     $log = LogListMagento::log($product->id, 'Product (' . $product->id . ') with SKU ' . $product->sku . ' failed (PRICE RANGE)', 'emergency', $storeWebsiteId);
                 }
@@ -753,13 +744,6 @@ class ProductHelper extends Model
     public static function googleServerList()
     {
         return GoogleServer::pluck('name', 'key')->toArray();
-        /*
-        [
-            "003745236201931391893:igsnhgfj79x" => "Group A",
-            "003745236201931391893:gstsjpibsrr" => "Group B",
-            "003745236201931391893:fnc4ssmvo8m" => "Group C"
-        ];
-        */
     }
 
     public static function getScraperIcon($name)
@@ -872,7 +856,6 @@ class ProductHelper extends Model
         $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get();
         $websiteArray = [];
         foreach ($storeCategories as $storeCategory) {
-            // $storeBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->where('store_website_id', $storeCategory->store_website_id)->get();
             $storeBrands = $storeWebsiteBrands->where('store_website_id', $storeCategory->store_website_id);
 
             if (! empty($storeBrands)) {
@@ -995,10 +978,9 @@ class ProductHelper extends Model
 
         if ($needToMatch) {
             $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
-            ->leftjoin('system_size_relations', 'system_size_relations.system_size_manager_id', 'system_size_managers.id')
-            ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
-            ->whereIn('category_id', $ids);
-            // $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+                ->leftjoin('system_size_relations', 'system_size_relations.system_size_manager_id', 'system_size_managers.id')
+                ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
+                ->whereIn('category_id', $ids);
 
             return $sizeManager->groupBy('erp_size')->pluck('erp_size')->toArray();
         } else {

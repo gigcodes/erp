@@ -12,11 +12,9 @@ use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
 {
-
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [$userName, $token],
         ]);
 
@@ -32,8 +30,6 @@ trait GithubTrait
             $url .= '&' . $addedFilters;
         }
         try {
-            // $client = $this->getGithubClient();
-            // $response = $client->get($url);
             $githubClient = $this->connectGithubClient($userName, $token);
             $response = $githubClient->get($url);
 

@@ -3,13 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Host;
+use Exception;
+use Throwable;
 use App\HostItem;
 use Carbon\Carbon;
 use App\LogRequest;
 use App\ZabbixHistory;
 use Illuminate\Console\Command;
-use Exception;
-use Throwable;
 
 class ZabbixHostItems extends Command
 {
@@ -53,7 +53,7 @@ class ZabbixHostItems extends Command
                 try {
                     try {
                         $item_interrupt = $this->item_api($auth_key, $host->hostid, 'Interrupts per second');
-                        if (!empty($item_interrupt)) {
+                        if (! empty($item_interrupt)) {
                             HostItem::where('hostid', $host->hostid)->update(['interrupts_per_second' => $item_interrupt->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'interrupts_per_second' => $item_interrupt->lastvalue, 'item_id' => $item_interrupt->itemid];
                             \Log::info('Interrupts per second: ' . json_encode($item_interrupt));
@@ -64,7 +64,7 @@ class ZabbixHostItems extends Command
 
                     try {
                         $item_free_inode = $this->item_api($auth_key, $host->hostid, 'Free inodes in');
-                        if (!empty($item_free_inode)) {
+                        if (! empty($item_free_inode)) {
                             HostItem::where('hostid', $host->hostid)->update(['free_inode_in' => $item_free_inode->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'free_inode_in' => $item_free_inode->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
@@ -75,7 +75,7 @@ class ZabbixHostItems extends Command
 
                     try {
                         $item_space_utilization = $this->item_api($auth_key, $host->hostid, 'Space Utilization');
-                        if (!empty($item_space_utilization)) {
+                        if (! empty($item_space_utilization)) {
                             HostItem::where('hostid', $host->hostid)->update(['space_utilization' => $item_space_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'space_utilization' => $item_space_utilization->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
@@ -86,43 +86,40 @@ class ZabbixHostItems extends Command
 
                     try {
                         $item_total_space = $this->item_api($auth_key, $host->hostid, 'Total Space');
-                        if (!empty($item_total_space)) {
+                        if (! empty($item_total_space)) {
                             HostItem::where('hostid', $host->hostid)->update(['total_space' => $item_total_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'total_space' => $item_total_space->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                         \Log::info('Space Utilization: ' . json_encode($item_space_utilization));
-
                     } catch (Exception|Throwable $e) {
                         \Log::error('Total Space: ' . substr($e->getMessage(), 0, 1000));
                     }
 
                     try {
                         $item_used_space = $this->item_api($auth_key, $host->hostid, 'Used Space');
-                        if (!empty($item_used_space)) {
+                        if (! empty($item_used_space)) {
                             HostItem::where('hostid', $host->hostid)->update(['used_space' => $item_used_space->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'used_space' => $item_used_space->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                         \Log::info('Space Utilization: ' . json_encode($item_space_utilization));
-
                     } catch (Exception|Throwable $e) {
                         \Log::error('Used Space: ' . substr($e->getMessage(), 0, 1000));
                     }
 
                     try {
                         $item_available_memory = $this->item_api($auth_key, $host->hostid, 'Available Memory');
-                        if (!empty($item_available_memory)) {
+                        if (! empty($item_available_memory)) {
                             HostItem::where('hostid', $host->hostid)->update(['available_memory' => $item_available_memory->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'available_memory' => $item_available_memory->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                         \Log::info('Available Memory: ' . json_encode($item_available_memory));
-
                     } catch (Exception|Throwable $e) {
                         \Log::error('Available Memory: ' . substr($e->getMessage(), 0, 1000));
                     }
 
                     try {
                         $item_available_memory_in = $this->item_api($auth_key, $host->hostid, 'Available Memory in');
-                        if (!empty($item_available_memory_in)) {
+                        if (! empty($item_available_memory_in)) {
                             $historyRows[] = ['host_id' => $host->hostid, 'available_memory_in' => $item_available_memory_in->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                     } catch (Exception|Throwable $e) {
@@ -131,24 +128,22 @@ class ZabbixHostItems extends Command
 
                     try {
                         $item_cpu_idle_time = $this->item_api($auth_key, $host->hostid, 'CPU Idle Time');
-                        if (!empty($item_cpu_idle_time)) {
+                        if (! empty($item_cpu_idle_time)) {
                             HostItem::where('hostid', $host->hostid)->update(['cpu_idle_time' => $item_cpu_idle_time->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'cpu_idle_time' => $item_cpu_idle_time->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                         \Log::info('CPU Idle Time: ' . json_encode($item_cpu_idle_time));
-
                     } catch (Exception|Throwable $e) {
                         \Log::error('CPU Idle Time: ' . substr($e->getMessage(), 0, 1000));
                     }
 
                     try {
                         $item_cpu_utilization = $this->item_api($auth_key, $host->hostid, 'CPU Utilizatio');
-                        if (!empty($item_cpu_utilization)) {
+                        if (! empty($item_cpu_utilization)) {
                             HostItem::where('hostid', $host->hostid)->update(['cpu_utilization' => $item_cpu_utilization->lastvalue, 'item_id' => $item_interrupt->itemid]);
                             $historyRows[] = ['host_id' => $host->hostid, 'cpu_utilization' => $item_cpu_utilization->lastvalue, 'item_id' => $item_interrupt->itemid];
                         }
                         \Log::info('CPU Utilizatio: ' . json_encode($item_cpu_utilization));
-
                     } catch (Exception|Throwable $e) {
                         \Log::error('CPU Utilizatio: ' . substr($e->getMessage(), 0, 1000));
                     }

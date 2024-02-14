@@ -69,7 +69,7 @@ class Tapfiliate
      */
     public function getProgramCommissionType($program): array
     {
-        return $this->callApi('GET', 'programs/'.$program.'/commission-types');
+        return $this->callApi('GET', 'programs/' . $program . '/commission-types');
     }
 
     /**
@@ -297,7 +297,6 @@ class Tapfiliate
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-            //            CURLOPT_HEADER => true,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'X-Api-Key:' . $this->API_KEY,
@@ -323,8 +322,8 @@ class Tapfiliate
                 if (array_key_exists('errors', $response)) {
                     $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
 
-                    return ['status' => false, 'message' => $message . 'cURL Error #:' . serialize($response), 
-                    'errors' => true, 'response' => $response];
+                    return ['status' => false, 'message' => $message . 'cURL Error #:' . serialize($response),
+                        'errors' => true, 'response' => $response];
                 }
 
                 return ['status' => true, 'message' => 'Data found', 'data' => $response];

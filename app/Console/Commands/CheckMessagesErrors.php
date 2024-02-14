@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Customer;
-use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
+use App\Customer;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CheckMessagesErrors extends Command
@@ -62,20 +62,10 @@ class CheckMessagesErrors extends Command
                         $customer->is_error_flagged = 1;
                         $customer->save();
                     }
-                    // $params = [
-                    //   'number'        => NULL,
-                    //   'user_id'       => $chat_message->user_id,
-                    //   'customer_id'   => $chat_message->customer_id,
-                    //   'approved'      => 0,
-                    //   'status'        => 2,
-                    //   'error_status'  => $error
-                    // ];
 
                     if ($chat_message->message != '') {
                         dump('text');
                         $params['message'] = $chat_message->message;
-
-                        // $new_message = ChatMessage::create($params);
 
                         if ($error == 1) {
                             try {
@@ -87,12 +77,8 @@ class CheckMessagesErrors extends Command
 
                     if ($chat_message->hasMedia(config('constants.media_tags'))) {
                         dump('images');
-                        // if (!isset($new_message)) {
-                        //   $new_message = ChatMessage::create($params);
-                        // }
 
                         foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                            // $new_message->attachMedia($image, config('constants.media_tags'));
 
                             if ($error == 1) {
                                 try {
@@ -102,12 +88,6 @@ class CheckMessagesErrors extends Command
                             }
                         }
                     }
-
-                    // if (isset($new_message) && $error != 2) {
-                    //   $new_message->update([
-                    //     'approved'  => 1
-                    //   ]);
-                    // }
 
                     $chat_message->update([
                         'error_status' => $error,

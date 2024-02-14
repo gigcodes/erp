@@ -85,7 +85,6 @@ class SendMessageToAll implements ShouldQueue
                             $productIds = json_decode($broadcast->products, true);
                         } else {
                             $broadcast_image = BroadcastImage::find($image);
-                            // dump($broadcast_image);
                             $productIds = json_decode($broadcast_image->products, true);
                         }
 

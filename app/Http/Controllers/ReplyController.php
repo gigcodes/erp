@@ -25,11 +25,6 @@ use App\Models\RepliesTranslatorHistory;
 
 class ReplyController extends Controller
 {
-    public function __construct()
-    {
-        //  $this->middleware('permission:reply-edit',[ 'only' => 'index','create','store','destroy','update','edit']);
-    }
-
     public function index(Request $request)
     {
         $reply_categories = ReplyCategory::where('parent_id', 0)->orderBy('name', 'ASC')->get();
@@ -45,8 +40,7 @@ class ReplyController extends Controller
             $replies->where('category_id', $request->category_id);
 
             $replysubcategories = ReplyCategory::where('parent_id', $request->category_id)->get();
-
-        } else if (! empty($request->category_id)) {
+        } elseif (! empty($request->category_id)) {
             $replies->where('category_id', $request->category_id);
 
             $replysubcategories = ReplyCategory::where('parent_id', $request->category_id)->get();
@@ -59,7 +53,7 @@ class ReplyController extends Controller
         $reply_main_categories = ReplyCategory::where('parent_id', 0)->get();
 
         return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories', 'replysubcategories'))
-        ->with('i', (request()->input('page', 1) - 1) * 10);
+            ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -93,8 +87,8 @@ class ReplyController extends Controller
 
         $data = $request->except('_token', '_method');
 
-        if(!empty($request->sub_category_id) && $request->sub_category_id!='undefined'){
-            $data['category_id'] = $data['sub_category_id'];    
+        if (! empty($request->sub_category_id) && $request->sub_category_id != 'undefined') {
+            $data['category_id'] = $data['sub_category_id'];
         }
         $data['reply'] = trim($data['reply']);
         $reply->create($data);
@@ -200,6 +194,7 @@ class ReplyController extends Controller
     public function getSubcategories(Request $request)
     {
         $subcategories = ReplyCategory::where('parent_id', $request->category_id)->pluck('name', 'id');
+
         return response()->json($subcategories);
     }
 
@@ -336,7 +331,6 @@ class ReplyController extends Controller
 
     public function replyList(Request $request)
     {
-        // dd('hii');
         $storeWebsite = $request->get('store_website_id');
         $keyword = $request->get('keyword');
         $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
@@ -353,9 +347,9 @@ class ReplyController extends Controller
         }
 
         $replies = \App\ReplyCategory::join('replies', 'reply_categories.id', 'replies.category_id')
-        ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
-        ->where('model', 'Store Website')
-        ->select(['replies.*', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id']);
+            ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+            ->where('model', 'Store Website')
+            ->select(['replies.*', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id']);
 
         if ($storeWebsite > 0) {
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
@@ -540,40 +534,39 @@ class ReplyController extends Controller
         $ids = [];
         $translate_text = [];
 
-        $StatusResults = \App\TranslateReplies::select('translate_to', 'status', DB::raw('COUNT(*) as count'))->groupBy('translate_to', 'status')->orderby('translate_to','ASC')->get();
+        $StatusResults = \App\TranslateReplies::select('translate_to', 'status', DB::raw('COUNT(*) as count'))->groupBy('translate_to', 'status')->orderby('translate_to', 'ASC')->get();
 
         $StatusArray = [];
-        if(!empty($StatusResults)){
+        if (! empty($StatusResults)) {
             foreach ($StatusResults as $key => $value) {
                 $StatusArray[$value->translate_to]['language'] = $value->translate_to;
-               
-                if($value->status == 'approved'){
+
+                if ($value->status == 'approved') {
                     $StatusArray[$value->translate_to]['approve'] = $value->count;
                 }
 
-                if($value->status == 'rejected'){
+                if ($value->status == 'rejected') {
                     $StatusArray[$value->translate_to]['rejected'] = $value->count;
                 }
 
-                if($value->status == 'new'){
+                if ($value->status == 'new') {
                     $StatusArray[$value->translate_to]['new'] = $value->count;
                 }
 
-                if($value->status === null){
+                if ($value->status === null) {
                     $StatusArray[$value->translate_to]['uncheck'] = $value->count;
-                }                
+                }
             }
         }
 
         $getLangs = \App\TranslateReplies::distinct('translate_to')->pluck('translate_to');
 
-        if ($storeWebsite > 0 && !empty($language)) {
-
+        if ($storeWebsite > 0 && ! empty($language)) {
             $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
-            ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
-            ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
-            ->where('model', 'Store Website')->where('replies.is_flagged', '1')
-            ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
+                ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+                ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
+                ->where('model', 'Store Website')->where('replies.is_flagged', '1')
+                ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
 
             $replies = $replies->where('replies.store_website_id', $storeWebsite);
 
@@ -583,7 +576,7 @@ class ReplyController extends Controller
                 });
             }
 
-            $replies = $replies->where('translate_replies.translate_to', $language);            
+            $replies = $replies->where('translate_replies.translate_to', $language);
 
             if (! empty($status)) {
                 $replies = $replies->where(function ($q) use ($status) {
@@ -602,18 +595,16 @@ class ReplyController extends Controller
                     $translate_text[$replie->replies_id]['category_name'] = $replie->category_name;
                     $translate_text[$replie->replies_id]['translate_from'] = $replie->translate_from;
                     $translate_text[$replie->replies_id]['original_text'] = $replie->original_text;
-                    
+
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
-                    
+
                     $translate_text[$replie->replies_id]['created_at'] = $replie->created_at;
                     $translate_text[$replie->replies_id]['updated_at'] = $replie->updated_at;
-                    
                 } else {
-
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
@@ -626,8 +617,6 @@ class ReplyController extends Controller
                 }
             }
         }
-
-        //$replies = json_encode($translate_text);
 
         $itemsPerPage = 25; // Define the number of items per page
         $currentPage = $request->input('page', 1);
@@ -726,19 +715,6 @@ class ReplyController extends Controller
             $de = ($value->lang == 'de') ? $value->translate_text : '';
 
             $html .= '<tr><td>' . $value->id . '</td>';
-            // $html .= '<td>scrollToSeeMoreImages</td>';
-            // $html .= '<td>' . $ar . '</td>';
-            // $html .= '<td>' . $zh . '</td>';
-            // $html .= '<td>' . $ja . '</td>';
-            // $html .= '<td>' . $ko . '</td>';
-            // $html .= '<td>' . $ur . '</td>';
-            // $html .= '<td>' . $ru . '</td>';
-            // $html .= '<td>' . $it . '</td>';
-            // $html .= '<td>' . $fr . '</td>';
-            // $html .= '<td>' . $es . '</td>';
-            // $html .= '<td>' . $de . '</td>';
-            // $html .= '<td>' . $en . '</td>';
-            // $html .= '<td>' . $nl . '</td>';
             $html .= '<td>' . $value->lang . '</td>';
             $html .= '<td>' . $value->translate_text . '</td>';
             $html .= '<td>' . $value->status . '</td>';

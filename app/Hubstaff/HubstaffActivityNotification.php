@@ -16,6 +16,5 @@ class HubstaffActivityNotification extends Model
         'status',
         'hubstaff_user_id',
         'total_track',
-
     ];
 }

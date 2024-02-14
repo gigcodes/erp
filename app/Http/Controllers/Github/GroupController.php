@@ -22,7 +22,6 @@ class GroupController extends Controller
     public function __construct()
     {
         $this->client = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
@@ -30,7 +29,6 @@ class GroupController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [$userName, $token],
         ]);
 
@@ -213,7 +211,6 @@ class GroupController extends Controller
 
         //https://api.github.com/teams/:team_id/memberships/:username
         $url = 'https://api.github.com/teams/' . $groupId . '/memberships/' . $githubUser->username;
-        // $this->client->delete($url);
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 

@@ -66,11 +66,9 @@ class CategoryMergeWithProduct extends Command
                         $category->references = implode(',', $matches);
                         $category->update();
                     }
-                    // dd($referenceArray);
                 } catch (\Exception $e) {
                 }
             }
-            // code...
         }
     }
 }

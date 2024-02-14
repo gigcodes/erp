@@ -73,7 +73,6 @@ class UserAvaibilityHistory extends Model
                     $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
                 }
                 if ($stDatetime <= $lunchTime && $lunchTime <= $enDatetime) {
-                    // Do nothing
                 } else {
                     $lunchTime = null;
                 }

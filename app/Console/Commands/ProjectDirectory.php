@@ -42,8 +42,6 @@ class ProjectDirectory extends Command
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
-            /*$cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
-            app()->call([$cc, 'listTree'], []);*/
             // start throgh tree program
             $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
             if (! empty($output)) {
@@ -88,7 +86,7 @@ class ProjectDirectory extends Command
             }
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

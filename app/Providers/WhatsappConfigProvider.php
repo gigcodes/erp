@@ -17,7 +17,6 @@ class WhatsappConfigProvider extends ServiceProvider
                 'number', 'instance_id', 'provider', 'token', 'is_customer_support', 'status', 'is_default', 'is_use_own',
             ])->where('instance_id', '!=', '')
                 ->where('token', '!=', '')
-                //->where("status", 1)
                 ->orderBy('is_default', 'DESC')
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
@@ -60,18 +59,6 @@ class WhatsappConfigProvider extends ServiceProvider
                     config(['apiwha.instances' => $nos]);
                 }
             }
-
-            // get the all zoom key
-//            if (! env('CI')) {
-//                $settings = \App\Setting::where(function ($q) {
-//                    $q->orWhere('name', 'like', 'ZOOM_%')->orWhere('name', 'like', 'PLESK_%');
-//                })->get();
-//                if (! $settings->isEmpty()) {
-//                    foreach ($settings as $setting) {
-//                        putenv("{$setting->name}={$setting->val}");
-//                    }
-//                }
-//            }
         } catch (\Exeception $e) {
         }
     }
