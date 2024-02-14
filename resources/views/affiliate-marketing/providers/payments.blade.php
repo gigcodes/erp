@@ -25,7 +25,7 @@
 @endsection
 @section('content')
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -44,12 +44,12 @@
                             </div>
                             <div class="col-md-6">
                                 <button type="submit" class="btn btn-image">
-                                    <img src="/images/filter.png"/>
+                                    <img src="/images/filter.png" />
                                 </button>
                                 <button type="reset"
                                         onclick="window.location='{{route('affiliate-marketing.provider.payments.index', ['provider_account' => $provider->id])}}'"
                                         class="btn btn-image" id="resetFilter">
-                                    <img src="/images/resend2.png"/>
+                                    <img src="/images/resend2.png" />
                                 </button>
                             </div>
                         </div>
@@ -93,7 +93,7 @@
                     <td>
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.payments.cancel', [$providersPayment->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image">
-                            <img src="/images/icons-delete.png"/>
+                            <img src="/images/icons-delete.png" />
                         </button>
                         {!! Form::close() !!}
                     </td>
@@ -112,7 +112,7 @@
                     </div>
                     <form id="add-group-form" method="POST"
                           action="{{route('affiliate-marketing.provider.payments.create', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
+                        @csrf
                         <input type="hidden" id="provider_id" name="provider_account" value="{!! $provider->id !!}">
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">Affiliate</label>
@@ -162,13 +162,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
     <script type="text/javascript">
-        let showPopup;
-        @if(Session::get('create_popup'))
-            showPopup = true;
-        @endif
+      let showPopup;
+      @if(Session::get('create_popup'))
+        showPopup = true;
+      @endif
 
-        if (showPopup) {
-            $('#create-payment').modal('show');
-        }
+      if (showPopup) {
+        $("#create-payment").modal("show");
+      }
     </script>
 @endsection

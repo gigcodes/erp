@@ -151,7 +151,7 @@
                     </div>
                     <form id="add-payout-form" method="POST"
                           action="{{route('affiliate-marketing.provider.affiliate.create', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
+                        @csrf
                         <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">Payout method</label>
@@ -180,7 +180,7 @@
                     </div>
                     <form id="add-payout-form" method="POST"
                           action="{{route('affiliate-marketing.provider.affiliate.addToProgramme', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
+                        @csrf
                         <input type="hidden" id="provider_id" name="provider_account" value="{!! $provider->id !!}">
                         <input type="hidden" id="affiliate_id" name="affiliate_id" value="">
                         <div class="form-group row">
