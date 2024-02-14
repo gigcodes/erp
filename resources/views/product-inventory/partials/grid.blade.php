@@ -14,12 +14,12 @@
           <a href="{{ route( 'products.show', $product->id ) }}">
             @php
               $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
-              $image = "";
-              if($imageDetails) {
-                $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
-              }
+              // $image = "";
+              // if($imageDetails) {
+              //   $image = convertToThumbUrl($imageDetails->getTemporaryUrl(),$imageDetails->extension);
+              // }
             @endphp
-            <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
+            <img style="object-fit: cover;max-width:75%;" src="{{ $imageDetails->getTemporaryUrl(Carbon::now->addMinutes(1))}}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
             <p class="card-text">SKU : <span id="skuValue-{{$key}}">{{ $product->sku }}</span> &nbsp;
