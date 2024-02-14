@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class VendorFlowChartMaster extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['title'];
 }

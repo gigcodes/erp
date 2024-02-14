@@ -276,6 +276,7 @@
         <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
         <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorsdatatablecolumnvisibilityList">Column Visiblity</button>
 
+        <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newMasterFlowChartModal">Add Master Flow Chart</button>
         <span class="dropdown">
             <button class="btn btn-secondary dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 Flow Charts
@@ -308,6 +309,7 @@
 @include("vendors.partials.modal-status-color")
 @include("vendors.partials.column-visibility-modal")
 @include('vendors.partials.add-flow-chart')
+@include('vendors.partials.add-master-flow-chart')
 @include('vendors.partials.add-question')
 <div class="row">
     <div class="col-md-12">
@@ -2176,7 +2178,7 @@
                     success:function(response){
                         if (response.message) {
                             toastr["success"](response.message, "Message");
-                            location.reload();
+                            // location.reload();
                         }else{
                             toastr.error(response.message);
                         }
@@ -2220,5 +2222,125 @@
             toastr['error'](errObj.message, 'error');
         });
     });
+
+    $(document).on("click", ".delete-master-flow-chart-btn", function (e) {
+        e.preventDefault();
+        if (confirm("Are you sure?")) {
+            var $this = $(this);
+            var id = $this.data('id');
+
+            var url = "{{ route('vendor.flowchart.master.destroy',':id') }}";
+                url = url.replace(':id', id);
+
+            $.ajax({
+            url: url,
+            type: "delete",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                id: id
+            }
+            }).done(function (response) {
+            if (response.code = '200') {
+                toastr['success'](response.message, 'success');
+                $this.closest('tr').remove();
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            }).fail(function (errObj) {
+            $('#loading-image').hide();
+            // $("#").hide();
+            toastr['error'](errObj.message, 'error');
+            });
+        }
+    });
+
+    $(document).on('click', '.add-master-flow-chart-btn', function (e) {
+        e.preventDefault();
+
+        $("#loading-image").show();
+
+        $.ajax({
+            url: "{{route('vendor.flowchart.master.store')}}",
+            type: "post",
+            data: $('#add-master-flow-chart-form').serialize()
+        }).done(function (response) {
+            $('#loading-image').hide();
+            // $('#postmanShowFullTextModel').modal('hide');
+
+            let tr = `
+            <tr>
+                <td>
+                    ${response.data.title}
+                </td>
+                <td>
+                    <a class="btn btn-image save-master-flow-chart-btn abtn-pd" style="display: none" data-id="${response.data.id}"><img src="/images/send.png" style="cursor: nwse-resize; width: 16px;"></a>
+                    <a class="btn btn-image edit-master-flow-chart-btn abtn-pd" data-id="${response.data.id}"><img src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                    <a class="btn delete-master-flow-chart-btn abtn-pd padding-top-action" data-id="${response.data.id}" href="#"><img src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                </td>
+            </tr>
+            `
+            $('#newMasterFlowChartModal table tbody:first').prepend(tr);
+            console.log(tr);
+
+            toastr['success'](response.message, 'success');
+        }).fail(function (errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on('click', '.edit-master-flow-chart-btn', function (e) {
+        e.preventDefault();
+        let element = $(this);
+        editableTd(element);
+    });
+
+    function editableTd(element) {
+        let title = element.closest('tr').find('td').first().html();
+        let actions = element.closest('td').each(function(index, element) {
+            $(element).hasClass('save-master-flow-chart-btn')? $(element).find('a').show() : $(element).find('a').hide();;
+        })
+        element.closest('tr').find('td .save-master-flow-chart-btn').css('display', 'block');
+        element.closest('tr').find('td').first().html(`<input id="master-flow-chart-title-${element.attr('data-id')}" type="text" name="title" value="${title.trim()}">`);
+    }
+
+    $(document).on('click', '.save-master-flow-chart-btn', function (e) {
+        e.preventDefault();
+        let element = $(this);
+        $('#loading-image').show();
+        let id = element.attr('data-id');
+        var title = $('#master-flow-chart-title-' + id).val();
+        var url = "{{ route('vendor.flowchart.master.update',':id') }}";
+
+        if(title == '') {
+            alert('Please enter title');
+            return false;
+        }
+        
+        url = url.replace(':id', id);
+        $.ajax({
+            url: url,
+            type: "post",
+            data: {title},
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        }).done(function (response) {
+            if(response.code == '200') {
+                toastr['success'](response.message, 'success');
+                element.closest('tr').find('td').first().html('' + title + '');
+                $('.save-master-flow-chart-btn').hide();
+                $('.edit-master-flow-chart-btn').show();
+                $('.delete-master-flow-chart-btn').show();
+                $('#loading-image').hide();
+            }
+        }).fail(function (errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    })
+
 </script>
 @endsection
