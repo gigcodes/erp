@@ -16,12 +16,7 @@
               $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
               $image = "";
               if($imageDetails) {
-                if($imageDetails->disk == 's3') {
-                  $image = $imageDetails->getTemporaryUrl(\Carbon\Carbon::now()->addMinutes(1));
-                } else {
-                  $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
-                }
-
+                $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
               }
             @endphp
             <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
