@@ -7,7 +7,6 @@ use Exception;
 use Throwable;
 use App\EmailLog;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -47,7 +46,7 @@ class Handler extends ExceptionHandler
      *
      * @param  Request  $request
      */
-    public function render($request, Throwable $exception): JsonResponse
+    public function render($request, Throwable $exception)
     {
         if ($exception instanceof \Symfony\Component\ErrorHandler\Error\FatalError) {
             return response()->json(['status' => 'failed', 'message' => 'Please check Fatal Error.. => ' . $exception->getMessage(), 'code' => $exception->getCode()], 500);
