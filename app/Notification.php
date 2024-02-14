@@ -39,7 +39,6 @@ class Notification extends Model
 
     public static function getUserNotificationByRoles($limit = 10)
     {
-        //		$notifications = self::all()->whereIn('role',$roles);
         $notifications = DB::table('notifications as n')
                             ->select('n.message', 'n.isread', 'n.id', 'n.product_id', 'n.sale_id', 'p.sku', 'p.name as pname', 'u.name as uname', 'n.created_at')
                             ->whereIn('role', \Auth::user()->getRoleNames())

@@ -2,10 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\MagentoMediaSync;
 use Illuminate\Bus\Queueable;
+use App\Models\MagentoMediaSync;
 use Illuminate\Queue\SerializesModels;
-use App\Library\Magento\MagentoService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

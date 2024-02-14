@@ -52,13 +52,13 @@ class QuickSellController extends Controller
         }
 
         $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'category_selection'])
-                                                  ->renderAsDropdown();
+            ->renderAsDropdown();
 
         $selected_categories = $request->category ? $request->category : 1;
 
         $filter_categories_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'filter_categories_selection'])
-                                                ->selected($selected_categories)
-                                                ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         $locations = \App\ProductLocation::pluck('name', 'name');
         $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
@@ -167,8 +167,8 @@ class QuickSellController extends Controller
             foreach ($request->file('images') as $image) {
                 $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)->useFilename($filename)
-                                  ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                  ->upload();
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -233,7 +233,6 @@ class QuickSellController extends Controller
         }
 
         $product->update();
-        //dd($request);
         if ($request->group_old != null) {
             ProductQuicksellGroup::where('product_id', $product->id)->delete();
             $edit = new ProductQuicksellGroup();
@@ -260,9 +259,9 @@ class QuickSellController extends Controller
             foreach ($request->file('images') as $image) {
                 $filename = Str::slug($image->getClientOriginalName());
                 $media = MediaUploader::fromSource($image)
-                                  ->useFilename($filename)
-                                  ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                  ->upload();
+                    ->useFilename($filename)
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -311,7 +310,6 @@ class QuickSellController extends Controller
         return Response::json([
             'success' => true,
             'data' => $data, ]);
-        //return redirect()->back()->with('success', 'You have successfully updated Quick Product');
     }
 
     /**
@@ -385,7 +383,7 @@ class QuickSellController extends Controller
     public function pending(Request $request)
     {
         if ($request->selected_products || $request->term || $request->category || $request->brand || $request->color || $request->supplier ||
-              $request->location || $request->size || $request->price) {
+            $request->location || $request->size || $request->price) {
             $query = Product::query();
             if (request('term') != null) {
                 $query->where('sku', '=', request('term', 0))
@@ -503,7 +501,6 @@ class QuickSellController extends Controller
 
     public function activate(Request $request)
     {
-        //dd($request);
         $ids = explode(',', $request->checkbox_value);
 
         if ($request->id == null) {
@@ -563,7 +560,6 @@ class QuickSellController extends Controller
             }
 
             if (request('group') != null) {
-                //  dd('hello');
                 $query->orWhereHas('groups', function ($qu) use ($request) {
                     $qu->whereIn('quicksell_group_id', $request->group);
                 });
@@ -666,7 +662,6 @@ class QuickSellController extends Controller
 
     public function groupUpdate(Request $request)
     {
-        //dd($request);
         if ($request->groups != null) {
             ProductQuicksellGroup::where('product_id', $request->product_id)->delete();
             $product = new ProductQuicksellGroup();
@@ -682,7 +677,6 @@ class QuickSellController extends Controller
             $group->categories = json_encode($request->categories);
             $group->update();
         } else {
-            // dd($request);
             $group = QuickSellGroup::orderBy('id', 'desc')->first();
             if ($group != null) {
                 $group_create = new QuickSellGroup();

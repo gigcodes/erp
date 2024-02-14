@@ -117,10 +117,8 @@ class InstantMessagingController extends Controller
         // Set output
         if (isset($queue->image) && $queue->image != null) {
             $output = ['queueNumber' => $queue->id, 'phone' => $queue->number_to, 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
-//            $output = ['queueNumber' => $queue->id, 'phone' => '31629987287', 'body' => $queue->image, 'filename' => urlencode(substr($queue->image, strrpos($queue->image, '/') + 1)), 'caption' => $queue->text];
         } else {
             $output = ['queueNumber' => $queue->id, 'phone' => $queue->number_to, 'body' => $queue->text];
-//            $output = ['queueNumber' => $queue->id, 'phone' => '31629987287', 'body' => $queue->text];
         }
 
         // Return output
@@ -162,7 +160,6 @@ class InstantMessagingController extends Controller
                 $imQueue = ImQueue::where(['id' => $receivedJson->queueNumber])->first();
 
                 // message found in the queue
-                //if ($imQueue !== null && empty($imQueue->sent_at)) {
                 if ($imQueue !== null) {
                     // Update status in im_queues
                     $imQueue->sent_at = $receivedJson->sent == true ? date('Y-m-d H:i:s', Carbon::now()->timestamp) : '2002-02-02 02:02:02';

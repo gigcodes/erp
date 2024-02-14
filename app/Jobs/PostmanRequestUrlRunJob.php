@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Jobs;
-use App\PostmanResponse;
+
 use App\LogRequest;
-use App\PostmanRequestCreate;
+use App\PostmanResponse;
 use App\PostmanMultipleUrl;
-use App\PostmanRequestHistory;
+use App\PostmanRequestCreate;
 use Illuminate\Bus\Queueable;
+use App\PostmanRequestHistory;
 use Illuminate\Queue\SerializesModels;
-use App\Library\Magento\MagentoService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,10 +48,8 @@ class PostmanRequestUrlRunJob implements ShouldQueue
 
         foreach ($postmanUrls as $postmanUrl) {
             $postman = PostmanRequestCreate::where('id', $postmanUrl->postman_request_create_id)->first();
-            //dd($postmanUrls);
             if (empty($postman)) {
                 \Log::error('Postman Send request API Error=> Postman request data not found' . ' #id #' . $postmanUrl->postman_request_create_id ?? '');
-                //$this->PostmanErrorLog($postmanUrl->postman_request_create_id ?? '', 'Postman Send request API ', ' Postman request data not found', 'postman_request_creates');
 
                 app(\App\Http\Controllers\PostmanRequestCreateController::class)->PostmanErrorLog($postmanUrl->postman_request_create_id ?? '', 'Postman Send request API ', ' Postman request data not found', 'postman_request_creates', $this->login_user_id);
 
@@ -91,7 +89,6 @@ class PostmanRequestUrlRunJob implements ShouldQueue
                     $postman->request_headers,
                     'Authorization:Bearer ' . $postman->authorization_token,
                 ];
-                //$response = $this->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
 
                 $response = app(\App\Http\Controllers\PostmanRequestCreateController::class)->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
 
@@ -103,7 +100,6 @@ class PostmanRequestUrlRunJob implements ShouldQueue
                 curl_close($curl);
 
                 $response = $response ? json_encode($response) : 'Not found response';
-                //dd($response);
                 PostmanResponse::create(
                     [
                         'user_id' => $this->login_user_id,
@@ -115,13 +111,11 @@ class PostmanRequestUrlRunJob implements ShouldQueue
                     ]
                 );
 
-                if(!empty($response)){
+                if (! empty($response)) {
                     \Log::info('Postman Send request API Response => ' . $response . ' #id #' . $postman->id ?? '');
-                    //$this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
 
                     app(\App\Http\Controllers\PostmanRequestCreateController::class)->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses', $this->login_user_id);
                 }
-
             }
         }
     }

@@ -42,10 +42,10 @@ class PostCharitiesAmountToCashflow extends Command
         $date2 = date('Y-m-d');
         $date1 = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 7, date('Y')));
         $co = OrderProduct::select('order_products.*', 'customer_charities.id as charity_id ')
-       ->join('customer_charities', 'customer_charities.product_id', 'order_products.product_id')
-       ->join('orders', 'orders.id', 'order_products.order_id')
-       ->whereRaw("date(orders.order_date) between date('$date1') and date('$date2')")
-       ->get();
+            ->join('customer_charities', 'customer_charities.product_id', 'order_products.product_id')
+            ->join('orders', 'orders.id', 'order_products.order_id')
+            ->whereRaw("date(orders.order_date) between date('$date1') and date('$date2')")
+            ->get();
         foreach ($co as $o) {
             $total = $o->order_price;
             if ($total > 0) {

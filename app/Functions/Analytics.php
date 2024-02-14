@@ -25,7 +25,6 @@ function initializeAnalytics()
     if (file_exists($KEY_FILE_LOCATION)) {
         // Create and configure a new client object.
         $client = new Google_Client();
-        // $client->setApplicationName("Hello Analytics Reporting");
         $client->setAuthConfig($KEY_FILE_LOCATION);
         $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
         $analytics = new Google_Service_AnalyticsReporting($client);
@@ -46,7 +45,6 @@ function getReport($analytics, $request)
     if (isset($request['view_id'])) {
         $view_id = (string) $request['view_id'];
     } else {
-        // $view_id = env('ANALYTICS_VIEW_ID');
         $view_id = config('env.ANALYTICS_VIEW_ID');
     }
 
@@ -68,7 +66,6 @@ function getReport($analytics, $request)
     // Create the DateRange object.
     $dateRange = new Google_Service_AnalyticsReporting_DateRange();
     $dateRange->setStartDate(! empty($request) && ! empty($request['start_date']) ? $request['start_date'] : '2DaysAgo');
-    //$dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : "1DaysAgo");
     $dateRange->setEndDate(! empty($request) && ! empty($request['end_date']) ? $request['end_date'] : date('Y-m-d'));
 
     // Create the Metric objects.

@@ -153,16 +153,6 @@ class SyncCustomersFromMagento extends Command
      */
     public function formatPhonenumber($phonenumber, $country_id)
     {
-        $customerPhone = ltrim(ltrim(str_replace(' ', '', $phonenumber), '+'), '00');
-        //not sure if we need below functionality, but its been used in other part of application
-        /*$customerPhone = (int) str_replace(' ', '', $phonenumber);
-        $customerPhone = str_replace(' ', '', $phonenumber);
-        if ($country_id == 'IN') {
-        if (strlen($customerPhone) <= 10) {
-        $customerPhone = '91' . $customerPhone;
-        }
-        }*/
-
-        return $customerPhone;
+        return ltrim(ltrim(str_replace(' ', '', $phonenumber), '+'), '00');
     }
 }

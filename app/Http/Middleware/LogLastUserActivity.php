@@ -45,32 +45,6 @@ class LogLastUserActivity
                     'login_at' => Carbon::now(),
                 ]);
             }
-
-//            // expired
-//            if($lastLogin < Carbon::now()){
-//                Cache::rememberForever($cacheKey, function() use ($expiresAt) {
-//                    return $expiresAt;
-//                });
-//                UserLogin::create([
-//                    'user_id' => Auth::id(),
-//                    'login_at' => Carbon::now(),
-//                ]);
-//            }
-
-//            dd(Cache::get('user-is-online-'.Auth::user()->id) < Carbon::now());
-//            if ($user_login = UserLogin::where('user_id', Auth::id())->first()) {
-//                if (Carbon::now()->diffInDays($user_login->login_at) != 0) {
-//                    UserLogin::create([
-//                        'user_id' => Auth::id(),
-//                        'login_at' => Carbon::now(),
-//                    ]);
-//                }
-//            } else {
-//                UserLogin::create([
-//                    'user_id' => Auth::id(),
-//                    'login_at' => Carbon::now(),
-//                ]);
-//            }
         }
 
         if (! $this->session->has('lastActivityTimeU')) {

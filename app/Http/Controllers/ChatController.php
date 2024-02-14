@@ -7,7 +7,6 @@ use App\User;
 use Illuminate\Http\Request;
 use Pusher\Laravel\Facades\Pusher;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 
 class ChatController extends Controller
 {
@@ -18,7 +17,6 @@ class ChatController extends Controller
      */
     public function index(Request $request)
     {
-        //
         $userid = $request->input('userid');
         $chat = new Chat();
         $chats = $chat->where('sourceid', '=', Auth::id())->orWhere('userid', '=', Auth::id())->get()->toArray();
@@ -145,9 +143,7 @@ class ChatController extends Controller
 
     public function checkfornew(Request $request)
     {
-        //$userid = $request->input('userid');
         $users = new User();
-        //$allusers =  $users->where('id', '=', Auth::id())->get();
         $loggedinuser = $users->find(Auth::id());
         $lastcheck = $loggedinuser['last_checked'];
         $allusers = $users->all();
@@ -165,7 +161,6 @@ class ChatController extends Controller
             }
         }
 
-        //var_dump($chats);
         echo json_encode($newmessage);
     }
 
@@ -173,7 +168,6 @@ class ChatController extends Controller
     {
         $user = Auth::User();
         $user->last_checked = date('Y-m-d H:i:s');
-        // echo $user->last_checked;
         $user->save();
     }
 }

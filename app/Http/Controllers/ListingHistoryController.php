@@ -82,9 +82,9 @@ class ListingHistoryController extends Controller
     public function records(Request $request)
     {
         $history = \App\ListingHistory::leftJoin('products as p', 'p.id', 'listing_histories.product_id')
-        ->leftJoin('users as u', 'u.id', 'listing_histories.user_id')
-        ->orderBy('listing_histories.created_at', 'desc')
-        ->select(['listing_histories.*', 'u.name as user_name', 'p.name as product_name']);
+            ->leftJoin('users as u', 'u.id', 'listing_histories.user_id')
+            ->orderBy('listing_histories.created_at', 'desc')
+            ->select(['listing_histories.*', 'u.name as user_name', 'p.name as product_name']);
 
         if ($request->created_by != null) {
             $history = $history->where('user_id', $request->created_by);

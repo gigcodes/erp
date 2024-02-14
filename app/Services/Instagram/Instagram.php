@@ -171,33 +171,6 @@ class Instagram
      */
     public function postMedia($images, $message)
     {
-//        if (!is_array($images)) {
-//            $images = [$images];
-//        }
-//
-//        $return = [];
-//        $files = [];
-//
-//        foreach ($images as $image) {
-//            $file = public_path().'/uploads/social-media/'.$image->filename;
-//            if (!file_exists($file)) {
-//                $file = public_path().'/uploads/'.$image->filename;
-//            }
-//
-//            $files[] = $file;
-//        }
-//
-        ////        $instagram = new \InstagramAPI\Instagram();
-//        //login to Instagram
-//        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
-//        if (count($images) > 1) {
-//            //if more photos, then upload as album
-//            $instagram->timeline->uploadAlbum($files, ['caption' => $message]);
-//        } else {
-//            // if only one photo then upload a single image
-//            $instagram->timeline->uploadPhoto($files[0], ['caption' => $message]);
-//        }
-//        $this->imageIds = $return;
     }
 
     /**

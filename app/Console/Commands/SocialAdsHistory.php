@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Setting;
 use App\LogRequest;
-use FacebookAds\Api;
 use Facebook\Facebook;
 use App\Social\SocialConfig;
 use App\Helpers\SocialHelper;

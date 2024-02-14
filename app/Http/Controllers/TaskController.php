@@ -22,8 +22,6 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
-
         if ((\Auth::user()->hasRole(['Admin', 'Supervisors']))) {
             $task = Task::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
         } else {
@@ -76,28 +74,6 @@ class TaskController extends Controller
         ]);
 
         $task = Task::create($task);
-
-        //Send to the assigned user
-        // NotificationQueueController::createNewNotification([
-        // 	'message' => $task->details,
-        // 	'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        // 	'model_type' => Task::class,
-        // 	'model_id' =>  $task->id,
-        // 	'user_id' => Auth::id(),
-        // 	'sent_to' => $task->assigned_user,
-        // 	'role' => '',
-        // ]);
-
-        //Send to the author if not done.
-        // NotificationQueueController::createNewNotification([
-        // 	'message' => $task->details,
-        // 	'timestamps' => ['+45 minutes'],
-        // 	'model_type' => Task::class,
-        // 	'model_id' =>  $task->id,
-        // 	'user_id' => Auth::id(),
-        // 	'sent_to' => Auth::id(),
-        // 	'role' => '',
-        // ]);
 
         return redirect()->route('task.create')
             ->with('success', 'Task created successfully.');
@@ -160,32 +136,6 @@ class TaskController extends Controller
             'userid' => '',
 
         ]);
-
-        // if ( $request->input( 'assigned_user' ) != $task->assigned_user ) {
-        //
-        // 	//Send to the assigned user
-        // 	NotificationQueueController::createNewNotification([
-        // 		'message' => $task->details,
-        // 		// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        // 		'timestamps' => ['+0 minutes'],
-        // 		'model_type' => Task::class,
-        // 		'model_id' =>  $task->id,
-        // 		'user_id' => Auth::id(),
-        // 		'sent_to' => $request->input( 'assigned_user' ),
-        // 		'role' => '',
-        // 	]);
-        //
-        // 	//Send to the author if not done.
-        // 	// NotificationQueueController::createNewNotification([
-        // 	// 	'message' => $task->details,
-        // 	// 	'timestamps' => ['+45 minutes'],
-        // 	// 	'model_type' => Task::class,
-        // 	// 	'model_id' =>  $task->id,
-        // 	// 	'user_id' => Auth::id(),
-        // 	// 	'sent_to' => Auth::id(),
-        // 	// 	'role' => '',
-        // 	// ]);
-        // }
 
         $task->name = $request->get('name');
         $task->details = $request->get('details');
@@ -255,7 +205,6 @@ class TaskController extends Controller
         $userListWithStatuesCnt = $userListWithStatuesCnt->groupBy('users.id', 'tasks.assign_to', 'tasks.status')
             ->orderBy('created_date', 'desc')->orderBy('tasks.status', 'asc')
             ->get();
-        // dd($userListWithStatuesCnt);
         $getTaskStatus = TaskStatus::get();
         $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(id) as ids'))->first();
         $arrTaskStatusIds = explode(',', $getTaskStatusIds['ids']);
@@ -281,7 +230,7 @@ class TaskController extends Controller
     /**
      * function to show all the task list based on specific status and user
      *
-     * @param  int  $user_id, $status
+     * @param  int  $user_id , $status
      * @return \Illuminate\Http\Response
      */
     public function taskList(Request $request)

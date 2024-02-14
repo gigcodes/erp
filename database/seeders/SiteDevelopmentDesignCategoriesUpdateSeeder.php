@@ -121,7 +121,6 @@ class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
             ]);
 
             if ($develop) {
-                // Modules/StoreWebsite/Http/Controllers/SiteDevelopmentController.php addCategory()
                 foreach ($all_website as $key => $value) {
                     SiteDevelopment::firstOrCreate([
                         'site_development_category_id' => $develop->id,

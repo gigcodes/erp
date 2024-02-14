@@ -41,7 +41,7 @@ class ProductsCreator
             $image->validated = 0;
             $image->validation_result = '[Error] Supplier is null ' . $image->website . ' while adding sku ' . $image->sku;
             $image->save();
-            // Return false
+
             return false;
         } else {
             $language = $supplierModel->language_id;
@@ -101,7 +101,7 @@ class ProductsCreator
                 SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => $color]);
             }
         } catch (\Exception $e) {
-            // var_dump($e->getMessage());
+            //
         }
 
         // Product validated
@@ -122,7 +122,7 @@ class ProductsCreator
                 $image->validated = 0;
                 $image->validation_result = '[Error] No product! ' . $image->website . ' while adding sku ' . $image->sku;
                 $image->save();
-                // Return false
+
                 return false;
             }
             // sets initial status pending for scrape
@@ -219,8 +219,6 @@ class ProductsCreator
                     foreach ($sizes as $size) {
                         $helperSize = ProductHelper::getRedactedText($size, 'composition');
                         $allSize[] = $helperSize;
-                        //find the eu size and update into the field
-                        /*$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);*/
                     }
                 }
 
@@ -356,22 +354,6 @@ class ProductsCreator
                     $productSupplier->save();
 
                     $product->supplier_id = $db_supplier->id;
-
-                    /*$product->suppliers()->syncWithoutDetaching([
-                $db_supplier->id => [
-                'title' => $image->title,
-                'description' => $image->description,
-                'supplier_link' => $image->url,
-                'stock' => 1,
-                'price' => $formattedPrices[ 'price_eur' ],
-                'price_special' => $formattedPrices[ 'price_eur_special' ],
-                'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
-                'size' => $formattedDetails[ 'size' ],
-                'color' => $formattedDetails[ 'color' ],
-                'composition' => $formattedDetails[ 'composition' ],
-                'sku' => $image->original_sku
-                ]
-                ]);*/
                 }
             }
 
@@ -405,8 +387,6 @@ class ProductsCreator
                 'scraped_product_id' => $product->id,
                 'status' => 1,
             ];
-
-            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug('[Success] Updated product');
 
@@ -474,8 +454,6 @@ class ProductsCreator
                 foreach ($sizes as $size) {
                     $helperSize = ProductHelper::getRedactedText($size, 'composition');
                     $allSize[] = $helperSize;
-                    //find the eu size and update into the field
-                    /*$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);*/
                 }
             }
 
@@ -556,8 +534,6 @@ class ProductsCreator
                 'created_at' => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
-            //$setProductDescAndNameLanguages = new ProductController();
-            //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
             $image->save();
             $product->attachImagesToProduct();
@@ -603,21 +579,6 @@ class ProductsCreator
             $productSupplier->save();
             $image->product_id = $product->id;
             $image->save();
-            /*$product->suppliers()->syncWithoutDetaching([
-        $db_supplier->id => [
-        'title' => $image->title,
-        'description' => $image->description,
-        'supplier_link' => $image->url,
-        'stock' => 1,
-        'price' => $formattedPrices[ 'price_eur' ],
-        'price_special' => $formattedPrices[ 'price_eur_special' ],
-        'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
-        'size' => $formattedDetails[ 'size' ],
-        'color' => $formattedDetails[ 'color' ],
-        'composition' => $formattedDetails[ 'composition' ],
-        'sku' => $image->original_sku
-        ]
-        ]);*/
         }
     }
 
@@ -819,21 +780,6 @@ class ProductsCreator
                         'name' => $categoryReference,
                         'is_mapped' => 0,
                     ]);
-
-                    // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
-                    // //checking if it already exist in reference table
-                    // $results = explode(',', $unknownCategory->references);
-                    // $exist = 0;
-                    // foreach ($results as $result) {
-                    //     if(strtolower($result) == strtolower($categoryReference)){
-                    //         $exist = 1;
-                    //         break;
-                    //     }
-                    // }
-                    // if($exist == 0){
-                    //     $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
-                    //     $unknownCategory->save();
-                    // }
                 }
             }
         }

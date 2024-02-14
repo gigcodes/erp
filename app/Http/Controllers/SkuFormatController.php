@@ -45,7 +45,6 @@ class SkuFormatController extends Controller
         $this->validate($request, [
             'category_id' => 'required',
             'brand_id' => 'required',
-            //'sku_format'  => 'required|min:3|max:255',
         ]);
 
         $sku = new SkuFormat();
@@ -95,7 +94,6 @@ class SkuFormatController extends Controller
         $this->validate($request, [
             'category_id' => 'required',
             'brand_id' => 'required',
-            //'sku_format'  => 'required|min:3|max:255',
         ]);
 
         $sku = SkuFormat::findorfail($request->id);
@@ -168,9 +166,9 @@ class SkuFormatController extends Controller
     public function history(Request $request)
     {
         $history = \App\SkuFormatHistory::where('sku_format_id', $request->id)->join('users as u', 'u.id', 'sku_format_histories.user_id')
-        ->orderBy('sku_format_histories.created_at', 'desc')
-        ->select(['sku_format_histories.*', 'u.name as user_name'])
-        ->get();
+            ->orderBy('sku_format_histories.created_at', 'desc')
+            ->select(['sku_format_histories.*', 'u.name as user_name'])
+            ->get();
 
         return response()->json(['code' => 200, 'data' => $history]);
     }

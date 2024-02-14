@@ -51,8 +51,6 @@ class ViewInvoice extends Mailable
 
         if (! empty($params['orders'])) {
             $order_pro = $this->orders[0]->order_product;
-            // $product_price = $order_pro[0]->product_price;
-
             $website_code_data = $this->viewDutyTax($this->orders);
 
             $duty_shipping = 0;
@@ -82,7 +80,6 @@ class ViewInvoice extends Mailable
 
     public function preview()
     {
-        //echo $this->orderItems;exit;
         return view('maileclipse::templates.viewInvoice', [
             'orderItems' => $this->orderItems,
             'customer' => $this->customer,

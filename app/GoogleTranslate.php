@@ -35,10 +35,6 @@ class GoogleTranslate
             ->orderBy('id')
             ->first();
 
-            // on production site it will return the original text
-            // if(env("IS_SITE","local") != "production") {
-            //     return $text;
-            // }
             if (! empty($file)) {
                 $jsonArray = (array) json_decode($file->account_json);
                 $lastFileId = $file->id;
@@ -47,8 +43,6 @@ class GoogleTranslate
                 ];
 
                 $translate = new TranslateClient($keyFileArray);
-
-                // echo $target." ".$text;
 
                 if (is_array($text)) {
                     $result = $translate->translateBatch($text, [
@@ -64,9 +58,6 @@ class GoogleTranslate
                     return $result['text'];
                 }
             } else {
-                // $translate = new TranslateClient([
-                //     'keyFile' => json_decode(file_get_contents($this->path), true)
-                // ]);
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => 0,
                     'messages' => 'Not any account found',
@@ -80,9 +71,6 @@ class GoogleTranslate
                 }
             }
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
-            // \Log::info("-----------------");
-            // \Log::info(json_decode($e));
-            // \Log::info($e->getServiceException());
             \Log::error($e);
             $message = json_decode($e->getMessage());
             $errorMessage = '';
@@ -96,7 +84,6 @@ class GoogleTranslate
                     'domain' => $message->error->errors[0]->domain,
                     'reason' => $message->error->errors[0]->reason,
                 ]);
-            // $translateLog = TranslateLog::log(["google_traslation_settings_id" => (!empty($lastFileId)), "messages" => $flow["name"] . " has found total Action  : " . $flowActions->count()]);
             } else {
                 // Sensitive error message
                 $errorMessage = 'Something went wrong while translating.';

@@ -15,7 +15,6 @@ class ScrappedCategoryMappingObserver
     public function created(Category $category)
     {
         //
-        // $this->create($category);
     }
 
     /**
@@ -26,7 +25,6 @@ class ScrappedCategoryMappingObserver
     public function updated(Category $category)
     {
         //
-        // $this->create($category);
     }
 
     /**
@@ -69,9 +67,6 @@ class ScrappedCategoryMappingObserver
 
         foreach ($unKnownCategories as $key => $val) {
             if (! in_array($val, $exist_data)) {
-                // ScrappedCategoryMapping::create([
-                //     "name" => $val,
-                // ]);
                 ScrappedCategoryMapping::updateOrCreate([
                     'name' => $val,
                 ], [

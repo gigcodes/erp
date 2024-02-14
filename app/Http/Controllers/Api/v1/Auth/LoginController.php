@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Api\v1\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Models\BearerAccessTokens;
-use App\User;
 use Auth;
+use App\User;
 use Exception;
 use Illuminate\Http\Response;
+use App\Models\BearerAccessTokens;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -33,7 +32,7 @@ class LoginController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (!$token = auth('api')->attempt($credentials)) {
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -115,21 +114,17 @@ class LoginController extends Controller
                 'data' => [
                     'email' => $user->email,
                     'name' => $user->name,
-                ]
+                ],
             ]);
-        }
-        catch (ValidationException $e)
-        {
+        } catch (ValidationException $e) {
             return \response()->json([
                 'message' => $e->getMessage(),
                 'errors' => $e
                     ->validator
                     ->errors()
-                    ->messages()
+                    ->messages(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             return \response()->json(['message' => 'Something went wrong.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

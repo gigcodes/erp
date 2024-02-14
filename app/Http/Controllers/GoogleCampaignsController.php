@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Setting;
 use App\GoogleAd;
 use App\Models\City;
 use App\Models\State;
@@ -11,7 +10,6 @@ use App\GoogleAdsGroup;
 use App\Models\Country;
 use App\Models\GoogleAppAd;
 use Illuminate\Http\Request;
-use Google\Protobuf\Int32Value;
 use App\Helpers\GoogleAdsHelper;
 use App\Models\GoogleAppAdImage;
 use App\Models\GoogleAdGroupKeyword;
@@ -44,7 +42,6 @@ use Google\Ads\GoogleAds\V12\Services\CampaignCriterionOperation;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\AppCampaignSetting;
 use Google\Ads\GoogleAds\V12\Enums\CampaignStatusEnum\CampaignStatus;
 use Google\Ads\GoogleAds\V12\Resources\Campaign\GeoTargetTypeSetting;
-
 use Google\Ads\GoogleAds\V12\Resources\Campaign\OptimizationGoalSetting;
 use Google\Ads\GoogleAds\V12\Enums\FrequencyCapLevelEnum\FrequencyCapLevel;
 use Google\Ads\GoogleAds\V12\Enums\AppCampaignAppStoreEnum\AppCampaignAppStore;
@@ -57,9 +54,7 @@ use Google\Ads\GoogleAds\V12\Enums\FrequencyCapEventTypeEnum\FrequencyCapEventTy
 use Google\Ads\GoogleAds\V12\Enums\NegativeGeoTargetTypeEnum\NegativeGeoTargetType;
 use Google\Ads\GoogleAds\V12\Enums\PositiveGeoTargetTypeEnum\PositiveGeoTargetType;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelTypeEnum\AdvertisingChannelType;
-
 use Google\Ads\GoogleAds\V12\Services\SuggestGeoTargetConstantsRequest\LocationNames;
-
 use Google\Ads\GoogleAds\V12\Enums\GeoTargetConstantStatusEnum\GeoTargetConstantStatus;
 use Google\Ads\GoogleAds\V12\Enums\AdvertisingChannelSubTypeEnum\AdvertisingChannelSubType;
 use Google\Ads\GoogleAds\V12\Enums\AppCampaignBiddingStrategyGoalTypeEnum\AppCampaignBiddingStrategyGoalType;
@@ -75,10 +70,7 @@ class GoogleCampaignsController extends Controller
         if (isset($result->config_file_path) && $result->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
             $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
-            /* echo $storagepath; exit;
-        echo storage_path('adsapi_php.ini'); exit; */
-            /* echo '<pre>' . print_r($result, true) . '</pre>';
-            die('developer working'); */
+
             return $storagepath;
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
@@ -215,7 +207,6 @@ class GoogleCampaignsController extends Controller
         } else {
             return redirect()->to('/google-campaigns/ads-account');
         }
-        // $storagepath = $this->getstoragepath($account_id);
 
         $query = \App\GoogleAdsCampaign::query();
         if ($request->googlecampaign_id) {
@@ -271,9 +262,6 @@ class GoogleCampaignsController extends Controller
             'account_id' => $account_id,
             'google_map_api_key' => $account->google_map_api_key,
         ]);
-        /*$adWordsServices = new AdWordsServices();
-         $campInfo = $this->getCampaigns($adWordsServices, $session);
-        return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]); */
     }
 
     // go to create page
@@ -320,7 +308,6 @@ class GoogleCampaignsController extends Controller
             $campaignArray['account_id'] = $account_id;
             $campaignArray['google_customer_id'] = $customerId;
 
-            // $storagepath = $this->getstoragepath($account_id);
             $campaignArray['campaign_name'] = $campaignName;
             $campaignArray['budget_amount'] = $request->budgetAmount;
             $campaignArray['start_date'] = $campaign_start_date;
@@ -389,11 +376,6 @@ class GoogleCampaignsController extends Controller
             }
             $campaignArray['final_url_suffix'] = $final_url_suffix;
 
-//            if ($request->merchant_id) {
-//                $merchant_id = $request->merchant_id;
-//            } else {
-//                $merchant_id = '';
-//            }
             $merchant_id = $account->google_merchant_center_account_id;
             $campaignArray['merchant_id'] = $merchant_id;
 
@@ -420,7 +402,6 @@ class GoogleCampaignsController extends Controller
                 'advertising_channel_type' => self::getAdvertisingChannelType($channel_type),
                 'network_settings' => self::getNetworkSettings($channel_type, $channel_sub_type),
                 'shopping_setting' => ($channel_type === 'SHOPPING') ? self::getShoppingSetting($merchant_id, $sales_country) : null,
-                // 'frequency_caps' => self::getFrequencyCaps(),
                 'geo_target_type_setting' => self::getGeoTargetTypeSetting(),
                 'bidding_strategy_type' => self::getBiddingStrategyType($bidding_strategy_type),
                 'start_date' => $campaign_start_date,
@@ -600,7 +581,6 @@ class GoogleCampaignsController extends Controller
             insertGoogleAdsLog($input);
 
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
-            // return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
         }
     }
 
@@ -619,7 +599,6 @@ class GoogleCampaignsController extends Controller
         insertGoogleAdsLog($input);
 
         return $campaign;
-        // return view('googlecampaigns.update', ['campaign' => $campaign, 'biddingStrategyTypes' => $biddingStrategyTypes]);
     }
 
     // save campaign's changes
@@ -636,7 +615,6 @@ class GoogleCampaignsController extends Controller
         $account_id = $campaignDetail->account_id;
         $customerId = $campaignDetail->google_customer_id;
         try {
-            // $storagepath = $this->getstoragepath($account_id);
             $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
             $campaignId = $request->campaignId;
             $campaignName = $request->campaignName;
@@ -773,9 +751,9 @@ class GoogleCampaignsController extends Controller
 
                 // Remove old unused lang
                 $removeTargetLanguages = GoogleCampaignTargetLanguage::where('google_customer_id', $customerId)
-                                                                    ->where('adgroup_google_campaign_id', $campaignArray['google_campaign_id'])
-                                                                    ->whereNotIn('google_language_constant_id', $targetLanguageIds)
-                                                                    ->get();
+                    ->where('adgroup_google_campaign_id', $campaignArray['google_campaign_id'])
+                    ->whereNotIn('google_language_constant_id', $targetLanguageIds)
+                    ->get();
                 if (! empty($removeTargetLanguages)) {
                     foreach ($removeTargetLanguages as $key => $language) {
                         self::removeTargetLanguage($googleAdsClient, $customerId, $campaignArray['google_campaign_id'], $language->google_language_constant_id);
@@ -825,8 +803,6 @@ class GoogleCampaignsController extends Controller
             $customerId = $googleAdsCampaign->google_customer_id;
 
             try {
-                // $storagepath = $this->getstoragepath($account_id);
-
                 // Generate a refreshable OAuth2 credential for authentication.
                 $googleAdsClient = GoogleAdsHelper::getGoogleAdsClient($account_id);
 
@@ -1063,7 +1039,6 @@ class GoogleCampaignsController extends Controller
 
     public function getBiddingStrategyTypeArray()
     {
-        // return ['MANUAL_CPC' => 'Manually set bids', 'MANUAL_CPM' => 'Viewable CPM', 'PAGE_ONE_PROMOTED' => 'Page one promoted', 'TARGET_SPEND' => 'Maximize clicks', 'TARGET_CPA' => 'Target CPA', 'TARGET_ROAS' => 'Target Roas', 'MAXIMIZE_CONVERSIONS' => 'max conv', 'MAXIMIZE_CONVERSION_VALUE' => 'Automatically maximize conversions', 'TARGET_OUTRANK_SHARE' => 'Target outrank sharing', 'NONE' => 'None', 'UNKNOWN' => 'Unknown'];
         return [
             'MANUAL_CPC' => 'Manually set bids',
             'MANUAL_CPM' => 'Viewable CPM',
@@ -1412,8 +1387,6 @@ class GoogleCampaignsController extends Controller
         $geoTargetConstantServiceClient = $googleAdsClient->getGeoTargetConstantServiceClient();
 
         $response = $geoTargetConstantServiceClient->suggestGeoTargetConstants([
-            // 'locale' => $locale,
-            // 'countryCode' => $countryCode,
             'locationNames' => new LocationNames(['names' => [$search]]),
         ]);
 

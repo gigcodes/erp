@@ -14,9 +14,10 @@ class SizesImport implements ToModel, WithHeadingRow, WithBatchInserts, WithChun
     use Importable;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param array $row
+     * @return array
      */
-    public function model(array $row)
+    public function model(array $row): array
     {
         return $row;
     }

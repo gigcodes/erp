@@ -85,14 +85,13 @@ class ProceesPushFaq implements ShouldQueue
                         $store_website_id = $websitevalue->id;
                         $websitevalue = $storeWebsite->where('id', $store_website_id)->first();
                         //Get stores of every single site
-                        //where('website_store_views.name', $replyInfo->language ?? 'English') ->
 
                         $fetchStores = \App\WebsiteStoreView::join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-                                        ->join('websites as w', 'w.id', 'ws.website_id')
-                                        ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
-                                        ->where('sw.id', $store_website_id)
-                                        ->select('website_store_views.website_store_id', 'website_store_views.*', 'website_store_views.code')
-                                        ->get();
+                            ->join('websites as w', 'w.id', 'ws.website_id')
+                            ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+                            ->where('sw.id', $store_website_id)
+                            ->select('website_store_views.website_store_id', 'website_store_views.*', 'website_store_views.code')
+                            ->get();
 
                         $stores = [];
                         if (! $fetchStores->isEmpty()) {
@@ -105,7 +104,6 @@ class ProceesPushFaq implements ShouldQueue
                         \Log::info($stores);
 
                         //get the Magento URL and token
-                        // $url = $replyInfo->magento_url;
                         $api_token = $websitevalue->api_token;
 
                         //create a payload for API
@@ -153,7 +151,6 @@ class ProceesPushFaq implements ShouldQueue
 
                                 $language = isset(explode('-', $storeValue)[1]) && explode('-', $storeValue)[1] != '' ? explode('-', $storeValue)[1] : '';
                                 //if reply is already pushed to store then get the information
-                                // $platformInfo       =   \App\Models\ReplyPushStore::where(["reply_id" => $replyInfo->id, "store_id" => $storeValue])->first();
 
                                 //Get translate reply and basic on language of reply
                                 $translateReplies = \App\TranslateReplies::where('translate_to', $language)->where('replies_id', $replyInfo->id)->first();
@@ -162,10 +159,8 @@ class ProceesPushFaq implements ShouldQueue
 
                                 if (! empty($translateReplies->translate_text)) {
                                     $platform_id = (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($translateReplies->id, $store_website_id, $storeValue, 'translate');
-                                // $platform_id    =   $translateReplies->platform_id;
                                 } else {
                                     $platform_id = (new \App\Models\FaqPlatformDetails)->getFaqPlatformId($replyInfo->id, $store_website_id, $storeValue, 'reply');
-                                    // $platform_id    =   $replyInfo->platform_id;
                                 }
 
                                 if (! empty($platform_id)) {
@@ -203,9 +198,6 @@ class ProceesPushFaq implements ShouldQueue
                                         $platformDetails->store_code = $storeValue;
                                         $platformDetails->type = 'translate';
                                         $platformDetails->save();
-
-                                    // $translateReplies->platform_id     =   $response->id;
-                                    // $translateReplies->save();
                                     } elseif ($replyInfo->platform_id && ! empty($replyInfo->platform_id)) {
                                         $platformDetails = new \App\Models\FaqPlatformDetails;
                                         $platformDetails->reply_id = $replyInfo->id;
@@ -228,16 +220,12 @@ class ProceesPushFaq implements ShouldQueue
                                 } else {
                                     (new ReplyLog)->addToLog($replyInfo->id, ' Error while pushing FAQ on Store ' . $storeValue . ' : ' . json_encode($response), 'Push');
                                 }
-
-                                //\Log::info('Got response from API after pushing the FAQ to server');
-                                //\Log::info($postdata);
-                                //\Log::info(json_encode($response));
                             }
                         } else {
                             (new ReplyLog)->addToLog($replyInfo->id, ' URL or API token not found linked with this FAQ ', 'Push');
                             \Log::info(
                                 'URL or API token not found linked with reply id ' .
-                                    json_encode($reply_id)
+                                json_encode($reply_id)
                             );
                         }
                     }

@@ -2,20 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Elasticsearch\Elasticsearch;
-use Exception;
-use Throwable;
-use Illuminate\Support\Facades\Cache;
-use App\ChatMessage;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use App\Elasticsearch\Reindex\Reindex;
 use Log;
+use Illuminate\Console\Command;
+use App\Elasticsearch\Reindex\Reindex;
 
 class ReindexMessages extends Command
 {
     const LIMIT = 50000;
+
     const MESSAGES_INDEX = 'messages';
+
     const REINDEX_IS_RUNNING = 'reindex-messages-is-running';
 
     /**

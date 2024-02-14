@@ -3,20 +3,16 @@
 namespace App\Http\Controllers;
 
 use Exception;
-
 use App\Models\City;
 use App\Models\State;
 use App\Models\Country;
 use App\GoogleAdsCampaign;
-
 use Illuminate\Http\Request;
 use App\Helpers\GoogleAdsHelper;
 use App\Models\GoogleCampaignLocation;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Services\CampaignCriterionOperation;
-
 use Google\Ads\GoogleAds\V12\Services\SuggestGeoTargetConstantsRequest\LocationNames;
-
 use Google\Ads\GoogleAds\V12\Enums\GeoTargetConstantStatusEnum\GeoTargetConstantStatus;
 
 class GoogleCampaignLocationController extends Controller
@@ -231,8 +227,6 @@ class GoogleCampaignLocationController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        // $storagepath = $this->getstoragepath($account_id);
-
         $where = [
             'adgroup_google_campaign_id' => $campaignId,
             'google_location_id' => $locationId,
@@ -365,8 +359,6 @@ class GoogleCampaignLocationController extends Controller
         $geoTargetConstantServiceClient = $googleAdsClient->getGeoTargetConstantServiceClient();
 
         $response = $geoTargetConstantServiceClient->suggestGeoTargetConstants([
-            // 'locale' => $locale,
-            // 'countryCode' => $countryCode,
             'locationNames' => new LocationNames(['names' => [$request->search]]),
         ]);
 

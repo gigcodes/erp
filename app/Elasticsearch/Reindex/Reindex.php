@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Reindex;
 
-use App\Elasticsearch\Elasticsearch;
-use App\Models\IndexerState;
-use App\Elasticsearch\Reindex\Interfaces\Reindex as ReindexInterface;
-use Throwable;
 use Log;
+use Throwable;
+use App\Models\IndexerState;
+use App\Elasticsearch\Elasticsearch;
+use App\Elasticsearch\Reindex\Interfaces\Reindex as ReindexInterface;
 
 class Reindex
 {
@@ -35,7 +35,6 @@ class Reindex
                 } catch (\Exception $e) {
                     Log::error('Reindex pId error: ' . $e->getMessage());
                 }
-
 
                 $indexer->setStatus(ReindexInterface::RUNNING);
                 $indexer->save();
@@ -73,17 +72,17 @@ class Reindex
             'index' => $index,
             'body' => [
                 'query' => [
-                    'match_all' => (object)[]
-                ]
+                    'match_all' => (object) [],
+                ],
             ]]);
     }
 
     public function createIndexIfNotExist(string $index): void
     {
         $indexParams = [
-            'index' => $index
+            'index' => $index,
         ];
-        if (!Elasticsearch::indices()->exists($indexParams)) {
+        if (! Elasticsearch::indices()->exists($indexParams)) {
             Elasticsearch::indices()->create($indexParams);
         }
     }

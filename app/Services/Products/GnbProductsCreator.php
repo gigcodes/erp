@@ -2,14 +2,11 @@
 
 namespace App\Services\Products;
 
-use Storage;
 use App\Brand;
 use Validator;
 use App\Product;
 use App\Setting;
 use App\Supplier;
-use App\ScrapActivity;
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GnbProductsCreator
@@ -24,13 +21,6 @@ class GnbProductsCreator
         $old_supplier = '';
         if ($validator->fails()) {
             $product = Product::where('sku', $image->sku)->first();
-            // $params = [
-            //     'website'             => 'Tory',
-            //     'scraped_product_id'  => $image->id,
-            //     'status'              => 1
-            // ];
-            //
-            // ScrapActivity::create($params);
             $old_supplier = $product->supplier;
         } else {
             $product = new Product;
@@ -113,19 +103,15 @@ class GnbProductsCreator
 
         $product->save();
 
-        // if ($old_supplier != '' && $old_supplier != 'G & B Negozionline') {
         if ($db_supplier = Supplier::where('supplier', 'G & B Negozionline')->first()) {
             $product->suppliers()->syncWithoutDetaching($db_supplier->id);
         }
-        // }
 
         $images = $image->images;
 
         $product->detachMediaTags(config('constants.media_tags'));
 
         foreach ($images as $image_name) {
-            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-
             $path = public_path('uploads') . '/social-media/' . $image_name;
             $media = MediaUploader::fromSource($path)
                                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))

@@ -47,7 +47,6 @@ class OrderProduct extends Model
 
     public function product()
     {
-        //		return $this->hasOne('App\Product',['sku','color'],['sku','color']);
         return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 

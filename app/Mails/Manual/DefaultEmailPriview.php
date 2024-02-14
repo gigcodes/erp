@@ -15,7 +15,6 @@ class DefaultEmailPriview extends Mailable
 
     public $template;
 
-    // public $returnExchangeProducts;
     public $fromMailer;
 
     /**
@@ -28,7 +27,6 @@ class DefaultEmailPriview extends Mailable
         $this->email = $email;
         $this->template = $template;
         $this->dataArr = $dataArr;
-        //$this->returnExchangeProducts = $rxProducts;
         $this->fromMailer = $fromMailer;
     }
 
@@ -37,18 +35,6 @@ class DefaultEmailPriview extends Mailable
      *
      * @return $this
      */
-
-    // public function build()
-    // {
-    //     $email   = $this->email;
-    //     $content = $email->message;
-
-    //     return $this->to($email->to)
-    //     ->from($email->from)
-    //     ->subject($email->subject)
-    //     ->view('emails.blank_content', compact('content'));
-    // }
-
     public function getDataFromHTML($order, $htmlData)
     {
         preg_match_all('/{{(.*?)}}/i', $htmlData, $matches);
@@ -86,7 +72,6 @@ class DefaultEmailPriview extends Mailable
                     }
                 }
                 $content = $this->getDataFromHTML($this->dataArr, $htmlData);
-                //dd( $this->email . '=='.$this->template. '==='.$this->dataArr.'==='. $this->fromMailer );
 
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)

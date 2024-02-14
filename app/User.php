@@ -381,7 +381,6 @@ class User extends Authenticatable implements JWTSubject
         }
         $role = $permission->getRoleIdsInArray();
         $user_role = $this->roles()->pluck('id')->unique()->toArray();
-        //dd($user_role);
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
                 return true;
@@ -390,24 +389,6 @@ class User extends Authenticatable implements JWTSubject
 
         return false;
     }
-
-    /*public function hasRole($role)
-    {
-
-        $roles = Role::where('name', $role)->first();
-
-        $role = ($roles) ? [$roles->id] : [];
-
-        $user_role = $this->roles()
-            ->pluck('id')->unique()->toArray();
-        //dd($user_role);
-        foreach ($user_role as $key => $value) {
-            if (in_array($value, $role)) {
-                return true;
-            }
-        }
-        return false;
-    }*/
 
     public function user_logs()
     {

@@ -15,7 +15,6 @@ class EmailLeadsSeeder extends Seeder
      */
     public function run()
     {
-        //
         $customer = Customer::all();
 
         foreach ($customer as $val) {

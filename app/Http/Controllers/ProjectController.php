@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\StoreWebsite;
 use App\Models\Project;
 use App\Models\ProjectType;
@@ -9,7 +10,6 @@ use App\Helpers\GithubTrait;
 use Illuminate\Http\Request;
 use App\BuildProcessErrorLog;
 use App\Models\ProjectServerenv;
-use App\User;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
@@ -133,7 +133,7 @@ class ProjectController extends Controller
                 } else {
                     $options = ['<option value="" >No records found.</option>'];
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 \Log::info('Error : ' . $e->getMessage());
                 $options = ['<option value="" >Please Select a Repository</option>'];
             }
@@ -162,7 +162,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => '',
-                'user_id' =>  $user_id,
+                'user_id' => $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data can not be empty!']);
@@ -176,7 +176,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => '',
-                'user_id' =>  $user_id,
+                'user_id' => $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Repository data not found!']);
@@ -189,7 +189,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
-                'user_id' =>  $user_id,
+                'user_id' => $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Branch data can not be empty!']);
@@ -212,7 +212,7 @@ class ProjectController extends Controller
                 'github_organization_id' => '',
                 'github_repository_id' => $repository_id,
                 'github_branch_state_name' => $branch_name,
-                'user_id' =>  $user_id,
+                'user_id' => $user_id,
             ]);
 
             return response()->json(['code' => 500, 'message' => 'Please select projects for build process!']);
@@ -265,7 +265,6 @@ class ProjectController extends Controller
                     $job = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($jenkins->getJob($jobName)) {
                         $job = $jenkins->getJob($jobName);
-                        // $builds = $job->getBuilds();
                         $lastBuild = $job->getLastBuild();
                         $latestBuildNumber = $latestBuildResult = '';
                         if ($lastBuild) {
@@ -332,7 +331,7 @@ class ProjectController extends Controller
                     ];
                     \App\BuildProcessHistory::create($record);
                     BuildProcessErrorLog::log([
-                        'user_id' =>  $user_id,
+                        'user_id' => $user_id,
                         'project_id' => $proj,
                         'error_message' => $e->getMessage(),
                         'error_code' => '500',
@@ -368,7 +367,7 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
-                    'user_id' =>  $user_id,
+                    'user_id' => $user_id,
                 ]);
             }
         }
@@ -441,13 +440,11 @@ class ProjectController extends Controller
                 $branch_name = $request->branch_name;
                 $serverenv = $project->serverenv;
                 $verbosity = 'high';
-                //$branch_name="stage";$repository="brands-labels";
                 try {
                     $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
-                        // $builds = $job->getBuilds();
 
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name . '<br> Server Env: ' . $serverenv . '<br> Verbosity : ' . $verbosity;
                         $latestBuildNumber = $latestBuildResult = '';
@@ -488,9 +485,9 @@ class ProjectController extends Controller
                         return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
                     } else {
                         $error_message = 'Jenkins job not created for ' .
-                        'Build Name: ' . $jobName . '<br>' .
-                        'Build Repository: ' . $repository . '<br>' .
-                        'Branch Name: ' . $branch_name;
+                            'Build Name: ' . $jobName . '<br>' .
+                            'Build Repository: ' . $repository . '<br>' .
+                            'Branch Name: ' . $branch_name;
 
                         BuildProcessErrorLog::log([
                             'project_id' => $request->project_id,
@@ -583,7 +580,7 @@ class ProjectController extends Controller
         $repositories = \App\Github\GithubRepository::All();
         $users = User::All();
 
-        return view('project.build-process-error-logs', compact('buildProcessErrorLogs','projects','organizations','repositories','users'));
+        return view('project.build-process-error-logs', compact('buildProcessErrorLogs', 'projects', 'organizations', 'repositories', 'users'));
     }
 
     // New concept in page
@@ -710,45 +707,6 @@ class ProjectController extends Controller
 
         return view('project.build-process-logs', compact('responseLogs', 'repo_names', 'organizations', 'projects', 'users', 'reqproject', 'reqorganizations', 'reqrepoids', 'requsers', 'reqstatus', 'store_websites', 'serverenvs', 'projecttype'));
     }
-
-    // Old concept in modal popup
-    // public function buildProcessLogs(Request $request, $id)
-    // {
-    //     try {
-    //         $responseLog = \App\BuildProcessHistory::leftJoin('users as u','u.id','=','build_process_histories.created_by')->where('store_website_id', '=', $id)->select('build_process_histories.*','u.name as usersname')->latest()->get();
-    //         //dd($responseLog);
-    //         if ($responseLog != null) {
-    //             $html = '';
-    //             foreach ($responseLog as $res) {
-    //                 //dd($res->created_at);
-    //                 $html .= '<tr>';
-    //                 $html .= '<td>' . $res->id . '</td>';
-
-    //                 $html .= '<td>' .  $res->usersname .'</td>';
-
-    //                 $html .= '<td>' . $res->build_number . '</td>';
-    //                 $html .= '<td>' . $res->build_name . '</td>';
-    //                 $html .= '<td>' . $res->text . '</td>';
-    //                 $html .= '<td>' . $res->status . '</td>';
-
-    //                 $html .= '<td>' . $res->created_at . '</td>';
-    //                 $html .= '</tr>';
-    //             }
-
-    //             return response()->json([
-    //                 'code' => 200,
-    //                 'data' => $html,
-    //                 'message' => '',
-    //             ]);
-    //         }
-
-    //         return response()->json(['code' => 500, 'error' => 'Wrong site id!']);
-    //     } catch (\Exception $e) {
-    //         $msg = $e->getMessage();
-
-    //         return response()->json(['code' => 500, 'data' => [], 'message' => $msg]);
-    //     }
-    // }
 
     public function store(Request $request)
     {
@@ -896,13 +854,12 @@ class ProjectController extends Controller
         $selectedIdsString = $request->input('selectedIds');
         $projectIds = explode(',', $selectedIdsString);
         $responseResults = [];
-        $metapackage_branch = "";
+        $metapackage_branch = '';
 
-        if($request->metapackage_branch == 'master' &&  $request->repository == 353671452)
-        {
-            $metapackage_branch = "master";
+        if ($request->metapackage_branch == 'master' && $request->repository == 353671452) {
+            $metapackage_branch = 'master';
         } else {
-            $metapackage_branch = "";
+            $metapackage_branch = '';
         }
 
         foreach ($projectIds as $projectId) {
@@ -921,7 +878,7 @@ class ProjectController extends Controller
                     'github_organization_id' => '',
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => '',
-                    'user_id' => $user_id ,
+                    'user_id' => $user_id,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please select repository']);
@@ -934,7 +891,7 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
-                    'user_id' => $user_id ,
+                    'user_id' => $user_id,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please select Branch']);
@@ -947,7 +904,7 @@ class ProjectController extends Controller
                     'github_organization_id' => $organization,
                     'github_repository_id' => $repository_id,
                     'github_branch_state_name' => $branch_name,
-                    'user_id' => $user_id ,
+                    'user_id' => $user_id,
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'Please Enter Job Name']);
@@ -956,77 +913,63 @@ class ProjectController extends Controller
             if (! empty($projectId)) {
                 $repositoryData = \App\Github\GithubRepository::find($request->repository);
 
-                    $repository = $request->repository;
-                    if ($repositoryData) {
-                        $repository = $repositoryData->name;
-                    }
+                $repository = $request->repository;
+                if ($repositoryData) {
+                    $repository = $repositoryData->name;
+                }
 
-                    $jobName = $project->job_name;
-                    $branch_name = $request->branch_name;
-                    $serverenv = $project->serverenv;
-                    $verbosity = 'high';
+                $jobName = $project->job_name;
+                $branch_name = $request->branch_name;
+                $serverenv = $project->serverenv;
+                $verbosity = 'high';
 
-                    try {
-                        $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                        $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity, 'metapackage_branch' => $metapackage_branch ]);
-                        if ($launchJobStatus) {
-                            $job = $jenkins->getJob($jobName);
+                try {
+                    $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                    $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity, 'metapackage_branch' => $metapackage_branch]);
+                    if ($launchJobStatus) {
+                        $job = $jenkins->getJob($jobName);
 
-                            $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
-                            $latestBuildNumber = $latestBuildResult = '';
+                        $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Branch Name: ' . $branch_name;
+                        $latestBuildNumber = $latestBuildResult = '';
 
-                            $job_api_url = "{$jenkins->getUrl()}/job/{$jobName}/api/json";
-                            $job_info = json_decode(file_get_contents($job_api_url), true);
-                            // Check if the job has any build in the queue
-                            if ($job_info && $job_info['inQueue']) {
-                                $latestBuildNumber = $job_info['nextBuildNumber'];
-                                $latestBuildResult = 'WAITING';
-                            } else {
-                                $lastBuild = $job->getLastBuild();
-                                if ($lastBuild) {
-                                    $latestBuildNumber = $lastBuild->getNumber();
-                                    $latestBuildResult = $lastBuild->getResult();
-                                }
+                        $job_api_url = "{$jenkins->getUrl()}/job/{$jobName}/api/json";
+                        $job_info = json_decode(file_get_contents($job_api_url), true);
+                        // Check if the job has any build in the queue
+                        if ($job_info && $job_info['inQueue']) {
+                            $latestBuildNumber = $job_info['nextBuildNumber'];
+                            $latestBuildResult = 'WAITING';
+                        } else {
+                            $lastBuild = $job->getLastBuild();
+                            if ($lastBuild) {
+                                $latestBuildNumber = $lastBuild->getNumber();
+                                $latestBuildResult = $lastBuild->getResult();
                             }
+                        }
 
-                            $record = [
-                                'store_website_id' => $projectId,
-                                'created_by' => auth()->user()->id,
-                                'text' => $buildDetail,
-                                'build_name' => $jobName,
-                                'build_number' => $latestBuildNumber,
-                                'status' => $latestBuildResult,
-                                'github_organization_id' => $organization,
-                                'github_repository_id' => $repository_id,
-                                'github_branch_state_name' => $branch_name,
-                                'initiate_from' => $initiate_from,
-                            ];
+                        $record = [
+                            'store_website_id' => $projectId,
+                            'created_by' => auth()->user()->id,
+                            'text' => $buildDetail,
+                            'build_name' => $jobName,
+                            'build_number' => $latestBuildNumber,
+                            'status' => $latestBuildResult,
+                            'github_organization_id' => $organization,
+                            'github_repository_id' => $repository_id,
+                            'github_branch_state_name' => $branch_name,
+                            'initiate_from' => $initiate_from,
+                        ];
 
-                            \App\BuildProcessHistory::create($record);
-
+                        \App\BuildProcessHistory::create($record);
 
                         $responseResults[] = [
-                                'project_id' => $projectId,
-                                'code' => 200,
-                                'message' => 'Process built successfully.',
+                            'project_id' => $projectId,
+                            'code' => 200,
+                            'message' => 'Process built successfully.',
                         ];
-                     } else {
-                            BuildProcessErrorLog::log([
-                                'project_id' => $projectId,
-                                'error_message' => 'Jenkins job not created',
-                                'error_code' => '500',
-                                'github_organization_id' => $organization,
-                                'github_repository_id' => $repository_id,
-                                'github_branch_state_name' => $branch_name,
-                                'user_id' => $user_id,
-                            ]);
-
-                            return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
-                        }
-                    } catch (\Exception $e) {
+                    } else {
                         BuildProcessErrorLog::log([
                             'project_id' => $projectId,
-                            'error_message' => $e->getMessage(),
+                            'error_message' => 'Jenkins job not created',
                             'error_code' => '500',
                             'github_organization_id' => $organization,
                             'github_repository_id' => $repository_id,
@@ -1034,20 +977,33 @@ class ProjectController extends Controller
                             'user_id' => $user_id,
                         ]);
 
-                        return response()->json(['code' => 500, 'message' => $e->getMessage()]);
-                    } catch (\RuntimeException $e) {
-                        BuildProcessErrorLog::log([
-                            'project_id' => $projectId,
-                            'error_message' => $e->getMessage(),
-                            'error_code' => '500',
-                            'github_organization_id' => $organization,
-                            'github_repository_id' => $repository_id,
-                            'github_branch_state_name' => $branch_name,
-                            'user_id' => $user_id,
-                        ]);
-
-                        return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+                        return response()->json(['code' => 500, 'message' => 'Please try again, Jenkins job not created']);
                     }
+                } catch (\Exception $e) {
+                    BuildProcessErrorLog::log([
+                        'project_id' => $projectId,
+                        'error_message' => $e->getMessage(),
+                        'error_code' => '500',
+                        'github_organization_id' => $organization,
+                        'github_repository_id' => $repository_id,
+                        'github_branch_state_name' => $branch_name,
+                        'user_id' => $user_id,
+                    ]);
+
+                    return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+                } catch (\RuntimeException $e) {
+                    BuildProcessErrorLog::log([
+                        'project_id' => $projectId,
+                        'error_message' => $e->getMessage(),
+                        'error_code' => '500',
+                        'github_organization_id' => $organization,
+                        'github_repository_id' => $repository_id,
+                        'github_branch_state_name' => $branch_name,
+                        'user_id' => $user_id,
+                    ]);
+
+                    return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+                }
             }
         }
 

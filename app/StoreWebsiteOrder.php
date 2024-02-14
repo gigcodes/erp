@@ -29,7 +29,7 @@ class StoreWebsiteOrder extends Model
         return $this->hasOne(\App\StoreWebsiteProductPrice::class, 'store_website_id', 'website_id');
     }
 
-    public static function getOrderConfirmationTemplate()
+    public function getOrderConfirmationTemplate()
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Order Confirmation')->first();
         if ($category) {

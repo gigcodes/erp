@@ -8,40 +8,23 @@ use App\GoogleAd;
 use App\GoogleAdsGroup;
 use Google\Auth\OAuth2;
 use App\GoogleAdsCampaign;
-
 use App\Models\GoogleAppAd;
 use Illuminate\Http\Request;
 use App\Helpers\GoogleAdsHelper;
-
 use App\Models\GoogleAppAdImage;
 use Google\Auth\CredentialsLoader;
 use App\Models\GoogleAdGroupKeyword;
 use App\Models\GoogleResponsiveDisplayAd;
 use App\Models\GoogleCampaignTargetLanguage;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use App\Models\GoogleResponsiveDisplayAdMarketingImage;
 use Google\Ads\GoogleAds\V12\Services\CampaignOperation;
-
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GoogleAdsAccountController extends Controller
 {
     // show campaigns in main page
     public function index(Request $request)
     {
-        /* $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->build();
-
-        $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->withOAuth2Credential($oAuth2Credential)
-            ->build();
-
-        $adWordsServices = new AdWordsServices();
-
-        $campInfo = $this->getCampaigns($adWordsServices, $session); */
         $query = \App\GoogleAdsAccount::query();
         if ($request->website) {
             $query = $query->where('store_websites', $request->website);
@@ -95,7 +78,6 @@ class GoogleAdsAccountController extends Controller
             'google_customer_id' => 'required|integer',
             'account_name' => 'required',
             'store_websites' => 'required',
-            // 'config_file_path' => 'required',
             'status' => 'required',
             'notes' => 'required',
             'google_adwords_client_account_email' => 'required|email',
@@ -115,18 +97,6 @@ class GoogleAdsAccountController extends Controller
             $input = $request->all();
             $googleadsAc = \App\GoogleAdsAccount::create($input);
             $account_id = $googleadsAc->id;
-
-            /*if ($request->file('config_file_path')) {
-
-                ini_set('max_execution_time', -1);
-
-                $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
-                    ->toDestination('adsapi', $account_id)
-                    ->upload();
-                $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-                $googleadsAc->config_file_path = $getfilename;
-                $googleadsAc->save();
-            }*/
 
             // Insert google ads log
             $input = [
@@ -194,20 +164,6 @@ class GoogleAdsAccountController extends Controller
             $googleadsAcQuery = new \App\GoogleAdsAccount;
             $googleadsAc = $googleadsAcQuery->find($account_id);
 
-            /*if ($request->file('config_file_path')) {
-
-                ini_set('max_execution_time', -1);
-
-                //find old one
-                if (isset($googleadsAc->config_file_path) && $googleadsAc->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id.'/'.$googleadsAc->config_file_path)) {
-                    \Storage::disk('adsapi')->delete($account_id.'/'.$googleadsAc->config_file_path);
-                }
-                $uploadfile = MediaUploader::fromSource($request->file('config_file_path'))
-                    ->toDestination('adsapi', $account_id)
-                    ->upload();
-                $getfilename = $uploadfile->filename.'.'.$uploadfile->extension;
-                $input['config_file_path'] = $getfilename;
-            }*/
             $googleadsAc->fill($input);
             $googleadsAc->save();
 
@@ -276,7 +232,6 @@ class GoogleAdsAccountController extends Controller
         $authUrl = filter_var($authUrl, FILTER_SANITIZE_URL);
 
         return redirect()->away($authUrl);
-        //header('Location: '.$oauth2->buildFullAuthorizationUri());
     }
 
     /*
@@ -322,10 +277,6 @@ class GoogleAdsAccountController extends Controller
         if (isset($result->config_file_path) && $result->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
             $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
-            /* echo $storagepath; exit;
-        echo storage_path('adsapi_php.ini'); exit; */
-            /* echo '<pre>' . print_r($result, true) . '</pre>';
-            die('developer working'); */
             return $storagepath;
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
@@ -339,7 +290,6 @@ class GoogleAdsAccountController extends Controller
         try {
             $account_id = $id;
             $customerId = $googleAdsAc->google_customer_id;
-            // $storagepath = $this->getstoragepath($account_id);
 
             $googleAdsCampaigns = GoogleAdsCampaign::where('account_id', $account_id)->get();
 

@@ -44,7 +44,7 @@ class ZabbixProblemImport extends Command
         $auth_key = $this->login_api();
         if ($auth_key != '') {
             $problems = $this->problem_api($auth_key);
-            foreach ($problems as  $key => $val) {
+            foreach ($problems as $key => $val) {
                 foreach ($val as $problem) {
                     $check_if_exists = Problem::where('eventid', $problem->eventid)->first();
                     $host = Host::where('hostid', $problem->host_id)->first();
@@ -57,7 +57,7 @@ class ZabbixProblemImport extends Command
                             'recovery_time' => $problem->r_clock,
                             'severity' => $problem->severity,
                             'time_duration' => $problem->ns,
-                            'acknowledged' => (bool)$problem->acknowledged,
+                            'acknowledged' => (bool) $problem->acknowledged,
                         ];
 
                         Problem::where('eventid', $problem->eventid)->update($array);
@@ -71,7 +71,7 @@ class ZabbixProblemImport extends Command
                             'recovery_time' => $problem->r_clock,
                             'severity' => $problem->severity,
                             'time_duration' => $problem->ns,
-                            'acknowledged' => (bool)$problem->acknowledged,
+                            'acknowledged' => (bool) $problem->acknowledged,
                         ];
                         Problem::create($array);
                     }

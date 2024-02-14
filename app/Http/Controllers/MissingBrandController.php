@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
 use App\Brand;
-use App\Activity;
 use App\MissingBrand;
 use Illuminate\Http\Request;
 
@@ -64,7 +62,6 @@ class MissingBrandController extends Controller
     {
         $missingBrands = MissingBrand::query();
 
-        //orderBy('id','desc')->paginate(20);
         if (! empty($request->term)) {
             $missingBrands = $missingBrands->where('name', 'LIKE', '%' . $request->term . '%')->orWhere('supplier', 'LIKE', '%' . $request->term . '%');
         }
@@ -126,12 +123,6 @@ class MissingBrandController extends Controller
         if ($mBrand) {
             $mBrand->delete();
         }
-        /*Activity::create([
-            'subject_type' => 'Brand',
-            'subject_id' => $brand->id,
-            'causer_id' => Auth::user()->id,
-            'description' => Auth::user()->name.' has merged '.$brand->name.' to '.$mBrand->brand_name,
-        ]);*/
 
         return redirect()->back()->with('success', 'Brand reference added successfully');
     }

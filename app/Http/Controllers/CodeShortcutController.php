@@ -225,7 +225,7 @@ class CodeShortcutController extends Controller
     }
 
     public function getListCodeShortCut($id)
-    {   
+    {
         $CodeShortcut = CodeShortcut::findorFail($id);
 
         return response()->json([

@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use DB;
 use Auth;
+use App\Task;
 use App\User;
+use App\GoogleScreencast;
+use Illuminate\Http\Request;
+use App\Models\DevOopsStatus;
+use App\Helpers\MessageHelper;
+use App\Models\DevOppsRemarks;
 use App\Models\DevOppsCategories;
 use App\Models\DevOppsSubCategory;
-use App\Models\DevOppsRemarks;
-use App\Models\DevOopsStatus;
 use App\Models\DevOopsStatusHistory;
-use Illuminate\Http\Request;
-use App\DeveloperTask;
-use App\Task;
 use App\Jobs\UploadGoogleDriveScreencast;
-use App\GoogleScreencast;
-use App\Helpers\MessageHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class DevOppsController extends Controller
@@ -32,9 +31,9 @@ class DevOppsController extends Controller
 
             if (isset($request->category_name) && ! empty($request->category_name)) {
                 $items = DevOppsSubCategory::with(['devoops_category'])
-                ->whereHas('devoops_category', function ($q) use ($request) {
-                    $q->where('dev_opps_categories.name', 'Like', '%' . $request->category_name . '%');
-                });
+                    ->whereHas('devoops_category', function ($q) use ($request) {
+                        $q->where('dev_opps_categories.name', 'Like', '%' . $request->category_name . '%');
+                    });
             }
             if (isset($request->sub_category_name) && ! empty($request->sub_category_name)) {
                 $items->where('dev_opps_sub_categories.name', 'Like', '%' . $request->sub_category_name . '%');
@@ -57,21 +56,18 @@ class DevOppsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         if ($request->ajax()) {
-
-            if($request['category_type']==1){
+            if ($request['category_type'] == 1) {
                 $name = $request['category_name'];
                 $category_array = [
                     'name' => $name,
                 ];
                 DevOppsCategories::create($category_array);
             } else {
-
                 $sub_category_array = [
                     'devoops_category_id' => $request['devoops_category_id'],
                     'name' => $request['sub_category_name'],
@@ -79,21 +75,20 @@ class DevOppsController extends Controller
 
                 DevOppsSubCategory::create($sub_category_array);
             }
+
             return response()->json(['code' => 200, 'message' => 'Record added Successfully!']);
-            //return datatables()->eloquent($items)->toJson();
         }
     }
 
     public function update(Request $request)
     {
         if ($request->ajax()) {
-
-            if($request['category_type']==1){
+            if ($request['category_type'] == 1) {
                 $id = $request->id;
                 $categoryname = $request->category_name;
                 $category = DevOppsCategories::find($id);
 
-                if (!empty($category)) {
+                if (! empty($category)) {
                     $category->name = $categoryname; // Assign the new value to the 'name' attribute
                     $category->save(); // Save the changes to the database
                 }
@@ -102,18 +97,19 @@ class DevOppsController extends Controller
                 $sub_category = $request->sub_category_name;
                 $devoops_category_id = $request->devoops_category_id;
                 $subcategory = DevOppsSubCategory::find($id);
-                if (!empty($subcategory)) {
+                if (! empty($subcategory)) {
                     $subcategory->name = $sub_category;
                     $subcategory->devoops_category_id = $devoops_category_id;
                     $subcategory->save();
                 }
             }
+
             return response()->json(['code' => 200, 'message' => 'Record updated Successfully!']);
         }
     }
 
     public function delete($id)
-    {   
+    {
         $items = DevOppsCategories::find($id);
         $delete = $items->delete();
 
@@ -129,8 +125,7 @@ class DevOppsController extends Controller
     }
 
     public function saveRemarks(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -139,7 +134,7 @@ class DevOppsController extends Controller
             'remarks' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         DevOppsRemarks::create($input);
 
@@ -149,10 +144,10 @@ class DevOppsController extends Controller
     public function getRemarksHistories(Request $request)
     {
         $datas = DevOppsRemarks::with(['user'])
-                ->where('main_category_id', $request->main_category_id)
-                ->where('sub_category_id', $request->sub_category_id)
-                ->latest()
-                ->get();
+            ->where('main_category_id', $request->main_category_id)
+            ->where('sub_category_id', $request->sub_category_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -222,9 +217,9 @@ class DevOppsController extends Controller
     public function getStatusHistories(Request $request)
     {
         $datas = DevOopsStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('devoops_sub_category_id', $request->id)
-                ->latest()
-                ->get();
+            ->where('devoops_sub_category_id', $request->id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -271,6 +266,7 @@ class DevOppsController extends Controller
             return back()->with('success', 'File is Uploaded to Google Drive.');
         } catch (Exception $e) {
             \Log::error($e->getMessage());
+
             return back()->with('error', 'Something went wrong. Please try again');
         }
     }
@@ -294,6 +290,7 @@ class DevOppsController extends Controller
             }
         } catch (Exception $e) {
             \Log::error($e->getMessage());
+
             return response()->json([
                 'data' => view('dev-oops.google-drive-list', ['result' => null])->render(),
             ]);

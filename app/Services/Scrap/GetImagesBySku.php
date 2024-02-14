@@ -75,7 +75,7 @@ class GetImagesBySku extends Scraper
 
         switch (strtolower($brand)) {
             case 'yves saint laurent':
-//                $product = $c->filter('article')->getIterator();
+                //
                 break;
             case 'prada':
             case 'fendi':

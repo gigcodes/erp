@@ -72,7 +72,6 @@ class MagentoSettingAddUpdate extends Command
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
                     curl_close($curl);
 
-                    //dd($resArr, 'sdfgsdf');
                     if (is_array($resArr) && isset($resArr[0][0]) && $resArr[0][0]['config_id']) {
                         foreach ($resArr as $key1 => $res1) {
                             foreach ($res1 as $key => $res) {
@@ -94,7 +93,6 @@ class MagentoSettingAddUpdate extends Command
                                             );
                                         }
                                     } else {
-                                        //echo $key;
                                         MagentoSetting::create(
                                             [
                                                 'config_id' => $res['config_id'],
@@ -114,7 +112,6 @@ class MagentoSettingAddUpdate extends Command
                         MagentoSettingUpdateResponseLog::create(
                             [
                                 'website_id' => $website->id,
-                                //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
                                 'response' => is_array($response) ? json_encode($response) : $response,
                             ]
                         );
@@ -122,13 +119,10 @@ class MagentoSettingAddUpdate extends Command
                         MagentoSettingUpdateResponseLog::create(
                             [
                                 'website_id' => $website->id,
-                                //'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
                                 'response' => is_array($response) ? json_encode($response) : $response,
                             ]
                         );
                     }
-
-                // \Log::info('Magento log created : '.$website);
                 } else {
                     $token = empty($website->api_token) ? 'Please Check API TOKEN' : '';
                     $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : '';

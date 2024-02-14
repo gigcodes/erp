@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\TimeDoctor\TimeDoctorLog;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\Library\TimeDoctor\Src\Timedoctor;
-use App\TimeDoctor\TimeDoctorLog;
 
 class RefreshTimeDoctorUsers extends Command
 {

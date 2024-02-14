@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
 use App\HashTag;
 use App\Setting;
 use App\Category;
@@ -10,10 +9,7 @@ use App\LogRequest;
 use App\InstagramPosts;
 use Illuminate\Http\Request;
 use App\KeywordSearchVariants;
-use App\Library\Watson\Response;
 use Yajra\DataTables\DataTables;
-
-//use App\InstagramPosts;
 
 class GoogleSearchController extends Controller
 {
@@ -42,12 +38,6 @@ class GoogleSearchController extends Controller
             $orderBy = 'ASC';
         }
 
-        /*if ($request->input('sortby') == '') {
-            $sortBy = 'hashtag';
-        } else {
-            $sortBy = '';
-        }*/
-
         if ($request->search || $request->priority) {
             if ($request->search != null && $request->priority == 'on') {
                 $keywords = HashTag::query()->with('creator')
@@ -67,7 +57,6 @@ class GoogleSearchController extends Controller
                     ->where('hashtag', 'LIKE', "%{$request->search}%")
                     ->where('platforms_id', $this->platformsId)
                     ->orderBy($sortBy, $orderBy);
-                //->paginate(Setting::get('pagination'));
 
                 $queryString = 'search=' . $request->search . '&';
             }
@@ -257,7 +246,6 @@ class GoogleSearchController extends Controller
                 $tag = $postJson['searchKeyword'];
 
                 // Get hashtag ID
-                //$hashtag = HashTag::firstOrCreate(['hashtag' => $tag]);
 
                 $keywords = HashTag::query()
                     ->where('hashtag', 'LIKE', $tag)
@@ -466,16 +454,4 @@ class GoogleSearchController extends Controller
 
         return response()->json(['success' => true], 200);
     }
-
-    /*public function deleteSearch($id)
-    {
-      $instaPost = InstagramPosts::find($id);
-
-      if($instaPost){
-        $instaPost->delete();
-      }
-
-      return response()->json(['message' => "delete successfully"]);
-
-    }*/
 }

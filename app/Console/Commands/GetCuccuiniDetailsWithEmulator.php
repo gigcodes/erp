@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
-use GuzzleHttp\Client;
 use App\ScrapedProducts;
-use Illuminate\Console\Command;
 use App\Services\Bots\CucProductDataEmulator;
 use App\Services\Bots\CucProductExistsEmulator;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Console\Command;
 
 class GetCuccuiniDetailsWithEmulator extends Command
 {
@@ -93,7 +93,6 @@ class GetCuccuiniDetailsWithEmulator extends Command
         $this->info('here saving to server');
         $client = new Client();
         $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
-            //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,
                 'website' => $image->website,
@@ -101,7 +100,6 @@ class GetCuccuiniDetailsWithEmulator extends Command
                 'title' => $image->title,
                 'brand_id' => $image->brand_id,
                 'description' => $image->description,
-                //                'images' => $this->imagesToDownload,
                 'price' => $image->price,
                 'properties' => $image->properties,
                 'url' => $image->url,

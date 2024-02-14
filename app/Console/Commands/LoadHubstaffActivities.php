@@ -5,11 +5,9 @@ namespace App\Console\Commands;
 use Exception;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Illuminate\Http\Request;
 use App\Helpers\HubstaffTrait;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffActivity;
 
 class LoadHubstaffActivities extends Command
@@ -41,7 +39,6 @@ class LoadHubstaffActivities extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -52,7 +49,6 @@ class LoadHubstaffActivities extends Command
      */
     public function handle()
     {
-        //
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -90,15 +86,6 @@ class LoadHubstaffActivities extends Command
                 );
 
                 if (is_null($data['task_id'])) {
-                    //STOPPED CERTAIN MESSAGES
-                    /*$user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first();
-                    if($user) {
-                        $message = "You haven't selected any task on your last activity period ".$startTime. " to ".$stopTime." , Please select appropriate task or put notes on it.";
-                        $requestData = new Request();
-                        $requestData->setMethod('POST');
-                        $requestData->request->add(['user_id' => $user->user_id, 'message' => $message, 'status' => 1]);
-                        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
-                    }*/
                 }
             }
             $report->update(['end_time' => Carbon::now()]);
@@ -112,7 +99,6 @@ class LoadHubstaffActivities extends Command
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($start, $stop) {
-                    // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
                     $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
 
                     echo $url . PHP_EOL;
@@ -148,7 +134,6 @@ class LoadHubstaffActivities extends Command
             return $activities;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
-
             return false;
         }
     }

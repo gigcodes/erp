@@ -77,7 +77,7 @@ class ImageApprovalPushToMagento implements ShouldQueue
         $upteamconditionsWithIds = [];
 
         $pushtomagento_condition = PushToMagentoCondition::where('status', 1)->OrWhere('upteam_status', 1)->get()->toArray();
-        foreach ($pushtomagento_condition  as $pmc_key => $pmc_data) {
+        foreach ($pushtomagento_condition as $pmc_key => $pmc_data) {
             if ($pmc_data['status'] == 1) {
                 $conditionsWithIds[$pmc_data['condition']] = $pmc_data['id'];
             } elseif ($pmc_data['upteam_status'] == 1) {

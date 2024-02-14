@@ -7,7 +7,6 @@ use App\User;
 use App\Review;
 use App\Account;
 use App\Helpers;
-use App\Product;
 use App\Scraper;
 use App\Setting;
 use App\Customer;
@@ -17,25 +16,12 @@ use App\Instruction;
 use App\StatusChange;
 use App\ReviewSchedule;
 use App\TargetLocation;
-//use InstagramAPI\Instagram;
 use App\ReviewBrandList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-
 class ReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __construct()
-    {
-        //   		$this->middleware('permission:review-view');
-    }
-
     public function index(Request $request)
     {
         $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
@@ -45,21 +31,9 @@ class ReviewController extends Controller
         $filter_brand = $request->brand ?? '';
         $users_array = Helpers::getUserArray(User::all());
 
-        // $revs = Review::all();
-        //
-        // foreach ($revs as $rev) {
-        //   // $rev->is_approved = $rev->status;
-        //   // $rev->account_id = $rev->account_id;
-        //   // $rev->customer_id = $rev->customer_id;
-        //   $rev->status = $rev->review_schedule->status;
-        //   $rev->save();
-        // }
-
         if ($request->platform != null) {
             $accounts = Account::where('platform', $request->platform)->latest()->paginate(Setting::get('pagination'));
-            // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('platform', $request->platform);
             $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('platform', $request->platform);
-            // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('platform', $request->platform);
             $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('platform', $request->platform);
 
             $complaints = Complaint::where('platform', $request->platform);
@@ -74,8 +48,6 @@ class ReviewController extends Controller
                 $complaints = $complaints->where('date', $request->posted_date);
             } else {
                 $review_schedules = Review::with('review_schedule')->where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
-                // $review_schedules = ReviewSchedule::where('status', '!=', 'posted')->where('posted_date', $request->posted_date);
-                // $posted_reviews = ReviewSchedule::where('status', 'posted')->where('posted_date', $request->posted_date);
                 $posted_reviews = Review::with('review_schedule')->where('status', 'posted')->where('posted_date', $request->posted_date);
                 $complaints = Complaint::where('date', $request->posted_date);
             }
@@ -83,16 +55,10 @@ class ReviewController extends Controller
 
         if ($request->platform == null && $request->posted_date == null) {
             $review_schedules = Review::where('status', '!=', 'posted');
-            // $review_schedules = ReviewSchedule::where('status', '!=', 'posted');
             $posted_reviews = Review::with('review_schedule')->where('status', 'posted');
             $complaints = (new Complaint)->newQuery();
         }
 
-        // $review_schedules = $review_schedules->orWhere(function ($query) {
-        //   return $query->where('status', 'posted')->whereHas('Reviews', function ($q) {
-        //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
-        //   });
-        // })
         $review_schedules = DB::table('brand_reviews')->orderBy('created_at', 'ASC');
         if ($filter_brand) {
             $review_schedules->where('brand', $filter_brand);
@@ -201,12 +167,6 @@ class ReviewController extends Controller
 
         $data = $request->except(['_token', 'review']);
 
-        // dd($request->review[0]);
-
-        // preg_match_all('/(#\w*)/', $request->review[0], $match);
-        //
-        // dd($match);
-
         $review_schedule = ReviewSchedule::create($data);
 
         foreach ($request->review as $review) {
@@ -294,11 +254,7 @@ class ReviewController extends Controller
 
         $review->update($data);
 
-//        dd($review->platform);
-
-//        if ($review->platform == 'sitejabber') {
         return redirect()->action([\App\Http\Controllers\SitejabberQAController::class, 'accounts'])->with('message', 'Review has been posted successfully!');
-//        }
 
         return redirect()->route('review.index')->withSuccess('You have successfully updated the review!');
     }
@@ -393,17 +349,6 @@ class ReviewController extends Controller
 
     public function scheduleUpdateStatus(Request $request, $id)
     {
-        // $review_schedule = ReviewSchedule::find($id);
-        // $review_schedule->status = $request->status;
-        // $review_schedule->save();
-        //
-        // foreach ($review_schedule->reviews as $review) {
-        //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
-        //     $review->status = 'posted';
-        //     $review->save();
-        //   }
-        // }
-
         $review = Review::find($id);
 
         StatusChange::create([
@@ -416,13 +361,6 @@ class ReviewController extends Controller
 
         $review->status = $request->status;
         $review->save();
-
-        // foreach ($review_schedule->reviews as $review) {
-        //   if ($review_schedule->status == 'posted' && $review->is_approved == 1) {
-        //     $review->status = 'posted';
-        //     $review->save();
-        //   }
-        // }
 
         return response('success');
     }
@@ -453,16 +391,6 @@ class ReviewController extends Controller
 
     public function scheduleDestroy($id)
     {
-        // $schedule = ReviewSchedule::find($id);
-        //
-        // foreach ($schedule->reviews as $review) {
-        //   $review->delete();
-        // }
-        //
-        // $schedule->delete();
-        //
-        // return redirect()->route('review.index')->withSuccess('You have successfully deleted scheduled review!');
-
         $review = Review::find($id);
 
         $review->delete();
@@ -501,73 +429,10 @@ class ReviewController extends Controller
         return redirect()->back()->with('message', 'Comment sent for review');
     }
 
-//    public function replyToPost(Request $request) {
-//
-//        $this->validate($request, [
-//            'media_id' => 'required',
-//            'id' => 'required',
-//            'username' => 'required',
-//            'message' => 'required',
-//        ]);
-//
-//        $account = Account::find($request->get('id'));
-//
-//        $instagram = new Instagram();
-//        $instagram->login($account->last_name, $account->password);
-//
-//        $mediaId = $request->get('media_id');
-//        $message = $request->get('message');
-//        $username = $request->get('username');
-//        $message = "@$username $message";
-//        $instagram->media->comment($mediaId, $message);
-//
-//        return redirect()->back()->with('message', "Replied sent to @$username by @".$account->last_name);
-//    }
-
-//    public function sendDm(Request $request) {
-//
-//        $this->validate($request, [
-//            'product_id' => 'required',
-//            'id' => 'required',
-//            'username' => 'required',
-//            'message' => 'required',
-//        ]);
-//
-//        $account = Account::find($request->get('id'));
-//
-//        $instagram = new Instagram();
-//        $instagram->login($account->last_name, $account->password);
-//
-//        $message = $request->get('message');
-//        $username = $request->get('username');
-//
-//        $product = Product::findOrFail($request->get('product_id'));
-//
-//
-//        $id = $instagram->people->getUserIdForName($username);
-//
-//        $file = $product->imageurl;
-//
-//        $file = explode('/', $file);
-//        $file = $file[count($file)-1];
-//
-//        $file = 'uploads/'.$file;
-//
-//        $instagram->direct->sendText([
-//            'users' => [$id]
-//        ], $message);
-//        $instagram->direct->sendPhoto([
-//            'users' => [$id]
-//        ], $file);
-//
-//        return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
-//    }
-
     public function restartScript(Request $request)
     {
         $serverId = $request->serverId;
 
-        // $url = 'https://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         $url = 'https://' . $serverId . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();

@@ -148,11 +148,6 @@ class GraphqlService
             $localeDiffs = [];
 
             foreach ($shopLocales as &$locale) {
-                /*if (strpos($locale, '-')) {
-                    $old = $locale;
-                    $locale = explode('-', $locale)[0];
-                    $localeDiffs[$locale] = $old;
-                }*/
                 $localeDiffs[$locale] = $locale;
             }
 

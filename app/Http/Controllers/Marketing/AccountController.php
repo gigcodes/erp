@@ -7,7 +7,6 @@ use App\Setting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Marketing\MarketingPlatform;
-use App\Marketing\InstaAccAutomationForm;
 
 class AccountController extends Controller
 {
@@ -27,8 +26,8 @@ class AccountController extends Controller
 
         if ($request->term) {
             $query = $query->where('last_name', 'LIKE', '%' . $request->term . '%')
-                            ->orWhere('email', 'LIKE', '%' . $request->term . '%')
-                            ->orWhere('platform', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('platform', 'LIKE', '%' . $request->term . '%');
         }
 
         if ($request->date) {
@@ -135,8 +134,6 @@ class AccountController extends Controller
         foreach ($request->except('_token') as $key => $val) {
             $setting1 = Setting::where('name', $key)->update(['val' => $val]);
         }
-
-        // $automation_form = InstaAccAutomationForm::create($request->all());
         return redirect()->back()->with('message', 'Automation form Updated');
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Library\Watson\Action;
 
 use App\Brand;
-use App\Product;
 use App\Category;
 
 class SendProductImages
@@ -26,7 +25,6 @@ class SendProductImages
 
     public function __construct($attributes, $params)
     {
-        // code...
         $this->params = $params;
         $this->excludeAttributes($attributes);
     }

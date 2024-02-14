@@ -16,7 +16,7 @@ class DiscountSalePriceController extends Controller
     public function index(Request $request)
     {
         $discountsaleprice = StoreWebsiteSalesPrice::select('store_website_sales_prices.*', 'suppliers.supplier')
-        ->leftJoin('suppliers', 'store_website_sales_prices.supplier_id', 'suppliers.id');
+            ->leftJoin('suppliers', 'store_website_sales_prices.supplier_id', 'suppliers.id');
 
         if ($request->type != '') {
             $discountsaleprice->where('type', $request->type);

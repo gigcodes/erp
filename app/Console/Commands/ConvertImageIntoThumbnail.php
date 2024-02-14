@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Exception;
-use Plank\Mediable\Media;
 use Illuminate\Console\Command;
+use Plank\Mediable\Media;
 
 class ConvertImageIntoThumbnail extends Command
 {

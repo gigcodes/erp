@@ -43,8 +43,9 @@ class Zabbix
 
         $results = json_decode($result);
 
-        if (!isset($results[0])){
-            \Log::channel('general')->info("Response error: " . Carbon::now(). " " . json_encode($results));
+        if (! isset($results[0])) {
+            \Log::channel('general')->info('Response error: ' . Carbon::now() . ' ' . json_encode($results));
+
             return 0;
         }
 
@@ -53,6 +54,7 @@ class Zabbix
                 return $results[0]->result;
             } else {
                 \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+
                 return 0;
             }
         } catch (\Exception|\Throwable $e) {
@@ -62,6 +64,7 @@ class Zabbix
 
     /**
      * @return mixed
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getAllUsers()
@@ -74,18 +77,18 @@ class Zabbix
 
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
         return $body['result'];
     }
 
     /**
-     * @param $id
      * @return mixed|null
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getUserByIds($id)
@@ -95,16 +98,16 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'user.get',
                 'params' => [
-                    'userids' => $id
+                    'userids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        return !empty($body['result']) ? $body['result'][0] : null;
+        return ! empty($body['result']) ? $body['result'][0] : null;
     }
 
     public function getRoleByIds($id)
@@ -114,25 +117,25 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'role.get',
                 'params' => [
-                    'roleids' => $id
+                    'roleids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
-        return !empty($body['result']) ? $body['result'][0] : null;
+        return ! empty($body['result']) ? $body['result'][0] : null;
     }
 
     /**
-     * @param $id
      * @return mixed|null
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getItemByIds($id)
@@ -142,16 +145,16 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'item.get',
                 'params' => [
-                    'itemids' => $id
+                    'itemids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        return !empty($body['result']) ? $body['result'][0] : null;
+        return ! empty($body['result']) ? $body['result'][0] : null;
     }
 
     public function getHostById($id)
@@ -161,22 +164,22 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'hostinterface.get',
                 'params' => [
-                    "output" => "extend",
-                    'hostids' => $id
+                    'output' => 'extend',
+                    'hostids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        return !empty($body['result']) ? $body['result'][0] : null;
+        return ! empty($body['result']) ? $body['result'][0] : null;
     }
 
     /**
-     * @param array $params
      * @return mixed
+     *
      * @throws ZabbixException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -188,13 +191,13 @@ class Zabbix
                 'method' => 'user.create',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -212,13 +215,13 @@ class Zabbix
                 'method' => 'user.delete',
                 'params' => [$id],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -233,13 +236,13 @@ class Zabbix
                 'method' => 'host.delete',
                 'params' => [$id],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -254,13 +257,13 @@ class Zabbix
                 'method' => "role.$action",
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -275,13 +278,13 @@ class Zabbix
                 'method' => "host.$action",
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -296,13 +299,13 @@ class Zabbix
                 'method' => 'item.delete',
                 'params' => [$id],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -317,13 +320,13 @@ class Zabbix
                 'method' => 'trigger.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -331,8 +334,8 @@ class Zabbix
     }
 
     /**
-     * @param array $params
      * @return mixed
+     *
      * @throws ZabbixException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -344,13 +347,13 @@ class Zabbix
                 'method' => 'user.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -365,13 +368,13 @@ class Zabbix
                 'method' => 'trigger.create',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -386,13 +389,13 @@ class Zabbix
                 'method' => 'item.create',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -407,13 +410,13 @@ class Zabbix
                 'method' => 'item.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -428,13 +431,13 @@ class Zabbix
                 'method' => 'trigger.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -443,6 +446,7 @@ class Zabbix
 
     /**
      * @return mixed
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getAllItems()
@@ -453,22 +457,23 @@ class Zabbix
                 'method' => 'item.get',
                 'params' => [
                     'limit' => 50,
-                    "sortfield"=> "itemid",
-                    "sortorder"=> "DESC",
+                    'sortfield' => 'itemid',
+                    'sortorder' => 'DESC',
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
         return $body['result'];
     }
 
     /**
      * @return mixed
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getAllItemsByHostId(int $hostId)
@@ -479,15 +484,15 @@ class Zabbix
                 'method' => 'item.get',
                 'params' => [
                     'limit' => 1000,
-                    'hostids' => $hostId
+                    'hostids' => $hostId,
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
         return $body['result'];
     }
@@ -501,11 +506,11 @@ class Zabbix
                 'params' => [
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
         return $body['result'];
     }
@@ -519,11 +524,11 @@ class Zabbix
                 'params' => [
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
         return $body['result'];
     }
@@ -535,16 +540,16 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'template.get',
                 'params' => [
-                    'limit' => 20000
+                    'limit' => 20000,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
@@ -558,20 +563,20 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'trigger.get',
                 'params' => [
-                    'triggerids' => $id
+                    'triggerids' => $id,
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID
-            ]
+                'id' => self::ZABBIX_ID,
+            ],
         ]);
 
-        $body = json_decode((string)$request->getBody(), true);
+        $body = json_decode((string) $request->getBody(), true);
 
-        if (!empty($body['error'])) {
+        if (! empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
 
-        return !empty($body['result']) ? $body['result'][0] : null;
+        return ! empty($body['result']) ? $body['result'][0] : null;
     }
 }

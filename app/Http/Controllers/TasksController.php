@@ -76,9 +76,7 @@ class TasksController extends Controller
             'parameters',
             'timezone',
             'developer_module_id',
-            //            'type',
             'expression',
-            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',
@@ -115,18 +113,13 @@ class TasksController extends Controller
 
     public function update(TaskRequest $request, Task $task)
     {
-//        dd($task);
-//        dd($request->all());
-//        $task = Task::update($request->all(), $task);
         $task = Task::where('id', $task->id)->update($request->only([
             'description',
             'command',
             'parameters',
             'timezone',
             'developer_module_id',
-            //            'type',
             'expression',
-            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',

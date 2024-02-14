@@ -66,24 +66,6 @@ class ChatbotMessageLogsController extends Controller
 
     public function pushwaston(Request $request)
     {
-        /*$params = [
-        "name"      => $request->get("dialog_type", 'node') == "node" ? "solo_" . time() : "solo_project_" . time(),
-        "parent_id" => $request->get("parent_id", 0),
-        "dialog_type" => $request->get("dialog_type", 'node')
-        ];
-        $previousNode = $request->get("previous_node", 0);
-        if ($previousNode > 0) {
-        $params["previous_sibling"] = $previousNode;
-        }else{
-        $params["previous_sibling"] = 0;
-        }
-        $params["response_type"] = "standard";
-
-        //$siblingNode = ChatbotDialog::where("previous_sibling", 0)->first();
-        $dialog = \App\ChatbotDialog::create($params);
-
-        $result        = json_decode(WatsonManager::pushDialog($dialog->id));*/
-
         $params = $param = $request->all();
 
         $validator = Validator::make($params, [
@@ -126,7 +108,6 @@ class ChatbotMessageLogsController extends Controller
             }
         }
 
-        // dd('001');
         if (array_key_exists('types', $params) && $params['types'] != null && array_key_exists('type', $params) && $params['type'] != null) {
             $chatbotQuestionExample = null;
             if (! empty($params['value_name'])) {
@@ -154,7 +135,6 @@ class ChatbotMessageLogsController extends Controller
             }
         }
 
-        // dd('2');
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $exploded = explode(',', $request->keyword);
 
@@ -180,8 +160,6 @@ class ChatbotMessageLogsController extends Controller
                 }
             }
         }
-        // dd('here');
-
         if ($params['watson_account'] > 0) {
             $wotson_account_ids = \App\WatsonAccount::where('id', $request->watson_account)->get();
         } else {
@@ -272,10 +250,8 @@ class ChatbotMessageLogsController extends Controller
             $replies = \App\Reply::where('category_id', $replyCategory['id'])->where('pushed_to_watson', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
             foreach ($replies as $replyId => $reply) {
                 $params['value'] = str_replace(' ', '_', $replyCategory['name']);
-                //$params["suggested_reply"] = str_replace(" ", "_", $reply);
                 $params['suggested_reply'] = $reply;
 
-                //$chatbotQuestion = \App\ChatbotQuestion::create($params);
                 $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
 
                 $watson_account_ids = \App\WatsonAccount::all();

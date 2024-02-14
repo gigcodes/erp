@@ -91,9 +91,9 @@ class MagentoConfigValue extends Command
                     foreach ($settings as $key => $setting) {
                         $value_on_magento = isset($response[$key]) ? $response[$key]['value'] : null;
                         MagentoSetting::where('id', $setting['id'])
-                                        ->update([
-                                            'value_on_magento' => $value_on_magento,
-                                        ]);
+                            ->update([
+                                'value_on_magento' => $value_on_magento,
+                            ]);
                     }
                     curl_close($curl);
                 }

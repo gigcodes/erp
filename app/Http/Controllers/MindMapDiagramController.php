@@ -15,8 +15,9 @@ class MindMapDiagramController extends Controller
      */
     public function index()
     {
-        $mapDiagrams = MindMapDiagram::where('user_id',auth()->user()->id)->orderBy('created_at','desc')->get();
-        return view("mind-map.index",compact("mapDiagrams"));
+        $mapDiagrams = MindMapDiagram::where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->get();
+
+        return view('mind-map.index', compact('mapDiagrams'));
     }
 
     /**
@@ -32,16 +33,15 @@ class MindMapDiagramController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreMindMapDiagramRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreMindMapDiagramRequest $request)
     {
         $mind_map = new MindMapDiagram();
-        $mind_map->title= $request->title;
-        $mind_map->user_id=auth()->user()->id;
-        $mind_map->description= $request->description;
-        $mind_map->data= $request->data;
+        $mind_map->title = $request->title;
+        $mind_map->user_id = auth()->user()->id;
+        $mind_map->description = $request->description;
+        $mind_map->data = $request->data;
         $mind_map->save();
     }
 
@@ -53,14 +53,12 @@ class MindMapDiagramController extends Controller
      */
     public function show(MindMapDiagram $mindMap)
     {
-        // $mapDiagram = MindMapDiagram::where('user_id',auth()->user()->id)->where('id',$mindMapDiagram->id)->first();
-        return ['mindMap'=>$mindMap];
+        return ['mindMap' => $mindMap];
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\MindMapDiagram  $mindMapDiagram
      * @return \Illuminate\Http\Response
      */
     public function edit(MindMapDiagram $mindMapDiagram)
@@ -71,8 +69,6 @@ class MindMapDiagramController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateMindMapDiagramRequest  $request
-     * @param  \App\Models\MindMapDiagram  $mindMapDiagram
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateMindMapDiagramRequest $request, MindMapDiagram $mindMapDiagram)
@@ -83,7 +79,6 @@ class MindMapDiagramController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\MindMapDiagram  $mindMapDiagram
      * @return \Illuminate\Http\Response
      */
     public function destroy(MindMapDiagram $mindMapDiagram)

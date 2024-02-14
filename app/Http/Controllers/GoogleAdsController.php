@@ -6,14 +6,12 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Helpers\GoogleAdsHelper;
 use Google\Ads\GoogleAds\V12\Resources\Ad;
-use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
 use Google\Ads\GoogleAds\V12\Common\ResponsiveSearchAdInfo;
 use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
-
 use Google\Ads\GoogleAds\V12\Enums\ServedAssetFieldTypeEnum\ServedAssetFieldType;
 
 class GoogleAdsController extends Controller
@@ -29,10 +27,7 @@ class GoogleAdsController extends Controller
         if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
             $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
-            /* echo $storagepath; exit;
-        echo storage_path('adsapi_php.ini'); exit; */
-            /* echo '<pre>' . print_r($result, true) . '</pre>';
-            die('developer working'); */
+
             return $storagepath;
         } else {
             abort(404, 'Please add adspai_php.ini file');
@@ -55,18 +50,6 @@ class GoogleAdsController extends Controller
 
     public function index(Request $request, $campaignId, $adGroupId)
     {
-        /* $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
-
-        // Construct an API session configured from a properties file and the
-        // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
-
-        $adsInfo = $this->getAds(new AdWordsServices(), $session, $adGroupId);
-
-        return view('googleads.index',
-            ['ads' => $adsInfo['ads'], 'totalNumEntries' => $adsInfo['totalNumEntries'],
-                'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
-
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
         $query = \App\GoogleAd::query();
 
@@ -218,8 +201,6 @@ class GoogleAdsController extends Controller
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        // $storagepath = $this->getstoragepath($account_id);
-
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $headlinePart1 = $request->headlinePart1;
         $headlinePart2 = $request->headlinePart2;
@@ -331,8 +312,6 @@ class GoogleAdsController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
-
-        // $storagepath = $this->getstoragepath($account_id);
 
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductPushInformationHistory extends Model
 {
-    //
     protected $guarded = [];
 
     public function user()

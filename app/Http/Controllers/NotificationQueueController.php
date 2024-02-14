@@ -57,7 +57,6 @@ class NotificationQueueController extends Controller
             }
         }
 
-        // if ($notificationArray['sent_to'] == 6 || $notificationArray['sent_to'] == 56 || (array_key_exists('role', $notificationArray) && $notificationArray['role'] == 'Admin')) {
         if (($notificationArray['sent_to'] == 6 && $notificationArray['model_type'] == Instruction::class) || ($notificationArray['sent_to'] == 3 && $notificationArray['model_type'] == Instruction::class) || ($notificationArray['sent_to'] == 23 && $notificationArray['model_type'] == Instruction::class)) {
             // TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
         } else {
@@ -74,7 +73,7 @@ class NotificationQueueController extends Controller
     {
         $nArray = NotificationQueue::orderBy('time_to_add', 'ASC')->take(20)->get()->toArray();
 
-        foreach ($nArray  as $item) {
+        foreach ($nArray as $item) {
             if (time() >= strtotime($item['time_to_add'])) {
                 switch ($item['model_type']) {
                     case Sale::class:
@@ -117,7 +116,6 @@ class NotificationQueueController extends Controller
                         $order_instance = Order::find($item['model_id']);
 
                         if (! empty($order_instance)) {
-                            //							if ( $order_instance->status == '' ) {}
                             if ($order_instance->assign_status == null) {
                                 PushNotification::create($item);
                             }

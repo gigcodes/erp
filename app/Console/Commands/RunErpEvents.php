@@ -45,7 +45,6 @@ class RunErpEvents extends Command
             $endDate = date('Y-m-d H:i:s', strtotime($startDate . '+5 minutes'));
 
             $events = \App\ErpEvents::where('next_run_date', '>=', $startDate)->where('next_run_date', '<=', $endDate)->get();
-            //$events = \App\ErpEvents::where("id", "=", 2)->get();
 
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {

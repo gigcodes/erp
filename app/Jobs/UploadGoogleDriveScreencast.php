@@ -135,7 +135,7 @@ class UploadGoogleDriveScreencast
             }
 
             return $file;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             echo 'Error Message: ' . $e;
         }
     }

@@ -37,7 +37,6 @@ class CategoryUpdateFromHistory extends Command
      */
     public function handle()
     {
-        //
         $allProducts = \App\ProductCategoryHistory::where('product_id', '!=', 0)
         ->groupBy('product_id')
         ->orderBy('created_at', 'desc')

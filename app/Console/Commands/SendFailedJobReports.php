@@ -50,7 +50,7 @@ class SendFailedJobReports extends Command
                 throw new \Exception('Error Processing jobs, Total Failed Jobs in last five min : ' . $failedReports->count(), 1);
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

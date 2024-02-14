@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use App\Events\PurchaseCreated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,25 +20,14 @@ class Purchase extends Model
      */
     use SoftDeletes;
 
-    // protected $appends = ['communication'];
     protected $communication = '';
 
     protected $fillable = ['whatsapp_number'];
-
-    protected $dispatchesEvents = [
-        //'created' => PurchaseCreated::class,
-        //'updated' => PaymentUpdated::class,
-    ];
 
     public function messages()
     {
         return $this->hasMany(\App\Message::class, 'moduleid')->where('moduletype', 'purchase')->latest()->first();
     }
-
-    // public function getCommunicationAttribute()
-    // {
-    // 	return $this->messages();
-    // }
 
     public function products()
     {

@@ -10,14 +10,6 @@ use App\StoreWebsiteAnalytic;
 
 class StoreWebsiteAnalyticsController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware(function ($request, $next) {
-        //     session()->flash('active_tab','blogger_list_tab');
-        //     return $next($request);
-        // });
-    }
-
     public function index()
     {
         try {
@@ -36,15 +28,14 @@ class StoreWebsiteAnalyticsController extends Controller
             $rules = [
                 'website' => 'required',
                 'account_id' => 'required',
-                //                'view_id' => 'required',
                 'store_website_id' => 'required|integer',
             ];
 
-            //validation for googles service account json file for google analytics
+            //validation for googles service account json file for Google Analytics
             if (! $request->id) {
                 $rules['google_service_account_json'] = 'required|file';
             } else {
-                //$rules['google_service_account_json'] = 'file|mimetypes:application/json';
+                //
             }
 
             $messages = [

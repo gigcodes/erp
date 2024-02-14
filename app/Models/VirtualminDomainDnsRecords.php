@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\VirtualminDomain;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class VirtualminDomainDnsRecords extends Model
 {
@@ -20,7 +19,7 @@ class VirtualminDomainDnsRecords extends Model
         'content',
         'name',
         'domain_with_dns_name',
-        'proxied'
+        'proxied',
     ];
 
     public function VirtualminDomain()

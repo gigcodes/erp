@@ -28,12 +28,10 @@ class SimplyDutySegmentController extends Controller
         if ($id == 0) {
             SimplyDutySegment::insert(['segment' => $segment, 'price' => $price]);
 
-            //return redirect()->back()->with('success',"Segment Added Successfully") ;
             return response()->json(['success' => true, 'message' => 'Segment Updated Successfully']);
         } else {
             SimplyDutySegment::where('id', $id)->update(['segment' => $segment, 'price' => $price]);
 
-            //return redirect()->back()->with('success',"Segment Updated Successfully") ;
             return response()->json(['success' => true, 'message' => 'Segment Updated Successfully']);
         }
     }

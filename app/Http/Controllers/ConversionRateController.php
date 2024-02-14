@@ -23,7 +23,6 @@ class ConversionRateController extends Controller
             ConversionRate::whereId($request->post('id'))->update($data);
             Session::flash('message', 'Conversion Rate Updated Successfully');
         } else {
-            //Setting::add('disable_twilio', $disable_twilio, 'tinyint');
             unset($data['id']);
             ConversionRate::updateOrCreate(['currency' => $data['currency'], 'to_currency' => $data['to_currency']], $data);
             Session::flash('message', 'Conversion Rate  Created Successfully');

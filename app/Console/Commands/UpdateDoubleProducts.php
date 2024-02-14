@@ -127,15 +127,6 @@ class UpdateDoubleProducts extends Command
                     $old_product->price_inr_special = round($old_product->price_inr_special, -3);
 
                     $old_product->save();
-
-                    // $images = $product->images;
-                    // $old_product->detachMediaTags(config('constants.media_tags'));
-                    //
-                    // foreach ($images as $image_name) {
-                    //   $path = public_path('uploads') . '/social-media/' . $image_name;
-                    //   $media = MediaUploader::fromSource($path)->upload();
-                    //   $old_product->attachMedia($media,config('constants.media_tags'));
-                    // }
                 }
             }
 

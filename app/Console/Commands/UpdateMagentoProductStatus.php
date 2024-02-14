@@ -59,17 +59,9 @@ class UpdateMagentoProductStatus extends Command
             $proxy = new \SoapClient(config('magentoapi.url'), $options);
             $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
-            // $magento_products = $proxy->catalogProductList($sessionId);
-
-            // $products = Product::skip(909)->take(18435)->get();
             $products = Product::all();
 
-            // $product = Product::where('sku', 'RR3MJ00GNXU0N0')->first();
-            // $key = 0;
-
             foreach ($products as $key => $product) {
-                // $product = Product::where('sku', 'RW0B0312VIT0RO')->first();
-
                 $error_message = '';
                 $second_error_message = '';
                 $sku = $product->sku . $product->color;
@@ -225,43 +217,7 @@ class UpdateMagentoProductStatus extends Command
                 }
 
                 $product->save();
-
-                // dd('stap');
             }
-
-            // foreach ($products as $key => $product) {
-            //   $error_message = '';
-            //
-            //   try {
-            //     $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $product->sku)), true);
-            //   } catch (\Exception $e) {
-            //     $error_message = $e->getMessage();
-            //   }
-            //
-            //   if ($error_message == 'Product not exists.') {
-            //     $product->isUploaded = 0;
-            //     $product->isFinal = 0;
-            //
-            //     dump("$key Does not Exist");
-            //   } else {
-            //     $product->isUploaded = 1;
-            //
-            //     $visibility = $magento_product['visibility'];
-            //     // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-            //
-            //     if ($visibility == 1) {
-            //       $product->isFinal = 0;
-            //
-            //       dump("$key Not Visible");
-            //     } elseif ($visibility == 2 || $visibility == 3 || $visibility == 4) {
-            //       $product->isFinal = 1;
-            //
-            //       dump("$key Visible");
-            //     }
-            //   }
-            //
-            //   $product->save();
-            // }
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

@@ -39,7 +39,6 @@ class AssignScraperProcess extends Command
      */
     public function handle()
     {
-        //
         $readFile = env('SCRAPER_PROCESS_LOGS_FILE');
 
         if (! empty($readFile)) {

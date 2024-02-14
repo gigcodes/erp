@@ -38,7 +38,6 @@ class EntitiesService extends Service
 
     public function create($workspaceId, $params = [], $version = '2019-02-28')
     {
-        // dump($this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities');
         return $this->client->request(
             'POST',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities',

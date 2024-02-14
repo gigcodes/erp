@@ -18,7 +18,7 @@ class ReplyCategory extends Model
 
     public function sub_categories()
     {
-        return $this->hasMany(\App\ReplyCategory::class, 'parent_id')->select('id','parent_id','name')->orderBy('name', 'ASC');
+        return $this->hasMany(\App\ReplyCategory::class, 'parent_id')->select('id', 'parent_id', 'name')->orderBy('name', 'ASC');
     }
 
     public function internal_leads()

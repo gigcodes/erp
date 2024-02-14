@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CouponCodeRulesRemarks extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'coupon_code_rules_id', 'remarks', 'added_by'
+        'coupon_code_rules_id', 'remarks', 'added_by',
     ];
 
     public function user()

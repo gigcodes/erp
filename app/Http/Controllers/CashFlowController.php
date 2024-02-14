@@ -28,8 +28,6 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
-//        dd($request);
-
         $date_fornightly = Carbon::now()->format('d');
 
         $cash_flow = CashFlow::with(['user', 'files', 'website']);
@@ -68,8 +66,6 @@ class CashFlowController extends Controller
             if ($request->module_type == 'vendor_frequency') {
                 $cash_flow->where('cash_flow_able_type', \App\HubstaffActivityByPaymentFrequency::class);
                 if ($request->b_name != '') {
-                    //   $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
-                    //   $cash_flow->where('name','like',"%$request->b_name%");
                 }
             }
         }
@@ -84,9 +80,7 @@ class CashFlowController extends Controller
 
         $users = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
-        //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
-        //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
         if ($request->ajax()) {
             return view('cashflows.index_page', [
                 'cash_flows' => $cash_flows,
@@ -124,7 +118,6 @@ class CashFlowController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            // 'user_id'               => 'required|integer',
             'cash_flow_category_id' => 'sometimes|nullable|integer',
             'description' => 'sometimes|nullable|string',
             'date' => 'required',
@@ -363,7 +356,6 @@ class CashFlowController extends Controller
 
     public function hubstuffCommandLog(Request $request)
     {
-        // dd("test");
         if ($request->created_at) {
             $query = HubstuffCommandLog::orderby('created_at', 'desc');
 
@@ -395,8 +387,6 @@ class CashFlowController extends Controller
         $users = \App\User::pluck('name', 'id');
         if (isset($request->id) and $request->id != 0) {
             $messageLogs = HubstuffCommandLogMessage::where('hubstuff_command_log_id', $request->id)->get();
-            /*	$messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
-                ->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();*/
         }
 
         return view('cashflows.hubstuff_command_log_detail_data', compact('messageLogs', 'users'));

@@ -186,7 +186,6 @@ class UnknownAttributeProductController extends Controller
 
     public function updateAttributeAssignment(Request $request)
     {
-        // dd($request->all());
         $validateArr['product_id'] = 'required';
         $validateArr['attribute_id'] = 'required';
 

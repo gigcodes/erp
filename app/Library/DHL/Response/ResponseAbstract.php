@@ -16,7 +16,7 @@ abstract class ResponseAbstract
     public function hasError()
     {
         $notification = isset($this->response->Body->RateResponse->Provider->Notification)
-        ? $this->response->Body->RateResponse->Provider->Notification : null;
+            ? $this->response->Body->RateResponse->Provider->Notification : null;
 
         if (! empty($notification)) {
             foreach ($notification->attributes() as $k => $ntf) {
@@ -38,7 +38,7 @@ abstract class ResponseAbstract
     public function getErrorMessage()
     {
         $notification = isset($this->response->Body->RateResponse->Provider->Notification)
-        ? $this->response->Body->RateResponse->Provider->Notification : null;
+            ? $this->response->Body->RateResponse->Provider->Notification : null;
 
         if (! empty($notification)) {
             return [(string) $notification[0]->Message];

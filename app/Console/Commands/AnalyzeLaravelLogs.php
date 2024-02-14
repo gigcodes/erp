@@ -37,7 +37,6 @@ class AnalyzeLaravelLogs extends Command
     {
         parent::__construct();
         $this->client = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
@@ -111,7 +110,6 @@ class AnalyzeLaravelLogs extends Command
         $errorData = array_filter(
             $errorData,
             function ($data) {
-                //echo print_r($data, true);
                 return isset($data['commit']);
             }
         );

@@ -40,7 +40,7 @@ class ShipmentController extends Controller
     public function index(Request $request)
     {
         $waybills = $this->wayBill->leftJoin('orders as o', 'o.id', 'waybills.order_id')
-        ->leftJoin('waybill_invoices as wi', 'wi.shipment_number', 'waybills.awb');
+            ->leftJoin('waybill_invoices as wi', 'wi.shipment_number', 'waybills.awb');
 
         if ($request->get('awb')) {
             $waybills->where('waybills.awb', '=', $request->get('awb'));
@@ -56,16 +56,6 @@ class ShipmentController extends Controller
         if ($request->get('consignee')) {
             $waybills->where('waybills.to_customer_name', 'like', '%' . $request->get('consignee') . '%');
         }
-
-//        if ($request->get('consignee')) {
-//            $customer_name = Customer::where('name', 'like', '%'.$request->get('consignee').'%')->select('id')->get()->toArray();
-        ////            dd($customer_name);
-//            $ids = [];
-//            foreach ($customer_name as $cus) {
-//                array_push($ids, $cus['id']);
-//            }
-//            $waybills->whereIn('waybills.customer_id', $ids);
-//        }
 
         $waybills = $waybills->groupBy('waybills.awb');
 
@@ -157,7 +147,6 @@ class ShipmentController extends Controller
             $mail->bcc($bcc);
         }
 
-        // return $mail;
         $mail->send(new ShipmentEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]));
 
         $params = [
@@ -205,7 +194,6 @@ class ShipmentController extends Controller
     {
         $inputs = $request->all();
         $validator = Validator::make($inputs, [
-            //'customer_id' => 'required|numeric',
             'from_customer_id' => 'required',
             'from_customer_city' => 'required|string',
             'from_customer_country' => 'required|string',
@@ -244,15 +232,6 @@ class ShipmentController extends Controller
             }
 
             $rateReq = new CreateShipmentRequest('soap');
-            /* $rateReq->setShipper([
-            "street"         => config("dhl.shipper.street"),
-            "city"             => config("dhl.shipper.city"),
-            "postal_code"     => config("dhl.shipper.postal_code"),
-            "country_code"    => config("dhl.shipper.country_code"),
-            "person_name"     => config("dhl.shipper.person_name"),
-            "company_name"     => "Solo Luxury",
-            "phone"         => config("dhl.shipper.phone")
-            ]); */
 
             $rateReq->setShipper([
                 'street' => $request->from_customer_address1,

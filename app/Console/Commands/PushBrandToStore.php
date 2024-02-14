@@ -38,7 +38,6 @@ class PushBrandToStore extends Command
      */
     public function handle()
     {
-        //
         $limit = $this->ask('Limit of brands need to push ?');
         $webLimit = $this->ask('Which website you need to push ?');
 

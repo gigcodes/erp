@@ -76,11 +76,9 @@ class NegativeCouponResponses extends Command
 
                 // Check for errors
                 if ($err) {
-                    // Log error
-                    //\Log::error('Get Negative Coupon Response Error : =>'.$err);
+                    //
                 }
                 $convertJson = is_array($response) ? json_encode($response) : $response;
-                //\DB::enableQueryLog();
                 $user_id = \Auth::user()->id ?? '';
                 NegativeCouponResponse::create(
                     [
@@ -90,7 +88,6 @@ class NegativeCouponResponses extends Command
                         'response' => $convertJson,
                     ]
                 );
-                //dd(\DB::getQueryLog());
             }
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

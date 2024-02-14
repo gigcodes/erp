@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Cache;
-use App\Vendor;
-use App\Supplier;
 use Carbon\Carbon;
 use App\PushNotification;
 use Illuminate\Http\Request;

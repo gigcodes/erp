@@ -3,12 +3,8 @@
 namespace App\Console\Commands;
 
 use Cache;
-use App\Vendor;
 use App\Product;
-use App\Customer;
-use App\Supplier;
 use Carbon\Carbon;
-use App\ChatMessage;
 use App\ReplyCategory;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
@@ -48,7 +44,6 @@ class CacheMasterControl extends Command
      */
     public function handle()
     {
-        //
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -113,75 +108,6 @@ class CacheMasterControl extends Command
 
                 return DB::select($sqlScrapedProductsInStock);
             });
-
-            //Getting Customer Chat
-            $chat = null; //ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
-
-            /*Cache::remember('result_customer_chat', 30, function () use ($chat) {
-
-                $chatCustomers = clone $chat;
-                $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->whereNotNull('number')->orderBy('created_at', 'desc')->groupBy('customer_id')->get()->toArray();
-
-                $customerArrays = [];
-                foreach ($customerChats as $customerChat) {
-                    $customerArrays[] = $customerChat['customer_id'];
-                }
-
-                $customerPlaceholders = implode(',', array_fill(0, count($customerArrays), '?'));
-
-                $customers = [];
-                if (!empty($customerPlaceholders)) {
-                    $customers = Customer::select('id', 'name', 'phone')->whereIn('id', $customerArrays)->orderByRaw("field(id,{$customerPlaceholders})", $customerArrays)->get();
-                }
-
-                return $customers;
-            });
-
-            //Getting Supplier Chat
-            Cache::remember('result_supplier_chat', 30, function () use ($chat) {
-
-                $chatSuppliers = clone $chat;
-
-                $supplierChats = $chatSuppliers->select('supplier_id')->whereNotNull('supplier_id')->orderBy('created_at', 'desc')->groupBy('supplier_id')->get()->toArray();
-
-                $supplierArrays = [];
-                if (!empty($supplierChats)) {
-                    foreach ($supplierChats as $supplierChat) {
-                        $supplierArrays[] = $supplierChat['supplier_id'];
-                    }
-                }
-
-                $supplierPlaceholders = implode(',', array_fill(0, count($supplierArrays), '?'));
-
-                $suppliers = [];
-                if (!empty($supplierPlaceholders)) {
-                    $suppliers = Supplier::whereIn('id', $supplierArrays)->orderByRaw("field(id,{$supplierPlaceholders})", $supplierArrays)->get();
-                }
-
-                return $suppliers;
-            });
-
-            //Getting Vendor Chat
-            Cache::remember('result_vendor_chat', 30, function () use ($chat) {
-
-                $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at', 'desc')->groupBy('vendor_id')->get()->toArray();
-
-                $vendorArrays = [];
-                if (!empty($vendorChats)) {
-                    foreach ($vendorChats as $vendorChat) {
-                        $vendorArrays[] = $vendorChat['vendor_id'];
-                    }
-                }
-
-                $vendorPlaceholders = implode(',', array_fill(0, count($vendorArrays), '?'));
-                $vendors            = [];
-                if (!empty($vendorPlaceholders)) {
-                    $vendors = Vendor::whereIn('id', $vendorArrays)->orderByRaw("field(id,{$vendorPlaceholders})", $vendorArrays)->get();
-                }
-
-                return $vendors;
-
-            });*/
 
             Cache::remember('reply_categories', 1800, function () {
                 return $reply_categories = ReplyCategory::all();

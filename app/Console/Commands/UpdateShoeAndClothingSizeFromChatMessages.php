@@ -75,22 +75,6 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
                             }
                         }
 
-                        /*if (empty($message->clothing_size)) {
-                        $patternArr = [
-                        '/wear\s*\w*\s([0-9\.]+)/',
-                        '/wear\s*\?\s([0-9\.]+)/',
-                        '/([0-9\.]+)\s*wear/',
-                        ];
-                        foreach ($patternArr as $pattern) {
-                        $matches = [];
-                        preg_match_all($pattern, strtolower($message->message), $matches);
-                        if (!empty($matches[1][0])) {
-                        $customerParams['clothing_size'] = $matches[1][0];
-                        break;
-                        }
-                        }
-                        }*/
-
                         if (! empty($customerParams)) {
                             \App\Customer::where('id', $message->customer_id)->update($customerParams);
                         }

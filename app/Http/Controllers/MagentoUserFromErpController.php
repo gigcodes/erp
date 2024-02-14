@@ -35,10 +35,10 @@ class MagentoUserFromErpController extends Controller
             $q->on('store_websites.id', '=', 'store_website_users.store_website_id');
             $q->where('store_websites.website_source', '=', 'magento');
         })
-        ->where('store_website_users.is_deleted', 0)
-        ->whereNull('store_websites.deleted_at')
-        ->groupBy('store_website_users.username', 'store_websites.website', 'store_website_users.website_mode', 'store_websites.store_code_id')
-        ->orderBy('store_website_users.id', 'DESC');
+            ->where('store_website_users.is_deleted', 0)
+            ->whereNull('store_websites.deleted_at')
+            ->groupBy('store_website_users.username', 'store_websites.website', 'store_website_users.website_mode', 'store_websites.store_code_id')
+            ->orderBy('store_website_users.id', 'DESC');
 
         //Apply store_website_id if exists
         if ($request->get('store_website_id')) {
@@ -59,16 +59,16 @@ class MagentoUserFromErpController extends Controller
 
         //For select website filter list
         $allStoreWebsites = StoreWebsite::where('website_source', '=', 'magento')
-        ->whereNotNull('magento_username')
-        ->whereNull('deleted_at')
-        ->pluck('website', 'id')
-        ->toArray();
+            ->whereNotNull('magento_username')
+            ->whereNull('deleted_at')
+            ->pluck('website', 'id')
+            ->toArray();
 
         //For select role filter list
         $magentoRoles = StoreWebsiteUsers::whereNotNull('user_role_name')
-        ->groupBy('user_role')
-        ->pluck('user_role_name', 'user_role')
-        ->toArray();
+            ->groupBy('user_role')
+            ->pluck('user_role_name', 'user_role')
+            ->toArray();
 
         return view('magento-user-from-erp.index', compact('storeWebsites', 'magentoRoles', 'allStoreWebsites'));
     }
@@ -109,8 +109,8 @@ class MagentoUserFromErpController extends Controller
             ['website_source', '=', 'magento'],
             ['id', '=', $post['website']],
         ])->whereNotNull('magento_username')
-        ->whereNull('deleted_at')
-        ->first();
+            ->whereNull('deleted_at')
+            ->first();
 
         if (! empty($storeWebsite->id)) {
             // Continue with the code for successful response (status code 200)
@@ -178,7 +178,7 @@ class MagentoUserFromErpController extends Controller
     /**
      * Save log webstie.
      *
-     *@return \Illuminate\Http\JsonResponse|void
+     * @return \Illuminate\Http\JsonResponse|void
      */
     public function savelogwebsiteuser($log_case_id, $id, $username, $userEmail, $firstName, $lastName, $password, $website_mode, $msg)
     {
@@ -208,9 +208,9 @@ class MagentoUserFromErpController extends Controller
             ['website_source', '=', 'magento'],
             ['id', '=', $request->website_id],
         ])
-        ->whereNotNull('magento_username')
-        ->whereNull('deleted_at')
-        ->first();
+            ->whereNotNull('magento_username')
+            ->whereNull('deleted_at')
+            ->first();
 
         $magento_url = $magentStoreData['magento_url'];
 
@@ -224,15 +224,6 @@ class MagentoUserFromErpController extends Controller
                 $generated_token = trim($token_response->body(), '"');
                 $magentStoreData->api_token = $generated_token;
                 $magentStoreData->save();
-
-                /* $client = new \GuzzleHttp\Client();
-                $response = $client->request('GET', rtrim($magento_url, '/').'/rest/all/V1/adminroles', [
-                    'headers' => [
-                        'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer '.$magentStoreData['api_token'],
-                        'Accept' => 'application/json'
-                    ]
-                ]); */
                 $role_response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer ' . $magentStoreData['api_token'],
@@ -267,9 +258,9 @@ class MagentoUserFromErpController extends Controller
             ['website_source', '=', 'magento'],
             ['id', '=', $StoreWebsiteUsers['store_website_id']],
         ])
-        ->whereNotNull('magento_username')
-        ->whereNull('deleted_at')
-        ->first();
+            ->whereNotNull('magento_username')
+            ->whereNull('deleted_at')
+            ->first();
         if (! empty($store_website['magento_url'])) {
             $client = new \GuzzleHttp\Client();
             $response = $client->request('POST', rtrim($store_website['magento_url'], '/') . '/rest/V1/multistore/editadminuser', [

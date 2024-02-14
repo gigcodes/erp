@@ -22,9 +22,9 @@ class ReferralProgramController extends Controller
         }
         if ($request->term) {
             $query = $query->where('name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('uri', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('credit', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('currency', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('uri', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('credit', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('currency', 'LIKE', '%' . $request->term . '%');
         }
         $storeWebsite = StoreWebsite::select('id', 'website')->groupBy('website')->get();
 

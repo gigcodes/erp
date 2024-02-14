@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use App\Category;
-use App\Supplier;
-use Carbon\Carbon;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class FixCategoryNameBySupplier extends Command
@@ -75,7 +74,6 @@ class FixCategoryNameBySupplier extends Command
             $this->categories = $this->getCategories(self::TOP_MAIN_GENDER_CATEGORY);
 
             Product::where('is_scraped', 1)->where('category', '<', 4)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
-//        Product::where('id', 143121)->orderBy('id', 'DESC')->chunk(1000, function ($products) {
                 echo 'Chunk again=======================================================' . "\n";
                 $total = 1000;
                 foreach ($products as $product) {
@@ -204,108 +202,6 @@ class FixCategoryNameBySupplier extends Command
                 }
             }
         }
-
-        // category loop
-        /*foreach ($records as $record) {
-    $originalCategory = $record->title;
-    $rec              = explode(',', $record->references);
-
-    // find all scraped products
-    $scrapedProducts  = $product->many_scraped_products;
-
-    foreach ($scrapedProducts as $scrapedProduct) {
-
-    //scraped product category refrence
-    $catt = $scrapedProduct->properties['category'] ?? [];
-    if (is_array($catt)) {
-    $catt = implode('', $catt);
-    }
-
-    foreach ($rec as $kk => $cat) {
-
-    $cat = strtoupper($cat);
-
-    dump($catt, $cat, $scrapedProduct->title, $scrapedProduct->url);
-    dump('=================================================');
-
-    if (stripos(strtoupper($catt), $cat) !== false
-    || stripos(strtoupper($scrapedProduct->title ?? ''), $cat) !== false
-    || stripos(strtoupper($scrapedProduct->url ?? ''), $cat) !== false
-    ) {
-    $gender = $this->getMaleOrFemale($scrapedProduct->properties);
-
-    if ($gender === false) {
-    $gender = $this->getMaleOrFemale($scrapedProduct->title);
-    }
-
-    if ($gender === false) {
-    $gender = $this->getMaleOrFemale($scrapedProduct->url);
-    }
-
-    if ($product->supplier === 'Tory Burch' || $originalCategory == 'Pumps') {
-    $gender = 2;
-    }
-
-    if ($originalCategory == 'Shirts' && $gender == 2) {
-    $originalCategory = 'Tops';
-    }
-
-    if ($originalCategory == 'Clutches' && $gender == 2) {
-    $originalCategory = 'Handbags';
-    }
-
-    if ($originalCategory == 'Coats & Jackets' && $gender == 3) {
-    $originalCategory = 'Coats & Jackets & Suits';
-    }
-
-    if ($originalCategory == 'Tops' && $gender == 3) {
-    $originalCategory = 'T-Shirts';
-    }
-
-    if ($originalCategory == 'Skirts') {
-    $gender = 2;
-    }
-
-    if ($originalCategory == 'Shawls And Scarves' && $gender == 3) {
-    $originalCategory = 'Scarves & Wraps';
-    }
-
-    if ($originalCategory == 'Belts' && (stripos($catt, 'bag') !== false || stripos($product->title, 'bag') !== false || stripos($product->url, 'bag') !== false)) {
-    $originalCategory = 'Belt Bag';
-    }
-
-    if ($gender === false) {
-    $this->warn('NOOOOO' . $product->supplier);
-    $product->category = 1;
-    $product->save();
-    continue;
-    }
-
-    $parentCategory     = Category::find($gender);
-    $childrenCategories = $parentCategory->childs;
-
-    foreach ($childrenCategories as $childrenCategory) {
-    if ($childrenCategory->title == $originalCategory) {
-    $product->category = $childrenCategory->id;
-    $this->error('SAVED');
-    $product->save();
-    return;
-    }
-
-    $grandChildren = $childrenCategory->childs;
-    foreach ($grandChildren as $grandChild) {
-    if ($grandChild->title == $originalCategory) {
-    $product->category = $grandChild->id;
-    $product->save();
-    $this->error('SAVED');
-    return;
-    }
-    }
-    }
-    }
-    }
-    }
-    }*/
     }
 
     private function getMaleOrFemale($category)

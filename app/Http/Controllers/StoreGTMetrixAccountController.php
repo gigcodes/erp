@@ -40,7 +40,7 @@ class StoreGTMetrixAccountController extends Controller
         StoreGTMetrixAccount::create($request->all());
 
         return redirect()->route('GtMetrixAccount.index')
-                        ->with('success', 'GtMetrixAccount created successfully.');
+            ->with('success', 'GtMetrixAccount created successfully.');
     }
 
     /**
@@ -79,8 +79,7 @@ class StoreGTMetrixAccountController extends Controller
         $insert = StoreGTMetrixAccount::where('id', $id)->update($input);
 
         return redirect()->route('GtMetrixAccount.index')
-                        ->with('success', 'GtMetrixAccount updated successfully');
-        //return redirect()->back()->with('success', 'Account updated successfully');
+            ->with('success', 'GtMetrixAccount updated successfully');
     }
 
     /**
@@ -92,6 +91,6 @@ class StoreGTMetrixAccountController extends Controller
         $StoreGTMetrixAccount->delete();
 
         return redirect()->route('GtMetrixAccount.index')
-                        ->with('success', 'GtMetrix Account deleted successfully');
+            ->with('success', 'GtMetrix Account deleted successfully');
     }
 }

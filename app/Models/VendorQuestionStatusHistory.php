@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class VendorQuestionStatusHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vendor_id', 'question_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['vendor_id', 'question_id', 'old_value', 'new_value', 'user_id'];
 
     public function user()
     {

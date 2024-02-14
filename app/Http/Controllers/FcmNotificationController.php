@@ -23,13 +23,13 @@ class FcmNotificationController extends Controller
         }
         if ($request->term) {
             $query = $query->where('title', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('body', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('url', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('created_by', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('body', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('url', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('created_by', 'LIKE', '%' . $request->term . '%');
         }
 
         $data = $query->leftJoin('users as usr', 'usr.id', 'push_fcm_notifications.created_by')
-        ->select('push_fcm_notifications.*', 'usr.name as username')->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
+            ->select('push_fcm_notifications.*', 'usr.name as username')->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('pushfcmnotification.partials.list-notification', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),

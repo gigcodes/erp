@@ -41,7 +41,6 @@ class SimplyDutyCountryWise extends Command
     {
         //STOPPED CERTAIN MESSAGES
         return false;
-        //try {
 
         $report = CronJobReport::create([
             'signature' => $this->signature,
@@ -52,18 +51,18 @@ class SimplyDutyCountryWise extends Command
 
         // check daily hubstaff  level from activities
         $activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members as hm', 'hm.hubstaff_user_id', 'hubstaff_activities.user_id')
-        ->join('users as u', 'u.id', 'hm.user_id')
-        ->whereDate('starts_at', $checkDate)
-        ->whereNotNull('hm.user_id')
-        ->groupBy('hubstaff_activities.user_id')
-        ->select([
-            \DB::raw('sum(hubstaff_activities.tracked) as total_track'),
-            \DB::raw('sum(hubstaff_activities.overall) as total_spent'),
-            'hm.*',
-            'hm.user_id as erp_user_id',
-            'u.name as user_name',
-            'u.phone as phone_number',
-        ])->get();
+            ->join('users as u', 'u.id', 'hm.user_id')
+            ->whereDate('starts_at', $checkDate)
+            ->whereNotNull('hm.user_id')
+            ->groupBy('hubstaff_activities.user_id')
+            ->select([
+                \DB::raw('sum(hubstaff_activities.tracked) as total_track'),
+                \DB::raw('sum(hubstaff_activities.overall) as total_spent'),
+                'hm.*',
+                'hm.user_id as erp_user_id',
+                'u.name as user_name',
+                'u.phone as phone_number',
+            ])->get();
 
         if (! $activities->isEmpty()) {
             foreach ($activities as $act) {
@@ -92,9 +91,5 @@ class SimplyDutyCountryWise extends Command
         }
 
         $report->update(['end_time' => Carbon::now()]);
-
-        /*} catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }*/
     }
 }

@@ -56,10 +56,6 @@ class ExtractImageColors extends Command
 
             Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function ($products) use ($ourColors) {
                 foreach ($products as $product) {
-//                if (isset($availableColors[$product->color])) {
-                    //                    dump('skipped');
-                    //                    continue;
-                    //                }
 
                     $imageUrl = $product->getMedia(config('constants.media_tags'))->first();
 

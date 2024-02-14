@@ -57,10 +57,10 @@ class TwillioMessagesCommand extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Message group query finished.']);
                     foreach ($groups as $group) {
                         $twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
-                        ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
-                        ->join('twilio_credentials', 'twilio_credentials.id', '=', 'twilio_active_numbers.twilio_credential_id')
-                        ->where('store_website_twilio_numbers.store_website_id', $group->store_website_id)
-                        ->first();
+                            ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
+                            ->join('twilio_credentials', 'twilio_credentials.id', '=', 'twilio_active_numbers.twilio_credential_id')
+                            ->where('store_website_twilio_numbers.store_website_id', $group->store_website_id)
+                            ->first();
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store website twilio number query finished.']);
 
@@ -76,10 +76,9 @@ class TwillioMessagesCommand extends Command
 
                         $marketing_messages = MarketingMessage::where('message_group_id', $group->id)->where('is_sent', 0)->whereBetween('scheduled_at', [$date, $date_added_hour])->get();
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Marketing message query finished.']);
-                        //$marketing_messages = MarketingMessage::where('message_group_id', $group->id)->where('is_sent', 0)->get();
                         foreach ($marketing_messages as $index => $message) {
                             $marketingMessageCustomers = MarketingMessageCustomer::leftJoin('customers', 'customers.id', '=', 'marketing_message_customers.customer_id')
-                            ->where('marketing_message_id', $message->id)->select('marketing_message_customers.*', 'customers.phone')->get();
+                                ->where('marketing_message_id', $message->id)->select('marketing_message_customers.*', 'customers.phone')->get();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Marketing message customer query finished.']);
                             foreach ($marketingMessageCustomers as $marketingMessageCustomer) {
                                 try {
@@ -111,7 +110,7 @@ class TwillioMessagesCommand extends Command
             }
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

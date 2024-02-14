@@ -7,7 +7,6 @@ use App\AdGroup;
 use App\AdAccount;
 use Carbon\Carbon;
 use App\AdCampaign;
-use App\GoogleAdsAccount;
 use Illuminate\Http\Request;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\v201809\cm\Level;
@@ -35,11 +34,7 @@ use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
 use Google\AdsApi\AdWords\v201809\cm\ManualCpcBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\ManualCpmBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TargetCpaBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TargetRoasBiddingScheme;
 use Google\AdsApi\AdWords\v201809\cm\AdGroup as GoogleAdGroup;
-use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
 use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 
@@ -56,21 +51,17 @@ class AdsController extends Controller
 
     public function records(Request $request)
     {
-        // $records = GoogleAdsAccount::leftJoin("googlecampaigns as gc","gc.account_id","googleadsaccounts.id")
-        // ->leftJoin("googleadsgroups as gg","gg.adgroup_google_campaign_id","gc.google_campaign_id")
-        // ->leftJoin("googleads as ga","ga.google_adgroup_id","gg.google_adgroup_id");
-
         $records = AdAccount::leftJoin('ad_campaigns as gc', 'gc.ad_account_id', 'ad_accounts.id')
-        ->leftJoin('ad_groups as gg', 'gg.campaign_id', 'gc.id')
-        ->leftJoin('ads as ga', 'ga.adgroup_id', 'gg.id')
-        ->select('ad_accounts.id', 'ad_accounts.account_name', 'ad_accounts.status', 'ad_accounts.created_at', 'gc.campaign_name', 'gc.data', 'ga.headlines');
+            ->leftJoin('ad_groups as gg', 'gg.campaign_id', 'gc.id')
+            ->leftJoin('ads as ga', 'ga.adgroup_id', 'gg.id')
+            ->select('ad_accounts.id', 'ad_accounts.account_name', 'ad_accounts.status', 'ad_accounts.created_at', 'gc.campaign_name', 'gc.data', 'ga.headlines');
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('gg.group_name', 'LIKE', "%$keyword%")
-                ->orWhere('gc.campaign_name', 'LIKE', "%$keyword%")
-                ->orWhere('ga.headlines', 'LIKE', "%$keyword%");
+                    ->orWhere('gc.campaign_name', 'LIKE', "%$keyword%")
+                    ->orWhere('ga.headlines', 'LIKE', "%$keyword%");
             });
         }
 
@@ -179,31 +170,6 @@ class AdsController extends Controller
         $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPC);
         $biddingScheme = new ManualCpcBiddingScheme();
 
-        // if($bidding_strategy_type=="TARGET_CPA"){
-        //     $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_CPA);
-        //     $biddingScheme = new TargetCpaBiddingScheme();
-        //     $biddingScheme->setTargetCpa($txt_target_cpa);
-
-        // }
-
-        // if($bidding_strategy_type=="TARGET_ROAS"){
-        //     $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_ROAS);
-        //     $biddingScheme = new TargetRoasBiddingScheme();
-        //     $biddingScheme->setTargetRoas($txt_target_roas);
-        // }
-        // if($bidding_strategy_type=="TARGET_SPEND"){
-        //     $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_SPEND);
-        //     $biddingScheme = new TargetSpendBiddingScheme();
-        //     if(isset($maximize_clicks) && $maximize_clicks!=""){
-        //         $biddingScheme->setSpendTarget($maximize_clicks);
-        //     }
-        // }
-
-        // if($bidding_strategy_type=="MANUAL_CPM"){
-        //     $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPM);
-        //     $biddingScheme = new ManualCpmBiddingScheme();
-        // }
-
         // You can optionally provide a bidding scheme in place of the type.
         $biddingStrategyConfiguration->setBiddingScheme($biddingScheme);
 
@@ -219,8 +185,6 @@ class AdsController extends Controller
         if ($request->data['start_end_dated']['type'] == 'date') {
             $campaign->setEndDate($campaign_end_date);
         }
-
-        // $campaign->setTrackingUrlTemplate($tracking_template_url);
 
         // Set frequency cap (optional).
         $frequencyCap = new FrequencyCap();

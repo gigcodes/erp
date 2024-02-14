@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class LogStoreWebsiteAttributes extends Model
 {
-    //
     protected $fillable = [
         'log_case_id',
         'attribute_id',

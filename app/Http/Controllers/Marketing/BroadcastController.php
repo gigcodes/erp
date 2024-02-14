@@ -9,8 +9,6 @@ use App\ImQueue;
 use App\Setting;
 use App\Customer;
 use App\ErpLeads;
-use App\CompetitorPage;
-use App\ColdLeadBroadcasts;
 use Illuminate\Http\Request;
 use App\Marketing\WhatsappConfig;
 use App\CustomerMarketingPlatform;
@@ -22,7 +20,7 @@ class BroadcastController extends Controller
     /**
      * Getting BroadCast Page with Ajax Search.
      *
-     * @param  \App\Customer  id , term , date , number , broadcast , manual , remark , name
+     * @param \App\Customer  id , term , date , number , broadcast , manual , remark , name
      * @return \Illuminate\Http\View And Ajax
      */
     public function index(Request $request)
@@ -199,21 +197,18 @@ class BroadcastController extends Controller
 
             //Leads List
             $leads = ErpLeads::select('customer_id')->whereNotNull('customer_id')->get();
-            /*            dd($leads);*/
             foreach ($leads as $lead) {
                 $leadArray[] = $lead->customer_id;
             }
             $leadList = implode(',', $leadArray);
 
             $marketings = CustomerMarketingPlatform::select('customer_id')->whereNull('remark')->get();
-            /*            dd($marketings);*/
             foreach ($marketings as $marketing) {
                 $marketingArray[] = $marketing->customer_id;
             }
             $marketingList = implode(',', $marketingArray);
 
             $dndNumbers = Customer::select('id')->where('do_not_disturb', 1)->get();
-            /*            dd($dndNumbers);*/
             foreach ($dndNumbers as $dndNumber) {
                 $dndCustomerNumberArray[] = $dndNumber->id;
             }
@@ -302,7 +297,7 @@ class BroadcastController extends Controller
     /**
      * Update Customer TO DND .
      *
-     * @param  \App\Customer  id is $request->id
+     * @param \App\Customer  id is $request->id
      * @return \Illuminate\Http\Response
      */
     public function addToDND(Request $request)
@@ -321,7 +316,7 @@ class BroadcastController extends Controller
     /**
      * Getting Remark From CustomerMarketingPlatform table.
      *
-     * @param  \App\CustomerMarketingPlatform  customer_id = $request->id
+     * @param \App\CustomerMarketingPlatform  customer_id = $request->id
      * @return \Illuminate\Http\Response
      */
     public function getBroadCastRemark(Request $request)
@@ -336,7 +331,7 @@ class BroadcastController extends Controller
     /**
      * Adding Remark to CustomerMarketingPlatform table.
      *
-     * @param  \App\CustomerMarketingPlatform  id and remark
+     * @param \App\CustomerMarketingPlatform  id and remark
      * @return \Illuminate\Http\Response
      */
     public function addRemark(Request $request)
@@ -456,7 +451,6 @@ class BroadcastController extends Controller
     public function broadCastSendMessage(Request $request)
     {
         $messages = ImQueue::where('number_from', $request->number)->whereDate('created_at', $request->date)->get();
-        //dd($messages);
         foreach ($messages as $message) {
             $messageArray[] = '<tr><td>' . $message->id . '</td><td>' . $message->text . '</td><td>' . $message->number_to . '</td><td>' . $message->created_at . '</td><td>' . $message->send_after . '</td></tr>';
         }
@@ -544,18 +538,4 @@ class BroadcastController extends Controller
 
         return redirect()->back()->with('message', 'Broadcast Switch To Another Number');
     }
-
-//    public function instagram(Request $request)
-//    {
-//        if ($request->get('date')) {
-//            $leads = ColdLeadBroadcasts::whereDate('created_at',$request->get('date'));
-//        } else {
-//            $leads = new ColdLeadBroadcasts;
-//        }
-//
-//        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
-//        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
-//
-//        return view('marketing.broadcasts.instagram.index',compact('leads','competitors'));
-//    }
 }

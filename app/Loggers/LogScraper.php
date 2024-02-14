@@ -38,9 +38,6 @@ class LogScraper extends Model
         // Validate brand
         $errorLog .= self::validateBrand(! empty($request->brand) ? $request->brand : '');
 
-        // Validate title
-        //$errorLog .= self::validateTitle($request->title);
-
         // Validate description
         $warningLog .= self::validateDescription($request->description);
 
@@ -99,7 +96,6 @@ class LogScraper extends Model
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
-        //$logScraper->raw_data = isset($_SERVER[ 'REMOTE_ADDR' ]) ? serialize($request->all()) : null;
         $logScraper->save();
 
         // Update modified date
@@ -143,11 +139,6 @@ class LogScraper extends Model
         if (empty($sku)) {
             return "[error] SKU cannot be empty\n";
         }
-
-        // Check for length
-        /*if (strlen($sku) < 5) {
-            return "[error] SKU must be at least five characters\n";
-        }*/
 
         // Return an empty string
         return '';
@@ -467,7 +458,8 @@ class LogScraper extends Model
         }
     }
 
-    public function getProductFromSku($sku){
+    public function getProductFromSku($sku)
+    {
         $count = LogScraper::where('sku', $sku)->count();
 
         return $count;

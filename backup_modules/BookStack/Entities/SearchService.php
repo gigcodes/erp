@@ -83,7 +83,6 @@ class SearchService
         $results = collect();
         $total = 0;
         $hasMore = false;
-        // dd($entityType, $terms, $entityTypesToSearch, 333);
 
         foreach ($entityTypesToSearch as $entityType) {
             if (! in_array($entityType, $entityTypes)) {
@@ -147,7 +146,6 @@ class SearchService
         $results = collect();
         $total = 0;
         $hasMore = false;
-        // dd($entityType, $terms, $entityTypesToSearch, 999);
 
         foreach ($entityTypesToSearch as $entityType) {
             if (! in_array($entityType, $entityTypes)) {

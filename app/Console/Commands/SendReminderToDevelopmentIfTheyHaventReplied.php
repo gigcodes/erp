@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\ChatMessage;
-use App\CronJobReport;
 use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
@@ -41,11 +40,6 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        /*$report = CronJobReport::create([
-             'signature' => $this->signature,
-             'start_time' => Carbon::now(),
-         ]);*/
-
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $now = Carbon::now()->toDateTimeString();

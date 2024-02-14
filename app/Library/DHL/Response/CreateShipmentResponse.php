@@ -23,7 +23,7 @@ class CreateShipmentResponse extends ResponseAbstract
     public function hasError()
     {
         $notification = isset($this->response->Body->ShipmentResponse->Notification)
-        ? $this->response->Body->ShipmentResponse->Notification : null;
+            ? $this->response->Body->ShipmentResponse->Notification : null;
 
         if (! empty($notification)) {
             foreach ($notification->attributes() as $k => $ntf) {
@@ -45,7 +45,7 @@ class CreateShipmentResponse extends ResponseAbstract
     public function getErrorMessage()
     {
         $notification = isset($this->response->Body->ShipmentResponse->Notification)
-        ? $this->response->Body->ShipmentResponse->Notification : null;
+            ? $this->response->Body->ShipmentResponse->Notification : null;
 
         if (! empty($notification)) {
             return [(string) $notification[0]->Message];
@@ -55,19 +55,19 @@ class CreateShipmentResponse extends ResponseAbstract
     public function getPackageResult()
     {
         return isset($this->response->Body->ShipmentResponse->PackagesResult->PackageResult)
-        ? $this->response->Body->ShipmentResponse->PackagesResult->PackageResult : null;
+            ? $this->response->Body->ShipmentResponse->PackagesResult->PackageResult : null;
     }
 
     public function getLabel()
     {
         return isset($this->response->Body->ShipmentResponse->LabelImage)
-        ? $this->response->Body->ShipmentResponse->LabelImage : null;
+            ? $this->response->Body->ShipmentResponse->LabelImage : null;
     }
 
     public function getIdentificationNumber()
     {
         return isset($this->response->Body->ShipmentResponse->ShipmentIdentificationNumber)
-        ? (string) $this->response->Body->ShipmentResponse->ShipmentIdentificationNumber : null;
+            ? (string) $this->response->Body->ShipmentResponse->ShipmentIdentificationNumber : null;
     }
 
     public function getReceipt()

@@ -37,7 +37,6 @@ class ChangeErpColorCode extends Command
      */
     public function handle()
     {
-        //
         $colors = \App\ColorNamesReference::where('color_code', '')->get();
         if (! $colors->isEmpty()) {
             foreach ($colors as $color) {
