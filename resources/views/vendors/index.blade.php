@@ -282,9 +282,9 @@
                 Flow Charts
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-            <li><a class="btn"    data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
-            <li role="separator" class="divider"></li>
+            <ul id="flowchart-links" class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a class="btn"    data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
+                <li role="separator" class="divider"></li>
 
                 @foreach($flowchart_master as $flowchart_master_record)
                 <li><a class="btn"   target="_blank"  href="{{route('vendors.flow-chart',['id'=>$flowchart_master_record->id])}}">{{$flowchart_master_record->title}}</a></li>
@@ -2226,6 +2226,7 @@
     $(document).on("click", ".delete-master-flow-chart-btn", function (e) {
         e.preventDefault();
         if (confirm("Are you sure?")) {
+            $('#loading-image').show();
             var $this = $(this);
             var id = $this.data('id');
 
@@ -2242,23 +2243,24 @@
                 id: id
             }
             }).done(function (response) {
-            if (response.code = '200') {
+            if (response.code == '200') {
+                $('#loading-image').hide();
                 toastr['success'](response.message, 'success');
                 $this.closest('tr').remove();
+                refreshFlowChart(response.all);
             } else {
+                $('#loading-image').hide();
                 toastr['error'](response.message, 'error');
             }
             }).fail(function (errObj) {
-            $('#loading-image').hide();
-            // $("#").hide();
-            toastr['error'](errObj.message, 'error');
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
             });
         }
     });
 
     $(document).on('click', '.add-master-flow-chart-btn', function (e) {
         e.preventDefault();
-
         $("#loading-image").show();
 
         $.ajax({
@@ -2267,24 +2269,28 @@
             data: $('#add-master-flow-chart-form').serialize()
         }).done(function (response) {
             $('#loading-image').hide();
-            // $('#postmanShowFullTextModel').modal('hide');
 
-            let tr = `
-            <tr>
-                <td>
-                    ${response.data.title}
-                </td>
-                <td>
-                    <a class="btn btn-image save-master-flow-chart-btn abtn-pd" style="display: none" data-id="${response.data.id}"><img src="/images/send.png" style="cursor: nwse-resize; width: 16px;"></a>
-                    <a class="btn btn-image edit-master-flow-chart-btn abtn-pd" data-id="${response.data.id}"><img src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
-                    <a class="btn delete-master-flow-chart-btn abtn-pd padding-top-action" data-id="${response.data.id}" href="#"><img src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
-                </td>
-            </tr>
-            `
-            $('#newMasterFlowChartModal table tbody:first').prepend(tr);
-            console.log(tr);
+            if(response.code == '200') {
+                let tr = `
+                    <tr>
+                        <td>
+                            ${response.data.title}
+                        </td>
+                        <td>
+                            <a class="btn btn-image save-master-flow-chart-btn abtn-pd" style="display: none" data-id="${response.data.id}"><img src="/images/send.png" style="cursor: nwse-resize; width: 16px;"></a>
+                            <a class="btn btn-image edit-master-flow-chart-btn abtn-pd" data-id="${response.data.id}"><img src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                            <a class="btn delete-master-flow-chart-btn abtn-pd padding-top-action" data-id="${response.data.id}" href="#"><img src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                        </td>
+                    </tr>
+                `
+                $('#newMasterFlowChartModal table tbody:first').prepend(tr);
 
-            toastr['success'](response.message, 'success');
+                toastr['success'](response.message, 'success');
+                refreshFlowChart(response.all);
+            }else{
+                $('#loading-image').hide();
+                toastr['error']('Something went wrong', 'error');
+            }
         }).fail(function (errObj) {
             $('#loading-image').hide();
             toastr['error'](errObj.message, 'error');
@@ -2313,13 +2319,13 @@
         let id = element.attr('data-id');
         var title = $('#master-flow-chart-title-' + id).val();
         var url = "{{ route('vendor.flowchart.master.update',':id') }}";
+        url = url.replace(':id', id);
 
         if(title == '') {
             alert('Please enter title');
             return false;
         }
         
-        url = url.replace(':id', id);
         $.ajax({
             url: url,
             type: "post",
@@ -2335,6 +2341,10 @@
                 $('.edit-master-flow-chart-btn').show();
                 $('.delete-master-flow-chart-btn').show();
                 $('#loading-image').hide();
+                refreshFlowChart(response.all);
+            }else{
+                $('#loading-image').hide();
+                toastr['error']('Something went wrong', 'error');
             }
         }).fail(function (errObj) {
             $('#loading-image').hide();
@@ -2342,5 +2352,21 @@
         });
     })
 
+    function refreshFlowChart(data) {
+        if (data.length > 0) {
+            let links = `
+                <li><a class="btn"    data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
+                <li role="separator" class="divider"></li>
+            `;
+
+            data.forEach(function(link) {
+                links +=`
+                    <li><a class="btn"   target="_blank"  href="vendors/flow-chart/${link.id}">${link.title}</a></li>
+                `;
+            })
+
+            $('#flowchart-links').html(links);
+        }
+    }
 </script>
 @endsection

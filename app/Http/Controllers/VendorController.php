@@ -1878,16 +1878,23 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }
 
+    public function getFlowchartMaster(){
+        $flowchart_master = VendorFlowChartMaster::all();
+        
+        return $flowchart_master;
+    }
+
     public function masterFlowchartStore(Request $request)
     {
         try {
             $this->validate($request, [
                 'title' => 'required|string',
             ]);
+
             $data = $request->except('_token');
-            $result = VendorFlowChartMaster::create($data);
+            $flowchart = VendorFlowChartMaster::create($data);
     
-            return response()->json(['code' => '200', 'data' => $result, 'message' => 'You have successfully created a master flow chart!']);
+            return response()->json(['code' => '200', 'data' => $flowchart, 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully created a master flow chart!']);
         } catch (\Throwable $e) {
             return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
@@ -1896,11 +1903,14 @@ class VendorController extends Controller
     public function masterFlowchartDestroy($id)
     {
         try {
-            $product = VendorFlowChartMaster::find($id);
-    
-            $product->delete();
+            $flowchart = VendorFlowChartMaster::find($id);
+            if($flowchart->flow_charts()->get()->isEmpty()){
+                $flowchart->delete();
+                return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully deleted a master flow chart!']);
+            }else{
+                return response()->json(['code' => '400', 'message' => 'Vendor flow charts not empty!']);
+            }
 
-            return response()->json(['code' => '200', 'data' => [], 'message' => 'You have successfully deleted a master flow chart!']);
         } catch (\Throwable $e) {
             return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
@@ -1913,10 +1923,10 @@ class VendorController extends Controller
             ]);
 
             $data = $request->except('_token');
-            $flowchart = VendorFlowChartMaster::find($id)->first();
-            $updated = $flowchart->update($data);
+            $flowchart = VendorFlowChartMaster::find($id);
+            $flowchart->update($data);
 
-            return response()->json(['code' => '200', 'data' => $updated, 'message' => 'You have successfully updated a master flow chart!']);
+            return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully updated a master flow chart!']);
         } catch (\Throwable $e) {
             return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
