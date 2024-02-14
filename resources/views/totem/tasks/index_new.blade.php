@@ -299,7 +299,7 @@ table tr td {
                                         <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
                                     @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><i class="fa fa-globe" aria-hidden="true"></i></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results=""><i class="fa fa-globe" aria-hidden="true"></i></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
