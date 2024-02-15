@@ -2353,20 +2353,45 @@
     })
 
     function refreshFlowChart(data) {
-        if (data.length > 0) {
-            let links = `
-                <li><a class="btn"    data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
+        let links = `
+                <li><a class="btn" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
                 <li role="separator" class="divider"></li>
             `;
 
+        let options = `
+        <option id="new-flow-chart-master-ids-default" ${data.length == 1 ? 'disabled': '' } value="" >Select Type</option>
+        `;
+
+        let elementSelector = '';
+
+        if (data.length > 0) {
+            let url = '';
             data.forEach(function(link) {
+                url = "{{route('vendors.flow-chart',['id'=>':id'])}}";
+                url = url.replace(':id', link.id);
+
                 links +=`
-                    <li><a class="btn"   target="_blank"  href="vendors/flow-chart/${link.id}">${link.title}</a></li>
+                    <li><a class="btn" target="_blank" href="${url}">${link.title}</a></li>
                 `;
+
+                options +=`
+                <option ${data.length == 1 ? 'selected': '' } value="${link.id}">${link.title}</option>
+                `;
+                elementSelector = `.vendorflowchart-master-title-${link.id}`;
+
+                if ($(elementSelector).length > 0) {
+                    $(elementSelector).html(link.title);
+                }
             })
 
-            $('#flowchart-links').html(links);
+            if(data.length == 1) {
+                $('#new-flow-chart-master-ids').attr('readonly', true);
+                $('#new-flow-chart-master-ids-default').attr('disabled', true);
+            }
         }
+
+        $('#new-flow-chart-master-ids').html(options);
+        $('#flowchart-links').html(links);
     }
 </script>
 @endsection
