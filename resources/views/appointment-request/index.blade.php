@@ -113,7 +113,7 @@
 	<script type="text/javascript">
 		page.init({
 			bodyView: $("#common-page-layout"),
-			baseUrl: "<?php echo url("/"); ?>"
+			baseUrl: "{{ url("/") }}"
 		});
 	    $(document).ready(function () {
 	        $('.js-example-basic-multiple').select2();
