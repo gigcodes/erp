@@ -171,8 +171,8 @@
                         <h4 class="modal-title">Change Whatsapp no?</h4>
                     </div>
                     <div class="modal-body">
-                        {{ csrf_field() }}
-                        <?php echo Form::select("whatsapp_no",$whatsappNos,null,["class" => "form-control select2 whatsapp_no" , "style" => "width:100%"]); ?>
+                       @csrf
+                        {!! Form::select("whatsapp_no",$whatsappNos,null,["class" => "form-control select2 whatsapp_no" , "style" => "width:100%"]) !!}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default modal-change-whatsapp-btn">Change ?</button>
