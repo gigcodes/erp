@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\User;
 use App\Setting;
 use App\EmailAddress;
@@ -9,6 +10,8 @@ use App\StoreWebsite;
 use App\AssetsManager;
 use App\AssetPlateForm;
 use App\GoogleTranslate;
+use App\AssetsCategory;
+use App\Marketing\WhatsappConfig;
 use App\WebsiteStoreView;
 use App\ApiResponseMessage;
 use Illuminate\Http\Request;
@@ -259,8 +262,8 @@ class ApiResponseMessageController extends Controller
         $websites = StoreWebsite::all();
         $plateforms = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
-        $whatsappCon = \DB::table('whatsapp_configs')->get();
-        $assets_category = \DB::table('assets_category')->get();
+        $whatsappCon = WhatsappConfig::all();
+        $assets_category = AssetsCategory::all();
         $assets = AssetsManager::query()->orderBy('id', 'DESC')->get();
 
         $users = User::get()->toArray();

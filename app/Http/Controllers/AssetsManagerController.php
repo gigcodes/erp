@@ -20,6 +20,8 @@ use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\Models\DataTableColumn;
+use App\AssetsCategory;
+use App\Marketing\WhatsappConfig;
 use App\AssetMagentoDevScripUpdateLog;
 use App\Models\AssetManagerUserAccess;
 use App\Models\AssetManagerTerminalUserAccess;
@@ -39,7 +41,7 @@ class AssetsManagerController extends Controller
             $archived = 1;
         }
 
-        $assets_category = DB::table('assets_category')->get();
+        $assets_category = AssetsCategory::all();
 
         $search = request('search', '');
         $paymentCycle = request('payment_cycle', '');
@@ -116,7 +118,7 @@ class AssetsManagerController extends Controller
         $websites = StoreWebsite::all();
         $plateforms = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
-        $whatsappCon = \DB::table('whatsapp_configs')->get();
+        $whatsappCon = WhatsappConfig::all();
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
@@ -185,9 +187,7 @@ class AssetsManagerController extends Controller
         $category_id = $request->input('category_id');
         $catid = '';
         if ($othercat != '' && $category_id != '') {
-            $dataCat = DB::table('assets_category')
-                ->Where('cat_name', $othercat)
-                ->first();
+            $dataCat = AssetsCategory::where('cat_name', $othercat)->first();
 
             if (! empty($dataCat) && $dataCat->id != '') {
                 $catid = $dataCat->id;
