@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Product;
+use App\Activity;
+use App\Benchmark;
 use Carbon\Carbon;
 use App\LogScraperVsAi;
 use App\ScrapedProducts;
@@ -208,24 +210,17 @@ class ActivityConroller extends Controller
             $start = $weekRange['start_date'];
             $end = $weekRange['end_date'];
 
-            $workDoneResult = DB::select('
-									SELECT WEEKDAY(created_at) as xaxis ,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY WEEKDAY(created_at);
-							', [$start, $end]);
+            $workDoneResult = Activity::where('description', 'create')
+                ->whereBetween('created_at', [$start, $end])
+                ->select('activities.subject_id', 'activities.subject_type', 'activities.created_at', \DB::raw('WEEKDAY(created_at) as xaxis, count(*) as total'))
+                ->groupByRaw('WEEKDAY(created_at)')
+                ->get();
 
-            $benchmarkResult = DB::select('
-							SELECT WEEKDAY(for_date) as day,
-								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total
-							FROM benchmarks
-							WHERE
-							created_at BETWEEN ? AND ?
-							GROUP BY WEEKDAY(for_date);
-						', [$start, $end]);
+            $benchmarkResult = Benchmark::selectRaw('WEEKDAY(for_date) as day,
+								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total')
+                ->whereBetween('created_at', [$start, $end])
+                ->groupByRaw('WEEKDAY(for_date)')
+                ->get();
 
             $workDone = [];
             $dowMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -244,24 +239,17 @@ class ActivityConroller extends Controller
             $start = $monthRange['start_date'];
             $end = $monthRange['end_date'];
 
-            $workDoneResult = DB::select('
-									SELECT DAYOFMONTH(created_at) as xaxis ,COUNT(*) AS total FROM
-								 		(SELECT DISTINCT activities.subject_id,activities.subject_type,activities.created_at
-								  		 FROM activities
-								  		 WHERE activities.description = "create"
-								  		 AND activities.created_at BETWEEN ? AND ?)
-								    AS SUBQUERY
-								   	GROUP BY DAYOFMONTH(created_at);
-							', [$start, $end]);
+            $workDoneResult = Activity::where('description', 'create')
+                ->whereBetween('created_at', [$start, $end])
+                ->select('activities.subject_id', 'activities.subject_type', 'activities.created_at', \DB::raw('DAYOFMONTH(created_at) as xaxis ,COUNT(*) AS total'))
+                ->groupByRaw('DAYOFMONTH(created_at)')
+                ->get();
 
-            $benchmarkResult = DB::select('
-							SELECT DAYOFMONTH(for_date) as day,
-								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total
-							FROM benchmarks
-							WHERE
-							created_at BETWEEN ? AND ?
-							GROUP BY DAYOFMONTH(for_date);
-						', [$start, $end]);
+            $benchmarkResult = Benchmark::selectRaw('DAYOFMONTH(for_date) as day,
+								sum(selections + searches + attributes + supervisor + imagecropper + lister + approver + inventory) as total')
+                ->whereBetween('created_at', [$start, $end])
+                ->groupByRaw('DAYOFMONTH(for_date)')
+                ->get();
 
             foreach ($workDoneResult as $item) {
                 $workDone[$item->xaxis] = $item->total;

@@ -656,7 +656,9 @@ class TimeDoctorActivitiesController extends Controller
                 // send time doctor activities
                 $ac = [];
                 if ($ac_user_id != '') {
-                    $ac = DB::select(DB::raw("SELECT time_doctor_activities.* FROM time_doctor_activities where DATE(starts_at) = '" . $activity->date . "' and time_doctor_activities.user_id IN(" . $ac_user_id . ')'));
+                    $ac = TimeDoctorActivity::whereDate('starts_at', $activity->date)
+                        ->whereRaw('time_doctor_activities.user_id IN (' . $ac_user_id . ')')
+                        ->get();
                 }
 
                 $totalApproved = 0;
@@ -1254,19 +1256,11 @@ class TimeDoctorActivitiesController extends Controller
             return response()->json(['message' => '']);
         }
 
-        $qry = 'SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour(starts_at) as onHour, 
-            status
-            FROM 
-                time_doctor_activities 
-            where 
-                DATE(starts_at) = "' . $request->date . '" 
-                and user_id = "' . $request->user_id . '"
-            GROUP BY 
-                hour(starts_at) , day(starts_at)';
-
-        $activityrecords = DB::select(
-            DB::raw($qry)
-        );
+        $activityrecords = TimeDoctorActivity::where('user_id', $request->user_id)
+            ->whereDate('starts_at', $request->date)
+            ->selectRaw('CAST(starts_at AS DATE) AS OnDate, SUM(tracked) AS total_tracked, HOUR(starts_at) as onHour, status')
+            ->groupByRaw('HOUR(starts_at), DAY(starts_at)')
+            ->get();
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -1302,15 +1296,10 @@ class TimeDoctorActivitiesController extends Controller
         }
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(
-                DB::raw("
-                SELECT time_doctor_activities.* 
-                FROM time_doctor_activities 
-                where 
-                    DATE(starts_at) = '" . $request->date . "' 
-                and user_id = '" . $request->user_id . "' 
-                and hour(starts_at) = '" . $record->onHour . "'")
-            );
+            $activities = TimeDoctorActivity::whereDate('starts_at', $request->date)
+                ->where('user_id', $request->user_id)
+                ->whereRaw('HOUR(starts_at) = ?', [$record->onHour])
+                ->get();
             $totalApproved = 0;
             $totalPending = 0;
             $isAllSelected = 0;
@@ -1923,23 +1912,20 @@ class TimeDoctorActivitiesController extends Controller
 
     public function approveTime(Request $request)
     {
-        $qry = 'SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour(starts_at) as onHour, 
-            status
-            FROM 
-                time_doctor_activities 
-            where 
-                DATE(starts_at) = "' . $request->date . '" 
-                and user_id = "' . $request->user_id . '"
-            GROUP BY 
-                hour(starts_at) , day(starts_at)';
-        $activityrecords = DB::select(DB::raw($qry));
+        $activityrecords = TimeDoctorActivity::where('user_id', $request->user_id)
+            ->whereDate('starts_at', $request->date)
+            ->selectRaw('CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour(starts_at) as onHour')
+            ->groupByRaw('HOUR(starts_at), DAY(starts_at)')
+            ->get();
 
         $appArr = [];
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(DB::raw("SELECT time_doctor_activities.*
-            FROM time_doctor_activities where DATE(starts_at) = '" . $request->date . "' and user_id = '" . $request->user_id . "' and hour(starts_at) = '" . $record->onHour . "'"));
 
+            $activities = TimeDoctorActivity::whereDate('starts_at', $request->date)
+                ->where('user_id', $request->user_id)
+                ->whereRaw('HOUR(starts_at) = ?', [$record->onHour])
+                ->get();
             foreach ($activities as $value) {
                 array_push($appArr, $value->id);
             }

@@ -28,10 +28,10 @@ use App\PaymentMethod;
 use Illuminate\Support\Arr;
 use App\WebhookNotification;
 use Illuminate\Http\Request;
+use App\Marketing\WhatsappConfig;
 use App\Hubstaff\HubstaffActivity;
 use App\EmailNotificationEmailDetails;
 use App\Hubstaff\HubstaffPaymentAccount;
-
 
 class UserController extends Controller
 {
@@ -62,7 +62,7 @@ class UserController extends Controller
                 'count' => $data->total(),
             ], 200);
         }
-        $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1');
+        $whatsapp = WhatsappConfig::where('status', 1)->pluck('number');
 
         return view('users.index', compact('data', 'whatsapp'))
             ->with('i', ($request->input('page', 1) - 1) * 5);

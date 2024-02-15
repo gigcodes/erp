@@ -636,7 +636,9 @@ class HubstaffActivitiesController extends Controller
                 }
 
                 // send hubstaff activities
-                $ac = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and hubstaff_activities.user_id = " . $activity->user_id));
+                $ac = HubstaffActivity::whereDate('starts_at', $activity->date)
+                    ->where('user_id', $activity->user_id)
+                    ->get();
 
                 $totalApproved = 0;
                 $totalPending = 0;
@@ -1298,15 +1300,21 @@ class HubstaffActivitiesController extends Controller
 
     public function approveTime(Request $request)
     {
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour, status
-        FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . '
-        GROUP BY hour( starts_at ) , day( starts_at )'));
-
+        $activityrecords = HubstaffActivity::selectRaw('CAST(starts_at as date) AS OnDate, 
+                                               SUM(tracked) AS total_tracked, 
+                                               hour(starts_at) as onHour,
+                                               status')
+            ->whereDate('starts_at', $request->date)
+            ->where('user_id', $request->user_id)
+            ->groupByRaw('hour(starts_at), day(starts_at)')
+            ->get();
         $appArr = [];
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(DB::raw("SELECT hubstaff_activities.*
-            FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . ' and hour(starts_at) = ' . $record->onHour . ''));
+            $activities = HubstaffActivity::whereDate('starts_at', $request->date)
+                ->where('user_id', $request->user_id)
+                ->where('hour(starts_at)', $record->onHour)
+                ->get();
 
             foreach ($activities as $value) {
                 array_push($appArr, $value->id);
@@ -1332,19 +1340,14 @@ class HubstaffActivitiesController extends Controller
         if (! $request->user_id || ! $request->date || $request->user_id == '' || $request->date == '') {
             return response()->json(['message' => '']);
         }
-
-        $activityrecords = DB::select(
-            DB::raw("SELECT CAST(starts_at as date) AS OnDate,  
-            SUM(tracked) AS total_tracked, hour(starts_at) as onHour, 
-            status
-        FROM 
-            hubstaff_activities 
-        where 
-            DATE(starts_at) = '" . $request->date . "' 
-            and user_id = " . $request->user_id . '
-        GROUP BY 
-            hour(starts_at) , day(starts_at)')
-        );
+        $activityrecords = HubstaffActivity::selectRaw('CAST(starts_at as date) AS OnDate, 
+                                               SUM(tracked) AS total_tracked, 
+                                               hour(starts_at) as onHour,
+                                               status')
+            ->whereDate('starts_at', $request->date)
+            ->where('user_id', $request->user_id)
+            ->groupByRaw('hour(starts_at), day(starts_at)')
+            ->get();
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -1380,15 +1383,10 @@ class HubstaffActivitiesController extends Controller
         }
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(
-                DB::raw("
-                SELECT hubstaff_activities.* 
-                FROM hubstaff_activities 
-                where 
-                    DATE(starts_at) = '" . $request->date . "' 
-                and user_id = " . $request->user_id . ' 
-                and hour(starts_at) = ' . $record->onHour . '')
-            );
+            $activities = HubstaffActivity::whereDate('starts_at', $request->date)
+                ->where('user_id', $request->user_id)
+                ->whereRaw('hour(starts_at) = ?', [$record->onHour])
+                ->get();
 
             $totalApproved = 0;
             $totalPending = 0;
@@ -2279,9 +2277,15 @@ class HubstaffActivitiesController extends Controller
 
         $date = ($task) ? $task->created_at : date('1998-02-02');
 
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour,status
-        FROM hubstaff_activities where task_id = '" . $task_id . "' and user_id = " . $user_id . '
-        GROUP BY hour( starts_at ) , day( starts_at ) order by OnDate desc'));
+        $activityrecords = HubstaffActivity::selectRaw('CAST(starts_at as date) AS OnDate,
+                                                SUM(tracked) AS total_tracked, 
+                                                hour(starts_at) as onHour, 
+                                                status')
+            ->where('task_id', $task_id)
+            ->where('user_id', $user_id)
+            ->groupByRaw('hour(starts_at), day(starts_at)')
+            ->orderByDesc('OnDate')
+            ->get();
 
         $admins = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();
@@ -2317,7 +2321,11 @@ class HubstaffActivitiesController extends Controller
         }
 
         foreach ($activityrecords as $record) {
-            $activities = DB::select(DB::raw('SELECT hubstaff_activities.* FROM hubstaff_activities where task_id = ' . $task_id . " and DATE(starts_at) = '" . $record->OnDate . "' and user_id = " . $user_id . ' and hour(starts_at) = ' . $record->onHour . ''));
+            $activities = HubstaffActivity::where('task_id', $task_id)
+                ->whereDate('starts_at', $record->OnDate)
+                ->where('user_id', $user_id)
+                ->where('hour(starts_at)', $record->onHour)
+                ->get();
 
             $totalApproved = 0;
             $isAllSelected = 0;

@@ -944,7 +944,8 @@ class BugTrackingController extends Controller
                 $bugTracker->assign_to = $request->user_id;
                 $bugTracker->save();
 
-                DB::table('tasks')->where('task_bug_ids', $chosen_bug_id)->update(['assign_to' => $request->user_id]);
+                Task::where('task_bug_ids', $chosen_bug_id)
+                    ->update(['assign_to' => $request->user_id]);
 
                 $data = [
                     'assign_to' => $bugTracker->assign_to,

@@ -200,6 +200,6 @@ class Brand extends Model
 
     public static function updateStatusIsHashtagsGenerated($brand_id_list)
     {
-        \DB::table('brands')->whereIn('id', $brand_id_list)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+        Brand::whereIn('id', $brand_id_list)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
     }
 }
