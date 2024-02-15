@@ -120,7 +120,7 @@
         </div>
       </div>
     </div>
-    <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
+    @php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); @endphp
 @endsection
 
 @section('scripts')
@@ -284,7 +284,7 @@
                 },
                 "assistant_report" : assistantReport,
                 "response" :  $(this).data("a"),
-                "allSuggestedOptions" : JSON.parse('<?php echo json_encode($allSuggestedOptions) ?>')
+                "allSuggestedOptions" : JSON.parse('{{ json_encode($allSuggestedOptions) }}')
             };
             var html = myTmpl.render({
                 "data": json

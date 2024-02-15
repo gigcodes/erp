@@ -24,7 +24,7 @@
 				  		<div class="col">
 				  			<div class="form-group">
 							    <label for="keyword">Keyword:</label>
-							    <?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
+							    {!! Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) !!}
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
@@ -118,7 +118,7 @@
 $.extend(page, common);
 page.init({
 	bodyView : $("#common-page-layout"),
-	baseUrl : "<?php echo url("/"); ?>"
+	baseUrl : "{{ url("/") }}"
 });
 </script>
 

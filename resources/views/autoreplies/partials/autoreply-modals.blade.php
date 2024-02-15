@@ -146,7 +146,7 @@
                     </div>
                     <div class="form-group">
                         <strong>Active:</strong>
-                        <input type="checkbox" class="form-control" name="is_active" value="1" id="autoreply_is_active" <?php echo old('is_active') == 1 ? 'checked' : '' ?>>
+                        <input type="checkbox" class="form-control" name="is_active" value="1" id="autoreply_is_active" {{ old('is_active') == 1 ? 'checked' : '' }}>
                     </div>
                 </div>
                 <div class="modal-footer">

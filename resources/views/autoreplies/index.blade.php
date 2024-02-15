@@ -262,7 +262,7 @@
         </div>
       </div>
     </div>
-    <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
+    @php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); @endphp
 @endsection
 
 @section('scripts')
