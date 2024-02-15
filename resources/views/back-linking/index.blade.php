@@ -33,7 +33,7 @@
             @foreach ($details as $key => $detail)
                 <tr>
                 <td>{{$detail->id}}</td>
-                    <td data-id="{{ $detail->id }}><span class="quick-title"><a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->title, 50, '...'))); @endphp</a></span>
+                    <td data-id="{{ $detail->id }}><span class="quick-title"><a data-toggle="collapse" href="#collapse_title-{{$key}}" class="collapsed" aria-expanded="false">{{ htmlspecialchars_decode(stripslashes(Str::limit($detail->title, 50, '...'))) }}</a></span>
                       <input name="title" type="text" class="form-control quick-edit-title-input hidden" placeholder="Title" value="{{ $detail->title }}"/>
                       <button type="button" class="btn-link quick-edit-title" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->title)) > 50)
@@ -50,7 +50,7 @@
                           </div>
                       @endif
                     </td>
-                    <td data-id="{{ $detail->id }}><span class="quick-desc"><a data-toggle="collapse" href="#collapse_desc-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->description, 50, '...'))); @endphp</a></span>
+                    <td data-id="{{ $detail->id }}><span class="quick-desc"><a data-toggle="collapse" href="#collapse_desc-{{$key}}" class="collapsed" aria-expanded="false">{{ htmlspecialchars_decode(stripslashes(Str::limit($detail->description, 50, '...'))) }}</a></span>
                       <textarea name="desc" class="form-control quick-edit-desc-input hidden" placeholder="Description" rows="8" cols="80">{{ $detail->description }}</textarea>
                       <button type="button" class="btn-link quick-edit-desc" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->description)) > 50)
@@ -67,7 +67,7 @@
                           </div>
                       @endif
                     </td>
-                    <td data-id="{{ $detail->id }}><span class="quick-url"><a data-toggle="collapse" href="#collapse_url-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($detail->url, 50, '...'))); @endphp</a></span>
+                    <td data-id="{{ $detail->id }}><span class="quick-url"><a data-toggle="collapse" href="#collapse_url-{{$key}}" class="collapsed" aria-expanded="false">{{ htmlspecialchars_decode(stripslashes(Str::limit($detail->url, 50, '...'))) }}</a></span>
                       <input name="url" type="text" class="form-control quick-edit-url-input hidden" placeholder="URL" value="{{ $detail->url }}"/>
                       <button type="button" class="btn-link quick-edit-url" data-id="{{ $detail->id }}">Edit</button>
                       @if (strlen(strip_tags($detail->url)) > 50)
