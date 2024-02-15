@@ -68,7 +68,7 @@
 <div class="modal fade" id="create-auto-refresh-page" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form action="/system/auto-refresh/create" method="post">
-            {{ csrf_field() }}
+            @csrf
             <div class="modal-content">
                 <div class="mt-5" >
                     <h5 class="modal-title" id="exampleModalLabel"style="text-align: center;"style="text-align: center;">Create Auto Refresh Page</h5>
