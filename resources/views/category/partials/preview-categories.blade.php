@@ -1,6 +1,6 @@
 <div class="modal-content">
   <form class="update-reference-category-form" action="{{!$is_auto_fix ? '/category/new-references/save-category' :'/category/new-references/save-category?is_auto_fix=true' }}" method="post">
-     {!! csrf_field() !!}
+     @csrf
      <div class="modal-header">
         <h5 class="modal-title"> {{!$is_auto_fix  ? 'List Of updated categories' :'Show auto fix categories'}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -21,7 +21,7 @@
                         <tr>
                           <td>{{ $link['from'] }}</td>
                           <td>
-                            <?php
+                            @php
                                   echo "<select class='form-control select2' name='updated_category[".$link["from_id"]."]'>";
                                   $categories = \App\Category::attr(["name" => "updated_category[".$link["from_id"]."]", "class" => "form-control select2"])->renderAsArray();
                                   if(!empty($categories)) {
@@ -49,7 +49,7 @@
                                     }
                                   }
                                   echo "</select>";
-                                ?>
+                                @endphp
                             </td>
                           </tr>
                         @endforeach

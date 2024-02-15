@@ -59,7 +59,7 @@
                             </td>
                             <td>
                                 <div data-cat-id="{{ $category->id }}" class=" category-next-btn">
-                                   <?php echo Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                   {!! Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]) !!}
                                 </div>
                             </td>
                         </tr>
@@ -103,7 +103,7 @@
                             </td>
                             <td>
                                 <div data-cat-id="{{ $category->id }}" class=" category-next-btn">
-                                   <?php echo Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                   {!! Form::select("status_after_autocrop",$allStatus,$category->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]) !!}
                                 </div>
                             </td>
                         </tr>
@@ -143,7 +143,7 @@
                                     </td>
                                     <td>
                                         <div data-cat-id="{{ $subcategory->id }}" class=" category-next-btn">
-                                           <?php echo Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                           {!! Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]) !!}
                                         </div>
                                     </td>
                                 </tr>
@@ -183,7 +183,7 @@
                                             </td>
                                             <td>
                                                 <div data-cat-id="{{ $sscategory->id }}" class=" category-next-btn">
-                                                   <?php echo Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]); ?>
+                                                   {!! Form::select("status_after_autocrop",$allStatus,$subcategory->status_after_autocrop,["class" => "select2 form-control status_after_autocrop","style"=>"width:200px;"]) !!}
                                                 </div>
                                             </td>
                                         </tr>
@@ -209,7 +209,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <form class="cat-update-form" method="post">
-                <?php echo csrf_field(); ?>
+                @csrf
                 <div class="modal-header">
                     <h4 class="modal-title">Change Category</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -218,7 +218,7 @@
                     <div class="form-group">
                         {{ Form::hidden("old_cat_id",null,["id" => "old-cat-id"]) }}
                         {{ Form::hidden("cat_name",null,["id" => "cat-name"]) }}
-                        <?php echo $allCategoriesDropdown; ?>
+                        {{ $allCategoriesDropdown }}
                     </div>
                 </div>
                 <div class="modal-footer">

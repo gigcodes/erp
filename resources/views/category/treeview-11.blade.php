@@ -79,7 +79,7 @@
                         <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                             {!! Form::label('Category:') !!}
                             {{--                        {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!}--}}
-                            <?php echo $allCategoriesDropdown; ?>
+                            {{ $allCategoriesDropdown }}
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
 
@@ -106,7 +106,7 @@
                         {!! Form::open(['route'=>'category.remove']) !!}
                         <div class="form-group">
                             {!! Form::label('Category:') !!}
-			                <?php echo $allCategoriesDropdownEdit; ?>
+			                {{ $allCategoriesDropdownEdit }}
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
                         <div class="form-group">
@@ -136,7 +136,7 @@
           </div>
           <div class="modal-body">
             <form method="post" action="/category/save-form" id="category-save-form">
-              {{csrf_field()}}
+              @csrf
               <input type="hidden" name="id" value="" id="category-id"> 
               <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="" id="simplyduty-code-field">
               <button type="button" class="btn btn-secondary btn-block mt-2" id="save-form">Save</button>`

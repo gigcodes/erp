@@ -147,7 +147,7 @@
                         <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                             {!! Form::label('Category:') !!}
 
-                            <?php echo $allCategoriesDropdown; ?>
+                            {{ $allCategoriesDropdown }}
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
                         <div
@@ -331,7 +331,7 @@
                                 <form method="post"
                                     action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
                                     class="edit_category_data" data-id={{ $cat->id }}>
-                                    {{ csrf_field() }}
+                                    @csrf
 
                                     <input type="text" class="form-control" placeholder="Entery HS code"
                                         name="simplyduty_code" value="{{ $cat->simplyduty_code }}">
@@ -452,7 +452,7 @@
                             </td>
 
                             <td class="pb-0">
-                                <?php echo Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $cat->push_type, ['class' => 'form-control push-type-change', 'data-id' => $cat->id]); ?>
+                                {!! Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $cat->push_type, ['class' => 'form-control push-type-change', 'data-id' => $cat->id]) !!}
                             </td>
 
                             <td class="pb-0">
@@ -578,7 +578,7 @@
                                 <form method="post"
                                     action="{{ route('category.child-update-category', ['edit' => $firstChild->id]) }}"
                                     class="edit_category_data" data-id={{ $firstChild->id }}>
-                                    {{ csrf_field() }}
+                                    @csrf
 
                                     <input type="text" class="form-control" placeholder="Entery HS code"
                                         name="simplyduty_code" value="{{ $firstChild->simplyduty_code }}">
@@ -697,7 +697,7 @@
                             </td>
 
                             <td class="pb-0">
-                                <?php echo Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $firstChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $firstChild->id]); ?>
+                                {!! Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $firstChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $firstChild->id]) !!}
                             </td>
 
                             <td class="pb-0">
@@ -824,7 +824,7 @@
                                                         <form method="post"
                                                             action="{{ route('category.child-update-category', ['edit' => $secondChild->id]) }}"
                                                             class="edit_category_data" data-id={{ $secondChild->id }}>
-                                                            {{ csrf_field() }}
+                                                           @csrf
                         
                                                             <input type="text" class="form-control" placeholder="Entery HS code"
                                                                 name="simplyduty_code" value="{{ $secondChild->simplyduty_code }}">
@@ -945,7 +945,7 @@
                                                     </td>
                         
                                                     <td class="pb-0">
-                                                        <?php echo Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $secondChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $secondChild->id]); ?>
+                                                       {!! Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $secondChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $secondChild->id]) !!}
                                                     </td>
                         
                                                     <td class="pb-0">
@@ -1072,7 +1072,7 @@
                                                                 <form method="post"
                                                                     action="{{ route('category.child-update-category', ['edit' => $thirdChild->id]) }}"
                                                                     class="edit_category_data" data-id={{ $thirdChild->id }}>
-                                                                    {{ csrf_field() }}
+                                                                    @csrf
                                 
                                                                     <input type="text" class="form-control" placeholder="Entery HS code"
                                                                         name="simplyduty_code" value="{{ $thirdChild->simplyduty_code }}">
@@ -1193,7 +1193,7 @@
                                                             </td>
                                 
                                                             <td class="pb-0">
-                                                                <?php echo Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $thirdChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $thirdChild->id]); ?>
+                                                                {!! Form::select('push_type', [null => '- Select -'] + \App\Category::PUSH_TYPE, $thirdChild->push_type, ['class' => 'form-control push-type-change', 'data-id' => $thirdChild->id]) !!}
                                                             </td>
                                 
                                                             <td class="pb-0">
