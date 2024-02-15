@@ -1,4 +1,4 @@
-<?php 
+<?php
 foreach($data as $prop) { ?>
 	<?php
 	if(!empty($dynamicColumnsToShowbt)){ ?>
@@ -8,7 +8,7 @@ foreach($data as $prop) { ?>
 			if (!in_array('ID', $dynamicColumnsToShowbt)){ ?>
 			  	<td><input type="checkbox" id="chkBugChange<?php echo $prop->id; ?>"  name="chkBugNameChange[]" class="chkBugNameClsChange"  value="<?php echo $prop->id; ?>"> </br> <?php echo $prop->id; ?></td>
 		  	<?php
-			} 
+			}
 			if (!in_array('Date', $dynamicColumnsToShowbt)){ ?>
 			  	<td><?php echo  $prop->created_at_date;  ?></td>
 		  	<?php
@@ -21,26 +21,26 @@ foreach($data as $prop) { ?>
 			}
 			if (!in_array('Type', $dynamicColumnsToShowbt)){ ?>
 			    <td class='break'  data-bug_type="<?php echo  $prop->bug_type_id_val;  ?>">
-					<?php 
+					<?php
 					if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 						<select class='form-control bug_type_in_row'  data-id="<?php echo $prop->id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 							<?php
 							foreach ($bugTypes as $bugtype) { ?>
 							 <option <?php if ($prop->bug_type_id_val == $bugtype->id) { echo " selected"; }  ?>   value="<?php echo $bugtype->id; ?>"><?php echo $bugtype->name; ?></option>
-							
+
 							<?php
 							}?>
-						</select>			
-					<?php 
+						</select>
+					<?php
 					} else { ?>
 						<?php echo $prop->bug_type_id; ?>
-					<?php 
+					<?php
 					} ?>
 				</td>
 			<?php
 			}
 			if (!in_array('Steps to reproduce', $dynamicColumnsToShowbt)){ ?>
-			    <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip"> 
+			    <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip">
 					<span class="show-short-Steps to td-mini-container td-mini-container--<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?>"><?php echo  $prop->step_to_reproduce_short  ?></span>
 			        <span class="show-full-step_to_reproduce-<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->step_to_reproduce;  ?></span>
 			    </td>
@@ -72,7 +72,7 @@ foreach($data as $prop) { ?>
 			 	</td>
            	<?php
 			}
-			if (!in_array('Created By', $dynamicColumnsToShowbt)){ ?>  
+			if (!in_array('Created By', $dynamicColumnsToShowbt)){ ?>
 			 	<td class='break'><?php echo  $prop->created_by;  ?></td>
 		 	<?php
 			}
@@ -83,7 +83,7 @@ foreach($data as $prop) { ?>
 							<?php
 								foreach ($users as $user) { ?>
 								 <option <?php if ($prop->assign_to == $user->id) { echo " selected"; }  ?>   value="<?php echo $user->id; ?>"><?php echo $user->name; ?></option>
-								
+
 								<?php
 								}
 						?>
@@ -96,12 +96,12 @@ foreach($data as $prop) { ?>
 			if (!in_array('Severity', $dynamicColumnsToShowbt)){ ?>
 			    <td class='break'>
 					<div class="d-flex">
-					
+
 					   <select class='form-control bug_severity_id' id="bug_severity_id_<?php echo  $prop->id  ?>"  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 					   <option value="">-Select-</option>
 						<?php
-						foreach ($bugSeveritys as $bugSeverity) { ?>								
-							
+						foreach ($bugSeveritys as $bugSeverity) { ?>
+
 							<option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php echo $bugSeverity->id; ?>" ><?php echo $bugSeverity->name; ?></option>
 						<?php
 						}
@@ -119,7 +119,7 @@ foreach($data as $prop) { ?>
 							<?php
 							foreach ($bugStatuses as $bugStatus) { ?>
 								<option <?php if ($prop->bug_status_id == $bugStatus->id) { echo " selected"; }  ?>  value="<?php echo $bugStatus->id; ?>"><?php echo $bugStatus->name; ?></option>
-							
+
 							<?php
 							} ?>
 						</select>
@@ -130,21 +130,21 @@ foreach($data as $prop) { ?>
 			}
 			if (!in_array('Module', $dynamicColumnsToShowbt)){ ?>
 			    <td class='break'>
-					<?php 
+					<?php
 					if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 						<select class='form-control bug_module_in_row'  data-id="<?php echo  $prop->id;  ?>" data-module="<?php echo $prop->module_id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
-							<option value="">Select Module</option>											
+							<option value="">Select Module</option>
 							<?php
 							foreach($filterCategories as  $filterCategory) { ?>
 								<option data-val="<?php echo str_replace("'","",$filterCategory); ?>"  <?php if($prop->module_id ==  str_replace("'","",$filterCategory)){ echo " Selected"; }  ?> value="<?php echo htmlentities($filterCategory); ?>"><?php echo $filterCategory; ?></option>
 							<?php
 							} ?>
 						</select>
-					<?php 
+					<?php
 					} else { ?>
 						<?php echo  $prop->module_id;  ?>
-					<?php 
-					} ?>	
+					<?php
+					} ?>
 				</td>
 			<?php
 			}
@@ -171,7 +171,7 @@ foreach($data as $prop) { ?>
 							<div style="max-width: 100%;text-align: right;padding-top: 10px;">
 								<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="<?php echo  $prop->id;  ?>" title="Load messages"><img src="images/chat.png" alt=""></button>
 							</div>
-						</div> 
+						</div>
 			        </div>
 			    </td>
 		    <?php
@@ -212,7 +212,7 @@ foreach($data as $prop) { ?>
 			</tr>
 		<?php
 		} ?>
-	<?php 
+	<?php
 	} else { ?>
 		<tr style="background-color:<?php echo  $prop->bug_color;  ?>">
 		  	<td><input type="checkbox" id="chkBugChange<?php echo $prop->id; ?>"  name="chkBugNameChange[]" class="chkBugNameClsChange"  value="<?php echo $prop->id; ?>"> </br> <?php echo $prop->id; ?></td>
@@ -224,24 +224,24 @@ foreach($data as $prop) { ?>
 		    </td>
 
 		    <td class='break'  data-bug_type="<?php echo  $prop->bug_type_id_val;  ?>">
-				<?php 
+				<?php
 				if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 					<select class='form-control bug_type_in_row'  data-id="<?php echo $prop->id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
 						<?php
 						foreach ($bugTypes as $bugtype) { ?>
 						 <option <?php if ($prop->bug_type_id_val == $bugtype->id) { echo " selected"; }  ?>   value="<?php echo $bugtype->id; ?>"><?php echo $bugtype->name; ?></option>
-						
+
 						<?php
 						}?>
-					</select>			
-				<?php 
+					</select>
+				<?php
 				} else { ?>
 					<?php echo $prop->bug_type_id; ?>
-				<?php 
+				<?php
 				} ?>
 			</td>
-						
-		    <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip"> 
+
+		    <td class='break expand-row-msg' data-name="step_to_reproduce" data-id="<?php echo  $prop->id;  ?>" data-toggle="tooltip">
 				<span class="show-short-Steps to td-mini-container td-mini-container--<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?>"><?php echo  $prop->step_to_reproduce_short  ?></span>
 		        <span class="show-full-step_to_reproduce-<?php echo  $prop->id;  ?> td-mini-container td-mini-container-<?php echo  $prop->id;  ?> hidden" ><?php echo  $prop->step_to_reproduce;  ?></span>
 		    </td>
@@ -265,7 +265,7 @@ foreach($data as $prop) { ?>
 		        <button type="button"  class="btn btn-copy-url btn-sm" data-id="<?php echo  $prop->url;  ?>" >
 		            <i class="fa fa-clone" aria-hidden="true"></i></button>*/?>
 		 	</td>
-		                 
+
 		 	<td class='break'><?php echo  $prop->created_by;  ?></td>
 
 		    <td class='break'>
@@ -274,7 +274,7 @@ foreach($data as $prop) { ?>
 						<?php
 							foreach ($users as $user) { ?>
 							 <option <?php if ($prop->assign_to == $user->id) { echo " selected"; }  ?>   value="<?php echo $user->id; ?>"><?php echo $user->name; ?></option>
-							
+
 							<?php
 							}
 					?>
@@ -285,12 +285,12 @@ foreach($data as $prop) { ?>
 
 		    <td class='break'>
 				<div class="d-flex">
-				
+
 				   <select class='form-control bug_severity_id' id="bug_severity_id_<?php echo  $prop->id  ?>"  data-id="<?php echo  $prop->id  ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>>
 				   <option value="">-Select-</option>
 					<?php
-					foreach ($bugSeveritys as $bugSeverity) { ?>								
-						
+					foreach ($bugSeveritys as $bugSeverity) { ?>
+
 						<option <?php if ($prop->bug_severity_id == $bugSeverity->id) { echo " selected"; }  ?>  value="<?php echo $bugSeverity->id; ?>" ><?php echo $bugSeverity->name; ?></option>
 					<?php
 					}
@@ -306,7 +306,7 @@ foreach($data as $prop) { ?>
 						<?php
 						foreach ($bugStatuses as $bugStatus) { ?>
 							<option <?php if ($prop->bug_status_id == $bugStatus->id) { echo " selected"; }  ?>  value="<?php echo $bugStatus->id; ?>"><?php echo $bugStatus->name; ?></option>
-						
+
 						<?php
 						} ?>
 					</select>
@@ -315,21 +315,21 @@ foreach($data as $prop) { ?>
 		    </td>
 
 		    <td class='break'>
-				<?php 
+				<?php
 				if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Lead Tester')) { ?>
 					<select class='form-control bug_module_in_row'  data-id="<?php echo  $prop->id;  ?>" data-module="<?php echo $prop->module_id; ?>" style="padding:0px;" data-token=<?php echo csrf_token(); ?>  >
-						<option value="">Select Module</option>											
+						<option value="">Select Module</option>
 						<?php
 						foreach($filterCategories as  $filterCategory) { ?>
 							<option data-val="<?php echo str_replace("'","",$filterCategory); ?>"  <?php if($prop->module_id ==  str_replace("'","",$filterCategory)){ echo " Selected"; }  ?> value="<?php echo htmlentities($filterCategory); ?>"><?php echo $filterCategory; ?></option>
 						<?php
 						} ?>
 					</select>
-				<?php 
+				<?php
 				} else { ?>
 					<?php echo  $prop->module_id;  ?>
-				<?php 
-				} ?>	
+				<?php
+				} ?>
 			</td>
 
 		    <td class='break'>
@@ -354,7 +354,7 @@ foreach($data as $prop) { ?>
 						<div style="max-width: 100%;text-align: right;padding-top: 10px;">
 							<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='bug' data-id="<?php echo  $prop->id;  ?>" title="Load messages"><img src="images/chat.png" alt=""></button>
 						</div>
-					</div> 
+					</div>
 		        </div>
 		    </td>
 
@@ -385,9 +385,9 @@ foreach($data as $prop) { ?>
 				</button>
 		    </td>
 		</tr>
-	<?php 
+	<?php
 	} ?>
-<?php 
+<?php
 } ?>
 				
 				

@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\BugSeveritiesHistory;
 use App\Models\DataTableColumn;
+use App\Github\GithubRepository;
 use App\SiteDevelopmentCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,8 @@ class BugTrackingController extends Controller
             $dynamicColumnsToShowbt = json_decode($hideColumns, true);
         }
 
+        $githubRepositories = GithubRepository::all();
+
         return view(
             'bug-tracking.index', [
                 'title' => $title,
@@ -65,6 +68,7 @@ class BugTrackingController extends Controller
                 'filterWebsites' => $filterWebsites,
                 'permission_users' => $permission_users,
                 'dynamicColumnsToShowbt' => $dynamicColumnsToShowbt,
+                'githubRepositories' => $githubRepositories,
             ]
         );
     }
