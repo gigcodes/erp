@@ -1,3 +1,31 @@
+function processMinMax(module) {
+
+    $modalCon = module.closest(".mymodal").attr("id");
+
+    $apnData = module.closest(".mymodal");
+
+    $modal = "#" + $modalCon;
+
+    $(".modal-backdrop").addClass("d-none");
+
+    $($modal).toggleClass("min");
+
+    var htmal_data = $apnData.find("iframe").contents().find('body').html();
+    if ($($modal).hasClass("min")) {
+
+        $(".minmaxCon").append($apnData);
+        $(".minmaxCon").find("iframe").contents().find('body').html(htmal_data);
+        module.find("i").toggleClass('fa-minus').toggleClass('fa-clone');
+
+    } else {
+        $(".container").append($apnData);
+        $(".container").find("iframe").contents().find('body').html(htmal_data);
+        module.find("i").toggleClass('fa-clone').toggleClass('fa-minus');
+
+    };
+
+}
+
 if(config.pusher.key) {
 
     let email_data_alert = null;
@@ -32,6 +60,14 @@ if(config.pusher.key) {
         if($("#emailAlertModal").data('bs.modal')?.isShown) {
             $('#emailAlertModal').modal('hide'); 
         }
+      })
+      .listenForWhisper('alert-modal-min_max', (e) => {
+        // Minimize / maximize All modals
+        if(e.id) {
+            // $("#"+e.id+" .modalMinimize").trigger("click");
+            let module_ = $("#"+e.id+" .modalMinimize");
+            processMinMax(module_);
+        }
       });
 
     $("#emailAlertModal").on("hidden.bs.modal", function () {
@@ -47,3 +83,37 @@ if(config.pusher.key) {
 
    
 }
+
+$(document).ready(function() {
+
+
+    var $content, $modal, $apnData, $modalCon;
+    
+    $content = $(".min");
+    
+    
+    //To fire modal
+    $(".mdlFire").click(function(e) {
+    
+        e.preventDefault();
+    
+        var $id = $(this).attr("data-target");
+    
+        $($id).modal({
+            backdrop: false,
+            keyboard: false
+        });
+    
+    });
+
+
+    
+    
+    $(".modalMinimize").on("click", function() {
+        $modalCon = $(this).closest(".mymodal").attr("id");
+        processMinMax($(this));
+        window.Echo.private('emails')
+            .whisper('alert-modal-min_max', {"id":$modalCon});
+    });
+    
+});

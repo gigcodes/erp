@@ -4337,7 +4337,7 @@ function checkRecord() {
     });
 }
 
-setInterval(checkRecord, 5000); 
+// setInterval(checkRecord, 5000); 
 
 $(document).ready(function() {
     $('#availabilityToggle').change(function() {
