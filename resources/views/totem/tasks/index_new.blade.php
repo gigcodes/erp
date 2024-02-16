@@ -276,7 +276,7 @@ table tr td {
                                 </td>
                                 @if($last = $task->lastResult)
                                     <td>
-                                        {{$last->ran_at->toDateTimeString()}}
+                                        {{-- {{$last->ran_at->toDateTimeString()}} --}}
                                     </td>
                                 @else
                                     <td>
@@ -299,7 +299,7 @@ table tr td {
                                         <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
                                     @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results=""><i class="fa fa-globe" aria-hidden="true"></i></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><i class="fa fa-globe" aria-hidden="true"></i></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                     <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
@@ -995,20 +995,33 @@ table tr td {
     });
 
     $(document).on("click",".execution-history",function(e) {
-        let results = JSON.parse($(this).attr('data-results'));
-        var html_content = '';
-        for(let i=0; i< results.length; i++){ 
-            html_content += '<tr>'; 
-            html_content += '<td>' + results[i].ran_at + '</td>';
-            html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
-            html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
-            html_content += '</tr>';
-        }
-        if(results.length == 0){
-            html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'Not executed yet.' + '</h5></td></tr>';
-        }
-        $("#view_execution_history tbody").html(html_content);                   
-        $('#view_execution_history').modal('show'); 
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "{{ route('totem.tasks.all')}}",
+            data: {
+                id: $(this).attr('data-id'),
+            },
+            success: function (response) {
+                var html_content = '';
+                var results = response.task;
+                for(let i=0; i< results.length; i++){ 
+                    html_content += '<tr>'; 
+                    html_content += '<td>' + results[i].ran_at + '</td>';
+                    html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
+                    html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
+                    html_content += '</tr>';
+                }
+                if(results.length == 0){
+                    html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'Not executed yet.' + '</h5></td></tr>';
+                }
+                $("#view_execution_history tbody").html(html_content);                   
+                $('#view_execution_history').modal('show'); 
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
     });
 
     $(document).on("click",".command-schedule",function(e) {

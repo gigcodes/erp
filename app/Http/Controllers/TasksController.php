@@ -27,6 +27,17 @@ class TasksController extends Controller
     {
         $userCronIds = CronActivity::where('assign_to_id', \Auth::User()->id)->pluck('cron_id')->all();
 
+        if(request()->ajax()){
+            $id = request('id');
+            $taskResults = auth()->user()->isAdmin() || auth()->user()->isCronManager()
+                ? Task::with('results')->findOrFail($id)->results
+                : Task::with('results')->whereIn('id', $userCronIds)->get();
+
+            return response()->json([
+                'task' => $taskResults
+            ]);
+        }
+
         return view('totem.tasks.index_new', [
             'tasks' => auth()->user()->isAdmin() || auth()->user()->isCronManager() ? Task::with('frequencies')
                 ->orderBy('description')
