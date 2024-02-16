@@ -10,15 +10,11 @@ use App\SendgridEvent;
  */
 class SendgridEventCreated
 {
-    /** @var SendgridEvent */
-    private $sendgridEvent;
-
     /**
      * SendgridEventCreated constructor.
      */
-    public function __construct(SendgridEvent $sendgridEvent)
+    public function __construct(private SendgridEvent $sendgridEvent)
     {
-        $this->sendgridEvent = $sendgridEvent;
     }
 
     public function getSendgridEvent(): SendgridEvent

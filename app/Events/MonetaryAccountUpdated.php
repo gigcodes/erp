@@ -16,10 +16,7 @@ class MonetaryAccountUpdated
      *
      * @return void
      */
-    public $account;
-
-    public function __construct(MonetaryAccount $account)
+    public function __construct(public MonetaryAccount $account)
     {
-        $this->account = $account;
     }
 }

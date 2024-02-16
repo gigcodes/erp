@@ -17,11 +17,9 @@ class RefundDispatched
      *
      * @return void
      */
-    public $refund;
 
-    public function __construct(ReturnExchange $refund)
+    public function __construct(public ReturnExchange $refund)
     {
-        $this->refund = $refund;
     }
 
     /**
