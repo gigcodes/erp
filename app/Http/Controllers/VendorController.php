@@ -1878,6 +1878,60 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }
 
+    public function getFlowchartMaster(){
+        $flowchart_master = VendorFlowChartMaster::all();
+        
+        return $flowchart_master;
+    }
+
+    public function masterFlowchartStore(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'title' => 'required|string',
+            ]);
+
+            $data = $request->except('_token');
+            $flowchart = VendorFlowChartMaster::create($data);
+    
+            return response()->json(['code' => '200', 'data' => $flowchart, 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully created a master flow chart!']);
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function masterFlowchartDestroy($id)
+    {
+        try {
+            $flowchart = VendorFlowChartMaster::find($id);
+            if($flowchart->flow_charts()->get()->isEmpty()){
+                $flowchart->delete();
+                return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully deleted a master flow chart!']);
+            }else{
+                return response()->json(['code' => '400', 'message' => 'Vendor flow charts not empty!']);
+            }
+
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function masterFlowchartUpdate(Request $request, $id){
+        try {
+            $this->validate($request, [
+                'title' => 'required|string',
+            ]);
+
+            $data = $request->except('_token');
+            $flowchart = VendorFlowChartMaster::find($id);
+            $flowchart->update($data);
+
+            return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully updated a master flow chart!']);
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
+    }
+
     public function questionStore(Request $request)
     {
         $this->validate($request, [

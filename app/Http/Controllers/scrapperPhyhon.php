@@ -393,7 +393,9 @@ class scrapperPhyhon extends Controller
         $store_website = \App\StoreWebsite::find($request->webName);
         $log_data = ['user_id' => \Auth::id(), 'action' => $request->data_name, 'website' => $request->webName, 'device' => $request->type, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
         try {
-            $url = 'http://167.86.88.58:5000/' . $request->data_name;
+            $api_host = config('env.PYTHON_SCRAPPER_API');
+
+            $url = $api_host.$request->data_name;
             $data = [
                 'type' => $request->type,
                 'name' => $store_website->title,

@@ -2836,6 +2836,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/changeWhatsapp', [VendorController::class, 'changeWhatsapp'])->name('vendor.changeWhatsapp');
     Route::post('vendor/status/create', [VendorController::class, 'statusStore'])->name('vendor.status.store');
     Route::post('vendor/flowchart/create', [VendorController::class, 'flowchartStore'])->name('vendor.flowchart.store');
+    Route::post('vendor/flowchart-master/create', [VendorController::class, 'masterFlowchartStore'])->name('vendor.flowchart.master.store');
+    Route::delete('vendor/flowchart-master/delete/{id?}', [VendorController::class, 'masterFlowchartDestroy'])->name('vendor.flowchart.master.destroy');
+    Route::post('vendor/flowchart-master/update/{id?}', [VendorController::class, 'masterFlowchartUpdate'])->name('vendor.flowchart.master.update');
     Route::post('vendor/updateflowchart', [VendorController::class, 'vendorFlowchart'])->name('vendors.flowchart');
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
@@ -5511,6 +5514,7 @@ Route::middleware('auth')->prefix('totem')->group(function () {
     Route::prefix('tasks')->group(function () {
         Route::get('/', [TasksController::class, 'index'])->name('totem.tasks.all');
         Route::get('{task}', [TasksController::class, 'view'])->name('totem.task.view');
+        Route::get('{task}/execution-history', [TasksController::class, 'executionHistory'])->name('totem.task.execution-history');
         Route::post('{task}/delete', [TasksController::class, 'destroy'])->name('totem.task.delete');
         Route::post('{task}/edit', [TasksController::class, 'update'])->name('totem.task.update');
         Route::post('create', [TasksController::class, 'store'])->name('totem.task.create');
