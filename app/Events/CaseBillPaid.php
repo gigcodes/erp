@@ -17,14 +17,8 @@ class CaseBillPaid
      *
      * @return void
      */
-    public $case;
-
-    public $bill;
-
-    public function __construct(LegalCase $case, $bill)
+    public function __construct(public LegalCase $case, public $bill)
     {
-        $this->case = $case;
-        $this->bill = $bill;
     }
 
     /**

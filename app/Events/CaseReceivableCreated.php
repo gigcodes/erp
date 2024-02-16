@@ -18,17 +18,11 @@ class CaseReceivableCreated
      *
      * @return void
      */
-    public $case;
-
     public $receivable;
 
-    public $status;
-
-    public function __construct(LegalCase $case, CaseReceivable $case_receivable, $status)
+    public function __construct(public LegalCase $case, CaseReceivable $case_receivable, public $status)
     {
-        $this->case = $case;
         $this->receivable = $case_receivable;
-        $this->status = $status;
     }
 
     /**
