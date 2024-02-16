@@ -42,7 +42,7 @@
             <meta http-equiv="refresh" content="28800; url={{ route('logout-refresh') }}">
         @endif
     @endif
-    <link href="{{ asset('css/app-custom.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app-custom.css?v=0.1') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" type="text/css">
@@ -146,7 +146,7 @@
       window.Laravel = '{{!!json_encode(['csrfToken '=>csrf_token(),'user '=>['authenticated '=>auth()->check(),'id '=>auth()->check() ? auth()->user()->id : null,'name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}}';
       initializeTwilio();
       @auth
-      const IS_ADMIN_USER = {{ $isAdmin }};
+      const IS_ADMIN_USER = {{ $isAdmin ? 1 : 0 }};
       const LOGGED_USER_ID = {{ auth()->user()->id}};
         @endauth
     </script>
@@ -4415,34 +4415,7 @@
         </div>
     </div>
 @endif
-@if($isAdmin)
-    <!-- Modal -->
-    <div id="emailAlertModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
 
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-
-                    <h4 class="modal-title" id="emailAlert-modal-subject">Subject</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p id="emailAlert-modal-body">
-                        <iframe style="width: 100%;border:none;height:100vh;" id="emailAlert-modal-body-myframe"
-                                frameborder="0"></iframe>
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button id="emailAlert-reply" type="button" class="btn btn-default" data-dismiss="modal">Reply
-                    </button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-@endif
 @php
 
     $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
@@ -4528,7 +4501,7 @@
         }
       };
     </script>
-    <script src="{{asset("js/email-alert-echo.js")}}"></script>
+    <script src="{{asset("js/email-alert-echo.js?v=0.1")}}"></script>
 @endif
 </body>
 

@@ -547,3 +547,42 @@ margin-left: auto;
 }
 .switchAN .textLeft { left:10px; }
 .switchAN .textRight { right:10px; }
+
+/*!
+ * Modal Minimize and Maximize CSS - BD
+ */
+.mymodal.min {
+    width: 250px;
+    height: 35px;
+    overflow: hidden !important;
+    padding: 0px !important;
+    margin: 0px;
+    float: left;
+    position: static !important;
+}  
+.mymodal.min .modal-dialog, .mymodal.min .modal-content {
+    height: 100%;
+    width: 100%;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+.mymodal.min .modal-header {
+    height: 100%;
+    width: 100%;
+    margin: 0px !important;
+    padding: 3px 5px !important;
+} 
+.mymodal.min .fa { font-size: 14px; }
+.mymodal.min .menuTab { display: none; }
+.minmaxCon {
+    height: 35px;
+    bottom: 1px;
+    left: 1px;
+    position: fixed;
+    right: 1px;
+    z-index: 9999;
+} 
+.mymodal .modal-header .close { margin: -1rem 2rem 2rem auto; }
+/*!
+ * Modal Minimize and Maximize CSS - BD
+ */
