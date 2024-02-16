@@ -2071,12 +2071,21 @@ class TaskModuleController extends Controller
             $bug_list_ids = explode(',', $request->task_bug_ids);
             $model_bug_tracker = BugTracker::whereIn('id', $bug_list_ids)->get()->toArray();
             $bug_tracker_array = [];
+            $postfix_task_bug = '';
             $model_name = 0;
             for ($p = 0; $p < count($model_bug_tracker); $p++) {
                 $bug_primary_id = $model_bug_tracker[$p]['id'];
                 $bug_tracker_array[$bug_primary_id] = $model_bug_tracker[$p];
                 $model_name = $model_bug_tracker[0]['module_id'];
             }
+
+            foreach($bug_tracker_array as $bug_key=>$bug_tracker_ele) {
+                $postfix_task_bug .= "<br/>".$bug_key.' :Step to Reproduce : <br/>'.$bug_tracker_ele['step_to_reproduce'];
+                $postfix_task_bug .= '<br/>Expected Result : <br/>'.$bug_tracker_ele['expected_result'];
+                $postfix_task_bug .= '<br/>Remark : <br/>'.$bug_tracker_ele['remark'];
+            }
+
+            
 
             $model_site_dev_category = SiteDevelopmentCategory::where('title', $model_name)->get()->toArray();
             $site_development_module_id = 0;
@@ -2129,6 +2138,7 @@ class TaskModuleController extends Controller
                     $data['bug_id'] = $request->site_id;
                     $data['task_subject'] = $website;
                     $data['task_bug_ids'] = $request->task_bug_ids;
+                    $data['task_detail'] .= $postfix_task_bug;
                     if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
                         $data = [];
                         if (is_array($request->task_asssigned_to)) {
@@ -2138,7 +2148,7 @@ class TaskModuleController extends Controller
                         }
                         $data['user_id'] = loginId();
                         $data['subject'] = $website;
-                        $data['task'] = $request->get('task_detail');
+                        $data['task'] = $data['task_detail'];
                         $data['task_type_id'] = 1;
                         $data['cost'] = $request->get('cost', 0);
                         $data['status'] = DeveloperTask::DEV_TASK_STATUS_PLANNED;
@@ -2149,7 +2159,7 @@ class TaskModuleController extends Controller
 
                         $data['subject'] = $website;
                         $data['task_type'] = $taskType;
-                        $data['task'] = $request->get('task_detail');
+                        $data['task'] = $data['task_detail'];
                         $data['task_type_id'] = 1;
                         $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id');
                         $data['site_developement_id'] = 0;
