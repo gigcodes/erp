@@ -15,19 +15,11 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
      * @return \Illuminate\Support\Collection
      */
 
-    protected $products;
-
-    protected $orders;
-
     protected $count = 0;
 
-    protected $path = null;
 
-    public function __construct(array $products, array $orders, $path)
+    public function __construct(protected array $products, protected array $orders, protected $path)
     {
-        $this->products = $products;
-        $this->orders = $orders;
-        $this->path = $path;
     }
 
     public function array(): array

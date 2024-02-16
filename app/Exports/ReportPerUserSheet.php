@@ -15,16 +15,10 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAutoSize, WithEvents
 {
-    protected $user_id;
-
-    protected $time_slots;
-
     protected $users_array;
 
-    public function __construct(int $user_id, array $time_slots)
+    public function __construct(protected int $user_id, protected array $time_slots)
     {
-        $this->user_id = $user_id;
-        $this->time_slots = $time_slots;
         $this->users_array = Helpers::getUserArray(User::all());
     }
 

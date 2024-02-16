@@ -8,11 +8,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class EmailFailedReport implements FromArray, ShouldAutoSize, WithHeadings
 {
-    protected $lists;
-
-    public function __construct(array $lists)
+    public function __construct(protected array $lists)
     {
-        $this->lists = $lists;
     }
 
     /**

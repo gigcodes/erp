@@ -10,11 +10,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class MagentoProductCommonError implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
 {
-    protected $lists;
-
-    public function __construct(array $lists)
+    public function __construct(protected array $lists)
     {
-        $this->lists = $lists;
     }
 
     /**

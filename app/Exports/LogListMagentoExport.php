@@ -7,11 +7,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class LogListMagentoExport implements FromArray, ShouldAutoSize
 {
-    public $data;
-
-    public function __construct($data)
+    public function __construct(public $data)
     {
-        $this->data = $data;
     }
 
     public function array(): array

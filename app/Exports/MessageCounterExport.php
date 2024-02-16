@@ -7,14 +7,8 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 
 class MessageCounterExport implements FromCollection, WithHeadings
 {
-    protected $header = null;
-
-    protected $data = null;
-
-    public function __construct($header, $data)
+    public function __construct(protected $header, protected $data)
     {
-        $this->header = $header;
-        $this->data = $data;
     }
 
     public function headings(): array

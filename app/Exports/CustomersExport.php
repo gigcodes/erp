@@ -7,11 +7,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class CustomersExport implements FromArray, ShouldAutoSize
 {
-    protected $customers;
-
-    public function __construct(array $customers)
+    public function __construct(protected array $customers)
     {
-        $this->customers = $customers;
     }
 
     /**

@@ -14,14 +14,8 @@ class ProductSupplierExport implements FromArray, WithHeadings, ShouldAutoSize, 
      * @return \Illuminate\Support\Collection
      */
 
-    protected $supplier_not_exist_product_supplier_table;
-
-    protected $path = null;
-
-    public function __construct(array $supplier_not_exist_product_supplier_table, $path)
+    public function __construct(protected array $supplier_not_exist_product_supplier_table, protected $path)
     {
-        $this->supplier_not_exist_product_supplier_table = $supplier_not_exist_product_supplier_table;
-        $this->path = $path;
     }
 
     public function array(): array
