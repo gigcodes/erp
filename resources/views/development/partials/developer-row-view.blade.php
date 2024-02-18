@@ -56,10 +56,10 @@
                 <td class="expand-row">
                     <!--span style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
                 @if ($issue->getMedia(config('constants.media_tags'))->first())
-                        <br>
-@foreach ($issue->getMedia(config('constants.media_tags')) as $image)
-                            <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
-                            <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px" alt="">
+        <br>
+                    @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
+        <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank" class="d-inline-block">
+                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" style="width: 50px" alt="">
                         </a>
 
 

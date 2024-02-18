@@ -37,6 +37,7 @@ use App\CustomerAddressData;
 use App\InstructionCategory;
 use Illuminate\Http\Request;
 use App\CommunicationHistory;
+use App\Helpers\CommonHelper;
 use App\ReadOnly\SoloNumbers;
 use App\CustomerPriorityPoint;
 use App\Imports\CustomerImport;
@@ -2484,7 +2485,7 @@ class CustomerController extends Controller
         if (! empty($media)) {
             $kycDoc = new \App\CustomerKycDocument;
             $kycDoc->customer_id = $customer_id;
-            $kycDoc->url = $media->getUrl();
+            $kycDoc->url = CommonHelper::getMediaUrl($media);
             $kycDoc->path = $media->getAbsolutePath();
             $kycDoc->type = 1;
             $kycDoc->save();

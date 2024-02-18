@@ -28,7 +28,7 @@
             <tr>
                 <td>{{ $product->id }}</td>
                 <td>{{ $product->sku }}</td>
-                <td><img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl()  }}" class="img-responsive" style="max-width: 200px;" alt=""></td>
+                <td><img src="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())  }}" class="img-responsive" style="max-width: 200px;" alt=""></td>
                 <td>
                     <form action="{{ route('productselection.destroy',$product->id) }}" method="POST">
                         {{--<a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a>--}}

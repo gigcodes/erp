@@ -6,6 +6,7 @@ use App\Customer;
 use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
+use App\Helpers\CommonHelper;
 use Illuminate\Console\Command;
 
 class CheckMessagesErrors extends Command
@@ -81,7 +82,7 @@ class CheckMessagesErrors extends Command
                         foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
                             if ($error == 1) {
                                 try {
-                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', CommonHelper::getMediaUrl($image)), false, $new_message->id);
                                 } catch (\Exception $e) {
                                 }
                             }

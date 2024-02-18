@@ -15,6 +15,7 @@ use App\StoreSocialAccount;
 use App\StoreSocialContent;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\ContentManageentEmail;
@@ -418,7 +419,7 @@ class ContentManagementController extends Controller
                     }
                     $records[] = [
                         'id' => $media->id,
-                        'url' => $media->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($media),
                         'site_id' => $site->id,
                         'user_list' => $usrSelectBox,
                         'fullReviews' => $fullReviews,
@@ -466,7 +467,7 @@ class ContentManagementController extends Controller
                         $user->phone,
                         null,
                         'Please find attached file',
-                        $media->getUrl()
+                        CommonHelper::getMediaUrl($media)
                     );
 
                     return response()->json(['code' => 200, 'message' => 'Document send succesfully']);
@@ -592,7 +593,7 @@ class ContentManagementController extends Controller
                     foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                         $records[] = [
                             'id' => $media->id,
-                            'url' => $media->getUrl(),
+                            'url' => CommonHelper::getMediaUrl($media),
                             'site_id' => $site->id,
                             'user_list' => $userList,
                         ];
@@ -625,7 +626,7 @@ class ContentManagementController extends Controller
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
                         'id' => $media->id,
-                        'url' => $media->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($media),
                         'site_id' => $site->id,
                         'user_list' => $userList,
                     ];
@@ -751,7 +752,7 @@ class ContentManagementController extends Controller
 
                         $records[] = [
                             'id' => $media->id,
-                            'url' => $media->getUrl(),
+                            'url' => CommonHelper::getMediaUrl($media),
                             'site_id' => $site->id,
                             'siteName' => $siteName,
                             'creator' => $creator,

@@ -118,7 +118,7 @@
 <table style="border-bottom: 1px solid #e2cfc5; padding-bottom: 10px;" width="100%">
 <tbody>
 <tr>
-<td style="width: 120px; padding-left: 10px;"><img style="border: 1px solid #bb9887;" src="{{ ($order_product->product and $order_product->product->getMedia(config('constants.attach_image_tag'))->first()) ? $order_product->product->getMedia(config('constants.attach_image_tag'))->first()->getUrl() : asset('images/no-image.jpg') }}" /></td>
+<td style="width: 120px; padding-left: 10px;"><img style="border: 1px solid #bb9887;" src="{{ ($order_product->product and $order_product->product->getMedia(config('constants.attach_image_tag'))->first()) ? \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.attach_image_tag'))->first()) : asset('images/no-image.jpg') }}" /></td>
 <td style="vertical-align: top; padding: 0px; width: 50%;">
 <table width="100%">
 <tbody>

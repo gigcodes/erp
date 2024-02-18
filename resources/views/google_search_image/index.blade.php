@@ -220,7 +220,7 @@
                                     <td>{{ $product->id }}</td>
                                     <td>
 {{--                                        <img style="cursor: default;max-height: 120px;margin: 0;" class="img-responsive grid-image" src="https://www.w3schools.com/html/img_girl.jpg">--}}
-                                        <img style="cursor: default;max-height: 120px;margin: 0;" src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
+                                        <img style="cursor: default;max-height: 120px;margin: 0;" src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
                                     </td>
                                     <td>
                                         {{ $product->sku }}
@@ -255,7 +255,7 @@
 
                 {{--                    --}}
                 {{--                    <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">--}}
-                {{--                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>--}}
+                {{--                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>--}}
                 {{--                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>--}}
                 {{--                        <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>--}}
                 {{--                        <p>Transit Status : {{ $product->purchase_status }}</p>--}}

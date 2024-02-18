@@ -113,7 +113,7 @@
                                     @endif
                                         <br>
                                         <br>
-                                    <input type="hidden" name="url[{{$image->filename}}]" value="{!! $image->getUrl() !!}">
+                                    <input type="hidden" name="url[{{$image->filename}}]" value="{!! \App\Helpers\CommonHelper::getMediaUrl($image) !!}">
                                     <input type="hidden" name="mediaIds[{{$image->filename}}]" value="{!! $image->id !!}">
                                     <div class="form-group">
                                         <select class="form-control avoid-approve" style="width: 100px; !important;" name="size[{{$image->filename}}]" id="size">
@@ -238,7 +238,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{$image->getUrl()}}'); background-size: 500px">
+                                <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}'); background-size: 500px">
                                     <img style="width: 500px;" src="{{ asset('images/'.$img) }}" alt="">
                                 </div>
                             </div>

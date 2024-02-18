@@ -1149,7 +1149,7 @@
                               @endif
                               ">
                               <p>
-                                <img src="{{ $image->getUrl() ?? '#no-image' }}" class="img-responsive" alt="">
+                                <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) ?? '#no-image' }}" class="img-responsive" alt="">
                                 <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
 
                                 <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">
@@ -1480,7 +1480,7 @@
                                               @endphp
 
                                               @if ($order_product->product->hasMedia(config('constants.media_tags')))
-                                                <img width="150" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
+                                                <img width="150" src="{{ \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}" data-toggle='tooltip' data-html='true' data-placement='top' title="{{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM') ? "<strong>Supplier:</strong> $supplier_initials" : '' }}" />
                                               @endif
 
                                               {{ $order_product->product->name }} - {{ $order_product->product->color }}
@@ -1598,7 +1598,7 @@
                               <td>
                                 @if ($order->delivery_approval->hasMedia(config('constants.media_tags')))
                                   @foreach ($order->delivery_approval->getMedia(config('constants.media_tags')) as $image)
-                                    <img width="150" src="{{ $image->getUrl() ?? '#no-image' }}" />
+                                    <img width="150" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) ?? '#no-image' }}" />
                                   @endforeach
                                 @endif
                               </td>
@@ -1674,7 +1674,7 @@
                   <td>
                     @foreach ($view->products as $product)
                       @if ($product->hasMedia(config('constants.media_tags')))
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                        <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" style="width: 50px;" alt="">
                       @endif
                     @endforeach
                   </td>
@@ -1682,8 +1682,8 @@
                   <td>
                     @if ($view->hasMedia(config('constants.media_tags')))
                       @foreach ($view->getMedia(config('constants.media_tags')) as $image)
-                        <a href="{{ $image->getUrl() }}" target="_blank" class="d-inline-block">
-                          <img src="{{ $image->getUrl() }}" class="img-responsive" style="width: 50px;" alt="">
+                        <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank" class="d-inline-block">
+                          <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" style="width: 50px;" alt="">
                         </a>
                       @endforeach
                     @endif

@@ -802,11 +802,11 @@
                                                         </div>
                                                         <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
                                                         <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
-                                                             src="{{ $media->getUrl() }}"
+                                                             src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}"
                                                              class="quick-image-container img-responive" alt=""
                                                              data-toggle="tooltip" data-placement="top"
                                                              title="ID: {{ $product->id }}"
-                                                             onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}','{{ $site->id }}')">
+                                                             onclick="replaceThumbnail('{{ $product->id }}','{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}','{{$gridImage}}','{{ $site->id }}')">
                                                     </div>
                                                     <?php } ?>
                                                 @endif
@@ -817,7 +817,7 @@
                                     </div>
                                     <div class="col-md-7" id="col-large-image{{ $product->id }}{{$site->id}}">
                                         @if ($product->hasMedia($tag))
-                                            @php $siteImage =  $product->getMedia($tag)->first()->getUrl() @endphp
+                                            @php $siteImage =  \App\Helpers\CommonHelper::getMediaUrl($product->getMedia($tag)->first()) @endphp
                                             <div onclick="bigImg('{{ $siteImage }}')"
                                                  style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $siteImage }}'); background-size: 300px"
                                                  id="image{{ $product->id }}{{$site->id}}">

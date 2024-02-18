@@ -8,6 +8,7 @@ use App\Supplier;
 use Carbon\Carbon;
 use App\ChatMessage;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use GuzzleHttp\Client as GuzzleClient;
@@ -345,7 +346,7 @@ class WebMessageController extends Controller
             if (! $allMedias->isEmpty()) {
                 foreach ($allMedias as $aMedias) {
                     $urls[$aMedias->id] = [
-                        'url' => $aMedias->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($aMedias),
                         'type' => $aMedias->extension,
                     ];
                 }
@@ -516,7 +517,7 @@ class WebMessageController extends Controller
             if (! $allMedias->isEmpty()) {
                 foreach ($allMedias as $aMedias) {
                     $urls[$aMedias->id] = [
-                        'url' => $aMedias->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($aMedias),
                         'type' => $aMedias->extension,
                     ];
                 }

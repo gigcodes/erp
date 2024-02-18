@@ -19,7 +19,7 @@
         @foreach ($lead['image'] as $image)
           <div class="col-md-3 col-xs-6 text-center mb-5">
             <a href="{{ route('leads.show', $lead['id']) }}">
-              <img src="{{ $image->getUrl() }}" class="img-responsive grid-image" alt="" />
+              <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive grid-image" alt="" />
               <p>Status : {{ App\Helpers::getleadstatus($lead['status']) }}</p>
               <p>Rating : {{ $lead['rating'] }}</p>
             </a>

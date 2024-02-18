@@ -18,8 +18,8 @@
               if($imageDetails) {
                 $imageDetails->directory .= '/thumbnail';
                 $imageDetails->filename .= '_thumb';
-                $image = $imageDetails->getUrl();
-                // $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+                $image = \App\Helpers\CommonHelper::getMediaUrl($imageDetails);
+                // $image = convertToThumbUrl(\App\Helpers\CommonHelper::getMediaUrl($imageDetails),$imageDetails->extension);
               }
               @endphp
             <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">

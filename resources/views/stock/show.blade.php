@@ -132,7 +132,7 @@
               @foreach ($stock->products as $product)
                 <div class="col-md-4">
                   <a href="{{ route('products.show', $product->id) }}" target="_blank">
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive" alt="">
+                    <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" alt="">
                   </a>
                 </div>
               @endforeach

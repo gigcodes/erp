@@ -6,7 +6,7 @@
               <td>{{ $post->post_body }}</td>
               <td>
               @if ($post->hasMedia(config('constants.media_tags')))
-              <a data-fancybox="gallery" href="{{ $post->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $post->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+              <a data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($post->getMedia(config('constants.media_tags'))->first()) }}"><img width="100" src="{{ \App\Helpers\CommonHelper::getMediaUrl($post->getMedia(config('constants.media_tags'))->first()) }}"></a>
 
               @endif
               

@@ -142,16 +142,16 @@
           <div class="col-md-1">
             @if ($product->hasMedia(config('constants.media_tags')))
               @foreach($product->getMedia(config('constants.media_tags')) as $media)
-                <a href="{{ $media->getUrl() }}">
-                  <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}">
+                  <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                 </a>
               @endforeach
             @endif
           </div>
           <div class="col-md-4">
             @if ($product->hasMedia(config('constants.media_tags')))
-              <a href="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">
-                <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+              <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}">
+                <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
               </a>
             @endif
           </div>

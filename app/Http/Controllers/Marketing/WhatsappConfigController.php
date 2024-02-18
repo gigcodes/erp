@@ -11,6 +11,7 @@ use App\Notification;
 use App\StoreWebsite;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Marketing\WhatsappConfig;
 use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
@@ -345,7 +346,7 @@ class WhatsappConfigController extends Controller
 
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-' . Str::random(4))->upload();
 
-            return Response::json(['success' => true, 'media' => $media->getUrl()]);
+            return Response::json(['success' => true, 'media' => CommonHelper::getMediaUrl($media)]);
         } else {
             return Response::json(['error' => true]);
         }
@@ -391,7 +392,7 @@ class WhatsappConfigController extends Controller
 
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen' . uniqid(true))->upload();
 
-            return Response::json(['success' => true, 'media' => $media->getUrl()]);
+            return Response::json(['success' => true, 'media' => CommonHelper::getMediaUrl($media)]);
         }
     }
 

@@ -15,7 +15,7 @@
                 <td>
                     @if($screenshot->hasMedia(config('constants.media_screenshot_tag')))
                         @foreach($screenshot->getMedia(config('constants.media_screenshot_tag')) as $image)
-                            <a href="{{ $image->getUrl() }}" target="_blank" > <img width="150" height="150" src="{{ $image->getUrl() }}"></a>
+                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank" > <img width="150" height="150" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}"></a>
                         @endforeach
                     @endif
                 </td>

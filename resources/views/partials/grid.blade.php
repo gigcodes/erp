@@ -431,7 +431,7 @@
               'price': '{{ $product->price_inr_special }}',
               'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
               'image': '{{ $product->getMedia(config('constants.attach_image_tag'))->first()
-                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
+                            ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.attach_image_tag'))->first())
                             : ''
                          }}',
               'created_at': '{{ $r[0]  }}',

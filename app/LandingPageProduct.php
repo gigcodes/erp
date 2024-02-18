@@ -6,6 +6,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 
@@ -95,7 +96,7 @@ class LandingPageProduct extends Model
                 // if there is specific color then only send the images
                 if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
                     foreach ($medias as $image) {
-                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                        $productData['product']['images'][] = ['src' => CommonHelper::getMediaUrl($image)];
                     }
                 }
             }

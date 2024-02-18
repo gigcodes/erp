@@ -3,7 +3,7 @@
 <tr>
 <td>{{ $template->id }}</td>
 <td>{{ $template->template_no }}</td>
-<td><img src="{{ $template->getMedia('template-image')->last() ? $template->getMedia('template-image')->last()->getUrl() : '' }}" class="img-responsive" alt="" width="300" height="300" /></td>
+<td><img src="{{ $template->getMedia('template-image')->last() ? \App\Helpers\CommonHelper::getMediaUrl($template->getMedia('template-image')->last()) : '' }}" class="img-responsive" alt="" width="300" height="300" /></td>
 <td>{{ $template->product_title }}</td>
 <td>@if($template->brand) {{ $template->brand->name }} @endif</td>
 <td>@if($template->category) {{ $template->category->title }} @endif</td>

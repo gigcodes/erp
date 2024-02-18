@@ -56,6 +56,7 @@ use App\MailinglistTemplate;
 use App\Models\InvoiceLater;
 use Illuminate\Http\Request;
 use App\CommunicationHistory;
+use App\Helpers\CommonHelper;
 use App\Mail\OrderStatusMail;
 use App\OrderCustomerAddress;
 use App\OrderMagentoErrorLog;
@@ -2229,7 +2230,7 @@ class OrderController extends Controller
 
             if (! empty($temp)) {
                 $orderProducts[$key]['product'] = $temp;
-                $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? $temp->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+                $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($temp->getMedia(config('constants.media_tags'))->first()) : '';
             }
         }
 
@@ -2309,14 +2310,14 @@ class OrderController extends Controller
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
-                $source[$key]->media_url = $media->getUrl();
+                $source[$key]->media_url = CommonHelper::getMediaUrl($media);
             }
 
             if (empty($source[$key]->media_url) && $value->product_id) {
                 $product = \App\Product::find($value->product_id);
                 $media = $product->getMedia(config('constants.media_tags'))->first();
                 if ($media) {
-                    $source[$key]->media_url = $media->getUrl();
+                    $source[$key]->media_url = CommonHelper::getMediaUrl($media);
                 }
             }
         }

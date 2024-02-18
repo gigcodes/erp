@@ -168,7 +168,7 @@
                 <td colspan="7">
                 <div class="col-md-2 col-xs-3 text-center">
                     <div class="thumbnail">
-                        <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                        <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive grid-image" alt="" />
                         <div class="caption">
                             <span>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</span>
                             <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
@@ -199,7 +199,7 @@
                         @if(!$loop->last)
                             <div class="col-md-2 col-xs-3 text-center">
                                 <div class="thumbnail">
-                                    <img src="{{ $img->filename ? (asset('uploads/social-media') . '/' . $img->filename) : ($img->getMedia(config('constants.media_tags'))->first() ? $img->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                                    <img src="{{ $img->filename ? (asset('uploads/social-media') . '/' . $img->filename) : ($img->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($img->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive grid-image" alt="" />
                                     
                                     <div class="caption">
                                             <span>{{ date( 'd-M-Y' ,strtotime($img->created_at))  }}</span>
@@ -238,7 +238,7 @@
   </div>
   {{-- @foreach ($images as $image)
   <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive grid-image" alt="" />
 
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
     @if(auth()->user()->checkPermission('social-create'))

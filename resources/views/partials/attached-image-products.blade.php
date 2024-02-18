@@ -20,15 +20,15 @@ style="padding: 0px 10px;">
 
                     $image = "";
                     if($imageDetails) {
-                      $imageDetails->directory .= '/thumbnail';
-                      $imageDetails->filename .= '_thumb';
-                      $image = $imageDetails->getUrl();
+                        $imageDetails->directory .= '/thumbnail';
+                        $imageDetails->filename .= '_thumb';
+                        $image = \App\Helpers\CommonHelper::getMediaUrl($imageDetails);
                     }
 
                     $im = [
                         'abs' => $imageDetails->getAbsolutePath(),
                         'url' => $image,
-                        // 'url' => convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension),
+                        // 'url' => convertToThumbUrl(\App\Helpers\CommonHelper::getMediaUrl($imageDetails),$imageDetails->extension),
                         'id' => $imageDetails->getKey(),
                     ];
                     if (!in_array($imageDetails->getKey(), $selected_products)) {
@@ -184,11 +184,12 @@ style="padding: 0px 10px;">
                         if($imageDetails) {
                             $imageDetails->directory .= '/thumbnail';
                             $imageDetails->filename .= '_thumb';
-                            $image = $imageDetails->getUrl();                        }
+                            $image = \App\Helpers\CommonHelper::getMediaUrl($imageDetails);
+                        }
                         $im = [
                             'abs' => $imageDetails->getAbsolutePath(),
                             'url' => $image,
-                                //  'url' => convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension),
+                                //  'url' => convertToThumbUrl(\App\Helpers\CommonHelper::getMediaUrl($imageDetails),$imageDetails->extension),
 
                             'id' => $imageDetails->getKey(),
                         ];

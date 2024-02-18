@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\LogRequest;
 use App\Newsletter;
+use App\Helpers\CommonHelper;
 use Illuminate\Console\Command;
 
 class SendEmailNewsletter extends Command
@@ -51,7 +52,7 @@ class SendEmailNewsletter extends Command
                     foreach ($products as $product) {
                         if ($product->hasMedia(config('constants.attach_image_tag'))) {
                             foreach ($product->getMedia(config('constants.attach_image_tag')) as $image) {
-                                $product->images[] = $image->getUrl();
+                                $product->images[] = CommonHelper::getMediaUrl($image);
                             }
                         }
                     }

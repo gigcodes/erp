@@ -28,7 +28,7 @@
             $image_keys[] = $img->getKey();
             $images[] = [
               "abs" => $img->getAbsolutePath(),
-              "url" => $img->getUrl(),
+              "url" => \App\Helpers\CommonHelper::getMediaUrl($img),
               "id"  => $img->getKey()
             ];
             if (!in_array($img->getKey(), $selected_products)) {

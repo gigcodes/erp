@@ -49,7 +49,7 @@
 <div class="row">
   @foreach ($broadcast_images as $image)
   <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ $image->hasMedia(config('constants.media_tags')) ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '#no-image' }}" class="img-responsive grid-image" alt="" onclick="sendBroadCastAll({{ $image->id }})" />
+    <img src="{{ $image->hasMedia(config('constants.media_tags')) ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '#no-image' }}" class="img-responsive grid-image" alt="" onclick="sendBroadCastAll({{ $image->id }})" />
 
     @if ($image->products)
       <span class="badge">Linked</span>

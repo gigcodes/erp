@@ -92,7 +92,7 @@
                 <?php if ($product->hasMedia(config('constants.excelimporter'))) { ?>
                     <?php $media = $product->getMedia(config('constants.excelimporter'))->first() ?>
                     <?php if($media) { ?>
-                        <img style="width: 300px;height: 300px;margin: auto;" class="card-img-top" src="<?php echo $media->getUrl(); ?>" alt="">
+                        <img style="width: 300px;height: 300px;margin: auto;" class="card-img-top" src="<?php echo \App\Helpers\CommonHelper::getMediaUrl($media); ?>" alt="">
                     <?php } ?>    
                 <?php } ?>    
                 <p class="price">SKU : <a href="https://www.google.com/search?q=<?= $product->sku ?>" target="_blank"><?php echo $product->sku ?></a></p>

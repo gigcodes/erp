@@ -13,6 +13,7 @@ use App\ScrapeQueues;
 use App\GoogleSearchImage;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\Services\Search\TinEye;
 use App\GoogleSearchRelatedImage;
@@ -181,7 +182,7 @@ class GoogleSearchImageController extends Controller
             $data['image'] = '';
 
             if ($media) {
-                $data['image'] = $media->getUrl();
+                $data['image'] = CommonHelper::getMediaUrl($media);
                 $data['media_id'] = $media->id;
                 $data['product_id'] = $product_id;
             }
@@ -207,7 +208,7 @@ class GoogleSearchImageController extends Controller
 
             if ($media) {
                 $path = $media->getAbsolutePath();
-                $url = $media->getUrl();
+                $url = CommonHelper::getMediaUrl($media);
 
                 $img = \Image::make($media->getAbsolutePath());
                 $imageWidth = $img->width();
@@ -406,7 +407,7 @@ class GoogleSearchImageController extends Controller
 
         if ($media) {
             $count = 0;
-            $urls = GoogleVisionHelper::getImageDetails($media->getUrl());
+            $urls = GoogleVisionHelper::getImageDetails(CommonHelper::getMediaUrl($media));
 
             if (isset($urls['pages'])) {
                 foreach ($urls['pages'] as $url) {
@@ -444,7 +445,7 @@ class GoogleSearchImageController extends Controller
         $media = $product->media()->first();
 
         if ($media) {
-            $url = $media->getUrl();
+            $url = CommonHelper::getMediaUrl($media);
 
             $img = \Image::make($media->getAbsolutePath());
             $imageWidth = $img->width();
@@ -493,7 +494,7 @@ class GoogleSearchImageController extends Controller
                         $newProduct->save();
 
                         //Process Image For Google Search
-                        $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
+                        $newUrls = GoogleVisionHelper::getImageDetails(CommonHelper::getMediaUrl($newMedia));
 
                         $mediaUrlCount = 0;
                         if (isset($urls['pages'])) {
@@ -554,7 +555,7 @@ class GoogleSearchImageController extends Controller
                         $newProduct->save();
 
                         //Process Image For Google Search
-                        $newUrls = GoogleVisionHelper::getImageDetails($newMedia->getUrl());
+                        $newUrls = GoogleVisionHelper::getImageDetails(CommonHelper::getMediaUrl($newMedia));
 
                         $mediaUrlCount = 0;
                         if (isset($urls['pages'])) {

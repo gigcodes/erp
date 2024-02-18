@@ -105,7 +105,7 @@
     <div class="row">
       @foreach ($product->getMedia(config('constants.media_tags')) as $image)
         <div class="col-md-4">
-          <img src="{{ $image->getUrl() }}" class="img-responsive" alt="">
+          <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" alt="">
         </div>
       @endforeach
     </div>

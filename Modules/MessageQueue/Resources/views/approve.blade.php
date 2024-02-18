@@ -167,7 +167,7 @@
 			        <td>{{$data->message}}</td>
                     <td>
                         @foreach($data->getMedia(config("constants.attach_image_tag")) as $media)
-                            <img width="75px" heigh="75px" src="{{ $media->getUrl() }}">
+                            <img width="75px" heigh="75px" src="{{ CommonHelper::getMediaUrl($media) }}">
                         @endforeach
                     </td>
 			        <td>{{$data->created_at}}</td>

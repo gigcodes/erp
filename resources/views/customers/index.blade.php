@@ -628,7 +628,7 @@
                                     <div class="image-container hidden">
                                         @foreach ($image_message->getMedia(config('constants.media_tags')) as $image)
                                             <div class="d-inline-block">
-                                                <img src="{{ $image->getUrl() }}" class="img-responsive thumbnail-200" alt="">
+                                                <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive thumbnail-200" alt="">
                                             </div>
                                         @endforeach
                                     </div>

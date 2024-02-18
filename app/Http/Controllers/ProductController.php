@@ -50,6 +50,7 @@ use App\ProductSuggestedLog;
 use App\TranslationLanguage;
 use App\UserProductFeedback;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use App\Helpers\ProductHelper;
@@ -1933,7 +1934,7 @@ class ProductController extends Controller
                 $product->attachMedia($media, config('constants.media_tags'));
 
                 if ($key == 0) {
-                    $image_url = $media->getUrl();
+                    $image_url = CommonHelper::getMediaUrl($media);
                 }
             }
 
@@ -3049,7 +3050,7 @@ class ProductController extends Controller
             $product->attachMedia($media, config('constants.media_tags'));
         }
 
-        $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+        $product_image = $product->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
 
         if ($request->order_id) {
             $order_product = new OrderProduct;
@@ -5190,7 +5191,7 @@ class ProductController extends Controller
                     $media = Media::find($mediaid);
                     $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
-                    $imagesArray[] = $media->getUrl();
+                    $imagesArray[] = CommonHelper::getMediaUrl($media);
                 }
             }
 
@@ -5960,7 +5961,7 @@ class ProductController extends Controller
             $image = $product->getMedia(config('constants.attach_image_tag'))->first();
             $data = [
                 'title' => $product->name,
-                'url' => $image->getUrl(),
+                'url' => CommonHelper::getMediaUrl($image),
                 'amount' => $product->price,
                 'description' => $product->short_description,
             ];

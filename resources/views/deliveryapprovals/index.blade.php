@@ -82,7 +82,7 @@
                   @if ($delivery_approval->hasMedia(config('constants.media_tags')))
                     @foreach ($delivery_approval->getMedia(config('constants.media_tags')) as $image)
                       <div class="ml-1">
-                        <a href="{{ $image->getUrl() ?? '#no-image' }}" target="_blank"><img class="img-responsive thumbnail-200" src="{{ $image->getUrl() ?? '#no-image' }}" /></a>
+                        <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) ?? '#no-image' }}" target="_blank"><img class="img-responsive thumbnail-200" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) ?? '#no-image' }}" /></a>
                       </div>
                     @endforeach
                   @endif

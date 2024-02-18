@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\LogScraperVsAi;
+use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +77,7 @@ class ProductAi implements ShouldQueue
 
             // Loop over media to get URLs
             foreach ($arrMedia as $media) {
-                $arrImages[] = $media->getUrl(); //'https://erp.theluxuryunlimited.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
+                $arrImages[] = CommonHelper::getMediaUrl($media); //'https://erp.theluxuryunlimited.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
             }
 
             // Log alert if there are no images

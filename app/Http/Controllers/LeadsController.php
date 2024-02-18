@@ -29,6 +29,7 @@ use Plank\Mediable\Media;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\CommunicationHistory;
+use App\Helpers\CommonHelper;
 use App\Models\DataTableColumn;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client as GuzzleClient;
@@ -851,7 +852,7 @@ class LeadsController extends Controller
             $value['media_url'] = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
-                $value['media_url'] = $media->getUrl();
+                $value['media_url'] = CommonHelper::getMediaUrl($media);
             }
 
             if (empty($value['media_url']) && $value['product_id']) {
@@ -996,7 +997,7 @@ class LeadsController extends Controller
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
-                $source[$key]->media_url = $media->getUrl();
+                $source[$key]->media_url = CommonHelper::getMediaUrl($media);
             }
 
             if (empty($source[$key]->media_url) && $value->product_id) {
@@ -1276,7 +1277,7 @@ class LeadsController extends Controller
                 foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
                     $sendingData['image'][] = [
                         'key' => $brod_image->getKey(),
-                        'url' => $brod_image->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($brod_image),
                     ];
                 }
             } else {
@@ -1335,7 +1336,7 @@ class LeadsController extends Controller
         $media = [];
 
         foreach ($mediaArr as $value) {
-            $media[] = ['url' => $value->getUrl(), 'id' => $value->id];
+            $media[] = ['url' => CommonHelper::getMediaUrl($value), 'id' => $value->id];
         }
 
         $price = 0;

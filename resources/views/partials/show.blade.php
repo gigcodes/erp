@@ -206,7 +206,7 @@
                 @endif
                         ">
                     <p>
-                        <img src="{{$images[$i]->getUrl()}}" class="img-responsive" style="max-width: 200px;" alt="">
+                        <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($images[$i]) }}" class="img-responsive" style="max-width: 200px;" alt="">
                     </p>
                 </div>
             </div>

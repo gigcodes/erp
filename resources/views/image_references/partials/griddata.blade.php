@@ -24,8 +24,8 @@
 
         <td>
             <div style="width: 100px;margin-top: 25px; display: inline-block;">
-{{--                <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')">--}}
-                <img src="{{ $product->media ? $product->media->getUrl() : 'http://localhost/erp/public/uploads/product/29/296559/123.webp' }}" alt="" height="100" width="100" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')">
+{{--                <img src="{{ $product->media ? \App\Helpers\CommonHelper::getMediaUrl($product->media) : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $product->media ? \App\Helpers\CommonHelper::getMediaUrl($product->media) : '' }}')">--}}
+                <img src="{{ $product->media ? \App\Helpers\CommonHelper::getMediaUrl($product->media) : 'http://localhost/erp/public/uploads/product/29/296559/123.webp' }}" alt="" height="100" width="100" onclick="bigImg('{{ \App\Helpers\CommonHelper::getMediaUrl($product->media ? $product->media) : '' }}')">
             </div>
         <td>
         @if($product->newMedia)
@@ -36,8 +36,8 @@
                 <td>
                     <div style="width: 100px;margin: 0px;display: inline-block;">
                         {{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
-{{--                        <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">--}}
-                        <img src="{{ $images->newMedia ? "http://localhost/erp/public/uploads/product/29/296559/123.webp" : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+{{--                        <img src="{{ $images->newMedia ? \App\Helpers\CommonHelper::getMediaUrl($images->newMedia) : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? \App\Helpers\CommonHelper::getMediaUrl($images->newMedia) : '' }}')">--}}
+                        <img src="{{ $images->newMedia ? "http://localhost/erp/public/uploads/product/29/296559/123.webp" : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? \App\Helpers\CommonHelper::getMediaUrl($images->newMedia) : '' }}')">
                     </div>
                 </td>
             @endforeach

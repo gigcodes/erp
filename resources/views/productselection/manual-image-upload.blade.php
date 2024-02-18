@@ -83,7 +83,7 @@
         @foreach ($products as $product)
             <div class="col-md-3 col-xs-6 text-center mb-5">
                   <a href="javascript:;" class="js-open-frm" data-id="{{$product->id}}">
-                      <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" />
+                      <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive grid-image" alt="" />
                       <p>Sku : {{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}</p>
                       <p>Id : {{ $product->id }}</p>
                       <p>Size : {{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}</p>

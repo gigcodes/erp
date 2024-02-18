@@ -58,7 +58,7 @@
 
 	            $image = $sale->getMedia(config('constants.media_tags'))->first();
                 ?>
-                <img src="{{ $image ? $image->getUrl() : '' }}" class="img-responsive" style="max-width: 200px;"  alt="">
+                <img src="{{ $image ? \App\Helpers\CommonHelper::getMediaUrl($image) : '' }}" class="img-responsive" style="max-width: 200px;"  alt="">
             </div>
         </div>
 

@@ -9,6 +9,7 @@ use App\InfluencersDM;
 use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class InfluencersController extends Controller
@@ -167,7 +168,7 @@ class InfluencersController extends Controller
 
         $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
 
-        return \Response::json(['success' => true, 'message' => $media->getUrl()]);
+        return \Response::json(['success' => true, 'message' => CommonHelper::getMediaUrl($media)]);
     }
 
     public function checkScraper(Request $request)
@@ -327,7 +328,7 @@ class InfluencersController extends Controller
 
             $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
 
-            return \Response::json(['success' => true, 'message' => $media->getUrl()]);
+            return \Response::json(['success' => true, 'message' => CommonHelper::getMediaUrl($media)]);
         } catch (\Throwable $th) {
             $history = [
                 'influencers_name' => $request->name,

@@ -6,6 +6,7 @@ use Auth;
 use App\Account;
 use App\FacebookPost;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class FacebookPostController extends Controller
@@ -93,7 +94,7 @@ class FacebookPostController extends Controller
             return response()->json(['message' => 'No post found', 'code' => 404]);
         }
         if ($post->getMedia(config('constants.media_tags'))->first()) {
-            $url = $post->getMedia(config('constants.media_tags'))->first()->getUrl();
+            $url = CommonHelper::getMediaUrl($post->getMedia(config('constants.media_tags'))->first());
             $data = [
                 'queueNumber' => $post->id,
                 'username' => $request->email,

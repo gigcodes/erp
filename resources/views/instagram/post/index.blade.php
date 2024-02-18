@@ -30,7 +30,7 @@
                 <div class="card">
                     @if($media)
                         <a href="https://www.instagram.com/p/{{ $detail->code ?? null }}" target="_blank">
-                            <img src="{{ $media->getUrl() }}" alt="{{ $post->caption }}" height="250px" width="250px">
+                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" alt="{{ $post->caption }}" height="250px" width="250px">
                         </a>
                     @else
                         

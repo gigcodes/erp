@@ -73,7 +73,7 @@
         <div class="col-md-3 col-xs-6 text-center">
           <a href="{{ route('products.show', $product->id) }}">
             <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
                 : ''
               }}" class="img-responsive grid-image" alt="" />
             <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>

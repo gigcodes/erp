@@ -15,6 +15,7 @@ use App\PaymentMethod;
 use App\PaymentReceipt;
 use App\VoucherCategory;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Events\VoucherApproved;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -430,7 +431,7 @@ class VoucherController extends Controller
                 foreach ($receipt->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
                         'id' => $media->id,
-                        'url' => $media->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($media),
                         'payment_receipt_id' => $request->id,
                     ];
                 }

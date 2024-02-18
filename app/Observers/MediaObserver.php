@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use Plank\Mediable\Media;
 use Illuminate\Support\Str;
+use App\Helpers\CommonHelper;
 use App\Helpers\CompareImagesHelper;
 
 class MediaObserver
@@ -59,7 +60,7 @@ class MediaObserver
 
     public static function updateBits($media)
     {
-        $ref_file = $media->getUrl();
+        $ref_file = CommonHelper::getMediaUrl($media);
         if (@file_get_contents($ref_file) && $media->aggregate_type == 'image') {
             $i1 = CompareImagesHelper::createImage($ref_file);
             $i1 = CompareImagesHelper::resizeImage($i1, $ref_file);

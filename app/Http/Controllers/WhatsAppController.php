@@ -47,6 +47,7 @@ use App\AutoCompleteMessage;
 use App\DocumentSendHistory;
 use Illuminate\Http\Request;
 use App\CommunicationHistory;
+use App\Helpers\CommonHelper;
 use App\ChatMessagesQuickData;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
@@ -1083,7 +1084,7 @@ class WhatsAppController extends FindByNumberController
                         unlink($filePath);
 
                         // Update media URL
-                        $params['media_url'] = $media->getUrl();
+                        $params['media_url'] = CommonHelper::getMediaUrl($media);
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
                         \Log::error($exception);
@@ -1101,7 +1102,7 @@ class WhatsAppController extends FindByNumberController
                         // Delete the file
                         unlink($filePath);
                         // Update media URL
-                        $params['media_url'] = $media->getUrl();
+                        $params['media_url'] = CommonHelper::getMediaUrl($media);
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
                         \Log::error($exception);
@@ -1259,7 +1260,7 @@ class WhatsAppController extends FindByNumberController
 
                 // Set media_url parameter
                 if (isset($media)) {
-                    $params['media_url'] = $media->getUrl();
+                    $params['media_url'] = CommonHelper::getMediaUrl($media);
                 }
 
                 // Attach media to message
@@ -1673,7 +1674,7 @@ class WhatsAppController extends FindByNumberController
                 foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
                     $temp_image = [
                         'key' => $image->getKey(),
-                        'image' => $image->getUrl(),
+                        'image' => CommonHelper::getMediaUrl($image),
                         'product_id' => '',
                         'special_price' => '',
                         'size' => '',
@@ -2312,8 +2313,8 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
-                            $params['message'] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
-                            $params['media_url'] = $image->getUrl();
+                            $params['message'] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . CommonHelper::getMediaUrl($image);
+                            $params['media_url'] = CommonHelper::getMediaUrl($image);
 
                             if (Auth::user()->id != $userId) {
                                 $chat_message = ChatMessage::create($params);
@@ -2338,8 +2339,8 @@ class WhatsAppController extends FindByNumberController
                             foreach ($request->file('images') as $image) {
                                 $media = MediaUploader::fromSource($image)->upload();
                                 $issue->attachMedia($media, config('constants.media_tags'));
-                                $params['message'] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
-                                $params['media_url'] = $media->getUrl();
+                                $params['message'] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . CommonHelper::getMediaUrl($media);
+                                $params['media_url'] = CommonHelper::getMediaUrl($media);
                                 if (Auth::user()->id != $userId) {
                                     $chat_message = ChatMessage::create($params);
                                 }
@@ -2382,7 +2383,7 @@ class WhatsAppController extends FindByNumberController
 
                         if ($issue->hasMedia(config('constants.media_tags'))) {
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
-                                $params['media_url'] = $image->getUrl();
+                                $params['media_url'] = CommonHelper::getMediaUrl($image);
                                 if (Auth::user()->id != $userId) {
                                     $chat_message = ChatMessage::create($params);
                                 }
@@ -2602,7 +2603,7 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'quicksell') {
                     $product = Product::findorfail($request->quicksell_id);
                     $image = $product->getMedia(config('constants.media_tags'))->first()
-                        ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                        ? CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
                         : '';
                     foreach ($request->customers as $key) {
                         $customer = Customer::findOrFail($key);
@@ -2628,7 +2629,7 @@ class WhatsAppController extends FindByNumberController
                         foreach ($products as $product) {
                             $product = Product::findorfail($product);
                             $image = $product->getMedia(config('constants.media_tags'))->first()
-                                ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                                ? CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
                                 : '';
                             if (isset($request->to_all)) {
                                 $customers = Customer::all();
@@ -2731,7 +2732,7 @@ class WhatsAppController extends FindByNumberController
                                                 if ($request->customerId != null) {
                                                     $customer = Customer::findorfail($request->customerId);
                                                     foreach ($medias as $media) {
-                                                        $file = $media->getUrl();
+                                                        $file = CommonHelper::getMediaUrl($media);
                                                         $data['customer_id'] = $customer->id;
                                                         $chat_message = ChatMessage::create($data);
                                                     }
@@ -3410,7 +3411,7 @@ class WhatsAppController extends FindByNumberController
                 foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
                     $temp_image = [
                         'key' => $image->getKey(),
-                        'image' => $image->getUrl(),
+                        'image' => CommonHelper::getMediaUrl($image),
                         'product_id' => '',
                         'special_price' => '',
                         'size' => '',
@@ -3586,7 +3587,7 @@ class WhatsAppController extends FindByNumberController
                 foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
                     $temp_image = [
                         'key' => $image->getKey(),
-                        'image' => $image->getUrl(),
+                        'image' => CommonHelper::getMediaUrl($image),
                         'product_id' => '',
                         'special_price' => '',
                         'size' => '',
@@ -3956,7 +3957,7 @@ class WhatsAppController extends FindByNumberController
         if (! empty($images) && $sendMediaFile) {
             $count = 0;
             foreach ($images as $key => $image) {
-                $send = str_replace(' ', '%20', $image->getUrl());
+                $send = str_replace(' ', '%20', CommonHelper::getMediaUrl($image));
 
                 if ($context == 'task' || $context == 'vendor' || $context == 'supplier') {
                     // Store send result
@@ -4012,7 +4013,7 @@ class WhatsAppController extends FindByNumberController
             $broadcast_image = BroadcastImage::find($request->image_id);
             if ($broadcast_image->hasMedia(config('constants.media_tags'))) {
                 foreach ($broadcast_image->getMedia(config('constants.media_tags')) as $key2 => $brod_image) {
-                    $content['image']['url'] = $brod_image->getUrl();
+                    $content['image']['url'] = CommonHelper::getMediaUrl($brod_image);
                     $content['image']['key'] = $brod_image->getKey();
                 }
             }

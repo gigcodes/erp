@@ -15,6 +15,7 @@ use App\EmailAddress;
 use App\ReturnExchange;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\ReturnExchangeStatus;
 use App\ReturnExchangeHistory;
 use App\Models\DataTableColumn;
@@ -858,7 +859,7 @@ class ReturnExchangeController extends Controller
                 $image = $product->getMedia(config('constants.media_tags'))->first();
 
                 if ($image !== null) {
-                    $data['images'] = $image->getUrl();
+                    $data['images'] = CommonHelper::getMediaUrl($image);
                 } else {
                     $data['images'] = '#';
                 }

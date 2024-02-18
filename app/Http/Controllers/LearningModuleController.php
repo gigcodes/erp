@@ -22,6 +22,7 @@ use App\ScheduledMessage;
 use App\WhatsAppGroupNumber;
 use Illuminate\Http\Request;
 use App\DeveloperTaskHistory;
+use App\Helpers\CommonHelper;
 use App\ChatMessagesQuickData;
 use App\Helpers\HubstaffTrait;
 use App\Hubstaff\HubstaffTask;
@@ -1675,7 +1676,7 @@ class LearningModuleController extends Controller
             if ($task->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
                     $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief', 'jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
-                    $explodeImage = explode('.', $media->getUrl());
+                    $explodeImage = explode('.', CommonHelper::getMediaUrl($media));
                     $extension = end($explodeImage);
 
                     if (in_array($extension, $imageExtensions)) {
@@ -1685,7 +1686,7 @@ class LearningModuleController extends Controller
                     }
                     $records[] = [
                         'id' => $media->id,
-                        'url' => $media->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($media),
                         'task_id' => $task->id,
                         'isImage' => $isImage,
                         'userList' => $userList,
@@ -1876,7 +1877,7 @@ class LearningModuleController extends Controller
                         $user->phone,
                         null,
                         'Please find attached file',
-                        $media->getUrl()
+                        CommonHelper::getMediaUrl($media)
                     );
 
                     return response()->json(['message' => 'Document send succesfully'], 200);

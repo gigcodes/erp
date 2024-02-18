@@ -8,6 +8,7 @@ use App\StoreWebsite;
 use App\GoogleTranslate;
 use App\NewsletterProduct;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use Illuminate\Support\Facades\Validator;
 
 class NewsletterController extends Controller
@@ -90,7 +91,7 @@ class NewsletterController extends Controller
                         $media = $nwP->product->getMedia(config('constants.attach_image_tag'))->first();
                         if ($media) {
                             $images[] = [
-                                'url' => $media->getUrl(),
+                                'url' => CommonHelper::getMediaUrl($media),
                                 'id' => $nwP->id,
                                 'product_id' => $nwP->product->id,
                             ];
@@ -245,7 +246,7 @@ class NewsletterController extends Controller
                     foreach ($products as $product) {
                         if ($product->hasMedia(config('constants.attach_image_tag'))) {
                             foreach ($product->getMedia(config('constants.attach_image_tag')) as $image) {
-                                $product->images[] = $image->getUrl();
+                                $product->images[] = CommonHelper::getMediaUrl($image);
                             }
                         }
                     }

@@ -13,6 +13,7 @@ use App\ProductTemplate;
 use Plank\Mediable\Media;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Helpers\GuzzleHelper;
 use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -36,7 +37,7 @@ class TemplatesController extends Controller
         $records = \App\Template::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         foreach ($records as &$item) {
             $media = $item->lastMedia(config('constants.media_tags'));
-            $item->image = ($media) ? $media->getUrl() : '';
+            $item->image = ($media) ? CommonHelper::getMediaUrl($media) : '';
         }
 
         return response()->json([
@@ -332,7 +333,7 @@ class TemplatesController extends Controller
             'product_url' => 'www.test.com',
         ];
         if ($image) {
-            $responseData['product_image'] = $image->getUrl();
+            $responseData['product_image'] = CommonHelper::getMediaUrl($image);
         }
         if (isset($productData)) {
             return response()->json($responseData);

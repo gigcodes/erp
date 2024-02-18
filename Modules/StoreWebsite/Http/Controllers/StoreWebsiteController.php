@@ -33,6 +33,7 @@ use App\Models\VarnishStats;
 use App\StoreReIndexHistory;
 use App\StoreWebsiteProduct;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsiteCategory;
 use Illuminate\Http\Response;
@@ -1231,7 +1232,7 @@ class StoreWebsiteController extends Controller
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
                         'id' => $media->id,
-                        'url' => $media->getUrl(),
+                        'url' => CommonHelper::getMediaUrl($media),
                         'site_id' => $site->id,
                         'user_list' => $usrSelectBox,
                     ];
@@ -1267,7 +1268,7 @@ class StoreWebsiteController extends Controller
                         $user->phone,
                         null,
                         'Please find attached file',
-                        $media->getUrl()
+                        CommonHelper::getMediaUrl($media)
                     );
 
                     return response()->json(['code' => 200, 'message' => 'Document send succesfully']);

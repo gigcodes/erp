@@ -7,6 +7,7 @@ use App\Customer;
 use App\ChatMessage;
 use App\MessageQueue;
 use App\BroadcastImage;
+use App\Helpers\CommonHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -136,7 +137,7 @@ class SendMessageToAll implements ShouldQueue
 
                                     try {
                                         dump('sending images with NEW API');
-                                        $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', $brod_image->getUrl()), $chatMessage->id);
+                                        $sendResult = ChatMessage::sendWithChatApi($this->customer->phone, $sendNumber, null, str_replace(' ', '%20', CommonHelper::getMediaUrl($brod_image)), $chatMessage->id);
                                         if ($sendResult) {
                                             $chatMessage->unique_id = $sendResult['id'] ?? '';
                                             $chatMessage->save();

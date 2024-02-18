@@ -30,6 +30,7 @@ use App\WatsonChatJourney;
 use App\LivechatincSetting;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Models\DataTableColumn;
 use App\Helpers\TranslationHelper;
 use App\Mails\Manual\PurchaseEmail;
@@ -664,7 +665,7 @@ class LiveChatController extends Controller
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
-                $source[$key]->media_url = $media->getUrl();
+                $source[$key]->media_url = CommonHelper::getMediaUrl($media);
             }
 
             if (empty($source[$key]->media_url) && $value->product_id) {
@@ -672,7 +673,7 @@ class LiveChatController extends Controller
                 if ($product) {
                     $media = $product->getMedia(config('constants.media_tags'))->first();
                     if ($media) {
-                        $source[$key]->media_url = $media->getUrl();
+                        $source[$key]->media_url = CommonHelper::getMediaUrl($media);
                     }
                 }
             }
@@ -725,9 +726,9 @@ class LiveChatController extends Controller
                 if ($message->hasMedia(config('constants.media_tags'))) {
                     foreach ($message->getMedia(config('constants.media_tags')) as $image) {
                         if (! $message->approved) {
-                            $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                            $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . CommonHelper::getMediaUrl($image) . '" class="rounded-circle-livechat user_img_msg"></div></div>';
                         } else {
-                            $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                            $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . CommonHelper::getMediaUrl($image) . '" class="rounded-circle-livechat user_img_msg"></div></div>';
                         }
                         $messagess[] = $vals;
                     }
@@ -813,9 +814,9 @@ class LiveChatController extends Controller
                                 }
 
                                 if (! $message->approved) {
-                                    $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                                    $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="' . $chatId . '"><input type="hidden" id="message-value" name="message-value" value="' . $message->message . '"><button id="' . $message->id . '" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . CommonHelper::getMediaUrl($image) . '" class="rounded-circle-livechat user_img_msg"></div></div>';
                                 } else {
-                                    $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                                    $vals = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . CommonHelper::getMediaUrl($image) . '" class="rounded-circle-livechat user_img_msg"></div></div>';
                                 }
                                 $messagess[] = $vals;
                             }
@@ -835,8 +836,8 @@ class LiveChatController extends Controller
                     } else {
                         if ($message->hasMedia(config('constants.media_tags'))) {
                             foreach ($message->getMedia(config('constants.media_tags')) as $image) {
-                                if (strpos($image->getUrl(), 'jpeg') !== false) {
-                                    $attachment = '<a href="" download><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></a>';
+                                if (strpos(CommonHelper::getMediaUrl($image), 'jpeg') !== false) {
+                                    $attachment = '<a href="" download><img src="' . CommonHelper::getMediaUrl($image) . '" class="rounded-circle-livechat user_img_msg"></a>';
                                 } else {
                                     $attachment = '<a href="" download>' . $image->filename . '</a>';
                                 }

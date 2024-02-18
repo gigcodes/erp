@@ -10,6 +10,7 @@ use App\LandingPageStatus;
 use App\Jobs\PushToMagento;
 use App\LandingPageProduct;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use Illuminate\Support\Carbon;
 use App\Loggers\LogListMagento;
@@ -113,7 +114,7 @@ class LandingPageController extends Controller
                         if ($c == 0) {
                             $temp = true;
                         }
-                        array_push($productData['images'], ['url' => $image->getUrl(), 'id' => $image->id, 'product_id' => $landingPageProduct->id, 'show' => $temp]);
+                        array_push($productData['images'], ['url' => CommonHelper::getMediaUrl($image), 'id' => $image->id, 'product_id' => $landingPageProduct->id, 'show' => $temp]);
                         $c++;
                     }
                 }

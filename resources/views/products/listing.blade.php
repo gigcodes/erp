@@ -210,7 +210,7 @@
                                     @php $special_product = \App\Product::find($product->id) @endphp
                                     @if ($special_product->hasMedia(config('constants.media_tags')))
                                         <a href="{{ route('products.show', $product->id) }}" target="_new">
-                                            <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="quick-image-container img-responive" style="width: 70px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                         </a>
                                     @else
                                         <img src="" class="quick-image-container img-responive" style="width: 70px;" alt="">
@@ -223,8 +223,8 @@
                                     <div>
                                         @if ($special_product->hasMedia(config('constants.media_tags')))
                                             @foreach($special_product->getMedia(config('constants.media_tags')) as $media)
-                                                <a href="{{ $media->getUrl() }}" target="_new">
-                                                    <img style="width: 50px;" src="{{ $media->getUrl() }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                                <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" target="_new">
+                                                    <img style="width: 50px;" src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                                 </a>
                                             @endforeach
                                         @endif
@@ -487,7 +487,7 @@
                                     @php $special_product = \App\Product::find($product->id) @endphp
                                     @if ($special_product->hasMedia(config('constants.media_tags')))
                                         <a href="{{ route('products.show', $product['id']) }}" target="_blank">
-                                            <img src="{{ $special_product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
+                                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="quick-image-container img-responive" style="width: 100px;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product['id'] }}">
                                         </a>
                                     @else
                                         <img src="" class="quick-image-container img-responive" style="width: 100px;" alt="">

@@ -23,7 +23,7 @@
 
 <div class="row">
   <div class="col-md-6">
-    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive" alt="">
+    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive" alt="">
 
     <form class="mt-3" action="{{ route('image.grid.update', $image->id) }}" method="POST" enctype="multipart/form-data">
       @csrf

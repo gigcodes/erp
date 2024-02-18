@@ -24,7 +24,7 @@
                         <div data-interval="false" id="carousel_{{ request('websiteId') }}" class="carousel slide" data-ride="carousel">
                             <div class="carousel-inner maincarousel">
                                 <div class="item" style="display: block;"> 
-                                <img src="{{ urldecode($list->getUrl())}}" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> </div>
+                                <img src="{{ urldecode(\App\Helpers\CommonHelper::getMediaUrl($list))}}" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> </div>
                             </div>
                         </div>
                         <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
@@ -32,10 +32,10 @@
                                 <input type="checkbox" class="custom-control-input select-pr-list-chk"  id="defaultUnchecked_{{$list->id ?? 0}}" >
                                 <label class="custom-control-label" for="defaultUnchecked_{{$list->id ?? 0}}"></label>
                             </div>
-                            <a href="{{ $list->getUrl() }}" download="" data-media="{{ $list->getKey() }}" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>
+                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($list) }}" download="" data-media="{{ $list->getKey() }}" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>
 
                            
-                           <button class="btn btn-md select_row attach-photo" id="fbpost" onclick="post('{{ $list->getUrl() }}')" value="{{ request('websiteId') }}"> <i class="fa fa-share-alt"></i> </button>
+                           <button class="btn btn-md select_row attach-photo" id="fbpost" onclick="post('{{ \App\Helpers\CommonHelper::getMediaUrl($list) }}')" value="{{ request('websiteId') }}"> <i class="fa fa-share-alt"></i> </button>
                         </div>
                     </div>
                 </div>

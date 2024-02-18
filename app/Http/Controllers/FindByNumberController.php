@@ -12,6 +12,7 @@ use App\Customer;
 use App\Dubbizle;
 use App\Supplier;
 use Carbon\Carbon;
+use App\Helpers\CommonHelper;
 
 class FindByNumberController extends Controller
 {
@@ -160,7 +161,7 @@ class FindByNumberController extends Controller
             $source[$key]->media_url = null;
             $media = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
-                $source[$key]->media_url = $media->getUrl();
+                $source[$key]->media_url = CommonHelper::getMediaUrl($media);
             }
 
             if (empty($source[$key]->media_url) && $value->product_id) {
@@ -168,7 +169,7 @@ class FindByNumberController extends Controller
                 if ($product) {
                     $media = $product->getMedia(config('constants.media_tags'))->first();
                     if ($media) {
-                        $source[$key]->media_url = $media->getUrl();
+                        $source[$key]->media_url = CommonHelper::getMediaUrl($media);
                     }
                 }
             }

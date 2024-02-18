@@ -80,13 +80,13 @@
                 @foreach($products as $product)
                     <tr>
                         <td>
-                            <img style="width: 100%" src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="">
+                            <img style="width: 100%" src="{{ $product->media ? \App\Helpers\CommonHelper::getMediaUrl($product->media) : '' }}" alt="">
                         </td>
                         <td>
                             <p>
                                 Cropped at: {{ date('d-m-Y H:i:s', strtotime($product->created_at)) }} (<?php echo env('TIMEZONE', 'Asia/Kolkata'); ?>)
                             </p>
-                            <img src="{{ $product->newMedia ? $product->newMedia->getUrl() : '' }}" alt="" style="width: 100%;">
+                            <img src="{{ $product->newMedia ? \App\Helpers\CommonHelper::getMediaUrl($product->newMedia) : '' }}" alt="" style="width: 100%;">
                         </td>
                     </tr>
                 @endforeach

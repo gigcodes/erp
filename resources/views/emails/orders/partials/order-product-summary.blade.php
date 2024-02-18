@@ -11,7 +11,7 @@
                   @php $product = $order_product->product @endphp
                   @if($product)
                     <tr>
-                      <td style="padding:5px 10px; width: 80px;"><div><img width="71px" height="83px" src="{{ ($order_product->product && $order_product->product->getMedia(config('constants.attach_image_tag'))->first()) ? $order_product->product->getMedia(config('constants.attach_image_tag'))->first()->getUrl() : asset('images/no-image.jpg') }}"></div></td>
+                      <td style="padding:5px 10px; width: 80px;"><div><img width="71px" height="83px" src="{{ ($order_product->product && $order_product->product->getMedia(config('constants.attach_image_tag'))->first()) ? \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.attach_image_tag'))->first()) : asset('images/no-image.jpg') }}"></div></td>
                       <td style="padding: 5px 10px;">
                         <h4 style="margin: 0;padding:0;font-weight: bold;font-size: 14px;color: #898989;">{{ ($product->brands) ? ucwords($product->brands->name) : "" }}</h4>
                         <p style="margin: 0;padding: 0;width: 70%;margin: 5px 0;">{{ $product->name }}</p>

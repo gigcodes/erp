@@ -36,7 +36,7 @@
                         @endphp
                         @if(count($images) != 0)
                         @foreach($images as $image)
-                            <div class="col-md-2 col-half-offset"><div class="text-center"><img height="100" width="100" src="{{ $image->getUrl() }}" onclick="openImage(this.src)"><br><input type="checkbox" class="checkbox{{ $product->id }}" value="{{ $image->id }}"></div></div>
+                            <div class="col-md-2 col-half-offset"><div class="text-center"><img height="100" width="100" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" onclick="openImage(this.src)"><br><input type="checkbox" class="checkbox{{ $product->id }}" value="{{ $image->id }}"></div></div>
                         @endforeach
                         
                         </div>
