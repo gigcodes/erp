@@ -16,7 +16,7 @@ class CommonHelper
         if($media->disk == 's3') {
             return $media->getTemporaryUrl(Carbon::now()->addMinutes(config('constants.temporary_url_expiry_time')));
         } else {
-            return $media->getUrlGenerator()->getUrl();
+            return $media->getUrl();
         }
     }
 }
