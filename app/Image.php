@@ -7,8 +7,8 @@ namespace App;
  */
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
@@ -25,26 +25,28 @@ class Image extends Model
     public static function newImage($key = 'image')
     {
         $image_name = self::generateImageName($key);
-        Input::file($key)->move('uploads', $image_name);
+        $imageFile = Input::file($key);
+        Storage::put(config('constants.default_uploads_dir') . $image_name, file_get_contents($imageFile->getRealPath()));
 
         return $image_name;
     }
 
     public static function replaceImage($imageName, $key = 'image')
     {
-        File::move(public_path() . config('constants.uploads_dir') . $imageName,
-            public_path() . config('constants.archive__dir') . $imageName
-        );
+        $sourcePath = config('constants.default_uploads_dir') . $imageName;
+        $destinationPath = config('constants.default_archive__dir') . $imageName;
 
-        return self::newImage($key);
+        Storage::move($sourcePath, $destinationPath);
+
+        return self::newImage($key); 
     }
 
     public static function trashImage($imageName)
     {
-        $path = Storage::disk('s3')->getDriver()->getAdapter()->getPathPrefix();
-        File::move($path . '/' . $imageName,
-            $path . 'trash/' . $imageName
-        );
+        $sourcePath = config('constants.default_uploads_dir') . $imageName;
+        $destinationPath = config('constants.default_trash__dir') . $imageName;
+
+        Storage::move($sourcePath, $destinationPath);
     }
 
     public function schedule(): \Illuminate\Database\Eloquent\Relations\HasOne

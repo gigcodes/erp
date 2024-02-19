@@ -9,6 +9,12 @@ $weeks = range(0, 6);
 return [
     'uploads_dir' => '/uploads/',
     'archive__dir' => '/uploads/archives/',
+
+    /* Added because using Storage facade and assuming root path set for driver */
+    'default_uploads_dir' => '/',
+    'default_archive__dir' => '/archives/',
+    'default_trash__dir' => '/trash/',
+
     'media_tags' => ['untagged'],
     'attach_image_tag' => ['original', 'gallery', 'untagged'],
     'media_original_tag' => ['original'],

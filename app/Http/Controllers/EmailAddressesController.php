@@ -192,14 +192,13 @@ class EmailAddressesController extends Controller
 
         $signature_logo = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
-        $destinationPath = public_path('uploads');
 
         if ($signature_logo != '') {
-            $signature_logo->move($destinationPath, $signature_logo->getClientOriginalName());
+            $signature_logo->storeAs(config('constants.default_uploads_dir'), $signature_logo->getClientOriginalName());
             EmailAddress::find($id)->update(['signature_logo' => $signature_logo->getClientOriginalName()]);
         }
         if ($signature_image != '') {
-            $signature_image->move($destinationPath, $signature_image->getClientOriginalName());
+            $signature_image->storeAs(config('constants.default_uploads_dir'), $signature_image->getClientOriginalName());
             EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
         }
 
@@ -246,14 +245,13 @@ class EmailAddressesController extends Controller
 
         $signature_logo = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
-        $destinationPath = public_path('uploads');
 
         if ($signature_logo != '') {
-            $signature_logo->move($destinationPath, $signature_logo->getClientOriginalName());
+            $signature_logo->storeAs(config('constants.default_uploads_dir'), $signature_logo->getClientOriginalName());
             EmailAddress::find($id)->update(['signature_logo' => $signature_logo->getClientOriginalName()]);
         }
         if ($signature_image != '') {
-            $signature_image->move($destinationPath, $signature_image->getClientOriginalName());
+            $signature_image->storeAs(config('constants.default_uploads_dir'), $signature_image->getClientOriginalName());
             EmailAddress::find($id)->update(['signature_image' => $signature_image->getClientOriginalName()]);
         }
 

@@ -134,7 +134,7 @@ class CashFlowController extends Controller
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
-                $file->storeAs('files', $filename, 'uploads');
+                $file->storeAs('files', $filename, 's3');
 
                 $new_file = new File;
                 $new_file->filename = $filename;
