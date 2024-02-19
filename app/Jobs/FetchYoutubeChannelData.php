@@ -13,17 +13,13 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class FetchYoutubeChannelData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $inputs;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($inputs)
+    public function __construct(protected $inputs)
     {
-        $this->inputs = $inputs;
         $refreshToken = $inputs['oauth2_refresh_token'];
 
         // this id is a Which is Create a New Data for create channel.

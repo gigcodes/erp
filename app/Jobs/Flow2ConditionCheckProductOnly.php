@@ -18,9 +18,6 @@ class Flow2ConditionCheckProductOnly implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
-
-    protected $details;
-
     protected $product_index;
 
     protected $no_of_product;
@@ -32,11 +29,10 @@ class Flow2ConditionCheckProductOnly implements ShouldQueue
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, $details)
+    public function __construct(Product $product, protected $details)
     {
         // Set product and website
         $this->_product = $product;
-        $this->details = $details;
         $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index'] : 0;
         $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product'] : 0;
     }

@@ -20,23 +20,17 @@ class ImageApprovalMagentoServiceJob implements ShouldQueue
 
     protected $_website;
 
-    protected $log;
-
-    protected $mode;
-
     /**
      * Create a new job instance.
      *
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website, $log = null, $mode = null)
+    public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null)
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
-        $this->log = $log;
-        $this->mode = $mode;
     }
 
     /**

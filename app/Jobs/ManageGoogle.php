@@ -16,19 +16,13 @@ class ManageGoogle implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $questionId;
-
-    protected $storeParams;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($questionId, array $storeParams)
+    public function __construct(protected $questionId, protected array $storeParams)
     {
-        $this->questionId = $questionId;
-        $this->storeParams = $storeParams;
     }
 
     /**

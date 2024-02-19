@@ -18,8 +18,6 @@ class FetchEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $emailAddress;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -29,9 +27,8 @@ class FetchEmail implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($emailAddress)
+    public function __construct(public $emailAddress)
     {
-        $this->emailAddress = $emailAddress;
     }
 
     /**

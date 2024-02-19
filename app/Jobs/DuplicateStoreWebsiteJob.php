@@ -40,22 +40,13 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
 
     public $timeout = 999999999;
 
-    protected $storeWebsiteId;
-
-    protected $copyStoreWebsite;
-
-    protected $i;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($storeWebsiteId, $copyStoreWebsite, $i)
+    public function __construct(protected $storeWebsiteId, protected $copyStoreWebsite, protected $i)
     {
-        $this->storeWebsiteId = $storeWebsiteId;
-        $this->copyStoreWebsite = $copyStoreWebsite;
-        $this->i = $i;
     }
 
     /**

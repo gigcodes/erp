@@ -20,20 +20,6 @@ class ManageWatson implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $question;
-
-    protected $method;
-
-    protected $storeParams;
-
-    protected $type;
-
-    protected $old_example;
-
-    protected $service;
-
-    protected $oldValue;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -43,15 +29,8 @@ class ManageWatson implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($service, $question, array $storeParams, $method, $type = 'value', $old_example = false, $oldValue = null)
+    public function __construct(protected $service, protected $question, protected array $storeParams, protected $method, protected $type = 'value', protected $old_example = false, protected $oldValue = null)
     {
-        $this->question = $question;
-        $this->method = $method;
-        $this->storeParams = $storeParams;
-        $this->type = $type;
-        $this->old_example = $old_example;
-        $this->service = $service;
-        $this->oldValue = $oldValue;
     }
 
     /**

@@ -13,28 +13,13 @@ class MagentoMediaSyncJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $sourceStoreWebsites;
-
-    private $destStoreWebsites;
-
-    private $source_store_website_id;
-
-    private $dest_store_website_id;
-
-    private $login_user_id;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($sourceStoreWebsites, $destStoreWebsites, $source_store_website_id, $dest_store_website_id, $login_user_id)
+    public function __construct(private $sourceStoreWebsites, private $destStoreWebsites, private $source_store_website_id, private $dest_store_website_id, private $login_user_id)
     {
-        $this->sourceStoreWebsites = $sourceStoreWebsites;
-        $this->destStoreWebsites = $destStoreWebsites;
-        $this->source_store_website_id = $source_store_website_id;
-        $this->dest_store_website_id = $dest_store_website_id;
-        $this->login_user_id = $login_user_id;
     }
 
     /**

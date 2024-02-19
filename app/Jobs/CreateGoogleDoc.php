@@ -14,21 +14,15 @@ class CreateGoogleDoc
 {
     use Dispatchable, SerializesModels;
 
-    private $googleDoc;
-
     private $execute;
-
-    private $permissionForAll;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(GoogleDoc $googleDoc, $permissionForAll = null)
+    public function __construct(private GoogleDoc $googleDoc, private $permissionForAll = null)
     {
-        $this->googleDoc = $googleDoc;
-        $this->permissionForAll = $permissionForAll;
     }
 
     /**

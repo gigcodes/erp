@@ -14,8 +14,6 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $products;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -25,9 +23,8 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($products)
+    public function __construct(private $products)
     {
-        $this->products = $products;
     }
 
     /**
