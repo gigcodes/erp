@@ -8,11 +8,8 @@ use App\Services\Facebook\Facebook;
 
 class SocialTagsController extends Controller
 {
-    private $facebook;
-
-    public function __construct(Facebook $facebook)
+    public function __construct(private Facebook $facebook)
     {
-        $this->facebook = $facebook;
     }
 
     /**

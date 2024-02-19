@@ -17,14 +17,9 @@ class ProcessAllFAQ implements ShouldQueue
      *
      * @return void
      */
-    private $replyInfo;
 
-    private $user_id;
-
-    public function __construct($replyInfo, $user_id)
+    public function __construct(private $replyInfo,private $user_id)
     {
-        $this->replyInfo = $replyInfo;
-        $this->user_id = $user_id;
     }
 
     /**

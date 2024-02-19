@@ -14,11 +14,8 @@ use App\Models\VirtualminDomainDnsRecordsHistory;
 
 class VirtualminDomainController extends Controller
 {
-    private $virtualminHelper;
-
-    public function __construct(VirtualminHelper $virtualminHelper)
+    public function __construct(private VirtualminHelper $virtualminHelper)
     {
-        $this->virtualminHelper = $virtualminHelper;
     }
 
     /**

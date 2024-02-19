@@ -19,8 +19,6 @@ use App\Services\Facebook\Facebook;
 class InstagramController extends Controller
 {
 //    private $instagram;
-    private $facebook;
-
     private $messages;
 
     /**
@@ -29,7 +27,7 @@ class InstagramController extends Controller
      * //     * @param  Instagram  $instagram
      * //     * @param  DirectMessage  $messages
      */
-    public function __construct(Facebook $facebook)
+    public function __construct(private Facebook $facebook)
     {
     }
 

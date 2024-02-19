@@ -11,22 +11,13 @@ use Illuminate\Support\Facades\Redirect;
 class OldIncomingController extends Controller
 {
     /**
-     * Defining scope of variable
-     *
-     *
-     * @var    array
-     */
-    protected $oldincoming;
-
-    /**
      * Create a new controller instance.
      *
      * @param  mixed  $oldincoming get oldincoming model
      * @return void
      */
-    public function __construct(OldIncoming $oldincoming)
+    public function __construct(protected OldIncoming $oldincoming)
     {
-        $this->oldincoming = $oldincoming;
     }
 
     /**

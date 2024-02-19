@@ -19,8 +19,6 @@ use FacebookAds\Object\Fields\AdFields;
 
 class SocialController extends Controller
 {
-    private $fb;
-
     private $user_access_token;
 
     private $page_access_token;
@@ -29,9 +27,8 @@ class SocialController extends Controller
 
     private $ad_acc_id;
 
-    public function __construct(Facebook $fb)
+    public function __construct(private Facebook $fb)
     {
-        $this->fb = $fb;
         $this->user_access_token = env('USER_ACCESS_TOKEN', 'EAAIALK1F98IBAISAK2NXibnN4DFmLhOnpdTmbj78TEDZAexu8SZCeqoSvV9SDjpwnsoYWjIyumOpjkHmdCWCDumMV584uj5kUkFVbHTZBhJDMnjWgrg1L1O0nAZAq19cfX2PYJz5IC40DtK3ZBZBSAwn4O5Jcs6xDRcmlL9iAp6487YGKweOKHNhJ6AoPZCZBny5ZBZCQKczYSwDO6mpdQrMZCLZBW1xVZA4l42AZD');
 
         $this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAIALK1F98IBAADvogUlzUYHxV93adk3qwiRDrxqByiVmiiEO1FZAqCOMFaRqrFZAS4Fa3f8EQ8Wa1ODKXV9NgXmW6aF4FUiWlaftWsZBpBFzlGTiUMUMazcy5x2LVVKRqOKOBJLwxGkpzZBKpGZAu91aXnZBjQKRqwwwDjHoocER0P2q7V5iDXJlmfwWoQ2iuan14pttYYKa1Lh7RtF7BaSeR7sjtGZBK3tIV4JvDzPQZDZD');

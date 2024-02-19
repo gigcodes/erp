@@ -19,15 +19,8 @@ class ProceesPushFaq implements ShouldQueue
      *
      * @return void
      */
-    private $data;
-
-    private $reqType;
-
-    public function __construct($data, $reqType = 'pushFaq')
+    public function __construct(private $data, private $reqType = 'pushFaq')
     {
-        // Assign the variable received from Request
-        $this->data = $data;
-        $this->reqType = $reqType;
     }
 
     /**

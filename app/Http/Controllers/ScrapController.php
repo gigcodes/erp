@@ -44,17 +44,9 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ScrapController extends Controller
 {
-    private $googleImageScraper;
 
-    private $pinterestScraper;
-
-    private $gnbCreator;
-
-    public function __construct(GoogleImageScraper $googleImageScraper, PinterestScraper $pinterestScraper, GnbProductsCreator $gnbCreator)
+    public function __construct(private GoogleImageScraper $googleImageScraper, private PinterestScraper $pinterestScraper,private GnbProductsCreator $gnbCreator)
     {
-        $this->googleImageScraper = $googleImageScraper;
-        $this->pinterestScraper = $pinterestScraper;
-        $this->gnbCreator = $gnbCreator;
     }
 
     public function index()
