@@ -16,8 +16,6 @@ class UpdateScrapedCategory implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $params;
-
     public $product_id;
 
     public $category_id;
@@ -33,7 +31,7 @@ class UpdateScrapedCategory implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($params)
+    public function __construct(public $params)
     {
         $this->product_id = $params['product_id'];
         $this->category_id = $params['category_id'];

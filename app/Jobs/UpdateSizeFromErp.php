@@ -14,8 +14,6 @@ class UpdateSizeFromErp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $params;
-
     public $from;
 
     public $to;
@@ -31,9 +29,8 @@ class UpdateSizeFromErp implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($params)
+    public function __construct(public $params)
     {
-        $this->params = $params;
         $this->from = $params['from'];
         $this->to = $params['to'];
         $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;

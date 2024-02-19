@@ -14,12 +14,6 @@ class SyncMagentoModules implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $storeWebsite;
-
-    protected $scriptsPath;
-
-    protected $updated_by;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -29,11 +23,8 @@ class SyncMagentoModules implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($storeWebsite, $scriptsPath, $updated_by)
+    public function __construct(protected $storeWebsite,protected $scriptsPath,protected $updated_by)
     {
-        $this->storeWebsite = $storeWebsite;
-        $this->scriptsPath = $scriptsPath;
-        $this->updated_by = $updated_by;
     }
 
     /**

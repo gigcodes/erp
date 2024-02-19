@@ -17,19 +17,13 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
 
     public $backoff = 5;
 
-    private $orderId;
-
-    private $message;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($orderId, $message = null)
+    public function __construct(private $orderId, private $message = null)
     {
-        $this->orderId = $orderId;
-        $this->message = $message;
     }
 
     /**

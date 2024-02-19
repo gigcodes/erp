@@ -17,24 +17,12 @@ class SendImagesWithWhatsapp implements ShouldQueue
      *
      * @return void
      */
-    protected $phone;
-
-    protected $whatsapp_number;
-
-    protected $image_url;
-
-    protected $message_id;
-
     public $tries = 5;
 
     public $backoff = 5;
 
-    public function __construct($phone, $whatsapp_number, $image_url, $message_id)
+    public function __construct(protected $phone, protected $whatsapp_number, protected $image_url, protected $message_id)
     {
-        $this->phone = $phone;
-        $this->whatsapp_number = $whatsapp_number;
-        $this->image_url = $image_url;
-        $this->message_id = $message_id;
     }
 
     /**

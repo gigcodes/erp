@@ -7,11 +7,9 @@ use App\Category;
 
 class ProductSearch
 {
-    public $params;
 
-    public function __construct($params)
+    public function __construct(public $params)
     {
-        $this->params = $params;
         $this->cleanParams();
     }
 

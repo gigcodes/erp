@@ -11,16 +11,13 @@ class MailingListMails extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $template;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(MailinglistTemplate $template)
+    public function __construct(public MailinglistTemplate $template)
     {
-        $this->template = $template;
         $this->fromMailer = 'customercare@sololuxury.co.in';
     }
 

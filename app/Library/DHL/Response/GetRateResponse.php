@@ -7,11 +7,8 @@ namespace App\Library\DHL\Response;
  */
 class GetRateResponse extends ResponseAbstract
 {
-    public $response;
-
-    public function __construct($response)
+    public function __construct(public $response)
     {
-        $this->response = $response;
         parent::__construct();
     }
 

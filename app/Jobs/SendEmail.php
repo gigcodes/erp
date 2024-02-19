@@ -13,9 +13,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public $email;
-
     public $emailNewData;
 
     public $emailOldData;
@@ -31,10 +28,8 @@ class SendEmail implements ShouldQueue
      * @param  array  $emaildetails
      * @return void
      */
-    public function __construct(Email $email, $emaildetails = [])
+    public function __construct(public Email $email, $emaildetails = [])
     {
-        //
-        $this->email = $email;
         $this->emailOldData = $email;
         $this->emailNewData = $emaildetails;
     }

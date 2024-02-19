@@ -13,8 +13,6 @@ class UpdateProductColorFromErp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $params;
-
     public $from;
 
     public $to;
@@ -30,12 +28,11 @@ class UpdateProductColorFromErp implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($params)
+    public function __construct(public $params)
     {
         $this->from = $params['from'];
         $this->to = $params['to'];
         $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
-        $this->params = $params;
     }
 
     public static function putLog($message)

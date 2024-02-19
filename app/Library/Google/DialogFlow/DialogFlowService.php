@@ -32,13 +32,10 @@ class DialogFlowService
         'refund_id',
     ];
 
-    private $googleAccount;
-
     private $credentials;
 
-    public function __construct($googleAccount)
+    public function __construct(private $googleAccount)
     {
-        $this->googleAccount = $googleAccount;
         $this->credentials = ['credentials' => $googleAccount->service_file];
     }
 

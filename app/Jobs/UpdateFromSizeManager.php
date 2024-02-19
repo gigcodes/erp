@@ -12,8 +12,6 @@ class UpdateFromSizeManager implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $params;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -23,9 +21,8 @@ class UpdateFromSizeManager implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($params)
+    public function __construct(public $params)
     {
-        $this->params = $params;
     }
 
     public static function putLog($message)

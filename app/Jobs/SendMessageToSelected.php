@@ -14,16 +14,6 @@ class SendMessageToSelected implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $number;
-
-    protected $whatsAppNumber;
-
-    protected $content;
-
-    protected $messageQueueId;
-
-    protected $groupId;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -33,13 +23,8 @@ class SendMessageToSelected implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(string $number, array $content, int $messageQueueId, string $whatsAppNumber, $groupId = null)
+    public function __construct(protected string $number, protected array $content, protected int $messageQueueId, protected string $whatsAppNumber, protected $groupId = null)
     {
-        $this->number = $number;
-        $this->whatsAppNumber = $whatsAppNumber;
-        $this->content = $content;
-        $this->messageQueueId = $messageQueueId;
-        $this->groupId = $groupId;
     }
 
     /**

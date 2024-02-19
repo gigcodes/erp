@@ -18,10 +18,6 @@ class PushMagentoSettings implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $magentoSetting;
-
-    protected $website_ids;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -31,11 +27,8 @@ class PushMagentoSettings implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($magentoSetting, $website_ids)
+    public function __construct(protected $magentoSetting, protected $website_ids)
     {
-        // Set product and website
-        $this->magentoSetting = $magentoSetting;
-        $this->website_ids = $website_ids;
     }
 
     /**

@@ -13,8 +13,6 @@ class PushMagentoCssVariables implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $magentoCssVariable;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -24,9 +22,8 @@ class PushMagentoCssVariables implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($magentoCssVariable)
+    public function __construct(protected $magentoCssVariable)
     {
-        $this->magentoCssVariable = $magentoCssVariable;
     }
 
     /**

@@ -13,10 +13,6 @@ class PushPageToMagento implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $page;
-
-    protected $updatedBy;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -26,11 +22,8 @@ class PushPageToMagento implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($page, $updatedBy)
+    public function __construct(protected $page, protected $updatedBy)
     {
-        // Set product and website
-        $this->page = $page;
-        $this->updatedBy = $updatedBy;
     }
 
     /**

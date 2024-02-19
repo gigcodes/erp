@@ -17,12 +17,6 @@ class SearchAttachedImagesNew implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $id;
-
-    protected $req_data;
-
-    protected $url;
-
     protected $first_time;
 
     protected $is_matched;
@@ -33,11 +27,8 @@ class SearchAttachedImagesNew implements ShouldQueue
 
     public $backoff = 5;
 
-    public function __construct($id, $url, $req_data)
+    public function __construct(protected $id, protected $url, protected $req_data)
     {
-        $this->id = $id;
-        $this->url = $url;
-        $this->req_data = $req_data;
         $this->first_time = true;
         $this->is_matched = false;
         $this->suggested_product = false;

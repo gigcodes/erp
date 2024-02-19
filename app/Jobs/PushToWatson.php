@@ -25,15 +25,12 @@ class PushToWatson implements ShouldQueue
      *
      * @return void
      */
-    protected $account_id;
-
     public $tries = 5;
 
     public $backoff = 5;
 
-    public function __construct($account_id)
+    public function __construct(protected $account_id)
     {
-        $this->account_id = $account_id;
     }
 
     /**

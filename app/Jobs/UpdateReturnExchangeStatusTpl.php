@@ -17,19 +17,13 @@ class UpdateReturnExchangeStatusTpl implements ShouldQueue
 
     public $backoff = 5;
 
-    private $returnId;
-
-    private $message;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($returnId, $message)
+    public function __construct(private $returnId, private $message)
     {
-        $this->returnId = $returnId;
-        $this->message = $message;
     }
 
     /**

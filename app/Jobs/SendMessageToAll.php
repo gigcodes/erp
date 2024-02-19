@@ -18,16 +18,6 @@ class SendMessageToAll implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $userId;
-
-    protected $customer;
-
-    protected $content;
-
-    protected $messageQueueId;
-
-    protected $groupId;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -35,13 +25,8 @@ class SendMessageToAll implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(int $userId, Customer $customer, array $content, int $messageQueueId, $groupId = null)
+    public function __construct(protected int $userId, protected Customer $customer, protected array $content, protected int $messageQueueId, protected $groupId = null)
     {
-        $this->userId = $userId;
-        $this->customer = $customer;
-        $this->content = $content;
-        $this->messageQueueId = $messageQueueId;
-        $this->groupId = $groupId;
     }
 
     /**
