@@ -54,15 +54,15 @@ class SyncInstagramPosts extends Command
 
             foreach ($configs as $config) {
                 $pageInfoParams = [ // endpoint and params for getting page
-                    'endpoint_path' => $config->page_id,
-                    'fields' => 'business_discovery.username(' . $config->account_id . '){media{id,caption,like_count,comments_count,timestamp,media_product_type,media_type,owner,permalink,media_url,children{media_url}}}',
+                    'endpoint_path' => $config->account_id,
+                    'fields' => 'media{id,caption,like_count,comments_count,timestamp,media_product_type,media_type,owner,permalink,media_url,children{media_url}}',
                     'access_token' => $config->page_token,
                     'request_type' => 'GET',
                 ];
 
                 $pageInfo = getFacebookResults($pageInfoParams);
 
-                $posts = $pageInfo['data']['business_discovery']['media']['data'];
+                $posts = $pageInfo['data']['media']['data'];
 
                 foreach ($posts as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
