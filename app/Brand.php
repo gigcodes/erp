@@ -8,9 +8,9 @@
 
 namespace App;
 
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -50,15 +50,14 @@ class Brand extends Model
     public static function getAll()
     {
         // Get all Brands
-        $brands = self::all();
-
-        // Create empty array to store brands
-        $brandsArray = [];
+        $brands = self::all()->toArray();
 
         // Loop over brands
-        foreach ($brands as $brand) {
-            $brandsArray[$brand->id] = $brand->name;
-        }
+        $brandsArray = array_reduce($brands, function ($carry, $brand) {
+            $carry[$brand['id']] = $brand['name'];
+
+            return $carry;
+        }, []);
 
         // Sort array
         asort($brandsArray);
@@ -181,15 +180,14 @@ class Brand extends Model
     public static function searchBrand1($keyWord)
     {
         // Get all Brands
-        $brands = self::where('name', 'LIKE', '%' . strtolower($keyWord) . '%');
-
-        // Create empty array to store brands
-        $brandsArray = [];
+        $brands = self::where('name', 'LIKE', '%' . strtolower($keyWord) . '%')->toArray();
 
         // Loop over brands
-        foreach ($brands as $brand) {
-            $brandsArray[$brand->id] = $brand->name;
-        }
+        $brandsArray = array_reduce($brands, function ($carry, $brand) {
+            $carry[$brand['id']] = $brand['name'];
+
+            return $carry;
+        }, []);
 
         // Sort array
         asort($brandsArray);
