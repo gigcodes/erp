@@ -4490,19 +4490,21 @@
     @endif
 </script>
 @include('layouts.partial.app_js')
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
+<script>
+    var config = {
+    pusher: {
+        key: "{{ config('broadcasting.connections.pusher.key') }}",
+        cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
+    }
+    };
+</script>
+
 @if($isAdmin)
-    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
-    <script>
-      var config = {
-        pusher: {
-          key: "{{ config('broadcasting.connections.pusher.key') }}",
-          cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
-        }
-      };
-    </script>
     <script src="{{asset("js/email-alert-echo.js?v=0.1")}}"></script>
 @endif
+
 </body>
 
 </html>
