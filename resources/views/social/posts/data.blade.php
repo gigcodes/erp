@@ -39,7 +39,7 @@
                 </a>
             @endif
 
-            <a href="javascript:" data-id="{{ $post->ref_post_id }}" class="post-delete">
+            <a href="javascript:" data-id="{{ $post->id }}" class="post-delete">
                 <i class="fa fa-trash-o" title="Delete Post"></i>
             </a>
         </td>

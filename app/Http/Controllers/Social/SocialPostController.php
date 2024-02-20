@@ -14,7 +14,6 @@ use Plank\Mediable\Media;
 use App\Social\SocialPost;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
-use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
@@ -69,7 +68,6 @@ class SocialPostController extends Controller
     //@todo post approval need to be added
     public function approvepost(Request $request)
     {
-
     }
 
     public function grid(Request $request)
@@ -91,7 +89,7 @@ class SocialPostController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
-                'links' => (string) $posts->render(),
+                'links' => (string)$posts->render(),
             ], 200);
         }
 
@@ -100,26 +98,32 @@ class SocialPostController extends Controller
 
     public function deletePost(Request $request)
     {
-        $post = SocialPost::where('ref_post_id', $request['post_id'])->with('account')->first();
+        $post = SocialPost::where('id', $request['post_id'])->with('account')->first();
 
-        $pageInfoParams = [
-            'endpoint_path' => $request['post_id'],
-            'fields' => 'message,id,created_time',
-            'access_token' => $post->account->page_token,
-            'request_type' => 'DELETE',
-        ];
+        if ($post->ref_post_id) {
+            $pageInfoParams = [
+                'endpoint_path' => $request['post_id'],
+                'fields' => 'message,id,created_time',
+                'access_token' => $post->account->page_token,
+                'request_type' => 'DELETE',
+            ];
 
-        $response = getFacebookResults($pageInfoParams);
-
-        if (isset($response['data']['success']) && $response['data']['success']) {
+            $response = getFacebookResults($pageInfoParams);
+            if (isset($response['data']['success']) && $response['data']['success']) {
+                $post->delete();
+                return Response::json([
+                    'success' => true,
+                    'message' => 'Post deleted successfully',
+                ]);
+            } else {
+                return false;
+            }
+        } else {
             $post->delete();
-
             return Response::json([
                 'success' => true,
                 'message' => 'Post deleted successfully',
             ]);
-        } else {
-            return false;
         }
     }
 
@@ -168,9 +172,9 @@ class SocialPostController extends Controller
     }
 
     /**
-     * @todo Video upload is pending
-     *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @todo Video upload is pending
      */
     public function store(PostCreateRequest $request)
     {
@@ -221,13 +225,13 @@ class SocialPostController extends Controller
 
                 $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to disk');
 
-                [$pageInfoParams, $response, $added_media] = $this->uploadMediaToFacebook($page_config, $media, $added_media, $post);
+                [$pageInfoParams, $response, $added_media] = $page_config->platform == 'facebook' ? $this->uploadMediaToFacebook($page_config, $media, $added_media, $post) : $this->uploadMediaToInstagram($page_config, $media, $added_media, $post);
             }
 
             $data['attached_media'] = $added_media;
         }
 
-        $response = $this->postToFacebook($page_config, $data);
+        $response = $page_config->platform == 'facebook' ? $this->postToFacebook($page_config, $data) : $this->postToInstagram($page_config, $data);
 
         if (isset($response['data']['id'])) {
             $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Facebook post created');
@@ -321,6 +325,28 @@ class SocialPostController extends Controller
         return [$pageInfoParams, $response, $added_media];
     }
 
+    public function uploadMediaToInstagram(SocialConfig $page_config, Media $media, array $added_media, SocialPost $post): array
+    {
+        $pageInfoParams = [
+            'endpoint_path' => $page_config->page_id . '/media',
+            'fields' => '',
+            'access_token' => $page_config->page_token,
+            'request_type' => 'POST',
+            'data' => [
+                'image_url' => $media->getUrl(),
+                'is_carousel_item' => true,
+                'caption' => $post->message,
+            ],
+        ];
+
+        $response = getFacebookResults($pageInfoParams);
+        $added_media[] = $response['data']['id'];
+
+        $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to instagram');
+
+        return [$pageInfoParams, $response, $added_media];
+    }
+
     public function postToFacebook(SocialConfig $page_config, array $data): array
     {
         $pageInfoParams = [
@@ -332,5 +358,46 @@ class SocialPostController extends Controller
         ];
 
         return getFacebookResults($pageInfoParams);
+    }
+
+    public function postToInstagram(SocialConfig $page_config, array $data)
+    {
+        if (count($data['attached_media']) > 1) {
+            $pageInfoParams = [
+                'endpoint_path' => $page_config->page_id . '/media',
+                'fields' => '',
+                'access_token' => $page_config->page_token,
+                'request_type' => 'POST',
+                'data' => [
+                    'media_type' => 'CAROUSEL',
+                    'caption' => $data['message'],
+                    'children' => $data['attached_media'],
+                ],
+            ];
+            $container = getFacebookResults($pageInfoParams);
+
+            $containerParams = [
+                'endpoint_path' => $page_config->page_id . '/media_publish',
+                'fields' => '',
+                'access_token' => $page_config->page_token,
+                'request_type' => 'POST',
+                'data' => [
+                    'creation_id' => $container['data']['id'],
+                ],
+            ];
+        } else {
+            $containerParams = [
+                'endpoint_path' => $page_config->page_id . '/media_publish',
+                'fields' => '',
+                'access_token' => $page_config->page_token,
+                'request_type' => 'POST',
+                'data' => [
+                    'creation_id' => $data['attached_media'][0],
+                    'caption' => $data['message'],
+                ],
+            ];
+        }
+
+        return getFacebookResults($containerParams);
     }
 }

@@ -12,7 +12,7 @@ class SyncFacebookConversations extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:facebook-dm {page_id}';
+    protected $signature = 'facebook:sync-dm {page_id}';
 
     /**
      * The console command description.

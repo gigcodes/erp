@@ -38,6 +38,9 @@ class SocialPost extends Model
         'hashtag',
         'translation_approved_by',
         'post_medium',
+        'media',
+        'permalink',
+        'custom_data'
     ];
 
     public function account(): BelongsTo
@@ -47,6 +50,8 @@ class SocialPost extends Model
 
     protected $casts = [
         'posted_on' => 'datetime',
+        'media' => 'json',
+        'custom_data' => 'json'
     ];
 
     public function comments(): HasMany
