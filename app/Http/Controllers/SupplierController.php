@@ -673,7 +673,10 @@ class SupplierController extends Controller
             if ($filter != '') {
                 $typeWhereClause .= ' AND supplier like "' . $filter . '%"';
             }
-            $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" ' . $typeWhereClause . '');
+            $suppliers_all = Supplier::select('id', 'supplier', 'email', 'default_email')
+                ->where('email', '!=', '')
+                ->whereRaw($typeWhereClause)
+                ->get();
         }
 
         if (count($suppliers_all) > 0) {

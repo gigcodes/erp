@@ -114,13 +114,11 @@ class AffiliateResultController extends Controller
     {
         $id = $request->id;
         if (is_array($id)) {
-            \DB::table('affiliates')
-                ->whereIn('id', $id)
-                ->delete();
+            Affiliates::whereIn('id', $id)->delete();
+
         } else {
-            \DB::table('affiliates')
-                ->where('id', $id)
-                ->delete();
+            Affiliates::where('id', $id)->delete();
+
         }
 
         return redirect()->route('affiliates.list')

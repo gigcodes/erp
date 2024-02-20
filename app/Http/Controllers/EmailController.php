@@ -27,6 +27,7 @@ use App\Mails\Manual\ForwardEmail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use App\Models\EmailCategoryHistory;
+use App\Models\EmailStatus;
 use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
@@ -219,18 +220,14 @@ class EmailController extends Controller
             ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
             ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
 
-        //Get All Status
-        $email_status = DB::table('email_status');
+        $email_status = EmailStatus::select('id', 'email_status')->get();
 
-        $email_status = $email_status->get(['id', 'email_status']);
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
 
-        //Get All Category
-        $email_categories = DB::table('email_category');
+        $email_categories = EmailCategory::select('id', 'category_name')->get();
 
-        $email_categories = $email_categories->get(['id', 'category_name']);
 
         if ($request->ajax()) {
             return response()->json([
@@ -1719,7 +1716,7 @@ class EmailController extends Controller
         $userEmails = $userEmails->paginate(10)->appends(request()->except(['page']));
 
         //Get All Category
-        $email_categories = DB::table('email_category')->get();
+        $email_categories = EmailCategory::all();
 
         $emailModelTypes = Email::emailModelTypeList();
 
@@ -1914,7 +1911,7 @@ class EmailController extends Controller
         $emailStatuses = Email::select('status')->groupBy('status')->get();
 
         //Get All Status
-        $email_status = DB::table('email_status');
+        $email_status = EmailStatus::all();
 
         if (! empty($request->type) && $request->type == 'outgoing') {
             $email_status = $email_status->where('type', 'sent');
