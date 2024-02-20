@@ -1,0 +1,422 @@
+<?php
+
+namespace App\Services\Facebook;
+
+use FbException;
+use Facebook\Facebook;
+use Facebook\Exceptions\FacebookSDKException;
+
+class FB
+{
+    /**
+     * @var string|null The Instagram or Facebook AccessToken.
+     */
+    protected ?string $token;
+
+    /**
+     * @var Facebook|string|null The subclass of the child GraphNode's.
+     */
+    protected Facebook|string|null $fb;
+
+    /**
+     * @param  string|null  $token The Instagram or Facebook AccessToken.
+     *
+     * @throws FacebookSDKException
+     */
+    public function __construct(string $token = null)
+    {
+        $this->token = $token;
+
+        $this->fb = new Facebook(config('facebook.config'));
+    }
+
+    /**
+     * Generate Login and Authenticate URL to Instagram Graph API.
+     *
+     * @param  array  $permissions Instagram permissions
+     */
+    public function getLoginUrl(array $permissions): string
+    {
+        $instagramLogin = new GraphLogin();
+
+        return $instagramLogin->getLoginUrl($permissions);
+    }
+
+    /**
+     * Get User Access Token from Instagram Graph API Callback.
+     *
+     *
+     * @throws FacebookSDKException
+     */
+    public static function getUserAccessToken(): string
+    {
+        $instagramLogin = new GraphLogin();
+        $connectedAccountsData = $instagramLogin->getUserInfo();
+
+        return $connectedAccountsData['access_token'];
+    }
+
+    /**
+     * Get Request on Instagram Graph API.
+     *
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
+     * @param  bool|null  $graphEdge The request should be on `graphEdge` or `graphNode`.
+     *
+     * @throws FacebookSDKException
+     */
+    public function get(string $endpoint, bool $graphEdge = null): array
+    {
+        return (new FbPayloads)->getPayload($endpoint, $this->token, $graphEdge);
+    }
+
+    /**
+     * POST Request on Instagram Graph API.
+     *
+     * @param  array  $params Post parameters.
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
+     *
+     * @throws FacebookSDKException
+     */
+    public function post(array $params, string $endpoint): array
+    {
+        return (new FbPayloads)->postPayload($params, $endpoint, $this->token);
+    }
+
+    /**
+     * DELETE Request on Instagram Graph API.
+     *
+     * @param  array  $params DELETE parameters.
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
+     *
+     * @throws FacebookSDKException
+     */
+    public function delete(array $params, string $endpoint): array
+    {
+        return (new FbPayloads)->deletePayload($params, $endpoint, $this->token);
+    }
+
+    /**
+     * Get Instagram connected Accounts List.
+     *
+     *
+     * @throws FacebookSDKException
+     */
+    public function getConnectedAccountsList(): array
+    {
+        $accounts = self::get('/me/accounts', true);
+
+        $connected_instagram_ids = [];
+        foreach ($accounts as $value) {
+            $result = self::get('/' . $value['id'] . '?fields=instagram_business_account');
+
+            if (@$result['instagram_business_account']) {
+                $fb_data = [
+                    'fb_page_id' => $value['id'],
+                    'fb_page_access_token' => $value['access_token'],
+                    'instagram_page_id' => $result['instagram_business_account']['id'],
+                ];
+                // push instagram account ID to array
+                $connected_instagram_ids[] = $fb_data;
+            }
+        }
+
+        $instagram_accounts = [];
+        foreach ($connected_instagram_ids as $value) {
+            $response = self::get('/' . $value['instagram_page_id'] . '?fields=name,biography,username,followers_count,follows_count,media_count,profile_picture_url,website');
+
+            $instagram_account = $response;
+            $instagram_account['fb_page_id'] = $value['fb_page_id'];
+            $instagram_account['fb_page_access_token'] = $value['fb_page_access_token'];
+
+            $instagram_accounts[] = json_decode(json_encode($instagram_account));
+        }
+
+        return ['success' => 'true', 'instagramAccounts' => $instagram_accounts];
+    }
+
+    /**
+     * Subscribe Webhook to Graph API.
+     *
+     * @param  int  $facebookPageId Facebook Page ID
+     * @param  string  $facebookPageAccessToken Facebook Page Access Token
+     * @param  array  $subscribed_fields Page field (example: ["feed"])
+     *
+     * @throws FacebookSDKException
+     */
+    public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken, array $subscribed_fields = ['email']): array
+    {
+        $fields = implode(',', $subscribed_fields);
+
+        return $this->post([], '/' . $facebookPageId . '/subscribed_apps?subscribed_fields=' . $fields . '&access_token=' . $facebookPageAccessToken);
+    }
+
+    /**
+     * Get Comment Graph API.
+     *
+     * @param  string  $comment_id Comment ID
+     * @param  array  $fields Required fields
+     *
+     * @throws FbException|FacebookSDKException
+     */
+    public function getComment(string $comment_id, array $fields = []): array
+    {
+        if (empty($comment_id)) {
+            $error = 'Instagram Comment Message: Missing Comment ID!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/' . $comment_id;
+
+        if (count($fields) > 0) {
+            $fields_str = implode(',', $fields);
+            $endpoint = '/' . $comment_id . '?fields=' . $fields_str;
+        }
+
+        return self::get($endpoint);
+    }
+
+    /**
+     * Add Comment Graph API.
+     *
+     * @param  string  $message Comment's Text
+     * @param  string  $recipient_id Post or Comment ID
+     *
+     * @throws FbException|FacebookSDKException
+     */
+    public function addComment(string $message, string $recipient_id): array
+    {
+        $endpoint = $recipient_id . '/replies';
+
+        // Check if we have recipient or content
+        if (empty($message) || empty($recipient_id)) {
+            $error = 'Instagram Comment Message: Missing message or recipient!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $params = [
+            'message' => $message,
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * DELETE Comment Graph API.
+     *
+     * @param  string  $comment_id Comment ID
+     *
+     * @throws FacebookSDKException|FbException
+     */
+    public function deleteComment(string $comment_id): array
+    {
+        if (empty($comment_id)) {
+            $error = 'Instagram DELETE Comment Message: Missing Comment ID!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/' . $comment_id;
+
+        $params = [];
+
+        return self::delete($params, $endpoint);
+    }
+
+    /**
+     * Hide Comment Graph API.
+     *
+     * @param  string  $comment_id Comment ID
+     * @param  bool  $status Hide => true | UnHide => false
+     *
+     * @throws FacebookSDKException|FbException
+     */
+    public function hideComment(string $comment_id, bool $status): array
+    {
+        if (empty($comment_id)) {
+            $error = 'Instagram HIDE Comment Message: Missing Comment ID';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/' . $comment_id;
+
+        $params = [
+            'hide' => $status,
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * Get Message Graph API.
+     *
+     * @param  string  $message_id Message ID
+     * @param  array  $fields Required fields
+     *
+     * @throws FacebookSDKException|FbException
+     */
+    public function getMessage(string $message_id, array $fields = []): array
+    {
+        if (empty($message_id)) {
+            $error = 'Instagram Messenger GET Message: Missing Message ID!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/' . $message_id . '?fields=message,from,created_time,attachments';
+
+        if (count($fields) > 0) {
+            $fields_str = implode(',', $fields);
+            $endpoint = '/' . $message_id . '?fields=' . $fields_str;
+        }
+
+        return self::get($endpoint);
+    }
+
+    /**
+     * Add Text Message Graph API.
+     *
+     * @param  string  $recipient_id Instagram USER_ID
+     * @param  string  $message Message's Text
+     *
+     * @throws FacebookSDKException|FbException
+     */
+    public function addTextMessage(string $recipient_id, string $message): array
+    {
+        if (empty($recipient_id) || empty($message)) {
+            $error = 'Instagram ADD Text Message in Messenger: Missing message or recipient!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/me/messages';
+
+        $params = [
+            'recipient' => [
+                'id' => $recipient_id,
+            ],
+            'message' => [
+                'text' => $message,
+            ],
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * Add Media Message Graph API.
+     *
+     * @param  string  $recipient_id Instagram USER_ID
+     * @param  string  $url Message Attachment's url
+     * @param  string  $type Message Attachment's type
+     *
+     * @throws FacebookSDKException|FbException
+     */
+    public function addMediaMessage(string $recipient_id, string $url, string $type = 'image'): array
+    {
+        if (empty($recipient_id) || empty($url)) {
+            $error = 'Instagram ADD Media Message in Messenger: Missing attachment or recipient!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/me/messages';
+
+        $params = [
+            'recipient' => [
+                'id' => $recipient_id,
+            ],
+            'message' => [
+                'attachment' => [
+                    'type' => $type,
+                    'payload' => [
+                        'url' => $url,
+                    ],
+                ],
+            ],
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    public function getAdAccounts(): array
+    {
+        $accounts = self::get('/me/adaccounts', true);
+
+        return ['success' => true, $accounts];
+    }
+
+    /**
+     * AdCampaign based on the ad account id API
+     * FB get /act_{ad_account_id}/campaigns
+     *
+     * @param string $ad_account_id
+     *
+     * @return array
+     * @throws FacebookSDKException
+     */
+    public function getCampaigns(string $ad_account_id): array
+    {
+        $campaigns = self::get("$ad_account_id/campaigns", true);
+
+        return ['success' => true, $campaigns];
+    }
+
+    /**
+     * Ads based on the ad account id API
+     * FB get /act_{ad_account_id}/ads
+     *
+     * @param int|string $ad_account_id
+     *
+     * @return array
+     * @throws FacebookSDKException
+     */
+    public function getAds(string|int $ad_account_id): array
+    {
+        $ads = self::get("$ad_account_id/ads", true);
+
+        return ['success' => true, $ads];
+    }
+
+    /**
+     * @param string|int $page_id
+     * @return array
+     *
+     * @throws FacebookSDKException Get the conversation for page ID
+     */
+    public function getConversations(string|int $page_id): array
+    {
+        $conversation = self::get("$page_id/conversations?fields=name,messages{created_time,from,id,message,sticker,tags,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000", true);
+
+        return ['success' => true, $conversation];
+    }
+
+    /**
+     * @param int|string $conversation_id
+     * @return array
+     *
+     * @throws FacebookSDKException Get the messages for the conversation for conversation ID
+     */
+    public function getConversation(int|string $conversation_id): array
+    {
+        $conversation = self::get($conversation_id . '?fields=id,messages.limit(1000){created_time,from,id,message,to}');
+
+        return ['success' => true, $conversation];
+    }
+}
