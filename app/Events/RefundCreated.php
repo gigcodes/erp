@@ -17,11 +17,8 @@ class RefundCreated
      *
      * @return void
      */
-    public $refund;
-
-    public function __construct(Refund $refund)
+    public function __construct(public Refund $refund)
     {
-        $this->refund = $refund;
     }
 
     /**

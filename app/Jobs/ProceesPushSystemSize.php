@@ -19,12 +19,9 @@ class ProceesPushSystemSize implements ShouldQueue
      *
      * @return void
      */
-    private $data;
 
-    public function __construct($data)
+    public function __construct(private $data)
     {
-        // Assign the variable received from Request
-        $this->data = $data;
     }
 
     /**

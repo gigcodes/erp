@@ -26,22 +26,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class OldController extends Controller
 {
     /**
-     * Defining scope of variable
-     *
-     *
-     * @var    array
-     */
-    protected $old;
-
-    /**
      * Create a new controller instance.
      *
      * @param  mixed  $old get old model
      * @return void
      */
-    public function __construct(Old $old)
+    public function __construct(protected Old $old)
     {
-        $this->old = $old;
     }
 
     /**

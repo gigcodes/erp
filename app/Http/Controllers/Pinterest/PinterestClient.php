@@ -35,12 +35,6 @@ class PinterestClient
 
     private $BASE_AUTH_API_URL = 'https://www.pinterest.com/oauth/';
 
-    private $clientId = '';
-
-    private $clientSecret = '';
-
-    private $accountId = '';
-
     private $accessToken = '';
 
     private $scopes = [
@@ -50,11 +44,8 @@ class PinterestClient
         self::USER_ACCOUNT_READ,
     ];
 
-    public function __construct($clientId = null, $clientSecret = null, $accountId = null)
+    public function __construct(private $clientId = null, private $clientSecret = null, private $accountId = null)
     {
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->accountId = $accountId;
     }
 
     public function buildParams($url, $query): string

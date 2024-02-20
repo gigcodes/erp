@@ -18,17 +18,11 @@ class VendorPaymentCreated
      *
      * @return void
      */
-    public $vendor;
-
     public $payment;
 
-    public $status;
-
-    public function __construct(Vendor $vendor, VendorPayment $vendor_payment, $status)
+    public function __construct(public Vendor $vendor, public VendorPayment $vendor_payment, public $status)
     {
-        $this->vendor = $vendor;
         $this->payment = $vendor_payment;
-        $this->status = $status;
     }
 
     /**

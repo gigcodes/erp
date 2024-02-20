@@ -24,27 +24,18 @@ class TwilioSmsJob implements ShouldQueue
 
     public $receiverNumber;
 
-    public $message;
-
-    public $store_website_id;
-
     public $tries = 5;
 
     public $backoff = 5;
-
-    public $orderId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($receiverNumber, $message, $store_website_id, $orderId = null)
+    public function __construct($receiverNumber, public $message, public $store_website_id, public $orderId = null)
     {
         $this->receiverNumber = '+' . $receiverNumber;
-        $this->message = $message;
-        $this->store_website_id = $store_website_id;
-        $this->orderId = $orderId;
 
         $twilio_cred = \App\StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number', 'twilio_credentials.auth_token as auth_token')
             ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')

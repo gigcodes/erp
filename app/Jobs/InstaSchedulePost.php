@@ -12,8 +12,6 @@ class InstaSchedulePost implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $post;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -23,9 +21,8 @@ class InstaSchedulePost implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($post)
+    public function __construct(protected $post)
     {
-        $this->post = $post;
     }
 
     /**

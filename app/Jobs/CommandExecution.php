@@ -15,24 +15,12 @@ class CommandExecution implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $command_name;
-
-    protected $manual_command_name;
-
-    protected $store_user_id;
-
-    protected $store_id;
-
     public $tries = 5;
 
     public $backoff = 5;
 
-    public function __construct($command_name, $manual_command_name, $store_user_id, $store_id)
+    public function __construct(protected $command_name, protected $manual_command_name, protected $store_user_id, protected $store_id)
     {
-        $this->command_name = $command_name;
-        $this->manual_command_name = $manual_command_name;
-        $this->store_user_id = $store_user_id;
-        $this->store_id = $store_id;
     }
 
     public function handle()

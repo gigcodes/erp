@@ -18,17 +18,12 @@ class BloggerPaymentCreated
      *
      * @return void
      */
-    public $blogger;
 
     public $payment;
 
-    public $status;
-
-    public function __construct(Blogger $blogger, BloggerPayment $blogger_payment, $status)
+    public function __construct(public Blogger $blogger, BloggerPayment $blogger_payment, public $status)
     {
-        $this->blogger = $blogger;
         $this->payment = $blogger_payment;
-        $this->status = $status;
     }
 
     /**

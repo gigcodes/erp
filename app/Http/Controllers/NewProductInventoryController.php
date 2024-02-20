@@ -13,11 +13,8 @@ use App\Services\Scrap\GoogleImageScraper;
 
 class NewProductInventoryController extends Controller
 {
-    private $googleImageScraper;
-
-    public function __construct(GoogleImageScraper $googleImageScraper)
+    public function __construct(private GoogleImageScraper $googleImageScraper)
     {
-        $this->googleImageScraper = $googleImageScraper;
     }
 
     public function index(Stage $stage)

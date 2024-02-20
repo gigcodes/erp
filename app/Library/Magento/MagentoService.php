@@ -26,14 +26,6 @@ use Illuminate\Support\Facades\Log;
  */
 class MagentoService
 {
-    public $product;
-
-    public $storeWebsite;
-
-    public $log;
-
-    public $mode;
-
     public $categories;
 
     public $brand;
@@ -102,13 +94,9 @@ class MagentoService
 
     const SKU_SEPERATOR = '-';
 
-    public function __construct(Product $product, StoreWebsite $storeWebsite, $log = null, $mode = null)
+    public function __construct(public Product $product, public StoreWebsite $storeWebsite, public $log = null, public $mode = null)
     {
-        $this->product = $product;
-        $this->storeWebsite = $storeWebsite;
-        $this->log = $log;
         $this->category = $product->categories;
-        $this->mode = $mode;
         $this->charity = 0;
         $p = \App\CustomerCharity::where('product_id', $this->product->id)->first();
         if ($p) {

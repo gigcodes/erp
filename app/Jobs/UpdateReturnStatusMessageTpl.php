@@ -15,19 +15,13 @@ class UpdateReturnStatusMessageTpl implements ShouldQueue
 
     public $tries = 1;
 
-    private $returnId;
-
-    private $message;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($returnId, $message = null)
+    public function __construct(private $returnId, private $message = null)
     {
-        $this->returnId = $returnId;
-        $this->message = $message;
     }
 
     /**

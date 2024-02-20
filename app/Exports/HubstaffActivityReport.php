@@ -10,11 +10,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings, WithEvents
 {
-    protected $user;
-
-    public function __construct(array $user)
+    public function __construct(protected array $user)
     {
-        $this->user = $user;
     }
 
     public function registerEvents(): array

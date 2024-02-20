@@ -11,13 +11,10 @@ use Illuminate\Session\Store;
 
 class LogLastUserActivity
 {
-    protected $session;
-
     protected $timeout = 1800;
 
-    public function __construct(Store $session)
+    public function __construct(protected Store $session)
     {
-        $this->session = $session;
     }
 
     /**

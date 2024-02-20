@@ -14,25 +14,13 @@ class MagnetoGoogledriveUpload
 {
     use Dispatchable, SerializesModels;
 
-    private $googleScreencast;
-
-    private $uploadedFile;
-
-    private $permissionForAll = null;
-
-    private $updatable = null;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(MagentoFrontendDocumentation|MagentoBackendDocumentation $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
+    public function __construct(private MagentoFrontendDocumentation|MagentoBackendDocumentation $googleScreencast, private $uploadedFile, private $permissionForAll = null, private $updatable = null)
     {
-        $this->googleScreencast = $googleScreencast;
-        $this->uploadedFile = $uploadedFile;
-        $this->permissionForAll = $permissionForAll;
-        $this->updatable = $updatable;
     }
 
     /**

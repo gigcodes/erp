@@ -14,15 +14,12 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
     /**
      * @return \Illuminate\Support\Collection
      */
-    protected $selected_purchases;
-
     protected $count = 0;
 
     protected $path = [];
 
-    public function __construct(array $selected_purchases)
+    public function __construct(protected array $selected_purchases)
     {
-        $this->selected_purchases = $selected_purchases;
     }
 
     public function array(): array

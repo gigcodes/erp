@@ -14,8 +14,6 @@ class AttachSuggestionProduct implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $suggestion;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -25,9 +23,8 @@ class AttachSuggestionProduct implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(SuggestedProduct $suggestion)
+    public function __construct(public SuggestedProduct $suggestion)
     {
-        $this->suggestion = $suggestion;
     }
 
     /**

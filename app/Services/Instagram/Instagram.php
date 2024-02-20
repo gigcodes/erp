@@ -7,8 +7,6 @@ use Facebook\Facebook;
 
 class Instagram
 {
-    private $facebook;
-
     private $url = 'https://graph.facebook.com/';
 
     private $user_access_token;
@@ -24,9 +22,8 @@ class Instagram
     /**
      * Instagram constructor.
      */
-    public function __construct(Facebook $facebook)
+    public function __construct(private Facebook $facebook)
     {
-        $this->facebook = $facebook;
         $this->user_access_token = env('USER_ACCESS_TOKEN', 'EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD');
         $this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAO2yF97qtbFJq2pPzKZBOocsJVU3MZA95wKZBd0VkQtiUAP534GYkXaLXI0xJRNjP3Jrv43GTY84cVofQCqipkEEUNnVrU2ZBuzmR6AdkNcngPF318iIR123ZBw2XT2sWZBgCXrFolAokqFZBcL9eQZBsVs3aZBpyOf8FMuJs4FvLG8J9HJNZBJ9IZD');
         $this->page_id = '507935072915757';

@@ -15,10 +15,8 @@ class PaymentReceiptUpdated
      *
      * @return void
      */
-    public $paymentReceipt;
 
-    public function __construct($paymentReceipt)
+    public function __construct(public $paymentReceipt)
     {
-        $this->paymentReceipt = $paymentReceipt;
     }
 }

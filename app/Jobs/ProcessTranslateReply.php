@@ -22,14 +22,8 @@ class ProcessTranslateReply implements ShouldQueue
      *
      * @return void
      */
-    private $record;
-
-    private $user_id;
-
-    public function __construct($record, $user_id)
+    public function __construct(private $record, private $user_id)
     {
-        $this->record = $record;
-        $this->user_id = $user_id;
     }
 
     /**

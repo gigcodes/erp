@@ -16,13 +16,8 @@ class ProformaConfirmed
      *
      * @return void
      */
-    public $purchase;
 
-    public $purchase_amount;
-
-    public function __construct(Purchase $purchase, $purchase_amount)
+    public function __construct(public Purchase $purchase, public $purchase_amount)
     {
-        $this->purchase = $purchase;
-        $this->purchase_amount = $purchase_amount;
     }
 }

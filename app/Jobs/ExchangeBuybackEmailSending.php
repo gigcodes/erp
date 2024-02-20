@@ -12,12 +12,6 @@ class ExchangeBuybackEmailSending implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $to;
-
-    protected $success;
-
-    protected $emailObject;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -27,11 +21,8 @@ class ExchangeBuybackEmailSending implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($to, $success, $emailObject)
+    public function __construct(protected $to, protected $success, protected $emailObject)
     {
-        $this->to = $to;
-        $this->success = $success;
-        $this->$emailObject = $emailObject;
     }
 
     /**

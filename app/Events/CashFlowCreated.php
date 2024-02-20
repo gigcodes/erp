@@ -16,10 +16,8 @@ class CashFlowCreated
      *
      * @return void
      */
-    public $cashflow;
 
-    public function __construct(CashFlow $cashflow)
+    public function __construct(public CashFlow $cashflow)
     {
-        $this->cashflow = $cashflow;
     }
 }

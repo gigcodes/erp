@@ -6,40 +6,22 @@ use App\Product;
 
 class Main
 {
-    /**
-     * @var NameChecker
-     */
-    private $nameChecker;
-
     private $descriptionChecker;
-
-    /**
-     * @var CompositionChecker
-     */
-    private $compositionChecker;
 
     /**
      * @var SizesChecker
      */
     private $sizeChecker;
 
-    /**
-     * @var ColorChecker
-     */
-    private $colorChecker;
-
     private $product;
 
     /**
      * Main constructor.
      */
-    public function __construct(NameChecker $nameChecker, CompositionChecker $compositionChecker, ColorChecker $colorChecker, SizesChecker $sizesChecker, ShortDescriptionChecker $shortDescriptionChecker)
+    public function __construct(private NameChecker $nameChecker, private CompositionChecker $compositionChecker, private ColorChecker $colorChecker, SizesChecker $sizesChecker, ShortDescriptionChecker $shortDescriptionChecker)
     {
-        $this->nameChecker = $nameChecker;
         $this->descriptionChecker = $shortDescriptionChecker;
-        $this->colorChecker = $colorChecker;
         $this->sizeChecker = $sizesChecker;
-        $this->compositionChecker = $compositionChecker;
     }
 
     public function validate(Product $product): bool

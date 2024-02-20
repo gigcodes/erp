@@ -13,16 +13,13 @@ class EmailReceivedAlert implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private $email;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Email $email)
+    public function __construct(private Email $email)
     {
-        $this->email = $email;
     }
 
     public function broadcastWith(): array

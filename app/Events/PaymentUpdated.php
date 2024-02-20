@@ -16,10 +16,8 @@ class PaymentUpdated
      *
      * @return void
      */
-    public $payment;
 
-    public function __construct(Payment $payment)
+    public function __construct(public Payment $payment)
     {
-        $this->payment = $payment;
     }
 }

@@ -15,20 +15,6 @@ class ManageWatsonAssistant implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $customer;
-
-    protected $inputText;
-
-    protected $contextReset;
-
-    protected $message_application_id;
-
-    protected $messageModel;
-
-    protected $userType;
-
-    protected $chat_message_log_id;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -38,15 +24,8 @@ class ManageWatsonAssistant implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null, $userType = null, $chat_message_log_id = null)
+    public function __construct(protected $customer, protected $inputText, protected $contextReset, protected $message_application_id, protected $messageModel = null, protected $userType = null, protected $chat_message_log_id = null)
     {
-        $this->customer = $customer;
-        $this->inputText = $inputText;
-        $this->contextReset = $contextReset;
-        $this->message_application_id = $message_application_id;
-        $this->messageModel = $messageModel;
-        $this->userType = $userType;
-        $this->chat_message_log_id = $chat_message_log_id;
     }
 
     /**

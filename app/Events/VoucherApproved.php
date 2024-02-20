@@ -17,11 +17,9 @@ class VoucherApproved
      *
      * @return void
      */
-    public $voucher;
 
-    public function __construct(Voucher $voucher)
+    public function __construct(public Voucher $voucher)
     {
-        $this->voucher = $voucher;
     }
 
     /**

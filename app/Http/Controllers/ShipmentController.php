@@ -22,14 +22,8 @@ use App\Library\DHL\CreateShipmentRequest;
 
 class ShipmentController extends Controller
 {
-    protected $wayBill;
-
-    protected $emails;
-
-    public function __construct(Waybill $wayBill, Email $emails)
+    public function __construct(protected Waybill $wayBill, protected Email $emails)
     {
-        $this->wayBill = $wayBill;
-        $this->emails = $emails;
     }
 
     /**

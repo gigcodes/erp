@@ -11,15 +11,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class CreateKeywordScrapperQueue implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public $data;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(array $data)
+    public function __construct(public array $data)
     {
-        $this->data = $data;
     }
 
     /**

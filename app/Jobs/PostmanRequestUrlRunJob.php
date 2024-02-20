@@ -17,19 +17,13 @@ class PostmanRequestUrlRunJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $urls;
-
-    private $login_user_id;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($urls, $login_user_id)
+    public function __construct(private $urls, private $login_user_id)
     {
-        $this->urls = $urls;
-        $this->login_user_id = $login_user_id;
     }
 
     /**

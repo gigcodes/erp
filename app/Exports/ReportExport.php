@@ -7,11 +7,8 @@ use Maatwebsite\Excel\Concerns\FromView;
 
 class ReportExport implements FromView
 {
-    public $data;
-
-    public function __construct($data)
+    public function __construct(public $data)
     {
-        $this->data = $data;
     }
 
     public function view(): View

@@ -26,8 +26,6 @@ class SendMessageToCustomer implements ShouldQueue
 
     protected $params;
 
-    protected $chatbotReply;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -41,12 +39,11 @@ class SendMessageToCustomer implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data, $chatbotReply = null)
+    public function __construct($data, protected $chatbotReply = null)
     {
         // Set product
         $this->type = isset($data['type']) ? $data['type'] : 'simple';
         $this->params = isset($data) ? $data : [];
-        $this->chatbotReply = $chatbotReply;
     }
 
     /**

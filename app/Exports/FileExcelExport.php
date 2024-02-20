@@ -12,19 +12,10 @@ class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
      * @return \Illuminate\Support\Collection
      */
 
-    protected $report_data;
-
-    protected $sheet;
-
     protected $count = 0;
 
-    protected $path = null;
-
-    public function __construct(array $report_data, $sheet, $path)
+    public function __construct(protected array $report_data, protected $sheet, protected$path)
     {
-        $this->report_data = $report_data;
-        $this->sheet = $sheet;
-        $this->path = $path;
     }
 
     public function array(): array

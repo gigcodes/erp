@@ -13,11 +13,9 @@ class ResponsePurify
         "I didn't get your meaning.",
     ];
 
-    public $images;
-
     public $response;
 
-    public $customer;
+    public $images;
 
     public $entities = [];
 
@@ -25,15 +23,10 @@ class ResponsePurify
 
     public $context;
 
-    public $logId;
-
-    public function __construct($response, $customer = null, $logId = null)
+    public function __construct($response, public $customer = null, public $logId = null)
     {
         $this->response = isset($response->output) ? $response->output : null;
         $this->context = isset($response->context) ? $response->context : null;
-        $this->logId = $logId;
-
-        $this->customer = $customer;
 
         if ($this->isValid()) {
             $this->settleResponse();

@@ -7,11 +7,8 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class ScrapRemarkExport implements FromArray, ShouldAutoSize
 {
-    protected $remarks;
-
-    public function __construct(array $remarks)
+    public function __construct(protected array $remarks)
     {
-        $this->remarks = $remarks;
     }
 
     /**

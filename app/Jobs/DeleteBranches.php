@@ -15,23 +15,17 @@ class DeleteBranches implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GithubTrait;
 
-    private $branches;
-
     private $error;
 
     private $response;
-
-    private $repositoryId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($branches, $repositoryId)
+    public function __construct(private $branches, private $repositoryId)
     {
-        $this->branches = $branches;
-        $this->repositoryId = $repositoryId;
     }
 
     /**

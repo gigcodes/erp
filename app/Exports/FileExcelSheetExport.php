@@ -9,17 +9,8 @@ class FileExcelSheetExport implements WithMultipleSheets
 {
     use Exportable;
 
-    protected $report_data;
-
-    protected $sheet;
-
-    protected $path = null;
-
-    public function __construct(array $report_data, $sheet, $path)
+    public function __construct(protected array $report_data, protected $sheet, protected $path)
     {
-        $this->report_data = $report_data;
-        $this->sheet = $sheet;
-        $this->path = $path;
     }
 
     public function sheets(): array

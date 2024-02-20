@@ -15,8 +15,6 @@ class PushCategorySeoToMagento implements ShouldQueue
 
     protected $category;
 
-    protected $stores;
-
     public $tries = 5;
 
     public $backoff = 5;
@@ -26,10 +24,9 @@ class PushCategorySeoToMagento implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($categories, $stores)
+    public function __construct($categories, protected $stores)
     {
         $this->category = $categories;
-        $this->stores = $stores;
     }
 
     /**
