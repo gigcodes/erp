@@ -64,19 +64,6 @@ class GoogleCampaignsController extends Controller
     // show campaigns in main page
     public $exceptionError = 'Something went wrong';
 
-    public function getstoragepath($account_id)
-    {
-        $result = \App\GoogleAdsAccount::find($account_id);
-        if (isset($result->config_file_path) && $result->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
-            $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
-            $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
-
-            return $storagepath;
-        } else {
-            return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
-        }
-    }
-
     public function campaignslist(Request $request)
     {
         $search_data = \App\GoogleAdsCampaign::has('account')->with('account')->latest()->get();
@@ -1095,19 +1082,6 @@ class GoogleCampaignsController extends Controller
         ]);
 
         return $shoppingSetting;
-    }
-
-    //get frequency caps
-    private function getFrequencyCaps()
-    {
-        $frequencyCaps = new FrequencyCapEntry([
-            'key' => new FrequencyCapKey([
-                'level' => FrequencyCapLevel::AD_GROUP,
-                'event_type' => FrequencyCapEventType::IMPRESSION,
-                'time_unit' => FrequencyCapTimeUnit::DAY,
-            ]),
-            'cap' => intval(5), /*new Int32Value(['value'=> intval(5)])*/
-        ]);
     }
 
     // get shopping setting

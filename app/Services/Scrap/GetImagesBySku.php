@@ -125,31 +125,6 @@ class GetImagesBySku extends Scraper
         return $this->downloadImages($content, 'fendi');
     }
 
-    private function getImagesForPrada(HtmlPageCrawler $c)
-    {
-        $images = $c->filter('div.thumbnail-list__item img')->getIterator();
-
-        foreach ($images as $image) {
-            $content[] = trim($image->getAttribute('src'));
-        }
-
-        dd($content);
-
-        return $this->downloadImages($content, 'tory');
-    }
-
-    private function getImagesForYSL(HtmlPageCrawler $c)
-    {
-        $images = $c->filter('div.thumbnail-list__item img')->getIterator();
-        $content = [];
-
-        foreach ($images as $image) {
-            $content[] = trim($image->getAttribute('src'));
-        }
-
-        return $this->downloadImages($content, 'tory');
-    }
-
     private function downloadImages($data, $prefix = 'img'): array
     {
         $images = [];

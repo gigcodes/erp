@@ -419,14 +419,6 @@ class UserController extends Controller
         return redirect()->back()->withSuccess('You have successfully updated the user!');
     }
 
-    private function printLastQuery()
-    {
-        DB::enableQueryLog();
-        $query = DB::getQueryLog();
-        $query = end($query);
-        print_r($query);
-    }
-
     public function payments(Request $request)
     {
         $params = $request->all();

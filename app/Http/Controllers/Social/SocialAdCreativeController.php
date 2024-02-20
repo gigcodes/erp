@@ -396,30 +396,4 @@ class SocialAdCreativeController extends Controller
         }
     }
 
-    private function getInstaID($config, $fb, $post_id)
-    {
-        $token = $config->token;
-        $page_id = $config->page_id;
-        $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
-        $resp = json_decode($resp, true); //response decoded
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'getInstaID');
-        if (isset($resp['instagram_business_account'])) {
-            return $resp['instagram_business_account']['id'];
-        }
-
-        return '';
-    }
 }

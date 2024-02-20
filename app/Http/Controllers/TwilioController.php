@@ -90,50 +90,6 @@ class TwilioController extends FindByNumberController
         \Debugbar::disable();
     }
 
-    /**
-     * Twillio Account SID and Auth Token from twilio.com/console
-     * Initilizing the Twilio client
-     *
-     * @return Twilio Object
-     *
-     * @todo Function is not used anywhere.
-     *
-     * @uses Client
-     * @uses Config
-     */
-    private function getTwilioClient()
-    {
-        return new Client(\Config::get('twilio.account_sid'), \Config::get('twilio.auth_token'));
-    }
-
-    /**
-     * Create a token for the twilio device which expires after 1 min
-     *
-     * @param  Request  $request Request
-     * @return \Illuminate\Http\JsonResponse
-     *
-     * @Rest\Post("twilio/token")
-     *
-     * @uses Auth
-     * @uses ClientToken
-     */
-    public function acceptCall(Request $request)
-    {
-        $response = new VoiceResponse();
-        $url = 'https://' . $request->getHost() . '/twilio/recordingStatusCallback';
-        $actionurl = 'https://' . $request->getHost() . '/twilio/handleDialCallStatus';
-        $dial = $response->dial('+919463488313', [
-            'record' => 'true',
-            'recordingStatusCallback' => $url,
-            'action' => $actionurl,
-            'timeout' => '60',
-        ]);
-
-        $dial->client(10410);
-
-        return $response;
-    }
-
     public function createToken(Request $request)
     {
         $conditionsWithIds = TwilioCondition::where('status', 1)->pluck('id', 'condition')->toArray();
@@ -2574,40 +2530,6 @@ class TwilioController extends FindByNumberController
         }
 
         return $clients;
-    }
-
-    /**
-     * Dial all clients
-     *
-     * @return void
-     *
-     * @uses Config
-     * @uses Log
-     *
-     * @todo not in use currently
-     */
-    private function dialAllClients(Request $request, $response, $role = 'sales', $context = null, $object = null, $number = '')
-    {
-        $url = 'https://' . $request->getHost() . '/twilio/recordingStatusCallback';
-        $actionurl = 'https://' . $request->getHost() . '/twilio/handleDialCallStatus';
-        if ($context) {
-            $url = 'https://' . $request->getHost() . '/twilio/recordingStatusCallback?context=' . $context . '&internalId=' . $object->id . '&Mobile=' . $object->phone;
-        }
-
-        $dial = $response->dial([
-            'record' => 'true',
-            'recordingStatusCallback' => $url,
-            'action' => $actionurl,
-            'timeout' => 5,
-        ]);
-
-        $clients = $this->getConnectedClients($role);
-
-        Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
-        /** @var Helpers $client */
-        foreach ($clients as $client) {
-            $dial->client($client);
-        }
     }
 
     /**

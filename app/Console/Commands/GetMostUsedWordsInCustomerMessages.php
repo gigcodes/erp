@@ -74,27 +74,4 @@ class GetMostUsedWordsInCustomerMessages extends Command
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
-
-    private function addOrUpdateCountOfKeyword($word): void
-    {
-        $keyword = BulkCustomerRepliesKeyword::where('value', $word)->first();
-
-        if ($keyword !== null) {
-            $keyword->count = (int) $keyword->count + 1;
-            $keyword->save();
-            echo 'UPDATED: ' . $word . ' ' . $keyword->count . "\n";
-
-            return;
-        }
-
-        $keyword = new BulkCustomerRepliesKeyword();
-        $keyword->value = $word;
-        $keyword->text_type = 'keyword';
-        $keyword->is_manual = 0;
-        $keyword->count = 1;
-        $keyword->save();
-
-        // NEW
-        echo 'NEW: ' . $word . "\n";
-    }
 }

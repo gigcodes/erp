@@ -93,23 +93,6 @@ class BrandController extends Controller
 
         return view('brand.scrap_brand', compact('brands', 'filters', 'alldevs', 'dev'));
     }
-
-    private static function get_times($default = '19:00', $interval = '+60 minutes')
-    {
-        $output = [];
-
-        $current = strtotime('00:00');
-        $end = strtotime('23:59');
-
-        while ($current <= $end) {
-            $time = date('G', $current);
-            $output[$time] = date('h.i A', $current);
-            $current = strtotime($interval, $current);
-        }
-
-        return $output;
-    }
-
     public function create()
     {
         $data['name'] = '';
@@ -266,28 +249,6 @@ class BrandController extends Controller
         $brand_instance = $brand->find($id);
 
         return $brand_instance ? $brand_instance->deduction_percentage : 0;
-    }
-
-    public function magentoSoapUpdatePrices($product)
-    {
-        $options = [
-            'trace' => true,
-            'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
-            'exceptions' => 0,
-        ];
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
-        $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-
-        $sku = $product->sku . $product->color;
-        $data = [
-            'price' => $product->price_eur_special,
-            'special_price' => $product->price_eur_discounted,
-        ];
-
-        $result = $proxy->catalogProductUpdate($sessionId, $sku, $data);
-
-        return $result;
     }
 
     /**

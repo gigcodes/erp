@@ -4,17 +4,6 @@ namespace App\Services\Whatsapp\ChatApi;
 
 class ChatApi
 {
-    /**
-     * Get instance from whatsapp number
-     */
-    private function getInstance($number = null)
-    {
-        $number = ! empty($number) ? $number : 0;
-
-        return isset(config('apiwha.instances')[$number])
-            ? config('apiwha.instances')[$number]
-            : config('apiwha.instances')[0];
-    }
 
     /**
      * Get Queues from Chat-Api
