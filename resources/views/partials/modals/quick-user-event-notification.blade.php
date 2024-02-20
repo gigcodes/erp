@@ -70,20 +70,20 @@
                     </div>
                     <div class="form-group">
                         <label for="notification-participants">Participants(vendor)</label>
-                        <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
+                        @php
+                         echo Form::select("vendors[]",$vendors->pluck("name","id")->toArray(),null,[
                             "id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
-                        ]); ?>
+                        ]);
+                         @endphp
                         <span id="vendor_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label for="notification-participants">Provider(user)</label>
-                        <?php
-                        $users = cache()->remember('User::all::pluck::name,id,toarray', 60 * 60 * 4, function (){
-                            return \App\User::all()->pluck("name","id")->toArray();
-                        });
+                        @php
                         echo Form::select("users[]",$users,null,[
                             "id" => "users" , "class" => "form-control selectx-users", "multiple" => true , "style" => "width:100%"
-                        ]); ?>
+                        ]);
+                        @endphp
                         <span id="user_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">

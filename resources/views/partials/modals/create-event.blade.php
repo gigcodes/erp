@@ -61,7 +61,6 @@
                         </label>
                         <select name="vendor_id" id="vendor_id" class="form-control select2">
                             <option value="">-- Select Vendor --</option>
-                            @php  $vendors =  \App\Vendor::get(); @endphp
                             @foreach ($vendors as $vendor)
                                 <option value="{{$vendor->id}}">{{$vendor->name}}</option>
                             @endforeach

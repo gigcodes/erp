@@ -1,8 +1,21 @@
 <?php
 
 use App\Http\Controllers\Api;
+use App\Http\Controllers\Api\v1\AffiliateController;
+use App\Http\Controllers\Api\v1\BrandReviewController;
+use App\Http\Controllers\Api\v1\BuyBackController;
+use App\Http\Controllers\Api\v1\GiftCardController;
+use App\Http\Controllers\Api\v1\GoogleScrapperController;
+use App\Http\Controllers\Api\v1\PushFcmNotificationController;
+use App\Http\Controllers\Api\v1\ReferaFriend;
+use App\Http\Controllers\Api\v1\TicketController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\FacebookPostController;
 use App\Http\Controllers\Logging;
+use App\Http\Controllers\MagentoCareersController;
 use App\Http\Controllers\Products;
+use App\Http\Controllers\Shopify\ShopifyController;
+use App\Http\Controllers\TodoListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EnvController;
 use App\Http\Controllers\scrapperPhyhon;
@@ -48,6 +61,7 @@ use App\Http\Controllers\SimplyDutyCurrencyController;
 use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\MagentoCustomerReferenceController;
 use App\Http\Controllers\MagentoProblemController;
+use Modules\ChatBot\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,18 +73,8 @@ use App\Http\Controllers\MagentoProblemController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-//
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
 
-/**
- *Routes added by Hitesh Start
- **/
 Route::post('mailinglist/add', [Api\v1\MailinglistController::class, 'add']);
-/**
- *Routes added by Hitesh Ends
- **/
 Route::post('fetch-credit-balance', [CustomerController::class, 'fetchCreditBalance']);
 Route::post('deduct-credit', [CustomerController::class, 'deductCredit']);
 Route::post('add-env', [EnvController::class, 'addEnv'])->name('add-env');
@@ -113,7 +117,6 @@ Route::post('twilio-conference', [TwilioController::class, 'outgoingCallConferen
 Route::post('twilio-conference-mute', [TwilioController::class, 'muteConferenceNumber']);
 Route::post('twilio-conference-hold', [TwilioController::class, 'holdConferenceNUmber']);
 Route::post('twilio-conference-remove', [TwilioController::class, 'removeConferenceNumber']);
-//Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
 Route::get('products/new-supplier', [ScrapController::class, 'getProductsToScrape']); // This function is also call for other route
 Route::post('products/new-supplier', [ScrapController::class, 'saveFromNewSupplier']);
 
@@ -188,8 +191,6 @@ Route::post('scraper/endtime', [ScrapController::class, 'recieveScrapDetails']);
 Route::get('search/{type}', [SearchQueueController::class, 'index']);
 Route::post('search/{type}', [SearchQueueController::class, 'upload_content']);
 //Google Developer API
-// Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
-// Route::get('google/developer-api/anr', [GoogleDeveloperController::class, 'getDeveloperApianr']);
 
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference', [MagentoCustomerReferenceController::class, 'store']);
@@ -217,14 +218,14 @@ Route::group([
         Route::group([
             'prefix' => '{sku}',
         ], function () {
-            Route::get('price', [\App\Http\Controllers\Api\v1\ProductController::class, 'price']);
+            Route::get('price', [Api\v1\ProductController::class, 'price']);
         });
     });
 
     Route::group([
         'prefix' => 'account',
     ], function () {
-        Route::post('create', [\App\Http\Controllers\Api\v1\AccountController::class, 'create']);
+        Route::post('create', [Api\v1\AccountController::class, 'create']);
     });
 });
 
@@ -236,8 +237,8 @@ Route::get('scraper/update-restart-time', [ScrapController::class, 'updateRestar
 Route::get('scraper/auto-restart', [ScrapController::class, 'needToAutoRestart']);
 Route::get('scraper-needed-products', [ScrapController::class, 'scraperNeeded']);
 
-Route::post('shopify/customer/create', [\App\Http\Controllers\Shopify\ShopifyController::class, 'setShopifyCustomers']);
-Route::post('shopify/order/create', [\App\Http\Controllers\Shopify\ShopifyController::class, 'setShopifyOrders']);
+Route::post('shopify/customer/create', [ShopifyController::class, 'setShopifyCustomers']);
+Route::post('shopify/order/create', [ShopifyController::class, 'setShopifyOrders']);
 
 Route::get('price_comparision/{type}', [PriceComparisionController::class, 'index']);
 Route::post('price_comparision/store', [PriceComparisionController::class, 'storeComparision']);
@@ -246,40 +247,40 @@ Route::post('price_comparision/store', [PriceComparisionController::class, 'stor
 Route::get('customer/order-details', [OrderController::class, 'customerOrderDetails']);
 
 //refer a friend api
-Route::post('friend/referral/create', [\App\Http\Controllers\Api\v1\ReferaFriend::class, 'store']);
+Route::post('friend/referral/create', [ReferaFriend::class, 'store']);
 Route::post('price_comparision/details', [PriceComparisionController::class, 'sendDetails']);
 
 //Ticket api
-Route::post('ticket/create', [\App\Http\Controllers\Api\v1\TicketController::class, 'store']);
+Route::post('ticket/create', [TicketController::class, 'store']);
 Route::post('store_reviews', [Api\v1\CustomerController::class, 'storeReviews']);
 Route::get('all-reviews', [Api\v1\CustomerController::class, 'allReviews']);
-Route::post('ticket/send', [\App\Http\Controllers\Api\v1\TicketController::class, 'sendTicketsToCustomers']);
+Route::post('ticket/send', [TicketController::class, 'sendTicketsToCustomers']);
 
-Route::post('facebook/post/status', [\App\Http\Controllers\FacebookPostController::class, 'setPostStatus']);
-Route::post('facebook/account', [\App\Http\Controllers\FacebookPostController::class, 'getPost']);
-
-//gift cards api
-Route::post('giftcards/add', [\App\Http\Controllers\Api\v1\GiftCardController::class, 'store']);
-Route::get('giftcards/check-giftcard-coupon-amount', [\App\Http\Controllers\Api\v1\GiftCardController::class, 'checkGiftcardCouponAmount']);
-
-Route::post('facebook/post/status', [\App\Http\Controllers\FacebookPostController::class, 'setPostStatus']); // this route is decleared above
-Route::post('facebook/account', [\App\Http\Controllers\FacebookPostController::class, 'getPost']); // this route is decleared above
+Route::post('facebook/post/status', [FacebookPostController::class, 'setPostStatus']);
+Route::post('facebook/account', [FacebookPostController::class, 'getPost']);
 
 //gift cards api
-Route::post('giftcards/add', [\App\Http\Controllers\Api\v1\GiftCardController::class, 'store']); // this route is decleared above
-Route::get('giftcards/check-giftcard-coupon-amount', [\App\Http\Controllers\Api\v1\GiftCardController::class, 'checkGiftcardCouponAmount']); // this route is decleared above
+Route::post('giftcards/add', [GiftCardController::class, 'store']);
+Route::get('giftcards/check-giftcard-coupon-amount', [GiftCardController::class, 'checkGiftcardCouponAmount']);
+
+Route::post('facebook/post/status', [FacebookPostController::class, 'setPostStatus']); // this route is decleared above
+Route::post('facebook/account', [FacebookPostController::class, 'getPost']); // this route is decleared above
+
+//gift cards api
+Route::post('giftcards/add', [GiftCardController::class, 'store']); // this route is decleared above
+Route::get('giftcards/check-giftcard-coupon-amount', [GiftCardController::class, 'checkGiftcardCouponAmount']); // this route is decleared above
 
 //Affiliate Api
-Route::post('affiliate/add', [\App\Http\Controllers\Api\v1\AffiliateController::class, 'store']);
-Route::post('influencer/add', [\App\Http\Controllers\Api\v1\AffiliateController::class, 'store']);
+Route::post('affiliate/add', [AffiliateController::class, 'store']);
+Route::post('influencer/add', [AffiliateController::class, 'store']);
 
 //buyback cards api
-Route::get('orders/products', [\App\Http\Controllers\Api\v1\BuyBackController::class, 'checkProductsForBuyback']);
-Route::post('return-exchange-buyback/create', [\App\Http\Controllers\Api\v1\BuyBackController::class, 'store']);
+Route::get('orders/products', [BuyBackController::class, 'checkProductsForBuyback']);
+Route::post('return-exchange-buyback/create', [BuyBackController::class, 'store']);
 
 //Push Notification Api
-Route::post('notification/create', [\App\Http\Controllers\Api\v1\PushFcmNotificationController::class, 'create']);
-Route::post('notification/update-lang', [\App\Http\Controllers\Api\v1\PushFcmNotificationController::class, 'updateLang']);
+Route::post('notification/create', [PushFcmNotificationController::class, 'create']);
+Route::post('notification/update-lang', [PushFcmNotificationController::class, 'updateLang']);
 
 //Saving Not Found Brand
 Route::get('missing-brand/save', [MissingBrandController::class, 'saveMissingBrand']);
@@ -293,21 +294,21 @@ Route::post('templates/create/webhook', [TemplatesController::class, 'createWebh
 Route::post('product/templates/update/webhook', [ProductTemplatesController::class, 'updateWebhook'])->name('api.product.update.webhook');
 
 //check for order cancellation
-Route::post('order/check-cancellation', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCancellation']);
-Route::post('order/check-return', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkReturn']);
-Route::post('order/check-category-is-eligibility', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCategoryIsEligibility']);
-Route::post('wishlist/create', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishList']);
-Route::post('wishlist/remove', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishListRemove']);
-Route::post('github/gettoken', [\App\Http\Controllers\Github\RepositoryController::class, 'addGithubTokenHistory']);
+Route::post('order/check-cancellation', [Api\v1\ProductController::class, 'checkCancellation']);
+Route::post('order/check-return', [Api\v1\ProductController::class, 'checkReturn']);
+Route::post('order/check-category-is-eligibility', [Api\v1\ProductController::class, 'checkCategoryIsEligibility']);
+Route::post('wishlist/create', [Api\v1\ProductController::class, 'wishList']);
+Route::post('wishlist/remove', [Api\v1\ProductController::class, 'wishListRemove']);
+Route::post('github/gettoken', [RepositoryController::class, 'addGithubTokenHistory']);
 
 Route::post('magento/order-create', [MagentoCustomerReferenceController::class, 'createOrder']);
 
 Route::post('scraper-images-save', [scrapperPhyhon::class, 'imageSave']);
 
 //New API for trust pilot reviews
-Route::get('review/get', [\App\Http\Controllers\Api\v1\BrandReviewController::class, 'getAllBrandReview']);
-Route::post('review/scrap', [\App\Http\Controllers\Api\v1\BrandReviewController::class, 'storeReview']);
-Route::post('google-scrapper-data', [\App\Http\Controllers\Api\v1\GoogleScrapperController::class, 'extractedData']);
+Route::get('review/get', [BrandReviewController::class, 'getAllBrandReview']);
+Route::post('review/scrap', [BrandReviewController::class, 'storeReview']);
+Route::post('google-scrapper-data', [GoogleScrapperController::class, 'extractedData']);
 
 //Out Of Stock Subscribe
 Route::post('out-of-stock-subscription', [Api\v1\OutOfStockSubscribeController::class, 'Subscribe']);
@@ -333,17 +334,16 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
 });
 Route::middleware('custom.api.auth')->group(function () {
-    Route::get('/chatbot/messages', [\Modules\ChatBot\Http\Controllers\MessageController::class, 'messagesJson']);
-    Route::get('/email/{email?}', [\App\Http\Controllers\EmailController::class, 'emailJson']);
-    Route::get('/todolist', [\App\Http\Controllers\TodoListController::class, 'indexJson']);
-    Route::post('/todolist/update', [\App\Http\Controllers\TodoListController::class, 'updateJson']);
-    Route::delete('/todolist/delete/{id}', [\App\Http\Controllers\TodoListController::class, 'destroyJson']);
+    Route::get('/chatbot/messages', [MessageController::class, 'messagesJson']);
+    Route::get('/email/{email?}', [EmailController::class, 'emailJson']);
+    Route::get('/todolist', [TodoListController::class, 'indexJson']);
+    Route::post('/todolist/update', [TodoListController::class, 'updateJson']);
+    Route::delete('/todolist/delete/{id}', [TodoListController::class, 'destroyJson']);
 });
 
-// Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 
 Route::post('/github-action', [GitHubActionController::class, 'store']);
 
 Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
-Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
+Route::get('magento_modules/listing-careers', [MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');

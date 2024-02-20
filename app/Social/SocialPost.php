@@ -8,6 +8,7 @@ namespace App\Social;
 
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialPost extends Model
 {
@@ -26,16 +27,23 @@ class SocialPost extends Model
     protected $fillable = [
         'config_id',
         'caption',
-        'hashtag',
         'post_body',
         'post_by',
-        'translation_approved_by',
         'posted_on',
+        'ref_post_id',
+        'image_path',
         'status',
+        'hashtag',
+        'translation_approved_by',
+        'post_medium',
     ];
 
-    public function account()
+    public function account(): BelongsTo
     {
-        return $this->belongsTo(\App\Social\SocialConfig::class);
+        return $this->belongsTo(SocialConfig::class, 'config_id');
     }
+
+    protected $casts = [
+        'posted_on' => 'datetime'
+    ];
 }

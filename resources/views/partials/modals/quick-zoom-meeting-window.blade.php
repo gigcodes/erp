@@ -13,8 +13,8 @@
                 </div>
                 <div class="form-group">
                     <label for="user_id">Vendor</label>
-                    <?php echo Form::select("user_id",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
-                        "class" => "form-control select2-vendor" , 
+                    <?php echo Form::select("user_id",$vendors->pluck("name","id"),null,[
+                        "class" => "form-control select2-vendor" ,
                         "id" => "quick_user_id",
                         "style" => "width:100%;"
                     ]); ?>

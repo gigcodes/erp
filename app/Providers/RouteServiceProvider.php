@@ -33,7 +33,7 @@ class RouteServiceProvider extends ServiceProvider
 
             $this->mapWebRoutes();
 
-            //
+            $this->mapSocialRoutes();
         });
     }
 
@@ -62,6 +62,14 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('api')
              ->middleware('api')
              ->group(base_path('routes/api.php'));
+    }
+
+    protected function mapSocialRoutes()
+    {
+        Route::prefix('social')
+            ->middleware(['web', 'auth'])
+            ->name('social.')
+            ->group(base_path('routes/social.php'));
     }
 
     /**

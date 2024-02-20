@@ -9,8 +9,6 @@ use Google\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-session_start();
-
 class DevAPIReport extends Command
 {
     /**

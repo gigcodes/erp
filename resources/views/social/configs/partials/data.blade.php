@@ -21,7 +21,6 @@
    <button onclick="deleteConfig({{ $socialConfig->id }})" class="btn btn-sm btn-secondary">Delete</button>
    <a class="btn btn-secondary btn-sm" href="{{route('social.post.index',$socialConfig->id)}} ">Manage Posts</a>
    <a class="btn btn-secondary btn-sm" href="{{ route('social.account.posts',$socialConfig->id) }} ">Webhook Posts</a>
-   <a class="btn btn-secondary btn-sm" href="{{ route('social.post.viewpost',$socialConfig->id) }} ">View Post</a>
  </td>
 </tr>
 

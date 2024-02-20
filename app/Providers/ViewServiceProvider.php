@@ -6,6 +6,7 @@ use App\Sop;
 use App\Task;
 use App\User;
 use App\Email;
+use App\Vendor;
 use App\TodoList;
 use App\TodoStatus;
 use App\Instruction;
@@ -56,7 +57,7 @@ class ViewServiceProvider extends ServiceProvider
                 $todoLists = TodoList::where('user_id', $auth_user->id)->where('status', 'Active')
                     ->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
                 $statuses = TodoStatus::all();
-
+                $vendors = Vendor::all();
                 $liveChatUsers = LiveChatUser::where('user_id', $auth_user->id)->first();
                 $key_ls = LivechatincSetting::first();
 
@@ -96,7 +97,7 @@ class ViewServiceProvider extends ServiceProvider
                     ->get();
                 $websites = StoreWebsite::get();
                 $todoCategories = TodoCategory::get();
-                $userLists = User::where('is_active', 1)->orderBy('name', 'asc')->get();
+                $userLists = $users->filter(fn ($user) => $user->is_active == 1);
 
                 $storeWebsiteConnections = StoreWebsite::DB_CONNECTION;
 
@@ -135,7 +136,8 @@ class ViewServiceProvider extends ServiceProvider
                         'isAdmin',
                         'database_table_name',
                         'route_name',
-                        'shell_list'
+                        'shell_list',
+                        'vendors'
                     ));
             } else {
                 $view->with('route_name', $route_name)

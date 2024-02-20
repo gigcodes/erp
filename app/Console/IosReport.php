@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\AppUsageReport;
 use Illuminate\Console\Command;
 
-session_start();
-
 class IosReport extends Command
 {
     /**

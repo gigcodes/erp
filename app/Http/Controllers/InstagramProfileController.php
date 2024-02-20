@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Instagram\Instagram;
 use Illuminate\Http\Request;
+
+
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class InstagramProfileController extends Controller
 {
