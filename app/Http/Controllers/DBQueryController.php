@@ -21,18 +21,14 @@ class DBQueryController extends Controller
         }
 
         //START - Purpose : Get Command List - DEVTASK-19941
-        // $command_list_arr = array_keys(\Artisan::all());
-
         $command_list_arr = [];
         $i = 0;
         foreach (\Artisan::all() as $key => $command) {
             $command_list_arr[$i]['Name'] = $command->getName();
-            // $command_list_arr[$i]['Signature'] =  $command->getSignature();
             $command_list_arr[$i]['Description'] = $command->getDescription();
             $i++;
         }
 
-        // dd($command_list_arr);
         //END - DEVTASK-19941
 
         return view('admin-menu.database-menu.db-query.index', compact('table_array', 'user', 'command_list_arr'));
@@ -42,7 +38,6 @@ class DBQueryController extends Controller
     public function command_execution(Request $request)
     {
         try {
-            // dd($request->command_name);
             $manual_command_name = '';
             $command_name = '';
 
@@ -80,9 +75,9 @@ class DBQueryController extends Controller
     {
         try {
             $command_history = CommandExecutionHistory::join('users', 'command_execution_historys.user_id', 'users.id')
-            ->orderBy('id', 'DESC')
-            ->select('command_execution_historys.*', 'users.name as user_name')
-            ->paginate(Setting::get('pagination'));
+                ->orderBy('id', 'DESC')
+                ->select('command_execution_historys.*', 'users.name as user_name')
+                ->paginate(Setting::get('pagination'));
 
             return view('admin-menu.database-menu.db-query.command_history', compact('command_history', 'request'));
         } catch (\Exception $e) {
@@ -91,11 +86,11 @@ class DBQueryController extends Controller
 
     public function ReportDownload(Request $request)
     {
-        // dd($request->all());
         $file_path = storage_path($request->file);
 
         return response()->download($file_path);
     }
+
     //END - DEVTASK-19941
 
     public function columns(Request $request)

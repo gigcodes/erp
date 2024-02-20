@@ -34,8 +34,7 @@ class BuildProcessHistory extends Model
     {
         $githubRepositoryId = $this->github_repository_id;
         $githubBranchStateName = $this->github_branch_state_name;
-        // $githubRepositoryId = 231925646;
-        // $githubBranchStateName = "master";
+
         if (empty($githubRepositoryId) || $githubBranchStateName == '') {
             return [];
         }

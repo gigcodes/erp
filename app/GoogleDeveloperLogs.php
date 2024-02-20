@@ -19,5 +19,4 @@ class GoogleDeveloperLogs extends Model
         'result',
 
     ];
-    // public $timestamps = false;
 }

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use DB;
-use App\AutoReply;
 use App\ChatbotKeyword;
 use App\ChatbotQuestion;
 use App\ChatbotKeywordValue;
@@ -76,15 +75,6 @@ class MergeIntentEntity extends Command
                     }
                 }
             }
-            // $autoriplies = AutoReply::all();
-            // foreach($autoriplies as $reply) {
-            //     $question = new ChatbotQuestion;
-            //     $question->value = $keyword->keyword;
-            //     $question->workspace_id = $keyword->workspace_id;
-            //     $question->keyword_or_question = 'entity';
-            //     $question->erp_or_watson = 'watson';
-            //     $question->save();
-            // }
         } catch (\Exception $e) {
             DB::rollback();
             DB::commit();

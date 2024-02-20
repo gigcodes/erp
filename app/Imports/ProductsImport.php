@@ -54,7 +54,6 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $scrapedProduct->brand_id = $brand->id;
             $properties = [
                 'category' => $category,
-                //                'sizes' => $size,
                 'gender' => $gender,
                 'price' => $unit_price,
                 'material_used' => $composition,
@@ -67,9 +66,4 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $scrapedProduct->save();
         }
     }
-
-//    public function headingRow(): int
-//    {
-//        return 0;
-//    }
 }

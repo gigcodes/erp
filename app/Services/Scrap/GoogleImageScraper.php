@@ -15,8 +15,6 @@ class GoogleImageScraper extends Scraper
         $query = str_replace('{query_string}', $q, self::GOOGLE_IMAGE_SEARCH_URL[0]);
         $query = str_replace('{chip_value}', $chip_value, $query);
         $body = $this->getContent($query);
-        // echo $body;
-        // die;
 
         $c = new HtmlPageCrawler($body);
 
@@ -32,7 +30,6 @@ class GoogleImageScraper extends Scraper
                     }
                 }
 
-                // $item = json_decode($image->firstChild->data, true);
                 if ($key + 1 >= $outputCount) {
                     break;
                 }

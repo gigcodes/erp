@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 
@@ -56,11 +57,9 @@ class LandingPageProduct extends Model
         $html[] = ($product) ? $product->short_description : $this->description;
 
         if (! empty($landingPageProduct->composition)) {
-            //$html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
         }
 
         if (! empty($landingPageProduct->lmeasurement) || ! empty($landingPageProduct->hmeasurement) || ! empty($landingPageProduct->dmeasurement)) {
-            //$html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
         }
 
         $storeWebsiteId = ($storeWebsiteId) ? $storeWebsiteId : $this->store_website_id;
@@ -69,11 +68,8 @@ class LandingPageProduct extends Model
             $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsiteId);
             if (! empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
-                    // $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
                     $sizeC = str_replace(config('env.APP_URL'), '', $sizeC);
-                    // $sizeC  = env("SHOPIFY_CDN").$sizeC;
                     $sizeC = config('env.SHOPIFY_CDN') . $sizeC;
-                    //$html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
         }
@@ -86,7 +82,6 @@ class LandingPageProduct extends Model
                     'published_scope' => 'web',
                     'title' => ($product) ? $product->name : $this->name,
                     'body_html' => implode('<br>', $html),
-                    //'variants'        => [],
                     'vendor' => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : '',
                     'tags' => 'Home Page',
                     'barcode' => $landingPageProduct->id,
@@ -114,7 +109,6 @@ class LandingPageProduct extends Model
             'title' => ($product) ? $product->name : (string) $this->name,
             'inventory_management' => 'shopify',
             'inventory_policy' => 'deny',
-            //'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
 
         if ($product) {

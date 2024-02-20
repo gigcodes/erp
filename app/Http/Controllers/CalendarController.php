@@ -17,8 +17,6 @@ use App\Models\EventSchedule;
 
 class CalendarController extends Controller
 {
-    //
-
     public function showUserEvent($userid, $event_slug, Request $request)
     {
         try {
@@ -106,7 +104,6 @@ class CalendarController extends Controller
 
             return view('guest-event-schedule.event-slot', compact('availability', 'event', 'slots', 'occupiedSlot'));
         } catch (\Exception $e) {
-            // dd($e->getMessage());
             return 'Something went wrong';
         }
     }
@@ -169,7 +166,6 @@ class CalendarController extends Controller
             $multi_email = [];
             if (isset($request->object)) {
                 $multi_email = $objects[$request->object]::whereNotNull('email')->distinct()->select('email', 'id')->get()->map(function ($email) {
-                    // dd($email);
                     return [
                         'id' => $email->email,
                         'text' => $email->email,

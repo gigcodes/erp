@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Storage;
-use Response;
 use App\BackLinking;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class BackLinkController extends Controller
 {
@@ -35,25 +31,6 @@ class BackLinkController extends Controller
         return View('back-linking.index',
             compact('details', 'titles')
         );
-        // $json_file = Storage::disk('local')->get('/files/article.json');
-        // $details = json_decode($json_file, true);
-        // if ($json_file) {
-        //     foreach($details as $detail) {
-        //         DB::table('back_linkings')->insert(
-        //             [
-        //                 "title" => $detail['title'],
-        //                 "description" => $detail['Description'],
-        //                 "url" => $detail['url'],
-        //                 "created_at" => Carbon::now(), "updated_at" => Carbon::now()
-        //             ]
-        //         );
-        //     }
-        //     return View('back-linking.index',
-        //         compact('domains', 'rankings', 'details')
-        //     );
-        // } else {
-        //     abort('File Not Found');
-        // }
     }
 
     /**

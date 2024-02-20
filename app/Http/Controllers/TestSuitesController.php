@@ -104,8 +104,6 @@ class TestSuitesController extends Controller
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
             $bug->created_by = User::where('id', $bug->created_by)->value('name');
             $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
-//            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
-//            $bug->bug_status_id = BugStatus::where('id',$bug->bug_status_id)->value('name');
             $bug->bug_history = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
             $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
             $bug->name_short = Str::limit($bug->name, 5, '..');
@@ -245,7 +243,6 @@ class TestSuitesController extends Controller
             }
 
             return redirect()->back()->with('error', $outputString);
-            // return back()->withErrors($validator->errors())->withInput();
         }
 
         $id = $request->get('id', 0);
@@ -436,7 +433,6 @@ class TestSuitesController extends Controller
 
         if ($user) {
             $params = ChatMessage::create([
-                //                  'id'      => $id,
                 'user_id' => $userid,
                 'erp_user' => $userid,
                 'test_suites_id' => $task->id,

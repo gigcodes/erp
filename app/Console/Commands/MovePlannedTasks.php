@@ -59,7 +59,6 @@ class MovePlannedTasks extends Command
                 $task->save();
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Planned task saved']);
-            // dd(count($planned_tasks));
 
             $statutory_tasks = Task::where('is_statutory', 1)->whereNotNull('is_completed')->whereNull('is_verified')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Statutory task query finished.']);
@@ -81,7 +80,7 @@ class MovePlannedTasks extends Command
             $report->update(['end_time' => Carbon::now()]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime saved']);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

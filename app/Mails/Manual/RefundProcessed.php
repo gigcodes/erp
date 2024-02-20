@@ -31,8 +31,8 @@ class RefundProcessed extends Mailable
     public function build()
     {
         return $this->from($this->from_email)
-                    ->bcc($this->from_email)
-                    ->subject('Refund Processed')
-                    ->markdown('emails.orders.refund');
+            ->bcc($this->from_email)
+            ->subject('Refund Processed')
+            ->markdown('emails.orders.refund');
     }
 }

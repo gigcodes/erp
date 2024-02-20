@@ -3,30 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
-use App\PageNotes;
-use Carbon\Carbon; //Purpose : Add Setting - DEVTASK-4289
-use Illuminate\Http\Request;
 use App\TodoList;
-
-//use Spatie\Permission\Models\Permission;
-//use Spatie\Permission\Models\Role;
+use App\PageNotes;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PageNotesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __construct()
-    {
-        // will use after review
-        // $this->middleware('permission:role-list');
-        // $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
-        // $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
-        // $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    }
-
     public function create(Request $request)
     {
         $pageNotes = new \App\PageNotes;
@@ -57,13 +40,13 @@ class PageNotesController extends Controller
     public function list(Request $request)
     {
         $pageNotes = \App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
-        ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
-        ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name'])
-        ->where('page_notes.user_id', \Auth::user()->id)
-        ->where('url', $request->get('url'))
-        ->orderBy('page_notes.id', 'desc')
-        ->get()
-        ->toArray();
+            ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
+            ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name'])
+            ->where('page_notes.user_id', \Auth::user()->id)
+            ->where('url', $request->get('url'))
+            ->orderBy('page_notes.id', 'desc')
+            ->get()
+            ->toArray();
 
         return response()->json(['code' => 1, 'notes' => $pageNotes]);
     }
@@ -119,10 +102,10 @@ class PageNotesController extends Controller
     {
         //START - Purpose : Get Page Note - DEVTASK-4289
         $records = \App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
-        ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
-        ->where('page_notes.user_id', \Auth::user()->id)
-        ->orderBy('page_notes.id', 'desc')
-        ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name']);
+            ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
+            ->where('page_notes.user_id', \Auth::user()->id)
+            ->orderBy('page_notes.id', 'desc')
+            ->select(['page_notes.*', 'users.name', 'page_notes_categories.name as category_name']);
 
         //START - Purpose : Add search - DEVTASK-4289
         if ($request->search) {
@@ -137,7 +120,6 @@ class PageNotesController extends Controller
 
         $records = $records->paginate(Setting::get('pagination'));
 
-        // return view("pagenotes.index");
         return view('pagenotes.index', compact('records'));
         //END - DEVTASK-4289
     }
@@ -180,8 +162,8 @@ class PageNotesController extends Controller
     }
 
     public function stickyNotesCreate(Request $request)
-    {   
-        if(!empty($request['type']) && $request['type']=='todolist'){
+    {
+        if (! empty($request['type']) && $request['type'] == 'todolist') {
             $todolists = new TodoList();
             $todolists->user_id = \Auth::user()->id;
             $todolists->title = $request->get('title');
@@ -199,18 +181,17 @@ class PageNotesController extends Controller
             $pageNotes->save();
 
             return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
-        }        
+        }
     }
 
     public function createCategory(Request $request)
     {
-        
         $input = $request->except('_token');
         $isExist = \App\PageNotesCategories::where('name', $request->name)->first();
         if (! $isExist) {
             \App\PageNotesCategories::create([
                 'name' => $request->name,
-                'created_by' => \Auth::user()->id
+                'created_by' => \Auth::user()->id,
             ]);
 
             return response()->json(['message' => 'Successful'], 200);

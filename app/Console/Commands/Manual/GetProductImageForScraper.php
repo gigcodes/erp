@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Product;
 use Carbon\Carbon;
 use App\ScrapedProducts;
 use App\Helpers\StatusHelper;

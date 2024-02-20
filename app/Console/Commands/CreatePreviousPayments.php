@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use DB;
-use App\User;
 use App\UserRate;
 use App\PaymentReceipt;
 use Illuminate\Console\Command;

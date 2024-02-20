@@ -11,10 +11,10 @@ use App\MagentoCommand;
 use App\MysqlCommandRunLog;
 use Illuminate\Http\Request;
 use App\MagentoCommandRunLog;
-use App\MagentoMulitipleCommand;
 use App\Models\MagentoCronList;
-use App\Models\MagentoMultipleCron;
+use App\MagentoMulitipleCommand;
 use App\Models\MagentoCronRunLog;
+use App\Models\MagentoMultipleCron;
 
 class MagentoCommandController extends Controller
 {
@@ -63,14 +63,13 @@ class MagentoCommandController extends Controller
     public function storecommand(Request $request)
     {
         try {
-
             if (isset($request->id) && $request->id > 0) {
                 $mCom = MagentoCronList::where('id', $request->id)->first();
             } else {
                 $mCom = new MagentoCronList();
             }
 
-            if(!empty($request->cron_name) && !empty($request->frequency)){
+            if (! empty($request->cron_name) && ! empty($request->frequency)) {
                 $mCom->cron_name = $request->cron_name;
                 $mCom->frequency = $request->frequency;
                 $mCom->save();
@@ -86,7 +85,6 @@ class MagentoCommandController extends Controller
 
     public function getMagentoCommand(Request $request)
     {
-
         $magentoCommand = MagentoCommand::whereNotNull('id')->orderby('id', 'DESC');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
         if (! empty($request->website)) {
@@ -106,10 +104,9 @@ class MagentoCommandController extends Controller
             \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
         $assetsmanager = AssetsManager::all();
 
-        $html = view('partials.modals.magento-commands-modal-html')->with(['magentoCommand'=> $magentoCommand, 'websites'=> $websites, 'users'=> $users, 'magentoCommandListArray'=> $magentoCommandListArray, 'assetsmanager'=> $assetsmanager, 'allMagentoCommandListArray'=> $allMagentoCommandListArray])->render();
+        $html = view('partials.modals.magento-commands-modal-html')->with(['magentoCommand' => $magentoCommand, 'websites' => $websites, 'users' => $users, 'magentoCommandListArray' => $magentoCommandListArray, 'assetsmanager' => $assetsmanager, 'allMagentoCommandListArray' => $allMagentoCommandListArray])->render();
 
         return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render']);
-
     }
 
     public function search(Request $request)
@@ -188,28 +185,19 @@ class MagentoCommandController extends Controller
             $mCom->user_permission = implode(',', array_filter($userPermissions));
             $mCom->save();
 
-            if(!empty($request->command_name) && !empty($request->websites_ids) && !empty($request->working_directory)){
-
-                //$path = 'bss_geoip/general/country';
-
-                //$value = 'QA';
-
-                //$requestData['command'] = 'bin/magento '.$request->command_name;
-                //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
-
+            if (! empty($request->command_name) && ! empty($request->websites_ids) && ! empty($request->working_directory)) {
                 $requestData['command'] = $request->command_type;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
 
-                if(!empty($storeWebsiteData)){
+                if (! empty($storeWebsiteData)) {
                     $requestData['server'] = $storeWebsiteData->server_ip;
                     $requestData['dir'] = $request->working_directory;
                 }
 
-                \Log::info("magento command request data".print_r($requestData, true));
+                \Log::info('magento command request data' . print_r($requestData, true));
 
-                if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir']) && !empty($request->command_name) && !empty($request->command_type)){
-
+                if (! empty($requestData['command']) && ! empty($requestData['server']) && ! empty($requestData['dir']) && ! empty($request->command_name) && ! empty($request->command_type)) {
                     $requestJson = json_encode($requestData);
 
                     // Initialize cURL session
@@ -220,16 +208,16 @@ class MagentoCommandController extends Controller
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
                         'Content-Type: application/json',
-                        'Content-Length: ' . strlen($requestJson)
-                    ));
+                        'Content-Length: ' . strlen($requestJson),
+                    ]);
 
                     // Execute cURL session and store the response in a variable
                     $response = curl_exec($ch);
 
                     // Check for cURL errors
-                    if(curl_errno($ch)) {
+                    if (curl_errno($ch)) {
                         echo 'Curl error: ' . curl_error($ch);
                     }
 
@@ -240,23 +228,23 @@ class MagentoCommandController extends Controller
                     $responseData = json_decode($response);
 
                     $status = 'Error';
-                    if($responseData->success==1){
+                    if ($responseData->success == 1) {
                         $status = 'Success';
                     }
 
-                    \Log::info("Test response".print_r($response, true));
+                    \Log::info('Test response' . print_r($response, true));
 
                     MagentoCommandRunLog::create([
-                            'command_id' => $mCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => $request->websites_ids[0],
-                            'server_ip' => $storeWebsiteData->server_ip,
-                            'request' => json_encode($requestData),
-                            'response' => $response,
-                            'command_name' => $request->command_name,
-                            'command_type' => $request->command_type,
-                            'job_id' => $httpcode,
-                        ]
+                        'command_id' => $mCom->id,
+                        'user_id' => \Auth::user()->id ?? '',
+                        'website_ids' => $request->websites_ids[0],
+                        'server_ip' => $storeWebsiteData->server_ip,
+                        'request' => json_encode($requestData),
+                        'response' => $response,
+                        'command_name' => $request->command_name,
+                        'command_type' => $request->command_type,
+                        'job_id' => $httpcode,
+                    ]
                     );
                 }
             }
@@ -358,7 +346,6 @@ class MagentoCommandController extends Controller
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
                         $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
-                        //$url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $ch = curl_init();
@@ -367,9 +354,7 @@ class MagentoCommandController extends Controller
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                            //'client_id' => $client_id,
                             'script' => base64_encode($cmd),
-                            // 'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
                             'is_sudo' => true,
                         ]));
 
@@ -481,7 +466,6 @@ class MagentoCommandController extends Controller
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
-                        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
                         $url = getenv('MAGENTO_COMMAND_API_URL');
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
@@ -491,13 +475,6 @@ class MagentoCommandController extends Controller
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                        /*curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                            //'client_id' => $client_id,
-                            'script' => base64_encode($cmd),
-                            // 'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
-                            'is_sudo' => true,
-                        ]));*/
-
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                             'command' => $cmd,
                             'dir' => $website->working_directory,
@@ -645,7 +622,6 @@ class MagentoCommandController extends Controller
 
                         $headers = [];
                         $headers[] = 'Authorization: Basic ' . $key;
-                        //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
@@ -741,8 +717,8 @@ class MagentoCommandController extends Controller
     {
         try {
             $postHis = MagentoCommandRunLog::select('magento_command_run_logs.*', 'u.name AS userName')
-            ->leftJoin('users AS u', 'u.id', 'magento_command_run_logs.user_id')
-            ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
+                ->leftJoin('users AS u', 'u.id', 'magento_command_run_logs.user_id')
+                ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
 
             foreach ($postHis as $logs) {
                 $logs->status = '';
@@ -768,7 +744,6 @@ class MagentoCommandController extends Controller
 
                         $headers = [];
                         $headers[] = 'Authorization: Basic ' . $key;
-                        //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
@@ -813,8 +788,8 @@ class MagentoCommandController extends Controller
     {
         try {
             $postHis = MagentoCronRunLog::select('magento_cron_run_logs.*', 'u.name AS userName')
-            ->leftJoin('users AS u', 'u.id', 'magento_cron_run_logs.user_id')
-            ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
+                ->leftJoin('users AS u', 'u.id', 'magento_cron_run_logs.user_id')
+                ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
 
             foreach ($postHis as $logs) {
                 $logs->status = '';
@@ -840,7 +815,6 @@ class MagentoCommandController extends Controller
 
                         $headers = [];
                         $headers[] = 'Authorization: Basic ' . $key;
-                        //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
@@ -940,7 +914,6 @@ class MagentoCommandController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Magento Command User permission Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
-            //$this->PostmanErrorLog($request->id ?? '', 'Postman User permission Error', $msg, 'postman_request_creates');
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }

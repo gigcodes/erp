@@ -80,22 +80,22 @@ class NotificaitonContoller extends Controller
     public function salesJson()
     {
         $notifications = Notification::whereNotNull('sale_id')
-                                     ->where('sent_to', \Auth::id())
-                                     ->where('isread', 0)
-                                     ->whereNull('sales.deleted_at')
-                                     ->join('sales', 'notifications.sale_id', '=', 'sales.id')
-                                     ->select(['notifications.id', 'notifications.message', 'notifications.sale_id', 'notifications.task_id'])
-                                     ->limit(2)
-                                     ->get()->toArray();
+            ->where('sent_to', \Auth::id())
+            ->where('isread', 0)
+            ->whereNull('sales.deleted_at')
+            ->join('sales', 'notifications.sale_id', '=', 'sales.id')
+            ->select(['notifications.id', 'notifications.message', 'notifications.sale_id', 'notifications.task_id'])
+            ->limit(2)
+            ->get()->toArray();
 
         $notificationsTask = Notification::whereNotNull('task_id')
-                                          ->where('sent_to', \Auth::id())
-                                          ->where('isread', 0)
-                                          ->whereNull('tasks.deleted_at')
-                                          ->join('tasks', 'notifications.task_id', '=', 'tasks.id')
-                                          ->select(['notifications.id', 'notifications.message', 'notifications.sale_id', 'notifications.task_id'])
-                                          ->limit(2)
-                                          ->get()->toArray();
+            ->where('sent_to', \Auth::id())
+            ->where('isread', 0)
+            ->whereNull('tasks.deleted_at')
+            ->join('tasks', 'notifications.task_id', '=', 'tasks.id')
+            ->select(['notifications.id', 'notifications.message', 'notifications.sale_id', 'notifications.task_id'])
+            ->limit(2)
+            ->get()->toArray();
 
         return array_merge($notifications, $notificationsTask);
     }
@@ -103,26 +103,11 @@ class NotificaitonContoller extends Controller
     public static function salesCount()
     {
         return Sale::where('allocated_to', Auth::id())
-                    ->where(function ($query) {
-                        $query->where('remark', 'Pending')
-                            ->orWhereNull('remark');
-                    })
-                    ->whereNull('deleted_at')
-                    ->count();
+            ->where(function ($query) {
+                $query->where('remark', 'Pending')
+                    ->orWhereNull('remark');
+            })
+            ->whereNull('deleted_at')
+            ->count();
     }
-
-    /*	public function getRoleIDs(){
-
-            $roleNames = $this->user->getRoleNames();
-
-            $roleIDs = [];
-
-            foreach ($roleNames as $roleName){
-
-                $role = Role::findByName($roleName);
-                $roleIDs = $role->get('id');
-            }
-
-            return $roleIDs;
-        }*/
 }

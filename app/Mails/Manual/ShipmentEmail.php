@@ -20,7 +20,6 @@ class ShipmentEmail extends Mailable
     public $message;
 
     public $file_paths;
-
     public $customConfig;
 
     public function __construct(string $subject, string $message, array $file_paths, $customConfig = [])
@@ -40,12 +39,6 @@ class ShipmentEmail extends Mailable
     {
         $email = $this->subject($this->subject)
             ->text('emails.customers.email_plain', ['body_message' => $this->message]);
-
-        /* if(!empty($this->customConfig)) {
-            $email = $email->from($this->customConfig["from"]);
-        }else{
-            $email = $email->from('buying@amourint.com');
-        } */
 
         if (count($this->file_paths) > 0) {
             foreach ($this->file_paths as $file_path) {

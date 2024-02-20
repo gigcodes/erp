@@ -98,10 +98,8 @@ class DigitalMarketingController extends Controller
         $files = $request->file('file');
         $fileNameArray = [];
         foreach ($files as $key => $file) {
-            //echo $file->getClientOriginalName();
             $fileName = time() . $key . '.' . $file->extension();
             $fileNameArray[] = $fileName;
-            //echo $request->id;
             if ($request->type == 'marketing') {
                 $createFile = DigitalMarketingPlatformFile::create(['digital_marketing_platform_id' => $request->id, 'file_name' => $fileName, 'user_id' => \Auth::id()]);
             } else {
@@ -338,8 +336,6 @@ class DigitalMarketingController extends Controller
 
         $validator = Validator::make($post, [
             'subject' => 'required',
-            //'description' => 'required',
-            //'remarks'     => 'required',
             'priority' => 'required',
         ]);
 
@@ -408,7 +404,6 @@ class DigitalMarketingController extends Controller
         $records = [];
         $records['id'] = $id;
         $records['components'] = \App\DigitalMarketingPlatformFile::where('digital_marketing_platform_id', $id)->get()->transform(function ($files) {
-            // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
             $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
 
@@ -423,7 +418,6 @@ class DigitalMarketingController extends Controller
         $records = [];
         $records['id'] = $id;
         $records['components'] = \App\DigitalMarketingSolutionFile::where('digital_marketing_solution_id', $id)->get()->transform(function ($files) {
-            // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
             $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
 

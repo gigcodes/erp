@@ -41,8 +41,6 @@ class SocialAdCreativeController extends Controller
         $campaingns = \App\Social\SocialCampaign::pluck('name', 'ref_campaign_id')->where('ref_campaign_id', '!=', '');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            //  $query = SocialAdCreative::where('config_id',$id);
-
             $adcreatives = SocialAdCreative::orderby('id', 'desc');
         } else {
             $adcreatives = SocialAdCreative::latest();
@@ -111,7 +109,6 @@ class SocialAdCreativeController extends Controller
         $postData = $this->getPostData($config);
 
         return response()->json($postData);
-        //   return $postData;
     }
 
     /**
@@ -140,7 +137,6 @@ class SocialAdCreativeController extends Controller
         ]);
         $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        // $this->ad_acc_id = $this->getAdAccount($config, $this->fb, $post->id);
         $this->ad_acc_id = $config->ads_manager;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
@@ -171,7 +167,6 @@ class SocialAdCreativeController extends Controller
 
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
-                        //  $post->ref_campaign_id=$resp->id;
                         $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
@@ -207,17 +202,14 @@ class SocialAdCreativeController extends Controller
 
                     $resp = curl_exec($curl);
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create adcreatives', $resp);
-                    //    dd($resp);
                     $resp = json_decode($resp); //responsed decoded
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     curl_close($curl);
 
                     LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdCreativeController::class, 'store');
 
-                    //    dd($resp);
                     if (isset($resp->error->message)) {
                         $post->live_status = 'error';
-                        //  $post->ref_campaign_id=$resp->id;
                         $post->save();
                         Session::flash('message', $resp->error->message);
                     } else {
@@ -278,7 +270,6 @@ class SocialAdCreativeController extends Controller
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
-        // $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
@@ -351,7 +342,6 @@ class SocialAdCreativeController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            // $response = $fb->get('/me/adaccounts', $token); //Old
             $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token);  //New using graph API
             $response = SocialHelper::curlGetRequest($url);
             $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');

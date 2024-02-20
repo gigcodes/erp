@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //Force assets to ssl
-        if(config('app.env') === 'production') {
+        if (config('app.env') === 'production') {
             \URL::forceScheme('https');
         }
         //
@@ -39,7 +39,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Totem::auth(function ($request) {
-            // return true / false . For e.g.
             return \Auth::check();
         });
 
@@ -55,13 +54,6 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
         }, 'image is not valid base64 encoded string.');
-
-//         DB::listen(function ($query) {
-//             if($query->time>2000){
-//                 Log::channel("server_audit")->info("time exceeded 2000: ".$query->time, ["url"=>request()->url(),"sql"=>$query->sql,$query->bindings]);
-//                 DatabaseLog::create(['url' =>request()->url(), 'sql_data' => $query->sql, 'time_taken' => $query->time,'log_message' =>json_encode($query->bindings)]);
-//             }
-//         });
 
         CallBusyMessage::observe(CallBusyMessageObserver::class);
 
@@ -118,13 +110,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
-//        if(!env('CI')) {
         $this->app->singleton(Facebook::class, function ($app) {
             return new Facebook(config('facebook.config'));
         });
-//        }
-
         $this->app->singleton(ScrapedProducts::class);
     }
 }

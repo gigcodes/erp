@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
-use Carbon\Carbon;
 use App\Compositions;
 use App\CronJobReport;
+use App\Product;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GetCompositiosFromScrapedData extends Command

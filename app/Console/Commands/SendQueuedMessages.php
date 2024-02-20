@@ -40,30 +40,29 @@ class SendQueuedMessages extends Command
      */
     public function handle()
     {
-        //$now = Carbon::now()->format('Y-m-d H:i:s');
         $chatMessage = ChatMessage::where('is_queue', 1)
-                           ->join('customers as c', 'c.id', 'chat_messages.customer_id')
-                           ->where('chat_messages.message_application_id', 3)
-                          ->where(function ($q) {
-                              $q->whereNull('chat_messages.scheduled_at')
-                              ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
-                          })
-                           ->select('chat_messages.*', 'c.store_website_id', 'c.phone')
-                           ->get();
+            ->join('customers as c', 'c.id', 'chat_messages.customer_id')
+            ->where('chat_messages.message_application_id', 3)
+            ->where(function ($q) {
+                $q->whereNull('chat_messages.scheduled_at')
+                    ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+            })
+            ->select('chat_messages.*', 'c.store_website_id', 'c.phone')
+            ->get();
 
         if (! $chatMessage->isEmpty()) {
             $this->sendMessages($chatMessage);
         }
 
         $chatMessage1 = ChatMessage::where('is_queue', 1)
-                       ->join('users as c', 'c.id', 'chat_messages.user_id')
-                       ->where('chat_messages.message_application_id', 3)
-                      ->where(function ($q) {
-                          $q->whereNull('chat_messages.scheduled_at')
-                          ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
-                      })
-                       ->select('chat_messages.*', 'c.phone')
-                       ->get();
+            ->join('users as c', 'c.id', 'chat_messages.user_id')
+            ->where('chat_messages.message_application_id', 3)
+            ->where(function ($q) {
+                $q->whereNull('chat_messages.scheduled_at')
+                    ->orWhere('chat_messages.scheduled_at', 'like', Carbon::now()->format('Y-m-d') . '%');
+            })
+            ->select('chat_messages.*', 'c.phone')
+            ->get();
         if (! $chatMessage1->isEmpty()) {
             $this->sendMessages($chatMessage1);
         }

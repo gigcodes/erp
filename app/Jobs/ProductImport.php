@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Product;
 use App\LogExcelImport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;

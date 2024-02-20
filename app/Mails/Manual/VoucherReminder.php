@@ -35,8 +35,8 @@ class VoucherReminder extends Mailable
     public function build()
     {
         return $this->from($this->fromMailer)
-                    ->bcc($this->fromMailer)
-                    ->subject('Voucher Reminder')
-                    ->markdown('emails.vouchers.reminder');
+            ->bcc($this->fromMailer)
+            ->subject('Voucher Reminder')
+            ->markdown('emails.vouchers.reminder');
     }
 }

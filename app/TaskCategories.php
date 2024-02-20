@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskCategories extends Model
 {
-    //
     protected $table = 'task_category';
 
     protected $fillable = [

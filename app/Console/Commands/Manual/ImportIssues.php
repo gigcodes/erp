@@ -51,22 +51,6 @@ class ImportIssues extends Command
             $data = [];
 
             foreach ($issues as $issue) {
-//            $data[] = array(
-                //                'user_id' => $issue->user_id,
-                //                'module_id' => $issue->module,
-                //                'priority' => $issue->priority,
-                //                'subject' => $issue->subject,
-                //                'task' => $issue->issue,
-                //                'status' => $issue->is_resolved == 1 ? 'Done' : 'Planned',
-                //                'created_by' => $issue->submitted_by,
-                //                'is_resolved' => $issue->is_resolved,
-                //                'estimate_time' => $issue->estimate_time,
-                //                'cost' => $issue->cost,
-                //                'task_type_id' => 3,
-                //                'responsible_user_id' => $issue->responsible_user_id,
-                //                'created_at' => $issue->created_at
-                //            );
-
                 $developer_task = new DeveloperTask();
                 $developer_task->user_id = $issue->user_id;
                 $developer_task->module_id = $issue->module;
@@ -97,8 +81,6 @@ class ImportIssues extends Command
                     $priority->model_type = DeveloperTask::class;
                     $priority->save();
                 }
-
-                //$developer_task = DeveloperTask::insert($data);
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

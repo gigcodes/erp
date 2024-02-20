@@ -37,7 +37,6 @@ class PriceComparisionController extends Controller
         }
 
         $sites = PriceComparisonScraperSites::where('name', 'LIKE', '%' . $name . '%')->first();
-        //dd($sites);
         if (! $sites) {
             return response()->json([
                 'message' => 'No Site Found',
@@ -236,11 +235,11 @@ class PriceComparisionController extends Controller
 
                 //getting local data
                 $resultWithCountries = PriceComparisonScraper::whereIn('category', $categoryArray)
-                ->where('country_code', $request->country)
-                ->where('currency', 'EUR')
-                ->groupBy('price_comparison_site_id')
-                ->take(3)
-                ->get();
+                    ->where('country_code', $request->country)
+                    ->where('currency', 'EUR')
+                    ->groupBy('price_comparison_site_id')
+                    ->take(3)
+                    ->get();
 
                 //storing locat data for output
                 foreach ($resultWithCountries as $resultWithCountry) {
@@ -262,12 +261,12 @@ class PriceComparisionController extends Controller
                 } else {
                     //exclude the price and site which are already included
                     $resultWithoutCountries = PriceComparisonScraper::whereIn('category', $categoryArray)
-                    ->whereNotIn('id', $idArray)
-                    ->where('currency', 'EUR')
-                    ->whereNotIn('price_comparison_site_id', $priceComparisonId)
-                    ->groupBy('price_comparison_site_id')
-                    ->take($internationCountriesCount)
-                    ->get();
+                        ->whereNotIn('id', $idArray)
+                        ->where('currency', 'EUR')
+                        ->whereNotIn('price_comparison_site_id', $priceComparisonId)
+                        ->groupBy('price_comparison_site_id')
+                        ->take($internationCountriesCount)
+                        ->get();
                 }
 
                 //getting international results

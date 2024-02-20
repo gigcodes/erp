@@ -56,7 +56,6 @@ class PushMagentoCssVariables implements ShouldQueue
             \Log::info('return_var:' . $return_var);
             \Log::info('End Magento Css Variable Update Vaule');
             if (! isset($output[0])) {
-                // return response()->json(['code' => 500, 'message' => 'The response is not found!']);
                 // Maintain Error Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
@@ -79,7 +78,6 @@ class PushMagentoCssVariables implements ShouldQueue
                     'message' => json_encode($output),
                     'status' => 'Success',
                 ]);
-            // return response()->json(['code' => 200, 'message' => $message]);
             } else {
                 $message = 'Something Went Wrong! Please check Logs for more details';
                 if (isset($response->message) && $response->message != '') {
@@ -92,7 +90,6 @@ class PushMagentoCssVariables implements ShouldQueue
                     'message' => json_encode($output),
                     'status' => 'Error',
                 ]);
-                // return response()->json(['code' => 500, 'message' => $message]);
             }
         } catch (\Exception $e) {
             \Log::info($e->getMessage());

@@ -60,13 +60,11 @@ class SendTasksTimeReminder extends Command
             $q = DeveloperTask::query();
             $q->whereNotNull('user_id');
             $q->where('user_id', '<>', 0);
-            // $q->where('is_flagged', '1');
             $q->whereNotIn('status', [
                 DeveloperTask::DEV_TASK_STATUS_DONE,
                 DeveloperTask::DEV_TASK_STATUS_IN_REVIEW,
             ]);
             $q->whereRaw('assigned_to > 0');
-            // $q->whereRaw("assigned_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
             $developertasks = $q->get();
 
@@ -126,13 +124,11 @@ class SendTasksTimeReminder extends Command
             $q = Task::query();
             $q->whereNotNull('assign_to');
             $q->where('assign_to', '<>', 0);
-            // $q->where('is_flagged', '1');
             $q->whereNotIn('status', [
                 Task::TASK_STATUS_DONE,
                 Task::TASK_STATUS_IN_REVIEW,
             ]);
             $q->whereRaw('assign_to > 0');
-            // $q->whereRaw("assign_to IN (SELECT id FROM users WHERE is_task_planned = 1)");
 
             $tasks = $q->get();
 
@@ -188,7 +184,7 @@ class SendTasksTimeReminder extends Command
                     $this->logs('#6', $task->id, $messagePrefix . $overdue_message, 'Created Overdue Message for task');
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

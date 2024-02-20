@@ -41,8 +41,6 @@ class RunErpLeads extends Command
      */
     public function handle()
     {
-        //try {
-
         $lead_product_limit = \App\Setting::where('name', 'send_leads_product')->value('val');
         if ($lead_product_limit == 0) {
             return false;
@@ -90,7 +88,6 @@ class RunErpLeads extends Command
                     if (! in_array($lead->brand_id, $Brand_ids)) {
                         array_push($Brand_ids, $lead->brand_id);
                     }
-                    // $q->where("b.id", $lead->brand_id)->where("c.id", $lead->category_id);
                     $q->whereIn('b.id', $Brand_ids)->whereIn('c.id', $Category_ids);
                 });
 
@@ -140,18 +137,9 @@ class RunErpLeads extends Command
                                 ]);
                             }
                         }
-
-                        /*$requestData = new Request();
-                    }
-                    $requestData->setMethod('POST');
-                    $requestData->request->add(['lead_id' => $lead->id, 'customer_id' => $lead->customer_id, 'selected_product' => $newProdArr, 'is_queue' => 1]);
-                    $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);*/
                     }
                 }
             }
         }
-        /*} catch (\Exception $e) {
-    \App\CronJob::insertLastError($this->signature, $e->getMessage());
-    }*/
     }
 }

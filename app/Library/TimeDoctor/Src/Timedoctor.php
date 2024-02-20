@@ -300,8 +300,6 @@ class Timedoctor
         return $activities;
     }
 
-    /**
-     */
     public function createBaseTask($company_id, $access_token, $project_data): array
     {
         $url = $this->base_url . 'tasks?company=' . $company_id . '&token=' . $access_token;

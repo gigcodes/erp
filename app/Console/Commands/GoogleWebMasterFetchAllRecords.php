@@ -1,7 +1,5 @@
 <?php
 
-///App/Console/Commands/QuizStart.php
-
 namespace App\Console\Commands;
 
 use App\Site;
@@ -9,7 +7,6 @@ use App\LogRequest;
 use App\GoogleWebMasters;
 use App\Helpers\LogHelper;
 use App\GoogleClientAccount;
-use Illuminate\Http\Request;
 use App\GoogleSearchAnalytics;
 use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
@@ -44,7 +41,6 @@ class GoogleWebMasterFetchAllRecords extends Command
                 if (isset($refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN']) and $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] != null) {
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'found the refresh token from google account id:' . $GoogleClientAccount->id]);
 
-                    // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
                     $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
 
                     if ($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN == null) {
@@ -57,8 +53,6 @@ class GoogleWebMasterFetchAllRecords extends Command
                     $this->client->refreshToken($GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN);
 
                     $token = $this->client->getAccessToken();
-                    //$request->session()->put('token',$token);
-                    //echo"<pre>";print_r($token);die;
                     if (empty($token)) {
                         continue;
                     }
@@ -68,11 +62,9 @@ class GoogleWebMasterFetchAllRecords extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to google client']);
 
                     if ($this->client->getAccessToken()) {
-                        //  $details=$this->updateSitesData($request);
                         $details = $this->updateSitesData($token);
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
 
-                        //echo"<pre>";print_r($token);die;
                         $url = 'https://www.googleapis.com/webmasters/v3/sites/';
                         $curl = curl_init();
                         curl_setopt_array($curl, [
@@ -95,7 +87,6 @@ class GoogleWebMasterFetchAllRecords extends Command
                             $error_msg = curl_error($curl);
                         }
 
-                        //echo '<pre>';print_r($response);die;
                         if (isset($error_msg)) {
                             $this->curl_errors_array[] = ['key' => 'sites', 'error' => $error_msg, 'type' => 'sites'];
                             activity('v3_sites')->log($error_msg);
@@ -187,15 +178,10 @@ class GoogleWebMasterFetchAllRecords extends Command
         foreach ($google_keys as $google_key) {
             if ($google_key) {
                 $this->apiKey = $google_key;
-                //$this->apiKey='';
-
                 $this->googleToken = $token['access_token'];
-
                 $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites?key=' . $this->apiKey . '<br>';
-
-                // die;
-
                 $curl = curl_init();
+
                 //replace website name with code coming form site list
                 curl_setopt_array($curl, [
                     CURLOPT_URL => $url_for_sites,
@@ -237,8 +223,6 @@ class GoogleWebMasterFetchAllRecords extends Command
                 }
             }
         }
-
-        //  return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']??'');
     }
 
     public function updateSites($sites)

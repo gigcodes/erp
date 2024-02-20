@@ -26,22 +26,22 @@ class PushNotificationController extends Controller
         if ($request->user[0] != null) {
             $lead_notifications = $lead_notifications->where(function ($query) use ($request) {
                 return $query->whereIn('sent_to', $request->user)
-                             ->orWhereIn('role', \Auth::user()->getRoleNames());
+                    ->orWhereIn('role', \Auth::user()->getRoleNames());
             });
 
             $order_notifications = $order_notifications->where(function ($query) use ($request) {
                 return $query->whereIn('sent_to', $request->user)
-                             ->orWhereIn('role', \Auth::user()->getRoleNames());
+                    ->orWhereIn('role', \Auth::user()->getRoleNames());
             });
 
             $message_notifications = $message_notifications->where(function ($query) use ($request) {
                 return $query->whereIn('sent_to', $request->user)
-                             ->orWhereIn('role', \Auth::user()->getRoleNames());
+                    ->orWhereIn('role', \Auth::user()->getRoleNames());
             });
 
             $task_notifications = $task_notifications->where(function ($query) use ($request) {
                 return $query->whereIn('sent_to', $request->user)
-                             ->orWhereIn('role', \Auth::user()->getRoleNames());
+                    ->orWhereIn('role', \Auth::user()->getRoleNames());
             });
 
             $user = $request->user;
@@ -56,22 +56,22 @@ class PushNotificationController extends Controller
             if ($request->user[0] == null) {
                 $lead_notifications = $lead_notifications->where(function ($query) {
                     return $query->where('sent_to', \Auth::id())
-                                               ->orWhereIn('role', \Auth::user()->getRoleNames());
+                        ->orWhereIn('role', \Auth::user()->getRoleNames());
                 });
 
                 $order_notifications = $order_notifications->where(function ($query) {
                     return $query->where('sent_to', \Auth::id())
-                                               ->orWhereIn('role', \Auth::user()->getRoleNames());
+                        ->orWhereIn('role', \Auth::user()->getRoleNames());
                 });
 
                 $message_notifications = $message_notifications->where(function ($query) {
                     return $query->where('sent_to', \Auth::id())
-                                               ->orWhereIn('role', \Auth::user()->getRoleNames());
+                        ->orWhereIn('role', \Auth::user()->getRoleNames());
                 });
 
                 $task_notifications = $task_notifications->where(function ($query) {
                     return $query->where('sent_to', \Auth::id())
-                                               ->orWhereIn('role', \Auth::user()->getRoleNames());
+                        ->orWhereIn('role', \Auth::user()->getRoleNames());
                 });
             }
         }
@@ -81,14 +81,12 @@ class PushNotificationController extends Controller
         $message_notifications = $message_notifications->orderBy('created_at', 'DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
         $task_notifications = $task_notifications->orderBy('created_at', 'DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
 
-        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentPage = $request->message_page ? $request->message_page : 1;
         $perPage = 50;
         $currentItems = array_slice($message_notifications, $perPage * ($currentPage - 1), $perPage);
 
         $message_notifications = new LengthAwarePaginator($currentItems, count($message_notifications), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
-            // 'pageName'	=> 'message_page'
         ]);
         $message_notifications->setPageName('message_page');
 
@@ -98,10 +96,8 @@ class PushNotificationController extends Controller
 
         $task_notifications = new LengthAwarePaginator($currentItems, count($task_notifications), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
-            // 'pageName'	=> 'message_page'
         ]);
         $task_notifications->setPageName('task_page');
-        // dd($message_notifications);
 
         return view('pushnotification.index', compact('lead_notifications', 'order_notifications', 'message_notifications', 'task_notifications', 'term', 'user'));
     }
@@ -109,12 +105,12 @@ class PushNotificationController extends Controller
     public function getJson()
     {
         $push_notifications = PushNotification::where('isread', 0)
-                               ->where(function ($query) {
-                                   return $query->where('sent_to', \Auth::id())
-                                                ->orWhereIn('role', \Auth::user()->getRoleNames());
-                               })/*->limit( 3 )*/
-                               ->orderBy('created_at', 'DESC')
-                               ->get();
+            ->where(function ($query) {
+                return $query->where('sent_to', \Auth::id())
+                    ->orWhereIn('role', \Auth::user()->getRoleNames());
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
         foreach ($push_notifications as $notification) {
             $notification->setUserNameAttribute($notification['user_id']);
@@ -141,9 +137,8 @@ class PushNotificationController extends Controller
     public function markReadReminder(PushNotification $push_notification)
     {
         $reminders = PushNotification::where('message', $push_notification->message)
-                                                                    // ->where('sent_to', $push_notification->sent_to)
-                                                                    ->where('model_type', $push_notification->model_type)
-                                                                    ->where('model_id', $push_notification->model_id)->get();
+            ->where('model_type', $push_notification->model_type)
+            ->where('model_id', $push_notification->model_id)->get();
 
         foreach ($reminders as $reminder) {
             $reminder->isread = 1;

@@ -52,8 +52,6 @@ class Helpers
     public static function getUserArray($users)
     {
         return collect($users)->pluck('name', 'id')->toArray();
-
-        //return $users->pluck('name', 'id')->toArray();
     }
 
     public static function getUserNameById($id)
@@ -170,7 +168,6 @@ class Helpers
 
         foreach ($users as $user) {
             $user_roles = $user->getRoleNames()->toArray();
-//            $user_ids[] = $user_roles;
 
             if (! in_array($role, $user_roles)) {
                 $user_ids[] = $user->id;
@@ -442,10 +439,13 @@ class Helpers
         return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string);
     }
 
-    public static function getTaskUserList($task, $users) {
+    public static function getTaskUserList($task, $users)
+    {
         $users_list = '';
         foreach ($task->users as $key => $user) {
-            if ($key != 0) $users_list .= ', ';
+            if ($key != 0) {
+                $users_list .= ', ';
+            }
             if (array_key_exists($user->id, $users)) {
                 $users_list .= $users[$user->id];
             } else {
@@ -455,9 +455,12 @@ class Helpers
 
         $users_list .= ' ';
         foreach ($task->contacts as $key => $contact) {
-            if ($key != 0) $users_list .= ', ';
+            if ($key != 0) {
+                $users_list .= ', ';
+            }
             $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
         }
+
         return $users_list;
     }
 }

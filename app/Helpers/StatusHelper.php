@@ -3,8 +3,8 @@
 namespace App\Helpers;
 
 use App\Jobs\ProductAi;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class StatusHelper extends Model
 {

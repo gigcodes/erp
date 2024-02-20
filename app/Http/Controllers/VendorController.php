@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\VendorFlowChartMaster;
 use Auth;
 use Hash;
 use Mail;
@@ -28,34 +27,35 @@ use App\Helpers\GithubTrait;
 use Illuminate\Http\Request;
 use App\Helpers\HubstaffTrait;
 use GuzzleHttp\RequestOptions;
+use App\Models\DataTableColumn;
+use App\Models\VendorFlowChart;
+use App\Models\VendorFrequency;
+use App\Models\VendorQuestions;
+use App\Models\VendorFrameworks;
+use App\Models\VendorPriceHistory;
 use App\VendorStatusDetailHistory;
 use Illuminate\Support\Facades\DB;
 use Webklex\PHPIMAP\ClientManager;
+use App\Models\VendorRatingQANotes;
 use App\Meetings\ZoomMeetingDetails;
-use App\VendorStatusHistory as VSHM;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\DataTableColumn;
-use App\Models\VendorFrameworks;
-use App\Models\VendorFrequency;
-use App\Models\VendorRemarksHistory;
-use App\Models\VendorFlowChart;
-use App\Models\VendorFlowChartRemarks;
-use App\Models\VendorQuestions;
+use App\Models\VendorFLowChartNotes;
 use App\Models\VendorQuestionAnswer;
-use App\Models\VendorRatingQuestions;
-use App\Models\VendorRatingQuestionAnswer;
+use App\Models\VendorQuestionStatus;
 use App\Models\VendorRatingQAStatus;
+use App\Models\VendorRemarksHistory;
+use App\VendorStatusHistory as VSHM;
+use App\Models\VendorFlowChartMaster;
 use App\Models\VendorFlowChartStatus;
+use App\Models\VendorRatingQuestions;
+use App\Models\VendorFlowChartRemarks;
+use App\Models\VendorFlowChartSorting;
+use App\Models\VendorRatingQuestionAnswer;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use App\Models\VendorQuestionStatusHistory;
 use App\Models\VendorRatingQAStatusHistory;
 use App\Models\VendorFlowChartStatusHistory;
-use App\Models\VendorRatingQANotes;
-use App\Models\VendorQuestionStatus;
-use App\Models\VendorQuestionStatusHistory;
-use App\Models\VendorFLowChartNotes;
-use App\Models\VendorFlowChartSorting;
-use App\Models\VendorPriceHistory;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VendorController extends Controller
 {
@@ -71,8 +71,6 @@ class VendorController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('permission:vendor-all');
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -104,15 +102,15 @@ class VendorController extends Controller
         }
 
         if ($request->sortby == 'category') {
-            $sortByClause = "category_name";
+            $sortByClause = 'category_name';
         }
 
         if ($request->sortby == 'communication') {
-            $sortByClause = "message_created_at";
+            $sortByClause = 'message_created_at';
         }
 
         if ($request->sortby == 'id') {
-            $sortByClause = "id";
+            $sortByClause = 'id';
         }
 
         $whereArchived = ' `deleted_at` IS NULL ';
@@ -127,7 +125,7 @@ class VendorController extends Controller
         } else {
             $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
         }
-        
+
         $updatedByWhere = '';
         if ($isAdmin) {
             $permittedCategories = '';
@@ -146,7 +144,7 @@ class VendorController extends Controller
 
         $whereCondition = [];
         if (request('term') != null) {
-            $whereCondition[] = 'name LIKE "%' . $request->term . '%"';                
+            $whereCondition[] = 'name LIKE "%' . $request->term . '%"';
         }
 
         //if email is not null
@@ -164,19 +162,19 @@ class VendorController extends Controller
         }
 
         $status = request('status');
-        if ($status != null && !request('with_archived')) {
+        if ($status != null && ! request('with_archived')) {
             $whereCondition[] = 'status = "' . $status . '"';
         }
 
-        if (request('updated_by') != null && !request('with_archived')) {
+        if (request('updated_by') != null && ! request('with_archived')) {
             $whereCondition[] = 'updated_by = "' . $request->updated_by . '"';
         }
 
         //if category is not nyll
         if (request('category') != null) {
-            $whereCondition[] = 'category_id IN (' . implode(",",$request->category) . ')';
+            $whereCondition[] = 'category_id IN (' . implode(',', $request->category) . ')';
         }
-        
+
         if (request('type') != null) {
             $whereCondition[] = 'type = "' . $request->type . '"';
         }
@@ -185,9 +183,9 @@ class VendorController extends Controller
             $whereCondition[] = 'framework = "' . $request->framework . '"';
         }
 
-        if (request('communication_history') != null && !request('with_archived')) {
+        if (request('communication_history') != null && ! request('with_archived')) {
             $communication_history = request('communication_history');
-            $whereCondition[] = 'vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message LIKE "%' . $communication_history . '%"';                
+            $whereCondition[] = 'vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message LIKE "%' . $communication_history . '%"';
         }
 
         if ($request->flt_vendor_status != null) {
@@ -232,12 +230,11 @@ class VendorController extends Controller
 
               AS vendors ';
 
-              if(!empty($whereCondition)){
-                    $vendorsQuery .= 'WHERE ( '.implode(' AND ', $whereCondition).') ' . $permittedCategories . ' ORDER BY ' . $sortByClause.' '.$orderby;  
-              } else {
-                    $vendorsQuery .= 'WHERE 1 '.$permittedCategories . ' ORDER BY ' . $sortByClause.' '.$orderby;
-              }
-
+        if (! empty($whereCondition)) {
+            $vendorsQuery .= 'WHERE ( ' . implode(' AND ', $whereCondition) . ') ' . $permittedCategories . ' ORDER BY ' . $sortByClause . ' ' . $orderby;
+        } else {
+            $vendorsQuery .= 'WHERE 1 ' . $permittedCategories . ' ORDER BY ' . $sortByClause . ' ' . $orderby;
+        }
 
         $vendors = DB::select($vendorsQuery);
 
@@ -250,7 +247,7 @@ class VendorController extends Controller
             $currentPage = 1;
         }
 
-        if (!is_numeric($perPage)) {
+        if (! is_numeric($perPage)) {
             $perPage = 2;
         }
 
@@ -259,7 +256,6 @@ class VendorController extends Controller
         $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
-        
 
         $vendor_categories = VendorCategory::all();
 
@@ -267,12 +263,6 @@ class VendorController extends Controller
 
         $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
 
-        /* if ($request->ajax()) {
-        return response()->json([
-        'tbody' => view('vendors.partials.data', compact('vendors', 'replies'))->render(),
-        'links' => (string) $vendors->render()
-        ], 200);
-        } */
         $statusList = \DB::table('vendor_status')->select('name')->pluck('name', 'name')->toArray();
 
         $updatedProducts = \App\Vendor::join('users as u', 'u.id', 'vendors.updated_by')
@@ -287,8 +277,8 @@ class VendorController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-listing')->first();
 
         $dynamicColumnsToShowVendors = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
 
@@ -300,7 +290,6 @@ class VendorController extends Controller
         $rating_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
 
         $status_q = VendorQuestionStatus::all();
-
 
         return view('vendors.index', [
             'vendors' => $vendors,
@@ -315,7 +304,7 @@ class VendorController extends Controller
             'statusList' => $statusList,
             'dynamicColumnsToShowVendors' => $dynamicColumnsToShowVendors,
             'whatsapp' => $whatsapp,
-            'flowchart_master'=>$flowchart_master,
+            'flowchart_master' => $flowchart_master,
             'vendor_flow_charts' => $vendor_flow_charts,
             'vendor_questions' => $vendor_questions,
             'rating_questions' => $rating_questions,
@@ -338,13 +327,6 @@ class VendorController extends Controller
     public function vendorSearch()
     {
         $term = request()->get('q', null);
-        /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
-        ->orWhere('address', 'LIKE', "%" . $term . "%")
-        ->orWhere('phone', 'LIKE', "%" . $term . "%")
-        ->orWhere('email', 'LIKE', "%" . $term . "%")
-        ->orWhereHas('category', function ($qu) use ($term) {
-        $qu->where('title', 'LIKE', "%" . $term . "%");
-        })->get();*/
         $search = Vendor::where('name', 'LIKE', '%' . $term . '%')
             ->get();
 
@@ -386,7 +368,7 @@ class VendorController extends Controller
                 'cc' => $vendor->cc,
                 'bcc' => $vendor->bcc,
                 'created_at' => $vendor->created_at,
-                'attachment' => !empty($additional_data->attachment) ? $additional_data->attachment : '',
+                'attachment' => ! empty($additional_data->attachment) ? $additional_data->attachment : '',
                 'inout' => $vendor->email != $vendor->from ? 'out' : 'in',
             ];
         }
@@ -436,11 +418,10 @@ class VendorController extends Controller
      */
     public function store(Request $request)
     {
-        $rules =  [
+        $rules = [
             'category_id' => 'sometimes|nullable|numeric',
             'name' => 'required|string|max:255',
             'address' => 'sometimes|nullable|string',
-            //'phone' => 'required|nullable|numeric',
             'email' => 'sometimes|nullable|email',
             'gmail' => 'sometimes|nullable|email',
             'social_handle' => 'sometimes|nullable',
@@ -459,20 +440,20 @@ class VendorController extends Controller
             'ifsc_code' => 'sometimes|nullable|max:255',
             'remark' => 'sometimes|nullable|max:255',
         ];
-        $vendorCount = !empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
+        $vendorCount = ! empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
         $vendorRules = $vendorData = [];
         $inputs = $request->all();
-        if ($vendorCount !== "") {
+        if ($vendorCount !== '') {
             $vendorRules = [
-                "vendor_name"    => "sometimes|array",
-                "vendor_name.*"  => "sometimes|string|max:255",
-                "vendor_email"    => "sometimes|array",
-                "vendor_email.*"  => "sometimes|nullable|email",
-                "vendor_gmail"    => "sometimes|array",
-                "vendor_gmail.*"  => "sometimes|nullable|email",
+                'vendor_name' => 'sometimes|array',
+                'vendor_name.*' => 'sometimes|string|max:255',
+                'vendor_email' => 'sometimes|array',
+                'vendor_email.*' => 'sometimes|nullable|email',
+                'vendor_gmail' => 'sometimes|array',
+                'vendor_gmail.*' => 'sometimes|nullable|email',
             ];
             for ($i = 0; $i < $vendorCount; $i++) {
-                $vendorData[$i]['category_id'] = $request["category_id"];
+                $vendorData[$i]['category_id'] = $request['category_id'];
                 $vendorData[$i]['name'] = $request['vendor_name'][$i];
                 $vendorData[$i]['email'] = $request['vendor_email'][$i];
                 $vendorData[$i]['gmail'] = $request['vendor_gmail'][$i];
@@ -485,7 +466,6 @@ class VendorController extends Controller
         $data = $request->except(['_token', 'create_user']);
 
         if (empty($data['whatsapp_number'])) {
-            //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
@@ -500,35 +480,34 @@ class VendorController extends Controller
             $data['default_phone'] = $data['phone'];
         }
 
-        if (!empty($source)) {
+        if (! empty($source)) {
             $data['status'] = 0;
         }
-        if(!empty($request["framework"])){
-            $data['framework'] = implode(",", $request['framework']);
+        if (! empty($request['framework'])) {
+            $data['framework'] = implode(',', $request['framework']);
         }
-        if(!empty($request["frequency_of_payment"])){
-            $data['frequency_of_payment'] = implode(",", $request['frequency_of_payment']);
+        if (! empty($request['frequency_of_payment'])) {
+            $data['frequency_of_payment'] = implode(',', $request['frequency_of_payment']);
         }
 
         $VPHA = 0;
         $VPH = new VendorPriceHistory;
-        if(!empty($request["price"])){
+        if (! empty($request['price'])) {
             $data['price'] = $request['price'];
             $VPH->price = $request['price'];
             $VPHA = 1;
         }
-        if(!empty($request["currency"])){
+        if (! empty($request['currency'])) {
             $data['currency'] = $request['currency'];
             $VPH->currency = $request['currency'];
             $VPHA = 1;
         }
-        if(!empty($request["price_remarks"])){
+        if (! empty($request['price_remarks'])) {
             $data['price_remarks'] = $request['price_remarks'];
             $VPH->hisotry = $request['price_remarks'];
             $VPHA = 1;
         }
 
-        
         $mainVendorData[0] = $data;
         $existArray = [];
         $sourceStatus = $validateStatus = false;
@@ -536,9 +515,9 @@ class VendorController extends Controller
         foreach ($inputsData as $key => $data) {
             $vendorInsert = Vendor::create($data);
 
-            if($VPHA==1){
+            if ($VPHA == 1) {
                 $VPH->vendor_id = $vendorInsert->id;
-                $VPH->user_id = Auth::user()->id;;
+                $VPH->user_id = Auth::user()->id;
                 $VPH->save();
             }
 
@@ -557,15 +536,13 @@ class VendorController extends Controller
                     if ($data['email'] == null) {
                         $email = str_replace(' ', '_', $data['name']) . '@solo.com';
                     } else {
-                        // $email = explode('@', $data['email']);
-                        // $email = $email[0] . '@solo.com';
                         $email = $data['email'];
                     }
                     $password = Str::random(10);
                     $user->email = $email;
                     $user->gmail = $data['gmail'];
                     $user->password = Hash::make($password);
-                    $user->phone = !empty($data['phone']) ? $data['phone'] : null;
+                    $user->phone = ! empty($data['phone']) ? $data['phone'] : null;
 
                     // check the default whatsapp no and store it
                     $whpno = \DB::table('whatsapp_configs')
@@ -584,7 +561,7 @@ class VendorController extends Controller
                         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($data['phone'], $user->whatsapp_number, $message);
                     }
                 } else {
-                    if (!empty($source)) {
+                    if (! empty($source)) {
                         $sourceStatus = true;
                     }
                     $validateStatus = true;
@@ -597,9 +574,10 @@ class VendorController extends Controller
         }
         $existArrayString = '';
         if ($validateStatus) {
-            if (!empty($existArray)) {
-                $existArrayString = '(' . implode(",", $existArray) . ')';
+            if (! empty($existArray)) {
+                $existArrayString = '(' . implode(',', $existArray) . ')';
             }
+
             return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User ' . $existArrayString . ', Email or Phone Already Exist');
         }
 
@@ -615,7 +593,7 @@ class VendorController extends Controller
             $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
         }
 
-        if (!empty($source)) {
+        if (! empty($source)) {
             return redirect()->back()->withSuccess('You have successfully saved a vendor!');
         }
 
@@ -728,46 +706,46 @@ class VendorController extends Controller
 
         $data = $request->except('_token');
 
-        if(!empty($request["framework"])){
-            $data['framework'] = implode(",", $request['framework']);
+        if (! empty($request['framework'])) {
+            $data['framework'] = implode(',', $request['framework']);
         }
 
-        if(!empty($request["frequency_of_payment"])){
-            $data['frequency_of_payment'] = implode(",", $request['frequency_of_payment']);
+        if (! empty($request['frequency_of_payment'])) {
+            $data['frequency_of_payment'] = implode(',', $request['frequency_of_payment']);
         }
 
         $VPHA = 0;
         $VPH = new VendorPriceHistory;
-        if(!empty($request["price"])){
+        if (! empty($request['price'])) {
             $data['price'] = $request['price'];
 
-            if($vendorData['price']!=$request['price']){
-                $VPH->price = $request['price'];  
+            if ($vendorData['price'] != $request['price']) {
+                $VPH->price = $request['price'];
                 $VPHA = 1;
             }
         }
-        if(!empty($request["currency"])){
+        if (! empty($request['currency'])) {
             $data['currency'] = $request['currency'];
 
-            if($vendorData['currency']!=$request['currency']){
-                $VPH->currency = $request['currency'];  
+            if ($vendorData['currency'] != $request['currency']) {
+                $VPH->currency = $request['currency'];
                 $VPHA = 1;
             }
         }
-        if(!empty($request["price_remarks"])){
+        if (! empty($request['price_remarks'])) {
             $data['price_remarks'] = $request['price_remarks'];
 
-            if($vendorData['price_remarks']!=$request['price_remarks']){
-                $VPH->hisotry = $request['price_remarks'];  
-                $VPHA = 1;  
+            if ($vendorData['price_remarks'] != $request['price_remarks']) {
+                $VPH->hisotry = $request['price_remarks'];
+                $VPHA = 1;
             }
         }
 
         Vendor::find($id)->update($data);
 
-        if($VPHA==1){
+        if ($VPHA == 1) {
             $VPH->vendor_id = $id;
-            $VPH->user_id = Auth::user()->id;;
+            $VPH->user_id = Auth::user()->id;
             $VPH->save();
         }
 
@@ -817,14 +795,6 @@ class VendorController extends Controller
     public function destroy($id)
     {
         $vendor = Vendor::find($id);
-
-        //      foreach ($vendor->products as $product) {
-        //        $product->detachMediaTags(config('constants.media_tags'));
-        //      }
-
-        //      $vendor->products()->delete();
-        //      $vendor->chat_messages()->delete();
-        //      $vendor->agents()->delete();
         $vendor->delete();
 
         return redirect()->route('vendors.index')->withSuccess('You have successfully deleted a vendor');
@@ -1017,7 +987,7 @@ class VendorController extends Controller
                 $bcc = array_values(array_filter($request->bcc));
             }
 
-            if (is_array($emails) && !empty($emails)) {
+            if (is_array($emails) && ! empty($emails)) {
                 $to = array_shift($emails);
                 $cc = array_merge($emails, $cc);
 
@@ -1113,7 +1083,6 @@ class VendorController extends Controller
                             $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
                             $additional = $additional->leaveUnread()->get();
                             $this->createEmailsForEmailInbox($vendor, $type, $latest_email_date, $additional);
-                            // $emails = $emails->merge($additional);
                         }
                     }
                 }
@@ -1223,7 +1192,7 @@ class VendorController extends Controller
         $reply = $request->get('reply');
         $autoReply = [];
         // add reply from here
-        if (!empty($reply)) {
+        if (! empty($reply)) {
             $autoReply = \App\Reply::updateOrCreate(
                 ['reply' => $reply, 'model' => 'Vendor', 'category_id' => 1],
                 ['reply' => $reply]
@@ -1264,8 +1233,6 @@ class VendorController extends Controller
             if ($vendor->email == null) {
                 $email = str_replace(' ', '_', $vendor->name) . '@solo.com';
             } else {
-                // $email = explode('@', $vendor->email);
-                // $email = $email[0] . '@solo.com';
                 $email = $vendor->email;
             }
             $password = Str::random(10);
@@ -1289,7 +1256,7 @@ class VendorController extends Controller
         $email = $request->get('email');
         $organizationId = $request->get('organizationId');
 
-        if (!empty($email) && strlen($organizationId) > 0) {
+        if (! empty($email) && strlen($organizationId) > 0) {
             if ($this->sendGithubInvitaion($email, $organizationId)) {
                 return response()->json(
                     ['message' => 'Invitation sent to ' . $email]
@@ -1365,7 +1332,6 @@ class VendorController extends Controller
     {
         try {
             $tokens = $this->getTokens();
-            // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
             $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/update_members';
             $client = new GuzzleHttpClient();
             $body = [
@@ -1416,29 +1382,8 @@ class VendorController extends Controller
 
     private function sendHubstaffInvitation(string $email)
     {
-        // try {
-        //   $this->doHubstaffOperationWithAccessToken(
-        //     function ($accessToken) use ($email) {
-        //       $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-        //       $client = new GuzzleHttpClient;
-        //       return $client->post(
-        //         $url,
-        //         [
-        //           RequestOptions::HEADERS => [
-        //             'Authorization' => 'Bearer ' . $accessToken,
-        //           ],
-        //           RequestOptions::JSON => [
-        //             'email' => $email
-        //           ]
-        //         ]
-        //       );
-        //     }
-        //   );
-        //   return true;
-        // }
         try {
             $tokens = $this->getTokens();
-            // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
             $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/invites';
             $client = new GuzzleHttpClient();
             $response = $client->post(
@@ -1485,9 +1430,9 @@ class VendorController extends Controller
         $vendorId = $request->get('vendor_id');
         $statusId = $request->get('status');
 
-        if (!empty($vendorId)) {
+        if (! empty($vendorId)) {
             $vendor = \App\Vendor::find($vendorId);
-            if (!empty($vendor)) {
+            if (! empty($vendor)) {
                 $vendor->status = ($statusId == 'false') ? 0 : 1;
                 $vendor->save();
             }
@@ -1498,7 +1443,6 @@ class VendorController extends Controller
 
     public function sendMessage(Request $request)
     {
-        // return $request->all();
         set_time_limit(0);
         $vendors = Vendor::whereIn('id', $request->vendors)->get();
         //Create broadcast
@@ -1534,7 +1478,7 @@ class VendorController extends Controller
 
     public function editVendor(Request $request)
     {
-        if (!$request->vendor_id || $request->vendor_id == '' || !$request->column || $request->column == '' || !$request->value || $request->value == '') {
+        if (! $request->vendor_id || $request->vendor_id == '' || ! $request->column || $request->column == '' || ! $request->value || $request->value == '') {
             return response()->json(['message' => 'Incomplete data'], 500);
         }
         $vendor = Vendor::find($request->vendor_id);
@@ -1551,7 +1495,7 @@ class VendorController extends Controller
             return response()->json(['message' => 'Incomplete data'], 500);
         }
         $vendorStatus = VendorStatusDetail::where('vendor_id', $request->vendor_id)->first();
-        if (!$vendorStatus) {
+        if (! $vendorStatus) {
             $vendorStatus = new VendorStatusDetail();
         }
         $vendorStatus->vendor_id = $request->vendor_id;
@@ -1607,7 +1551,6 @@ class VendorController extends Controller
     public function vendorStatusHistory(Request $request)
     {
         $data = VSHM::with(['user' => function ($query) {
-            // $query->select('name', 'email');
         }])->where('vendor_id', $request->id)->get();
 
         return response()->json(['code' => 200, 'data' => $data, 'message' => 'Message sent successfully']);
@@ -1670,36 +1613,36 @@ class VendorController extends Controller
     {
         try {
             VendorStatus::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
     public function storeshortcut(Request $request)
     {
-        $rules =  [
+        $rules = [
             'category_id' => 'sometimes|nullable|numeric',
             'name' => 'required|string|max:255',
-            //'phone' => 'required|nullable|numeric',
             'email' => 'sometimes|nullable|email',
             'gmail' => 'sometimes|nullable|email',
             'website' => 'sometimes|nullable',
         ];
-        $vendorCount = !empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
+        $vendorCount = ! empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
         $vendorRules = $vendorData = [];
         $inputs = $request->all();
-        if ($vendorCount !== "") {
+        if ($vendorCount !== '') {
             $vendorRules = [
-                "vendor_name"    => "sometimes|array",
-                "vendor_name.*"  => "sometimes|string|max:255",
-                "vendor_email"    => "sometimes|array",
-                "vendor_email.*"  => "sometimes|nullable|email",
-                "vendor_gmail"    => "sometimes|array",
-                "vendor_gmail.*"  => "sometimes|nullable|email",
+                'vendor_name' => 'sometimes|array',
+                'vendor_name.*' => 'sometimes|string|max:255',
+                'vendor_email' => 'sometimes|array',
+                'vendor_email.*' => 'sometimes|nullable|email',
+                'vendor_gmail' => 'sometimes|array',
+                'vendor_gmail.*' => 'sometimes|nullable|email',
             ];
             for ($i = 0; $i < $vendorCount; $i++) {
-                $vendorData[$i]['category_id'] = $request["category_id"];
+                $vendorData[$i]['category_id'] = $request['category_id'];
                 $vendorData[$i]['name'] = $request['vendor_name'][$i];
                 $vendorData[$i]['email'] = $request['vendor_email'][$i];
                 $vendorData[$i]['gmail'] = $request['vendor_gmail'][$i];
@@ -1712,7 +1655,6 @@ class VendorController extends Controller
         $data = $request->except(['_token', 'create_user']);
 
         if (empty($data['whatsapp_number'])) {
-            //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
                 ->select('*')
@@ -1727,7 +1669,7 @@ class VendorController extends Controller
             $data['default_phone'] = $data['phone'];
         }
 
-        if (!empty($source)) {
+        if (! empty($source)) {
             $data['status'] = 0;
         }
         $mainVendorData[0] = $data;
@@ -1735,9 +1677,8 @@ class VendorController extends Controller
         $sourceStatus = $validateStatus = false;
         $inputsData = array_merge($mainVendorData, $vendorData);
         foreach ($inputsData as $key => $data) {
-
-            if(!empty($data['framework'])){
-                $data['framework'] = implode(",", $data['framework']);
+            if (! empty($data['framework'])) {
+                $data['framework'] = implode(',', $data['framework']);
             }
             Vendor::create($data);
 
@@ -1756,15 +1697,13 @@ class VendorController extends Controller
                     if ($data['email'] == null) {
                         $email = str_replace(' ', '_', $data['name']) . '@solo.com';
                     } else {
-                        // $email = explode('@', $data['email']);
-                        // $email = $email[0] . '@solo.com';
                         $email = $data['email'];
                     }
                     $password = Str::random(10);
                     $user->email = $email;
                     $user->gmail = $data['gmail'];
                     $user->password = Hash::make($password);
-                    $user->phone = !empty($data['phone']) ? $data['phone'] : null;
+                    $user->phone = ! empty($data['phone']) ? $data['phone'] : null;
 
                     // check the default whatsapp no and store it
                     $whpno = \DB::table('whatsapp_configs')
@@ -1783,7 +1722,7 @@ class VendorController extends Controller
                         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($data['phone'], $user->whatsapp_number, $message);
                     }
                 } else {
-                    if (!empty($source)) {
+                    if (! empty($source)) {
                         $sourceStatus = true;
                     }
                     $validateStatus = true;
@@ -1796,9 +1735,10 @@ class VendorController extends Controller
         }
         $existArrayString = '';
         if ($validateStatus) {
-            if (!empty($existArray)) {
-                $existArrayString = '(' . implode(",", $existArray) . ')';
+            if (! empty($existArray)) {
+                $existArrayString = '(' . implode(',', $existArray) . ')';
             }
+
             return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User ' . $existArrayString . ', Email or Phone Already Exist');
         }
 
@@ -1814,7 +1754,7 @@ class VendorController extends Controller
             $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
         }
 
-        if (!empty($source)) {
+        if (! empty($source)) {
             return redirect()->back()->withSuccess('You have successfully saved a vendor!');
         }
 
@@ -1822,20 +1762,19 @@ class VendorController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-listing')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'vendors-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'vendors-listing';
-            $column->column_name = json_encode($request->column_vendors); 
+            $column->column_name = json_encode($request->column_vendors);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'vendors-listing';
-            $column->column_name = json_encode($request->column_vendors); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_vendors);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -1856,13 +1795,15 @@ class VendorController extends Controller
             return response()->json(['code' => 200, 'data' => $framework, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
     public function vendorRemarkHistory(Request $request)
     {
-        $data = VendorRemarksHistory::with(['user' => function ($query) {}])->where('vendor_id', $request->id)->orderBy('id', 'DESC')->get();
+        $data = VendorRemarksHistory::with(['user' => function ($query) {
+        }])->where('vendor_id', $request->id)->orderBy('id', 'DESC')->get();
 
         return response()->json(['code' => 200, 'data' => $data, 'message' => 'Message sent successfully']);
     }
@@ -1882,44 +1823,44 @@ class VendorController extends Controller
             return response()->json(['code' => 200, 'data' => $remarks, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
-    public function flowChart(Request $request,$master_id)
+    public function flowChart(Request $request, $master_id)
     {
-        
         $VendorFlowchart = Vendor::with('category');
 
         if (request('category') != null) {
             $VendorFlowchart = $VendorFlowchart->where('category_id', $request->category);
         }
 
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+        if ((! empty(request('selectedId')) && (request('selectedId') != null))) {
             $VendorFlowchart = $VendorFlowchart->where('id', $request->selectedId);
         }
 
-        $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->paginate(25);
+        $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy('flowchart_date', 'DESC')->paginate(25);
 
         $totalVendor = Vendor::whereNotNull('flowchart_date')->count();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
 
         $dynamicColumnsToShowVendorsfc = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
         }
 
-        $flowchart_master = VendorFlowChartMaster::where('id',$master_id)->get();
+        $flowchart_master = VendorFlowChartMaster::where('id', $master_id)->get();
 
-        $vendor_flow_charts = VendorFlowChart::where('master_id',$master_id)->orderBy('sorting', 'ASC')->get();
+        $vendor_flow_charts = VendorFlowChart::where('master_id', $master_id)->orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
         $status = VendorFlowChartStatus::all();
 
-        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories', 'status','master_id','flowchart_master'))
+        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories', 'status', 'master_id', 'flowchart_master'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -1935,6 +1876,60 @@ class VendorController extends Controller
         VendorFlowChart::create($data);
 
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
+    }
+
+    public function getFlowchartMaster(){
+        $flowchart_master = VendorFlowChartMaster::all();
+        
+        return $flowchart_master;
+    }
+
+    public function masterFlowchartStore(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'title' => 'required|string',
+            ]);
+
+            $data = $request->except('_token');
+            $flowchart = VendorFlowChartMaster::create($data);
+    
+            return response()->json(['code' => '200', 'data' => $flowchart, 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully created a master flow chart!']);
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function masterFlowchartDestroy($id)
+    {
+        try {
+            $flowchart = VendorFlowChartMaster::find($id);
+            if($flowchart->flow_charts()->get()->isEmpty()){
+                $flowchart->delete();
+                return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully deleted a master flow chart!']);
+            }else{
+                return response()->json(['code' => '400', 'message' => 'Vendor flow charts not empty!']);
+            }
+
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function masterFlowchartUpdate(Request $request, $id){
+        try {
+            $this->validate($request, [
+                'title' => 'required|string',
+            ]);
+
+            $data = $request->except('_token');
+            $flowchart = VendorFlowChartMaster::find($id);
+            $flowchart->update($data);
+
+            return response()->json(['code' => '200', 'data' => [], 'all' => $this->getFlowchartMaster(), 'message' => 'You have successfully updated a master flow chart!']);
+        } catch (\Throwable $e) {
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
+        }
     }
 
     public function questionStore(Request $request)
@@ -1963,25 +1958,23 @@ class VendorController extends Controller
 
     public function vendorFlowchart(Request $request)
     {
-
         $vendor = Vendor::find($request->id);
 
-        if(empty($vendor->flowchart_date)){
+        if (empty($vendor->flowchart_date)) {
             $data['flowchart_date'] = Carbon::now();
             $data['fc_status'] = 1;
         } else {
             $data['flowchart_date'] = null;
             $data['fc_status'] = 0;
         }
-        
+
         Vendor::find($request->id)->update($data);
 
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }
 
     public function saveVendorFlowChartRemarks(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -1990,7 +1983,7 @@ class VendorController extends Controller
             'remarks' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         VendorFlowChartRemarks::create($input);
 
@@ -2000,10 +1993,10 @@ class VendorController extends Controller
     public function getFlowChartRemarksHistories(Request $request)
     {
         $datas = VendorFlowChartRemarks::with(['user'])
-                ->where('vendor_id', $request->vendor_id)
-                ->where('flow_chart_id', $request->flow_chart_id)
-                ->latest()
-                ->get();
+            ->where('vendor_id', $request->vendor_id)
+            ->where('flow_chart_id', $request->flow_chart_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2014,20 +2007,19 @@ class VendorController extends Controller
     }
 
     public function vendorFlowChartVolumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-flow-chart-listing')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'vendors-flow-chart-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->column_name = json_encode($request->column_vendorsfc);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'vendors-flow-chart-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_vendorsfc);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -2035,20 +2027,19 @@ class VendorController extends Controller
     }
 
     public function vendorRqaVolumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-rqa-listing')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'vendors-rqa-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'vendors-rqa-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->column_name = json_encode($request->column_vendorsfc);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'vendors-rqa-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_vendorsfc);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -2056,20 +2047,19 @@ class VendorController extends Controller
     }
 
     public function vendorQaVolumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-qa-listing')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'vendors-qa-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'vendors-qa-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->column_name = json_encode($request->column_vendorsfc);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'vendors-qa-listing';
-            $column->column_name = json_encode($request->column_vendorsfc); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_vendorsfc);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -2081,8 +2071,8 @@ class VendorController extends Controller
         $input = $_GET['term'];
 
         $products = [];
-        if(!empty($input)){
-            $products = Vendor::where('name', 'like', '%'.$input.'%')->whereNull('deleted_at')->pluck('name', 'id');
+        if (! empty($input)) {
+            $products = Vendor::where('name', 'like', '%' . $input . '%')->whereNull('deleted_at')->pluck('name', 'id');
         }
 
         return response()->json($products);
@@ -2100,18 +2090,17 @@ class VendorController extends Controller
 
         return redirect()->back()->with('success', 'The flow-chart sorting updated successfully.');
     }
-    
-  public function vendorFeedbackStatus(Request $request)
-    {
 
+    public function vendorFeedbackStatus(Request $request)
+    {
         $vendor = Vendor::find($request->id);
 
-        if(empty($vendor->feeback_status)){
+        if (empty($vendor->feeback_status)) {
             $data['feeback_status'] = 1;
-        } else {            
+        } else {
             $data['feeback_status'] = 0;
         }
-        
+
         Vendor::find($request->id)->update($data);
 
         return redirect()->back()->with('success', 'Vendor feedback status has been updated!');
@@ -2120,8 +2109,8 @@ class VendorController extends Controller
     public function getVendorQuestions(Request $request)
     {
         $datas = VendorQuestions::with(['user'])
-                ->latest()
-                ->get();
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2134,8 +2123,8 @@ class VendorController extends Controller
     public function getVendorRatingQuestions(Request $request)
     {
         $datas = VendorQuestions::with(['user'])
-                ->latest()
-                ->get();
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2148,9 +2137,9 @@ class VendorController extends Controller
     public function getQuestionAnswerHistories(Request $request)
     {
         $datas = VendorQuestionAnswer::where('vendor_id', $request->vendor_id)
-                ->where('question_id', $request->question_id)
-                ->latest()
-                ->get();
+            ->where('question_id', $request->question_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2163,9 +2152,9 @@ class VendorController extends Controller
     public function getRatingQuestionAnswerHistories(Request $request)
     {
         $datas = VendorRatingQuestionAnswer::where('vendor_id', $request->vendor_id)
-                ->where('question_id', $request->question_id)
-                ->latest()
-                ->get();
+            ->where('question_id', $request->question_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2176,8 +2165,7 @@ class VendorController extends Controller
     }
 
     public function saveVendorQuestionAnswer(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -2186,7 +2174,7 @@ class VendorController extends Controller
             'answer' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         VendorQuestionAnswer::create($input);
 
@@ -2194,8 +2182,7 @@ class VendorController extends Controller
     }
 
     public function saveVendorRatingQuestionAnswer(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -2204,7 +2191,7 @@ class VendorController extends Controller
             'answer' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         VendorRatingQuestionAnswer::create($input);
 
@@ -2213,15 +2200,14 @@ class VendorController extends Controller
 
     public function vendorQuestionAnswerStatus(Request $request)
     {
-
         $vendor = Vendor::find($request->id);
 
-        if(empty($vendor->question_status)){
+        if (empty($vendor->question_status)) {
             $data['question_status'] = 1;
         } else {
             $data['question_status'] = null;
         }
-        
+
         Vendor::find($request->id)->update($data);
 
         return redirect()->back()->with('success', 'You have successfully created a question answer!');
@@ -2229,15 +2215,14 @@ class VendorController extends Controller
 
     public function vendorRatingQuestionAnswerStatus(Request $request)
     {
-
         $vendor = Vendor::find($request->id);
 
-        if(empty($vendor->rating_question_status)){
+        if (empty($vendor->rating_question_status)) {
             $data['rating_question_status'] = 1;
         } else {
             $data['rating_question_status'] = null;
         }
-        
+
         Vendor::find($request->id)->update($data);
 
         return redirect()->back()->with('success', 'You have successfully created a question answer!');
@@ -2251,22 +2236,22 @@ class VendorController extends Controller
             $VendorQuestionAnswer = $VendorQuestionAnswer->where('category_id', $request->category);
         }
 
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+        if ((! empty(request('selectedId')) && (request('selectedId') != null))) {
             $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $request->selectedId);
         }
 
-        $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
+        $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status', 1)->orderBy('flowchart_date', 'DESC')->paginate(25);
 
         $totalVendor = Vendor::where('question_status', 1)->count();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-qa-listing')->first();
 
         $dynamicColumnsToShowVendorsqa = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowVendorsqa = json_decode($hideColumns, true);
         }
-        
+
         $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
@@ -2287,19 +2272,19 @@ class VendorController extends Controller
             $VendorQuestionAnswer = $VendorQuestionAnswer->where('category_id', $request->category);
         }
 
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+        if ((! empty(request('selectedId')) && (request('selectedId') != null))) {
             $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $request->selectedId);
         }
 
-        $VendorQuestionAnswer = $VendorQuestionAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
+        $VendorQuestionAnswer = $VendorQuestionAnswer->where('rating_question_status', 1)->orderBy('flowchart_date', 'DESC')->paginate(25);
 
         $totalVendor = Vendor::where('rating_question_status', 1)->count();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-rqa-listing')->first();
 
         $dynamicColumnsToShowVendorsrqa = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowVendorsrqa = json_decode($hideColumns, true);
         }
 
@@ -2348,9 +2333,10 @@ class VendorController extends Controller
     {
         try {
             VendorFlowChartStatus::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2358,9 +2344,10 @@ class VendorController extends Controller
     {
         try {
             VendorQuestionStatus::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2368,9 +2355,10 @@ class VendorController extends Controller
     {
         try {
             VendorRatingQAStatus::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2414,7 +2402,7 @@ class VendorController extends Controller
         $history->vendor_id = $vendor_id;
         $history->question_id = $question_id;
 
-        if(!empty($vendor_status)){
+        if (! empty($vendor_status)) {
             $history->old_value = $vendor_status->new_value;
         } else {
             $history->old_value = '';
@@ -2429,10 +2417,10 @@ class VendorController extends Controller
     public function rqaStatusHistories(Request $request)
     {
         $datas = VendorRatingQAStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('vendor_id', $request->vendor_id)
-                ->where('question_id', $request->question_id)
-                ->latest()
-                ->get();
+            ->where('vendor_id', $request->vendor_id)
+            ->where('question_id', $request->question_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2453,7 +2441,7 @@ class VendorController extends Controller
         $history->vendor_id = $vendor_id;
         $history->flow_chart_id = $flow_chart_id;
 
-        if(!empty($vendor_status)){
+        if (! empty($vendor_status)) {
             $history->old_value = $vendor_status->new_value;
         } else {
             $history->old_value = '';
@@ -2468,10 +2456,10 @@ class VendorController extends Controller
     public function flowchartStatusHistories(Request $request)
     {
         $datas = VendorFlowChartStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('vendor_id', $request->vendor_id)
-                ->where('flow_chart_id', $request->flow_chart_id)
-                ->latest()
-                ->get();
+            ->where('vendor_id', $request->vendor_id)
+            ->where('flow_chart_id', $request->flow_chart_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2484,9 +2472,9 @@ class VendorController extends Controller
     public function getVendorRatingQuestionsAnswerNotes(Request $request)
     {
         $datas = VendorRatingQANotes::where('vendor_id', $request->vendor_id)
-                ->where('question_id', $request->question_id)
-                ->latest()
-                ->get();
+            ->where('question_id', $request->question_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2560,7 +2548,7 @@ class VendorController extends Controller
         $history->vendor_id = $vendor_id;
         $history->question_id = $question_id;
 
-        if(!empty($vendor_status)){
+        if (! empty($vendor_status)) {
             $history->old_value = $vendor_status->new_value;
         } else {
             $history->old_value = '';
@@ -2575,10 +2563,10 @@ class VendorController extends Controller
     public function qaStatusHistories(Request $request)
     {
         $datas = VendorQuestionStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('vendor_id', $request->vendor_id)
-                ->where('question_id', $request->question_id)
-                ->latest()
-                ->get();
+            ->where('vendor_id', $request->vendor_id)
+            ->where('question_id', $request->question_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2594,36 +2582,32 @@ class VendorController extends Controller
         $VendorQuestionAnswer = [];
         $VendorQuestionRAnswer = [];
 
-        if((!empty(request('vendors')) && (request('vendors') != null))) {
-
+        if ((! empty(request('vendors')) && (request('vendors') != null))) {
             $VendorFlowchart = Vendor::with('category');
 
-            if((!empty(request('vendors')) && (request('vendors') != null))) {
+            if ((! empty(request('vendors')) && (request('vendors') != null))) {
                 $VendorFlowchart = $VendorFlowchart->whereIn('id', $request->vendors);
             }
 
-            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy('flowchart_date', 'DESC')->get();
 
-            
             $VendorQuestionAnswer = Vendor::with('category');
 
-            if((!empty(request('vendors')) && (request('vendors') != null))) {
+            if ((! empty(request('vendors')) && (request('vendors') != null))) {
                 $VendorQuestionAnswer = $VendorQuestionAnswer->whereIn('id', $request->vendors);
             }
 
-            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status', 1)->orderBy('flowchart_date', 'DESC')->get();
 
             $VendorQuestionRAnswer = Vendor::with('category');
 
-            if((!empty(request('vendors')) && (request('vendors') != null))) {
+            if ((! empty(request('vendors')) && (request('vendors') != null))) {
                 $VendorQuestionRAnswer = $VendorQuestionRAnswer->whereIn('id', $request->vendors);
             }
 
-            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status', 1)->orderBy('flowchart_date', 'DESC')->get();
         }
-        
+
         $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
@@ -2645,9 +2629,10 @@ class VendorController extends Controller
     {
         try {
             VendorFlowChart::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2655,9 +2640,10 @@ class VendorController extends Controller
     {
         try {
             VendorQuestions::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2665,9 +2651,10 @@ class VendorController extends Controller
     {
         try {
             VendorRatingQuestions::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2716,20 +2703,17 @@ class VendorController extends Controller
 
         $VendorFlowchart = [];
 
-        if((!empty($vendor_id) && ($vendor_id != null))) {
-
+        if ((! empty($vendor_id) && ($vendor_id != null))) {
             $VendorFlowchart = Vendor::with('category');
 
             $VendorFlowchart = $VendorFlowchart->where('id', $vendor_id);
 
-            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy('flowchart_date', 'DESC')->get();
         }
-        
+
         $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
         $status = VendorFlowChartStatus::all();
-
 
         return view('vendors.partials.search-data-fc', compact('VendorFlowchart', 'vendor_flow_charts', 'status', 'vendor_id'));
     }
@@ -2740,14 +2724,12 @@ class VendorController extends Controller
 
         $VendorQuestionAnswer = [];
 
-        if((!empty($vendor_id) && ($vendor_id != null))) {
-
+        if ((! empty($vendor_id) && ($vendor_id != null))) {
             $VendorQuestionAnswer = Vendor::with('category');
 
             $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $vendor_id);
 
-            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status', 1)->orderBy('flowchart_date', 'DESC')->get();
         }
 
         $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
@@ -2763,14 +2745,12 @@ class VendorController extends Controller
 
         $VendorQuestionRAnswer = [];
 
-        if((!empty($vendor_id) && ($vendor_id != null))) {
-
+        if ((! empty($vendor_id) && ($vendor_id != null))) {
             $VendorQuestionRAnswer = Vendor::with('category');
 
             $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('id', $vendor_id);
 
-            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status', 1)->orderBy('flowchart_date', 'DESC')->get();
         }
 
         $vendor_r_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
@@ -2783,9 +2763,9 @@ class VendorController extends Controller
     public function getVendorFlowchartNotes(Request $request)
     {
         $datas = VendorFLowChartNotes::where('vendor_id', $request->vendor_id)
-                ->where('flow_chart_id', $request->flow_chart_id)
-                ->latest()
-                ->get();
+            ->where('flow_chart_id', $request->flow_chart_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -2801,30 +2781,26 @@ class VendorController extends Controller
 
         $VendorFlowchart = [];
 
-        if((!empty($vendor_id) && ($vendor_id != null))) {
-
+        if ((! empty($vendor_id) && ($vendor_id != null))) {
             $VendorFlowchart = Vendor::with('category');
 
             $VendorFlowchart = $VendorFlowchart->where('id', $vendor_id);
 
-            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
-
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy('flowchart_date', 'DESC')->get();
         }
-  
+
         $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
-        if(!empty($vendor_flow_charts)){
+        if (! empty($vendor_flow_charts)) {
             foreach ($vendor_flow_charts as $key => $value) {
-
                 $vendorflowcharts = VendorFlowChartSorting::where('vendor_id', $vendor_id)->where('flow_chart_id', $value->id)->first();
 
-                if(empty($vendorflowcharts)){
-
+                if (empty($vendorflowcharts)) {
                     $vendorflowchartsSorting = VendorFlowChartSorting::where('vendor_id', $vendor_id)->orderBy('sorting_f', 'DESC')->first();
 
-                    $sorting_f = ($key+1);
-                    if(!empty($vendorflowchartsSorting)){
-                        $sorting_f = ($vendorflowchartsSorting->sorting_f+1);
+                    $sorting_f = ($key + 1);
+                    if (! empty($vendorflowchartsSorting)) {
+                        $sorting_f = ($vendorflowchartsSorting->sorting_f + 1);
                     }
 
                     $vendorfs = new VendorFlowChartSorting();
@@ -2834,7 +2810,7 @@ class VendorController extends Controller
                     $vendorfs->save();
                 }
             }
-        }            
+        }
 
         $vendor_flow_charts = VendorFlowChartSorting::with('flowchart')->where('vendor_id', $vendor_id)->orderBy('sorting_f', 'ASC')->get();
 
@@ -2870,6 +2846,7 @@ class VendorController extends Controller
             return response()->json(['code' => 200, 'data' => $frequency, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -2888,8 +2865,7 @@ class VendorController extends Controller
 
         $vendor = Vendor::find($vendor_id);
 
-        if(!empty($vendor)){
-
+        if (! empty($vendor)) {
             // Set default type as incoming
             $type = 'incoming';
             $seen = '0';
@@ -2899,7 +2875,7 @@ class VendorController extends Controller
             $date = $request->date ?? '';
 
             $query = (new Email())->newQuery();
-            
+
             $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
                 ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
                 ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
@@ -2908,10 +2884,6 @@ class VendorController extends Controller
             $query = $query->where(function ($query) use ($type) {
                 $query->where('emails.type', $type)->orWhere('emails.type', 'open')->orWhere('emails.type', 'delivered')->orWhere('emails.type', 'processed');
             });
-            
-            /*if ($date) {
-                $query = $query->whereDate('created_at', $date);
-            }*/
 
             $query = $query->where(function ($query) use ($sender) {
                 $query->where('emails.from', $sender)->orWhere('emails.to', $sender);
@@ -2924,12 +2896,12 @@ class VendorController extends Controller
 
             $emails = $query->orderBy('emails.id', 'DESC')->take(5)->get();
 
-            $emailModelTypes = Email::emailModelTypeList();        
-        
+            $emailModelTypes = Email::emailModelTypeList();
+
             return view('vendors.partials.vendor-email', compact('emails', 'emailModelTypes'));
         }
     }
-      
+
     public function getVendorFlowchartUpdateNotes(Request $request)
     {
         $vendorN = VendorFLowChartNotes::find($request->note_id);
@@ -2947,9 +2919,10 @@ class VendorController extends Controller
     {
         try {
             VendorFLowChartNotes::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2970,9 +2943,10 @@ class VendorController extends Controller
     {
         try {
             VendorRatingQANotes::where('id', $request->id)->delete();
+
             return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -2982,8 +2956,7 @@ class VendorController extends Controller
 
         $supplier = Supplier::find($supplier_id);
 
-        if(!empty($supplier)){
-
+        if (! empty($supplier)) {
             // Set default type as incoming
             $type = 'incoming';
             $seen = '0';
@@ -2993,7 +2966,7 @@ class VendorController extends Controller
             $date = $request->date ?? '';
 
             $query = (new Email())->newQuery();
-            
+
             $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
                 ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
                 ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
@@ -3002,7 +2975,7 @@ class VendorController extends Controller
             $query = $query->where(function ($query) use ($type) {
                 $query->where('emails.type', $type)->orWhere('emails.type', 'open')->orWhere('emails.type', 'delivered')->orWhere('emails.type', 'processed');
             });
-            
+
             $query = $query->where(function ($query) use ($sender) {
                 $query->where('emails.from', $sender)->orWhere('emails.to', $sender);
             });
@@ -3014,8 +2987,8 @@ class VendorController extends Controller
 
             $emails = $query->orderBy('emails.id', 'DESC')->take(5)->get();
 
-            $emailModelTypes = Email::emailModelTypeList();        
-        
+            $emailModelTypes = Email::emailModelTypeList();
+
             return view('suppliers.partials.suppliers-email', compact('emails', 'emailModelTypes'));
         }
     }

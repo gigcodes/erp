@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use DB;
 use Carbon\Carbon;
-use App\ChatMessage;
 use App\Helpers\HubstaffTrait;
 use Illuminate\Console\Command;
 
@@ -52,21 +51,19 @@ class SendReportHourlyUserTask extends Command
             ]);
 
             $users = DB::table('hubstaff_activities')
-                    ->select('hubstaff_activities.user_id', 'hubstaff_members.hubstaff_user_id', 'users.*')
-                    ->leftJoin('hubstaff_members', 'hubstaff_activities.user_id', 'hubstaff_members.hubstaff_user_id')
-                    ->leftJoin('users', 'hubstaff_members.user_id', 'users.id')
-                    ->where('task_id', 0)
-                    ->whereDate('starts_at', date('Y-m-d'))
-                    ->groupBy('user_id')
-                    ->orderBy('id', 'desc')->get();
+                ->select('hubstaff_activities.user_id', 'hubstaff_members.hubstaff_user_id', 'users.*')
+                ->leftJoin('hubstaff_members', 'hubstaff_activities.user_id', 'hubstaff_members.hubstaff_user_id')
+                ->leftJoin('users', 'hubstaff_members.user_id', 'users.id')
+                ->where('task_id', 0)
+                ->whereDate('starts_at', date('Y-m-d'))
+                ->groupBy('user_id')
+                ->orderBy('id', 'desc')->get();
             \Log::info('Hubstaff task not select Total user : ' . count($users));
             foreach ($users as $key => $user) {
                 if ($user->whatsapp_number) {
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, 'Please select task on hubstaff', true);
                 }
             }
-
-            // ChatMessage::sendWithChatApi('971502609192', null, $message);
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

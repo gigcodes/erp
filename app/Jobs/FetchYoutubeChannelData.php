@@ -9,7 +9,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Google\Service\YouTube\Resource\Youtube;
 
 class FetchYoutubeChannelData implements ShouldQueue
 {
@@ -38,10 +37,6 @@ class FetchYoutubeChannelData implements ShouldQueue
         $youTubeChanelData->video_count = ! empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount'] : null;
         $youTubeChanelData->chanelId = ! empty($getChannelData['id']) ? $getChannelData['id'] : null;
         $youTubeChanelData->chanel_name = ! empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title'] : null;
-        // $checkChanelExistOrNot = Helper::channelExistsOrNot($youTubeChanelData->chanelId);
-        // if(!empty($checkChanelExistOrNot)){
-        //     return redirect()->to('/youtube/add-chanel')->with('actError', 'Channel Already Exist.');
-        // }
         $youTubeChanelData->save();
         if (! empty($youTubeChanelData->chanelId)) {
             Helper::getVideoAndInsertDB($id, $accessToken, $youTubeChanelData->chanelId);

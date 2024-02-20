@@ -12,7 +12,6 @@ use App\ProjectFileManagerHistory;
 
 class ProjectFileManagerController extends Controller
 {
-    //
     public $folderLimit = ['public' => 200];
 
     public $dumpData = [];
@@ -115,7 +114,6 @@ class ProjectFileManagerController extends Controller
                         continue;
                     }
 
-                    //\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
                     $batchPathReplace = str_replace($basePath, '', $fileInfo->getPathname());
                     $parentPath = str_replace($fileInfo->getFilename(), '', $batchPathReplace);
                     $parentPath = str_replace('\\', '/', $parentPath);
@@ -232,16 +230,15 @@ class ProjectFileManagerController extends Controller
 
     public function sizelogHistory(Request $request)
     {
-        // dd($request->all());
         $users = User::get();
         $id = $request->id;
 
         $past_date = date('Y-m-d', strtotime('-7 days'));
 
         $size_log = ProjectFileManagerHistory::Leftjoin('users', 'users.id', 'project_file_managers_history.user_id')
-        ->where('project_id', $id)
-        ->whereDate('project_file_managers_history.created_at', '>=', $past_date)
-        ->select('project_file_managers_history.*', 'users.name')->get();
+            ->where('project_id', $id)
+            ->whereDate('project_file_managers_history.created_at', '>=', $past_date)
+            ->select('project_file_managers_history.*', 'users.name')->get();
 
         if ($size_log) {
             return $size_log;
@@ -291,7 +288,6 @@ class ProjectFileManagerController extends Controller
             $File_size = round($size, 2) . ' ' . $suffix;
 
             $file_size_arr[$key]['file_size'] = $File_size;
-            // dd($File_size);
         }
 
         return response()->json(['file_size_arr' => $file_size_arr, 'path' => $path, 'files' => $files]);

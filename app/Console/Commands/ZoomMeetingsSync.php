@@ -2,15 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
-use App\CronJobReport;
-use App\Meetings\ZoomApiLog;
-use App\Meetings\ZoomMeetingDetails;
-use App\Meetings\ZoomMeetingParticipant;
-use App\Meetings\ZoomMeetings;
 use App\ZoomOAuthHelper;
+use App\Meetings\ZoomApiLog;
+use App\Meetings\ZoomMeetings;
 use Illuminate\Console\Command;
+use App\Meetings\ZoomMeetingDetails;
 use Illuminate\Support\Facades\Http;
+use App\Meetings\ZoomMeetingParticipant;
 
 class ZoomMeetingsSync extends Command
 {
@@ -47,7 +45,7 @@ class ZoomMeetingsSync extends Command
     {
         // Get an access token (use your authentication method)
         $tokenResponse = ZoomOAuthHelper::getAccessToken();
-        
+
         if (isset($tokenResponse['access_token'])) {
             $accessToken = $tokenResponse['access_token'];
             $meetingURL = 'https://api.zoom.us/v2/users/me/meetings';
@@ -67,7 +65,7 @@ class ZoomMeetingsSync extends Command
                     'response_status' => $response->status(),
                     'response_data' => json_encode($response->json()),
                 ]);
-        
+
                 $meetings = $response->json();
 
                 if ($meetings['total_records'] > 0) {
@@ -78,7 +76,7 @@ class ZoomMeetingsSync extends Command
                             [
                                 'meeting_topic' => $meeting['topic'],
                                 'meeting_type' => $meeting['type'],
-                                'meeting_agenda' => $meeting['agenda'] ?? "",
+                                'meeting_agenda' => $meeting['agenda'] ?? '',
                                 'join_meeting_url' => $meeting['join_url'],
                                 'start_date_time' => $meeting['start_time'],
                                 'meeting_duration' => $meeting['duration'],
@@ -87,8 +85,8 @@ class ZoomMeetingsSync extends Command
                             ]
                         );
 
-                        // These 2 logics are moved to meeting list page (/meetings/all) in actions columns. 
-                        // So these 2 functions not need, But use code for future reference. 
+                        // These 2 logics are moved to meeting list page (/meetings/all) in actions columns.
+                        // So these 2 functions not need, But use code for future reference.
                         // $this->fetchRecordings($accessToken, $meeting);
                         // $this->fetchParticipants($accessToken, $meeting);
                     }
@@ -109,7 +107,8 @@ class ZoomMeetingsSync extends Command
         }
     }
 
-    public function fetchRecordings($accessToken, $meeting) {
+    public function fetchRecordings($accessToken, $meeting)
+    {
         $recordingURL = 'https://api.zoom.us/v2/meetings/' . $meeting['id'] . '/recordings';
         try {
             // Fetch recordings for this meeting
@@ -157,7 +156,7 @@ class ZoomMeetingsSync extends Command
                                 curl_close($ch);
 
                                 if ($downloadLink) {
-                                    copy($downloadLink, $filePath);     
+                                    copy($downloadLink, $filePath);
                                 }
 
                                 $zoom_meeting_details = new ZoomMeetingDetails();
@@ -189,7 +188,8 @@ class ZoomMeetingsSync extends Command
         }
     }
 
-    public function fetchParticipants($accessToken, $meeting) {
+    public function fetchParticipants($accessToken, $meeting)
+    {
         $participantURL = 'https://api.zoom.us/v2/meetings/' . $meeting['id'] . '/participants';
 
         try {
@@ -220,7 +220,7 @@ class ZoomMeetingsSync extends Command
                                 'name' => $participant['name'],
                                 'join_time' => $participant['join_time'],
                                 'leave_time' => $participant['leave_time'],
-                                'duration' => $participant['duration']
+                                'duration' => $participant['duration'],
                             ]
                         );
                     }

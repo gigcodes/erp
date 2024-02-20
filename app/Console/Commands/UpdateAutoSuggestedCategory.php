@@ -45,11 +45,6 @@ class UpdateAutoSuggestedCategory extends Command
         $input = preg_quote('', '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
-        //$unKnownCategories = [];
-        //$unKnownCategories[] = "women/clothing/trousers/trousers/alexander mcqueen prince of wales trousers";
-        //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
-        //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
-
         if (! empty($unKnownCategories)) {
             foreach ($unKnownCategories as $i => $unkc) {
                 $filter = \App\Category::updateCategoryAutoSpace($unkc);

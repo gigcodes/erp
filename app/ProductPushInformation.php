@@ -59,7 +59,6 @@ class ProductPushInformation extends Model
 
             $new_values = array_merge($old_arr, $dirties);
             $new_values['user_id'] = $user_id ?? 'command';
-            // unset($new_values['store_website_id']);
             unset($new_values['real_product_id']);
             unset($new_values['id']);
             ProductPushInformationHistory::create($new_values);
@@ -98,10 +97,6 @@ class ProductPushInformation extends Model
     {
         return $this->hasOne(StoreWebsite::class, 'id', 'store_website_id');
     }
-
-    // public function product(){
-    //     return Product::with('brands', 'categories')->where('sku', explode('-', $this->sku)[0])->first();
-    // }
 
     public function product()
     {

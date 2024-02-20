@@ -119,7 +119,6 @@ class LandingPageController extends Controller
                 }
             }
             $rec->images = $productData['images'];
-//            $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $previousVal = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $rec->status_name = isset($rec->landing_page_status) ? $rec->landing_page_status->name : $previousVal;
             $rec->brand_name = isset($rec->product->brands->name) ? $rec->product->brands->name : null;
@@ -325,7 +324,6 @@ class LandingPageController extends Controller
                             GoogleTranslateController::translateGeneralDetails(['text' => $selfCategory->title]); //DEVTASK-3272
                         }
                         GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id, $storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password, $storeWebsiteUrl);
-//                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
                     }
 
                     return response()->json(['code' => 200, 'data' => $response->product, 'message' => 'Success!']);
@@ -448,11 +446,11 @@ class LandingPageController extends Controller
                     $lpProduct->landing_page_status_id = LandingPageProduct::STATUS['APPROVED'];
                     $lpProduct->save();
 
-                    return response()->json(['code' => 200,  'data' => '', 'message' => 'Success!']);
+                    return response()->json(['code' => 200, 'data' => '', 'message' => 'Success!']);
                 }
             }
 
-            return response()->json(['code' => 500,  'data' => '', 'message' => 'Not Approved!']);
+            return response()->json(['code' => 500, 'data' => '', 'message' => 'Not Approved!']);
         }
     }
 }

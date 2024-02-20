@@ -66,9 +66,6 @@ class CreateShipmentRequest extends APIAbstract
     public function __construct($requestType = 'soap')
     {
         parent::__construct();
-        // $this->fromCountryCode = getenv('DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
-        // $this->fromPostalCode  = getenv('DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
-        // $this->fromCity        = getenv('DHL_CITY') ?: config('dhl.tas.DHL_CITY');
         $this->fromCountryCode = config('env.DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
         $this->fromPostalCode = config('env.DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
         $this->fromCity = config('env.DHL_CITY') ?: config('dhl.tas.DHL_CITY');
@@ -314,7 +311,6 @@ class CreateShipmentRequest extends APIAbstract
         $xml->openMemory();
         $xml->setIndent(true);
         $xml->setIndentString('  ');
-        //$xml->startDocument('1.0', 'UTF-8');
 
         $xml->startElement('soapenv:Envelope');
         $xml->writeAttribute('xmlns:wsu', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd');
@@ -487,7 +483,6 @@ class CreateShipmentRequest extends APIAbstract
         $xml->endElement();
         $xml->endElement();
         $xml->endElement();
-        //$xml->endDocument();
         return $this->document = $xml->outputMemory();
     }
 

@@ -84,7 +84,6 @@ class SaleController extends Controller
         $sale = new Sale();
 
         $this->validate($request, [
-            //			'date_of_request' => 'required',
             'sales_person_name' => 'required',
             'allocated_to' => 'required',
             'description' => 'required',
@@ -99,49 +98,16 @@ class SaleController extends Controller
         $data['selected_product'] = json_encode($request->input('selected_product'));
 
         $sale->insert($data);
-        //$sale->save();
 
         $sale_id = DB::getPdo()->lastInsertId();
 
         if ($request->has('image')) {
             $sale_instance = $sale->find($sale_id);
             $media = MediaUploader::fromSource($request->file('image'))
-                                            ->toDirectory('sale/' . floor($sale_instance->id / config('constants.image_per_folder')))
-                                            ->upload();
+                ->toDirectory('sale/' . floor($sale_instance->id / config('constants.image_per_folder')))
+                ->upload();
             $sale_instance->attachMedia($media, config('constants.media_tags'));
         }
-
-        //To all sales persons
-        // NotificationQueueController::createNewNotification([
-        // 	'message' => $request->input( 'description' ),
-        // 	'timestamps' => ['+0 minutes'],
-        // 	'model_type' => Sale::class,
-        // 	'model_id' =>  $sale_id,
-        // 	'user_id' => Auth::id(),
-        // 	'sent_to' => '',
-        // 	'role' => 'Sales',
-        // ]);
-
-        // NotificationQueueController::createNewNotification([
-        // 	'message' => $request->input( 'description' ),
-        // 	// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        // 	'timestamps' => ['+0 minutes'],
-        // 	'model_type' => Sale::class,
-        // 	'model_id' =>  $sale_id,
-        // 	'user_id' => Auth::id(),
-        // 	'sent_to' => $request->input( 'allocated_to' ),
-        // 	'role' => '',
-        // ]);
-
-        // NotificationQueueController::createNewNotification([
-        // 	'message' => $request->input( 'description' ),
-        // 	'timestamps' => ['+45 minutes'],
-        // 	'model_type' => Sale::class,
-        // 	'model_id' =>  $sale_id,
-        // 	'user_id' => Auth::id(),
-        // 	'sent_to' => Auth::id(),
-        // 	'role' => '',
-        // ]);
 
         ActivityConroller::create($sale_id, 'sales', 'create');
 
@@ -183,41 +149,15 @@ class SaleController extends Controller
     public function update(Sale $sale, Request $request)
     {
         $this->validate($request, [
-            //			'date_of_request' => 'required',
             'sales_person_name' => 'required',
             'allocated_to' => 'required',
             'description' => 'required',
             'image' => 'mimes:jpeg,bmp,png,jpg',
         ]);
 
-        // if ( $request->input( 'allocated_to' ) != $sale->allocated_to ) {
-        //
-        // 	NotificationQueueController::createNewNotification([
-        // 		'message' => $request->input( 'description' ),
-        // 		// 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
-        // 		'timestamps' => ['+0 minutes'],
-        // 		'model_type' => Sale::class,
-        // 		'model_id' =>   $sale->id,
-        // 		'user_id' => Auth::id(),
-        // 		'sent_to' => $request->input( 'allocated_to' ),
-        // 		'role' => '',
-        // 	]);
-        //
-        // 	// NotificationQueueController::createNewNotification([
-        // 	// 	'message' => $request->input( 'description' ),
-        // 	// 	'timestamps' => ['+45 minutes'],
-        // 	// 	'model_type' => Sale::class,
-        // 	// 	'model_id' =>   $sale->id,
-        // 	// 	'user_id' => Auth::id(),
-        // 	// 	'sent_to' => Auth::id(),
-        // 	// 	'role' => '',
-        // 	// ]);
-        // }
-
         ActivityConroller::create($sale->id, 'sales', 'update');
         NotificaitonContoller::store('Sale Updated', '', '', $sale->id, $sale->author_id);
 
-        //		$sale->date_of_request = $request->input('date_of_request');
         $sale->sales_person_name = $request->input('sales_person_name');
         $sale->client_name = $request->input('client_name');
         $sale->client_phone = $request->input('client_phone');
@@ -244,7 +184,7 @@ class SaleController extends Controller
         $sale->delete();
 
         return redirect()->route('sales.index')
-                         ->with('success', 'Sale deleted successfully');
+            ->with('success', 'Sale deleted successfully');
     }
 
     public function selectionGrid(Sale $sale)
@@ -278,7 +218,6 @@ class SaleController extends Controller
         $sale->save();
 
         return $action;
-        //		return [ 'msg' => 'success' , 'action' => $action ];
     }
 
     public function getUsersByRoleName($roleName = 'Sales')
@@ -286,11 +225,11 @@ class SaleController extends Controller
         $roleID = Role::findByName($roleName);
 
         $users = DB::table('users as u')
-                   ->select('u.id', 'u.name')
-                   ->where('m.role_id', '=', $roleID->id)
-                   ->leftJoin('model_has_roles as m', 'm.model_id', '=', 'u.id')
-                   ->distinct()
-                   ->get();
+            ->select('u.id', 'u.name')
+            ->where('m.role_id', '=', $roleID->id)
+            ->leftJoin('model_has_roles as m', 'm.model_id', '=', 'u.id')
+            ->distinct()
+            ->get();
 
         return $users;
     }
@@ -311,12 +250,12 @@ class SaleController extends Controller
         $q = $request->input('q');
 
         $results = Product::select('id', 'name', 'sku', 'brand')
-                          ->where('id', 'LIKE', '%' . $q . '%')
-                          ->orWhere('sku', 'LIKE', '%' . $q . '%')
-                          ->orWhere('name', 'LIKE', '%' . $q . '%')
-                          ->offset(0)
-                          ->limit(15)
-                          ->get();
+            ->where('id', 'LIKE', '%' . $q . '%')
+            ->orWhere('sku', 'LIKE', '%' . $q . '%')
+            ->orWhere('name', 'LIKE', '%' . $q . '%')
+            ->offset(0)
+            ->limit(15)
+            ->get();
 
         return $results;
     }
@@ -342,8 +281,8 @@ class SaleController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('sale/' . floor($sale->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('sale/' . floor($sale->id / config('constants.image_per_folder')))
+                    ->upload();
                 $sale->attachMedia($media, config('constants.media_tags'));
             }
         }

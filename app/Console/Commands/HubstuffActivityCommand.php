@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Auth;
-use Mail;
 use App\User;
 use App\CashFlow;
 use Carbon\Carbon;
@@ -61,8 +60,6 @@ class HubstuffActivityCommand extends Command
         $HubstuffCommandLog->save();
         $HubstuffCommandLog_id = $HubstuffCommandLog->id;
         $weekly = $biweekly = $fornightly = $monthly = 0;
-        //   dd($users);
-        //  $j=0;
         foreach ($users as $key => $user) {
             $HubstuffCommandLogMessage = new HubstuffCommandLogMessage();
             $HubstuffCommandLogMessage->hubstuff_command_log_id = $HubstuffCommandLog_id;
@@ -80,12 +77,6 @@ class HubstuffActivityCommand extends Command
             }
             $from = Carbon::createFromFormat('Y-m-d H:s:i', $today);
 
-            // $today_week = new Carbon();
-            // if($today_week->dayOfWeek == Carbon::FRIDAY)
-            //     dd($today_week);
-            // else
-            //     dd("555");
-
             $diff_in_days = $to->diffInDays($from);
 
             $req = new Request;
@@ -95,15 +86,11 @@ class HubstuffActivityCommand extends Command
             $req->request->add(['developer_task_id' => null]);
             $req->request->add(['task_id' => null]);
             $req->request->add(['task_status' => null]);
-//            $req->request->add(["start_date" => $to]);
-            //          $req->request->add(["end_date" => $from]);
             $req->request->add(['status' => null]);
             $req->request->add(['submit' => 'report_download']);
             $req->request->add(['response_type' => 'with_payment_receipt']);
             $req->request->add(['HubstuffCommandLogMessage_id' => $HubstuffCommandLogMessage_id]);
             $get_activity = false;
-
-            // $res = $tasks_controller->getActivityUsers($req, $req);
 
             $path = null;
 
@@ -115,16 +102,12 @@ class HubstuffActivityCommand extends Command
                 $today_week = new Carbon();
                 dump('weekly => ' . $user->name . ', Day =>' . $today_week->dayOfWeek . ', Least Mail Date => ' . ($last_mail_sent ?? 'No') . ', Start Date => ' . $to . ', End Date => ' . $from);
                 $day = Carbon::now();
-                //  $weekStartDate = $day->startOfWeek()->format('Y-m-d H:i');
-                //$weekEndDate = $day->endOfWeek()->format('Y-m-d H:i');
                 $from = date('Y-m-d ', strtotime('last week monday'));
                 $to = date('Y-m-d ', strtotime('last week sunday'));
 
                 if ($today_week->dayOfWeek == Carbon::FRIDAY) {
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message . '-->go to monday condition';
                     $get_activity = true;
-
-                    //    $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
             }
 
@@ -137,7 +120,6 @@ class HubstuffActivityCommand extends Command
                     $to = date('Y-m-d ', strtotime('last week sunday'));
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message . '-->go to MONDAY condition';
                     $get_activity = true;
-                    //  $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
                 if ($today_week->dayOfWeek == Carbon::FRIDAY) {
                     $from = date('Y-m-d ', strtotime('last week monday'));
@@ -159,8 +141,6 @@ class HubstuffActivityCommand extends Command
                     $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_first_date->subdays(-14));
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message . '-->go to date 16 condition';
                     $get_activity = true;
-
-                    //   $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
                 if ($date_fornightly == 1) {
                     $last_month_first_date = new Carbon('first day of last month');
@@ -169,7 +149,6 @@ class HubstuffActivityCommand extends Command
                     $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_month_last_date);
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message . '-->go to date 1 condition';
                     $get_activity = true;
-                    // $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
             }
 
@@ -184,11 +163,9 @@ class HubstuffActivityCommand extends Command
                 if ($date_monthly == 1) {
                     $HubstuffCommandLogMessage->message = $HubstuffCommandLogMessage->message . '-->go to date 1 condition';
                     $get_activity = true;
-                    // $res = $tasks_controller->getActivityUsers(new Request(), $req, 'HubstuffActivityCommand');
                 }
             }
 
-            //dd($res);
             $HubstuffCommandLogMessage->start_date = $from;
             $HubstuffCommandLogMessage->end_date = $to;
             $HubstuffCommandLogMessage->save();
@@ -203,17 +180,8 @@ class HubstuffActivityCommand extends Command
                 $path = $res['file_data'];
                 Auth::logout($user);
 
-                // $path = storage_path('app/files').'/'.$path;
-
-                // Mail::send('hubstaff.hubstaff-activities-mail', $data, function($message)use($data, $path) {
-                //     $message->to($data["email"], $data["email"])
-                //             ->subject($data["title"])->attach($path);
-                // });
-
                 $user->last_mail_sent_payment = $today;
                 $user->save();
-
-                // $storage_path = substr($path, strpos($path, 'framework'));
 
                 $hubstaff_activity = new HubstaffActivityByPaymentFrequency;
                 $hubstaff_activity->user_id = $user->id;
@@ -243,16 +211,7 @@ class HubstuffActivityCommand extends Command
                 $cashflow->type = 'pending';
                 $cashflow->status = 1;
                 $cashflow->amount = $paymentData->total_balance;
-                //    $cashflow->currency=  ;
                 $cashflow->save();
-
-                //Query
-                //      $cashflow->type= 'pending';
-                //      $cashflow->currency=  $receipt->currency;
-                //      $cashflow->status=  1;
-                //      $cashflow->amount=  $receipt->created_at;
-
-                // dd("555555");
 
                 dump('Mail Sent Successfully => ' . $user->name);
                 dump('');

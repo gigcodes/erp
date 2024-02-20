@@ -14,7 +14,7 @@ class LanguageController extends Controller
 
         if ($request->term) {
             $query = $query->where('locale', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('code', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('code', 'LIKE', '%' . $request->term . '%');
         }
         $languages = $query->orderBy('code')->paginate(Setting::get('pagination'));
 

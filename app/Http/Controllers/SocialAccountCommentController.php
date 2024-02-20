@@ -132,22 +132,6 @@ class SocialAccountCommentController extends Controller
             // Close the cURL session
             curl_close($ch);
 
-            // Process the response
-            // $result = json_decode($response, true);
-
-            // $token = $socialConfig["token"];
-            // $url = "https://graph.facebook.com/v15.0/$commentId/replies?access_token=$token&message=$message";
-            // $ch = curl_init();
-            // curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded; charset=UTF-8'));
-            // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            // curl_setopt($ch, CURLOPT_POST, 1);
-            // $resp = curl_exec($ch);
-            // $resp = json_decode($resp, true);
             if (isset($response['id'])) {
                 SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Comment Added) => Reply on Comment Successfully', ['data' => $response]);
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UserDatabaseLog extends Model
 {
@@ -13,6 +13,6 @@ class UserDatabaseLog extends Model
         'user_id',
         'updated_by',
         'request_data',
-        'response_data'
+        'response_data',
     ];
 }

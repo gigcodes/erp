@@ -40,7 +40,6 @@ class UploadTasksToHubstaff extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        // $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
         $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
@@ -56,7 +55,6 @@ class UploadTasksToHubstaff extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            //
             $this->uploadNormalTasks();
             $this->uploadDeveloperTasks();
             $report->update(['end_time' => Carbon::now()]);
@@ -142,7 +140,6 @@ class UploadTasksToHubstaff extends Command
     {
         $tokens = $this->getTokens();
 
-        // $url        = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $url = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
@@ -156,7 +153,6 @@ class UploadTasksToHubstaff extends Command
 
                     RequestOptions::BODY => json_encode([
                         'summary' => substr($task->summary, 0, 200),
-                        // 'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
                     ]),
                 ]

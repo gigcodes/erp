@@ -18,12 +18,12 @@ class ProductCategoryController extends Controller
     public function history(Request $request, $id)
     {
         $productCategory = \App\ProductCategoryHistory::leftJoin('categories as c', 'c.id', 'product_category_histories.category_id')
-        ->leftJoin('categories as d', 'd.id', 'product_category_histories.old_category_id')
-        ->leftJoin('users as u', 'u.id', 'product_category_histories.user_id')
-        ->where('product_id', $id)
-        ->orderBy('product_category_histories.created_at', 'desc')
-        ->select(['product_category_histories.*', 'c.title as new_cat_name', 'd.title as old_cat_name', 'u.name as user_name'])
-        ->get();
+            ->leftJoin('categories as d', 'd.id', 'product_category_histories.old_category_id')
+            ->leftJoin('users as u', 'u.id', 'product_category_histories.user_id')
+            ->where('product_id', $id)
+            ->orderBy('product_category_histories.created_at', 'desc')
+            ->select(['product_category_histories.*', 'c.title as new_cat_name', 'd.title as old_cat_name', 'u.name as user_name'])
+            ->get();
 
         return response()->json(['code' => 200, 'data' => $productCategory]);
     }
@@ -35,9 +35,9 @@ class ProductCategoryController extends Controller
         $keywords = $request->get('keyword');
 
         $productCategory = \App\ProductCategoryHistory::leftJoin('categories as c', 'c.id', 'product_category_histories.category_id')
-        ->leftJoin('products as p', 'p.id', 'product_category_histories.product_id')
-        ->leftJoin('categories as d', 'd.id', 'product_category_histories.old_category_id')
-        ->leftJoin('users as u', 'u.id', 'product_category_histories.user_id');
+            ->leftJoin('products as p', 'p.id', 'product_category_histories.product_id')
+            ->leftJoin('categories as d', 'd.id', 'product_category_histories.old_category_id')
+            ->leftJoin('users as u', 'u.id', 'product_category_histories.user_id');
 
         if (! empty($brands)) {
             $productCategory = $productCategory->whereIn('p.brand', $brands);
@@ -59,21 +59,21 @@ class ProductCategoryController extends Controller
         $updatedHistory = $updatedHistory->get()->toArray();
 
         $productCategory = $productCategory->orderBy('product_category_histories.created_at', 'desc')
-        ->select(['product_category_histories.*', 'c.title as new_cat_name', 'd.title as old_cat_name', 'u.name as user_name', 'p.name as product_name'])
-        ->paginate();
+            ->select(['product_category_histories.*', 'c.title as new_cat_name', 'd.title as old_cat_name', 'u.name as user_name', 'p.name as product_name'])
+            ->paginate();
 
         // total product without category by supplier
         $productsLeft = \App\Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
-        ->join('suppliers as s', 's.id', 'ps.supplier_id')
-        ->leftJoin('category_update_users as cuu', 'cuu.supplier_id', 's.id')
-        ->leftJoin('users as u', 'u.id', 'cuu.user_id')
-        ->where(function ($q) {
-            $q->whereNull('products.category')->orWhere('products.category', '')->orWhere('products.category', 1);
-        })
-        ->groupBy('s.id')
-        ->select(['s.supplier as supplier_name', \DB::raw('count(s.id) as total_left'), 'u.name as user_name', 'u.phone', 'u.id as user_id', 's.id as supplier_id'])
-        ->get()
-        ->toArray();
+            ->join('suppliers as s', 's.id', 'ps.supplier_id')
+            ->leftJoin('category_update_users as cuu', 'cuu.supplier_id', 's.id')
+            ->leftJoin('users as u', 'u.id', 'cuu.user_id')
+            ->where(function ($q) {
+                $q->whereNull('products.category')->orWhere('products.category', '')->orWhere('products.category', 1);
+            })
+            ->groupBy('s.id')
+            ->select(['s.supplier as supplier_name', \DB::raw('count(s.id) as total_left'), 'u.name as user_name', 'u.phone', 'u.id as user_id', 's.id as supplier_id'])
+            ->get()
+            ->toArray();
 
         return response()->json([
             'code' => 200,

@@ -1,28 +1,28 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\MagentoModuleCareers as Career;
-use App\StoreWebsite;
 use Exception;
+use App\StoreWebsite;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use App\Models\MagentoModuleCareers as Career;
 use Illuminate\Validation\ValidationException;
 
 class MagentoCareersController extends Controller
 {
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
         $careers = Career::orderBy('created_at', 'desc')->get();
         $storeWebsites = StoreWebsite::all();
+
         return view('magento_careers.index', [
             'careers' => $careers,
             'storeWebsites' => $storeWebsites,
@@ -30,24 +30,23 @@ class MagentoCareersController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function getCareerByFilter(Request $request)
     {
         $html = '';
         $careers = Career::orderBy('created_at', 'desc');
-        if (isset($request->location) && !empty($request->location)) {
+        if (isset($request->location) && ! empty($request->location)) {
             $careers->where('magento_module_careers.location', 'Like', '%' . $request->location . '%');
         }
-        if (isset($request->type) && !empty($request->type)) {
+        if (isset($request->type) && ! empty($request->type)) {
             $careers->where('magento_module_careers.type', 'Like', '%' . $request->type . '%');
         }
-        if (isset($request->descriptions) && !empty($request->descriptions)) {
+        if (isset($request->descriptions) && ! empty($request->descriptions)) {
             $careers->where('magento_module_careers.description', 'Like', '%' . $request->descriptions . '%');
         }
 
-        if (isset($request->store_ids) && !empty($request->store_ids)) {
+        if (isset($request->store_ids) && ! empty($request->store_ids)) {
             $storeWebsitesIds = $request->store_ids;
             if ($storeWebsitesIds) {
                 $careers->whereHas('storeWebsites', function ($subquery) use ($storeWebsitesIds) {
@@ -56,10 +55,12 @@ class MagentoCareersController extends Controller
             }
         }
         $careers = $careers->get();
-        if (!empty($careers)) {
+        if (! empty($careers)) {
             foreach ($careers as $career) {
                 $title = '';
-                $title = implode(', ', array_map(function ($item) {return $item->title;}, (array) $career->getStoreWebsites()));
+                $title = implode(', ', array_map(function ($item) {
+                    return $item->title;
+                }, (array) $career->getStoreWebsites()));
                 $isActive = ($career->getIsActive() == 1) ? 'checked' : '';
                 $html .= '<tr>
         <td class="td-id-' . $career->getId() . '">
@@ -94,25 +95,25 @@ class MagentoCareersController extends Controller
             }
         }
         $responseData = ['success' => true, 'html' => $html];
+
         return response()->json($responseData);
     }
 
     /**
-     * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function getCareerRecord(Request $request)
     {
         $career = Career::where('id', $request->careerId)->orderBy('created_at', 'desc')->first();
-        if (!empty($career)) {
+        if (! empty($career)) {
             $jsonEncode = json_encode($career);
             $responseData = ['success' => true, 'career-id' => $career->id, 'data-json' => $jsonEncode];
+
             return response()->json($responseData);
         }
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function createOrEdit(Request $request)
@@ -160,7 +161,7 @@ class MagentoCareersController extends Controller
                     Career::IS_ACTIVE => $career->getIsActive(),
                     Career::CREATED_AT => $career->getCreatedAt(),
                     Career::TITLE => $career->getTitle(),
-                    Career::STORE_WEBSITE_ID => array_map(fn($item) => $item->title, $career->getStoreWebsites()),
+                    Career::STORE_WEBSITE_ID => array_map(fn ($item) => $item->title, $career->getStoreWebsites()),
                 ],
                 'career_json' => (string) json_encode($career),
             ]);
@@ -178,7 +179,6 @@ class MagentoCareersController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function listingApi(Request $request)
@@ -189,7 +189,7 @@ class MagentoCareersController extends Controller
         $career = Career::where(Career::IS_ACTIVE, true);
 
         if (isset($data['website_id']) && $data['website_id']) {
-            $career->whereHas('storeWebsites', fn($query) => $query->where('website_id', (int) $data['website_id']));
+            $career->whereHas('storeWebsites', fn ($query) => $query->where('website_id', (int) $data['website_id']));
         }
 
         if (isset($data['title'])) {
@@ -207,7 +207,7 @@ class MagentoCareersController extends Controller
 
         return response()->json([
             'code' => 200,
-            'careers' => array_map(fn($career) => $career->toArrayCareer(), (array) $career->getIterator()),
+            'careers' => array_map(fn ($career) => $career->toArrayCareer(), (array) $career->getIterator()),
         ]);
     }
 }

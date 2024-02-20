@@ -13,33 +13,23 @@ use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Qoraiche\MailEclipse\MailEclipse;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductSelectionController extends Controller
 {
-    public function __construct()
-    {
-        //$this->middleware('permission:selection-list',['only' => ['sList','index']]);
-        //$this->middleware('permission:selection-create', ['only' => ['create','store']]);
-        //$this->middleware('permission:selection-edit', ['only' => ['edit','update']]);
-
-        //$this->middleware('permission:selection-delete', ['only' => ['destroy']]);
-    }
-
     public function index()
     {
         $products = Product::where('stock', '>=', 1)->latest()
-                                            ->withMedia(config('constants.media_tags'))
-                                            ->with('suppliers')
-                                            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
-                                            ->paginate(Setting::get('pagination'));
+            ->withMedia(config('constants.media_tags'))
+            ->with('suppliers')
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+            ->paginate(Setting::get('pagination'));
 
         $roletype = 'Selection';
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                ->selected(1)
-                                                ->renderAsDropdown();
+            ->selected(1)
+            ->renderAsDropdown();
 
         return view('partials.grid', compact('products', 'roletype', 'category_selection'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
@@ -48,14 +38,14 @@ class ProductSelectionController extends Controller
     public function manualImageUpload(Request $request)
     {
         $products = Product::where('status_id', '=', StatusHelper::$manualImageUpload)
-                            ->latest()
-                            ->withMedia(config('constants.media_tags'));
+            ->latest()
+            ->withMedia(config('constants.media_tags'));
 
         $term = $request->input('term');
         if (trim($term) != '') {
             $products = $products->where(function ($query) use ($term) {
                 $query->orWhere('sku', 'LIKE', '%' . $term . '%')
-                      ->orWhere('id', 'LIKE', '%' . $term . '%');
+                    ->orWhere('id', 'LIKE', '%' . $term . '%');
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
                 }
@@ -123,8 +113,8 @@ class ProductSelectionController extends Controller
         $stage = new \App\Stage();
 
         $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control select-multiple'])
-                                                ->selected(request()->get('category', 1))
-                                                ->renderAsDropdown();
+            ->selected(request()->get('category', 1))
+            ->renderAsDropdown();
 
         return view('productselection.manual-image-upload', compact('products', 'stage', 'category_selection'));
     }
@@ -150,7 +140,6 @@ class ProductSelectionController extends Controller
 
     public function show(Product $productselection)
     {
-        //		$productselection->image
         return view('productselection.show', compact('productselection'));
     }
 
@@ -166,12 +155,9 @@ class ProductSelectionController extends Controller
         $productselection->size = $request->input('size');
         $productselection->size_eu = $request->input('size_eu');
         $productselection->price = $request->input('price');
-        // $productselection->supplier = $request->input('supplier');
         $productselection->supplier_link = $request->input('supplier_link');
         $productselection->location = $request->input('location');
         $productselection->brand = $request->input('brand');
-        //		$productselection->description_link = $request->input('description_link');
-        //		$productselection->image = Image::newImage();
         $productselection->last_selector = Auth::id();
 
         $productselection->stage = $stage->get('Selection');
@@ -192,8 +178,8 @@ class ProductSelectionController extends Controller
 
         $productselection->detachMediaTags(config('constants.media_tags'));
         $media = MediaUploader::fromSource($request->file('image'))
-                                ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
-                                ->upload();
+            ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
+            ->upload();
         $productselection->attachMedia($media, config('constants.media_tags'));
 
         NotificaitonContoller::store('has selected', ['Searchers'], $productselection->id);
@@ -201,7 +187,7 @@ class ProductSelectionController extends Controller
         ActivityConroller::create($productselection->id, 'selection', 'create');
 
         return redirect()->route('productselection.index')
-                         ->with('success', 'Selection created successfully.');
+            ->with('success', 'Selection created successfully.');
     }
 
     public function edit(Product $productselection)
@@ -237,11 +223,9 @@ class ProductSelectionController extends Controller
         $productselection->size_eu = $request->input('size_eu');
         $productselection->price = $request->input('price');
         $productselection->status_id = $request->input('status_id');
-        // $productselection->supplier = $request->input('supplier');
         $productselection->supplier_link = $request->input('supplier_link');
         $productselection->location = $request->input('location');
         $productselection->brand = $request->input('brand');
-        //		$productselection->description_link = $request->input('description_link');
         $productselection->last_selector = Auth::id();
 
         if (! empty($productselection->brand) && ! empty($productselection->price)) {
@@ -255,12 +239,10 @@ class ProductSelectionController extends Controller
             self::replaceImage($request, $productselection);
         } elseif ($request->oldImage == -1) {
             $media = MediaUploader::fromSource($request->file('image'))
-                                    ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
-                                    ->upload();
+                ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
+                ->upload();
             $productselection->attachMedia($media, config('constants.media_tags'));
         }
-
-        //		$product->update($request->all());
 
         $productselection->save();
 
@@ -272,7 +254,7 @@ class ProductSelectionController extends Controller
         NotificaitonContoller::store('has updated', ['Searchers'], $productselection->id);
 
         return redirect()->back()
-                         ->with('success', 'Selection updated successfully');
+            ->with('success', 'Selection updated successfully');
     }
 
     public function replaceImage($request, $productselection)
@@ -287,8 +269,8 @@ class ProductSelectionController extends Controller
 
             if (! empty($request->file('image'))) {
                 $media = MediaUploader::fromSource($request->file('image'))
-                                        ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('product/' . floor($productselection->id / config('constants.image_per_folder')))
+                    ->upload();
                 $productselection->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -309,7 +291,6 @@ class ProductSelectionController extends Controller
 
     public function calculateSpecialDiscount($price, $brand)
     {
-        //		$dis_per = Setting::get('special_price_discount');
         $dis_per = BrandController::getDeductionPercentage($brand);
 
         $dis_price = $price - ($price * $dis_per) / 100;
@@ -326,8 +307,5 @@ class ProductSelectionController extends Controller
         $productData = product::whereIn('id', $product_ids)->withMedia(config('constants.media_tags'))->get();
 
         dd($productData);
-        // return  redirect()->route('viewTemplate',$mail_tpl)->with('data',$productData);
-        // return view('maileclipse::templates.weeklyTest',compact('productData'));
-        // return redirect('mail-templates/templates/edit/'.$mail_tpl)->with('data',$productData);
     }
 }

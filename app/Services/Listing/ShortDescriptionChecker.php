@@ -17,7 +17,6 @@ class ShortDescriptionChecker implements CheckerInterface
     public function check($product): bool
     {
         $data = $product->short_description;
-//        dump($data);
         if (strlen($data) < 60) {
             return false;
         }
@@ -45,7 +44,7 @@ class ShortDescriptionChecker implements CheckerInterface
             $sentence = str_replace(strtolower($replacement->first_term), $replacement->replacement_term, $sentence);
         }
 
-        //Now remove special characters..
+        //Now remove special characters.
         $characters = [
             "\n",
             '\n',

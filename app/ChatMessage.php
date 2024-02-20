@@ -2,9 +2,8 @@
 
 namespace App;
 
-use App\Elasticsearch\Elasticsearch;
-use Illuminate\Support\Facades\Log;
 use Plank\Mediable\Mediable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,6 +44,7 @@ class ChatMessage extends Model
     const ELASTIC_INDEX = 'messages';
 
     use Mediable;
+
     /**
      * @var string
      *
@@ -155,7 +155,7 @@ class ChatMessage extends Model
             Log::channel('chatapi')->debug('cUrl:' . $responseData . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
             // Check for possible incorrect response
-            if (! is_array($responseData) || array_key_exists('sent', $responseData) && !$responseData['sent']) {
+            if (! is_array($responseData) || array_key_exists('sent', $responseData) && ! $responseData['sent']) {
                 // Log error
                 Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $responseData);
 
@@ -246,6 +246,7 @@ class ChatMessage extends Model
     {
         return $this->hasOne(\App\ChatMessage::class, 'user_id', 'user_id')->latest();
     }
+
     //END - DEVTASK-4203
 
     public function sendTaskUsername()
@@ -358,8 +359,8 @@ class ChatMessage extends Model
     /**
      *  Get information by ids
      *
-     *  @param []
-     *  @return mixed
+     * @param []
+     * @return mixed
      */
     public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)
     {
@@ -375,8 +376,8 @@ class ChatMessage extends Model
     /**
      *  Get information by ids
      *
-     *  @param []
-     *  @return mixed
+     * @param []
+     * @return mixed
      */
     public static function getGroupImagesByIds($ids, $toArray = false)
     {
@@ -397,8 +398,8 @@ class ChatMessage extends Model
     /**
      *  Get information by ids
      *
-     *  @param []
-     *  @return mixed
+     * @param []
+     * @return mixed
      */
     public static function getInfoByObjectIds($field, $ids, $fields = ['*'], $params = [], $toArray = false)
     {

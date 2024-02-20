@@ -42,12 +42,6 @@ class ProjectFileManagerDateAndSize extends Command
      */
     public function handle()
     {
-        // $row = 0;
-        // $arr_id = [];
-        // $is_file_exists_size = null;
-        // $fileInformation = ProjectFileManager::limit(5)->get();
-
-        // $fileInformation = ProjectFileManager::limit(5)->get();
         $fileInformation = ProjectFileManager::all();
         $param = [];
 
@@ -79,13 +73,6 @@ class ProjectFileManagerDateAndSize extends Command
                     pclose($io);
                     if ($old_size != $new_size) {
                         $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
-
-                        // $param[] = DB::table('project_file_managers_history')->insert([
-                        //     ['project_id' => $id,
-                        //     'name' => $name,
-                        //     'old_size' => $old_size,
-                        //     'new_size' => $new_size]
-                        //  ]);
 
                         $param = [
                             'project_id' => $id,
@@ -135,7 +122,6 @@ class ProjectFileManagerDateAndSize extends Command
 
                     if ($old_size != $new_size) {
                         $updatesize = DB::table('project_file_managers')->where(['id' => $id])->update(['size' => $new_size]);
-                        // dd($updatesize,22);
 
                         $param = [
                             'project_id' => $id,

@@ -40,7 +40,6 @@ class ScraperMissingData extends Command
      */
     public function handle()
     {
-        /*try {*/
         $report = CronJobReport::create([
             'signature' => $this->signature,
             'start_time' => Carbon::now(),
@@ -80,29 +79,26 @@ class ScraperMissingData extends Command
                 $properties = ! empty($result->properties) ? unserialize($result->properties) : [];
 
                 echo '"' . $result->website . '";' .
-                '"' . $result->sku . '";' .
-                '"' . $result->url . '";' .
-                '"' . $result->brand_id . '";' .
-                '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
-                '"' . (! empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
-                '"' . $result->title . '";' .
-                '"' . str_replace('"', "'", $result->description) . '";' .
-                '"' . (! empty($properties['color']) ? $properties['color'] : '') . '";' .
-                '"' . (! empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '') . '";' .
-                '"' . (! empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '') . '";' .
-                '"' . (! empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '') . '";' .
-                '"' . $result->size_system . '";' .
-                '"' . $result->currency . '";' .
-                $result->price . ';' .
-                $result->discounted_price . ';' .
-                $result->is_sale . ';' .
+                    '"' . $result->sku . '";' .
+                    '"' . $result->url . '";' .
+                    '"' . $result->brand_id . '";' .
+                    '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
+                    '"' . (! empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
+                    '"' . $result->title . '";' .
+                    '"' . str_replace('"', "'", $result->description) . '";' .
+                    '"' . (! empty($properties['color']) ? $properties['color'] : '') . '";' .
+                    '"' . (! empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '') . '";' .
+                    '"' . (! empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '') . '";' .
+                    '"' . (! empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '') . '";' .
+                    '"' . $result->size_system . '";' .
+                    '"' . $result->currency . '";' .
+                    $result->price . ';' .
+                    $result->discounted_price . ';' .
+                    $result->is_sale . ';' .
                     "\n";
             }
         }
 
         $report->update(['end_time' => Carbon::now()]);
-        /*} catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }*/
     }
 }

@@ -230,7 +230,6 @@ class SimplyDutyCountryController extends Controller
         $value = $request->value;
         $segment = $request->segment;
         if ($value > 0 && $segment > 0) {
-            //SimplyDutyCountry::where('segment_id',  $segment)->update(['default_duty'=>$value,'status'=>0]);
             $duty = SimplyDutyCountry::where('segment_id', $segment)->get();
             foreach ($duty as $d) {
                 $data = [
@@ -272,9 +271,9 @@ class SimplyDutyCountryController extends Controller
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price',
             'store_website_product_prices.product_id', 'store_website_product_prices.store_website_id', 'websites.code')
-       ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-       ->where('websites.code', strtolower($code))
-       ->get(); //dd($ps);
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->where('websites.code', strtolower($code))
+            ->get();
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['duty_price' => $amount, 'status' => 0]);
@@ -288,9 +287,9 @@ class SimplyDutyCountryController extends Controller
     public function update_store_website_product_segment($code, $segmentDiscount)
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.duty_price', 'websites.code')
-       ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-       ->where('websites.code', strtolower($code))
-       ->get(); //dd($ps);
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->where('websites.code', strtolower($code))
+            ->get();
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['segment_discount' => $segmentDiscount, 'status' => 0]);
@@ -310,8 +309,6 @@ class SimplyDutyCountryController extends Controller
             if ($website == null) {
                 \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
-                //ProductPushErrorLog::log($product->id, $msg, 'error');
-                //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                 echo $msg;
                 exit;
             } else {
@@ -328,7 +325,6 @@ class SimplyDutyCountryController extends Controller
                     $log->queue = \App\Helpers::createQueueName($website->title);
                     $log->save();
                     PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                    //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
                     $i++;
                 }
             }

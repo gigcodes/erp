@@ -79,7 +79,6 @@ class UpdateInventory extends Command
                     'color' => $selected_prod_value->color,
                 ];
             }
-//            $products = $products->chunk(500);
             if (! empty($products)) {
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Products records found']);
 
@@ -177,7 +176,6 @@ class UpdateInventory extends Command
                         $time_start = microtime(true);
                         CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
                         $time_end = microtime(true);
-                        //\Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => ' . ($execution_time));
                     } catch (\Exception $e) {
                         \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: ' . $e->getMessage());
                     }

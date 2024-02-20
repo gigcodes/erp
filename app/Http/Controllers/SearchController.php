@@ -13,11 +13,6 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function __construct()
-    {
-        //$this->middleware( 'permission:product-list' );
-    }
-
     public function search(Stage $stage, Request $request)
     {
         $data = [];
@@ -178,7 +173,7 @@ class SearchController extends Controller
         if (trim($term) != '') {
             $products = $products->where(function ($query) use ($term) {
                 $query->where('sku', 'LIKE', "%$term%")
-                      ->orWhere('id', 'LIKE', "%$term%");
+                    ->orWhere('id', 'LIKE', "%$term%");
 
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);

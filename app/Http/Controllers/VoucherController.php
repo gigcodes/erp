@@ -20,46 +20,15 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VoucherController extends Controller
 {
-    public function __construct()
-    {
-        //$this->middleware('permission:voucher');
-    }
-
     public function index(Request $request)
     {
-        // dd($request->all());
-        // $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
-        // $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
         $start = $request->range_start ? $request->range_start : date('Y-m-d', strtotime('monday this week'));
         $end = $request->range_end ? $request->range_end : date('Y-m-d', strtotime('saturday this week'));
         $selectedUser = $request->user_id ? $request->user_id : null;
         $status = $request->status ? $request->status : 'Pending';
         $tasks = PaymentReceipt::with('chat_messages', 'user')->where('status', $status);
-        // $tasks         = PaymentReceipt::where('status', $status);
         $teammembers = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id;
-        // if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
-
-        //     if ($request->user_id != null && $request->user_id != "") {
-        //         $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=', $start)->where('date', '<=', $end);
-        //     } else {
-        //         $tasks = $tasks->where('date', '>=', $start)->where('date', '<=', $end);
-        //     }
-        // } elseif (count($teammembers) > 0) {
-
-        //     $tasks = $tasks->whereIn('user_id', $teammembers)->where('date', '>=', $start)->where('date', '<=', $end);
-        // } else {
-
-        //     $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=', $start)->where('date', '<=', $end);
-        // }
-
-        // if($request->range_due_start) {
-        //     $tasks = $tasks->whereDate('billing_due_date', '>=', $request->range_due_start);
-        // }
-
-        // if($request->range_due_end) {
-        //     $tasks = $tasks->whereDate('billing_due_date', '<=', $request->range_due_end);
-        // }
 
         $limit = request('limit');
         if (! empty($limit)) {
@@ -70,25 +39,10 @@ class VoucherController extends Controller
 
         $tasks = $tasks->orderBy('id', 'desc')->paginate($limit)->appends(request()->except('page'));
 
-        // $allPayments =  Payment::pluck('amount','payment_receipt_id');
-        // $allTask = Task::get();
-        // $developerTask = DeveloperTask::get();
-
-        // $newAllTask =[];
-        //     foreach($allTask as $task){
-        //     $newAllTask[$task->id] = $task;
-        //     }
-
-        // $newAllDevTask =[];
-        //     foreach($developerTask as $task){
-        //     $newAllDevTask[$task->id] = $task;
-        //     }
-
         foreach ($tasks as $task) {
             $task->user;
 
             $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
-            // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
             if ($totalPaid) {
                 $task->paid_amount = number_format($totalPaid, 2);
                 $task->balance = $task->rate_estimated - $totalPaid;
@@ -98,10 +52,8 @@ class VoucherController extends Controller
                 $task->balance = $task->rate_estimated;
                 $task->balance = number_format($task->balance, 2);
             }
-            // $task->assignedUser;
             if ($task->task_id) {
                 $task->taskdetails = Task::find($task->task_id);
-                // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task_details;
@@ -113,7 +65,6 @@ class VoucherController extends Controller
                 }
             } elseif ($task->developer_task_id) {
                 $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task;
@@ -128,21 +79,6 @@ class VoucherController extends Controller
                 $task->estimate_minutes = $task->worked_minutes;
             }
         }
-
-        // $vouchers = $vouchers->orderBy('date', 'DESC')->get();
-        // dd($vouchers);
-        //
-        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        // $perPage = Setting::get('pagination');
-        // $currentItems = array_slice($vouchers, $perPage * ($currentPage - 1), $perPage);
-        //
-        // $vouchers = new LengthAwarePaginator($currentItems, count($vouchers), $perPage, $currentPage, [
-        //     'path'    => LengthAwarePaginator::resolveCurrentPath()
-        // ]);
-        //
-        // dd($vouchers);
-        // paginate(Setting::get('pagination'));
-        // $users_array = Helpers::getUserArray(User::all());
         $users = User::all();
 
         return view('vouchers.index', [
@@ -299,13 +235,6 @@ class VoucherController extends Controller
     {
         $voucher = Voucher::find($id);
 
-        //
-        /*if ($voucher->approved == 1) {
-        $voucher->approved = 2;
-        } else {
-        $voucher->approved = 1;
-        }*/
-
         $voucher->approved = 2;
 
         $voucher->save();
@@ -372,18 +301,6 @@ class VoucherController extends Controller
         $input['status'] = 'Pending';
         $input['rate_estimated'] = $input['amount'];
         PaymentReceipt::create($input);
-        /*//create entry in table cash_flows
-        \DB::table('cash_flows')->insert(
-            [
-                'user_id'             => $request->input('user_id'),
-                'description'         => 'Vendor paid',
-                'date'                => $request->input('date'),
-                'amount'              => $request->input('amount'),
-                'type'                => 'paid',
-                'cash_flow_able_type' => 'App\PaymentReceipt',
-
-            ]
-        );*/
         return redirect()->back()->with('success', 'Successfully created');
     }
 
@@ -451,26 +368,11 @@ class VoucherController extends Controller
         $request1->replace($message);
 
         $sendMessage = app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request1, 'user');
-        /*$cashData    = [
-            'user_id'             => $request->user_id,
-            'description'         => 'Vendor paid',
-            'date'                => $request->input('date'),
-            'amount'              => $newTotal,
-            'type'                => 'paid',
-            'cash_flow_able_type' => 'App\PaymentReceipt',
-            'cash_flow_able_type' => 'App\PaymentReceipt',
-            'created_at'          => date("Y-m-d H:i:s"),
-            'updated_by'          => \Auth::user()->id,
-
-        ];*/
         if ($newTotal >= $preceipt->rate_estimated) {
             $preceipt->update(['status' => 'Done']);
             $cashdata['order_status'] = 'Done';
             $cashdata['status'] = 1;
         }
-        //create entry in table cash_flows
-        //\DB::table('cash_flows')->insert($cashData);
-        //created
         return redirect()->back()->with('success', 'Successfully submitted');
     }
 
@@ -519,13 +421,6 @@ class VoucherController extends Controller
         $receipt = PaymentReceipt::find($request->id);
 
         $userList = [];
-
-        // $userList = array_filter($userList);
-        // // create the select box design html here
-        // $usrSelectBox = "";
-        // if (!empty($userList)) {
-        //     $usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
-        // }
 
         $records = [];
         if ($receipt) {
@@ -597,16 +492,6 @@ class VoucherController extends Controller
         }
 
         Payment::create($input);
-        /*$cashData = [
-            'user_id'             => $request->user_id,
-            'description'         => 'Vendor paid',
-            'date'                => $request->date,
-            'amount'              => $request->amount,
-            'type'                => 'paid',
-            'cash_flow_able_type' => 'App\PaymentReceipt',
-        ];
-        //create entry in table cash_flows
-        \DB::table('cash_flows')->insert($cashData);*/
         return redirect()->back()->with('success', 'Successfully submitted');
     }
 

@@ -57,7 +57,6 @@ class UpdateScrapedCategory implements ShouldQueue
         try {
             self::putLog('Job start time : ' . date('Y-m-d H:i:s'));
             self::putLog('Params : ' . print_r([$this->product_id, $this->category_id], true));
-            //\Log::info("this is called");
 
             $product = Product::find($this->product_id);
             $cat = $this->category_id;
@@ -129,7 +128,6 @@ class UpdateScrapedCategory implements ShouldQueue
                     self::putLog("Scrapeed Product {$productSku} update start time : " . date('Y-m-d H:i:s'));
                     $oldProduct = Product::where('id', $productSku)->first();
                     if ($oldProduct != null) {
-                        //\Log::info("this is called");
                         if (! empty($this->user_id)) {
                             $productCatHis = new \App\ProductCategoryHistory;
                             $productCatHis->user_id = ($this->user_id) ? $this->user_id : 6;

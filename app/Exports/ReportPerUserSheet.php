@@ -31,10 +31,10 @@ class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAu
     public function query()
     {
         return DailyActivity::query()
-                            ->where('user_id', $this->user_id)
-                            ->where('for_date', Carbon::now()->format('Y-m-d'))
-                            ->whereIn('time_slot', $this->time_slots)
-                            ->select(['time_slot', 'activity']);
+            ->where('user_id', $this->user_id)
+            ->where('for_date', Carbon::now()->format('Y-m-d'))
+            ->whereIn('time_slot', $this->time_slots)
+            ->select(['time_slot', 'activity']);
     }
 
     public function title(): string

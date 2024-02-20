@@ -42,9 +42,6 @@ class DeleteTotemJobEveryTime extends Command
         try {
             $jobs = \App\Job::where('payload', 'like', '%Totem%');
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Job query finished .']);
-            /*if(!empty($limit)) {
-                $jobs = $jobs->limit($limit);
-            }*/
 
             $jobs = $jobs->get();
 

@@ -44,7 +44,6 @@ class CheckScrapersLog extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $yesterdayDate = date('d', strtotime('-1 days'));
-            // $root          = env('SCRAP_LOGS_FOLDER');
             $root = config('env.SCRAP_LOGS_FOLDER');
 
             $counter = 0;

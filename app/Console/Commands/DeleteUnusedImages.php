@@ -57,8 +57,6 @@ class DeleteUnusedImages extends Command
             $directory = public_path('uploads');
             $files = File::allFiles($directory);
 
-            // dd($files);
-
             foreach ($files as $file) {
                 $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                 if (in_array($ext, $file_types)) {

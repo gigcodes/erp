@@ -8,10 +8,6 @@ use Overrides\RedisJobRepository;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Console\ConfirmableTrait;
 
-//use Illuminate\Queue\LuaScripts;
-//use Laravel\Horizon\LuaScripts;
-//use Laravel\Horizon\Repositories\RedisJobRepository;
-
 class HorizonClear extends Command
 {
     use ConfirmableTrait;
@@ -54,16 +50,6 @@ class HorizonClear extends Command
 
         return 0;
     }
-
-//    public function clear($queue)
-//    {
-//        $queue = $this->getQueue($queue);
-//
-//        return $this->getConnection()->eval(
-//            LuaScripts::clear(), 4, $queue, $queue.':delayed',
-//            $queue.':reserved', $queue.':notify'
-//        );
-//    }
 
     /**
      * Get the queue name to clear.

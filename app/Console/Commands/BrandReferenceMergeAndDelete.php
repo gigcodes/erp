@@ -80,33 +80,5 @@ class BrandReferenceMergeAndDelete extends Command
         }
 
         exit;
-
-        /*$brands = Brand::all();
-
-    foreach ($brands as $brand) {
-    $brandId = $brand->id;
-    $reference = $brand->references;
-    if(!empty($reference)){
-    $brandReferences = explode(',', $reference);
-    foreach ($brandReferences as $ref) {
-    if(!empty($ref)){
-    $similarBrands = Brand::where('name','LIKE','%'.$ref.'%')->where('id', '!=', $brandId)->get();
-    foreach ($similarBrands as $similarBrand) {
-    $product = \App\Product::where("brand", $similarBrand->id)->get();
-    if (!$product->isEmpty()) {
-    foreach ($product as $p) {
-    $lastBrand     = $p->brand;
-    $p->brand      = $brandId;
-    $p->last_brand = $lastBrand;
-    $p->save();
-    \Log::channel('productUpdates')->info("{$brandId} updated with product" . $p->sku);
-    }
-    }
-    $similarBrand->delete();
-    }
-    }
-    }
-    }
-    }*/
     }
 }

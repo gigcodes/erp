@@ -56,7 +56,6 @@ class Mailinglist extends Model
         $api_key = (isset($website->send_in_blue_smtp_email_api) && $website->send_in_blue_smtp_email_api != '') ? $website->send_in_blue_smtp_email_api : getenv('SEND_IN_BLUE_SMTP_EMAIL_API');
 
         if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
-            //if(!empty($mailing_item['static_template'])) {
             $emailEvent = EmailEvent::create(['list_contact_id' => $mailingList->list_contact_id, 'template_id' => $mailing_item->id]);
             $htmlContent = $emailClass['template'];
             $data = [
@@ -74,10 +73,7 @@ class Mailinglist extends Model
                 'Content-Type' => 'application/json',
             ])
                 ->post('https://api.sendinblue.com/v3/smtp/email', $data)->json();
-
-        //}
         } elseif (strpos($service->name, 'AcelleMail') !== false) {
-            //if(!empty($mailing_item['static_template'])) {
             $htmlContent = $emailClass['template'];
 
             $url = 'https://acelle.theluxuryunlimited.com/api/v1/campaign/create/' . $mailingList->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
@@ -89,7 +85,6 @@ class Mailinglist extends Model
             ];
 
             $response = Http::post($url, $data)->json();
-            //}
         }
     }
 }

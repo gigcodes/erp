@@ -78,22 +78,6 @@ class DoubleFScraper extends Scraper
             $allLinks->save();
         }
 
-//        $paginationData = $scrapEntriy->pagination;
-//        if (!$paginationData)
-//        {
-//            $body = $this->getContent($scrapEntriy->url);
-//            $c = new HtmlPageCrawler($body);
-//            $scrapEntriy->pagination =  $this->getPaginationData($c);
-//            $scrapEntriy->save();
-//        }
-//
-//        $pageNumber = $scrapEntriy->pagination['current_page_number'];
-//        $totalPageNumber = $scrapEntriy->pagination['total_pages'];
-//
-//        if ($pageNumber < $totalPageNumber) {
-//            $pageNumber++;
-//        }
-
         $body = $this->getContent($scrapEntriy->url, 'GET', 'it', false);
 
         $c = new HtmlPageCrawler($body);
@@ -126,15 +110,6 @@ class DoubleFScraper extends Scraper
             $entry->is_product_page = 1;
             $entry->save();
         }
-
-//        if ($pageNumber >= $totalPageNumber) {
-//            $scrapEntriy->pagination = [
-//                'current_page_number' => 1,
-//                'total_pages' => $totalPageNumber
-//            ];
-//            $scrapEntriy->is_scraped = 0;
-//            $scrapEntriy->save();
-//        }
     }
 
     private function getTitleFromProduct($product)

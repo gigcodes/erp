@@ -26,7 +26,6 @@ class MagentoModuleCategoryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // dd($request->all(), $request->module_category_id);
 
             $items = MagentoModuleCategory::query();
 

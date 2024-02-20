@@ -58,8 +58,6 @@ class PushPageToMagento implements ShouldQueue
 
                 if (! empty($allWebsites)) {
                     foreach ($allWebsites as $websitekey => $website) {
-                        //\Log::info("Store Website Data");
-                        //\Log::info(print_r([$website->id,$website->website,$website->tag_id],true));
                         if ($website->website_source) {
                             // assign the stores  column
                             $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)

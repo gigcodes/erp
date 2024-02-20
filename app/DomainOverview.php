@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class DomainOverview extends Model
 {
-    //
     protected $fillable = [
         'tool_id', 'store_website_id', 'database', 'rank', 'organic_keywords', 'organic_traffic', 'organic_cost', 'adwords_keywords', 'adwords_traffic', 'adwords_cost', 'pla_keywords', 'pla_uniques',
     ];

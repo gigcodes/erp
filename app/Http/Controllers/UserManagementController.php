@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use App\Sop;
 use App\Task;
 use App\User;
+use App\Vendor;
 use App\DeveloperTask;
 use App\UserFeedbackStatus;
-use App\UserFeedbackStatusUpdate;
 use Illuminate\Http\Request;
 use App\UserFeedbackCategory;
+use App\Models\DataTableColumn;
+use App\UserFeedbackStatusUpdate;
+use App\Models\UserFeedbackRemark;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
-use App\Vendor;
-use App\Models\UserFeedbackRemark;
-use App\Models\DataTableColumn;
 
 class UserManagementController extends Controller
 {
@@ -24,8 +24,6 @@ class UserManagementController extends Controller
         $user_id = '';
         if (\Auth::user()->isAdmin() == true) {
             $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
-        //if($request->user_id)
-            //    $category = $category->where('user_id', $request->user_id)->groupBy('category');
         } else {
             $category = UserFeedbackCategory::select('id', 'user_id', 'sop_id', 'category', 'sop')->groupBy('category');
             $category = $category->get();
@@ -34,7 +32,6 @@ class UserManagementController extends Controller
             }
         }
 
-        //\Auth::user()->isAdmin()
         if ($request->user_id) {
             if (\Auth::user()->isAdmin() == true) {
                 $user_id = $request->user_id;
@@ -45,7 +42,6 @@ class UserManagementController extends Controller
         $sops = Sop::all();
         $users = User::all();
         $sops = Sop::all();
-        //dd($sops);
         $category = $category->get();
 
         $query = Vendor::where('feeback_status', 1);
@@ -54,13 +50,13 @@ class UserManagementController extends Controller
             $query = $query->where('name', 'LIKE', "%{$request->term}%");
         }
 
-        $vendors = $query->paginate(25);                
+        $vendors = $query->paginate(25);
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'get-feedback-table-data')->first();
 
         $dynamicColumnsToShowVendorsFeeback = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowVendorsFeeback = json_decode($hideColumns, true);
         }
 
@@ -68,20 +64,19 @@ class UserManagementController extends Controller
     }
 
     public function vendorFeedbackVolumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','get-feedback-table-data')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'get-feedback-table-data')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'get-feedback-table-data';
-            $column->column_name = json_encode($request->column_vendorsf); 
+            $column->column_name = json_encode($request->column_vendorsf);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'get-feedback-table-data';
-            $column->column_name = json_encode($request->column_vendorsf); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_vendorsf);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -102,14 +97,8 @@ class UserManagementController extends Controller
         $query->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
         $query = $query->addSelect(\DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
-        //print_r($taskStatistics);
         $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->where('user_feedback_vendor_id', $user_feedback_vendor_id)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_vendor_id', $user_feedback_vendor_id)->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed');
-        /*if ($request->user_id != '' && (\Auth::user()->isAdmin)) {
-            $query1->where('users.id', $request->user_id);
-        } elseif ((\Auth::user()->isAdmin) == false) {
-            $query1->where('users.id', $request->user_id);
-        }*/
         $query1->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(\DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
@@ -122,7 +111,7 @@ class UserManagementController extends Controller
     {
         try {
             if ($request->sop_text == '') {
-                return response()->json(['code' => '500',  'message' => 'Please enter sop name']);
+                return response()->json(['code' => '500', 'message' => 'Please enter sop name']);
             }
             $sop = new UserFeedbackCategorySopHistory();
             $sop->category_id = $request->cat_id;
@@ -135,7 +124,7 @@ class UserManagementController extends Controller
 
             return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data saved successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -143,7 +132,7 @@ class UserManagementController extends Controller
     {
         try {
             if ($request->cat_id == '') {
-                return response()->json(['code' => '500',  'message' => 'History not found']);
+                return response()->json(['code' => '500', 'message' => 'History not found']);
             }
             $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->where('vendor_id', $request->vendor_id)->orderBy('id', 'DESC')->get();
             $html = '';
@@ -163,11 +152,9 @@ class UserManagementController extends Controller
             } else {
                 $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
             }
-//            dd($html);
-
             return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -183,7 +170,7 @@ class UserManagementController extends Controller
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -199,13 +186,13 @@ class UserManagementController extends Controller
 
             return response()->json(['code' => '200', 'data' => $sopComment, 'message' => 'Comment saved successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
     public function statusHistory(Request $request)
     {
-        try {            
+        try {
             $sop = new UserFeedbackStatusUpdate();
             $sop->user_feedback_category_id = $request->cat_id;
             $sop->user_id = \Auth::user()->id;
@@ -215,7 +202,7 @@ class UserManagementController extends Controller
 
             return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data saved successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -223,7 +210,7 @@ class UserManagementController extends Controller
     {
         try {
             if ($request->cat_id == '') {
-                return response()->json(['code' => '500',  'message' => 'History not found']);
+                return response()->json(['code' => '500', 'message' => 'History not found']);
             }
             $sop = UserFeedbackStatusUpdate::where('user_feedback_category_id', $request->cat_id)->where('user_feedback_vendor_id', $request->vendor_id)->orderBy('id', 'DESC')->get();
             $html = '';
@@ -236,11 +223,9 @@ class UserManagementController extends Controller
             } else {
                 $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
             }
-//            dd($html);
-
             return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 
@@ -273,8 +258,7 @@ class UserManagementController extends Controller
     }
 
     public function saveRemarks(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -283,7 +267,7 @@ class UserManagementController extends Controller
             'remarks' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = \Auth::user()->id;
         UserFeedbackRemark::create($input);
 
@@ -293,10 +277,10 @@ class UserManagementController extends Controller
     public function getRemarksHistories(Request $request)
     {
         $datas = UserFeedbackRemark::with(['user'])
-                ->where('user_feedback_category_id', $request->user_feedback_category_id)
-                ->where('user_feedback_vendor_id', $request->user_feedback_vendor_id)
-                ->latest()
-                ->get();
+            ->where('user_feedback_category_id', $request->user_feedback_category_id)
+            ->where('user_feedback_vendor_id', $request->user_feedback_vendor_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,

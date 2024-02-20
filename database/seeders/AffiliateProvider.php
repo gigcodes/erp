@@ -15,7 +15,7 @@ class AffiliateProvider extends Seeder
     public function run()
     {
         $affiliate = AffiliateProviders::where('provider_name', 'Tapfiliate')->first();
-        if(!$affiliate) {
+        if (! $affiliate) {
             AffiliateProviders::create(
                 [
                     'provider_name' => 'Tapfiliate',

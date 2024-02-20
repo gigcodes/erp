@@ -24,9 +24,7 @@ class CreateHashTags implements ShouldQueue
      */
     public function __construct(array $data)
     {
-        //
         $this->data = $data;
-        //print_r($data); exit;
     }
 
     /**
@@ -37,7 +35,7 @@ class CreateHashTags implements ShouldQueue
         $insert_data = [];
         try {
             self::putLog('Job start generategooglescraperkeywordsstart from erp ABC start time : ' . date('Y-m-d H:i:s'));
-            switch($this->data['type']) {
+            switch ($this->data['type']) {
                 case 'brand':
 
                     $brand_list = $this->data['data'];
@@ -83,7 +81,7 @@ class CreateHashTags implements ShouldQueue
 
                     if (! empty($brandList)) {
                         $processed_category_id_array = [];
-                        foreach ($categoryList as  $category_id => $category) {
+                        foreach ($categoryList as $category_id => $category) {
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
                                     $generated_string = $brand . ' ' . $category . ' ' . $keywordVariant;

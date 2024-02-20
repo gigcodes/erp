@@ -60,8 +60,6 @@ class SearchQueueController extends Controller
 
             return response()->json($response, 500);
         }
-
-        //echo "<pre>";print_r($list);exit;
     }
 
     /**

@@ -6,7 +6,6 @@ use App\Task;
 use App\ChatMessagesQuickData;
 use Illuminate\Console\Command;
 
-// use App\DeveloperTask;
 class TaskChatMessageQuickData extends Command
 {
     /***
@@ -71,37 +70,5 @@ class TaskChatMessageQuickData extends Command
                 }
             }
         });
-
-        // $devtasks = DeveloperTask::with(['allMessages' => function ($qr) {
-        //     $qr->orderBy("created_at", "desc");
-        // }])->chunk(100, function ($devtasks) {
-        //     foreach ($devtasks as $ts) {
-        //         if (count($ts->allMessages)) {
-        //             foreach ($ts->allMessages as $key1 => $item1) {
-        //                 $data['last_unread_message']          = ($item1->status == 0) ? $item1->message : null;
-        //                 $data['last_unread_message_at']       = ($item1->status == 0) ? $item1->created_at : null;
-        //                 $data['last_communicated_message']    = ($item1->status > 0) ? $item1->message : null;
-        //                 $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : null;
-        //                 $data['last_unread_message_id']       = null;
-        //                 $data['last_communicated_message_id'] = null;
-
-        //                 if (!empty($data['last_unread_message'])) {
-        //                     $data['last_unread_message_id'] = $item1->id;
-        //                 }
-        //                 if (!empty($data['last_communicated_message'])) {
-        //                     $data['last_communicated_message_id'] = $item1->id;
-        //                 }
-
-        //                 if (!empty($data['last_unread_message']) || !empty($data['last_communicated_message'])) {
-        //                     ChatMessagesQuickData::updateOrCreate([
-        //                         'model'    => \App\DeveloperTask::class,
-        //                         'model_id' => $item1->developer_task_id,
-        //                     ], $data);
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // });
     }
 }

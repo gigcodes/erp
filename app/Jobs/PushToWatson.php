@@ -51,7 +51,6 @@ class PushToWatson implements ShouldQueue
                     return true;
                 }
                 $success = 0;
-                // $workSpaceId = self::getWorkspaceId();
 
                 $storeParams = [];
                 $storeParams[$question->keyword_or_question] = $question->value;
@@ -155,6 +154,6 @@ class PushToWatson implements ShouldQueue
 
     public function tags()
     {
-        return ['watson_push',  $this->account_id];
+        return ['watson_push', $this->account_id];
     }
 }

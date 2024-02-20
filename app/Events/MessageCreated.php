@@ -1,7 +1,5 @@
 <?php
 
-// MessageCreated.php
-
 namespace App\Events;
 
 use App\Message;

@@ -21,15 +21,15 @@ class ReferFriendController extends Controller
         }
         if ($request->term) {
             $query = $query->where('referrer_email', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referrer_first_name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referrer_last_name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referrer_phone', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referee_first_name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referee_last_name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referee_email', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('referee_phone', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('website', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('status', 'LIKE', '%' . $request->term . '%');
+                ->orWhere('referrer_first_name', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referrer_last_name', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referrer_phone', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referee_first_name', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referee_last_name', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referee_email', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('referee_phone', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('website', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('status', 'LIKE', '%' . $request->term . '%');
         }
 
         if ($request->for_date) {
@@ -110,10 +110,6 @@ class ReferFriendController extends Controller
     public function destroy($id)
     {
         $ReferFriend = ReferFriend::find($id);
-
-        // NotificationQueue::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
-        // PushNotification::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
-
         $ReferFriend->delete();
 
         return redirect()->route('referfriend.list')

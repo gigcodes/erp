@@ -9,7 +9,6 @@ use App\Brand;
 use App\Vendor;
 use App\Category;
 use App\Customer;
-use App\Platform;
 use App\Supplier;
 use App\SopCategory;
 use App\TaskCategory;
@@ -277,8 +276,6 @@ class Select2Controller extends Controller
                 });
             }
             $tasks = $tasks->paginate(30);
-            // $result['total_count'] = $tasks->total();
-            // $result['incomplete_results'] = $tasks->nextPageUrl() !== null;
         }
         $result['total_count'] = $tasks->total();
         $result['incomplete_results'] = $tasks->nextPageUrl() !== null;
@@ -476,19 +473,6 @@ class Select2Controller extends Controller
         }
 
         return $response_str;
-
-        /*$result['total_count'] = $time_doctor_projects->total();
-        $result['incomplete_results'] = $time_doctor_projects->nextPageUrl() !== null;
-
-        foreach ($time_doctor_projects as $project) {
-            $text = $project->time_doctor_project_name;
-
-            $result['items'][] = [
-                'id' => $project->time_doctor_project_id,
-                'text' => $text,
-            ];
-        }
-        return response()->json($result);*/
     }
 
     public function taskCategory(Request $request)
@@ -745,14 +729,6 @@ class Select2Controller extends Controller
 
     public function vochuerPlatform(Request $request)
     {
-        /*$platforms = Platform::get()->pluck('name', 'id');
-
-        if (! empty($request->q)) {
-            $platforms->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%' . $request->q . '%');
-            });
-        }*/
-
         $query = DB::table('voucher_coupon_platforms')->select();
 
         if (! empty($request->q)) {
@@ -784,14 +760,6 @@ class Select2Controller extends Controller
 
     public function vochuerEmail(Request $request)
     {
-        /*$vocherEmails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
-
-        if (! empty($request->q)) {
-            $vocherEmails->where(function ($q) use ($request) {
-                $q->where('from_address', 'LIKE', '%' . $request->q . '%');
-            });
-        }*/
-
         $query = DB::table('email_addresses')->select();
 
         if (! empty($request->q)) {
@@ -823,14 +791,6 @@ class Select2Controller extends Controller
 
     public function vochuerWhatsappconfig(Request $request)
     {
-        /*$whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
-
-        if (! empty($request->q)) {
-            $whatsapp_configs->where(function ($q) use ($request) {
-                $q->where('number', 'LIKE', '%' . $request->q . '%');
-            });
-        }*/
-
         $query = DB::table('whatsapp_configs')->select();
 
         if (! empty($request->q)) {
@@ -864,7 +824,7 @@ class Select2Controller extends Controller
     {
         $magnetoCategories = \App\SiteDevelopmentCategory::wherenotNull('title');
 
-        if (!empty($request->q)) {
+        if (! empty($request->q)) {
             $magnetoCategories->where('title', 'LIKE', '%' . $request->q . '%');
         }
 

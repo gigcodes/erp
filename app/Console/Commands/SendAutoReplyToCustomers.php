@@ -8,7 +8,6 @@ use App\Category;
 use App\Customer;
 use Carbon\Carbon;
 use App\ChatMessage;
-use App\Compositions;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
@@ -63,7 +62,6 @@ class SendAutoReplyToCustomers extends Command
                 ->selectRaw('MAX(id) as id, customer_id')
                 ->groupBy('customer_id')
                 ->whereNotNull('message')
-//            ->where('customer_id', 2272)
                 ->where('customer_id', '>', '0')
                 ->where(function ($query) {
                     $query->whereNotIn('status', [7, 8, 9]);
@@ -77,7 +75,6 @@ class SendAutoReplyToCustomers extends Command
                 if (! $customer) {
                     continue;
                 }
-//            dump($customer->name);
 
                 $message = ChatMessage::where('id', $messagesId->id)
                     ->where(function ($query) {
@@ -186,7 +183,6 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractCompositions(): array
     {
-        // $compositions = Compositions::all();
         $compositions = [];
         $message = $this->activeMessage;
 

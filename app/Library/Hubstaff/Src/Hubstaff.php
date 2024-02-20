@@ -22,7 +22,6 @@ class Hubstaff
 
     public function __construct()
     {
-        // $this->SEED_REFRESH_TOKEN = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
         $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
@@ -37,10 +36,6 @@ class Hubstaff
 
     public function authenticate($generate = true)
     {
-        /*if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
-
-        }*/
-
         if ($generate) {
             $token = new Token();
             $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);

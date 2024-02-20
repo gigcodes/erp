@@ -2,14 +2,12 @@
 
 namespace App\Services\Products;
 
-use Storage;
 use App\Brand;
 use Validator;
 use App\Product;
 use App\Setting;
 use App\Category;
 use App\Supplier;
-use Plank\Mediable\Media;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class LidiaProductsCreator
@@ -49,51 +47,12 @@ class LidiaProductsCreator
 
         $properties_array = $image->properties;
 
-        // if (array_key_exists('Details', $properties_array)) {
-        //   if (strpos($properties_array['Details'], 'Made in') !== false) {
-        //     $product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
-        //
-        //     $product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
-        //   } else {
-        //     $product->composition = (string) $properties_array['Details'];
-        //   }
-        // }
-        //
-        // if (array_key_exists('Color Code', $properties_array)) {
-        //   $product->color = $properties_array['Color Code'];
-        // }
-
         if (array_key_exists('sizes', $properties_array)) {
             $sizes = $properties_array['sizes'];
-            // if (array_key_exists('Length', $sizes)) {
-            //   preg_match_all('/\s((.*))\s/', $sizes['Length'], $match);
-            //
-            //   $product->lmeasurement = (int) $match[1][0];
-            //   $product->measurement_size_type = 'measurement';
-            // }
 
             $imploded_sizes = implode(',', $sizes);
 
             $product->size = $imploded_sizes;
-
-            // if (strpos($sizes, 'Width:') !== false) {
-            //   preg_match_all('/Width: ([\d]+)/', $sizes, $match);
-         //
-            //   $product->lmeasurement = (int) $match[1][0];
-            //   $product->measurement_size_type = 'measurement';
-            // }
-         //
-            // if (strpos($sizes, 'Height:') !== false) {
-            //   preg_match_all('/Height: ([\d]+)/', $sizes, $match);
-         //
-            //   $product->hmeasurement = (int) $match[1][0];
-            // }
-         //
-            // if (strpos($sizes, 'Depth:') !== false) {
-            //   preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
-         //
-            //   $product->dmeasurement = (int) $match[1][0];
-            // }
         }
 
         if (array_key_exists('color', $properties_array)) {
@@ -172,8 +131,6 @@ class LidiaProductsCreator
         $product->detachMediaTags(config('constants.media_tags'));
 
         foreach ($images as $image_name) {
-            // Storage::disk('uploads')->delete('/social-media/' . $image_name);
-
             $path = public_path('uploads') . '/social-media/' . $image_name;
             $media = MediaUploader::fromSource($path)
                                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))

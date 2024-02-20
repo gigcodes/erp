@@ -37,7 +37,6 @@ class PushColorsToMagento extends Command
      */
     public function handle()
     {
-        //
         $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
         $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
         if (! $colorsData->isEmpty()) {

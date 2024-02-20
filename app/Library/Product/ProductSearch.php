@@ -83,7 +83,7 @@ class ProductSearch
                     case 'sku':
                         $products = $products->whereIn('sku', $value);
                         break;
-                        
+
                     case 'brand':
                         $products = $products->whereIn('brand', $value);
                         break;

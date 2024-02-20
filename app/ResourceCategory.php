@@ -55,7 +55,6 @@ class ResourceCategory extends Model
         $resourceimg->created_by = Auth::user()->name;
 
         return $resourceimg->save();
-        // echo "<pre>"; print_r($resourceimg);die("herer");
     }
 
     public static function getCategories()

@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Reindex;
 
+use Log;
 use App\ChatMessage;
-use App\Elasticsearch\Elasticsearch;
-use App\Elasticsearch\Reindex\Interfaces\Reindex;
-use App\Message;
 use App\Models\IndexerState;
 use Illuminate\Support\Facades\DB;
-use Log;
+use App\Elasticsearch\Elasticsearch;
+use App\Elasticsearch\Reindex\Interfaces\Reindex;
 
 class Messages implements Reindex
 {
     const INDEX_NAME = 'chatbot_messages';
+
     const LIMIT = 5000;
 
     private $indexerState;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function execute(array $params = []): void
     {
@@ -29,12 +29,12 @@ class Messages implements Reindex
         $settings = $indexer->getSettings();
 
         $cycles = $settings['cycles'] ?? 500;
-        $cycles = !(int)$cycles ? 500 : (int)$cycles;
+        $cycles = ! (int) $cycles ? 500 : (int) $cycles;
 
-        for ($page = 1;$page<=$cycles;$page++) {
+        for ($page = 1; $page <= $cycles; $page++) {
             Log::info('Reindex iteration: ' . $page);
             $messages = $this->getMessagesFromDB($page);
-            if (!$messages) {
+            if (! $messages) {
                 break;
             }
             $this->reindex($messages);
@@ -44,12 +44,12 @@ class Messages implements Reindex
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function configure(): array
     {
         return [
-            'index' => self::INDEX_NAME
+            'index' => self::INDEX_NAME,
         ];
     }
 
@@ -76,7 +76,6 @@ class Messages implements Reindex
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
-
         $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
             'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject', 'c.is_auto_simulator as customer_auto_simulator',
@@ -89,7 +88,7 @@ class Messages implements Reindex
 
         Log::info('Reindex sql: ' . $pendingApprovalMsg->toSql());
 
-        return (array)$pendingApprovalMsg->get()->getIterator();
+        return (array) $pendingApprovalMsg->get()->getIterator();
     }
 
     public function reindex($messages = [])
@@ -115,7 +114,7 @@ class Messages implements Reindex
         AND task_id IS NULL
         AND developer_task_id IS NULL
         AND email_id IS NULL
-        AND user_id IS NULL)) AND chat_messages.id = '.$chatMessage->id.' GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id) as lm');
+        AND user_id IS NULL)) AND chat_messages.id = ' . $chatMessage->id . ' GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id) as lm');
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
@@ -141,14 +140,15 @@ class Messages implements Reindex
 
         $model = $pendingApprovalMsg->first();
 
-        if (!$model) {
+        if (! $model) {
             return;
         }
 
         $this->save($model);
     }
 
-    public function getDocumentById($id) {
+    public function getDocumentById($id)
+    {
         try {
             if ($id === null) {
                 return null;
@@ -158,9 +158,9 @@ class Messages implements Reindex
                     'index' => self::INDEX_NAME,
                     'body' => [
                         'query' => [
-                            'match' => ['id' => $id]
-                        ]
-                    ]
+                            'match' => ['id' => $id],
+                        ],
+                    ],
                 ]);
 
             if ($record === null) {
@@ -169,7 +169,7 @@ class Messages implements Reindex
 
             $record = $record['hits']['hits'];
 
-            if (!$record) {
+            if (! $record) {
                 return null;
             }
 
@@ -178,19 +178,19 @@ class Messages implements Reindex
             $model->setAttribute('_id', $record[0]['_id']);
 
             return $model;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }
 
-    public function updateDocumentById($_id, $model) {
+    public function updateDocumentById($_id, $model)
+    {
         $params = [
             'index' => self::INDEX_NAME,
             'id' => $_id,
             'body' => [
-                'doc' => $model->getAttributes()
-            ]
+                'doc' => $model->getAttributes(),
+            ],
         ];
         Elasticsearch::update($params);
 
@@ -210,14 +210,13 @@ class Messages implements Reindex
                     'body' => $model->getAttributes(),
                 ]);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $model;
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setIndexerState(IndexerState $indexerState): self
     {
@@ -227,7 +226,7 @@ class Messages implements Reindex
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getIndexerState(): IndexerState
     {
@@ -272,14 +271,12 @@ class Messages implements Reindex
                 $indexer->addLog('Put in status valid.');
                 $indexer->setIds([]);
                 $indexer->save();
-            } else if ($model && $elasticAllow === false) {
+            } elseif ($model && $elasticAllow === false) {
                 $indexer->addId($model->id);
-            } else if ($model && $elasticAllow === true) {
+            } elseif ($model && $elasticAllow === true) {
                 $this->indexOne($model);
             }
-        }
-        catch (\Exception $e) {
-            $e;
+        } catch (\Exception $e) {
         }
     }
 }

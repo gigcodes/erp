@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GetGebnegozionlineProductDetails extends Command
 {

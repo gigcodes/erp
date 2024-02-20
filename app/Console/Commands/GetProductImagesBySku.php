@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
-use Illuminate\Console\Command;
 use App\Services\Scrap\GetImagesBySku;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GetProductImagesBySku extends Command
 {

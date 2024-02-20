@@ -117,13 +117,6 @@ class SuggestedProduct extends Model
                     $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
                     $products = $products->whereIn('ps.supplier_id', $suppliers);
                     $products = $products->groupBy('products.id');
-                    /*$products    = $products->whereHas('suppliers', function ($query) use ($suppliers) {
-                        return $query->where(function ($q) use ($suppliers) {
-                            foreach ($suppliers as $supplier) {
-                                $q->orWhere('suppliers.id', $supplier);
-                            }
-                        });
-                    });*/
                 }
 
                 // now check the params and start getting result

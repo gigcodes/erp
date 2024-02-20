@@ -15,19 +15,18 @@ class SimplyDuty
 
     public function __construct()
     {
-        // $this->apiKey = env("SIMPLY_DUTY_API_KEY");
         $this->apiKey = config('env.SIMPLY_DUTY_API_KEY');
     }
 
     /**
      * Calculate multiple request
      *
-     * @param  originCountryCode
-     * @param  destinationCountryCode
-     * @param  items
-     * @param  shipping
-     * @param  insurance
-     * @param  contractInsuranceType
+     * @param originCountryCode
+     * @param destinationCountryCode
+     * @param items
+     * @param shipping
+     * @param insurance
+     * @param contractInsuranceType
      */
     public function calculateMultiple(
         $originCountryCode,
@@ -66,12 +65,12 @@ class SimplyDuty
     /**
      * Calculate multiple request
      *
-     * @param  originCountryCode
-     * @param  destinationCountryCode
-     * @param  items
-     * @param  shipping
-     * @param  insurance
-     * @param  contractInsuranceType
+     * @param originCountryCode
+     * @param destinationCountryCode
+     * @param items
+     * @param shipping
+     * @param insurance
+     * @param contractInsuranceType
      */
     public function calculate(
         $originCountryCode,

@@ -6,11 +6,11 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Exception;
 use Carbon\Carbon;
-use Plank\Mediable\Mediable;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Mediable;
 
 class DeveloperTask extends Model
 {
@@ -169,7 +169,7 @@ class DeveloperTask extends Model
         'USER_ESTIMATED' => 'User Estimated',
         'DECLINE' => 'Decline',
         'REOPEN' => 'Reopen',
-        'APPROVED' => 'Approved'      
+        'APPROVED' => 'Approved',
     ];
 
     public function user()

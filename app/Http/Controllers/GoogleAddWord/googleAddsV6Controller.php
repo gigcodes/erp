@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\GoogleAddWord;
 
-use GuzzleHttp\Client;
 use App\GoogleTranslate;
 use Illuminate\Http\Request;
 use Google\ApiCore\ApiException;
-// use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
-// use Google\Ads\GoogleAds\Examples\Utils\ArgumentParser;
 use App\Http\Controllers\Controller;
 use Google\Ads\GoogleAds\V6\Services\UrlSeed;
 use Google\Ads\GoogleAds\Util\V6\ResourceNames;
@@ -25,8 +22,6 @@ class googleAddsV6Controller extends Controller
 {
     const PAGE_LIMIT = 100;
 
-    // private const CUSTOMER_ID = 7191785193;
-    // private const CUSTOMER_ID = 9081153891;
     private const CUSTOMER_ID = 5155361013;
 
     // Location criteria IDs. For example, specify 21167 for New York. For more information
@@ -146,7 +141,6 @@ class googleAddsV6Controller extends Controller
     public static function runExample(GoogleAdsClient $googleAdsClient, int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
     {
         $keywordPlanIdeaServiceClient = $googleAdsClient->getKeywordPlanIdeaServiceClient();
-        // dd( $customerId );
         // Make sure that keywords and/or page URL were specified. The request must have exactly one
         // of urlSeed, keywordSeed, or keywordAndUrlSeed set.
         if (empty($keywords) && is_null($pageUrl)) {
@@ -185,7 +179,6 @@ class googleAddsV6Controller extends Controller
                 // Add the resource name of each location ID to the request.
                 'geoTargetConstants' => $geoTargetConstants,
                 // Set the network. To restrict to only Google Search, change the parameter below to
-                // KeywordPlanNetwork::GOOGLE_SEARCH.
                 'keywordPlanNetwork' => KeywordPlanNetwork::GOOGLE_SEARCH_AND_PARTNERS,
             ] + $requestOptionalArgs
         );
@@ -196,7 +189,6 @@ class googleAddsV6Controller extends Controller
 
         foreach ($response->iterateAllElements() as $result) {
             /** @var GenerateKeywordIdeaResult $result */
-            // dd( $result );
             // Note that the competition printed below is enum value.
             // For example, a value of 2 will be returned when the competition is 'LOW'.
             // A mapping of enum names to values can be found at KeywordPlanCompetitionLevel.php.
@@ -207,13 +199,11 @@ class googleAddsV6Controller extends Controller
             }
             $finalData[] = [
                 'keyword' => $result->getText(),
-                // 'monthly_search_volumes' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->MonthlySearchVolume(),
                 'avg_monthly_searches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getAvgMonthlySearches(),
                 'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
                 'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
                 'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
                 'translate_text' => $translateText,
-                // 'getMonthlySearches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getMonthlySearches(),
 
             ];
         }

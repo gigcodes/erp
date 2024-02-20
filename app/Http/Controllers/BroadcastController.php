@@ -60,13 +60,11 @@ class BroadcastController extends Controller
 
     public function sendMessage(Request $request)
     {
-        // return $request->all();
         $data = \App\BroadcastMessageNumber::where(['broadcast_message_id' => $request->id])->orderBy('id', 'desc')->groupBy('type_id')->get();
         $isEmail = $request->is_email;
         $params = [];
         $message = [];
         //Create broadcast
-        //$broadcast = \App\BroadcastMessage::create(['name'=>$request->name]);
         $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id' => $request->id, 'name' => $request->name, 'message' => $request->message]);
         if (count($data)) {
             foreach ($data as $key => $item) {
@@ -75,7 +73,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => App\Vendor::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -103,7 +100,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => App\Supplier::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -130,7 +126,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => ErpCustomer::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -154,7 +149,6 @@ class BroadcastController extends Controller
                 }
             }
         }
-        // return $params;
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Message sent successfully']);
     }
@@ -231,7 +225,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => App\Vendor::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -265,7 +258,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => App\Supplier::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -292,7 +284,6 @@ class BroadcastController extends Controller
                     $message = [
                         'type_id' => $item->type_id,
                         'type' => ErpCustomer::class,
-                        //'broadcast_message_id' => $broadcast->id,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -311,7 +302,6 @@ class BroadcastController extends Controller
                 }
             }
         }
-        // return $params;
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Message sent successfully']);
     }

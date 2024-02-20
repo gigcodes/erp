@@ -23,7 +23,7 @@ class CreatePickupResponse extends ResponseAbstract
     public function hasError()
     {
         $notification = isset($this->response->Body->PickUpResponse->Notification)
-        ? $this->response->Body->PickUpResponse->Notification : null;
+            ? $this->response->Body->PickUpResponse->Notification : null;
 
         if (! empty($notification)) {
             foreach ($notification->attributes() as $k => $ntf) {
@@ -45,7 +45,7 @@ class CreatePickupResponse extends ResponseAbstract
     public function getErrorMessage()
     {
         $notification = isset($this->response->Body->PickUpResponse->Notification)
-        ? $this->response->Body->PickUpResponse->Notification : null;
+            ? $this->response->Body->PickUpResponse->Notification : null;
 
         if (! empty($notification)) {
             return [(string) $notification[0]->Message];
@@ -55,7 +55,7 @@ class CreatePickupResponse extends ResponseAbstract
     public function getPackageResult()
     {
         return isset($this->response->Body->PickUpResponse->PackagesResult->PackageResult)
-        ? $this->response->Body->PickUpResponse->PackagesResult->PackageResult : null;
+            ? $this->response->Body->PickUpResponse->PackagesResult->PackageResult : null;
     }
 
     public function getReceipt()

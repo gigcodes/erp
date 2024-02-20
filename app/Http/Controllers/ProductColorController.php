@@ -18,10 +18,10 @@ class ProductColorController extends Controller
     public function history(Request $request, $id)
     {
         $productCategory = \App\ProductColorHistory::leftJoin('users as u', 'u.id', 'product_color_histories.user_id')
-        ->where('product_id', $id)
-        ->orderBy('product_color_histories.created_at', 'desc')
-        ->select(['product_color_histories.*', 'u.name as user_name'])
-        ->get();
+            ->where('product_id', $id)
+            ->orderBy('product_color_histories.created_at', 'desc')
+            ->select(['product_color_histories.*', 'u.name as user_name'])
+            ->get();
 
         return response()->json(['code' => 200, 'data' => $productCategory]);
     }
@@ -32,7 +32,7 @@ class ProductColorController extends Controller
         $usresIds = $request->get('user_ids', []);
 
         $productCategory = \App\ProductColorHistory::leftJoin('products as p', 'p.id', 'product_color_histories.product_id')
-        ->leftJoin('users as u', 'u.id', 'product_color_histories.user_id');
+            ->leftJoin('users as u', 'u.id', 'product_color_histories.user_id');
 
         if (! empty($brands)) {
             $productCategory = $productCategory->whereIn('p.brand', $brands);
@@ -54,8 +54,8 @@ class ProductColorController extends Controller
         $updatedHistory = $updatedHistory->get()->toArray();
 
         $productCategory = $productCategory->orderBy('product_color_histories.created_at', 'desc')
-        ->select(['product_color_histories.*', 'u.name as user_name', 'p.name as product_name'])
-        ->paginate();
+            ->select(['product_color_histories.*', 'u.name as user_name', 'p.name as product_name'])
+            ->paginate();
 
         // total product without category by supplier
         return response()->json([

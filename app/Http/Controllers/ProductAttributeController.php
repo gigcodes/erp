@@ -22,29 +22,18 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductAttributeController extends Controller
 {
-    //
-    public function __construct()
-    {
-        //		$this->middleware('permission:attribute-list',['only' => ['sList','index']]);
-        //		$this->middleware('permission:attribute-create', ['only' => ['create','store']]);
-        //		$this->middleware('permission:attribute-edit', ['only' => ['edit','update']]);
-//
-//
-        //		$this->middleware('permission:attribute-delete', ['only' => ['destroy']]);
-    }
-
     public function index(Stage $stage)
     {
         $products = Product::latest()
-                           ->where('stage', '>=', $stage->get('Searcher'))
-                                         ->whereNull('dnf')
-                                             ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
-                           ->paginate(Setting::get('pagination'));
+            ->where('stage', '>=', $stage->get('Searcher'))
+            ->whereNull('dnf')
+            ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])
+            ->paginate(Setting::get('pagination'));
         $roletype = 'Attribute';
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                ->selected(1)
-                                                ->renderAsDropdown();
+            ->selected(1)
+            ->renderAsDropdown();
 
         return view('partials.grid', compact('products', 'roletype', 'category_selection'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
@@ -60,9 +49,6 @@ class ProductAttributeController extends Controller
 
     public function edit(Sizes $sizes, Product $productattribute)
     {
-        // if( $productattribute->isApproved == 1)
-        // 	return redirect(route('products.show',$productattribute->id));
-
         $data = [];
 
         $data['dnf'] = $productattribute->dnf;
@@ -99,8 +85,8 @@ class ProductAttributeController extends Controller
         $data['images'] = $productattribute->getMedia(config('constants.media_tags'));
 
         $data['category'] = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])
-                                                ->selected($productattribute->category)
-                                                ->renderAsDropdown();
+            ->selected($productattribute->category)
+            ->renderAsDropdown();
 
         $data['old_category'] = $productattribute->category;
         $data['category_tree'] = [];
@@ -192,9 +178,6 @@ class ProductAttributeController extends Controller
 
         $validations = [
             'sku' => 'required_without:dnf|unique:products,sku,' . $productattribute->id,
-            // 'name'   => 'required_without:dnf',
-            // 'short_description' => 'required_without:dnf',
-            // 'composition' => 'required_without:dnf',
         ];
 
         if ($request->input('measurement_size_type') == 'size') {
@@ -205,7 +188,6 @@ class ProductAttributeController extends Controller
             $validations['dmeasurement'] = 'required_without_all:lmeasurement,hmeasurement,dnf|numeric';
         }
 
-        //:-( ahead
         $check_image = 0;
         $images = $productattribute->getMedia(config('constants.media_tags'));
         $images_no = count($images);
@@ -225,7 +207,6 @@ class ProductAttributeController extends Controller
             $validations['image'] = 'required';
             $messages['image.required'] = 'Atleast on image is required. Last image can not be removed';
         }
-        //:-( over
 
         $this->validate($request, $validations, $messages);
 
@@ -268,7 +249,6 @@ class ProductAttributeController extends Controller
 
     public function calculateSpecialDiscount($price, $brand)
     {
-        //		$dis_per = Setting::get('special_price_discount');
         $dis_per = BrandController::getDeductionPercentage($brand);
 
         $dis_price = $price - ($price * $dis_per) / 100;
@@ -299,8 +279,8 @@ class ProductAttributeController extends Controller
 
             if (! empty($request->file('image.' . $i))) {
                 $media = MediaUploader::fromSource($request->file('image.' . $i))
-                ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
-                ->upload();
+                    ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
+                    ->upload();
                 $productattribute->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -315,8 +295,8 @@ class ProductAttributeController extends Controller
     public static function rejectedProductCountByUser()
     {
         return Product::where('last_attributer', Auth::id())
-                ->where('isApproved', -1)
-                ->count();
+            ->where('isApproved', -1)
+            ->count();
     }
 
     public function magentoProductUpdate($product, $old_sizes = null, $old_color = null, $old_images = null)
@@ -358,7 +338,6 @@ class ProductAttributeController extends Controller
                     $reference_sku = $reference->sku;
                 }
 
-                // $reference_final_sku = str_replace(' ', '', $reference_sku . $reference_color);
                 $reference_final_sku = $reference_sku . $reference_color;
                 $product_sizes = explode(',', $product->size);
 
@@ -401,9 +380,6 @@ class ProductAttributeController extends Controller
                         ];
 
                         // Update product simple
-                        // dump('updates simple product');
-                        // dump($reference_final_sku);
-
                         try {
                             $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku . '-' . $size, $productData);
                             $associated_skus[] = $reference_final_sku . '-' . $size;
@@ -462,7 +438,6 @@ class ProductAttributeController extends Controller
                         ];
 
                         // Creation of product simple
-                        // dump('creates simple product');
                         try {
                             $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $reference_sku . $reference_color . '-' . $size, $productData);
                             $associated_skus[] = $reference_final_sku . '-' . $size;
@@ -482,14 +457,6 @@ class ProductAttributeController extends Controller
                 'description' => '<p></p>',
                 'short_description' => $product->short_description,
                 'website_ids' => [1],
-                // Id or code of website
-                // 'status'                  => 2,
-                // 1 = Enabled, 2 = Disabled
-                // 'visibility'              => 4,
-                // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-                // 'tax_class_id'            => 2,
-                // Default VAT
-                // 'weight'                  => 0,
                 'stock_data' => [
                     'use_config_manage_stock' => 1,
                     'manage_stock' => 1,
@@ -501,7 +468,6 @@ class ProductAttributeController extends Controller
                 'special_price' => $product->price_eur_discounted,
                 'associated_skus' => $associated_skus,
                 // Simple products to associate
-                // 'configurable_attributes' => array( 155 ),
                 'additional_attributes' => [
                     'single_data' => [
                         ['key' => 'msrp', 'value' => $product->price],
@@ -517,10 +483,7 @@ class ProductAttributeController extends Controller
             $error_message = '';
 
             try {
-                // dump('updates configurable product');
                 $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, $productData);
-                // dump('product updated');
-                // dump($associated_skus);
             } catch (\Exception $e) {
                 $error_message = $e->getMessage();
                 $errors++;
@@ -536,23 +499,7 @@ class ProductAttributeController extends Controller
             }
 
             if ($error_message == 'Product not exists.') {
-                // dump($error_message);
-                // dump('configurable product doesnt exist');
-                // dump($reference_sku);
-                // $productData['status'] = $product->isFinal ?? 2;
-                // $productData['visibility'] = 4;
-                // $productData['tax_class_id'] = 2;
-                // $productData['weight'] = 0;
                 //
-                // try {
-                // 	$result = $proxy->catalogProductDelete($sessionId, $old_sku);
-                //
-                // 	$deleted_count++;
-                // } catch (\Exception $e) {
-                // 	$error_message = $e->getMessage();
-                // }
-                //
-                // $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, $sku, $productData);
             }
         } else {
             $measurement = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
@@ -575,14 +522,6 @@ class ProductAttributeController extends Controller
                 'description' => '<p></p>',
                 'short_description' => $product->short_description,
                 'website_ids' => [1],
-                // Id or code of website
-                // 'status'                => 2,
-                // 1 = Enabled, 2 = Disabled
-                // 'visibility'            => 4,
-                // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-                // 'tax_class_id'          => 2,
-                // Default VAT
-                // 'weight'                => 0,
                 'stock_data' => [
                     'use_config_manage_stock' => 1,
                     'manage_stock' => 1,
@@ -607,7 +546,6 @@ class ProductAttributeController extends Controller
             // Creation of product simple
             $error_message = '';
             try {
-                // dump('updates configurable product without sizes');
                 $result = $proxy->catalogProductUpdate($sessionId, $reference_final_sku, $productData);
             } catch (\Exception $e) {
                 $error_message = $e->getMessage();
@@ -623,8 +561,6 @@ class ProductAttributeController extends Controller
             }
 
             if ($error_message == 'Product not exists.') {
-                // dump('PRODUCT NOT EXISTS / CREATING NEW');
-                // dump('configurable product without sizes doesnot exists');
                 $productData['status'] = $product->isFinal ?? 2;
                 $productData['visibility'] = 4;
                 $productData['tax_class_id'] = 2;

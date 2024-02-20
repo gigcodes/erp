@@ -385,8 +385,8 @@ class BuyBackController extends Controller
         $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
         if ($storeWebsite) {
             $checkCustomer = Customer::where('email', $request->customer_email)
-            ->where('store_website_id', $storeWebsite->id)
-            ->first();
+                ->where('store_website_id', $storeWebsite->id)
+                ->first();
 
             if (! $checkCustomer) {
                 $message = $this->generate_erp_response('buyback.failed', $storeWebsite->id, $default = 'Customer not found with this email !', request('lang_code'));

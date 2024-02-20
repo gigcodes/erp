@@ -134,7 +134,6 @@ class Supplier extends Model
 
     public function category()
     {
-        //return $this->belongsToMany('App\SupplierCategory', 'supplier_category', 'supplier_category_id', 'id');
         return $this->hasMany(\App\SupplierCategory::class);
     }
 
@@ -146,7 +145,6 @@ class Supplier extends Model
     public function status()
     {
         return $this->belongsToMany(\App\SupplierStatus::class, 'supplier_status', 'supplier_status_id', 'id');
-        //return $this->hasMany('App\SupplierStatus');
     }
 
     public function whatsappAll($needBroadCast = false)

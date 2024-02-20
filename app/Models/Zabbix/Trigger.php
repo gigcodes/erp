@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Zabbix;
 
-use App\Zabbix\Zabbix;
 use JsonSerializable;
+use App\Zabbix\Zabbix;
 
 class Trigger implements JsonSerializable
 {
@@ -13,28 +13,21 @@ class Trigger implements JsonSerializable
      * @var Zabbix
      */
     private $zabbix;
-    /**
-     * @var
-     */
+
     private $id;
-    /**
-     * @var
-     */
+
     private $name;
-    /**
-     * @var
-     */
+
     private $event_name;
-    /**
-     * @var
-     */
+
     private $data;
-    /**
-     * @var
-     */
+
     private $severity;
+
     private $expression;
+
     private $templateId;
+
     private $is_active;
 
     public function __construct()
@@ -42,16 +35,12 @@ class Trigger implements JsonSerializable
         $this->zabbix = new Zabbix();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
-        return (int)$this->id;
+        return (int) $this->id;
     }
 
     /**
-     * @param int|null $id
      * @return $this
      */
     public function setId(?int $id): self
@@ -61,16 +50,12 @@ class Trigger implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
-        return (string)$this->name;
+        return (string) $this->name;
     }
 
     /**
-     * @param string $name
      * @return $this
      */
     public function setName(string $name): self
@@ -80,16 +65,12 @@ class Trigger implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEventName(): ?string
     {
-        return (string)$this->event_name;
+        return (string) $this->event_name;
     }
 
     /**
-     * @param string $eventName
      * @return $this
      */
     public function setEventName(string $eventName): self
@@ -104,11 +85,11 @@ class Trigger implements JsonSerializable
      */
     public function getDelay(): ?string
     {
-        return (string)$this->delay;
+        return (string) $this->delay;
     }
 
     /**
-     * @param int $severity
+     * @param  int  $severity
      * @return $this
      */
     public function setSeverity(string $severity): self
@@ -118,16 +99,13 @@ class Trigger implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSeverity(): ?string
     {
-        return (string)$this->severity;
+        return (string) $this->severity;
     }
 
     /**
-     * @param int|null $expression
+     * @param  int|null  $expression
      * @return $this
      */
     public function setExpression(?string $expression): self
@@ -137,28 +115,26 @@ class Trigger implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getExpression(): ?string
     {
-        return (string)$this->expression;
+        return (string) $this->expression;
     }
 
     public function isActive(): bool
     {
-        return (bool)$this->is_active;
+        return (bool) $this->is_active;
     }
 
     public function setIsActive(bool $active): self
     {
-        $this->is_active = !$active;
+        $this->is_active = ! $active;
+
         return $this;
     }
 
     public function getTemplateId(): ?int
     {
-        return (int)$this->templateId;
+        return (int) $this->templateId;
     }
 
     public function setTemplateId(int $templateId): self
@@ -199,18 +175,18 @@ class Trigger implements JsonSerializable
     {
         $this->zabbix->changeStatusTrigger([
             'triggerid' => $this->getId(),
-            'status' => (int)!$isActive
+            'status' => (int) ! $isActive,
         ]);
     }
 
     public function save(): void
     {
-        if (!$this->getId()) {
+        if (! $this->getId()) {
             $this->zabbix->saveTrigger([
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
                 'event_name' => $this->getEventName(),
-                'priority' => $this->getSeverity()
+                'priority' => $this->getSeverity(),
             ]);
         } else {
             $this->zabbix->updateTrigger([
@@ -218,25 +194,26 @@ class Trigger implements JsonSerializable
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
                 'event_name' => $this->getEventName(),
-                'priority' => $this->getSeverity()
+                'priority' => $this->getSeverity(),
             ]);
         }
     }
 
     public function setData(array $data = [])
     {
-        $this->setId((int)$data['triggerid'] ?? 0);
+        $this->setId((int) $data['triggerid'] ?? 0);
         $this->setExpression($data['expression'] ?? '');
         $this->setEventName($data['event_name'] ?? '');
         $this->setName($data['description'] ?? '');
-        $this->setTemplateId((int)$data['templateid'] ?? 0);
-        $this->setIsActive((bool)$data['status'] ?? true);
+        $this->setTemplateId((int) $data['templateid'] ?? 0);
+        $this->setIsActive((bool) $data['status'] ?? true);
         $this->setSeverity($data['priority'] ?? 0);
+
         return $this;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function jsonSerialize()
     {

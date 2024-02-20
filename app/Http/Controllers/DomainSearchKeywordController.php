@@ -43,6 +43,5 @@ class DomainSearchKeywordController extends Controller
         SeoKeywordIdea::create($inputs);
 
         return redirect()->back();
-        //return redirect()->route('testModal')->with('success', 'Added successfully!');
     }
 }

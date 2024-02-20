@@ -19,11 +19,6 @@ class scraperImags extends Model
         'updated_at',
         'si_status',
         'compare_flag',
-        'manually_approve_flag'
+        'manually_approve_flag',
     ];
-
-    // public function stores()
-    // {
-    //     return $this->hasMany(\App\WebsiteStore::class, 'website_id', 'id');
-    // }
 }

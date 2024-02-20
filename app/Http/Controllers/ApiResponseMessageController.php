@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\AssetPlateForm;
-use App\AssetsManager;
-use App\EmailAddress;
-use App\Setting;
-use App\StoreWebsite;
-use App\GoogleTranslate;
 use App\User;
+use App\Setting;
+use App\EmailAddress;
+use App\StoreWebsite;
+use App\AssetsManager;
+use App\AssetPlateForm;
+use App\GoogleTranslate;
 use App\WebsiteStoreView;
 use App\ApiResponseMessage;
 use Illuminate\Http\Request;
@@ -159,11 +159,11 @@ class ApiResponseMessageController extends Controller
             $languages = \App\Language::where('status', 1)->get();
             foreach ($languages as $l) {
                 $websiteStoreViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')
-                ->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')->where('website_store_views.name', $l->name)->whereHas('websiteStore', function ($q) use ($apiResponseMessage) {
-                    $q->whereHas('website', function ($query) use ($apiResponseMessage) {
-                        $query->where('store_website_id', $apiResponseMessage->store_website_id);
-                    });
-                })->select('website_store_views.code')->first();
+                    ->leftJoin('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')->where('website_store_views.name', $l->name)->whereHas('websiteStore', function ($q) use ($apiResponseMessage) {
+                        $q->whereHas('website', function ($query) use ($apiResponseMessage) {
+                            $query->where('store_website_id', $apiResponseMessage->store_website_id);
+                        });
+                    })->select('website_store_views.code')->first();
 
                 if ($websiteStoreViews) {
                     $lang_code = $websiteStoreViews->code;
@@ -249,7 +249,7 @@ class ApiResponseMessageController extends Controller
         $assetsManager = AssetsManager::query()->orderBy('id', 'DESC')->get();
 
         return response()->json([
-            'items' => (array)$assetsManager->getIterator()
+            'items' => (array) $assetsManager->getIterator(),
         ]);
     }
 
@@ -264,8 +264,9 @@ class ApiResponseMessageController extends Controller
         $assets = AssetsManager::query()->orderBy('id', 'DESC')->get();
 
         $users = User::get()->toArray();
+
         return response()->json([
-            'tpl' => (string)view('partials.modals.assets-manager-listing-modal', [
+            'tpl' => (string) view('partials.modals.assets-manager-listing-modal', [
                 'assetsManagers' => $assetsManagers,
                 'websites' => $websites,
                 'plateforms' => $plateforms,
@@ -273,8 +274,8 @@ class ApiResponseMessageController extends Controller
                 'whatsappCon' => $whatsappCon,
                 'assets_category' => $assets_category,
                 'assets' => $assets,
-                'users' => $users
-            ])
+                'users' => $users,
+            ]),
         ]);
     }
 }

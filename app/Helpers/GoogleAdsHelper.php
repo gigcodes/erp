@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use Exception;
-
 use App\GoogleAdsAccount;
 use Google\Ads\GoogleAds\Lib\OAuth2TokenBuilder;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClientBuilder;
@@ -25,16 +24,16 @@ class GoogleAdsHelper
 
                 // Generate a refreshable OAuth2 credential for authentication.
                 $oAuth2Credential = (new OAuth2TokenBuilder())
-                                    ->withClientId($clientId)
-                                    ->withClientSecret($clientSecret)
-                                    ->withRefreshToken($refreshToken)
-                                    ->build();
+                    ->withClientId($clientId)
+                    ->withClientSecret($clientSecret)
+                    ->withRefreshToken($refreshToken)
+                    ->build();
 
                 $googleAdsClient = (new GoogleAdsClientBuilder())
-                                    ->withDeveloperToken($developerToken)
-                                    ->withLoginCustomerId($loginCustomerId)
-                                    ->withOAuth2Credential($oAuth2Credential)
-                                    ->build();
+                    ->withDeveloperToken($developerToken)
+                    ->withLoginCustomerId($loginCustomerId)
+                    ->withOAuth2Credential($oAuth2Credential)
+                    ->build();
 
                 return $googleAdsClient;
             } catch (Exception $e) {

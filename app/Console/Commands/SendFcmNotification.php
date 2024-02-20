@@ -102,12 +102,11 @@ class SendFcmNotification extends Command
 
                         $notificationBuilder = new PayloadNotificationBuilder($title);
                         $notificationBuilder->setBody($body)
-                                            ->setSound('default');
+                            ->setSound('default');
 
                         $dataBuilder = new PayloadDataBuilder();
                         $dataBuilder->addData([
                             'icon' => $Notification->icon,
-                            // 'url' => $Notification->url,
                             'expired_day' => $Notification->expired_day,
                         ]);
 
@@ -121,7 +120,6 @@ class SendFcmNotification extends Command
 
                         $success = false;
                         if ($downstreamResponse->numberSuccess()) {
-                            //PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
                             $this->info('Message Sent Succesfully');
                             \Log::info('fcm:send Message Sent Succesfully');
                             $Notification->status = 'Success';
@@ -165,7 +163,7 @@ class SendFcmNotification extends Command
                 \Log::info('fcm:send Exception No notification available for sending at the moment');
                 $this->info('No notification available for sending at the moment');
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

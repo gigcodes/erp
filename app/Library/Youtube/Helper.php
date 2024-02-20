@@ -8,7 +8,6 @@ use App\Models\YoutubeChannel;
 use App\Models\YoutubeComment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Google\Service\YouTube\Resource\Youtube;
 
 class Helper
 {
@@ -38,14 +37,6 @@ class Helper
             }
 
             return $response['access_token'];
-
-            // $expireIn = !empty($response['expires_in']) ? $response['expires_in'] : null;
-            // if(!empty($expireIn)){
-            //     $currentTime = strtotime(Carbon::now());
-            //     $expireIn= Carbon::createFromTimestamp(($currentTime + $expireIn));
-            // }
-            // $websiteData->token_expire_time = $expireIn;
-            // $websiteData->save();
         } catch (\Exception $e) {
             Log::info(__('failedGetAccessToken', ['something went wrong']));
             Log::info($e->getMessage());
@@ -88,13 +79,6 @@ class Helper
             '43' => 'Shows',
 
         ];
-        // self::regenerateToken($youtubeChanelTableId);
-        // $categories = Http::withToken($accessToken)
-        // ->get('GET https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=ISO3166-2:IN')
-        // ->json();
-
-        // dd($categories);
-        // return $categories;
     }
 
     public static function getChanelData($accessToken, $youtubeChanelTableId)
@@ -281,9 +265,6 @@ class Helper
                                 if ($video['kind'] == 'youtube#video') {
                                     if (! empty($video['id'])) {
                                         $videoObj['media_id'] = $video['id'];
-                                        // $interval = new \DateInterval($video['contentDetails']['duration']);
-                                        // $videoObj['duration'] = $interval->h * 3600 + $interval->i * 60 + $interval->s; //Store in seconds
-                                        // $videoObj['type'] = 'video';
                                         $videoObj['title'] = ! empty($video['snippet']['title']) ? $video['snippet']['title'] : '';
                                         $videoObj['link'] = 'https://www.youtube.com/embed/' . $video['id'];
                                         $videoObj['like_count'] = ! empty($video['statistics']['likeCount']) ? $video['statistics']['likeCount'] : '';

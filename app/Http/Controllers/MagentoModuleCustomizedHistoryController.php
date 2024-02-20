@@ -21,7 +21,6 @@ class MagentoModuleCustomizedHistoryController extends Controller
     {
         $input = $request->except(['_token']);
         $input['user_id'] = auth()->user()->id;
-        // dd($input);
         $data = MagentoModuleCustomizedHistory::create($input);
 
         if ($data) {

@@ -15,14 +15,13 @@ class GoogleTraslationSettingsController extends Controller
     public function index(Request $request)
     {
         $settings = googleTraslationSettings::query();
-        // $settings = googleTraslationSettings::all();
 
         if ($request->term) {
             $settings->where(function ($q) use ($request) {
                 $q = $q->orWhere('email', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('account_json', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('last_note', 'LIKE', '%' . $request->term . '%')
-                  ->orWhere('project_id', 'LIKE', '%' . $request->term . '%');
+                    ->orWhere('account_json', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('last_note', 'LIKE', '%' . $request->term . '%')
+                    ->orWhere('project_id', 'LIKE', '%' . $request->term . '%');
             });
         }
 
@@ -31,8 +30,6 @@ class GoogleTraslationSettingsController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('googleTraslationSettings.list', compact('settings'))->render(),
-                // 'links' => (string) $data->render(),
-                // 'count' => $data->total(),
             ], 200);
         }
 
@@ -134,14 +131,14 @@ class GoogleTraslationSettingsController extends Controller
 
             $googleTraslationSettings = new googleTraslationSettings;
             $googleTraslationSettings->where('id', $id)
-            ->limit(1)
-            ->update([
-                'email' => $email,
-                'account_json' => $account_json,
-                'status' => $status,
-                'last_note' => $last_note,
-                'project_id' => $project_id,
-            ]);
+                ->limit(1)
+                ->update([
+                    'email' => $email,
+                    'account_json' => $account_json,
+                    'status' => $status,
+                    'last_note' => $last_note,
+                    'project_id' => $project_id,
+                ]);
 
             return redirect()->route('google-traslation-settings.index')->with('success', 'Setting Update Successfully');
         } catch (Exception $e) {

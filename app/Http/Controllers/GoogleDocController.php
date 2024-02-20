@@ -32,11 +32,6 @@ class GoogleDocController extends Controller
                 $q->whereIn('google_docs.id', $keyword);
             });
         }
-        /*if ($keyword = request('name')) {
-            $data = $data->where(function ($q) use ($keyword) {
-                $q->where('google_docs.name', 'LIKE', $keyword);
-            });
-        }*/
         if ($keyword = request('search')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('name', 'LIKE', "%$keyword%");
@@ -50,15 +45,10 @@ class GoogleDocController extends Controller
         if ($keyword = request('user_gmail')) {
             $data = $data->where(function ($q) use ($keyword) {
                 foreach ($keyword as $key => $value) {
-                    $q->whereRaw("find_in_set('" . $value . "',google_docs.read)")->orWhereRaw("find_in_set('" . $value . "',google_docs.write)");    
-                }                
+                    $q->whereRaw("find_in_set('" . $value . "',google_docs.read)")->orWhereRaw("find_in_set('" . $value . "',google_docs.write)");
+                }
             });
         }
-        /*if ($keyword = request('tasks')) {
-            $data = $data->where(function ($q) use ($keyword) {
-                $q->whereIn('google_docs.belongable_id', $keyword);
-            });
-        }*/
 
         if ($keyword = request('tasks')) {
             $data = $data->where(function ($q) use ($keyword) {
@@ -93,7 +83,6 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
             'doc_name' => ['required', 'max:800'],
-            // 'doc_category' => ['required', 'max:191'],
             'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
             'read' => ['sometimes'],
             'write' => ['sometimes'],
@@ -160,7 +149,6 @@ class GoogleDocController extends Controller
      */
     public function edit($id)
     {
-        //
         $modal = GoogleDoc::where('id', $id)->first();
 
         if ($modal) {
@@ -310,8 +298,6 @@ class GoogleDocController extends Controller
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($googledoc->docId, $parameters);
 
-            // dd($permissions->getPermissions());
-
             $is_already_have_permission = false;
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
@@ -378,7 +364,6 @@ class GoogleDocController extends Controller
         $data = $this->validate($request, [
             'doc_type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
             'doc_name' => ['required', 'max:800'],
-            // 'doc_category' => ['required', 'max:191'],
             'task_id' => ['required'],
             'task_type' => ['required'],
         ]);
@@ -556,8 +541,6 @@ class GoogleDocController extends Controller
             // Call the endpoint to fetch the permissions of the file
             $permissions = $driveService->permissions->listPermissions($doc->docId, $parameters);
 
-            // dd($permissions->getPermissions());
-
             $is_already_have_permission = false;
             foreach ($permissions->getPermissions() as $permission) {
                 $permissionEmails[] = $permission['emailAddress'];
@@ -580,17 +563,8 @@ class GoogleDocController extends Controller
                 'emailAddress' => $user->gmail,
             ]);
 
-            // dd([
-            //     'type' => 'user',
-            //     'role' => 'reader',
-            //     'emailAddress' => $user->gmail,
-            // ], $doc->docId);
-
             $r_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($r_request, 'user' . rand(0, 999));
-            // $index++;
-            // foreach ($readData as $email) {
-            // }
             $results = $batch->execute();
             $readPermission[] = $user->gmail;
 
@@ -603,9 +577,6 @@ class GoogleDocController extends Controller
 
             $w_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($w_request, 'user' . rand(0, 999));
-            // $index++;
-            // foreach ($writeData as $email) {
-            // }
             $results = $batch->execute();
             $writePermission[] = $user->gmail;
 
@@ -750,14 +721,13 @@ class GoogleDocController extends Controller
 
     public function googleDocumentList(Request $request)
     {
-        
         $dataDropdown = GoogleDoc::pluck('name', 'id')->toArray();
 
         // Get the user input
         $input = $_GET['term'];
 
         // Filter tags based on user input
-        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+        $filteredTags = array_filter($dataDropdown, function ($tag) use ($input) {
             return stripos($tag, $input) !== false;
         });
 
@@ -767,23 +737,22 @@ class GoogleDocController extends Controller
 
     public function googleTasksList(Request $request)
     {
-            
         $tasksData = \App\Task::pluck('id')->toArray();
         $DeveloperTaskData = \App\DeveloperTask::pluck('id')->toArray();
 
-        $tasks = array_unique(array_merge($tasksData,$DeveloperTaskData));
+        $tasks = array_unique(array_merge($tasksData, $DeveloperTaskData));
 
         sort($tasks);
 
-        if(!empty($tasks)){
-            $tasks = explode (", ", implode(", ", $tasks));
+        if (! empty($tasks)) {
+            $tasks = explode(', ', implode(', ', $tasks));
         }
 
         // Get the user input
         $input = $_GET['term'];
 
         // Filter tags based on user input
-        $filteredTags = array_filter($tasks, function($tag) use ($input) {
+        $filteredTags = array_filter($tasks, function ($tag) use ($input) {
             return stripos($tag, $input) !== false;
         });
 

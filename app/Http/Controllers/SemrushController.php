@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Semrush;
 use Illuminate\Http\Request;
 
 class SemrushController extends Controller
@@ -64,8 +63,6 @@ class SemrushController extends Controller
 
     public function manageSemrushAccounts()
     {
-        // $all_accounts = Semrush::where(['status' => 1])->get();
-        //return view('semrush.manage-accounts', compact('all_accounts'));
         return view('semrush.manage-accounts');
     }
 

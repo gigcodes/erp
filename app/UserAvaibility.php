@@ -74,7 +74,6 @@ class UserAvaibility extends Model
                     $lunchTime = date('Y-m-d H:i:00', strtotime($lunchTime));
                 }
                 if ($stDatetime <= $lunchTime && $lunchTime <= $enDatetime) {
-                    // Do nothing
                 } else {
                     $lunchTime = null;
                 }
@@ -102,7 +101,6 @@ class UserAvaibility extends Model
         if ($slots) {
             $temp = [];
             foreach ($slots as $key => $value) {
-                // $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $temp[date('Y-m-d', strtotime($value['st']))][] = $value;
             }
@@ -149,7 +147,6 @@ class UserAvaibility extends Model
         if ($slots) {
             $temp = [];
             foreach ($slots as $key => $value) {
-                // $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $value['slot_type'] = $value['type'];
                 $temp[date('Y-m-d', strtotime($value['st']))][] = $value;
@@ -157,7 +154,6 @@ class UserAvaibility extends Model
             $slots = $temp;
         }
 
-        // dd($slots);
         foreach ($slots as $d => $slot) {
             $LStart = Carbon::parse($d . ' ' . $availability->lunch_time_from);
             $LEnd = Carbon::parse($d . ' ' . $availability->lunch_time_to);
@@ -171,11 +167,9 @@ class UserAvaibility extends Model
                     $slots[$d][$key]['type'] = 'FULL-LUNCH';
                 } elseif ($LStart->gt($SStart) && $LStart->lt($SEnd)) {
                     $slots[$d][$key]['type'] = 'LUNCH-START';
-                    // $slots[$d][$key]["en"] = ($d.' '.$availability->lunch_time_from);
                     $slots[$d][$key]['new_en'] = ($d . ' ' . $availability->lunch_time_from);
                 } elseif ($LEnd->gt($SStart) && $LEnd->lt($SEnd)) {
                     $slots[$d][$key]['type'] = 'LUNCH-END';
-                    // $slots[$d][$key]["st"] = ($d.' '.$availability->lunch_time_to);
                     $slots[$d][$key]['new_st'] = ($d . ' ' . $availability->lunch_time_to);
                 }
                 $slots[$d][$key]['lunch_time'] = [

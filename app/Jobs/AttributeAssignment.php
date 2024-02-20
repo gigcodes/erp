@@ -33,7 +33,6 @@ class AttributeAssignment implements ShouldQueue
      */
     public function handle()
     {
-        // dd($this->data);
         $userId = $this->data['user_id'];
         if ($this->data['attribute_id'] == StatusHelper::$unknownSize) {
             $find_products = Product::where('status_id', $this->data['attribute_id']);
@@ -163,7 +162,7 @@ class AttributeAssignment implements ShouldQueue
             if ($this->data['find_color'] == 'NULL') {
                 $find_products->where(function ($query) {
                     $query->where('color', null)
-                          ->orWhere('color', '');
+                        ->orWhere('color', '');
                 });
             } else {
                 $find_products->where('color', $this->data['find_color']);

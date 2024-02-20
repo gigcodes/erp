@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Zabbix;
 
-use App\Zabbix\Zabbix;
 use JsonSerializable;
+use App\Zabbix\Zabbix;
 
 class User implements JsonSerializable
 {
@@ -13,35 +13,23 @@ class User implements JsonSerializable
      * @var Zabbix
      */
     private $zabbix;
-    /**
-     * @var
-     */
+
     private $id;
-    /**
-     * @var
-     */
+
     private $name;
-    /**
-     * @var
-     */
+
     private $surname;
-    /**
-     * @var
-     */
+
     private $roleId;
-    /**
-     * @var
-     */
+
     private $url;
-    /**
-     * @var
-     */
+
     private $timezone;
-    /**
-     * @var
-     */
+
     private $autologin;
+
     private $username;
+
     private $password;
 
     public function __construct()
@@ -58,26 +46,23 @@ class User implements JsonSerializable
             $model = new self();
             $model->setName($item['name'] ?? '');
             $model->setUsername($item['username'] ?? '');
-            $model->setId((int)$item['userid'] ?? null);
+            $model->setId((int) $item['userid'] ?? null);
             $model->setSurname($item['surname'] ?? '');
-            $model->setRoleId((int)$item['roleid'] ?? null);
-            $model->setUrl((string)$item['url'] ?? '');
-            $model->setTimezone((string)$item['timezone'] ?? '');
-            $model->setAutologin((int)$item['autologin'] ?? 0);
+            $model->setRoleId((int) $item['roleid'] ?? null);
+            $model->setUrl((string) $item['url'] ?? '');
+            $model->setTimezone((string) $item['timezone'] ?? '');
+            $model->setAutologin((int) $item['autologin'] ?? 0);
+
             return $model;
         }, $this->zabbix->getAllUsers());
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
-        return (int)$this->id;
+        return (int) $this->id;
     }
 
     /**
-     * @param int|null $id
      * @return $this
      */
     public function setId(?int $id): self
@@ -87,17 +72,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
-        return (string)$this->name;
+        return (string) $this->name;
     }
 
     /**
-     * @param string $name
      * @return $this
      */
     public function setName(string $name): self
@@ -107,16 +87,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getUsername(): ?string
     {
-        return (string)$this->username;
+        return (string) $this->username;
     }
 
     /**
-     * @param string $username
      * @return $this
      */
     public function setUsername(string $username): self
@@ -126,16 +102,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSurname(): ?string
     {
-        return (string)$this->surname;
+        return (string) $this->surname;
     }
 
     /**
-     * @param string $surname
      * @return $this
      */
     public function setSurname(string $surname): self
@@ -145,16 +117,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getRoleId(): ?int
     {
-        return (int)$this->roleId;
+        return (int) $this->roleId;
     }
 
     /**
-     * @param int|null $roleId
      * @return $this
      */
     public function setRoleId(?int $roleId): self
@@ -164,16 +132,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getUrl(): ?string
     {
-        return (string)$this->url;
+        return (string) $this->url;
     }
 
     /**
-     * @param string $url
      * @return $this
      */
     public function setUrl(string $url): self
@@ -183,16 +147,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTimezone(): ?string
     {
-        return (string)$this->timezone;
+        return (string) $this->timezone;
     }
 
     /**
-     * @param string $timezone
      * @return $this
      */
     public function setTimezone(string $timezone): self
@@ -202,16 +162,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPassword(): ?string
     {
-        return (string)$this->password;
+        return (string) $this->password;
     }
 
     /**
-     * @param string $password
      * @return $this
      */
     public function setPassword(string $password): self
@@ -221,16 +177,12 @@ class User implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getAutologin(): ?int
     {
-        return (int)$this->autologin;
+        return (int) $this->autologin;
     }
 
     /**
-     * @param int|null $autologin
      * @return $this
      */
     public function setAutologin(?int $autologin): self
@@ -242,7 +194,7 @@ class User implements JsonSerializable
 
     public function save()
     {
-        if (!$this->getId()) {
+        if (! $this->getId()) {
             $this->zabbix->saveUser([
                 'username' => $this->getUsername(),
                 'name' => $this->getName(),
@@ -251,18 +203,20 @@ class User implements JsonSerializable
                 'passwd' => $this->getPassword(),
                 'usrgrps' => [
                     [
-                        'usrgrpid' => 7
-                    ]
-                ]
+                        'usrgrpid' => 7,
+                    ],
+                ],
             ]);
+
             return $this->getById(1);
         } else {
             $this->zabbix->updateUser([
                 'name' => $this->getName(),
                 'surname' => $this->getSurname(),
                 'roleid' => $this->getRoleId(),
-                'userid' => $this->getId()
+                'userid' => $this->getId(),
             ]);
+
             return $this->getById($this->getId());
         }
     }
@@ -271,7 +225,7 @@ class User implements JsonSerializable
     {
         $user = $this->zabbix->getUserByIds($id);
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
@@ -292,12 +246,12 @@ class User implements JsonSerializable
     {
         $this->setName($data['name'] ?? '');
         $this->setUsername($data['username'] ?? '');
-        $this->setId((int)$data['userid'] ?? null);
+        $this->setId((int) $data['userid'] ?? null);
         $this->setSurname($data['surname'] ?? '');
-        $this->setRoleId((int)$data['roleid'] ?? null);
-        $this->setUrl((string)$data['url'] ?? '');
-        $this->setTimezone((string)$data['timezone'] ?? '');
-        $this->setAutologin((int)$data['autologin'] ?? 0);
+        $this->setRoleId((int) $data['roleid'] ?? null);
+        $this->setUrl((string) $data['url'] ?? '');
+        $this->setTimezone((string) $data['timezone'] ?? '');
+        $this->setAutologin((int) $data['autologin'] ?? 0);
 
         return $this;
     }
@@ -311,8 +265,7 @@ class User implements JsonSerializable
 
     public function saveRole(array $params = [])
     {
-
-        if (!empty($params['roleid'])) {
+        if (! empty($params['roleid'])) {
             $this->zabbix->saveRole($params, 'update');
         } else {
             $this->zabbix->saveRole($params);
@@ -320,7 +273,7 @@ class User implements JsonSerializable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function jsonSerialize()
     {
@@ -332,7 +285,7 @@ class User implements JsonSerializable
             'url' => $this->getUrl(),
             'role_id' => $this->getRoleId(),
             'autologin' => $this->getAutologin(),
-            'timezone' => $this->getTimezone()
+            'timezone' => $this->getTimezone(),
         ];
     }
 }

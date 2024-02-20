@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Carbon\Carbon;
-
 use Illuminate\Console\Command;
 use App\TimeDoctor\TimeDoctorTask;
 use App\TimeDoctor\TimeDoctorMember;
@@ -25,7 +24,6 @@ class LoadTimeDoctorActivities extends Command
      *
      * @var string
      */
-    /*protected $signature = 'timedoctor:load_time_doctor_activity {id}';*/
     protected $signature = 'timedoctor:load_time_doctor_activity';
 
     /**

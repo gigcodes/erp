@@ -59,15 +59,6 @@ class Old extends Model
     public static function getStatus()
     {
         return OldStatus::all()->pluck('status');
-
-        // $types = array(
-        //     'pending'  => 'pending',
-        //     'disputed' => 'disputed',
-        //     'settled'  => 'settled',
-        //     'paid'     => 'paid',
-        //     'closed'  => 'closed',
-        // );
-        // return $types;
     }
 
     public function emails()

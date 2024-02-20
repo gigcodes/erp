@@ -23,7 +23,6 @@ class HubstaffProject extends Model
                 ],
                 [
                     'hubstaff_project_id' => $project->id,
-                    // 'organisation_id' => getenv('HUBSTAFF_ORG_ID'),
                     'organisation_id' => config('env.HUBSTAFF_ORG_ID'),
                     'hubstaff_project_name' => $project->name,
                     'hubstaff_project_description' => isset($project->description) ? $project->description : '',

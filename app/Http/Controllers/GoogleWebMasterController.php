@@ -91,8 +91,6 @@ class GoogleWebMasterController extends Controller
 
         $sitesData = $SearchAnalytics->paginate(Setting::get('pagination'));
 
-//         echo '<pre>';print_r($webmaster_logs);die;
-
         return view('google-web-master/index', compact('getSites', 'sitesData', 'sites', 'request', 'devices', 'countries', 'logs', 'webmaster_logs', 'site_submit_history'));
     }
 
@@ -359,7 +357,6 @@ class GoogleWebMasterController extends Controller
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            //  CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_HTTPHEADER => [
                 'authorization: Bearer ' . $this->googleToken,
@@ -413,12 +410,12 @@ class GoogleWebMasterController extends Controller
     public function SubmitSiteToWebmaster(Request $request)
     {
         $fetchStores = WebsiteStoreView::whereNotNull('website_store_id')
-        ->whereNotIn('site_submit_webmaster', [1])
-        ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-        ->join('websites as w', 'w.id', 'ws.website_id')
-        ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
-        ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
-        ->get()->toArray();
+            ->whereNotIn('site_submit_webmaster', [1])
+            ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+            ->join('websites as w', 'w.id', 'ws.website_id')
+            ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+            ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
+            ->get()->toArray();
         $google_acc = GoogleClientAccountMail::latest()->first();
         $params = [];
         $token = $google_acc->GOOGLE_CLIENT_ACCESS_TOKEN;
@@ -426,8 +423,6 @@ class GoogleWebMasterController extends Controller
         foreach ($fetchStores as $key => $value) {
             $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
             $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
-            //$token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
-
             $curl = curl_init();
             //replace website name with code coming form site list
             curl_setopt_array($curl, [
@@ -499,12 +494,12 @@ class GoogleWebMasterController extends Controller
     {
         if (! empty($request->id)) {
             $fetchStores = WebsiteStoreView::whereNotNull('website_store_id')
-                        ->where('website_store_views.id', $request->id)
-                        ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
-                        ->join('websites as w', 'w.id', 'ws.website_id')
-                        ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
-                        ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
-                        ->first();
+                ->where('website_store_views.id', $request->id)
+                ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+                ->join('websites as w', 'w.id', 'ws.website_id')
+                ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+                ->select('website_store_views.code', 'website_store_views.id', 'sw.website')
+                ->first();
 
             if ($fetchStores) {
                 $websiter = urlencode(utf8_encode($fetchStores->website . '/' . $fetchStores->code));
@@ -628,9 +623,6 @@ class GoogleWebMasterController extends Controller
         foreach ($GoogleClientAccounts as $GoogleClientAccount) {
             $refreshToken = GoogleClientAccountMail::where('google_client_account_id', $GoogleClientAccount->id)->first();
 
-            // $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = '1//0cUsEThSeeU-1CgYIARAAGAwSNwF-L9Irzg0ANYiSFNvpHvNr0d3BaXU9mGOH2alV3w0AH6LFuOtpN8uidPbnhSKJaP9KtAra6bU';
-            //  $GoogleClientAccount->GOOGLE_CLIENT_REFRESH_TOKEN = $refreshToken->GOOGLE_CLIENT_REFRESH_TOKEN;
-
             if (! $refreshToken || $refreshToken['GOOGLE_CLIENT_REFRESH_TOKEN'] == null) {
                 continue;
             }
@@ -644,7 +636,6 @@ class GoogleWebMasterController extends Controller
             $request->session()->put('token', $token);
             $request->session()->put('GOOGLE_CLIENT_MULTIPLE_KEYS', $GoogleClientAccount->GOOGLE_CLIENT_MULTIPLE_KEYS);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            //echo"<pre>";print_r($token);die;
             if (empty($token)) {
                 continue;
             }
@@ -675,7 +666,6 @@ class GoogleWebMasterController extends Controller
                     $error_msg = curl_error($curl);
                 }
 
-                //echo '<pre>';print_r($response);die;
                 if (isset($error_msg)) {
                     $this->curl_errors_array[] = ['key' => 'sites', 'error' => $error_msg, 'type' => 'sites'];
                     activity('v3_sites')->log($error_msg);
