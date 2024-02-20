@@ -66,39 +66,10 @@ class SocialPostController extends Controller
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
+    //@todo post approval need to be added
     public function approvepost(Request $request)
     {
-        $posts = SocialPost::find($request['post_id']);
 
-        $config = SocialConfig::find($posts['config_id']);
-
-        if ($config['platform'] == 'facebook') {
-            $access_token = $config['page_token'];
-            $page_id = $config['page_id'];
-            $image_upload_url = 'https://graph.facebook.com/' . $page_id . '/photos';
-
-            $fbImage = [
-                'access_token' => $access_token,
-                'url' => $posts['image_path'],
-                'caption' => $request['caption_trans'] . ' ' . $request['hashtag_trans'],
-            ];
-
-            $response = SocialHelper::curlPostRequest($image_upload_url, $fbImage);
-            $response = json_decode($response);
-            if (isset($response->error->message)) {
-                Session::flash('message', $response->error->message);
-            } else {
-                $data['status'] = 1;
-                if (isset($response->post_id)) {
-                    $data['ref_post_id'] = $response->post_id;
-                    $data['translation_approved_by'] = Auth::user()->name;
-                }
-                $posts->fill($data);
-                $posts->save();
-
-                return redirect()->back()->withSuccess('You have successfully create a post on social media!!');
-            }
-        }
     }
 
     public function grid(Request $request)

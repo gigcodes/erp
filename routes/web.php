@@ -403,6 +403,7 @@ use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
+use Modules\MessageQueue\Http\Controllers\MessageQueueController;
 
 Route::post('global_files_and_attachments_store', [FilesAndAttachmentsController::class, 'store_data'])->name('global_files_and_attachments_store');
 Route::post('global_files_and_attachments', [FilesAndAttachmentsController::class, 'get_data'])->name('global_files_and_attachments');
@@ -765,7 +766,7 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    //Bing web master routes
+    //Bing webmaster routes
     Route::prefix('bing-webmaster')->group(function () {
         Route::get('/index', [BingWebMasterController::class, 'index'])->name('bingwebmaster.index');
         Route::post('/add-account', [BingWebMasterController::class, 'addAccount'])->name('bingwebmaster.account.add');
@@ -1655,7 +1656,7 @@ Route::middleware('auth')->group(function () {
 
     // --------------Organizaitons--------------
     Route::get('v1/organizations', [Hubstaff\HubstaffController::class, 'index'])->name('organizations');
-    Route::post('v1/organizations', [Hubstaff\HubstaffController::class, 'getOrganization'])->name('post.organizations');;
+    Route::post('v1/organizations', [Hubstaff\HubstaffController::class, 'getOrganization'])->name('post.organizations');
 
     Route::get('v1/organization/members', [Hubstaff\HubstaffController::class, 'organizationMemberPage'])->name('organization.members');
     Route::post('v1/organization/members', [Hubstaff\HubstaffController::class, 'showMembers'])->name('post.organization-member');
@@ -2452,10 +2453,10 @@ Route::middleware('auth')->group(function () {
 
     //subcategory route
 
-    Route::post('message-queue/approve/approved', [\Modules\MessageQueue\Http\Controllers\MessageQueueController::class, 'approved']);
-    Route::get('message-queue/delete-chat', [\Modules\MessageQueue\Http\Controllers\MessageQueueController::class, 'deleteMessageQueue']);
+    Route::post('message-queue/approve/approved', [MessageQueueController::class, 'approved']);
+    Route::get('message-queue/delete-chat', [MessageQueueController::class, 'deleteMessageQueue']);
 
-    Route::get('message-counter', [\Modules\MessageQueue\Http\Controllers\MessageQueueController::class, 'message_counter'])->name('message.counter');
+    Route::get('message-counter', [MessageQueueController::class, 'message_counter'])->name('message.counter');
 
     //Charity Routes
     Route::get('charity', [CharityController::class, 'index'])->name('charity');
@@ -3089,7 +3090,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::middleware('auth', 'optimizeImages')->group(function () {
+Route::middleware(['auth', 'optimizeImages'])->group(function () {
     //Crop Reference
     Route::get('crop-references', [CroppedImageReferenceController::class, 'index']);
     Route::get('crop-references-grid', [CroppedImageReferenceController::class, 'grid'])->name('grid.reference');
@@ -5293,8 +5294,8 @@ Route::get('twilio/chats/delete/{id}', [TwiliochatController::class, 'chatsDelet
 Route::get('twilio/chats/edit', [TwiliochatController::class, 'twilioChatsEdit'])->name('twilio.chats.edit');
 Route::any('twilio/chats/update', [TwiliochatController::class, 'twilioChatsUpdate'])->name('twilio.chats.update');
 
-Route::get('/brand-review', [\App\Http\Controllers\Api\v1\BrandReviewController::class, 'index']);
-Route::post('/brand-review/store', [\App\Http\Controllers\Api\v1\BrandReviewController::class, 'store'])->name('brandreview.store');
+Route::get('/brand-review', [BrandReviewController::class, 'index']);
+Route::post('/brand-review/store', [BrandReviewController::class, 'store'])->name('brandreview.store');
 
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', [LiveChatController::class, 'attachImage'])->name('live-chat.attach.image');
@@ -5390,7 +5391,7 @@ Route::delete('/model/name/delete', [ModelNameController::class, 'destroy'])->mi
 Route::post('/model/name/edit', [ModelNameController::class, 'edit'])->middleware('auth')->name('model.name.edit');
 Route::post('/model/name/update', [ModelNameController::class, 'update'])->middleware('auth')->name('model.name.update');
 
-Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
+Route::middleware(['auth', 'role_or_permission:Admin|deployer'])->group(function () {
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
@@ -5447,7 +5448,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
     });
 });
 
-Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function () {
+Route::middleware(['auth', 'role_or_permission:Admin|deployer'])->group(function () {
     Route::get('/deploy-node', [Github\RepositoryController::class, 'deployNodeScrapers']);
 });
 
@@ -5567,17 +5568,17 @@ Route::get('/magento/command/run-mulitiple-command-logs', [MagentoCommandControl
 Route::get('/google-scrapper', [GoogleScrapperController::class, 'index'])->name('google-scrapper.index');
 Route::post('google-scrapper-keyword', [GoogleScrapperController::class, 'saveKeyword'])->name('google-scrapper.keyword.save');
 Route::get('/hubstuff_activity_command', function () {
-    \Artisan::call('HubstuffActivity:Command');
+    \Illuminate\Support\Facades\Artisan::call('HubstuffActivity:Command');
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);
 Route::get('command', function () {
-    \Artisan::call('create-mailinglist-influencers');
-    \Artisan::call('migrate');
+    \Illuminate\Support\Facades\Artisan::call('create-mailinglist-influencers');
+    \Illuminate\Support\Facades\Artisan::call('migrate');
 });
 
 Route::get('test-cron', function () {
-    \Artisan::call('GT-metrix-test-get-report');
+    \Illuminate\Support\Facades\Artisan::call('GT-metrix-test-get-report');
 });
 
 

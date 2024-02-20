@@ -1,68 +1,8 @@
-<style type="text/css">
-    .cls_remove_rightpadding {
-        padding-right: 0px !important;
-    }
-
-    .cls_remove_allpadding {
-        padding-left: 0px !important;
-        padding-right: 0px !important;
-    }
-
-    #chat-list-history tr {
-        word-break: break-word;
-    }
-
-    .reviewed_msg {
-        word-break: break-word;
-    }
-
-    .chatbot .communication {}
-
-    .background-grey {
-        color: grey;
-    }
-
-    @media(max-width:1400px) {
-        .btns {
-            padding: 3px 2px;
-        }
-    }
-
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #ddd !important;
-    }
-
-    .d-inline.form-inline .select2-container {
-        max-width: 100% !important;
-        /*width: unset !important;*/
-    }
-
-    .actions {
-        display: flex !important;
-        align-items: center;
-    }
-
-    .actions a {
-        padding: 0 3px !important;
-        display: flex !important;
-        align-items: center;
-    }
-
-    .actions .btn-image img {
-        width: 13px !important;
-    }
-
-    .read-message {
-        float: right;
-    }
-
-</style>
-
 <div class="table-responsive">
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th width="8%">Name</th>
+                <th width="8%">Platform Name</th>
                 <th width="2%">Platform</th>
                 <th width="8%">Website</th>
                 <th width="8%">User input</th>
@@ -75,9 +15,9 @@
         <tbody>
             @foreach ($socialContact as $contact)
                 <tr class="customer-raw-line">
-                    <td>{{ $contact->name }}</td>
-                    <td>{{ ucfirst($contact->socialConfig->platform) }}</td>
                     <td>{{ $contact->socialConfig->name }}</td>
+                    <td>{{ ucfirst($contact->socialConfig->platform) }}</td>
+                    <td>{{ $contact->socialConfig->storeWebsite->title }}</td>
                     @if($contact->getLatestSocialContactThread)
                     <td class="log-message-popup"
                         data-log_message="{{ $contact->getLatestSocialContactThread->text }}">
@@ -108,7 +48,13 @@
                             </div>
                         </div>
                     </td>
-                    <td></td>
+                    <td>
+                        @php
+                            $message = $contact->messages->first();
+                            $from = $message->from
+                        @endphp
+                        {{ $from['name'] }} : {{ $from['email'] }}
+                    </td>
                     <td></td>
                     <td></td>
                 </tr>

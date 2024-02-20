@@ -7,7 +7,9 @@ namespace App\Social;
  */
 
 use Plank\Mediable\Mediable;
+use App\Models\SocialComments;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialPost extends Model
@@ -44,6 +46,11 @@ class SocialPost extends Model
     }
 
     protected $casts = [
-        'posted_on' => 'datetime'
+        'posted_on' => 'datetime',
     ];
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(SocialComments::class, 'post_id');
+    }
 }

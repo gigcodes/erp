@@ -4,31 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Reply;
 use App\LogRequest;
-use App\BusinessPost;
 use App\BusinessComment;
 use App\GoogleTranslate;
 use App\SocialWebhookLog;
+use App\Social\SocialPost;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\Models\SocialComments;
+use Illuminate\Database\Eloquent\Builder;
 
 class SocialAccountCommentController extends Controller
 {
     public function index(Request $request, $postId)
     {
-        $post = BusinessPost::find($postId);
-        $search = request('search', '');
-        $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId);
+        $post = SocialPost::where('ref_post_id', $postId)->firstOrFail();
+        $search = $request->get('search');
+        $comments = SocialComments::where('post_id', $post->id)->whereNull('parent_id');
+        $comments = $comments->when($request->has('search'), function (Builder $builder) use ($search) {
+            return $builder->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
+        });
 
-        if (! empty($search)) {
-            $comments = $comments->where(function ($q) use ($search) {
-                $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
-            });
-        }
-
-        $comments = $comments->latest('time')->get();
-
+        $comments = $comments->latest()->get();
         $googleTranslate = new GoogleTranslate();
-        $target = 'en';
         foreach ($comments as $key => $value) {
             $translationString = $googleTranslate->translate('en', $value['message']);
             $value['translation'] = $translationString;

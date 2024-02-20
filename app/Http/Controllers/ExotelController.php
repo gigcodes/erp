@@ -61,8 +61,6 @@ class ExotelController extends FindByNumberController
 
             return response('success', 200);
         } catch (\Exception $ex) {
-            Bugsnag::notifyException($ex);
-
             return response('error', 302);
         }
     }

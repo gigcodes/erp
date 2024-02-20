@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPrimaryKeyAutoIncrementToMagentoModulesTable extends Migration
+class AddConversationIdToSocialContactsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddPrimaryKeyAutoIncrementToMagentoModulesTable extends Migration
      */
     public function up()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            DB::statement('ALTER TABLE magento_modules MODIFY id INT AUTO_INCREMENT PRIMARY KEY');
+        Schema::table('social_contacts', function (Blueprint $table) {
+            $table->string('conversation_id')->after('id');
         });
     }
 
@@ -25,8 +25,8 @@ class AddPrimaryKeyAutoIncrementToMagentoModulesTable extends Migration
      */
     public function down()
     {
-        Schema::table('magento_modules', function (Blueprint $table) {
-            //
+        Schema::table('social_contacts', function (Blueprint $table) {
+            $table->dropColumn('conversation_id');
         });
     }
 }
