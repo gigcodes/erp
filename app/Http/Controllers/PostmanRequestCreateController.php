@@ -142,6 +142,19 @@ class PostmanRequestCreateController extends Controller
 
             $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
 
+            if (request()->ajax()) {
+                return response()->json([
+                    'tbody' => view('postman.partials.table.tbody',compact(
+                        'postmans',
+                        'userID',
+                        'addAdimnAccessID',
+                        'status',
+                        'dynamicColumnsToShowPostman',
+                    ))->render(),
+                    'pagination' => view('postman.partials.table.pagination', compact('postmans'))->render(),
+                ], 200);
+            }
+
             return view('postman.index', compact(
                 'postmans',
                 'folders',
@@ -236,6 +249,15 @@ class PostmanRequestCreateController extends Controller
      */
     public function store(Request $request)
     {
+        $rules =  [
+            'request_name' => 'required|string|max:255',
+            'folder_name' => 'required|string|max:255',
+            'request_types' => 'required|string|max:255',
+            'user_permission' => 'present|array|min:1',
+        ];
+
+        $this->validate($request, $rules);
+
         try {
             $created_user_permission = '';
             if (isset($request->id) && $request->id > 0) {
@@ -324,8 +346,22 @@ class PostmanRequestCreateController extends Controller
 
             if (is_array($request->request_url)) {
                 PostmanMultipleUrl::where('postman_request_create_id', $request->id ?? $postman->id)->delete();
-                foreach ($request->request_url as $reqUrl) {
+                $first_request_url = $request->request_url[0];
+                $path = parse_url($first_request_url, PHP_URL_PATH);
+                $query_str = parse_url($first_request_url, PHP_URL_QUERY);
+                $url_suffix = $path.($query_str ? '?'.$query_str : '');
+                foreach ($request->request_url as $req_key=>$reqUrl) {
                     if ($reqUrl) {
+                        if($req_key > 0 && $url_suffix) {
+                            //Check if request contains suffix or not
+                            $check_req = trim($reqUrl,'/');
+                            $path = parse_url($check_req, PHP_URL_PATH);
+                            $query_str = parse_url($check_req, PHP_URL_QUERY);
+                            if($path == '' && $query_str == '') {
+                                $reqUrl = $check_req.$url_suffix;
+                            }
+                        }
+
                         PostmanMultipleUrl::create([
                             'user_id' => \Auth::user()->id,
                             'postman_request_create_id' => $request->id ?? $postman->id,

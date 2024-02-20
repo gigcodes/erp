@@ -7,7 +7,6 @@ use Exception;
 use Throwable;
 use App\EmailLog;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler

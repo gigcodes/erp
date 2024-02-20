@@ -96,50 +96,6 @@ class SocialPostController extends Controller
         return view('social.posts.grid', compact('posts', 'websites', 'socialconfigs'));
     }
 
-    public function viewPost(Request $request, $id)
-    {
-        try {
-            $querys = SocialPost::where('config_id', $id)->where('ref_post_id', '!=', '')->get();
-            $config = SocialConfig::find($id);
-            $collection = [];
-            if ($config['platform'] == 'instagram') {
-                $querys = SocialPostLog::where('config_id', $id)->where('log_description', '!=', '')->where('log_title', '=', 'publishMedia')->get();
-
-                foreach ($querys as $key => $query) {
-                    $url = sprintf('https://graph.facebook.com/v15.0/' . $query['log_description'] . '?fields=caption,media_type,media_url,thumbnail_url,permalink,timestamp,username&access_token=' . $config['token']);
-                    $response = SocialHelper::curlGetRequest($url);
-                    if (isset($response->caption)) {
-                        $collection[$key]['text'] = $response->caption;
-                        $collection[$key]['url'] = $response->media_url;
-                        $collection[$key]['message'] = '';
-                    }
-                }
-            } else {
-                foreach ($querys as $key => $query) {
-                    $url = sprintf('https://graph.facebook.com/v15.0/' . $query['ref_post_id'] . '?fields=attachments&access_token=' . $config['page_token']);
-                    $response = SocialHelper::curlGetRequest($url);
-                    if (isset($response->attachments)) {
-                        $collection[$key]['text'] = $response->attachments->data[0]->description;
-                        $collection[$key]['url'] = $response->attachments->data[0]->media->image->src;
-                        $collection[$key]['message'] = '';
-                    } else {
-                        $url = sprintf('https://graph.facebook.com/v15.0/' . $query['ref_post_id'] . '?access_token=' . $config['page_token']);
-                        $response = SocialHelper::curlGetRequest($url);
-                        $collection[$key]['text'] = '';
-                        $collection[$key]['url'] = '';
-                        $collection[$key]['message'] = $response->message;
-                    }
-                }
-            }
-
-            return view('social.posts.viewpost', compact('collection'));
-        } catch (\Exception $e) {
-            $this->socialPostLog($config->id, $config->id, $config->platform, 'error', $e);
-            Session::flash('message', $e);
-            \Log::error($e);
-        }
-    }
-
     public function deletePost(Request $request)
     {
         $post = SocialPost::where('id', $request['post_id'])->with('account')->first();

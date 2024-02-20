@@ -10,8 +10,8 @@
                 @csrf
 
                 <div class="form-group">
-                    <select name="master_id" class="form-control" required @if($flowchart_master->count() == 1) {{'readonly'}} @endif>
-                        <option @if($flowchart_master->count() == 1) {{'disabled'}} @endif value="" >Select Type</option>
+                    <select id="new-flow-chart-master-ids" name="master_id" class="form-control" required @if($flowchart_master->count() == 1) {{'readonly'}} @endif>
+                        <option id="new-flow-chart-master-ids-default" @if($flowchart_master->count() == 1) {{'disabled'}} @endif value="" >Select Type</option>
                         @foreach($flowchart_master as $flowchart_master_record)
                         <option @if($flowchart_master->count() == 1) {{'selected'}} @endif value="{{$flowchart_master_record->id}}">{{$flowchart_master_record->title}}</option>
                         @endforeach
@@ -52,7 +52,7 @@
                     <?php
                     foreach ($vendor_flow_charts as $vendorflowchart) { ?>
                     <tr>
-                        <td><?php echo ($vendorflowchart->master ? $vendorflowchart->master->title : ''); ?></td>
+                        <td class="vendorflowchart-master-title-{{ $vendorflowchart->master->id }}"><?php echo ($vendorflowchart->master ? $vendorflowchart->master->title : ''); ?></td>
                         <td><?php echo $vendorflowchart->name; ?></td>
                         
                         <td>
