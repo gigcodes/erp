@@ -6,9 +6,8 @@ use App\Sop;
 use App\User;
 use Exception;
 use Dompdf\Dompdf;
-use App\SopCategory; // sop category model
+use App\SopCategory;
 use App\SopPermission;
-// use App\Mail\downloadData;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\SopHasCategory;
@@ -20,11 +19,10 @@ class SopController extends Controller
     public function index(Request $request)
     {
         $users = User::all();
-        // $users = User::limit(10)->get();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory']);
         if ($request->get('search')) {
             $usersop = $usersop->where('name', 'like', '%' . $request->get('search') . '%')
-            ->orWhere('content', 'like', '%' . $request->get('search') . '%');
+                ->orWhere('content', 'like', '%' . $request->get('search') . '%');
         }
 
         if ($request->get('category')) {
@@ -104,7 +102,6 @@ class SopController extends Controller
             $category = $request->get('category');
             $sop = new Sop();
             $sop->name = $request->get('name');
-            // $sop->category = implode(',', $request->get('category'));
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
@@ -154,11 +151,8 @@ class SopController extends Controller
         }
 
         $sopedit = Sop::where('id', $request->id)->first();
-        // ->where('category', $category)
-        // dd($sopedit, $category, $request->id);
         if ($sopedit) {
             $sopedit->name = $request->get('name', '');
-            // $sopedit->category = $request->get('category', '');
             $sopedit->content = $request->get('content', '');
             $updatedSop = $sopedit->save();
 
@@ -189,7 +183,6 @@ class SopController extends Controller
         } else {
             $sop = new Sop();
             $sop->name = $request->get('name');
-            // $sop->category = $request->get('category');
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
@@ -213,7 +206,6 @@ class SopController extends Controller
             $log = PurchaseProductOrderLog::create($params);
 
             $user_email = User::select('email')->where('id', $sop->user_id)->get();
-            // $user_email = User::select('email')->where('id', $sop->user_id)->get();
             $only_date = $sop->created_at->todatestring();
 
             if ($sop) {

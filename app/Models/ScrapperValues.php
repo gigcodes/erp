@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Models;
+
 use App\DeveloperTask;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ScrapperValues extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['task_id', 'task_type', 'scrapper_values',  'added_by'];
+    protected $fillable = ['task_id', 'task_type', 'scrapper_values', 'added_by'];
 
     public function tasks()
     {

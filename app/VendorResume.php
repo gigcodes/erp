@@ -47,14 +47,12 @@ class VendorResume extends Model
         'soft_description',
         'soft_experience',
         'soft_remark',
-
         'edu_date_from',
         'edu_date_to',
         'edu_institute_programme',
         'edu_course_name',
         'edu_grades',
         'edu_remark',
-
         'father_name',
         'dob',
         'gender',

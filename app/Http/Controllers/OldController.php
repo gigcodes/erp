@@ -119,14 +119,14 @@ class OldController extends Controller
 
                 if ($request->term) {
                     $olds = Old::query()
-                                ->where('name', 'LIKE', "%{$request->term}%")
-                                ->orWhere('description', 'LIKE', "%{$request->term}%")
-                                ->orWhere('email', 'LIKE', "%{$request->term}%")
-                                ->orWhereHas('category', function ($q) use ($request) {
-                                    $q->where('category', 'like', "%{$request->term}%");
-                                })
-                                ->where('is_payable', 0)
-                                ->paginate(10);
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->orWhere('description', 'LIKE', "%{$request->term}%")
+                        ->orWhere('email', 'LIKE', "%{$request->term}%")
+                        ->orWhereHas('category', function ($q) use ($request) {
+                            $q->where('category', 'like', "%{$request->term}%");
+                        })
+                        ->where('is_payable', 0)
+                        ->paginate(10);
                 }
             } else {
                 $olds = Old::where('is_payable', 0)->paginate(10);
@@ -154,14 +154,14 @@ class OldController extends Controller
 
                 if ($request->term) {
                     $olds = Old::query()
-                                ->where('name', 'LIKE', "%{$request->term}%")
-                                ->orWhere('description', 'LIKE', "%{$request->term}%")
-                                ->orWhere('email', 'LIKE', "%{$request->term}%")
-                                ->orWhereHas('category', function ($q) use ($request) {
-                                    $q->where('category', 'like', "%{$request->term}%");
-                                })
-                                ->where('is_payable', 1)
-                                ->paginate(10);
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->orWhere('description', 'LIKE', "%{$request->term}%")
+                        ->orWhere('email', 'LIKE', "%{$request->term}%")
+                        ->orWhereHas('category', function ($q) use ($request) {
+                            $q->where('category', 'like', "%{$request->term}%");
+                        })
+                        ->where('is_payable', 1)
+                        ->paginate(10);
                 }
             } else {
                 $olds = Old::where('is_payable', 1)->paginate(10);
@@ -205,15 +205,6 @@ class OldController extends Controller
      */
     public function store(Request $request)
     {
-//       $this->validate($request, [
-//             'name' => 'required|string|max:255',
-//             'category_id' => 'required',
-//             'phone' => 'required',
-//             'email' => 'required',
-//             'pending_payment' => 'required',
-//             'status' => 'required',
-//        ]);
-
         $new = new Old();
         $new->name = $request->name ?? '';
         $new->description = $request->description ?? '';
@@ -599,7 +590,6 @@ class OldController extends Controller
             : Carbon::parse('1990-01-01');
 
         $oldAgentsCount = $old->agents()->count();
-        //dd($old->email);
         if ($oldAgentsCount == 0) {
             $emails = $inbox->messages()->where($direction, $old->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
             $emails = $emails->leaveUnread()->get();
@@ -620,7 +610,6 @@ class OldController extends Controller
                     $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
                     $additional = $additional->leaveUnread()->get();
                     $this->createEmailsForEmailInbox($old, $type, $latest_email_date, $additional);
-                    // $emails = $emails->merge($additional);
                 }
             }
         }

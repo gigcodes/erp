@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Console\Commands;
+
 use App\scraperImags;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class CompareScrapperImages extends Command
 {
@@ -45,24 +45,20 @@ class CompareScrapperImages extends Command
             Log::info('Start Compare Scrapper Images');
 
             $scraperImagsData = scraperImags::where('compare_flag', 0)->where('url', '!=', '')->orderBy('id', 'DESC')->get();
-            if(!empty($scraperImagsData)){
+            if (! empty($scraperImagsData)) {
                 foreach ($scraperImagsData as $scraperImag) {
-
-                    if(!empty($scraperImag->img_name)){
-
-                        Log::info('Main - '.$scraperImag->url);
+                    if (! empty($scraperImag->img_name)) {
+                        Log::info('Main - ' . $scraperImag->url);
 
                         $scraperImagscData = scraperImags::where('url', $scraperImag->url)->where('id', '!=', $scraperImag->id)->orderBy('id', 'DESC')->first();
 
-                        if(!empty($scraperImagscData)){
-
+                        if (! empty($scraperImagscData)) {
                             Log::info($scraperImagscData->url);
 
-                            if(!empty($scraperImagscData->img_name) && !empty($scraperImag->img_name)){
-
+                            if (! empty($scraperImagscData->img_name) && ! empty($scraperImag->img_name)) {
                                 // Load the images
-                                $image1 = asset( 'scrappersImages/'.$scraperImag->img_name);
-                                $image2 = asset( 'scrappersImages/'.$scraperImagscData->img_name);
+                                $image1 = asset('scrappersImages/' . $scraperImag->img_name);
+                                $image2 = asset('scrappersImages/' . $scraperImagscData->img_name);
 
                                 // Calculate hashes for both images
                                 $imageHash = new ImageHash(new DifferenceHash());
@@ -79,19 +75,17 @@ class CompareScrapperImages extends Command
                                 } else {
                                     $scraperImagscData->manually_approve_flag = 1;
                                 }
-                            }                            
+                            }
 
                             $scraperImagscData->compare_flag = 1;
 
                             $scraperImagscData->save();
-
                         }
                     }
                 }
             }
 
             Log::info('End Compare Scrapper Images');
-            
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }

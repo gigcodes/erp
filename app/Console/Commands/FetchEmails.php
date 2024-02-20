@@ -65,7 +65,6 @@ class FetchEmails extends Command
             $imap->connect();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Client manager connected.']);
 
-            // $supplier = Supplier::find($request->supplier_id);
             $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier query finished.']);
 
@@ -109,9 +108,6 @@ class FetchEmails extends Command
                                     $emails = $inbox->messages()->where($type['direction'], $agent->email)->where([
                                         ['SINCE', $latest_email_date->format('d M y H:i')],
                                     ]);
-                                    // $emails = $emails->setFetchFlags(false)
-                                    //                 ->setFetchBody(false)
-                                    //                 ->setFetchAttachment(false)->leaveUnread()->get();
 
                                     $emails = $emails->leaveUnread()->get();
 
@@ -172,9 +168,6 @@ class FetchEmails extends Command
                                     }
                                 } else {
                                     $additional = $inbox->messages()->where($type['direction'], $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-                                    // $additional = $additional->setFetchFlags(false)
-                                    //                 ->setFetchBody(false)
-                                    //                 ->setFetchAttachment(false)->leaveUnread()->get();
 
                                     $additional = $additional->leaveUnread()->get();
 
@@ -324,8 +317,6 @@ class FetchEmails extends Command
                                 }
 
                                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                                    //dump('NEW EMAIL fourth');
-
                                     $attachments_array = [];
                                     $attachments = $email->getAttachments();
 

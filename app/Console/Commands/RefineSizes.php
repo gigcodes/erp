@@ -57,19 +57,6 @@ class RefineSizes extends Command
                     $this->enricher->refineSizeToPintFive($product);
                     sleep(0.2);
                     $this->enricher->refineSizeForIt($product);
-//                sleep(0.2);
-                    //                $this->enricher->refineForFr($product);
-                    //                sleep(0.2);
-                    //                $this->enricher->getSizeWithReferenceRoman($product);
-                    //                sleep(0.2);
-                    //                if ($product->brand == 20 || $product->brand == 24) {
-                    //                    $this->enricher->refineForFemaleUSShoes($product);
-                    //                    $this->enricher->refineForMaleUSShoes($product);
-                    //                }
-                    //                if ($product->brand == 18 || $product->brand == 22 || $product->brand == 11) {
-                    //                    $this->enricher->refineForMaleUKShoes($product);
-                    //                    $this->enricher->refineForFemaleUKShoes($product);
-                    //                }
                 }
             });
 

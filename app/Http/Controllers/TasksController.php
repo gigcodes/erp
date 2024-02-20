@@ -58,6 +58,19 @@ class TasksController extends Controller
         ])->with('i', (request()->input('page', 1) - 1) * 50);
     }
 
+    public function executionHistory($task){
+        $taskResults = [];
+        $assigned = CronActivity::where('assign_to_id', \Auth::User()->id)->where('cron_id', $task->id)->first();
+        
+        if(auth()->user()->isAdmin() || auth()->user()->isCronManager() || $assigned){
+            $taskResults = $task->results()->latest()->take(10)->get();
+        }
+
+        return response()->json([
+            'task' => $taskResults
+        ]);
+    }
+
     public function create()
     {
         return view('totem::tasks.form', [
@@ -76,9 +89,7 @@ class TasksController extends Controller
             'parameters',
             'timezone',
             'developer_module_id',
-            //            'type',
             'expression',
-            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',
@@ -115,18 +126,13 @@ class TasksController extends Controller
 
     public function update(TaskRequest $request, Task $task)
     {
-//        dd($task);
-//        dd($request->all());
-//        $task = Task::update($request->all(), $task);
         $task = Task::where('id', $task->id)->update($request->only([
             'description',
             'command',
             'parameters',
             'timezone',
             'developer_module_id',
-            //            'type',
             'expression',
-            //            'frequencies',
             'notification_email_address',
             'notification_phone_number',
             'notification_slack_webhook',

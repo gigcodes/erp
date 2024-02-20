@@ -47,10 +47,10 @@ class Scrapermissingdata extends Command
     {
         $date = date('Y-m-d');
         $ss = \App\ScrapedProducts::join('scrapers', 'scraped_products.website', 'scrapers.scraper_name')
-        ->select(DB::raw('COUNT(*) as totalproduct'), 'scrapers.id as scraper_id', 'scrapers.scraper_name as scraper_name')
-        ->groupBy('scrapers.scraper_name')
-        ->whereRaw("date(scraped_products.created_at)=date('$date')")
-        ->whereRaw(" ( $field is null or $field ='' )")->get();
+            ->select(DB::raw('COUNT(*) as totalproduct'), 'scrapers.id as scraper_id', 'scrapers.scraper_name as scraper_name')
+            ->groupBy('scrapers.scraper_name')
+            ->whereRaw("date(scraped_products.created_at)=date('$date')")
+            ->whereRaw(" ( $field is null or $field ='' )")->get();
 
         foreach ($ss as $s) {
             $msg = $s->scraper_name . ' ' . $s->totalproduct . " Product $title Missing";

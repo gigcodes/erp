@@ -31,7 +31,7 @@ class MagentoCssVariableController extends Controller
         if ($request->keyword) {
             $magentoCssVariables = $magentoCssVariables->where(function ($q) use ($request) {
                 $q = $q->orWhere('value', 'LIKE', '%' . $request->keyword . '%')
-                  ->orWhere('filename', 'LIKE', '%' . $request->keyword . '%');
+                    ->orWhere('filename', 'LIKE', '%' . $request->keyword . '%');
             });
         }
 
@@ -142,7 +142,7 @@ class MagentoCssVariableController extends Controller
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
-            return response()->json(['code' => 200,  'data' => [], 'message' => $message]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => $message]);
         } else {
             $message = 'Something Went Wrong! Please check Logs for more details';
             if (isset($response->message) && $response->message != '') {
@@ -202,7 +202,6 @@ class MagentoCssVariableController extends Controller
         $magentoCssVariable->file_path = $data['file_path'];
         $magentoCssVariable->variable = $data['variable'];
         $magentoCssVariable->value = $data['value'];
-        // $magentoCssVariable->create_by = Auth::user()->id;
         $magentoCssVariable->save();
 
         // Maintain history here
@@ -259,7 +258,7 @@ class MagentoCssVariableController extends Controller
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
-            return response()->json(['code' => 200,  'data' => [], 'message' => $message]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => $message]);
         } else {
             $message = 'Something Went Wrong! Please check Logs for more details';
             if (isset($response->message) && $response->message != '') {
@@ -545,9 +544,9 @@ class MagentoCssVariableController extends Controller
             foreach ($magentoCssVariables as $row) {
                 // Adjust this according to your data structure
                 $csvContent .= $this->formatForCSV($row->project->name) . ','
-                . $this->formatForCSV($row->variable) . ','
-                . $this->formatForCSV($row->value) . ','
-                . $this->formatForCSV($row->file_path) . "\n";
+                    . $this->formatForCSV($row->variable) . ','
+                    . $this->formatForCSV($row->value) . ','
+                    . $this->formatForCSV($row->file_path) . "\n";
             }
 
             // Set the file path where the CSV will be stored
@@ -559,7 +558,6 @@ class MagentoCssVariableController extends Controller
             $fullFilePath = Storage::disk('public')->path($filePath);
 
             $action = 'bulk';
-            // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');
@@ -632,20 +630,15 @@ class MagentoCssVariableController extends Controller
             $projectId = $request->project_id;
             $magentoCssVariables = MagentoCssVariable::where('project_id', $projectId)->get();
 
-            // JOB concept not need. (OLD)
-            // foreach($magentoCssVariables as $magentoCssVariable) {
-            //     \App\Jobs\PushMagentoCssVariables::dispatch($magentoCssVariable)->onQueue('pushmagentocssvariables');
-            // }
-
             // CSV concept (NEW)
             // Create a new CSV file content
             $csvContent = '"Project","variable","value","filepath"' . "\n";
             foreach ($magentoCssVariables as $row) {
                 // Adjust this according to your data structure
                 $csvContent .= $this->formatForCSV($row->project->name) . ','
-                . $this->formatForCSV($row->variable) . ','
-                . $this->formatForCSV($row->value) . ','
-                . $this->formatForCSV($row->file_path) . "\n";
+                    . $this->formatForCSV($row->variable) . ','
+                    . $this->formatForCSV($row->value) . ','
+                    . $this->formatForCSV($row->file_path) . "\n";
             }
 
             // Set the file path where the CSV will be stored
@@ -657,7 +650,6 @@ class MagentoCssVariableController extends Controller
             $fullFilePath = Storage::disk('public')->path($filePath);
 
             $action = 'signleUpdate';
-            // $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -CF "' . $fullFilePath . '" 2>&1';
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');

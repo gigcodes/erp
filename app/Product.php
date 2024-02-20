@@ -189,9 +189,6 @@ class Product extends Model
      */
     public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
-        // Log before validating
-        //LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
-
         // Check for required values
         if (
             ! empty($json->title) &&
@@ -283,7 +280,6 @@ class Product extends Model
 
                 if ($product) {
                     if ($isExcel == 1) {
-                        // if (!$product->hasMedia(\Config('constants.excelimporter'))) {
                         if (! $product->hasMedia(\Config('constants.media_tags'))) {
                             foreach ($json->images as $image) {
                                 if ($image != '') {
@@ -295,11 +291,8 @@ class Product extends Model
                                         $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                     }
                                     $filename = substr($image, strrpos($image, '/'));
-                                    // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
                                     $filename = uniqid();
-                                    // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                                     $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
-                                    // $product->attachMedia($media, config('constants.excelimporter'));
                                     $product->attachMedia($media, config('constants.media_tags'));
                                 }
                             }
@@ -380,9 +373,6 @@ class Product extends Model
                     'status' => 1,
                 ];
 
-                // Log scrap activity
-                //ScrapActivity::create($params);
-
                 // Return
                 //returning 1 for Product Updated
                 return ['product_created' => 0, 'product_updated' => 1];
@@ -428,8 +418,6 @@ class Product extends Model
                 try {
                     $product->save();
                     $product->checkExternalScraperNeed();
-                    //$json->product_id = $product->id;
-                    //$json->save();
                 } catch (\Exception $exception) {
                     $product->save();
 
@@ -438,7 +426,6 @@ class Product extends Model
 
                 if ($product) {
                     if ($isExcel == 1) {
-                        // if (!$product->hasMedia(\Config('constants.excelimporter'))) {
                         if (! $product->hasMedia(\Config('constants.media_tags'))) {
                             foreach ($json->images as $image) {
                                 if ($image != '') {
@@ -450,11 +437,8 @@ class Product extends Model
                                         $jpg = \Image::make(public_path() . '/uploads/excel-import/' . $filename_path)->encode('jpg');
                                     }
                                     $filename = substr($image, strrpos($image, '/'));
-                                    // $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
                                     $filename = uniqid();
-                                    // $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000) . '/' . $product->id)->useFilename($filename)->upload();
                                     $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($product->id / 10000))->useFilename($filename)->upload();
-                                    // $product->attachMedia($media, config('constants.excelimporter'));
                                     $product->attachMedia($media, config('constants.media_tags'));
                                 }
                             }
@@ -832,43 +816,9 @@ class Product extends Model
                         $countImageUpdated++;
                     }
                 }
-                // here is the StatusHelper::$AI being used so disable that status for not
-                /*if ($countImageUpdated != 0) {
-            //Updating the Product Status
-            $this->status_id = StatusHelper::$AI;
-            $this->save();
-            // Call status update handler
-            StatusHelper::updateStatus($this, StatusHelper::$AI);
-            }*/
             }
         }
     }
-
-    // public function commonComposition($category,$composition)
-    // {
-
-    //     $hscodeList = HsCodeGroupsCategoriesComposition::where('category_id', $category)->where('composition',$composition)->first();
-
-    //     if($hscodeList != null && $hscodeList != '')
-    //     {
-    //         $groupId = $hscodeList->hs_code_group_id;
-    //         $group = HsCodeGroup::find($groupId);
-    //         $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
-    //         if($hscodeDetails != null && $hscodeDetails != ''){
-    //             if($hscodeDetails->correct_composition != null){
-    //                 return $hscodeDetails->correct_composition;
-    //             }else{
-    //                 return $composition;
-    //             }
-
-    //         }else{
-    //             return $composition;
-    //         }
-    //     }else{
-    //         return $composition;
-    //     }
-
-    // }
 
     public function commonComposition($category, $composition)
     {
@@ -1052,24 +1002,6 @@ class Product extends Model
         }
         $operation = '';
         $logDetails = '';
-//        if ($segmentDiscount != '0') {
-//            if ($segmentDiscount != '0' && $catdiscount->amount_type == 'percentage') {
-//                $operation = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100 ';
-//                $logDetails = 'Product price: '.$productPrice.' * percentage : '.$percentage.' /100  <br>'.'Product price: '.$productPrice.' - Discount: '.$segmentDiscount;
-//            } else {
-//                $operation = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
-//                $logDetails = 'Product price: '.$productPrice.' - Category Discount : '.$catdiscount->amount;
-//            }
-//        }
-//        $beforeIVAProductPrice = $productPrice;
-//        if ($isOvveride) {
-//            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price Before', $operation, $productPrice, $segmentDiscount, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
-//            $oldPrice = $productPrice;
-//            $productPrice = \App\Product::getIvaPrice($productPrice);
-//            $IVApercentage = self::IVA_PERCENTAGE;
-//            $ivaPercentage = ($oldPrice * $percentage) / 100;
-//            $this->createProductPriceLog($order_id, $product_id, 'Get Iva Price After', 'Price : '.$oldPrice.' * Percentage : '.$IVApercentage.' / 100', $productPrice, $ivaPercentage, 'Product price: '.$productPrice.'Product price ', $default_price, $website->id, $customer_id);
-//        }
 
         // add a product price duty
         if ($dutyPrice > 0) {
@@ -1079,7 +1011,6 @@ class Product extends Model
         }
 
         if ($website) {
-            // $brand    = @$this->brands->brand_segment == NULL ? $this->brand_segment : $this->brands->brand_segment;
             $brand = $category_segment != null ? $category_segment : @$this->brands->brand_segment;
 
             $category = $this->category;
@@ -1226,23 +1157,6 @@ class Product extends Model
                 }
             }
         }
-
-        /*$hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
-        if(!empty($hsCode)){
-        $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
-        ->where("country_duties.hs_code",$hsCode)
-        ->where("country_duties.destination",$countryCode)
-        ->select(["country_duties.*","dg.id as has_group","dg.duty as group_duty","dg.vat as group_vat"])
-        ->first();
-
-        if($duty) {
-        if($duty->has_group != null) {
-        return $duty->group_duty + $duty->group_vat;
-        }else{
-        return $duty->duty_percentage + $duty->vat_percentage;
-        }
-        }
-        }*/
 
         return (float) '0.00';
     }
@@ -1448,7 +1362,6 @@ class Product extends Model
             ->Join('product_suppliers as psu', function ($q) {
                 $q->on('psu.product_id', 'products.id');
             });
-        //dd($query->select('products.id')->orderBy('id', 'desc')->limit(10)->get());
         //  check filtering
         if (isset($filter_data['product_names'])) {
             $query = $query->whereIn('products.name', $filter_data['product_names']);
@@ -1466,7 +1379,6 @@ class Product extends Model
             $query = $query->whereIn('category', $filter_data['product_categories']);
         }
 
-        //$query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         if (isset($filter_data['in_stock'])) {
             if ($filter_data['in_stock'] == 1) {
                 $query = $query->where('products.stock', '>', 0);
@@ -1475,11 +1387,9 @@ class Product extends Model
             }
         }
         if (isset($filter_data['date'])) {
-            //$query = $query->where('inventory_status_histories.date',$filter_data['date']);
         }
 
         if (isset($filter_data['start_date']) && isset($filter_data['end_date'])) {
-            //$query = $query->whereBetween('inventory_status_histories.date',[ $filter_data['start_date'], $filter_data['end_date'] ] );
         }
 
         if (isset($filter_data['date'])) {
@@ -1511,7 +1421,6 @@ class Product extends Model
             $query = $query->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
         }
 
-        // if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
         if (isset($filter_data['term'])) {
             $term = $filter_data['term'];
             $query = $query->where(function ($q) use ($term) {
@@ -1522,8 +1431,6 @@ class Product extends Model
                     ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
-
-        //$query = $query->where('products.id', 1080895);
 
         if (isset($filter_data['supplier_count'])) {
             $query = $query->havingRaw('count(products.id) = ' . $filter_data['supplier_count']);

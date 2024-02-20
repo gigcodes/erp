@@ -44,7 +44,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             if (strpos($letters, 'G') === false) {
                 return;
             }
-            // $products = ScrapEntries::where('is_scraped', 0)->where('is_product_page', 1)->where('site_name', 'GNB')->take(250)->get();
             $products = ScrapedProducts::where('website', 'GNB')->get();
             foreach ($products as $product) {
                 $this->runFakeTraffic($product->url);
@@ -80,7 +79,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         $url = explode('/category', $url);
         $url = $url[0];
         $duskShell = new WebsiteEmulator();
-//        $duskShell->setProxyList();
         $this->setCountry('IT');
         $duskShell->prepare();
 
@@ -118,7 +116,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         $this->info('here saving to server');
         $client = new Client();
         $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
-            //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,
                 'website' => $image->website,
@@ -126,7 +123,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
                 'title' => $image->title,
                 'brand_id' => $image->brand_id,
                 'description' => $image->description,
-                //                'images' => $this->imagesToDownload,
                 'price' => $image->price,
                 'properties' => $image->properties,
                 'url' => $image->url,
@@ -154,7 +150,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     {
         //get product by sku...
         //now in scraped images its in euros, update that price...
-        //
         if ($product = Product::where('sku', $image->sku)->first()) {
             $brand = Brand::find($image->brand_id);
 

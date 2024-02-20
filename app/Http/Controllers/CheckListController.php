@@ -37,7 +37,7 @@ class CheckListController extends Controller
                 $items->where('checklist.sub_category_name', 'Like', '%' . $request->sub_category_name . '%');
             }
             if (isset($request->subjects) && ! empty($request->subjects)) {
-                // $items->whereRaw("find_in_set('".$request->subjects."',checklist.subjects)");
+                //
             }
 
             return datatables()->eloquent($items)->toJson();
@@ -119,8 +119,6 @@ class CheckListController extends Controller
                 'status_name' => 'error',
             ], 500);
         }
-        // $items = Subject::where('checklist_id',$request->id);
-        // return datatables()->eloquent($items)->toJson();
     }
 
     /**
@@ -284,11 +282,11 @@ class CheckListController extends Controller
     {
         try {
             $remark = ChecklistSubjectRemarkHistory::leftJoin('users', 'users.id', 'create_checklist_subject_remark_histories.user_id')
-            ->select('create_checklist_subject_remark_histories.*', 'users.name as username')
-            ->where('create_checklist_subject_remark_histories.subject_id', $request->subject_id)
-            ->orderBy('create_checklist_subject_remark_histories.id', 'DESC')
-            ->get();
-            //dd($remark);
+                ->select('create_checklist_subject_remark_histories.*', 'users.name as username')
+                ->where('create_checklist_subject_remark_histories.subject_id', $request->subject_id)
+                ->orderBy('create_checklist_subject_remark_histories.id', 'DESC')
+                ->get();
+
             return response()->json(['code' => 200, 'message' => 'Remark listed successfully.', 'data' => $remark]);
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage(), 'data' => []]);

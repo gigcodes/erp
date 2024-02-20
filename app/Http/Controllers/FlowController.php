@@ -28,10 +28,6 @@ class FlowController extends Controller
 
     public function conditionlist()
     {
-        /*$flowconditions = FlowCondition::leftJoin('flows', 'flows.id', '=', 'flow_conditions.flow_id')
-                        ->select('flow_conditions.id as id','flows.flow_name','flow_conditions.condition_name','flow_conditions.message','flow_conditions.condition_name','flow_conditions.status')
-                        ->get();*/
-
         $flowconditions = FlowCondition::select('flow_conditions.*')->get();
 
         return view('flow.conditionlist', compact('flowconditions'));
@@ -60,8 +56,8 @@ class FlowController extends Controller
         $current_date = Carbon::now()->format('Y-m-d H:i:s');
         //Chats and Whatsapp
         $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date)->where('flow_exit', 1)
-        ->leftJoin('customers', 'customers.id', 'chat_messages.customer_id')
-        ->leftJoin('users', 'users.id', 'chat_messages.user_id');
+            ->leftJoin('customers', 'customers.id', 'chat_messages.customer_id')
+            ->leftJoin('users', 'users.id', 'chat_messages.user_id');
         $types = ['0' => 'Whatsapp', '3' => 'SMS'];
         $is_queues = ['1' => 'Yes', '0' => 'No'];
         if (request()->message) {
@@ -77,7 +73,6 @@ class FlowController extends Controller
         }
 
         $messages = $messages->select('chat_messages.*', 'customers.name', 'users.name as user_name')->orderBy('chat_messages.id', 'desc')->paginate(20);
-        //$messages = $messages->orderBy('chat_messages.id', 'desc')->paginate(20);
 
         $message = request()->message;
         $type = request()->message_application_id;
@@ -192,11 +187,6 @@ class FlowController extends Controller
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Flow Type Created successfully']);
     }
 
-    /*public function editFlow($flowCode) {
-        $flowDetail = Flow::where('flow_code', $flowCode)->first();
-        return view('flow.create', compact('flowDetail'));
-    }*/
-
     public function updateFlow(Request $request)
     {
         $inputs = $request->input();
@@ -218,7 +208,6 @@ class FlowController extends Controller
             FlowPath::create(['flow_id' => $inputs['flow_id'], 'parent_action_id' => $flowAction['id'], 'path_for' => 'yes']);
             FlowPath::create(['flow_id' => $inputs['flow_id'], 'parent_action_id' => $flowAction['id'], 'path_for' => 'no']);
         }
-        //$flowPathId = $inputs['path_id'];
         $flowPathId = FlowPath::where('flow_id', $inputs['flow_id'])->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
         $flowActions = $this->getFlowActions($flowPathId);
 
@@ -230,8 +219,8 @@ class FlowController extends Controller
     public function getFlowActions($pathId)
     {
         return $flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-                    ->select('flow_actions.*', 'flow_types.type')->where(['path_id' => $pathId])->orderBy('rank')
-                    ->get();
+            ->select('flow_actions.*', 'flow_types.type')->where(['path_id' => $pathId])->orderBy('rank')
+            ->get();
     }
 
     public function updateCondition(Request $request)
@@ -268,9 +257,6 @@ class FlowController extends Controller
     {
         $flowDetail = Flow::where('id', $flowId)->first();
         $flowPathId = FlowPath::where('flow_id', $flowId)->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
-        /*$flowActions = FlowAction::leftJoin('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
-                       ->select('flow_actions.*', 'flow_types.type')->where('path_id', $flowPathId)->orderBy('rank')->get()->groupBy('path_id');
-        */
         $flowActions = $this->getFlowActions($flowPathId);
 
         return view('flow.create', compact('flowDetail', 'flowActions', 'flowPathId'));
@@ -309,9 +295,9 @@ class FlowController extends Controller
 
         if ($flowMessage == null || $flowMessage['sender_name'] == null || $flowMessage['sender_email_address'] == null) {
             $flowMessage = FlowAction::leftJoin('flow_paths', 'flow_paths.id', '=', 'flow_actions.path_id')
-                      ->leftJoin('flows', 'flows.id', '=', 'flow_paths.flow_id')
-                      ->leftJoin('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
-                      ->where('flow_actions.id', $actionId)->select('store_websites.title as sender_name', 'store_websites.username as sender_email_address')->first();
+                ->leftJoin('flows', 'flows.id', '=', 'flow_paths.flow_id')
+                ->leftJoin('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
+                ->where('flow_actions.id', $actionId)->select('store_websites.title as sender_name', 'store_websites.username as sender_email_address')->first();
         }
         if (! isset($flowMessage['subject'])) {
             $flowMessage['subject'] = '';

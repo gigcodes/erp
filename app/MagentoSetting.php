@@ -44,7 +44,6 @@ class MagentoSetting extends Model
     public function fromStoreIdwebsite()
     {
         return $this->hasOne(WebsiteStore::class, 'id', 'website_store_id');
-        //return $this->hasOne(StoreWebsname:class, 'id', 'website_store_id');
     }
 
     public function users()

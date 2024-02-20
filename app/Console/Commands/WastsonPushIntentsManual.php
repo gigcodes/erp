@@ -38,7 +38,6 @@ class WastsonPushIntentsManual extends Command
      */
     public function handle()
     {
-        //
         $q = \App\ChatbotQuestion::where('erp_or_watson', 'watson')->whereNull('workspace_id')->where('value', '!=', '')->get();
         if (! $q->isEmpty()) {
             foreach ($q as $k) {

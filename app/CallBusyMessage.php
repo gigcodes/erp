@@ -86,8 +86,6 @@ class CallBusyMessage extends Model
         $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
         if (($http_code == '200') || ($http_code == '302')) {
-            // $apiKey = 'LhLBdFbWlwujC38ym7PcILaalqTBQN7Jb-50H0ij4nkG';
-            // $url = 'https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/9e2e85a8-4bea-4070-b3d3-cef36b5697f0';
 
             // If store id not found
             if ($store_website_id == 0) {

@@ -15,10 +15,9 @@ use Illuminate\Http\Request;
 use App\Exports\EmailFailedReport;
 use Illuminate\Support\Facades\DB;
 use Webklex\PHPIMAP\ClientManager;
+use App\Models\EMailAcknowledgement;
 use Maatwebsite\Excel\Facades\Excel;
 use EmailReplyParser\Parser\EmailParser;
-use App\Models\EMailAcknowledgement;
-use Illuminate\Support\Facades\Validator;
 
 class EmailAddressesController extends Controller
 {
@@ -30,11 +29,8 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $query = EmailAddress::query();
-        //$queryNew = new EmailAddress;
-        //dd($query);
         $query->select('email_addresses.*')->with(['email_assignes',
             'history_last_message' => function ($q) use ($request) {
-                //dd($request->website_id);
                 if ($request->status) {
                     $q->where('is_success', $request->status)->orderBy('id', 'DESC')->limit(1);
                 }
@@ -59,11 +55,7 @@ class EmailAddressesController extends Controller
             $query->where('store_website_id', $request->website_id);
         }
 
-        //$query->where('id', 1);
-
-        // dd($query);
         $emailAddress = $query->paginate(\App\Setting::get('pagination', 10))->appends(request()->query());
-        //dd($emailAddress->website);
         $allStores = StoreWebsite::all();
         // Retrieve all email addresses
         $emailAddresses = EmailAddress::all();
@@ -81,7 +73,6 @@ class EmailAddressesController extends Controller
         $defaultHost = 'mail.mio-moda.com';
 
         $users = User::orderBy('name', 'asc')->get()->toArray();
-        // dd($users);
         $userEmails = $emailAddresses->pluck('username')->unique()->toArray();
         $fromAddresses = $emailAddresses->pluck('from_address')->unique()->toArray();
 
@@ -89,7 +80,6 @@ class EmailAddressesController extends Controller
         foreach ($users as $key => $user) {
             $ops .= '<option class="form-control" value="' . $user['id'] . '">' . $user['name'] . '</option>';
         }
-        //dd($ops);
         if ($request->ajax()) {
             return view('email-addresses.index_ajax', [
                 'emailAddress' => $emailAddress,
@@ -131,8 +121,6 @@ class EmailAddressesController extends Controller
 
     public function createAcknowledgement(Request $request)
     {
-        
-
         $this->validate($request, [
             'start_date' => 'required',
             'end_date' => 'required',
@@ -156,7 +144,6 @@ class EmailAddressesController extends Controller
 
     public function acknowledgementCount($email_addresses_id)
     {
-    
         $EMailAcknowledgement = EMailAcknowledgement::where('email_addresses_id', $email_addresses_id)->orderBy('id', 'DESC')->take(5)->get();
 
         return response()->json(['code' => 200, 'EMailAcknowledgement' => $EMailAcknowledgement]);
@@ -192,13 +179,10 @@ class EmailAddressesController extends Controller
             'incoming_driver' => 'required|string|max:255',
             'driver' => 'required|string|max:255',
             'host' => 'required|string|max:255',
-            //'send_grid_token' => 'required|string',
             'port' => 'required|string|max:255',
             'encryption' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'password' => 'required|string|max:255',
-            //'recovery_phone' => 'required|string|max:255',
-            //'recovery_email' => 'required|string|max:255',
 
         ]);
 
@@ -250,12 +234,9 @@ class EmailAddressesController extends Controller
             'driver' => 'required|string|max:255',
             'host' => 'required|string|max:255',
             'port' => 'required|string|max:255',
-            //'send_grid_token' => 'required|string',
             'encryption' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'password' => 'required|string|max:255',
-            //'recovery_phone' => 'required|string|max:255',
-            //'recovery_email' => 'required|string|max:255',
 
         ]);
 
@@ -662,7 +643,6 @@ class EmailAddressesController extends Controller
                             $email_subject = $email->getSubject();
                             \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
-                            //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
                             $attachments = $email->getAttachments();
                             $fromThis = $email->getFrom()[0]->mail;
@@ -897,11 +877,13 @@ class EmailAddressesController extends Controller
         return view('email-addresses.email-run-log-listing', compact('emailJobs'));
     }
 
-    public  function setEmailAlert(Request $request) {
+    public function setEmailAlert(Request $request)
+    {
         $emailAddressId = $request->id;
         $emaiAddress = EmailAddress::findorfail($emailAddressId);
-        $emaiAddress->email_alert = $request->email_alert == "true" ? 1 : 0;
+        $emaiAddress->email_alert = $request->email_alert == 'true' ? 1 : 0;
         $emaiAddress->save();
-        return ['status'=>true,'message'=>'Email alert Updated'];
+
+        return ['status' => true, 'message' => 'Email alert Updated'];
     }
 }

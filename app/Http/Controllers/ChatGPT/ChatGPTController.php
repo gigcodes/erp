@@ -49,7 +49,7 @@ class ChatGPTController extends Controller
         } else {
             $modelResponses = ChatGptResponses::where('prompt', 'Models List')->first();
 
-            return  unserialize($modelResponses->response);
+            return unserialize($modelResponses->response);
         }
 
         $chatGpt = new ChatGPTService();
@@ -69,8 +69,6 @@ class ChatGPTController extends Controller
         ChatGptResponses::create($insertData);
 
         return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $modelsList, 'getting_type' => 'chatGPT']]);
-
-//        return $modelsList;
     }
 
     public function getResponse(Request $request)
@@ -171,7 +169,7 @@ class ChatGPTController extends Controller
                 ];
                 ChatGptResponses::create($insertData);
 
-                return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $choices,  'getting_type' => 'chatGPT']]);
+                return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $choices, 'getting_type' => 'chatGPT']]);
             }
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
@@ -266,13 +264,6 @@ class ChatGPTController extends Controller
     public function getImageVariation(Request $request): JsonResponse
     {
         try {
-//            $regenerate =  filter_var($request->get('regenerate'), FILTER_VALIDATE_BOOLEAN);
-//            if ($regenerate == false) {
-//                $prompt = ChatGptResponses::where('prompt', 'like', '%' . $request->get('image_variation_image') . '%')->first();
-//                if ($prompt) {
-//                    return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $prompt->response, 'getting_type' => 'database', 'type' => 'image_variation']]);
-//                }
-//            }
             $image = $_FILES['image'];
             $chatGpt = new ChatGPTService();
             $response = $chatGpt->generateImageVariation($image, $request->get('n'), $request->get('size'));
@@ -283,12 +274,6 @@ class ChatGPTController extends Controller
                 foreach ($response['data']['data'] as $key => $value) {
                     $url['Response:' . $key + 1] = $value['url'];
                 }
-//                $insertData = [
-//                    'prompt' => $request->get('image_variation_image'),
-//                    'response' => serialize($url),
-//                    'response_data' => serialize($response['data'])
-//                ];
-//                ChatGptResponses::create($insertData);
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $url, 'getting_type' => 'chatGPT', 'type' => 'image_variation']]);
             }
         } catch (\Exception $e) {

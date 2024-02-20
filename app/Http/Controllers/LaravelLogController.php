@@ -93,7 +93,6 @@ class LaravelLogController extends Controller
     public function liveLogsSingle(Request $request)
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        //$filename = '/laravel-2020-09-10.log';
         $path = storage_path('logs');
         $fullPath = $path . $filename;
         $errSelection = [];
@@ -117,7 +116,6 @@ class LaravelLogController extends Controller
                     }
                 }
                 if ($request->get('search') && $request->get('search') != '') {
-                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
                     if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
@@ -139,9 +137,7 @@ class LaravelLogController extends Controller
                     }
                 }
             }
-            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
             $errors = array_reverse($errors);
-            //}
         } catch (\Exception $e) {
             $errors = [];
         }
@@ -178,7 +174,6 @@ class LaravelLogController extends Controller
     public function liveLogs(Request $request)
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        //$filename = '/laravel-2020-09-10.log';
         $path = storage_path('logs');
         $fullPath = $path . $filename;
         $errSelection = [];
@@ -202,7 +197,6 @@ class LaravelLogController extends Controller
                     }
                 }
                 if ($request->get('search') && $request->get('search') != '') {
-                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
                     if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
                         $str = $value;
                         $temp1 = explode('.', $str);
@@ -224,17 +218,10 @@ class LaravelLogController extends Controller
                     }
                 }
             }
-            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
             $errors = array_reverse($errors);
-            //}
         } catch (\Exception $e) {
             $errors = [];
         }
-
-        /*$other_channel_data = $this->getDirContents($path);
-        foreach ($other_channel_data as $other) {
-            array_push($errors, $other);
-        }*/
         $allErrorTypes = array_values(array_unique($errSelection));
 
         $users = User::all();
@@ -279,21 +266,15 @@ class LaravelLogController extends Controller
                 }
             }
         }
-        //     dd($final);
-        //    exit;
 
         $errors = [];
         $errors = array_unique($final);
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
-        //dd($currentItems);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
             'query' => $request->query(),
         ]);
-        //dd($errors);
-
-        //$this->channel_filter;
         $filter_channel = [];
         foreach ($this->channel_filter as $ch) {
             if (! in_array($ch, $filter_channel)) {
@@ -314,7 +295,6 @@ class LaravelLogController extends Controller
     public function liveLogsSummary()
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        //$filename = '/laravel-2020-09-10.log';
         $path = storage_path('logs');
         $fullPath = $path . $filename;
         $errSelection = [];
@@ -608,7 +588,6 @@ class LaravelLogController extends Controller
                             foreach ($errors as $er) {
                                 array_push($final_result, $er);
                             }
-                            //$final_result[] = $errors;
                         }
                     }
                 }
@@ -718,7 +697,6 @@ class LaravelLogController extends Controller
         }
 
         if ($request->report_type == 'time_wise') {
-            //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
             $logsGroupWise = $logsGroupWise->where('time_taken', '>', 5);
             $logsGroupWise = $logsGroupWise->whereNotNull('time_taken');
             $logsGroupWise = $logsGroupWise->orderByRaw('CONVERT(time_taken, SIGNED) desc');
@@ -735,7 +713,6 @@ class LaravelLogController extends Controller
 
     public function listApiLogsDelete(Request $request)
     {
-
         \DB::table('log_requests')->truncate();
 
         return redirect()->back()->with('success', 'Laravel API Logs successfully deleted');

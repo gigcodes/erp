@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Zabbix;
 
-use App\Zabbix\Zabbix;
 use JsonSerializable;
+use App\Zabbix\Zabbix;
 
 class Item implements JsonSerializable
 {
@@ -35,39 +35,30 @@ class Item implements JsonSerializable
         1 => 'character',
         2 => 'log',
         3 => 'numeric unsigned',
-        4 => 'text'
+        4 => 'text',
     ];
 
     /**
      * @var Zabbix
      */
     private $zabbix;
-    /**
-     * @var
-     */
+
     private $id;
-    /**
-     * @var
-     */
+
     private $name;
-    /**
-     * @var
-     */
+
     private $type;
-    /**
-     * @var
-     */
+
     private $key;
-    /**
-     * @var
-     */
+
     private $valueType;
+
     private $interfaceId;
+
     private $hostId;
+
     private $units;
-    /**
-     * @var
-     */
+
     private $delay;
 
     public function __construct()
@@ -83,6 +74,7 @@ class Item implements JsonSerializable
         return array_map(function ($item) {
             $model = new self();
             $model->setData($item);
+
             return $model;
         }, $this->zabbix->getAllItems());
     }
@@ -95,20 +87,17 @@ class Item implements JsonSerializable
         return array_map(function ($item) {
             $model = new self();
             $model->setData($item);
+
             return $model;
         }, $this->zabbix->getAllItemsByHostId($hostId));
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
-        return (int)$this->id;
+        return (int) $this->id;
     }
 
     /**
-     * @param int|null $id
      * @return $this
      */
     public function setId(?int $id): self
@@ -118,16 +107,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
-        return (string)$this->name;
+        return (string) $this->name;
     }
 
     /**
-     * @param string $name
      * @return $this
      */
     public function setName(string $name): self
@@ -137,16 +122,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getKey(): ?string
     {
-        return (string)$this->key;
+        return (string) $this->key;
     }
 
     /**
-     * @param string $key
      * @return $this
      */
     public function setKey(string $key): self
@@ -161,11 +142,11 @@ class Item implements JsonSerializable
      */
     public function getDelay(): ?string
     {
-        return (string)$this->delay;
+        return (string) $this->delay;
     }
 
     /**
-     * @param int $delay
+     * @param  int  $delay
      * @return $this
      */
     public function setDelay(string $delay): self
@@ -175,16 +156,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getValueType(): ?int
     {
-        return (int)$this->valueType;
+        return (int) $this->valueType;
     }
 
     /**
-     * @param int|null $valueType
      * @return $this
      */
     public function setValueType(?int $valueType): self
@@ -194,16 +171,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getInterfaceid(): ?int
     {
-        return (int)$this->interfaceId;
+        return (int) $this->interfaceId;
     }
 
     /**
-     * @param int|null $interfaceId
      * @return $this
      */
     public function setInterfaceid(?int $interfaceId): self
@@ -213,16 +186,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getHostId(): ?int
     {
-        return (int)$this->hostId;
+        return (int) $this->hostId;
     }
 
     /**
-     * @param int|null $hostId
      * @return $this
      */
     public function setHostId(?int $hostId): self
@@ -232,16 +201,12 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getType(): ?string
     {
-        return (string)$this->type;
+        return (string) $this->type;
     }
 
     /**
-     * @param string $type
      * @return $this
      */
     public function setType(string $type): self
@@ -251,12 +216,9 @@ class Item implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getUnits(): ?string
     {
-        return (string)$this->units;
+        return (string) $this->units;
     }
 
     /**
@@ -279,7 +241,6 @@ class Item implements JsonSerializable
     }
 
     /**
-     * @param $templateId
      * @return $this
      */
     public function setTemplateId(int $templateId): self
@@ -291,7 +252,7 @@ class Item implements JsonSerializable
 
     public function save()
     {
-        if (!$this->getId()) {
+        if (! $this->getId()) {
             $this->zabbix->saveItem([
                 'name' => $this->getName(),
                 'key_' => $this->getKey(),
@@ -301,7 +262,7 @@ class Item implements JsonSerializable
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
                 'units' => $this->getUnits(),
-                'templateids' => $this->getTemplateId()
+                'templateids' => $this->getTemplateId(),
             ]);
         } else {
             $this->zabbix->updateItem([
@@ -313,7 +274,7 @@ class Item implements JsonSerializable
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
                 'units' => $this->getUnits(),
-                'templateids' => $this->getTemplateId()
+                'templateids' => $this->getTemplateId(),
             ]);
         }
     }
@@ -322,7 +283,7 @@ class Item implements JsonSerializable
     {
         $item = $this->zabbix->getItemByIds($id);
 
-        if (!$item) {
+        if (! $item) {
             return null;
         }
 
@@ -333,14 +294,14 @@ class Item implements JsonSerializable
     {
         $this->setName($data['name'] ?? '');
         $this->setType($data['type'] ?? '');
-        $this->setId((int)$data['itemid'] ?? null);
-        $this->setValueType((int)$data['value_type'] ?? 0);
-        $this->setKey((string)$data['key_'] ?? '');
-        $this->setDelay((string)$data['delay'] ?? '');
-        $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
-        $this->setHostId((int)$data['hostid'] ?? 0);
+        $this->setId((int) $data['itemid'] ?? null);
+        $this->setValueType((int) $data['value_type'] ?? 0);
+        $this->setKey((string) $data['key_'] ?? '');
+        $this->setDelay((string) $data['delay'] ?? '');
+        $this->setInterfaceid((int) $data['interfaceid'] ?? 0);
+        $this->setHostId((int) $data['hostid'] ?? 0);
         $this->setUnits($data['units'] ?? 0);
-        $this->setTemplateId((int)$data['templateid'] ?? 0);
+        $this->setTemplateId((int) $data['templateid'] ?? 0);
 
         return $this;
     }
@@ -353,7 +314,7 @@ class Item implements JsonSerializable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function jsonSerialize()
     {
@@ -367,7 +328,7 @@ class Item implements JsonSerializable
             'delay' => $this->getDelay(),
             'host_id' => $this->getHostId(),
             'units' => $this->getUnits(),
-            'templateid' => $this->getTemplateId()
+            'templateid' => $this->getTemplateId(),
         ];
     }
 }

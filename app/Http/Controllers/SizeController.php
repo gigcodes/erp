@@ -8,13 +8,6 @@ use Illuminate\Http\Request;
 
 class SizeController extends Controller
 {
-    //
-
-    public function __construct()
-    {
-        //  $this->middleware('permission:brand-edit', ['only' => 'index', 'create', 'store', 'destroy', 'update', 'edit']);
-    }
-
     public function index()
     {
         $title = 'Size';
@@ -252,7 +245,6 @@ class SizeController extends Controller
             ])->onQueue('supplier_products');
         }
 
-        //$c = Size::where("name",$to)->first();
         if (empty($oldReference)) {
             $to->references = $from;
             $to->save();

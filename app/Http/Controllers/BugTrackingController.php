@@ -16,19 +16,18 @@ use App\DeveloperTask;
 use App\BugEnvironment;
 use App\BugUserHistory;
 use App\SiteDevelopment;
-use App\TestCaseHistory;
 use App\BugStatusHistory;
 use App\GoogleScreencast;
 use App\BugTrackerHistory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\BugSeveritiesHistory;
+use App\Models\DataTableColumn;
 use App\SiteDevelopmentCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
 use Illuminate\Support\Facades\Validator;
-use App\Models\DataTableColumn;
 
 class BugTrackingController extends Controller
 {
@@ -48,8 +47,8 @@ class BugTrackingController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
 
         $dynamicColumnsToShowbt = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowbt = json_decode($hideColumns, true);
         }
 
@@ -138,23 +137,14 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        // if ($keyword = request('url')) {
-        //     $records = $records->where(
-        //         function ($q) use ($keyword) {
-        //             $q->where('url', 'LIKE', "%$keyword%");
-        //         }
-        //     );
-        // }
         if ($keyword = request('website')) {
-            
-                $records =  $records->where(
-                    function ($q) use ($keyword) {
-                        foreach($keyword as $search_val_web) {
+            $records = $records->where(
+                function ($q) use ($keyword) {
+                    foreach ($keyword as $search_val_web) {
                         $q->orWhereRaw("FIND_IN_SET({$search_val_web}, website)");
-                        }
                     }
-                );
-            
+                }
+            );
         }
         if ($keyword = request('date')) {
             $records = $records->where(
@@ -175,12 +165,10 @@ class BugTrackingController extends Controller
                 $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
                 $bug->created_by = User::where('id', $bug->created_by)->value('name');
                 $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
-                //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
                 $bug->bug_color = BugStatus::where('id', $bug->bug_status_id)->value('bug_color');
                 $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
-                $store_websites = StoreWebsite::whereIn('id', explode(",",$bug->website) )->pluck('title')->toArray();
-                // dd($store_websites);
-                $bug->website = implode(" ,",$store_websites);
+                $store_websites = StoreWebsite::whereIn('id', explode(',', $bug->website))->pluck('title')->toArray();
+                $bug->website = implode(' ,', $store_websites);
                 $bug->summary_short = Str::limit($bug->summary, 10, '..');
                 $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 60, '..');
                 $bug->url_short = Str::limit($bug->url, 5, '..');
@@ -201,8 +189,8 @@ class BugTrackingController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
 
         $dynamicColumnsToShowbt = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowbt = json_decode($hideColumns, true);
         }
 
@@ -296,13 +284,6 @@ class BugTrackingController extends Controller
                 }
             );
         }
-        // if ($keyword = request('url')) {
-        //     $records = $records->where(
-        //         function ($q) use ($keyword) {
-        //             $q->where('url', 'LIKE', "%$keyword%");
-        //         }
-        //     );
-        // }
         if ($keyword = request('website')) {
             $records = $records->WhereIn('website', $keyword);
         }
@@ -323,7 +304,6 @@ class BugTrackingController extends Controller
                 $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
                 $bug->created_by = User::where('id', $bug->created_by)->value('name');
                 $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y');
-                //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
                 $bug->bug_color = BugStatus::where('id', $bug->bug_status_id)->value('bug_color');
                 $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
                 $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
@@ -344,13 +324,11 @@ class BugTrackingController extends Controller
             }
         );
 
-        // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
-
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
 
         $dynamicColumnsToShowbt = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowbt = json_decode($hideColumns, true);
         }
 
@@ -373,20 +351,19 @@ class BugTrackingController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','bug-tracking')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'bug-tracking';
-            $column->column_name = json_encode($request->column_bt); 
+            $column->column_name = json_encode($request->column_bt);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'bug-tracking';
-            $column->column_name = json_encode($request->column_bt); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_bt);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -417,9 +394,8 @@ class BugTrackingController extends Controller
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
         $testCases = [];
-        if($bugTracker->module_id) {
-
-            $testCases = TestCase::where('module_id',$bugTracker->module_id)->select('id','name')->get();
+        if ($bugTracker->module_id) {
+            $testCases = TestCase::where('module_id', $bugTracker->module_id)->select('id', 'name')->get();
         }
         if ($bugTracker) {
             return response()->json(
@@ -433,7 +409,7 @@ class BugTrackingController extends Controller
                     'filterCategories' => $filterCategories,
                     'users' => $users,
                     'filterWebsites' => $filterWebsites,
-                    'testCases' => $testCases
+                    'testCases' => $testCases,
                 ]
             );
         }
@@ -581,7 +557,6 @@ class BugTrackingController extends Controller
             $bug, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -673,7 +648,7 @@ class BugTrackingController extends Controller
                     'message' => 'Deleted successfully!!!',
                 ]
             );
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Bug Tracker Request Delete Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
             $this->BugErrorLog($request->id ?? '', 'Bug Tracker Request Delete Error', $msg, 'bug_tracker');
@@ -693,7 +668,6 @@ class BugTrackingController extends Controller
             $request, [
                 'summary' => 'required|string',
                 'step_to_reproduce' => 'required|string',
-                // 'url' => 'required|string',
                 'bug_type_id' => 'required|string',
                 'bug_environment_id' => 'required|string',
                 'assign_to' => 'required|string',
@@ -708,8 +682,6 @@ class BugTrackingController extends Controller
 
         $data = $request->except('_token', 'id');
         $bug = BugTracker::where('id', $request->id)->first();
-
-        
 
         $old_severity_id = $bug->bug_severity_id;
 
@@ -735,25 +707,7 @@ class BugTrackingController extends Controller
         $data['website'] = implode(',', $request->website);
 
         if ($bug->test_case_id) {
-            // $testCase = new TestCase;
-            // $testCase->module_id = $request->module_id;
-            // $testCase->step_to_reproduce = $data['step_to_reproduce'];
-            // $testCase->expected_result = $request->expected_result;
-            // $testCase->website = $request->website;
-            // $testCase->assign_to = $request->assign_to;
-            // $testCase->created_by = $data['created_by'];
-            // $testCase->bug_id = $request->id;
-            // $testCase->save();
-
-            // $testCaseHistory = new TestCaseHistory();
-            // $testCaseHistory->module_id = $request->module_id;
-            // $testCaseHistory->step_to_reproduce = $data['step_to_reproduce'];
-            // $testCaseHistory->expected_result = $request->expected_result;
-            // $testCaseHistory->website = $request->website;
-            // $testCaseHistory->assign_to = $request->assign_to;
-            // $testCaseHistory->created_by = $data['created_by'];
-            // $testCaseHistory->bug_id = $request->id;
-            // $testCaseHistory->save();
+            //
         }
 
         if ($bug->bug_status_id == '7') {
@@ -857,7 +811,6 @@ class BugTrackingController extends Controller
     public function userHistory($id)
     {
         $bugUsers = BugUserHistory::where('bug_id', $id)->orderBy('id', 'desc')->get();
-        //        dd($bugUsers);
         $bugUsers = $bugUsers->map(
             function ($bug) {
                 $bug->new_user = User::where('id', $bug->new_user)->value('name');
@@ -1194,7 +1147,6 @@ class BugTrackingController extends Controller
         if ($user) {
             $params = ChatMessage::create(
                 [
-                    //                  'id'      => $id,
                     'user_id' => $userid,
                     'erp_user' => $userid,
                     'bug_id' => $task->id,
@@ -1250,7 +1202,6 @@ class BugTrackingController extends Controller
         $bug_id = $request->bug_id;
         $module_id = $request->module_id;
         $website_id = $request->website_id;
-        // $bug_tracker = Task::where("FIND_IN_SET($bug_id,task_bug_ids)")->get()->asArray();
         $bug_tracker = \DB::table('tasks')->select('*')->whereRaw("find_in_set($bug_id,task_bug_ids)")->get();
 
         return response()->json(
@@ -1371,7 +1322,6 @@ class BugTrackingController extends Controller
         $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
         $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
-        //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where(function ($qry) use ($site_developement_id, $bug_id) {
             if ($site_developement_id != null && $site_developement_id != '' && $site_developement_id != 0) {
@@ -1616,17 +1566,9 @@ class BugTrackingController extends Controller
 
                     $googleScreencast->read = '';
                     $googleScreencast->write = '';
-                    // if (isset($data['file_read'])) {
-                    //     $googleScreencast->read = implode(',', $data['file_read']);
-                    // }
-                    // if (isset($data['file_write'])) {
-                    //     $googleScreencast->write = implode(',', $data['file_write']);
-                    // }
-
                     $googleScreencast->bug_id = $data['bug_id'];
                     $googleScreencast->remarks = $data['remarks'];
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
-                    // $googleScreencast->developer_task_id = $data['task_id'];
                     $googleScreencast->save();
                     UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file, 'anyone');
                 });

@@ -4,7 +4,6 @@ namespace App\Services\Scrap;
 
 use Storage;
 use App\Brand;
-use App\Product;
 use App\ScrapEntries;
 use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
@@ -22,33 +21,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getSizes(HtmlPageCrawler $c)
     {
-//        $sizes = $c->filter('script')->getIterator();
         $content = [];
-
-//        foreach ($sizes as $size) {
-//            $html = trim($size->textContent);
-//            if (strpos($html, 'new Product.Config') !== false) {
-//                $html = explode('var unsaleableProducts', $html);
-//                $htmlData = trim($html[0]);
-//                $htmlData = str_replace('var spConfig = new Product.Config(', '', $htmlData);
-//                $htmlData = str_replace(');', '', $htmlData);
-//
-//                $data = json_decode($htmlData, true);
-//
-//                foreach ($data as $datum) {
-//                    foreach ($datum as $item) {
-//                        if ($item['label'] == 'Size') {
-//                            $options = $item['options'];
-//                            $options = array_map(function($item) {
-//                                return $item['label'];
-//                            }, $options);
-//
-//                            return $options;
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         return $content;
     }
@@ -147,8 +120,6 @@ class DoubleFProductDetailsScraper extends Scraper
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
-
-//        app('App\Services\Products\DoubleProductsCreator')->createDoubleProducts($image);
     }
 
     private function getTitle(HtmlPageCrawler $c)

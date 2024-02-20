@@ -74,10 +74,8 @@ class VendorResumeController extends Controller
             $resumes = VendorResume::where('id', $request->id)->first();
             //if vendoe_id is not null
             if ($request->id != null) {
-                //$resumes->where('id', $request->id);
+                //
             }
-            //$resumes = $resumes;
-            //dd($resumes->salary_in_usd);
             $html = '<tr><td colspan="5">Work Experience(Please add details of your work experience with the latest records first)</td></tr>';
             $workExperiance = unserialize($resumes->work_experiance);
             $salary_in_usd = unserialize($resumes->salary_in_usd);
@@ -96,7 +94,6 @@ class VendorResumeController extends Controller
             $dev_role = unserialize($resumes->dev_role);
             $tools = unserialize($resumes->tools);
 
-            //dd($workExperiance);
             $counter = 0;
             foreach ($workExperiance as $key => $val) {
                 $salary_in_usd_val = $salary_in_usd[$key] ?? '';
@@ -142,7 +139,6 @@ class VendorResumeController extends Controller
                     $html .= '<td colspan="6"><b>Project ' . ($prokey + 1) . '</b></td>';
                     $html .= '</tr>';
                     foreach ($pval as $prokey1 => $pval1) {
-                        //dd($dev_role[$prokey][$prokey][$prokey1]);
                         $html .= '<tr>';
                         $html .= '<td><b>Project ' . ($pval1) . '</b></td>';
                         $html .= '<td><b>Role ' . ($dev_role[$prokey][$prokey][$prokey1]) . '</b></td>';
@@ -171,7 +167,6 @@ class VendorResumeController extends Controller
             $edu_course_name = unserialize($resumes->edu_course_name);
             $edu_grades = unserialize($resumes->edu_grades);
             $edu_remark = unserialize($resumes->edu_remark);
-            //dd($workExperiance);
             foreach ($edu_date_from as $key => $val) {
                 $edu_date_to_val = $edu_date_to[$key] ?? '';
                 $edu_institute_programme_val = $edu_institute_programme[$key] ?? '';
@@ -242,7 +237,6 @@ class VendorResumeController extends Controller
     public function store(Request $request)
     {
         $requestData = $request->all();
-        //dd($request->all());
         $project = [];
         $dev_role = [];
         $tools = [];
@@ -331,12 +325,9 @@ class VendorResumeController extends Controller
             $vendorResume->pin_code = $request->pin_code;
             $vendorResume->address = serialize($request->address);
             $vendorResume->save();
-            //dd(\DB::getQueryLog());
+
             return back()->with('success', 'Data stored successfully!!!');
-            //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
         } catch (\Exception $e) {
-            //return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
-            //dd($e->getMessage());
             return back()->with('message', $e->getMessage());
         }
     }
@@ -389,13 +380,6 @@ class VendorResumeController extends Controller
 
     public function storeCVWithoutLogin(Request $request)
     {
-        /*$this->validate($request, [
-            'captcha' => 'required',
-        ]);
-        if(!captcha_check($request->captcha)){
-            return back()->with('error', 'Incorrect Captcha');
-        }*/
-
         $requestData = $request->all();
         $project = [];
         $dev_role = [];
@@ -412,7 +396,7 @@ class VendorResumeController extends Controller
         }
 
         $path = public_path('vendorResume');
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
         $vendorResumeName = '';
@@ -422,7 +406,6 @@ class VendorResumeController extends Controller
             $file->move($path, $vendorResumeName);
         }
 
-
         $vendorResume = new VendorResume();
         $vendorResume->vendor_id = $request->vendor_id;
         $vendorResume->pre_name = $request->pre_name;
@@ -431,8 +414,8 @@ class VendorResumeController extends Controller
         $vendorResume->email = $request->email;
         $vendorResume->mobile = $request->mobile;
         $vendorResume->position_id = $request->position_id;
-        if (!empty($request->criteria)) {
-            $vendorResume->criteria = implode(",", $request->criteria);
+        if (! empty($request->criteria)) {
+            $vendorResume->criteria = implode(',', $request->criteria);
         }
         $vendorResume->career_objective = $request->career_objective;
         $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
@@ -486,9 +469,7 @@ class VendorResumeController extends Controller
         $vendorResume->pin_code = $request->pin_code;
         $vendorResume->address = serialize($request->address);
         $vendorResume->save();
-        //dd(\DB::getQueryLog());
-        return back()->with('success', 'Data stored successfully!!!');
-        //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
 
+        return back()->with('success', 'Data stored successfully!!!');
     }
 }

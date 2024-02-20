@@ -45,8 +45,8 @@ class NewsletterController extends Controller
     public function records(Request $request)
     {
         $records = \App\Newsletter::join('newsletter_products as np', 'newsletters.id', 'np.newsletter_id')
-        ->leftJoin('users as u', 'u.id', 'newsletters.updated_by')
-        ->leftJoin('mailinglists as m', 'm.id', 'newsletters.mail_list_id');
+            ->leftJoin('users as u', 'u.id', 'newsletters.updated_by')
+            ->leftJoin('mailinglists as m', 'm.id', 'newsletters.mail_list_id');
 
         $keyword = request('keyword');
 
@@ -156,7 +156,6 @@ class NewsletterController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            //'sent_at' => 'required',
             'subject' => 'required',
         ]);
 
@@ -239,7 +238,6 @@ class NewsletterController extends Controller
         $newsletter = Newsletter::find($id);
 
         if ($newsletter) {
-            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
             $template = $newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;

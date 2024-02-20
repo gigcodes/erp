@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\LogRequest;
-use App\StoreWebsite;
 use App\MagentoCronData;
+use App\StoreWebsite;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class FetchMagentoCronData extends Command
@@ -43,7 +43,6 @@ class FetchMagentoCronData extends Command
     {
         $website = StoreWebsite::whereNotNull('magento_url')->get()->pluck('magento_url', 'id')->toArray();
 
-        //$date = '2021-7-14';
         $date = Carbon::yesterday()->format('Y-n-j');
         $cronstatus = $this->cronStatus();
         foreach ($website as $storeId => $web) {

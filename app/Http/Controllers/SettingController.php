@@ -9,12 +9,6 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    public function __construct()
-    {
-        //	$this->middleware('permission:setting-list',['only' => ['index']]);
-        //	$this->middleware('permission:setting-create',['only' => ['store']]);
-    }
-
     public function index(Request $request)
     {
         $setting = [];
@@ -42,7 +36,6 @@ class SettingController extends Controller
             Setting::whereId($request->post('id'))->update($data);
             Session::flash('message', 'Settings Updated Successfully');
         } else {
-            //Setting::add('disable_twilio', $disable_twilio, 'tinyint');
             Setting::create($data);
             Session::flash('message', 'Settings Created Successfully');
         }
@@ -53,16 +46,12 @@ class SettingController extends Controller
     public function store(Request $request)
     {
         $euro_to_inr = $request->input('euro_to_inr');
-        //		$special_price_discount = $request->input('special_price_discount');
         $pagination = $request->input('pagination');
         $disable_twilio = $request->disable_twilio ? 1 : 0;
         $incoming_calls_yogesh = $request->incoming_calls_yogesh ? 1 : 0;
         $incoming_calls_andy = $request->incoming_calls_andy ? 1 : 0;
         $forward_messages = $request->forward_messages ? 1 : 0;
         $whatsapp_number_change = $request->whatsapp_number_change ? 1 : 0;
-
-        //		Setting::add('euro_to_inr', $euro_to_inr, 'double');
-        //		Setting::add('special_price_discount', $special_price_discount, 'int');
         Setting::add('pagination', $pagination, 'int');
 
         // Twilio

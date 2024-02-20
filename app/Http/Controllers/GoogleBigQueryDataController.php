@@ -22,32 +22,33 @@ class GoogleBigQueryDataController extends Controller
         $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
         $datatableModel = DataTableColumn::select('column_name')
-                            ->where('user_id', auth()->user()->id)
-                            ->where('section_name', 'google-bigdata-bigquery')
-                            ->first();
+            ->where('user_id', auth()->user()->id)
+            ->where('section_name', 'google-bigdata-bigquery')
+            ->first();
 
         $dynamicColumnsToShowb = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
-        }      
+        }
+
         return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids', 'dynamicColumnsToShowb'));
     }
 
-    public function columnVisibilityUpdate(Request $request){
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','google-bigdata-bigquery')->first();
+    public function columnVisibilityUpdate(Request $request)
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'google-bigdata-bigquery')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'google-bigdata-bigquery';
-            $column->column_name = json_encode($request->column_data); 
+            $column->column_name = json_encode($request->column_data);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'google-bigdata-bigquery';
-            $column->column_name = json_encode($request->column_data); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_data);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 

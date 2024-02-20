@@ -69,7 +69,7 @@ class HsCodeController extends Controller
 
         if ($request->category || $request->combination) {
             $query->select('*', DB::raw('count(*) as total'))
-                 ->where('category', '>', 3)->where('stock', 1)->groupBy('category')->groupBy('composition');
+                ->where('category', '>', 3)->where('stock', 1)->groupBy('category')->groupBy('composition');
 
             if ($request->category != null) {
                 $query->where('category', $request->category);
@@ -82,7 +82,7 @@ class HsCodeController extends Controller
             $productss = $query->orderBy('total', 'desc')->take(100)->get();
         } else {
             $productss = $query->select('*', DB::raw('count(*) as total'))
-                    ->where('category', '>', 3)->where('stock', 1)->groupBy('category')->groupBy('composition')->whereNotNull('composition')->where('composition', '!=', '')->orderBy('total', 'desc')->get();
+                ->where('category', '>', 3)->where('stock', 1)->groupBy('category')->groupBy('composition')->whereNotNull('composition')->where('composition', '!=', '')->orderBy('total', 'desc')->get();
         }
 
         if ($productss->count() != 0) {
@@ -192,8 +192,8 @@ class HsCodeController extends Controller
         $selected_categories = $request->category ? $request->category : 1;
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control category_class select-multiple2', 'id' => 'category_value'])
-        ->selected($selected_categories)
-        ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         if ($request->ajax()) {
             return response()->json([

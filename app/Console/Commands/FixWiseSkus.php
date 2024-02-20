@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
-use Carbon\Carbon;
 use App\CronJobReport;
+use App\Product;
 use App\ScrapedProducts;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class FixWiseSkus extends Command

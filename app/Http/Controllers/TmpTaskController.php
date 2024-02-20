@@ -104,7 +104,6 @@ class TmpTaskController extends Controller
     {
         $orderSaved = \App\Order::find(2102);
 
-        //$emailClass = (new OrderConfirmation($orderSaved))->build();
         try {
             $email = \App\Email::create([
                 'model_id' => $orderSaved->id,
@@ -191,8 +190,6 @@ class TmpTaskController extends Controller
             if (count($websiteArrays) == 0) {
                 \Log::channel('productUpdates')->info('Product started ' . $product->id . ' No website found');
                 $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
-            //ProductPushErrorLog::log($product->id, $msg, 'error');
-            //LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
             } else {
                 $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
@@ -208,7 +205,6 @@ class TmpTaskController extends Controller
                         $log->queue = \App\Helpers::createQueueName($website->title);
                         $log->save();
                         PushToMagento::dispatch($product, $website, $log)->onQueue($log->queue);
-                        //PushToMagento::dispatch($product, $website, $log)->onQueue($queueName[$i]);
                         $i++;
                     }
                 }
@@ -261,7 +257,6 @@ class TmpTaskController extends Controller
                         }
                     }
                 }
-                //$chatM->delete();
             }
         }
     }

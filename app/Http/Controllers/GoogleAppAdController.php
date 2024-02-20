@@ -19,17 +19,14 @@ use Google\Ads\GoogleAds\Util\V12\ResourceNames;
 use Google\Ads\GoogleAds\V12\Common\AdTextAsset;
 use Google\Ads\GoogleAds\Lib\V12\GoogleAdsClient;
 use Google\Ads\GoogleAds\V12\Common\AdImageAsset;
-
 use Google\Ads\GoogleAds\V12\Common\AdVideoAsset;
 use Google\Ads\GoogleAds\V12\Resources\AdGroupAd;
-
 use Google\Ads\GoogleAds\V12\Services\AssetOperation;
 use Google\Ads\GoogleAds\V12\Common\YoutubeVideoAsset;
 use Google\Ads\GoogleAds\V12\Services\AdGroupAdOperation;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use Google\Ads\GoogleAds\V12\Enums\AssetTypeEnum\AssetType;
 use Google\Ads\GoogleAds\V12\Common\AppPreRegistrationAdInfo;
-
 use Google\Ads\GoogleAds\V12\Enums\AdGroupAdStatusEnum\AdGroupAdStatus;
 
 class GoogleAppAdController extends Controller
@@ -43,7 +40,6 @@ class GoogleAppAdController extends Controller
     {
         $result = GoogleAdsAccount::find($account_id);
         if (Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
-            // $storagepath = Storage::disk('adsapi')->url($account_id.'/'.$result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
 
             return $storagepath;
@@ -146,8 +142,6 @@ class GoogleAppAdController extends Controller
         $customerId = $acDetail['google_customer_id'];
         $channelSubType = $acDetail['channel_sub_type'];
 
-        // $storagepath = $this->getstoragepath($account_id);
-
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $adStatus = $adStatuses[$request->adStatus];
 
@@ -169,7 +163,6 @@ class GoogleAppAdController extends Controller
             }
 
             // store youtube video in google
-            // $input['youtube_video_ids'] = 'K4TOrB7at0Y,EngW7tLk6R8';
             $input['youtube_video_ids'] = array_slice(explode(',', $input['youtube_video_ids']), 0, 20);
             $youtubeVideoArr = [];
             if (! empty($input['youtube_video_ids'])) {
@@ -270,8 +263,6 @@ class GoogleAppAdController extends Controller
     {
         $acDetail = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
-        // $storagepath = $this->getstoragepath($account_id);
-
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {

@@ -25,7 +25,6 @@ class CreateBloggerRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            //            'instagram_handle' => 'required',
         ];
     }
 }

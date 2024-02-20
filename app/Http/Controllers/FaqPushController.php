@@ -46,12 +46,12 @@ class FaqPushController extends Controller
         //get all reply without translate
 
         $replyInfo = $Reply->select('replies.id', 'magento_url', 'api_token', 'replies.is_translate')
-                                ->join('store_websites', 'store_websites.id', '=', 'replies.store_website_id')
-                                ->join('reply_categories as rep_cat', 'rep_cat.id', '=', 'replies.category_id')
-                                ->whereNotNull('store_websites.magento_url')
-                                ->whereNotNull('store_websites.api_token')
-                                ->where('replies.is_translate', '!=', 1)
-                                ->get();
+            ->join('store_websites', 'store_websites.id', '=', 'replies.store_website_id')
+            ->join('reply_categories as rep_cat', 'rep_cat.id', '=', 'replies.category_id')
+            ->whereNotNull('store_websites.magento_url')
+            ->whereNotNull('store_websites.api_token')
+            ->where('replies.is_translate', '!=', 1)
+            ->get();
 
         if (empty($replyInfo)) {
             return response()->json(['code' => 400, 'data' => [], 'message' => 'No Record Found']);
@@ -61,13 +61,13 @@ class FaqPushController extends Controller
 
         //get all reply with translate and set in chunks
         $replyInfo = $Reply->select('replies.id', 'magento_url', 'api_token', 'replies.is_translate')
-                                ->join('store_websites', 'store_websites.id', '=', 'replies.store_website_id')
-                                ->join('reply_categories as rep_cat', 'rep_cat.id', '=', 'replies.category_id')
-                                ->whereNotNull('store_websites.magento_url')
-                                ->whereNotNull('store_websites.api_token')
-                                ->where('replies.is_translate', '=', 1)
-                                ->get()
-                                ->chunk(50);
+            ->join('store_websites', 'store_websites.id', '=', 'replies.store_website_id')
+            ->join('reply_categories as rep_cat', 'rep_cat.id', '=', 'replies.category_id')
+            ->whereNotNull('store_websites.magento_url')
+            ->whereNotNull('store_websites.api_token')
+            ->where('replies.is_translate', '=', 1)
+            ->get()
+            ->chunk(50);
 
         if (! empty($replyInfo)) {
             foreach ($replyInfo as $key => $value) {

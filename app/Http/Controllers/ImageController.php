@@ -14,20 +14,12 @@ use Carbon\Carbon;
 use App\LogRequest;
 use Plank\Mediable\Media;
 use Illuminate\Http\Request;
-use function GuzzleHttp\json_decode;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
-
 use Illuminate\Support\Facades\Validator;
 
 class ImageController extends Controller
 {
-    public function __construct()
-    {
-        //		$this->middleware('permission:social-view', ['except' => ['approveImage', 'store', 'edit', 'update', 'attachImage', 'destroy']]);
-//    $this->middleware('permission:social-create', ['only' => ['store', 'edit', 'update', 'attachImage', 'destroy']]);
-        //		$this->middleware('permission:social-manage', ['only' => ['approveImage', 'updateSchedule']]);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -100,8 +92,8 @@ class ImageController extends Controller
         $brands = Brand::getAll();
         $selected_categories = $request->category ? $request->category : 1;
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                  ->selected($selected_categories)
-                                                  ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         $images = $images->orderBy('id', 'desc')->with('product')->paginate(Setting::get('pagination'));
 
@@ -164,8 +156,6 @@ class ImageController extends Controller
             $category = $request->category[0];
         }
 
-        // // dd($images->get());
-
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
@@ -187,15 +177,15 @@ class ImageController extends Controller
         $brands = Brand::getAll();
         $selected_categories = $request->category ? $request->category : 1;
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                  ->selected($selected_categories)
-                                                  ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
         if (! empty(request('product_name'))) {
             $images->leftjoin('products', 'products.id', '=', 'images.product_id');
             $images->where('products.name', 'like', '%' . request('product_name') . '%');
         }
         $images = $images->select('images.*')->orderBy('id', 'desc')
-                    ->groupBy(\DB::raw('ifnull(product_id,images.id)'))
-                    ->paginate(Setting::get('pagination'));
+            ->groupBy(\DB::raw('ifnull(product_id,images.id)'))
+            ->paginate(Setting::get('pagination'));
 
         return view('images.index-new')->with([
             'images' => $images,
@@ -254,8 +244,6 @@ class ImageController extends Controller
             $category = $request->category[0];
         }
 
-        // dd($images->get());
-
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
@@ -272,8 +260,8 @@ class ImageController extends Controller
         $brands = Brand::getAll();
         $selected_categories = $request->category ? $request->category : 1;
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple'])
-                                                  ->selected($selected_categories)
-                                                  ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         $images = $images->paginate(Setting::get('pagination'));
 
@@ -301,7 +289,6 @@ class ImageController extends Controller
         foreach ($categories as $category) {
             $categories_array[$category->id] = $category->title;
         }
-        // dd($stats_brand);
 
         if (! isset($request->sortby) || $request->sortby == 'asc') {
             $images = Images::where('status', '2');
@@ -348,8 +335,6 @@ class ImageController extends Controller
             $category = $request->category[0];
         }
 
-        // dd($images->get());
-
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
             $min = $exploded[0];
@@ -366,8 +351,8 @@ class ImageController extends Controller
         $brands = Brand::getAll();
         $selected_categories = $request->category ? $request->category : 1;
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control'])
-                                                  ->selected($selected_categories)
-                                                  ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         $images = $images->paginate(Setting::get('pagination'));
 
@@ -483,10 +468,9 @@ class ImageController extends Controller
     public function edit($id)
     {
         $image = Images::find($id);
-        // $selected_categories = is_array(json_decode($image->category, true)) ? json_decode($image->category, true) : [] ;
         $category_select = Category::attr(['name' => 'category', 'class' => 'form-control'])
-                                               ->selected($image->category)
-                                               ->renderAsDropdown();
+            ->selected($image->category)
+            ->renderAsDropdown();
         $brands = Brand::getAll();
 
         return view('images.edit')->with([
@@ -680,8 +664,8 @@ class ImageController extends Controller
 
         if ($validator->fails()) {
             return Redirect::Back()
-                  ->withErrors($validator)
-                  ->withInput($request->all());
+                ->withErrors($validator)
+                ->withInput($request->all());
         }
 
         $new = new \App\SearchQueue;
@@ -693,38 +677,25 @@ class ImageController extends Controller
         if ($new->save()) {
             //call google image scraper
             $postData = ['data' => [['id' => $new->id, 'search_term' => $request->search_term]]];
-            $postData = json_encode($postData);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $curl = curl_init();
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => "$postData",
-            ]);
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
-            $err = curl_error($curl);
-            curl_close($curl);
+
+            $response = Http::post($url, $postData);
+
+
+            $responseData = $response->json();
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), ImageController::class, 'imageQueue');
 
             $messages = 'new search queue added successfuly';
 
             return Redirect::Back()
-                    ->with('success', $messages);
+                ->with('success', $messages);
         } else {
             $messages[] = 'Sorry! Please try again';
 
             return Redirect::Back()
-                    ->withErrors($messages);
+                ->withErrors($messages);
         }
     }
 }

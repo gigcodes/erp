@@ -23,7 +23,7 @@ class ScrapeController extends Controller
      *          required=true,
      *          type="string"
      *      ),
-            @SWG\Parameter(
+    @SWG\Parameter(
      *          name="website",
      *          in="path",
      *          required=true,
@@ -32,7 +32,7 @@ class ScrapeController extends Controller
      * )
      */
     /**
-     /**
+     * /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -136,7 +136,7 @@ class ScrapeController extends Controller
      *          required=true,
      *          type="string"
      *      ),
-            @SWG\Parameter(
+    @SWG\Parameter(
      *          name="website",
      *          in="path",
      *          required=true,

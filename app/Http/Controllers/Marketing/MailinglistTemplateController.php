@@ -37,7 +37,6 @@ class MailinglistTemplateController extends Controller
 
     public function ajax(Request $request)
     {
-        //        dd($request->term);
         $query = MailinglistTemplate::whereHas(
             'category', function ($query) use ($request) {
                 if (isset($request->MailingListCategory) && $request->MailingListCategory != '') {
@@ -54,9 +53,8 @@ class MailinglistTemplateController extends Controller
             function ($query) use ($request) {
                 if (! empty($request->term)) {
                     $query->where('name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('mail_tpl', 'LIKE', '%' . $request->term . '%');
-//                dd($query);
+                        ->orWhere('mail_class', 'LIKE', '%' . $request->term . '%')
+                        ->orWhere('mail_tpl', 'LIKE', '%' . $request->term . '%');
                 }
 
                 if (! empty($request->date)) {
@@ -116,12 +114,7 @@ class MailinglistTemplateController extends Controller
         $validator = Validator::make(
             $request->all(), [
                 'name' => 'required|string',
-                //'mail_class' => 'required|string',
                 'mail_tpl' => 'required|string',
-                //'image_count' => 'required|numeric',
-                //'text_count' => 'required|numeric',
-                //'image' => 'required|image',
-                /*       'file' => 'required|image',*/
                 'category' => 'nullable|numeric',
                 'store_website' => 'nullable|numeric',
             ]
@@ -135,8 +128,6 @@ class MailinglistTemplateController extends Controller
         // if created than check same name
         // if same nae then update
         // else assign new name
-
-        // $mailFile = mailEclipse::getMailable("namespace", $data['mail_class'])->first();
 
         $id = $request->get('id');
         if ($id > 0) {
@@ -270,11 +261,3 @@ class MailinglistTemplateController extends Controller
         return redirect('marketing/mailinglist-templates/')->withSuccess('You have successfully added a image!');
     }
 }
-
-/*
-$table->increments('id');
-$table->string("name");
-$table->unsignedInteger("image_count");
-$table->unsignedInteger("text_count");
-$table->text("example_image");
-$table->timestamps();*/

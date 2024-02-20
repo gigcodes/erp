@@ -94,7 +94,6 @@ class InstagramConfigController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request);
         $this->validate($request, [
             'number' => 'required|max:13|unique:whatsapp_configs,number',
             'provider' => 'required',
@@ -238,7 +237,6 @@ class InstagramConfigController extends Controller
         } elseif ($config->provider === 'Chat-API') {
             $data = ChatApi::chatQueue($config->number);
         }
-        /*        dd($data);*/
         return view('marketing.instagram-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 

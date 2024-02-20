@@ -7,6 +7,8 @@ namespace App;
  */
 
 use App\Models\ReplyLog;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteCategory extends Model
@@ -38,7 +40,6 @@ class StoreWebsiteCategory extends Model
 
     public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyId = 0)
     {
-        // \Log::info('Category Id generating');
 
         $categoryDetails = \App\ReplyCategory::find($categoryId);
 
@@ -53,33 +54,29 @@ class StoreWebsiteCategory extends Model
         }
 
         $dataPost = "{\n        \"faq_category_name\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_category_description\": \"Answer!!\"\n}";
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url . '/' . $storeValue . '/rest/V1/faqcategory');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $dataPost);
-
         $headers = [];
         $headers[] = 'Authorization: Bearer ' . $api_token;
         $headers[] = 'Content-Type: application/json';
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $dataPostArray = json_decode($dataPost, 'true');
 
-        $result = curl_exec($ch);
-        \Log::info(print_r(['API DETAIL Category', $url . '/' . $storeValue . '/rest/V1/faqcategory', $api_token, $dataPost, $result], true));
-        (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $result . 'for ' . $url . ' dataPost ' . $dataPost . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'PushFAQCategory');
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
+        $postUrl = $url . '/' . $storeValue . '/rest/V1/faqcategory';
+
+        $result = Http::withHeaders($headers)
+            ->post($postUrl, $dataPostArray);
+
+        $response = $result->json();
+
+        (new ReplyLog)->addToLog($replyId, 'Logging faq category result ' . $response . 'for ' . $url . ' dataPost ' . $dataPost . ' with ID ' . $store_website_id . ' on store ' . $storeValue . ' ', 'PushFAQCategory');
+        if ($result->failed()) {
+            echo 'Error:' . $result->body();
 
             return false;
         }
-        curl_close($ch);
+
+        Log::info(print_r(['API DETAIL Category', $postUrl, $api_token, $dataPost, $response], true));
 
         try {
-            $result = json_decode($result);
-            $result = json_decode($result);
+            $result = json_decode($response);
 
             //save store website category
             $this->category_id = $categoryId;

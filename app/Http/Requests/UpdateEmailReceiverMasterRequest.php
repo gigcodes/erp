@@ -24,8 +24,8 @@ class UpdateEmailReceiverMasterRequest extends FormRequest
     public function rules()
     {
         return [
-            "email"=> "email",
-            "module_name"=>"required|string"
+            'email' => 'email',
+            'module_name' => 'required|string',
         ];
     }
 }

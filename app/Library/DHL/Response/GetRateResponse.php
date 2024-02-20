@@ -18,7 +18,7 @@ class GetRateResponse extends ResponseAbstract
     public function getService()
     {
         return isset($this->response->Body->RateResponse->Provider->Service)
-        ? $this->response->Body->RateResponse->Provider->Service : null;
+            ? $this->response->Body->RateResponse->Provider->Service : null;
     }
 
     public function getTotalNet()
@@ -49,8 +49,6 @@ class GetRateResponse extends ResponseAbstract
     public function getChargesBreakDown()
     {
         $services = $this->getService();
-        //echo "<pre>"; print_r($services);  echo "</pre>";die;
-
         // check if service is not empty then
 
         $servicesR = [];

@@ -140,8 +140,6 @@ class InfluencersController extends Controller
 
         $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-image?' . $name;
 
-        //echo $url;
-        //die();
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
 
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
@@ -193,7 +191,6 @@ class InfluencersController extends Controller
             $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'checkScraper');
             curl_close($cURLConnection);
-            // dd($phoneList);
             $jsonArrayResponse = json_decode($phoneList);
             if (isset($jsonArrayResponse->status)) {
                 $b64 = $jsonArrayResponse->status;
@@ -222,9 +219,6 @@ class InfluencersController extends Controller
     public function startScraper(Request $request)
     {
         try {
-            /*$name = $request->name;
-
-            $name = str_replace(" ","",$name).$extraVars;*/
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $cURLConnection = curl_init();
 
@@ -252,8 +246,6 @@ class InfluencersController extends Controller
                 ];
             }
 
-            // echo $url;
-            // die();
             curl_setopt_array($cURLConnection, [
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
@@ -274,8 +266,6 @@ class InfluencersController extends Controller
             $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode($params), json_decode($phoneList), $httpcode, \App\Http\Controllers\InfluencersController::class, 'startScraper');
             curl_close($cURLConnection);
-
-            //$jsonArrayResponse = json_decode($phoneList);
 
             $b64 = (string) $phoneList;
 
@@ -307,8 +297,6 @@ class InfluencersController extends Controller
             $cURLConnection = curl_init();
 
             $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/send-log?' . $name;
-            // echo $url;
-            // die();
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
@@ -354,8 +342,6 @@ class InfluencersController extends Controller
     {
         try {
             $name = $request->name;
-            //   $extraVars = \App\Helpers::getInstagramVars($name);
-            // $name = str_replace(" ","",$name).$extraVars;
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $cURLConnection = curl_init();
 
@@ -418,8 +404,6 @@ class InfluencersController extends Controller
                     'name' => str_replace(' ', '', $request->name),
                 ];
             }
-            // echo $url;
-            // die();
             curl_setopt_array($cURLConnection, [
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
@@ -442,9 +426,6 @@ class InfluencersController extends Controller
 
             curl_close($cURLConnection);
 
-            //$jsonArrayResponse = json_decode($phoneList);
-
-            //$b64 = $jsonArrayResponse->status;
             $b64 = (string) $phoneList;
 
             $history = [

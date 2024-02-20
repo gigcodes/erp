@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use Http;
 use App\Models\City;
 use App\Models\State;
-use App\Models\Country;
-
 use Illuminate\Console\Command;
 
 class StoreCities extends Command

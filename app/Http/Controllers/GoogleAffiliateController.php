@@ -8,6 +8,7 @@ use App\Affiliates;
 use App\LogRequest;
 use Illuminate\Http\Request;
 use App\Mails\Manual\AffiliateEmail;
+use Illuminate\Support\Facades\Http;
 
 class GoogleAffiliateController extends Controller
 {
@@ -38,11 +39,11 @@ class GoogleAffiliateController extends Controller
         if ($request->term || $request->priority) {
             if ($request->term != null && $request->priority == 'on') {
                 $keywords = HashTag::query()
-                                ->where('priority', '1')
-                                ->where('platforms_id', $this->platformsId)
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('priority', '1')
+                    ->where('platforms_id', $this->platformsId)
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
                 $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
@@ -51,10 +52,10 @@ class GoogleAffiliateController extends Controller
                 $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->term != null) {
                 $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->where('platforms_id', $this->platformsId)
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->where('platforms_id', $this->platformsId)
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
                 $queryString = 'term=' . $request->term . '&';
             }
@@ -218,8 +219,8 @@ class GoogleAffiliateController extends Controller
 
                 // Get hashtag ID
                 $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', $tag)
-                                ->where('platforms_id', $this->platformsId)->first();
+                    ->where('hashtag', 'LIKE', $tag)
+                    ->where('platforms_id', $this->platformsId)->first();
 
                 if (is_null($keywords)) {
                     //keyword not in DB. For now skip this...
@@ -396,7 +397,7 @@ class GoogleAffiliateController extends Controller
     /**
      * function to call google scraper
      *
-     * @param  \Illuminate\Http\Request  $request, id of keyword to scrap
+     * @param  \Illuminate\Http\Request  $request , id of keyword to scrap
      * @return success, failure
      */
     public function callScraper(Request $request)
@@ -412,27 +413,12 @@ class GoogleAffiliateController extends Controller
             ], 400);
         } else {
             $postData = ['data' => $searchKeywords];
-            $postData = json_encode($postData);
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => "$postData",
-            ]);
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $err = curl_error($curl);
-            curl_close($curl);
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleAffiliateController::class, 'callScraper');
+            $response = Http::post($url, $postData);
+
+            $responseData = $response->json();
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), GoogleAffiliateController::class, 'callScraper');
             // Return
             return response()->json([
                 'success - scrapping initiated',

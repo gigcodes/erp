@@ -452,7 +452,6 @@ class SeoToolController extends Controller
         }
 
         return redirect(url('seo/project-list'));
-        //SemrushKeyword::create(['keyword'=>]);
     }
 
     public function projectList()

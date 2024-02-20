@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\DatabaseTableHistoricalRecord;
 use App\Models\TruncateTableHistory;
+use App\DatabaseTableHistoricalRecord;
 use Illuminate\Support\Facades\Schema;
 
 class DatabaseTableController extends Controller
@@ -23,7 +23,7 @@ class DatabaseTableController extends Controller
                 ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');
         } else {
             $databaseHis = DatabaseTableHistoricalRecord::latest()
-            ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
+                ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
                 ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');
         }
 
@@ -34,7 +34,6 @@ class DatabaseTableController extends Controller
         $databaseHis = $databaseHis->paginate(20);
 
         $page = $databaseHis->currentPage();
-        //return $databaseHis;
 
         if ($request->ajax()) {
             $tml = (string) view('database.partial.list-table', compact('databaseHis', 'page'));
@@ -60,30 +59,27 @@ class DatabaseTableController extends Controller
 
     public function tableList(Request $request)
     {
-
         $tables = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
 
         return view('database.tables-list', compact('tables'));
     }
 
     public function truncateTables(Request $request)
-    {   
-
-        if(!empty($request->ids)){
+    {
+        if (! empty($request->ids)) {
             foreach ($request->ids as $key => $value) {
-                DB::statement('TRUNCATE TABLE '.$value);
+                DB::statement('TRUNCATE TABLE ' . $value);
 
                 $tth = new TruncateTableHistory();
                 $tth->user_id = \Auth::user()->id;
                 $tth->table_name = $value;
                 $tth->save();
-                
             }
         }
 
         return response()->json([
             'status' => true,
-            'message' => " column visiblity Added Successfully",
+            'message' => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -91,9 +87,9 @@ class DatabaseTableController extends Controller
     public function getTruncateTableHistories(Request $request)
     {
         $datas = TruncateTableHistory::with(['user'])
-                ->where('table_name', $request->table_name)
-                ->latest()
-                ->get();
+            ->where('table_name', $request->table_name)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,

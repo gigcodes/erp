@@ -125,7 +125,6 @@ class LogScraperController extends Controller
         }
 
         $failed = $logScrapper->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
-        //last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY)
 
         // Get paginated result
         $logScrapper->whereRaw('scraped_products.last_inventory_at > DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
@@ -160,13 +159,13 @@ class LogScraperController extends Controller
     public function logSKUErrors(Request $request)
     {
         $logScrapper = \App\ScrapedProducts::select('scraped_products.*', 'brands.sku_search_url', 'sku_formats.sku_examples', 'sku_formats.sku_format', 'scrapers.inventory_lifetime')
-        ->leftJoin('scrapers', function ($join) {
-            $join->on('scraped_products.website', '=', 'scrapers.scraper_name');
-        })->leftJoin('brands', function ($join) {
-            $join->on('scraped_products.brand', '=', 'brands.name');
-        })->leftJoin('sku_formats', function ($join) {
-            $join->on('brands.id', 'sku_formats.brand_id');
-        });
+            ->leftJoin('scrapers', function ($join) {
+                $join->on('scraped_products.website', '=', 'scrapers.scraper_name');
+            })->leftJoin('brands', function ($join) {
+                $join->on('scraped_products.brand', '=', 'brands.name');
+            })->leftJoin('sku_formats', function ($join) {
+                $join->on('brands.id', 'sku_formats.brand_id');
+            });
 
         // Filters
         if (! empty($request->product_id)) {
@@ -276,8 +275,8 @@ class LogScraperController extends Controller
     public function scraperApiLog(Request $request)
     {
         $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*', 'scrap_api_logs.scraper_id')
-                                    ->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')
-                                    ->select('scrap_api_logs.*', 'scrapers.scraper_name');
+            ->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')
+            ->select('scrap_api_logs.*', 'scrapers.scraper_name');
         if ($request->scraper_name) {
             $apilogs = $apilogs->where('scrapers.scraper_name', 'LIKE', "%$request->scraper_name%");
         }

@@ -31,8 +31,6 @@ class ZoomMeetingRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        // $this->zoomkey    = env('ZOOM_API_KEY');
-        // $this->zoomsecret = env('ZOOM_API_SECRET');
         $this->zoomkey = config('env.ZOOM_API_KEY');
         $this->zoomsecret = config('env.ZOOM_API_SECRET');
     }
@@ -49,7 +47,6 @@ class ZoomMeetingRecordings extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            //   dd($report);
             $zoomKey = $this->zoomkey;
             $zoomSecret = $this->zoomsecret;
             $meetings = new ZoomMeetings();

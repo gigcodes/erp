@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DataTableColumn extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'section_name', 'column_name'
+        'user_id', 'section_name', 'column_name',
     ];
 }

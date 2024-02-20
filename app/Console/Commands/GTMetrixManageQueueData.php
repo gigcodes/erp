@@ -6,7 +6,6 @@ use App\LogRequest;
 use App\Helpers\LogHelper;
 use App\StoreViewsGTMetrix;
 use App\StoreGTMetrixAccount;
-use Illuminate\Http\Response;
 use App\StoreViewsGTMetrixUrl;
 use Illuminate\Console\Command;
 use Entrecore\GTMetrixClient\GTMetrixClient;

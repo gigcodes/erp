@@ -2,11 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Account;
-use Carbon\Carbon;
-use App\CronJobReport;
-//use App\Services\Instagram\Broadcast;
-use App\ColdLeadBroadcasts;
 use Illuminate\Console\Command;
 
 class SendBroadcastMessageToColdLeads extends Command
@@ -42,34 +37,5 @@ class SendBroadcastMessageToColdLeads extends Command
      */
     public function handle()
     {
-//        try {
-//            $report = CronJobReport::create([
-//                'signature'  => $this->signature,
-//                'start_time' => Carbon::now(),
-//            ]);
-//
-//            $broadcast = ColdLeadBroadcasts::where('started_at', '<=', date('Y-m-d H:i:s'))
-//                ->whereRaw('`messages_sent` != `number_of_users`')
-//                ->first();
-//
-//            $bs      = new Broadcast();
-//            $account = Account::where('platform', 'instagram')->where('broadcast', 1)->first();
-
-//        $bs->followUser($broadcast);
-
-        //After users are followed, start DMing 10 people...
-            //        sleep(10);
-            //
-//            $leads = $broadcast->lead()->where('cold_leads.status', 1)->where('followed_by', '>', 0)->get();
-//        dd(count($leads));
-//            $message = $broadcast->message;
-//            $bs->login($account);
-//            $bs->sendBulkMessages($leads, $message, $broadcast->image, $account, $broadcast);
-//            $broadcast->save();
-//
-//            $report->update(['end_time' => Carbon::now()]);
-//        } catch (\Exception $e) {
-//            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-//        }
     }
 }

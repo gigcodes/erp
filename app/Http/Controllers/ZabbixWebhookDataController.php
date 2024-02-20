@@ -147,7 +147,7 @@ class ZabbixWebhookDataController extends Controller
                     'colourCode' => $statusColour,
                 ], 200
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json(
                 [
                     'status' => 'error',

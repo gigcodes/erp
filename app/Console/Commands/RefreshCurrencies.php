@@ -49,7 +49,6 @@ class RefreshCurrencies extends Command
                 return;
             }
 
-            //
             $client = new Client;
             $url = 'http://data.fixer.io/api/latest?base=EUR&access_key=' . $fixerApiKey;
 
@@ -71,7 +70,7 @@ class RefreshCurrencies extends Command
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'currency rate saved.']);
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

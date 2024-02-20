@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\User;
-use App\Event;
 use App\Learning;
 use Carbon\Carbon;
 use App\AssetsManager;
@@ -61,7 +60,6 @@ class UserEventController extends Controller
         if (count($assetsmanager) > 0) {
             foreach ($assetsmanager as $key => $val) {
                 $c_due_date = Carbon::parse($val->due_date);
-                // dd($c_due_date, $c_start);
                 if ($c_due_date->lte($c_start) || $c_due_date->between($c_start, $c_end)) {
                     $arr = explode('-', $val->due_date);
                     if ($c_end->month - $c_start->month) {
@@ -529,7 +527,6 @@ class UserEventController extends Controller
 
         $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
         if ($result) {
-            // $result->attendees()->delete(); // No need to delete this, Because now softdelete logic is using in user_events.
             $result->delete();
 
             return response()->json([
@@ -542,15 +539,6 @@ class UserEventController extends Controller
             404,
         ]);
     }
-
-    /*
-             ____    _   _   ____    _       ___    ____
-            |  _ \  | | | | | __ )  | |     |_ _|  / ___|
-            | |_) | | | | | |  _ \  | |      | |  | |
-            |  __/  | |_| | | |_) | | |___   | |  | |___
-            |_|      \___/  |____/  |_____| |___|  \____|
-
-    */
 
     /**
      * show public calendar
@@ -627,9 +615,9 @@ class UserEventController extends Controller
     public function saveSuggestedInvitationTiming(Request $request, $invitationId)
     {
         UserEventAttendee::where('id', '=', $invitationId)
-        ->update([
-            'suggested_time' => $request->get('time'),
-        ]);
+            ->update([
+                'suggested_time' => $request->get('time'),
+            ]);
 
         return redirect('/calendar/public/event/suggest-time/' . $invitationId)->with([
             'message' => 'Saved data',

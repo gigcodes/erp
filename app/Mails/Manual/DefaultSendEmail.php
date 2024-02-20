@@ -11,11 +11,9 @@ class DefaultSendEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $email;
-
     public $attchments;
 
     public $template;
-
     public $returnExchangeProducts;
 
     public $fromMailer;
@@ -40,17 +38,6 @@ class DefaultSendEmail extends Mailable
      *
      * @return $this
      */
-
-    // public function build()
-    // {
-    //     $email   = $this->email;
-    //     $content = $email->message;
-
-    //     return $this->to($email->to)
-    //     ->from($email->from)
-    //     ->subject($email->subject)
-    //     ->view('emails.blank_content', compact('content'));
-    // }
 
     public function build()
     {

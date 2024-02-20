@@ -115,12 +115,12 @@ class ChatbotTypeErrorLogController extends Controller
         $id = $request->id;
         if (is_array($id)) {
             \DB::table('chatbot_type_Error_Logs')
-            ->whereIn('id', $id)
-            ->delete();
+                ->whereIn('id', $id)
+                ->delete();
         } else {
             \DB::table('chatbot_type_Error_Logs')
-            ->where('id', $id)
-            ->delete();
+                ->where('id', $id)
+                ->delete();
         }
 
         return redirect()->route('chatboat-type-error-log.index')

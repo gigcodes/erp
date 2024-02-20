@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Elasticsearch\Elasticsearch;
-use App\Models\IndexerState;
 use App\User;
 use Exception;
-use Illuminate\Routing\Controller;
+use App\Models\IndexerState;
 use Illuminate\Http\Request;
-use App\Elasticsearch\Reindex\Interfaces\Reindex;
+use Illuminate\Routing\Controller;
+use App\Elasticsearch\Elasticsearch;
 use Illuminate\Support\Facades\Artisan;
+use App\Elasticsearch\Reindex\Interfaces\Reindex;
 
 class IndexerStateController extends Controller
 {
@@ -22,15 +21,15 @@ class IndexerStateController extends Controller
         $indexerStates = IndexerState::all();
 
         if ($request->ajax()) {
-            $view = (string)view('indexer_state.list', [
-                'indexerStates' => $indexerStates
+            $view = (string) view('indexer_state.list', [
+                'indexerStates' => $indexerStates,
             ]);
 
             return response()->json(['code' => 200, 'tpl' => $view]);
         }
 
         return view('indexer_state.index', [
-            'indexerStates' => $indexerStates
+            'indexerStates' => $indexerStates,
         ]);
     }
 
@@ -40,14 +39,15 @@ class IndexerStateController extends Controller
             $elastic = new Elasticsearch();
             $elastic->connect();
             $elastic->getConn()->ping();
+
             return response()->json([
                 'code' => 200,
-                'message' => 'Connection successful to elasticsearch.'
+                'message' => 'Connection successful to elasticsearch.',
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'code' => 500,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -70,7 +70,7 @@ class IndexerStateController extends Controller
                 throw new \Exception(sprintf('Indexer with %s id not found.', $id));
             }
 
-            if (!empty($data['stop_reindex'])) {
+            if (! empty($data['stop_reindex'])) {
                 $message = '';
                 if ($indexerState->getStatus() === Reindex::RUNNING) {
                     if ($pId = $indexerState->getProcessId()) {
@@ -87,6 +87,7 @@ class IndexerStateController extends Controller
                 }
                 $indexerState->addLog($message);
                 $indexerState->save();
+
                 return response()->json(['message' => $message ?: 'Invalidate reindex.', 'code' => 200]);
             }
 
@@ -98,6 +99,7 @@ class IndexerStateController extends Controller
         } catch (\Throwable $throwable) {
             return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
         }
+
         return response()->json(['message' => 'Reindex started.', 'code' => 200]);
     }
 
@@ -121,14 +123,13 @@ class IndexerStateController extends Controller
 
             if ($data['cycles']) {
                 $indexerState->setSettings([
-                    'cycles' => (int)$data['cycles']
+                    'cycles' => (int) $data['cycles'],
                 ]);
                 $indexerState->save();
             }
 
             return response()->json(['message' => 'Indexer saved.', 'code' => 200]);
-        }
-        catch (\Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
         }
     }
@@ -138,21 +139,21 @@ class IndexerStateController extends Controller
         \DB::setDefaultConnection('mysql_read');
         $select = User::query()->limit(5)->orderBy('id', 'DESC');
         $selectHost = $select->getConnection()->getConfig('host');
-        $rand = rand(1,55);
+        $rand = rand(1, 55);
         \DB::setDefaultConnection('mysql');
-        $create = User::create(['name'=>'test'.$rand, 'email'=>"test".$rand."@example.com", 'password' => '$2y$10$Sr8Gzf8en1WuxAl0XRB1se3loslJH/kIOt3Dyz6zZ4eqYEae9J5Uq']);
+        $create = User::create(['name' => 'test' . $rand, 'email' => 'test' . $rand . '@example.com', 'password' => '$2y$10$Sr8Gzf8en1WuxAl0XRB1se3loslJH/kIOt3Dyz6zZ4eqYEae9J5Uq']);
         $createHost = $create->getConnection()->getConfig('host');
 
         return response()->json(
             [
                 'data' => [
                     'select' => [
-                        'host' => $selectHost
+                        'host' => $selectHost,
                     ],
                     'insert' => [
-                        'host' => $createHost
-                    ]
-                ]
+                        'host' => $createHost,
+                    ],
+                ],
             ]
         );
     }
@@ -172,8 +173,7 @@ class IndexerStateController extends Controller
             }
 
             return response()->json(['data' => $indexerState->getLogs() ?? []]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['data' => $e->getMessage()], 500);
         }
     }
@@ -183,7 +183,7 @@ class IndexerStateController extends Controller
         foreach (IndexerState::INDEXER_MAPPING as $index => $className) {
             $exists = IndexerState::where(IndexerState::INDEX, $index)->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 $indexerState = new IndexerState();
                 $indexerState->setIndex($index);
                 $indexerState->setStatus(Reindex::INVALIDATE);

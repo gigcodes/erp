@@ -48,14 +48,12 @@ class Main
         $composition = $this->isCompositionCorrect();
         $name = $this->isNameCorrect();
         $shortDescription = $this->isShortDescriptionCorrect();
-//        $color = $this->isColorCorrect();
         $measurement = $this->areMeasurementsCorrect();
         $sizes = $this->isSizeCorrect();
 
         $status = $composition &&
             $name &&
             $shortDescription &&
-//            $color &&
             ($measurement || $sizes);
 
         return $status;
@@ -64,42 +62,42 @@ class Main
     public function isSizeCorrect(): bool
     {
         $size = $this->sizeChecker->check($this->product);
-//        dump('SIZE: ' . $size);
+
         return $size;
     }
 
     public function isColorCorrect(): bool
     {
         $color = $this->colorChecker->check($this->product);
-//        dump('COLOR: ' . $color);
+
         return $color;
     }
 
     public function isCompositionCorrect(): bool
     {
         $composition = $this->compositionChecker->check($this->product);
-//        dump('COMPOSITION: ' . $composition);
+
         return $composition;
     }
 
     public function isShortDescriptionCorrect(): bool
     {
         $description = $this->descriptionChecker->check($this->product);
-//        dump('DESCRIPTION: ' . $description);
+
         return $description;
     }
 
     public function isNameCorrect(): bool
     {
         $name = $this->nameChecker->check($this->product);
-//        dump('NAME: ' . $name);
+
         return $name;
     }
 
     public function areMeasurementsCorrect(): bool
     {
         $meas = $this->product->lmeasurement && $this->product->hmeasurement && $this->product->dmeasurement;
-//        dump('MEAS: ' . $meas);
+
         return $meas;
     }
 }

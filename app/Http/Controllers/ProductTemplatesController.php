@@ -24,22 +24,19 @@ class ProductTemplatesController extends Controller
      */
     public function index(Request $request)
     {
-        //$productTemplates = \App\ProductTemplate::orderBy("id", "desc")->paginate(10);
         $images = $request->get('images', false);
         $productArr = null;
         if ($images) {
             $productIdsArr = \DB::table('mediables')
-                                ->whereIn('media_id', json_decode($images))
-                                ->where('mediable_type', \App\Product::class)
-                                ->pluck('mediable_id')
-                                ->toArray();
+                ->whereIn('media_id', json_decode($images))
+                ->where('mediable_type', \App\Product::class)
+                ->pluck('mediable_id')
+                ->toArray();
 
             if (! empty($productIdsArr)) {
                 $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
             }
         }
-
-        //echo '<pre>';print_r($templateArr->toArray());die;
 
         $texts = \App\ProductTemplate::where('text', '!=', '')->groupBy('text')->pluck('text', 'text')->toArray();
         $backgroundColors = \App\ProductTemplate::where('background_color', '!=', '')->groupBy('background_color')->pluck('background_color', 'background_color')->toArray();
@@ -47,8 +44,6 @@ class ProductTemplatesController extends Controller
         $templateArr = \App\Template::all();
 
         $templatesJSON = \App\Template::with('modifications')->get()->toArray();
-
-        // echo json_encode($templateArr);die;
 
         return view('product-template.index', compact('templateArr', 'productArr', 'texts', 'backgroundColors', 'templatesJSON'));
     }
@@ -65,8 +60,8 @@ class ProductTemplatesController extends Controller
             });
         }
         $records = $records->orderBy('id', 'desc')
-        ->select(['product_templates.*', 'b.name as brand_name', 'sw.title as website_name'])
-        ->paginate(Setting::get('pagination'));
+            ->select(['product_templates.*', 'b.name as brand_name', 'sw.title as website_name'])
+            ->paginate(Setting::get('pagination'));
 
         $array = [];
         foreach ($records as $record) {
@@ -197,11 +192,6 @@ class ProductTemplatesController extends Controller
         $data = [];
         //check if template exist
         $templateProductCount = $record->template->no_of_images;
-
-        // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
-        //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
-        //     return response()->json($data);
-        // }
 
         $record->is_processed = 2;
         $record->save();
@@ -388,14 +378,6 @@ class ProductTemplatesController extends Controller
             $templates = ProductTemplate::where('is_processed', 1)->orderBy('updated_at', 'desc')->paginate(Setting::get('pagination'));
         }
 
-        // if ($request->ajax()) {
-        //     return response()->json([
-        //         'tbody' => view('product-template.partials.type-list-template', compact('templates','temps'))->render(),
-        //         'links' => (string)$templates->render(),
-        //         'total' => $templates->total(),
-        //     ], 200);
-        // }
-
         $selected_categories = $request->category ? $request->category : 1;
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
@@ -407,7 +389,6 @@ class ProductTemplatesController extends Controller
 
     public function create(Request $request)
     {
-        // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
         $imagesArray = [];
@@ -492,11 +473,6 @@ class ProductTemplatesController extends Controller
                 //check if template exist
                 $templateProductCount = $template->template->no_of_images;
 
-                // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
-                //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
-                //     return response()->json($data);
-                // }
-
                 $template->is_processed = 2;
                 $template->save();
 
@@ -546,8 +522,6 @@ class ProductTemplatesController extends Controller
 
     public function makeBearBannerImage($request, $imagesArray, $template)
     {
-        // echo '<pre>';print_r(json_encode($request->modifications_array));die;
-
         try {
             $modifications = [];
 
@@ -560,7 +534,6 @@ class ProductTemplatesController extends Controller
             if (count($imagesArray)) {
                 foreach ($imagesArray as $key => $image_url) {
                     $key = $key + 1;
-                    //$row=$image_url;
                     array_push($modifications, ['name' => 'product_' . $key, 'image_url' => $image_url]);
                 }
             }
@@ -666,7 +639,6 @@ class ProductTemplatesController extends Controller
     {
         $url = env('PYTHON_PRODUCT_TEMPLATES') . '/api/get-logs';
         $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
-        //   echo $url;exit;
         \Log::info('Payment_Template_loginstance -->' . $url);
         if (! empty($date)) {
             $data = ['date' => $date];

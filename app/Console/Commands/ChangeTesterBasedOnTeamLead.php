@@ -3,10 +3,7 @@
 namespace App\Console\Commands;
 
 use App\DeveloperTask;
-//use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
-
-//use InstagramAPI\Instagram;
 
 class ChangeTesterBasedOnTeamLead extends Command
 {

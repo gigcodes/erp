@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Seo;
 
 use DB;
-use Auth;
 use App\User;
 use App\EmailAddress;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\Models\Seo\SeoCompany;
+use App\Models\DataTableColumn;
+use App\Models\SeoCompanyStatus;
 use App\Models\Seo\SeoCompanyType;
 use App\Http\Controllers\Controller;
 use App\Models\Seo\SeoCompanyHistroy;
-use App\Models\DataTableColumn;
-use App\Models\SeoCompanyStatus;
 
 class CompanyController extends Controller
 {
@@ -44,8 +43,8 @@ class CompanyController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'seo-company')->first();
 
         $data['dynamicColumnsToShowsc'] = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $data['dynamicColumnsToShowsc'] = json_decode($hideColumns, true);
         }
 
@@ -53,20 +52,19 @@ class CompanyController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','seo-company')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'seo-company')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'seo-company';
-            $column->column_name = json_encode($request->column_sc); 
+            $column->column_name = json_encode($request->column_sc);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'seo-company';
-            $column->column_name = json_encode($request->column_sc); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_sc);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -221,12 +219,11 @@ class CompanyController extends Controller
                 return "<span class='badge'>{$val->status}</a>";
             })
             ->addColumn('status_color', function ($val) {
+                $statusColor = SeoCompanyStatus::where('status_name', $val->status)->first();
 
-                $statusColor = SeoCompanyStatus::where('status_name',$val->status)->first();
-                
-                if(!empty($statusColor)){
-                   return $statusColor['status_color'];
-                } else{
+                if (! empty($statusColor)) {
+                    return $statusColor['status_color'];
+                } else {
                     return '';
                 }
             })

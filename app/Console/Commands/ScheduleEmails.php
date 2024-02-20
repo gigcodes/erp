@@ -58,7 +58,6 @@ class ScheduleEmails extends Command
         try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
-            //dd("test");
             $created_date = Carbon::now();
             $modalType = '';
             $leads = [];
@@ -66,13 +65,10 @@ class ScheduleEmails extends Command
             $leads_new = [];
 
             $flows = Flow::select('id', 'flow_name as name')->get();
-            // dd($flows);
-            //$flows = Flow::whereIn('flow_name', ['task_pr'])->select('id', 'flow_name as name')->get();
             FlowLog::log(['flow_id' => 0, 'messages' => 'Flow action started to check and found total flows : ' . $flows->count()]);
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow model query was finished']);
 
-            //$this->log[]="Flow action started to check and found total flows : ".$flows->count();
             foreach ($flows as $flow) {
                 $flowconditions = FlowCondition::where('flow_name', $flow['name'])->where('status', 1)->get();
                 $allflowconditions = [];
@@ -112,8 +108,6 @@ class ScheduleEmails extends Command
 
                         $leadsFlowArray = ['add_to_cart', 'add to cart', 'attach_images_for_product', 'dispatch_send_price', 'new_erp_lead', 'out_of_stock_subscribe', 'payment_failed'];
 
-                        // dd( $leadsFlowArray, $flow['name']);
-                        // dd(($key == 0 and (in_array($flow['name'], $leadsFlowArray))));
                         if ($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
                             $nameInDB = str_replace('_', '-', $flow['name']);
                             $leads = ErpLeads::select(
@@ -143,17 +137,11 @@ class ScheduleEmails extends Command
                             }
 
                             $leads = $leads->select('customer_basket_products.id', 'cb.customer_name', 'cb.customer_email', 'cb.customer_id')
-                            ->get();
+                                ->get();
                             $modalType = CustomerBasketProduct::class;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'CustomerBasketProduct model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'delivered') {
-                            // $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-                            // 	->where("customers.store_website_id", $flow['store_website_id'])
-                            // 	->whereIn('orders.order_status', ['delivered', 'Delivered'])
-                            // 	->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-                            // 	->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
-
                             $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
                             $leads = $leads->where('customers.store_website_id', $flow['store_website_id']);
                             if (in_array('delivered_order_orders_order_status', $allflowconditions)) {
@@ -163,7 +151,7 @@ class ScheduleEmails extends Command
                                 $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
                             }
                             $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
-                            ->get();
+                                ->get();
                             $modalType = Orders::class;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Order model query finished']);
@@ -194,7 +182,7 @@ class ScheduleEmails extends Command
                             }
 
                             $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')
-                            ->get();
+                                ->get();
                             $modalType = Orders::class;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
@@ -228,7 +216,6 @@ class ScheduleEmails extends Command
                             $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
                                 ->where('customers.store_website_id', $flow['store_website_id'])
                                 ->where('orders.order_status', $flow['name'])
-                                //->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
                                 ->select('orders.id', 'orders.order_status', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
 
                             $modalType = Orders::class;
@@ -237,12 +224,11 @@ class ScheduleEmails extends Command
                         }
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Starting the process']);
-                        // dd($leads, "leads");
                         $this->doProcess($flowAction, $modalType, $leads, $flow['store_website_id'], $created_date, $flowlog['id'], 'customer', $allflowconditions, $flow);
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
@@ -252,16 +238,6 @@ class ScheduleEmails extends Command
     public function doProcess($flowAction, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, $leadType = 'customer', $allflowconditions = null, $flow = null)
     {
         $scraper_id = 0;
-
-        /*FlowLogMessages::log([
-            "flow_action" => ($flowAction['type'] == 'Condition') ? $flowAction['type'] . "-" . $flowAction['condition'] : $flowAction['type'],
-            "modalType" => $modalType,
-            "leads" => "",
-            "store_website_id" => $store_website_id,
-            "messages" => count($leads) . " founds to send message",
-            "flow_log_id" => $flow_log_id,
-            "scraper_id" => $scraper_id
-        ]);*/
         //Remove older emails and messages
 
         if ($flowAction['type'] == 'Send Message') {
@@ -295,7 +271,6 @@ class ScheduleEmails extends Command
                         'seen' => 0,
                         'from' => $emailClass->sendFrom,
                         'to' => $lead['customer_email'],
-                        //'to'              => "technodeviser05@gmail.com",
                         'subject' => $message['subject'],
                         'message' => $emailClass->render(),
                         'template' => 'flow#' . $flow_id,
@@ -372,7 +347,6 @@ class ScheduleEmails extends Command
                         'status' => 1,
                         'is_queue' => 1,
                         'approved' => 0,
-                        //"user_id"                => 6,
                         'number' => null,
                         'message_application_id' => $messageApplicationId,
                         'scheduled_at' => $created_date,
@@ -382,7 +356,7 @@ class ScheduleEmails extends Command
                     ];
                     $order_id = $lead['id'] ?? '';
                     $order_status = $lead['order_status'] ?? '';
-                    $createParams = array_merge($extraParams, $insertParams); // dd($createParams);
+                    $createParams = array_merge($extraParams, $insertParams);
                     $chatMessage = \App\ChatMessage::updateOrCreate(['customer_id' => $lead->customer_id,
                         'message' => $flowAction['message_title'], 'status' => 1, 'is_queue' => 1,
                         'approved' => 1, 'message_application_id' => $messageApplicationId, 'order_id' => $order_id, 'order_status' => $order_status, ], $createParams);
@@ -446,16 +420,16 @@ class ScheduleEmails extends Command
                 foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
                     if ($path_for == 'yes') {
                         $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')->where('customers.store_website_id', $store_website_id)
-                        ->whereIn('orders.order_status', ['delivered', 'Delivered'])
-                        ->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-                        ->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
+                            ->whereIn('orders.order_status', ['delivered', 'Delivered'])
+                            ->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+                            ->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
                             ->groupBy('orders.customer_id')->having(DB::raw('count(*)'), '>', 1)->get();
                     } else {
                         $leads = \App\Order::leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-                        ->where('customers.store_website_id', $store_website_id)
-                        ->whereIn('orders.order_status', ['delivered', 'Delivered'])
-                        ->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
-                        ->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
+                            ->where('customers.store_website_id', $store_website_id)
+                            ->whereIn('orders.order_status', ['delivered', 'Delivered'])
+                            ->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%')
+                            ->select('orders.id', 'orders.customer_id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id', \DB::raw('count(*) as duplicate'))
                             ->groupBy('orders.customer_id')->having(DB::raw('count(*)'), 1)->get();
                     }
                     foreach ($flowActiosnNew as $flowActionNew) {
@@ -514,14 +488,14 @@ class ScheduleEmails extends Command
                     ->get()->groupBy('path_for');
                 foreach ($flowPathsNew as $path_for => $flowActiosnNew) {
                     $leads = DeveloperTask::leftJoin('users', 'users.id', '=', 'developer_tasks.assigned_to')
-                    ->whereDate('developer_tasks.created_at', '<=', $created_date);
+                        ->whereDate('developer_tasks.created_at', '<=', $created_date);
                     if (in_array('check_if_srapper_error_task_status_not_done', $allflowconditions)) {
                         $leads = $leads->where('developer_tasks.status', '<>', 'Done');
                     }
                     $leads = $leads->where('scraper_id', '<>', 0)
-                    ->whereNotNull('scraper_id')
-                    ->where('is_pr_merged', 1)
-                    ->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                        ->whereNotNull('scraper_id')
+                        ->where('is_pr_merged', 1)
+                        ->select('developer_tasks.id', 'developer_tasks.scraper_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 
                     foreach ($leads as $key => $scrapperTask) {
                         $log = ScrapLog::where('scraper_id', $scrapperTask['scraper_id'])->orderBy('id', 'desc')->first();
@@ -548,11 +522,11 @@ class ScheduleEmails extends Command
                     if ($path_for == 'yes') {
                         $parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
                         $tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-                              ->whereDate('tasks.is_completed', '<=', $created_date)
-                                ->where('category', $designCategoryId)
-                                ->whereNotNull('is_completed')
-                                ->whereNotIn('tasks.id', $parentTaskIds)
-                              ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                            ->whereDate('tasks.is_completed', '<=', $created_date)
+                            ->where('category', $designCategoryId)
+                            ->whereNotNull('is_completed')
+                            ->whereNotIn('tasks.id', $parentTaskIds)
+                            ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
 
                         $devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
                         foreach ($tasks as $task) {
@@ -572,15 +546,14 @@ class ScheduleEmails extends Command
                                     'customer_id' => null,
                                     'parent_task_id' => $task['id'],
                                 ];
-                                //app('App\Http\Controllers\TaskModuleController')->createTaskFromSortcut($requests);
                                 $check = (new Task)->createTaskFromSortcuts($requests);
                             }
                         }
                     } else {
                         $leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $designCategoryId)
-                        ->whereDate('tasks.created_at', '<=', $created_date)
-                        ->where('category', $designCategoryId)
-                        ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                            ->whereDate('tasks.created_at', '<=', $created_date)
+                            ->where('category', $designCategoryId)
+                            ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
                     }
                     foreach ($flowActiosnNew as $flowActionNew) {
                         $this->doProcess($flowActionNew, $modalType, $leads, $store_website_id, $created_date, $flow_log_id, '', $allflowconditions);
@@ -599,16 +572,16 @@ class ScheduleEmails extends Command
                     $devCategoryId = TaskCategory::where('title', 'like', 'Site Devel%')->pluck('id')->first();
                     if ($path_for == 'no') {
                         $leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $devCategoryId)
-                                ->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed')
-                                ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                            ->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed')
+                            ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
                     } else {
                         $parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
                         $tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
-                                ->whereDate('tasks.is_completed', '<=', $created_date)
-                                ->where('category', $devCategoryId)
-                                ->whereNotNull('is_completed')
-                                ->whereNotIn('tasks.id', $parentTaskIds)
-                                ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                            ->whereDate('tasks.is_completed', '<=', $created_date)
+                            ->where('category', $devCategoryId)
+                            ->whereNotNull('is_completed')
+                            ->whereNotIn('tasks.id', $parentTaskIds)
+                            ->select('tasks.id', 'tasks.task_subject', 'tasks.task_details', 'tasks.site_developement_id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
                         $qaCatId = TaskCategory::where('title', 'like', 'qa%')->orWhere('title', 'like', '%testing%')->pluck('id')->first();
                         if ($qaCatId != null) {
                             foreach ($tasks as $task) {
@@ -634,8 +607,8 @@ class ScheduleEmails extends Command
                             }
                         } else {
                             $leads = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')->where('category', $devCategoryId)
-                                    ->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed')
-                                    ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
+                                ->whereDate('tasks.created_at', '<', $created_date)->whereNull('is_completed')
+                                ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
                         }
                     }
                     foreach ($flowActiosnNew as $flowActionNew) {

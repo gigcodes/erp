@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use File;
 use App\User;
 use App\Image;
 use App\Sizes;
@@ -28,17 +27,9 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductCropperController extends Controller
 {
-    //
     public function __construct()
     {
         $this->middleware('auth');
-
-//        $this->middleware('permission:imagecropper-list', ['only' => ['sList', 'index']]);
-//        $this->middleware('permission:imagecropper-create', ['only' => ['create', 'store']]);
-//        $this->middleware('permission:imagecropper-edit', ['only' => ['edit', 'update']]);
-//
-//
-//        $this->middleware('permission:imagecropper-delete', ['only' => ['destroy']]);
     }
 
     public function index(Stage $stage)
@@ -74,7 +65,6 @@ class ProductCropperController extends Controller
         $data['name'] = $productimagecropper->name;
         $data['short_description'] = $productimagecropper->short_description;
         $data['sku'] = $productimagecropper->sku;
-        //		$data['supplier_link'] = $productimagecropper->supplier_link;
         $data['description_link'] = $productimagecropper->description_link;
         $data['location'] = $productimagecropper->location;
         $data['product_link'] = $productimagecropper->product_link;
@@ -111,25 +101,7 @@ class ProductCropperController extends Controller
 
     public function update(Request $request, Guard $auth, Product $productimagecropper, Stage $stage)
     {
-        //		$productattribute->dnf = $request->input('dnf');
         $productimagecropper->stage = $stage->get('ImageCropper');
-
-        /*$productimagecropper->measurement_size_type = $request->input('measurement_size_type');
-        $productimagecropper->lmeasurement = $request->input('lmeasurement');
-        $productimagecropper->hmeasurement = $request->input('hmeasurement');
-        $productimagecropper->dmeasurement = $request->input('dmeasurement');
-        $productimagecropper->size = $request->input('size');
-        $productimagecropper->color = $request->input('color');
-
-        $productimagecropper->size_value = $request->input('size_value');
-
-        if($request->input('measurement_size_type') == 'size')
-            $validations['size_value'] = 'required_without:dnf';
-        elseif ( $request->input('measurement_size_type') == 'measurement' ){
-            $validations['lmeasurement'] = 'required_without_all:hmeasurement,dmeasurement,dnf|numeric';
-            $validations['hmeasurement'] = 'required_without_all:lmeasurement,dmeasurement,dnf|numeric';
-            $validations['dmeasurement'] = 'required_without_all:lmeasurement,hmeasurement,dnf|numeric';
-        }*/
 
         $validations = [];
 
@@ -179,8 +151,8 @@ class ProductCropperController extends Controller
 
             if (! empty($request->file('image.' . $i))) {
                 $media = MediaUploader::fromSource($request->file('image.' . $i))
-                                        ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('product/' . floor($productattribute->id / config('constants.image_per_folder')))
+                    ->upload();
                 $productattribute->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -420,8 +392,8 @@ class ProductCropperController extends Controller
         if ($request->hasFile('file')) {
             $image = $request->file('file');
             $media = MediaUploader::fromSource($image)
-                                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                    ->upload();
+                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                ->upload();
             $product->attachMedia($media, config('constants.media_tags'));
         }
 

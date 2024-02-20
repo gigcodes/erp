@@ -7,7 +7,6 @@ use App\Translations;
 use App\GoogleTranslate;
 use App\Models\ReplyLog;
 use App\TranslateReplies;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -55,10 +54,10 @@ class ProcessTranslateReply implements ShouldQueue
 
                     // Check translation SEPARATE LINE exists or not
                     $checkTranslationTable = Translations::select('text')
-                                                            ->where('from', 'en')
-                                                            ->where('to', $language)
-                                                            ->where('text_original', $replies)
-                                                            ->first();
+                        ->where('from', 'en')
+                        ->where('to', $language)
+                        ->where('text_original', $replies)
+                        ->first();
 
                     if ($checkTranslationTable) {
                         $data = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
@@ -74,9 +73,9 @@ class ProcessTranslateReply implements ShouldQueue
 
                     if ($data != '') {
                         $translateReplies = TranslateReplies::where('translate_from', 'en')
-                                                                    ->where('translate_to', $language)
-                                                                    ->where('replies_id', $id)
-                                                                    ->first();
+                            ->where('translate_to', $language)
+                            ->where('replies_id', $id)
+                            ->first();
 
                         if (count((array) $translateReplies) == 0) {
                             $translateReplies = new TranslateReplies();
@@ -107,7 +106,7 @@ class ProcessTranslateReply implements ShouldQueue
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if (! empty($id)) {
                 (new ReplyLog)->addToLog($id, $e->getMessage(), 'Translate');
             }

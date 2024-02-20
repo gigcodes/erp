@@ -9,17 +9,14 @@ use App\Translations;
 use App\GoogleTranslate;
 use Illuminate\Http\Request;
 use App\GoogleFiletranslatorFile;
-use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\GoogleTranslateUserPermission;
-use App\Models\GoogleTranslateCsvDataImport;
-use App\Models\GoogleTranslateCsvData;
-use App\Models\GoogleFileTranslateHistory;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
 use App\Models\StoreWebsiteCsvFile;
-use Illuminate\Support\Facades\Storage;
 use App\Models\GoogleFileStausHistory;
-
+use App\Models\GoogleTranslateCsvData;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+use App\Models\GoogleFileTranslateHistory;
+use App\Models\GoogleTranslateUserPermission;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GoogleFileTranslator extends Controller
 {
@@ -75,11 +72,10 @@ class GoogleFileTranslator extends Controller
             $this->getMediaPathSave();
             $filename = $request->file('file');
             $ext = $filename->getClientOriginalExtension();
-            //$filenameNew = md5($filename).'.'.$ext;
             $filenameNew = null;
             $media = MediaUploader::fromSource($request->file('file'))
-            ->toDestination('uploads', 'google-file-translator')
-            ->upload();
+                ->toDestination('uploads', 'google-file-translator')
+                ->upload();
 
             if (isset($media) && isset($media->filename) && isset($media->extension)) {
                 $filenameNew = $media->filename . '.' . $media->extension;
@@ -92,26 +88,22 @@ class GoogleFileTranslator extends Controller
 
             $path = public_path() . '/uploads/google-file-translator/';
             $languageData = Language::where('id', $insert->tolanguage)->first();
-           
 
             if (file_exists($path . $insert->name)) {
                 try {
                     $result = $this->translateFile($path . $insert->name, $languageData->locale, ',');
-                foreach ($result as $translationSet) {
-                    try {
-
-                        $translationDataStored = new GoogleTranslateCsvData();
-                        $translationDataStored->key = $translationSet[0];
-                        $translationDataStored->value = $translationSet[1];
-                        $translationDataStored->standard_value = $translationSet[2];
-                        $translationDataStored->google_file_translate_id = $insert->id;
-                        $translationDataStored->save();
-                   
-                    } catch (\Exception $e) {
-                        return 'Upload failed: ' . $e->getMessage();
+                    foreach ($result as $translationSet) {
+                        try {
+                            $translationDataStored = new GoogleTranslateCsvData();
+                            $translationDataStored->key = $translationSet[0];
+                            $translationDataStored->value = $translationSet[1];
+                            $translationDataStored->standard_value = $translationSet[2];
+                            $translationDataStored->google_file_translate_id = $insert->id;
+                            $translationDataStored->save();
+                        } catch (\Exception $e) {
+                            return 'Upload failed: ' . $e->getMessage();
+                        }
                     }
-                }
-
                 } catch (\Exception $e) {
                     return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
                 }
@@ -159,7 +151,7 @@ class GoogleFileTranslator extends Controller
         $record = GoogleTranslateCsvData::find($request->record_id);
         $oldRecord = $record->standard_value;
         $oldStatus = $record->status;
-       
+
         $record->updated_by_user_id = $request->update_by_user_id;
         $record->standard_value = $request->update_record;
         $record->status = 2;
@@ -167,13 +159,13 @@ class GoogleFileTranslator extends Controller
 
         $history = new GoogleFileTranslateHistory();
         $history->old_value = $oldRecord;
-        $history->new_value =  $request->update_record;
+        $history->new_value = $request->update_record;
         $history->updated_by = $request->update_by_user_id;
-        $history->status =  $oldStatus;
+        $history->status = $oldStatus;
         $history->google_file_translate_csv_data_id = $request->record_id;
         $history->save();
 
-        return response()->json(['status' => 200, 'data' => $record, 'message' => "Value edited Successfully"]);
+        return response()->json(['status' => 200, 'data' => $record, 'message' => 'Value edited Successfully']);
     }
 
     /**
@@ -250,7 +242,6 @@ class GoogleFileTranslator extends Controller
                     \Log::channel('errorlog')->error($e);
                     throw new Exception($e->getMessage());
                 }
-                // $translationString = [...$translationString, ...$result];
                 array_push($translationString, ...$result);
             }
 
@@ -293,10 +284,9 @@ class GoogleFileTranslator extends Controller
 
     public function dataViewPage($id, $type, Request $request)
     {
-
         $query = new GoogleTranslateCsvData();
 
-        if ($type == "googletranslate") {
+        if ($type == 'googletranslate') {
             $query = $query->where('google_file_translate_id', $id)->latest();
         } else {
             $lang = explode('-', $type);
@@ -306,29 +296,29 @@ class GoogleFileTranslator extends Controller
                 $lang = $matches[1];
             }
             $getLang = Language::where('locale', $lang)->first();
-    
+
             $query = $query->where('storewebsite_id', $id)
                 ->where('lang_id', $getLang->id)
                 ->latest();
         }
-    
-        if (!empty($request->date)) {
+
+        if (! empty($request->date)) {
             $query = $query->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
-        if (!empty($request->search_msg)) {
+        if (! empty($request->search_msg)) {
             $query = $query->where('value', 'LIKE', '%' . $request->search_msg . '%');
         }
-    
-        if ($request->search_keyword != "") {
+
+        if ($request->search_keyword != '') {
             $query = $query->where('key', 'LIKE', '%' . $request->search_keyword . '%');
         }
 
-        if (!empty($request->search_stand_value)) {
+        if (! empty($request->search_stand_value)) {
             $query = $query->where('standard_value', 'LIKE', '%' . $request->search_stand_value . '%');
         }
-    
+
         $googleTranslateDatas = $query->paginate(25); // Change 25 to the number of items per page you want to display.
-    
+
         return view('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
 
@@ -337,28 +327,25 @@ class GoogleFileTranslator extends Controller
         $parts = explode('-', $request->type);
         $filename = $parts[1]; // Extract the second part as the filename
 
-
-        $googleTranslate = StoreWebsiteCsvFile::Where('storewebsite_id',$request->id)->where('filename', 'like', '%' . $filename . '%')
-        ->first();
+        $googleTranslate = StoreWebsiteCsvFile::Where('storewebsite_id', $request->id)->where('filename', 'like', '%' . $filename . '%')
+            ->first();
         $googleTranslate->download_status = 1;
         $googleTranslate->save();
 
-        return response()->json(['status' => 200, 'data' => $googleTranslate, 'message' => "download permision allowed"]);
-
+        return response()->json(['status' => 200, 'data' => $googleTranslate, 'message' => 'download permision allowed']);
     }
 
     public function userViewPermission(Request $request)
     {
         $googleFiletranslatorPermission = new GoogleTranslateUserPermission();
-        $googleFiletranslatorPermission->google_translate_id =  $request->user_id;
-        $googleFiletranslatorPermission->user_id =  $request->user_id;
-        $googleFiletranslatorPermission->lang_id =  $request->lang_id;
-        $googleFiletranslatorPermission->action =   $request->action;
-        $googleFiletranslatorPermission->type =   $request->type;
+        $googleFiletranslatorPermission->google_translate_id = $request->user_id;
+        $googleFiletranslatorPermission->user_id = $request->user_id;
+        $googleFiletranslatorPermission->lang_id = $request->lang_id;
+        $googleFiletranslatorPermission->action = $request->action;
+        $googleFiletranslatorPermission->type = $request->type;
         $googleFiletranslatorPermission->save();
 
-        return response()->json(['status' => 200, 'data' => $googleFiletranslatorPermission, 'message' => "download permision allowed"]);
-
+        return response()->json(['status' => 200, 'data' => $googleFiletranslatorPermission, 'message' => 'download permision allowed']);
     }
 
     public function tranalteHistoryShow($id)
@@ -374,7 +361,6 @@ class GoogleFileTranslator extends Controller
                     'message' => 'history added successfully',
                     'status_name' => 'success',
                 ], 200);
-        
             } else {
                 throw new Exception('Task not found');
             }
@@ -385,7 +371,6 @@ class GoogleFileTranslator extends Controller
                 'message' => 'history added successfully',
                 'status_name' => 'failed',
             ], 500);
-    
         }
     }
 
@@ -402,7 +387,6 @@ class GoogleFileTranslator extends Controller
                     'message' => 'Status history added successfully',
                     'status_name' => 'success',
                 ], 200);
-        
             } else {
                 throw new Exception('Task not found');
             }
@@ -413,18 +397,16 @@ class GoogleFileTranslator extends Controller
                 'message' => 'Status history added successfully',
                 'status_name' => 'failed',
             ], 500);
-    
         }
     }
 
     public function statusChange(Request $request)
     {
-        $googleTranslateDatas =  GoogleTranslateCsvData::find(($request->id));
-        $google_file_translate_csv_data_id = GoogleFileTranslateHistory::with(['user'])->Where('google_file_translate_csv_data_id', $request->id)->latest('updated_at')->first(); 
-        $oldvalue = (!empty($google_file_translate_csv_data_id)) ? $google_file_translate_csv_data_id->old_value : '';
+        $googleTranslateDatas = GoogleTranslateCsvData::find(($request->id));
+        $google_file_translate_csv_data_id = GoogleFileTranslateHistory::with(['user'])->Where('google_file_translate_csv_data_id', $request->id)->latest('updated_at')->first();
+        $oldvalue = (! empty($google_file_translate_csv_data_id)) ? $google_file_translate_csv_data_id->old_value : '';
 
-        if($request->status == 'accept')
-        {   
+        if ($request->status == 'accept') {
             $history = new GoogleFileStausHistory();
             $history->google_file_translate_id = $request->id;
             $history->updated_by_user_id = \Auth::id();
@@ -434,8 +416,8 @@ class GoogleFileTranslator extends Controller
 
             $googleTranslateDatas->status = 1;
             $googleTranslateDatas->approved_by_user_id = \Auth::id();
-            $googleTranslateDatas->save();            
-            
+            $googleTranslateDatas->save();
+
             return response()->json([
                 'status' => true,
                 'data' => $googleTranslateDatas,
@@ -443,9 +425,8 @@ class GoogleFileTranslator extends Controller
                 'status_name' => 'success',
             ], 200);
         }
-           
-        if($request->status == 'reject')
-        {
+
+        if ($request->status == 'reject') {
             $history = new GoogleFileStausHistory();
             $history->google_file_translate_id = $request->id;
             $history->updated_by_user_id = \Auth::id();
@@ -463,9 +444,7 @@ class GoogleFileTranslator extends Controller
                 'status_name' => 'failed',
             ], 500);
         }
-       
     }
-
 
     public function downloadCsv($id, $type)
     {
@@ -474,14 +453,13 @@ class GoogleFileTranslator extends Controller
 
         $lang = explode('-', $type);
         $lang = end($lang);
-    
-        
+
         if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
             $lang = $matches[1];
         }
         $getLang = Language::where('locale', $lang)->first();
 
-        if ($type == "googletranslate") {
+        if ($type == 'googletranslate') {
             $googleTranslateDatas = GoogleTranslateCsvData::where('google_file_translate_id', $id)->latest()->get();
         } else {
             $googleTranslateDatas = GoogleTranslateCsvData::where('storewebsite_id', $id)
@@ -489,7 +467,7 @@ class GoogleFileTranslator extends Controller
                 ->latest()
                 ->get();
         }
-        
+
         $fileName = 'google_translate_data_' . ($getLang ? $getLang->locale : '') . '.csv';
 
         $csvContent = '"Value","StanardValue"' . "\n";
@@ -497,10 +475,10 @@ class GoogleFileTranslator extends Controller
         foreach ($googleTranslateDatas as $data) {
             // Ensure that values are enclosed in double quotes and separated by commas
             $csvContent .= '"' . $this->formatForCSV($data->value) . '","' .
-            $this->formatForCSV($data->standard_value) . '"' . "\n";
+                $this->formatForCSV($data->standard_value) . '"' . "\n";
         }
 
-         // Specify the storage disk (e.g., 'public' or 'local') and the directory path
+        // Specify the storage disk (e.g., 'public' or 'local') and the directory path
         $disk = 'public';
         $directory = 'csv/';
 
@@ -511,15 +489,14 @@ class GoogleFileTranslator extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ];
-        
+
         // Optionally, you can set other headers like cache control if needed
         $headers['Cache-Control'] = 'must-revalidate, post-check=0, pre-check=0';
         $headers['Expires'] = '0';
         $headers['Pragma'] = 'public';
-        
+
         // Send the file as a download response
         return Response::make($csvContent, 200, $headers);
-        
     }
 
     public function formatForCSV($value)

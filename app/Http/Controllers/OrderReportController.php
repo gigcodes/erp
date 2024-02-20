@@ -9,7 +9,6 @@ use App\OrderStatus;
 use App\Helpers\OrderHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\Paginator;
 
 class OrderReportController extends Controller
 {
@@ -60,31 +59,6 @@ class OrderReportController extends Controller
 
         $report->save();
 
-        // $order = Order::find($report->order_id);
-        //
-        // if ($order->sales_person) {
-        //   NotificationQueueController::createNewNotification([
-        //      'type' => 'button',
-        //      'message' => $order->client_name . ' - ' . $report->status,
-        //      'timestamps' => ['+0 minutes'],
-        //      'model_type' => Order::class,
-        //      'model_id' =>  $report->order_id,
-        //      'user_id' => \Auth::id(),
-        //      'sent_to' => $order->sales_person,
-        //      'role' => '',
-        //  ]);
-        // }
-
-        // NotificationQueueController::createNewNotification([
-        //  'message' => $order->client_name . ' - ' . $report->status,
-        //  'timestamps' => ['+0 minutes'],
-        //  'model_type' => Order::class,
-        //  'model_id' =>  $report->order_id,
-        //  'user_id' => \Auth::id(),
-        //  'sent_to' => '',
-        //  'role' => 'Admin',
-        // ]);
-
         return redirect()->back()->with('message', 'Order action was created successfully');
     }
 
@@ -107,10 +81,9 @@ class OrderReportController extends Controller
     {
         $page = $request->page;
         $paginate = 10;
-        //return 'asdfsfg';
         $orders = DB::table('orders')
-        ->join('customers', 'orders.customer_id', 'customers.id')
-        ->select('orders.id', 'orders.is_flag', 'customer_id', 'orders.created_at as date', DB::raw("'order' as type"), 'customers.phone', 'customers.name', 'customers.email', 'order_status_id', 'estimated_delivery_date');
+            ->join('customers', 'orders.customer_id', 'customers.id')
+            ->select('orders.id', 'orders.is_flag', 'customer_id', 'orders.created_at as date', DB::raw("'order' as type"), 'customers.phone', 'customers.name', 'customers.email', 'order_status_id', 'estimated_delivery_date');
 
         if ($request->order_id && $request->order_id != null) {
             $orders->where('orders.id', $request->order_id);
@@ -127,8 +100,8 @@ class OrderReportController extends Controller
         }
 
         $order_n_refunds = DB::table('return_exchanges')
-        ->join('customers', 'return_exchanges.customer_id', 'customers.id')
-        ->select('return_exchanges.id', 'is_flagged as is_flag', 'customer_id', 'return_exchanges.created_at as date', DB::raw("'refund' as type"), 'customers.phone', 'customers.name', 'customers.email', DB::raw("'' as order_status_id"), DB::raw('return_exchanges.est_completion_date as estimated_delivery_date'));
+            ->join('customers', 'return_exchanges.customer_id', 'customers.id')
+            ->select('return_exchanges.id', 'is_flagged as is_flag', 'customer_id', 'return_exchanges.created_at as date', DB::raw("'refund' as type"), 'customers.phone', 'customers.name', 'customers.email', DB::raw("'' as order_status_id"), DB::raw('return_exchanges.est_completion_date as estimated_delivery_date'));
         if ($request->order_id && $request->order_id != null) {
             $order_n_refunds->where('return_exchanges.id', $request->order_id);
         }
@@ -136,10 +109,7 @@ class OrderReportController extends Controller
             $order_n_refunds->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
         }
         $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date', 'DESC')->get();
-        // dd($order_n_refunds);
         $orderStatusList = OrderStatus::all();
-        // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
-        // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);
         $order_status_list = OrderHelper::getStatus();
 
         return view('orders.status-history', compact('order_n_refunds', 'order_status_list', 'orderStatusList'));

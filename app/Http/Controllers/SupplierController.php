@@ -65,13 +65,11 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
         $solo_numbers = (new SoloNumbers)->all();
         $term = $request->term ?? '';
         $type = $request->type ?? [];
         $supplier_filter = $request->supplier_filter ?? '';
         $scrappertype = isset($request->scrappertype) ? implode(',', $request->scrappertype) : '';
-        //$status = $request->status ?? '';
         $supplier_category_id = isset($request->supplier_category_id) ? implode(',', $request->supplier_category_id) : '';
         $supplier_status_id = isset($request->supplier_status_id) ? implode(',', $request->supplier_status_id) : '';
         $supplier_price_range_id = isset($request->supplier_price_range_id) ? implode(',', $request->supplier_price_range_id) : '';
@@ -88,10 +86,6 @@ class SupplierController extends Controller
         if (isset($type) && in_array('updated', $type)) {
             $typeWhereClause = ' AND is_updated = 1';
         }
-
-        /*if ( $status != '' ) {
-        $typeWhereClause .= ' AND status=1';
-        }*/
 
         if ($supplier_price_range_id != '') {
             $typeWhereClause .= ' AND supplier_price_range_id in (' . $supplier_price_range_id . ')';
@@ -151,15 +145,6 @@ class SupplierController extends Controller
         }
 
         $runQuery = 0;
-        // if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
-        //     $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
-        //     $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
-        //     $runQuery = 1;
-        // } else {
-        //     if(auth()->user()->isAdmin()) {
-        //         $runQuery = 1;
-        //     }
-        // }
 
         if (! auth()->user()->isAdmin()) {
             $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
@@ -222,9 +207,6 @@ class SupplierController extends Controller
                 $query->whereNotNull('email')->orWhereNotNull('default_email');
             })->whereIn('id', $request->supplier_filter)->get();
         }
-        // $suppliers_all = Supplier::whererIn([2712,2713,2715])->get();
-        // print_r($suppliers_all);
-        // dd($suppliers_all);
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
         $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
@@ -239,11 +221,8 @@ class SupplierController extends Controller
         $supplierstatus = SupplierStatus::pluck('name', 'id')->toArray();
         $suppliersize = SupplierSize::pluck('size', 'id')->toArray();
 
-        //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
-        // $brands           = Brand::whereNotNull('magento_id')->get()->all();
-        // $brands= null;
         $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
         $rawBrands = [];
         foreach ($scrapedBrandsRaw as $key => $value) {
@@ -253,24 +232,19 @@ class SupplierController extends Controller
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge', []));
 
         $data = Setting::where('type', 'ScrapeBrandsRaw')->get()->first();
-        // dd($data);
         if (! empty($data)) {
             $selectedBrands = json_decode($data->val, true);
         } else {
             $selectedBrands = [];
         }
 
-        // dd($);
         $whatsappConfigs = WhatsappConfig::where('provider', 'LIKE', '%Chat-API%')->get();
 
         //Get All Product Supplier
-        $allSupplierProduct = []; //DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+        $allSupplierProduct = [];
 
         //Get All supplier price range
         $allSupplierPriceRanges = SupplierPriceRange::select('supplier_price_range.*', DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
-        /* echo "<pre>";
-        print_r($allSupplierPriceRanges);
-        exit; */
         $reply_categories = ReplyCategory::with('supplier')->get();
         $languages = \App\Language::get();
         $sizeSystem = \App\SystemSize::pluck('name', 'id')->toArray();
@@ -323,7 +297,6 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            //'supplier_category_id' => 'required|string|max:255',
             'supplier' => 'required|string|unique:suppliers|max:255',
             'address' => 'sometimes|nullable|string',
             'phone' => 'sometimes|nullable|numeric',
@@ -335,7 +308,6 @@ class SupplierController extends Controller
             'product_type' => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst' => 'sometimes|nullable|max:255',
-            //'supplier_status_id' => 'required'
         ]);
 
         $data = $request->except('_token');
@@ -362,7 +334,6 @@ class SupplierController extends Controller
         $scrapper_name = preg_replace("/\s+/", '', $request->supplier);
         $supplier = Supplier::where('supplier', $scrapper_name)->get();
 
-        // if(empty($supplier)){
         if ($supplier->isEmpty()) {
             $supplier = Supplier::create($data);
             if ($supplier->id > 0) {
@@ -466,8 +437,6 @@ class SupplierController extends Controller
             'scraper_name' => 'sometimes|nullable',
             'inventory_lifetime' => 'sometimes|nullable',
             'gst' => 'sometimes|nullable|max:255',
-            //'supplier_status_id' => 'required'
-            //'status' => 'required'
         ]);
 
         $data = $request->except('_token');
@@ -573,23 +542,6 @@ class SupplierController extends Controller
             })->where('has_error', 0)->get();
         }
 
-        // foreach ($suppliers as $supplier) {
-        //   if ($supplier->email == '' && $supplier->default_email == '') {
-        //     dump($supplier->id);
-        //   }
-        // }
-        // dd('stop');
-
-        // $first_email = '';
-        // $bcc_emails = [];
-        // foreach ($suppliers as $key => $supplier) {
-        //   if ($key == 0) {
-        //     $first_email = $supplier->default_email ?? $supplier->email;
-        //   } else {
-        //     $bcc_emails[] = $supplier->default_email ?? $supplier->email;
-        //   }
-        // }
-
         $file_paths = [];
 
         if ($request->hasFile('file')) {
@@ -652,9 +604,6 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::find($id);
 
-//      $supplier->agents()->delete();
-        //      $supplier->whatsapps()->delete();
-
         $supplier->delete();
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
@@ -712,9 +661,7 @@ class SupplierController extends Controller
         $typeWhereClause = '';
         $suppliers_all = [];
         if ($supplier_category_id == '' && $supplier_status_id == '') {
-            /* $suppliers_all = Supplier::where(function ($query) {
-        $query->whereNotNull('email')->orWhereNotNull('default_email');
-        })->get();*/
+            //
         } else {
             if ($supplier_category_id != '') {
                 $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
@@ -969,7 +916,6 @@ class SupplierController extends Controller
             $data[] = $sub_array;
         }
 
-        // dd(count($data));
         if (! empty($data)) {
             $output = [
                 'draw' => intval($request->input('draw')),
@@ -1108,8 +1054,6 @@ class SupplierController extends Controller
                             $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
                             $product->attachMedia($media, config('constants.media_tags'));
                         }
-
-                        // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
                 }
                 if (count($createdProducts) > 0) {
@@ -1225,7 +1169,6 @@ class SupplierController extends Controller
                 $createdProducts = [];
                 foreach ($images as $image) {
                     //Getting the last created QUICKSELL
-                    // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
                     $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
                     if ($product) {
                         $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
@@ -1705,7 +1648,6 @@ class SupplierController extends Controller
                     'inventory_lifetime' => $request->get('inventory_lifetime', ''),
                 ]);
                 $supplier->fill(['scrapper' => $scrapperId])->save();
-                //return $scraper;
             }
         }
 
@@ -1803,7 +1745,6 @@ class SupplierController extends Controller
 
     public function sendMessage(Request $request)
     {
-        // return $request->all();
         $suppliers = Supplier::whereIn('id', $request->suppliers)->get();
         $params = [];
         $message = [];
@@ -1832,7 +1773,6 @@ class SupplierController extends Controller
                 app(WhatsAppController::class)->approveMessage('supplier', $approveRequest);
             }
         }
-        // return $params;
 
         return response()->json(['code' => 200, 'data' => [], 'message' => 'Message sent successfully']);
     }
@@ -1885,19 +1825,19 @@ class SupplierController extends Controller
             $suppliers->orderBy('created_at', 'desc');
 
             return Datatables::of($suppliers)
-            ->addIndexColumn()
-            ->addColumn('supplier_category_name', function ($row) {
-                $supplier_category_name = ($row->supplier_category) ? $row->supplier_category->name : 'N/A';
+                ->addIndexColumn()
+                ->addColumn('supplier_category_name', function ($row) {
+                    $supplier_category_name = ($row->supplier_category) ? $row->supplier_category->name : 'N/A';
 
-                return $supplier_category_name;
-            })
-            ->addColumn('action', function ($row) {
-                $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="update-supplier-priority btn btn-warning btn-sm"><i class="fa fa-edit fa-sm"></i></a>&nbsp;';
+                    return $supplier_category_name;
+                })
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="update-supplier-priority btn btn-warning btn-sm"><i class="fa fa-edit fa-sm"></i></a>&nbsp;';
 
-                return $actionBtn;
-            })
-            ->rawColumns(['action', 'supplier_category_id'])
-            ->make(true);
+                    return $actionBtn;
+                })
+                ->rawColumns(['action', 'supplier_category_id'])
+                ->make(true);
         }
 
         return view('suppliers.supplier_category_priority', compact('priorities'));
@@ -1941,23 +1881,23 @@ class SupplierController extends Controller
             $category = $supplier->supplier_category ? $supplier->supplier_category->name : "N\A";
             $return = ['code' => 200, 'success' => true, 'message' => 'Success', 'supplier' => $supplier, 'category' => $category, 'supplier_priority_list' => $supplier_priority_list];
         } else {
-            $return = ['code' => 500, 'success' => false,  'message' => 'No Results Found.'];
+            $return = ['code' => 500, 'success' => false, 'message' => 'No Results Found.'];
         }
 
         return response()->json($return);
     }
 
-     public function updateSupplierPriority(Request $request)
-     {
-         $supplier_id = $request->id;
-         $priority = $request->priority;
-         $updatedPriority = $this->updatePriority($supplier_id, $priority);
-         if ($updatedPriority) {
-             $response = ['code' => 200, 'success' => true, 'message' => 'Supplier priority updated!'];
-         } else {
-             $response = ['code' => 500, 'success' => false,  'message' => 'No Results Found.'];
-         }
+    public function updateSupplierPriority(Request $request)
+    {
+        $supplier_id = $request->id;
+        $priority = $request->priority;
+        $updatedPriority = $this->updatePriority($supplier_id, $priority);
+        if ($updatedPriority) {
+            $response = ['code' => 200, 'success' => true, 'message' => 'Supplier priority updated!'];
+        } else {
+            $response = ['code' => 500, 'success' => false, 'message' => 'No Results Found.'];
+        }
 
-         return response()->json($response);
-     }
+        return response()->json($response);
+    }
 }

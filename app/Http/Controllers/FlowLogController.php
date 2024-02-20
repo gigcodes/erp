@@ -31,20 +31,20 @@ class FlowLogController extends Controller
                 'flow_log_messages.created_at as ct',
                 'customers.name as lead_name',
             ])
-        ->join('flows', 'flows.id', 'flow_logs.flow_id')
-        ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
-        ->leftJoin('customers', 'customers.id', '=', 'flow_log_messages.leads')
-        ->join('store_websites', 'flows.store_website_id', 'store_websites.id');
+            ->join('flows', 'flows.id', 'flow_logs.flow_id')
+            ->join('flow_log_messages', 'flow_log_messages.flow_log_id', 'flow_logs.id')
+            ->leftJoin('customers', 'customers.id', '=', 'flow_log_messages.leads')
+            ->join('store_websites', 'flows.store_website_id', 'store_websites.id');
 
         if ($request->term || $request->created_at) {
             if (request('term') != null) {
                 $logs = $logs->where(function ($query) use ($request) {
                     $query->where('flows.flow_name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('flow_logs.messages', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('flows.flow_description', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('flow_log_messages.modalType', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('customers.name', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('store_websites.website', 'LIKE', '%' . $request->term . '%');
+                        ->orWhere('flow_logs.messages', 'LIKE', '%' . $request->term . '%')
+                        ->orWhere('flows.flow_description', 'LIKE', '%' . $request->term . '%')
+                        ->orWhere('flow_log_messages.modalType', 'LIKE', '%' . $request->term . '%')
+                        ->orWhere('customers.name', 'LIKE', '%' . $request->term . '%')
+                        ->orWhere('store_websites.website', 'LIKE', '%' . $request->term . '%');
                 });
             }
 
@@ -90,18 +90,18 @@ class FlowLogController extends Controller
             if (isset($request->id) and $request->id != 0) {
                 $messageLogs = FlowLogMessages::where('flow_log_id', $request->id);
                 $messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')
-                ->leftJoin('customers', 'customers.id', '=', 'flow_log_messages.leads')
-                ->leftJoin('flow_logs', 'flow_logs.id', '=', 'flow_log_messages.flow_log_id')
-                ->leftJoin('flows', 'flows.id', '=', 'flow_logs.flow_id')
-                ->leftJoin('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
-                ->select('flow_log_messages.*', 'customers.name as lead_name', 'store_websites.website')->get();
+                    ->leftJoin('customers', 'customers.id', '=', 'flow_log_messages.leads')
+                    ->leftJoin('flow_logs', 'flow_logs.id', '=', 'flow_log_messages.flow_log_id')
+                    ->leftJoin('flows', 'flows.id', '=', 'flow_logs.flow_id')
+                    ->leftJoin('store_websites', 'store_websites.id', '=', 'flows.store_website_id')
+                    ->select('flow_log_messages.*', 'customers.name as lead_name', 'store_websites.website')->get();
             } elseif (isset($request->scraper_id) and $request->scraper_id != 0) {
                 $messageLogs = FlowLogMessages::where('scraper_id', $request->scraper_id);
                 if ($request->assigned) {
                     $messageLogs = $messageLogs->where('flow_log_messages.leads', $request->assigned);
                 }
                 $messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
-                ->select('flow_log_messages.*', 'sw.website as website', 'customers.name as lead_name')->get();
+                    ->select('flow_log_messages.*', 'sw.website as website', 'customers.name as lead_name')->get();
             }
         }
 

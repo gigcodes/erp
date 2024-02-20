@@ -52,12 +52,9 @@ class AddRenamedBrandLogoes extends Command
                 $brand_logo = BrandLogo::where('logo_image_name', $fileName)->first();
 
                 if (! $brand_logo) {
-                    // dump('asd');
-
                     $params['logo_image_name'] = $fileName;
                     $params['user_id'] = Auth::id();
 
-                    // dd($params);
                     $log = BrandLogo::create($params);
                 }
             }

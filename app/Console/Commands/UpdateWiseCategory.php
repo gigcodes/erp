@@ -50,10 +50,7 @@ class UpdateWiseCategory extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            // $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Wiseboutique')->get();
-            // $products = ScrapedProducts::where('created_at', '>', '2019-06-03 00:00')->get();
             $products = ScrapedProducts::all();
-            // $products = ScrapedProducts::where('sku', 'SIDNEYMAMOBLACK')->get();
 
             $women_count = 0;
             $women_second_count = 0;
@@ -82,7 +79,6 @@ class UpdateWiseCategory extends Command
                                     dump("$count - Woman Category");
                                     $women_count++;
                                     $women_children = Category::where('title', 'WOMEN')->first()->childs;
-                                    // dd($women_children);
                                 }
 
                                 if (isset($women_children)) {

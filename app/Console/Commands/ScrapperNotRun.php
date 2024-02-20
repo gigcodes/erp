@@ -67,7 +67,6 @@ class ScrapperNotRun extends Command
 
             foreach ($scrapers as $scrapperDetails) {
                 $hasAssignedIssue = \App\DeveloperTask::where('scraper_id', $scrapperDetails->id)
-                    //->whereNotNull("assigned_to")
                     ->where('is_resolved', 0)->orderBy('id', 'desc')->first();
 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'DeveloperTask model query finished']);
@@ -89,7 +88,6 @@ class ScrapperNotRun extends Command
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
 
-                    //app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
                     try {
                         app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
 
@@ -110,7 +108,7 @@ class ScrapperNotRun extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Save scrap log detail']);
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

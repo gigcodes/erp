@@ -102,13 +102,7 @@ class GTMetrixTestCMDGetReport extends Command
                     \Log::info('PageSpeedInsight :: Something went Wrong Not able to fetch site  Result' . $err);
                     echo 'cURL Error #:' . $err;
                 } else {
-                    //echo $response;
                     \Log::info(print_r(['Pagespeed Insight Result started to fetch'], true));
-
-                    // $pdfFileName = '/uploads/speed-insight/' . $value->test_id . '.pdf';
-                    // $pdfFile     = public_path() . $pdfFileName;
-                    // file_put_contents($pdfFile,$response);
-
                     $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
                     $Jsonfile = public_path() . $JsonfileName;
                     if (! file_exists($JsonfileName)) {
@@ -173,14 +167,12 @@ class GTMetrixTestCMDGetReport extends Command
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
-                    // $stdClass = json_decode(json_encode($response));
                     $data = json_decode($response);
                     $credits = '';
                     if (isset($data->data->attributes->api_credits)) {
                         $credits = $data->data->attributes->api_credits;
                     }
 
-                    // print_r($data->data->attributes->api_credits);
                     if ($credits != 0) {
                         $client = new GTMetrixClient();
                         $client->setUsername($username);
@@ -249,7 +241,6 @@ class GTMetrixTestCMDGetReport extends Command
                             'pagespeed_score' => $test->getPagespeedScore(),
                             'yslow_score' => $test->getYslowScore(),
                             'resources' => json_encode($test->getResources()),
-                            //'pdf_file'        => $fileName,
                         ]);
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'StoreViewsGTMetrix model update query finished']);
@@ -265,7 +256,6 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
                             $result = curl_exec($ch);
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                             $curlErrNo = curl_errno($ch);
@@ -304,7 +294,6 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
                             $result = curl_exec($ch);
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                             $curlErrNo = curl_errno($ch);
@@ -353,7 +342,6 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            //curl_setopt($ch, CURLOPT_CAINFO, dirname(__DIR__) . '/data/ca-bundle.crt');
                             $result = strip_tags(curl_exec($ch));
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                             $curlErrNo = curl_errno($ch);
@@ -412,16 +400,11 @@ class GTMetrixTestCMDGetReport extends Command
             }
             \Log::info('GTMetrix :: Report cron complete ');
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
-        /*} catch (\Exception $e) {
-    \Log::error($this->signature.' :: '.$e->getMessage() );
-    \App\CronJob::insertLastError($this->signature, $e->getMessage());
-    }*/
     }
 
     public function GTMatrixError($store_viewGTM_id, $erro_type, $error_title, $error = '')

@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteSeoFormat extends Model
 {
-    //
-
     /**
      * @var string
 

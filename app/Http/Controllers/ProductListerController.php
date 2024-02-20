@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductListerController extends Controller
 {
-    public function __construct()
-    {
-//        $this->middleware( 'permission:lister-list', [ 'only' => [ 'index' ] ] );
-//        $this->middleware( 'permission:lister-edit', [ 'only' => [ 'edit', 'isUploaded' ] ] );
-    }
-
     public function index(Stage $stage)
     {
         $products = Product::latest()
@@ -103,7 +97,6 @@ class ProductListerController extends Controller
             }
         }
 
-        // Return 'ok'
         return 'ok';
     }
 }

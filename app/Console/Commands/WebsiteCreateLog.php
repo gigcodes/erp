@@ -45,8 +45,6 @@ class WebsiteCreateLog extends Command
      */
     public function handle()
     {
-        //dd( $this->webLog->store());
-        //
         try {
             DB::beginTransaction();
             $mainPath = env('WEBSITES_LOGS_FOLDER');

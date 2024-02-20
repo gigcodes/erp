@@ -2083,6 +2083,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
 
         $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+            var element = $(this);
             if (confirm('Are you sure, do you want to approve this task?')) {
                 event.preventDefault();
                 let type = $(this).data('type');
@@ -2098,8 +2099,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         user_id: 0
                     },
                     success: function (response) {
+                        element.closest('tr').hide('slow');
+
                         toastr["success"]("Successfully approved", "success");
-                        window.location.reload();
                     },
                     error: function (error) {
                         toastr["error"](error.responseJSON.message);

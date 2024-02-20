@@ -62,18 +62,6 @@ class SendDailyPlannerReport extends Command
 
             $daily_activities = DailyActivity::where('for_date', Carbon::now()->format('Y-m-d'))->whereIn('user_id', $users_array)->get()->groupBy(['user_id', 'time_slot']);
 
-            // dd($daily_activities);
-
-            // $time_slots = [
-            //   '08:00am - 10:00am' => [],
-            //   '10:00am - 12:00pm' => [],
-            //   '12:00pm - 02:00pm' => [],
-            //   '02:00pm - 04:00pm' => [],
-            //   '04:00pm - 06:00pm' => [],
-            //   '06:00pm - 08:00pm' => [],
-            //   '08:00pm - 10:00pm' => [],
-            // ];
-
             $time_slots = [];
 
             foreach ($statutory as $user_id => $tasks) {
@@ -120,14 +108,13 @@ class SendDailyPlannerReport extends Command
                 if ($user = User::find($user_id)) {
                     Mail::to('yogeshmordani@icloud.com')->send(new SendDailyActivityReport($user, $data));
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Mail sent.']);
-                    // Mail::to('vysniukass@gmail.com')->send(new SendDailyActivityReport($user, $data));
                 }
             }
 
             $report->update(['end_time' => Carbon::now()]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime updated.']);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

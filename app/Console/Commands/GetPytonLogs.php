@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
-use App\LogRequest;
 use App\Loggers\ScrapPythonLog;
+use App\LogRequest;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -43,15 +43,12 @@ class GetPytonLogs extends Command
      */
     public function handle()
     {
-        //dd("test");
         $storeWebsites = ['sololuxury', 'avoir-chic', 'brands-labels', 'o-labels', 'suvandnat', 'veralusso'];
         $devices = ['mobile', 'desktop', 'tablet'];
-        //	$devices=[ "desktop"];
         foreach ($storeWebsites as $website) {
             $url = 'http://167.86.88.58:5000/get-logs';
             foreach ($devices as $device) {
                 $date = Carbon::yesterday()->format('m-d-Y');
-                //  $date = "12-10-2021";
                 $data = ['website' => $website, 'date' => $date, 'device' => 'desktop'];
                 \Log::info($data);
                 \Log::info($url);

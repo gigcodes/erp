@@ -2,16 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Product;
 use App\StoreWebsite;
+use App\MagentoSetting;
 use Illuminate\Bus\Queueable;
+use App\MagentoSettingPushLog;
 use Illuminate\Queue\SerializesModels;
-use App\Library\Magento\MagentoService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\MagentoSetting;
-use App\MagentoSettingPushLog;
 
 class AdminSettingCommandJob implements ShouldQueue
 {
@@ -44,22 +42,20 @@ class AdminSettingCommandJob implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info("Admin setting command");
+        \Log::info('Admin setting command');
         foreach ($this->_selectedCheckboxes as $key => $values) {
-
             $magentoSettings = MagentoSetting::where('id', $values)->first();
 
-            $requestData['command'] = 'bin/magento config:set '.$this->_path.' '.$this->_value;
-            \Log::info("REquest command ".$requestData['command']);
+            $requestData['command'] = 'bin/magento config:set ' . $this->_path . ' ' . $this->_value;
+            \Log::info('REquest command ' . $requestData['command']);
             $storeWebsiteData = StoreWebsite::where('id', $magentoSettings->store_website_id)->first();
 
-            if(!empty($storeWebsiteData)){
+            if (! empty($storeWebsiteData)) {
                 $requestData['server'] = $storeWebsiteData->server_ip;
                 $requestData['dir'] = $storeWebsiteData->working_directory;
             }
 
-            if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
-
+            if (! empty($requestData['command']) && ! empty($requestData['server']) && ! empty($requestData['dir'])) {
                 $requestJson = json_encode($requestData);
 
                 // Initialize cURL session
@@ -70,16 +66,16 @@ class AdminSettingCommandJob implements ShouldQueue
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     'Content-Type: application/json',
-                    'Content-Length: ' . strlen($requestJson)
-                ));
+                    'Content-Length: ' . strlen($requestJson),
+                ]);
 
                 // Execute cURL session and store the response in a variable
                 $response = curl_exec($ch);
 
                 // Check for cURL errors
-                if(curl_errno($ch)) {
+                if (curl_errno($ch)) {
                     echo 'Curl error: ' . curl_error($ch);
                 }
 
@@ -88,18 +84,16 @@ class AdminSettingCommandJob implements ShouldQueue
                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
                 $responseData = json_decode($response);
-                \Log::info("responseData".print_r($responseData,true));
+                \Log::info('responseData' . print_r($responseData, true));
                 $status = 'Error';
-                if(isset($responseData->success)){
-                    if($responseData->success==1){
+                if (isset($responseData->success)) {
+                    if ($responseData->success == 1) {
                         $status = 'Success';
                     }
                 }
 
-                MagentoSettingPushLog::create(['store_website_id' => $magentoSettings->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $values, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
-
+                MagentoSettingPushLog::create(['store_website_id' => $magentoSettings->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $values, 'command_output' => $response, 'status' => $status, 'command_server' => 'http://s10.theluxuryunlimited.com:5000/execute', 'job_id' => $httpcode]);
             }
         }
     }
-
 }

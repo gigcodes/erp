@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use DB;
-use App\Keywordassign;
 use Illuminate\Http\Request;
-use App\KeywordAutoGenratedMessageLog; //Purpose : add model - DEVTASK-4233
+use App\KeywordAutoGenratedMessageLog;
 
 class KeywordassignController extends Controller
 {
@@ -16,8 +15,6 @@ class KeywordassignController extends Controller
      */
     public function index(Request $request)
     {
-        //$coupons = Coupon::orderBy('id', 'DESC')->get();
-        //$keywordassign = DB::table('keywordassign')->select('*')->get();
         $keywordassign = DB::table('keywordassigns')
             ->select('keywordassigns.id', 'keywordassigns.keyword', 'task_categories.title', 'keywordassigns.task_description', 'users.name')
             ->leftJoin('users', 'keywordassigns.assign_to', '=', 'users.id')
@@ -35,7 +32,6 @@ class KeywordassignController extends Controller
      */
     public function create()
     {
-        //
         $task_category = DB::table('task_categories')->select('*')->get();
         $userslist = DB::table('users')->select('*')->get();
 
@@ -136,8 +132,8 @@ class KeywordassignController extends Controller
             'updated_at' => $updated_at,
         ];
         $affected = DB::table('keywordassigns')
-              ->where('id', $id)
-              ->update($insert_data);
+            ->where('id', $id)
+            ->update($insert_data);
 
         return redirect()->route('keywordassign.index')
             ->with('success', 'Keyword assign updated successfully.');

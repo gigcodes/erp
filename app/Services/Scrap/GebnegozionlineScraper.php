@@ -17,7 +17,6 @@ class GebnegozionlineScraper extends Scraper
 
     public function scrap(): void
     {
-//        $this->scrapPage(self::URL['homepage'], false);
         $brands = Brand::whereNull('deleted_at')->get();
         foreach ($brands as $brand) {
             if ($brand->name === 'ALEXANDER McQUEEN') {

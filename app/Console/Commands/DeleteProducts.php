@@ -48,8 +48,6 @@ class DeleteProducts extends Command
             ]);
 
             $products = Product::withTrashed()->where('supplier', 'Les Market')->get();
-            // $product = Product::find(127805);
-            // dd(count($products));
             foreach ($products as $key => $product) {
                 dump("$key - Product");
 

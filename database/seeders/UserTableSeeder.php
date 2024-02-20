@@ -109,7 +109,6 @@ class UserTableSeeder extends Seeder
 
             if ($role->name == 'Admin') {
                 // assign all permissions
-                //$role->syncPermissions(Permission::all());
                 $role->syncPermissions(Permission::where('guard_name', '!=', '')->get());
                 $this->command->info('Admin granted all the permissions');
             } else {
@@ -133,10 +132,8 @@ class UserTableSeeder extends Seeder
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        // if( $role->name == 'Admin' ) {
         $this->command->info('Here is your admin details to login:');
         $this->command->warn($user->email);
         $this->command->warn('Password is "secret"');
-        // }
     }
 }

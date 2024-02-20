@@ -6,7 +6,6 @@ use Auth;
 use App\User;
 use stdClass;
 use Exception;
-
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\TimeDoctor\TimeDoctorLog;
@@ -72,7 +71,6 @@ class TimeDoctorController extends Controller
     public function getProjects(Request $request)
     {
         $projects = TimeDoctorProject::query();
-        // dd($request->all());
 
         if (isset($request->time_doctor_project_id) && $request->time_doctor_project_id != '') {
             $projects->where('time_doctor_project_id', 'like', "%$request->time_doctor_project_id%");
@@ -569,8 +567,6 @@ class TimeDoctorController extends Controller
                     $query->orWhereIn('task_id', $general_task);
                 }
             });
-
-            // dd($logs->toSql());
 
             $logs = $logs->paginate(20);
 

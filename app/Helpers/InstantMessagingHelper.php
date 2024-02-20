@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\ImQueue;
-use App\Setting;
 use App\Customer;
 use Carbon\Carbon;
 use App\Marketing\WhatsappConfig;
@@ -271,10 +270,6 @@ class InstantMessagingHelper
     public static function broadcastSendingTimeCheck($time)
     {
         $now = $time;
-
-        //Getting Start and end time from setting
-        // $startTime = Setting::where('name','start_time')->first();
-        // $endTime = Setting::where('name','end_time')->first();
 
         $morning = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);

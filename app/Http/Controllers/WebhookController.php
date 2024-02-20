@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use App\Events\SendgridEventCreated;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\SendgridEventRepositoryInterface;
@@ -79,9 +78,6 @@ class WebhookController extends Controller
             Log::info('Event Before Process');
             Log::info($event);
 
-            /*SendgridEvent::create(['email'=>$event['email'], 'event'=>$event['event'],
-            'sg_event_id'=>$event['sg_event_id'], 'sg_message_id'=>$event['sg_message_id'],
-            'categories'=>$event['category']]);*/
             $this->processEvent($event);
 
             Log::info($event);

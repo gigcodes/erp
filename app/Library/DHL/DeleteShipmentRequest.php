@@ -86,7 +86,6 @@ class DeleteShipmentRequest extends APIAbstract
         $xml->openMemory();
         $xml->setIndent(true);
         $xml->setIndentString('  ');
-        //$xml->startDocument('1.0', 'UTF-8');
 
         $xml->startElement('soapenv:Envelope');
         $xml->writeAttribute('xmlns:wsu', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd');
@@ -118,7 +117,7 @@ class DeleteShipmentRequest extends APIAbstract
         $xml->endElement();
         $xml->endElement();
         $xml->endElement();
-        //$xml->endDocument();
+
         return $this->document = $xml->outputMemory();
     }
 

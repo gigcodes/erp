@@ -68,7 +68,6 @@ class SendRecurringTasks extends Command
                 $selected_time = $task->sending_time ?? $task->created_at;
                 $sending_date = Carbon::parse($selected_time)->format('Y-m-d');
                 $sending_time = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
-                // $sending_time = Carbon::parse($selected_time);
                 $sending_weekday = strtoupper(Carbon::parse($selected_time)->format('l'));
                 $sending_day = Carbon::parse($selected_time)->format('d');
                 $sending_month = Carbon::parse($selected_time)->format('m');

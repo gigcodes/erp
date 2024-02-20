@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Host;
+use Exception;
 use App\Problem;
-use App\Zabbix\ZabbixApi;
 use Carbon\Carbon;
 use App\ZabbixHistory;
+use App\Zabbix\ZabbixApi;
 use Illuminate\Http\Request;
 use App\Models\Zabbix\Trigger;
-use Exception;
 use App\Models\Zabbix\Host as HostZabbix;
 
 class ZabbixController extends Controller
@@ -55,9 +55,7 @@ class ZabbixController extends Controller
             $hostInterfaceZabbix['id'] = $host->id;
 
             return response()->json(['code' => 200, 'data' => $hostInterfaceZabbix]);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
@@ -78,9 +76,7 @@ class ZabbixController extends Controller
             $host->delete();
 
             return response()->json(['code' => 200, 'message' => 'Deleted successful.']);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
@@ -108,17 +104,17 @@ class ZabbixController extends Controller
                     'useip' => 1,
                     'ip' => $data['ip'],
                     'dns' => '',
-                    'port' => $data['port']
+                    'port' => $data['port'],
                 ];
 
-                if (!empty($data['template_ids'])) {
+                if (! empty($data['template_ids'])) {
                     foreach ($data['template_ids'] as $id) {
                         $hostArray['templates'][]['templateid'] = $id;
                     }
                 }
 
                 $hostArray['groups'] = [
-                    'groupid' => 1
+                    'groupid' => 1,
                 ];
 
                 $hostZabbix->save($hostArray);
@@ -128,17 +124,17 @@ class ZabbixController extends Controller
                 $hostArray['host'] = $data['name'];
                 $hostArray['hostid'] = $hostZabbixArray['hostid'];
                 $hostArray['groups'] = [
-                    'groupid' => 1
+                    'groupid' => 1,
                 ];
 
                 $hostArray['interfaces'] = [
                     'main' => 1,
                     'ip' => $data['ip'],
                     'port' => $data['port'],
-                    'interfaceid' => $hostZabbixArray['interfaceid']
+                    'interfaceid' => $hostZabbixArray['interfaceid'],
                 ];
 
-                if (!empty($data['template_ids'])) {
+                if (! empty($data['template_ids'])) {
                     $hostArray['templates_clear'] = [];
                     foreach ($data['template_ids'] as $id) {
                         $hostArray['templates'][]['templateid'] = $id;
@@ -149,9 +145,7 @@ class ZabbixController extends Controller
             }
 
             return response()->json(['code' => 200, 'message' => 'Successful saved.']);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()], 500);
         }
     }

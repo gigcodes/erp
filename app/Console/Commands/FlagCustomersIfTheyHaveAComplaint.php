@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Complaint;
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class FlagCustomersIfTheyHaveAComplaint extends Command

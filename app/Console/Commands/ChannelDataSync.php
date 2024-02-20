@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\YoutubeChannel;
 use App\Library\Youtube\Helper;
+use App\Models\YoutubeChannel;
 use Illuminate\Console\Command;
 
 class ChannelDataSync extends Command

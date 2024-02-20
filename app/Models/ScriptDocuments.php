@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ScriptDocuments extends Model
 {
@@ -22,6 +22,6 @@ class ScriptDocuments extends Model
         'last_run',
         'last_output',
         'status',
-        'history_status'
+        'history_status',
     ];
 }

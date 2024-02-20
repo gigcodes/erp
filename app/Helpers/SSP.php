@@ -31,9 +31,9 @@ class SSP
     /**
      * Create the data output array for the DataTables rows
      *
-     *  @param  array  $columns Column information array
-     *  @param  array  $data    Data from the SQL get
-     *  @return array          Formatted data in a row based format
+     * @param  array  $columns Column information array
+     * @param  array  $data Data from the SQL get
+     * @return array          Formatted data in a row based format
      */
     public static function data_output($columns, $data)
     {
@@ -64,13 +64,13 @@ class SSP
      *
      * Obtain an PHP PDO connection from a connection details array
      *
-     *  @param  array  $conn SQL connection details. The array should have
+     * @param  array  $conn SQL connection details. The array should have
      *    the following properties
      *     * host - host name
      *     * db   - database name
      *     * user - user name
      *     * pass - user password
-     *  @return resource PDO connection
+     * @return resource PDO connection
      */
     public static function db($conn)
     {
@@ -86,9 +86,9 @@ class SSP
      *
      * Construct the LIMIT clause for server-side processing SQL query
      *
-     *  @param  array  $request Data sent to server by DataTables
-     *  @param  array  $columns Column information array
-     *  @return string SQL limit clause
+     * @param  array  $request Data sent to server by DataTables
+     * @param  array  $columns Column information array
+     * @return string SQL limit clause
      */
     public static function limit($request, $columns)
     {
@@ -106,9 +106,9 @@ class SSP
      *
      * Construct the ORDER BY clause for server-side processing SQL query
      *
-     *  @param  array  $request Data sent to server by DataTables
-     *  @param  array  $columns Column information array
-     *  @return string SQL order by clause
+     * @param  array  $request Data sent to server by DataTables
+     * @param  array  $columns Column information array
+     * @return string SQL order by clause
      */
     public static function order($request, $columns)
     {
@@ -152,11 +152,11 @@ class SSP
      * word by word on any field. It's possible to do here performance on large
      * databases would be very poor
      *
-     *  @param  array  $request Data sent to server by DataTables
-     *  @param  array  $columns Column information array
-     *  @param  array  $bindings Array of values for PDO bindings, used in the
+     * @param  array  $request Data sent to server by DataTables
+     * @param  array  $columns Column information array
+     * @param  array  $bindings Array of values for PDO bindings, used in the
      *    sql_exec() function
-     *  @return string SQL where clause
+     * @return string SQL where clause
      */
     public static function filter($request, $columns, &$bindings)
     {
@@ -189,7 +189,7 @@ class SSP
                 $str = $requestColumn['search']['value'];
 
                 if ($requestColumn['searchable'] == 'true' &&
-                 $str != '') {
+                    $str != '') {
                     $binding = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
                     $columnSearch[] = '`' . $column['db'] . '` LIKE ' . $binding;
                 }
@@ -223,12 +223,12 @@ class SSP
      * in response to an SSP request, or can be modified if needed before
      * sending back to the client.
      *
-     *  @param  array  $request Data sent to server by DataTables
-     *  @param  array|PDO  $conn PDO connection resource or connection parameters array
-     *  @param  string  $table SQL table to query
-     *  @param  string  $primaryKey Primary key of the table
-     *  @param  array  $columns Column information array
-     *  @return array          Server-side processing response array
+     * @param  array  $request Data sent to server by DataTables
+     * @param  array|PDO  $conn PDO connection resource or connection parameters array
+     * @param  string  $table SQL table to query
+     * @param  string  $primaryKey Primary key of the table
+     * @param  array  $columns Column information array
+     * @return array          Server-side processing response array
      */
     public static function simple($request, $conn, $table, $primaryKey, $columns)
     {
@@ -291,14 +291,14 @@ class SSP
      *   used in conditions where you don't want the user to ever have access to
      *   particular records (for example, restricting by a login id).
      *
-     *  @param  array  $request Data sent to server by DataTables
-     *  @param  array|PDO  $conn PDO connection resource or connection parameters array
-     *  @param  string  $table SQL table to query
-     *  @param  string  $primaryKey Primary key of the table
-     *  @param  array  $columns Column information array
-     *  @param  string  $whereResult WHERE condition to apply to the result set
-     *  @param  string  $whereAll WHERE condition to apply to all queries
-     *  @return array          Server-side processing response array
+     * @param  array  $request Data sent to server by DataTables
+     * @param  array|PDO  $conn PDO connection resource or connection parameters array
+     * @param  string  $table SQL table to query
+     * @param  string  $primaryKey Primary key of the table
+     * @param  array  $columns Column information array
+     * @param  string  $whereResult WHERE condition to apply to the result set
+     * @param  string  $whereAll WHERE condition to apply to all queries
+     * @return array          Server-side processing response array
      */
     public static function complex($request, $conn, $table, $primaryKey, $columns, $whereResult = null, $whereAll = null)
     {
@@ -401,7 +401,7 @@ class SSP
     /**
      * Execute an SQL query on the database
      *
-     * @param  resource  $db  Database handler
+     * @param  resource  $db Database handler
      * @param  array  $bindings Array of PDO binding values from bind() to be
      *   used for safely escaping strings. Note that this can be given as the
      *   SQL query string if no bindings are required.
@@ -462,7 +462,7 @@ class SSP
      * Create a PDO binding key which can be used for escaping variables safely
      * when executing a query with sql_exec()
      *
-     * @param  array  &$a    Array of bindings
+     * @param  array  &$a Array of bindings
      * @param  *      $val  Value to bind
      * @param  int  $type PDO field type
      * @return string       Bound key to be used in the SQL where this parameter
@@ -485,9 +485,9 @@ class SSP
      * Pull a particular property from each assoc. array in a numeric array,
      * returning and array of the property values from each item.
      *
-     *  @param  array  $a    Array to get data from
-     *  @param  string  $prop Property to read
-     *  @return array        Array of property values
+     * @param  array  $a Array to get data from
+     * @param  string  $prop Property to read
+     * @return array        Array of property values
      */
     public static function pluck($a, $prop)
     {

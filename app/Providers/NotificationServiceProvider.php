@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Http\Composers\NotificationComposer;
 use Illuminate\Support\ServiceProvider;
+use App\Http\Composers\NotificationComposer;
 
 class NotificationServiceProvider extends ServiceProvider
 {

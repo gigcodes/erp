@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use DB;
-use File;
 use App\Brand;
 use App\Product;
 use App\Setting;
@@ -15,7 +14,7 @@ use Plank\Mediable\Media;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Helpers\GuzzleHelper;
-use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class TemplatesController extends Controller
@@ -28,8 +27,6 @@ class TemplatesController extends Controller
     public function index()
     {
         $templates = \App\Template::orderBy('id', 'desc')->with('modifications:template_id,tag,value,row_index')->paginate(Setting::get('pagination'));
-
-        //   echo '<pre>';print_r($templates->toArray());die;
 
         return view('template.index', compact('templates'));
     }
@@ -58,30 +55,6 @@ class TemplatesController extends Controller
         $template->save();
 
         $tags = [];
-
-        // foreach ($request->modifications_array as $key => $row) {
-
-        //    foreach ($row as $tag => $value) {
-
-        //       if($tag !=='image_url')
-        //       {
-        //          $new_row[$tag]=$value;
-        //       }
-        //       else
-        //       {
-
-        //             $image=$request->file('files')[$key]['image_url'];
-
-        //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
-
-        //             $new_row[$tag]=($media) ? $media->getUrl() : "";
-
-        //       }
-        //    }
-
-        //    $new_modification_array[]=$new_row;
-
-        // }
 
         $body = ['name' => $request->name, 'tags' => $tags];
 
@@ -233,7 +206,6 @@ class TemplatesController extends Controller
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
 
-                    //  print_r($media);die;
                     $template->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -372,14 +344,11 @@ class TemplatesController extends Controller
     public function getImageByCurl($url)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $response = curl_exec($ch);
-        curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'report');
+        $result = Http::get($url);
+        $response = $result->json();
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $result->status(), TemplatesController::class, 'report');
 
         return $response;
     }

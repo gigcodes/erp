@@ -14,8 +14,8 @@ class CronController extends Controller
         if ($request->term != null || $request->date != null) {
             if ($request->term != null && $request->date != null) {
                 $crons = CronJob::where('signature', 'like', "%{$request->term}%")
-                        ->whereDate('created_at', $request->date)
-                        ->paginate(15);
+                    ->whereDate('created_at', $request->date)
+                    ->paginate(15);
             }
             if ($request->date != null) {
                 $crons = CronJob::whereDate('created_at', $request->date)->paginate(15);
@@ -34,8 +34,8 @@ class CronController extends Controller
     {
         if ($request->date != null) {
             $reports = CronJobReport::where('signature', 'like', "%{$id}%")
-                        ->whereDate('created_at', $request->date)
-                        ->paginate(15);
+                ->whereDate('created_at', $request->date)
+                ->paginate(15);
         } else {
             $reports = CronJobReport::where('signature', $id)->paginate(15);
         }
@@ -47,10 +47,9 @@ class CronController extends Controller
     {
         if ($request->date != null) {
             $reports = CronJobReport::where('signature', 'like', "%{$request->signature}%")
-                        ->whereDate('created_at', $request->date)
-                        ->paginate(15);
+                ->whereDate('created_at', $request->date)
+                ->paginate(15);
         } else {
-            //dd($request);
             $reports = CronJobReport::where('signature', $request->signature)->paginate(15);
         }
 
@@ -60,9 +59,9 @@ class CronController extends Controller
     public function getCronHistory(Request $request)
     {
         $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
-        ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
-        ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
-        ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->skip(($request->id - 1) * 15)->take(15)->get();
+            ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+            ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
+            ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->skip(($request->id - 1) * 15)->take(15)->get();
         $history = '';
         if (count($reports) > 0) {
             foreach ($reports as $report) {

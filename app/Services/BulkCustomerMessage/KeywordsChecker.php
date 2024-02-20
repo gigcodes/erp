@@ -19,8 +19,6 @@ class KeywordsChecker
             if (! $message) {
                 continue;
             }
-
-            //dump($message);
             $this->makeKeywordEntryForCustomer($customer, $message, $keywords);
         }
     }
@@ -34,7 +32,6 @@ class KeywordsChecker
 
         foreach ($keywords as $keyword) {
             $keywordValue = strtolower($keyword->value);
-            // dump($message . " => " .$keywordValue);
             if (stripos($message, $keywordValue) !== false) {
                 $dataToInsert[] = ['keyword_id' => $keyword->id, 'customer_id' => $customer->id];
             }
@@ -43,8 +40,6 @@ class KeywordsChecker
         if ($dataToInsert === []) {
             return;
         }
-
-        //dump($dataToInsert);
 
         DB::table('bulk_customer_replies_keyword_customer')->insert($dataToInsert);
         $customer->is_categorized_for_bulk_messages = 1;

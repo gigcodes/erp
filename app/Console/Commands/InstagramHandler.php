@@ -68,13 +68,11 @@ class InstagramHandler extends Command
                 $images_selected_no = 2;
                 foreach ($get_images as $key => $images) {
                     if ($key <= ($images_selected_no - 1)) {
-                        //$this->info($images);
                         $selected_images[] = $images;
                     }
                 }
                 $myRequest->request->add(['imageURI' => $selected_images]);
                 $myRequest->request->add(['captions' => $selected_caption]);
-                // $InstagramPostsController->postMultiple($myRequest);
                 $account->last_cron_time = Carbon::createFromFormat('Y-m-d H:i:s', Carbon::now());
                 $account->save();
             }

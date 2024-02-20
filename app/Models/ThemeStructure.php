@@ -32,10 +32,10 @@ class ThemeStructure extends Model
     public static function treeList()
     {
         return static::orderByRaw('-position DESC')
-                ->get()
-                ->nest()
-                ->setIndent('¦–– ')
-                ->listsFlattened('name');
+            ->get()
+            ->nest()
+            ->setIndent('¦–– ')
+            ->listsFlattened('name');
     }
 
     public function parent()

@@ -3,11 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use Carbon\Carbon;
 use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-
-//use InstagramAPI\Instagram;
 
 class FilterColdLeadByPostCount extends Command
 {

@@ -15,17 +15,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use App\CategoryCancellationPolicyLog;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware( 'permission:category-edit', [ 'only' => [ 'addCategory', 'edit', 'manageCategory', 'remove' ] ] );
-    }
-    //
-
     /**
      * Show the application dashboard.
      *
@@ -47,11 +41,11 @@ class CategoryController extends Controller
                             $query->with([
                                 'childsOrderByTitle' => function ($query) {
                                     $query->with('childsOrderByTitle'); // Add more levels as needed
-                                }
+                                },
                             ]);
-                        }
+                        },
                     ]);
-                }
+                },
             ])->where('title', 'like', '%' . $request->filter . '%')->paginate(1);
             $final_cat = [];
 
@@ -72,9 +66,6 @@ class CategoryController extends Controller
             }
             $categories = $final_cat;
         } else {
-            // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
-            //$categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id', 0)->orderBy('title');
-
             $categories = Category::with([
                 'childsOrderByTitle' => function ($query) {
                     $query->with([
@@ -82,15 +73,15 @@ class CategoryController extends Controller
                             $query->with([
                                 'childsOrderByTitle' => function ($query) {
                                     $query->with('childsOrderByTitle'); // Add more levels as needed
-                                }
+                                },
                             ]);
-                        }
+                        },
                     ]);
-                }
+                },
             ])
-            ->where('parent_id', 0)
-            ->orderBy('title')
-            ->paginate(1);
+                ->where('parent_id', 0)
+                ->orderBy('title')
+                ->paginate(1);
         }
 
         $old = $request->old('parent_id');
@@ -106,10 +97,12 @@ class CategoryController extends Controller
         return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit', 'selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
-    public function logCategory(Request $request){
+    public function logCategory(Request $request)
+    {
         $result = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
         $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
         $logRequestCount = \App\LogRequest::where('api_name', 'catalogCategoryCreate')->count();
+
         return view('category.log', compact('logRequest', 'logRequestCount'));
     }
 
@@ -154,7 +147,6 @@ class CategoryController extends Controller
             'show_all_id' => 'numeric|nullable',
         ]);
         $input = $request->all();
-        // dd($input);
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         Category::create($input);
@@ -358,9 +350,6 @@ class CategoryController extends Controller
             $parent_id = $category_instance->parent_id;
         }
 
-        //Adding root category.
-        //        array_push($categoryTree,'2');
-
         return array_reverse($categoryTree);
     }
 
@@ -406,9 +395,7 @@ class CategoryController extends Controller
             }
         }
 
-        //if(request()->is("ajax")) {
         return response()->json(['code' => 200]);
-        //}
 
         return redirect()->back()->with('message', 'Category updated successfully!');
     }
@@ -520,13 +507,12 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-            // $q        = '"' . $q . '"';
             $q = str_replace('/', ',', $q);
             $products = \App\ScrapedProducts::where('categories', $q)->join('products as p', 'p.id', 'scraped_products.product_id')
-            ->where('p.stock', '>', 0)->groupBy('website')
-            ->select('scraped_products.*')
-            ->orderBy('scraped_products.created_at', 'desc')
-            ->get();
+                ->where('p.stock', '>', 0)->groupBy('website')
+                ->select('scraped_products.*')
+                ->orderBy('scraped_products.created_at', 'desc')
+                ->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
 
@@ -722,83 +708,80 @@ class CategoryController extends Controller
         ]);
     }
 
-    
-    public function newCategoryReferenceGroup(Request $request){
-        
+    public function newCategoryReferenceGroup(Request $request)
+    {
         $categoryAll = Category::with('childs.childLevelSencond')
-                        ->where('title', 'NOT LIKE', '%Unknown Category%')
-                        ->where('magento_id', '!=', '0')
-                        ->get();
+            ->where('title', 'NOT LIKE', '%Unknown Category%')
+            ->where('magento_id', '!=', '0')
+            ->get();
 
-                        $categoryArray = [];
-                        foreach ($categoryAll as $category) {
-                            $categoryArray[] = [$category->title];
-                            $childs = $category->childs;
-                            foreach ($childs as $child) {
-                                $categoryArray[] = [$child->title];
-                                $grandChilds = $child->childLevelSencond;
-                                if ($grandChilds != null) {
-                                    foreach ($grandChilds as $grandChild) {
-                                        $categoryArray[] = [$grandChild->title];
-                                    }
-                                }
-                            }
-                        }
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = [$category->title];
+            $childs = $category->childs;
+            foreach ($childs as $child) {
+                $categoryArray[] = [$child->title];
+                $grandChilds = $child->childLevelSencond;
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = [$grandChild->title];
+                    }
+                }
+            }
+        }
 
-                        // Use array_map to extract the first element of each sub-array and convert to lowercase
-                        $categories = array_map(function ($subArray) {
-                            return strtolower($subArray[0]);
-                        }, $categoryArray);
+        // Use array_map to extract the first element of each sub-array and convert to lowercase
+        $categories = array_map(function ($subArray) {
+            return strtolower($subArray[0]);
+        }, $categoryArray);
 
-                        // Use array_unique to get unique values
-                        $uniqueCategories = array_unique($categories);
+        // Use array_unique to get unique values
+        $uniqueCategories = array_unique($categories);
 
-                        // Convert unique values back to an array of arrays
-                        $categoryAll = array_map(function ($category) {
-                            return [ucwords($category)]; // Convert first letter to uppercase if needed
-                        }, $uniqueCategories);
+        // Convert unique values back to an array of arrays
+        $categoryAll = array_map(function ($category) {
+            return [ucwords($category)]; // Convert first letter to uppercase if needed
+        }, $uniqueCategories);
 
         return view('category.new-reference-group', ['categoryAll' => $categoryAll]);
-
-    }
-    
-    public function newCategoryReferenceGroupBy(Request $request, $name, $threshold){
-
-                $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*')
-                                ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
-                                ->groupBy('scrapped_category_mappings.id')
-                                ->groupBy('scrapped_category_mappings.name')
-                                ->get()->filter(function ($scrapped_category_mapping) use ($name, $threshold) {
-                                    similar_text(strtolower($scrapped_category_mapping->name), strtolower($name), $percentage);
-                                    return $percentage >= $threshold * 100;
-                                });
-
-                $categoryAll = Category::with('childs.childLevelSencond')
-                                ->where('title', 'NOT LIKE', '%Unknown Category%')
-                                ->where('magento_id', '!=', '0')
-                                ->get();
-                        
-                        $categoryArray = [];
-                        foreach ($categoryAll as $category) {
-                            $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
-                            $childs = $category->childs;
-                            foreach ($childs as $child) {
-                                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
-                                $grandChilds = $child->childLevelSencond;
-                                if ($grandChilds != null) {
-                                    foreach ($grandChilds as $grandChild) {
-                                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
-                                    }
-                                }
-                            }
-                        }
-                        
-                $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-
-           return view('category.new-reference-group-listing', ['categories' => $scrapped_category_mapping, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id]);
-
     }
 
+    public function newCategoryReferenceGroupBy(Request $request, $name, $threshold)
+    {
+        $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*')
+            ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
+            ->groupBy('scrapped_category_mappings.id')
+            ->groupBy('scrapped_category_mappings.name')
+            ->get()->filter(function ($scrapped_category_mapping) use ($name, $threshold) {
+                similar_text(strtolower($scrapped_category_mapping->name), strtolower($name), $percentage);
+
+                return $percentage >= $threshold * 100;
+            });
+
+        $categoryAll = Category::with('childs.childLevelSencond')
+            ->where('title', 'NOT LIKE', '%Unknown Category%')
+            ->where('magento_id', '!=', '0')
+            ->get();
+
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
+            $childs = $category->childs;
+            foreach ($childs as $child) {
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
+                $grandChilds = $child->childLevelSencond;
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
+                    }
+                }
+            }
+        }
+
+        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+
+        return view('category.new-reference-group-listing', ['categories' => $scrapped_category_mapping, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id]);
+    }
 
     public function newCategoryReferenceIndex(Request $request)
     {
@@ -806,11 +789,11 @@ class CategoryController extends Controller
         $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
-        ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
-        ->groupBy('scrapped_category_mappings.id')
-        ->groupBy('scrapped_category_mappings.name')
-        ->orderBy('total_products', 'DESC')
-        ->orderBy('is_skip', 'ASC');
+            ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
+            ->groupBy('scrapped_category_mappings.id')
+            ->groupBy('scrapped_category_mappings.name')
+            ->orderBy('total_products', 'DESC')
+            ->orderBy('is_skip', 'ASC');
 
         if ($request->search) {
             $scrapped_category_mapping->where('name', 'LIKE', '%' . $request->search . '%');
@@ -829,16 +812,14 @@ class CategoryController extends Controller
         }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
-        //dd($scrapped_category_mapping);
-
         $mappingCategory = $scrapped_category_mapping->toArray();
 
         $mappedProduct = DB::table('scrapped_product_category_mappings')
-        ->select('category_mapping_id', 'scrapped_product_category_mappings.product_id', 'scraped_products.website')
-        ->leftJoin('scraped_products', 'scraped_products.id', '=', 'scrapped_product_category_mappings.product_id')
-        ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id'))
-        ->get()
-        ->toArray();
+            ->select('category_mapping_id', 'scrapped_product_category_mappings.product_id', 'scraped_products.website')
+            ->leftJoin('scraped_products', 'scraped_products.id', '=', 'scrapped_product_category_mappings.product_id')
+            ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id'))
+            ->get()
+            ->toArray();
 
         $mappedData = [];
 
@@ -852,9 +833,9 @@ class CategoryController extends Controller
         }
 
         $categoryAll = Category::with('childs.childLevelSencond')
-        ->where('title', 'NOT LIKE', '%Unknown Category%')
-        ->where('magento_id', '!=', '0')
-        ->get();
+            ->where('title', 'NOT LIKE', '%Unknown Category%')
+            ->where('magento_id', '!=', '0')
+            ->get();
 
         $categoryArray = [];
         foreach ($categoryAll as $category) {
@@ -965,7 +946,7 @@ class CategoryController extends Controller
         $loeggedUser = $request->user();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
-        ->whereNull('category_id');
+            ->whereNull('category_id');
 
         if ($request->show_skipeed_btn_value == 'false') {
             $scrapped_category_mapping->whereNull('category_id');
@@ -985,7 +966,6 @@ class CategoryController extends Controller
 
         $count = 0;
         if (! empty($links)) {
-            //$cat_name = array();
             foreach ($links as $scrappedCategoryId => $selectedCategoryId) {
                 if ($selectedCategoryId != 1) {
                     $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
@@ -1038,8 +1018,6 @@ class CategoryController extends Controller
 
         $items = $request->updated_category;
         if (! empty($items)) {
-            //$cat_name = array();
-
             foreach ($items as $scrappedCategoryId => $selectedCategoryId) {
                 if ($selectedCategoryId != 1) {
                     $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
@@ -1143,7 +1121,6 @@ class CategoryController extends Controller
         }
 
         if ($request->has('simplyduty_code')) {
-            // $category->simplyduty_code = $request->simplyduty_code;
             $findChild = \App\Category::whereNull('simplyduty_code')->where('parent_id', $category->id)->get();
             if (! empty($findChild) && ! $findChild->isEmpty()) {
                 foreach ($findChild as $child) {
@@ -1282,7 +1259,7 @@ class CategoryController extends Controller
         }
 
         return redirect()->route('category')
-                ->with('success-remove', 'Data Copyied Successfully');
+            ->with('success-remove', 'Data Copyied Successfully');
     }
 
     /**

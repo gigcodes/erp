@@ -76,7 +76,7 @@ class TestPushToMagento
         $upteamconditionsWithIds = [];
 
         $pushtomagento_condition = PushToMagentoCondition::where('status', 1)->OrWhere('upteam_status', 1)->get()->toArray();
-        foreach ($pushtomagento_condition  as $pmc_key => $pmc_data) {
+        foreach ($pushtomagento_condition as $pmc_key => $pmc_data) {
             if ($pmc_data['status'] == 1) {
                 $conditionsWithIds[$pmc_data['condition']] = $pmc_data['id'];
             } elseif ($pmc_data['upteam_status'] == 1) {
@@ -221,7 +221,6 @@ class TestPushToMagento
     private function condition_check_charity_and_size_chart()
     {
         // started to check the validation for the category size is available or not and if not then throw the error
-        //$categorym = $product->categories;
         $product = $this->_product;
         $website = $this->_website;
 

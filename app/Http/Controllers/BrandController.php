@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Brand;
-use App\Scraper;
 use App\Setting;
 use App\Activity;
 use App\Category;
@@ -21,20 +20,13 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BrandController extends Controller
 {
-    //
-
-    public function __construct()
-    {
-        //  $this->middleware('permission:brand-edit', ['only' => 'index', 'create', 'store', 'destroy', 'update', 'edit']);
-    }
-
     public function index()
     {
         $brands = Brand::leftJoin('store_website_brands as swb', 'swb.brand_id', 'brands.id')
-        ->leftJoin('store_websites as sw', 'sw.id', 'swb.store_website_id')
-        ->select(['brands.*', \DB::raw('group_concat(sw.id) as selling_on'), \DB::raw('LOWER(trim(brands.name)) as lower_brand')])
-        ->groupBy('brands.id')
-        ->orderBy('lower_brand', 'asc')->whereNull('brands.deleted_at');
+            ->leftJoin('store_websites as sw', 'sw.id', 'swb.store_website_id')
+            ->select(['brands.*', \DB::raw('group_concat(sw.id) as selling_on'), \DB::raw('LOWER(trim(brands.name)) as lower_brand')])
+            ->groupBy('brands.id')
+            ->orderBy('lower_brand', 'asc')->whereNull('brands.deleted_at');
 
         $keyword = request('keyword');
         if (! empty($keyword)) {
@@ -62,9 +54,9 @@ class BrandController extends Controller
         $devCheckboxs = $request->get('devCheckboxs');
 
         $brands = Brand::leftJoin('products as p', 'p.brand', 'brands.id')
-        ->select(['brands.*', \DB::raw('LOWER(trim(brands.name)) as lower_brand'), \DB::raw('COUNT(p.id) as total_products')])
-        ->groupBy('brands.id')
-        ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
+            ->select(['brands.*', \DB::raw('LOWER(trim(brands.name)) as lower_brand'), \DB::raw('COUNT(p.id) as total_products')])
+            ->groupBy('brands.id')
+            ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
 
         if ($devCheckboxs) {
             $brands->whereHas('brandTask', function ($q) use ($devCheckboxs) {
@@ -83,9 +75,9 @@ class BrandController extends Controller
         //Developers
 
         $allbrands = Brand::leftJoin('products as p', 'p.brand', 'brands.id')
-        ->select(['brands.*', \DB::raw('LOWER(trim(brands.name)) as lower_brand'), \DB::raw('COUNT(p.id) as total_products')])
-        ->groupBy('brands.id')
-        ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
+            ->select(['brands.*', \DB::raw('LOWER(trim(brands.name)) as lower_brand'), \DB::raw('COUNT(p.id) as total_products')])
+            ->groupBy('brands.id')
+            ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
 
         $alldevs = [];
         $developers = $allbrands->get();
@@ -200,7 +192,6 @@ class BrandController extends Controller
         ]);
 
         /*Generate keyword for Current Brand Only*/
-        // $brand_id_array = [$brand->id]; // If you want to enable string for only single brand then pass brand as array in below function
         $this->generateHashTagKeywords([]);
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
@@ -289,7 +280,6 @@ class BrandController extends Controller
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
         $sku = $product->sku . $product->color;
-//      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
             'special_price' => $product->price_eur_discounted,
@@ -350,8 +340,8 @@ class BrandController extends Controller
                 StoreWebsiteBrand::where('brand_id', $brandId)->whereNotIn('store_website_id', $website)->delete();
                 foreach ($website as $key => $web) {
                     $sbrands = StoreWebsiteBrand::where('brand_id', $brandId)
-                     ->where('store_website_id', $web)
-                     ->first();
+                        ->where('store_website_id', $web)
+                        ->first();
 
                     if (! $sbrands) {
                         $sbrands = new StoreWebsiteBrand;
@@ -499,14 +489,8 @@ class BrandController extends Controller
             } else {
                 return response()->json(['message' => 'Brand unmerged successfully'], 200);
             }
-            /*Activity::create([
-                'subject_type' => 'Brand',
-                'subject_id' => $fromBrand->id,
-                'causer_id' => Auth::user()->id,
-                'description' => Auth::user()->name.' has unmerged '.$fromBrand->name.' to '.$request->brand_name,
-            ]);*/
 
-            return response()->json(['message' => 'Brand unmerged successfully',  'data' => []], 200);
+            return response()->json(['message' => 'Brand unmerged successfully', 'data' => []], 200);
         }
 
         return response()->json(['code' => 500, 'data' => [], 'message' => 'Please check valid brand exist']);
@@ -515,17 +499,17 @@ class BrandController extends Controller
     public function storeCategorySegmentDiscount(Request $request)
     {
         $ps = \App\StoreWebsiteProductPrice::join('products', 'store_website_product_prices.product_id', 'products.id')
-        ->select(
-            'store_website_product_prices.id',
-            'store_website_product_prices.duty_price',
-            'store_website_product_prices.product_id',
-            'store_website_product_prices.store_website_id',
-            'websites.code'
-        )
-           ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
-           ->leftJoin('category_segment_discounts', 'store_website_product_prices.web_store_id', 'websites.id')
-           ->where('category_segment_discounts.brand_id', $request->brand_id)->where('category_segment_discounts.category_segment_id', $request->category_segment_id)
-           ->get(); //dd($ps);
+            ->select(
+                'store_website_product_prices.id',
+                'store_website_product_prices.duty_price',
+                'store_website_product_prices.product_id',
+                'store_website_product_prices.store_website_id',
+                'websites.code'
+            )
+            ->leftJoin('websites', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->leftJoin('category_segment_discounts', 'store_website_product_prices.web_store_id', 'websites.id')
+            ->where('category_segment_discounts.brand_id', $request->brand_id)->where('category_segment_discounts.category_segment_id', $request->category_segment_id)
+            ->get();
         if ($ps) {
             foreach ($ps as $p) {
                 \App\StoreWebsiteProductPrice::where('id', $p->id)->update(['status' => 0]);
@@ -572,9 +556,8 @@ class BrandController extends Controller
                 $brand_found = Brand::where('name', $brand_name)->get();
                 if (! $brand_found->isEmpty()) {
                     $media = MediaUploader::fromSource($files)
-                    ->toDirectory('brands')
-                    ->upload();
-                    // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                        ->toDirectory('brands')
+                        ->upload();
                     Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL') . '/brands/' . $image_name]);
                 }
             }
@@ -589,11 +572,10 @@ class BrandController extends Controller
     public function fetchlogos(Request $request)
     {
         try {
-            // $brand_data = Brand::paginate(Setting::get('pagination'));
             $brand_data = Brand::leftjoin('brand_with_logos', 'brands.id', 'brand_with_logos.brand_id')
-            ->leftjoin('brand_logos', 'brand_with_logos.brand_logo_image_id', 'brand_logos.id')
-            ->select('brands.id as brands_id', 'brands.name as brands_name', 'brand_logos.logo_image_name as brand_logos_image')
-            ->orderBy('brands.name', 'asc');
+                ->leftjoin('brand_logos', 'brand_with_logos.brand_logo_image_id', 'brand_logos.id')
+                ->select('brands.id as brands_id', 'brands.name as brands_name', 'brand_logos.logo_image_name as brand_logos_image')
+                ->orderBy('brands.name', 'asc');
 
             if ($request->brand_name) {
                 $search = '%' . $request->brand_name . '%';
@@ -632,11 +614,10 @@ class BrandController extends Controller
     public function get_all_images(Request $request)
     {
         try {
-            // $brand_data = BrandLogo::get();
             $brand_data = BrandLogo::leftjoin('brand_with_logos', 'brand_logos.id', 'brand_with_logos.brand_logo_image_id')
-            ->select('brand_logos.id as brand_logos_id', 'brand_logos.logo_image_name as brand_logo_image_name', 'brand_with_logos.id as brand_with_logos_id', 'brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id', 'brand_with_logos.brand_id as brand_with_logos_brand_id')
-            ->where('brand_logos.logo_image_name', 'like', '%' . $request->brand_name . '%')
-            ->get();
+                ->select('brand_logos.id as brand_logos_id', 'brand_logos.logo_image_name as brand_logo_image_name', 'brand_with_logos.id as brand_with_logos_id', 'brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id', 'brand_with_logos.brand_id as brand_with_logos_brand_id')
+                ->where('brand_logos.logo_image_name', 'like', '%' . $request->brand_name . '%')
+                ->get();
 
             return response()->json(['code' => 200, 'brand_logo_image' => $brand_data]);
         } catch (\Exception $e) {
@@ -728,12 +709,12 @@ class BrandController extends Controller
     public function update_store_website_product_prices($brand, $segment, $amount)
     {
         $ps = \App\StoreWebsiteProductPrice::select('store_website_product_prices.id', 'store_website_product_prices.segment_discount')
-                ->join('products', 'store_website_product_prices.product_id', 'products.id')
-                ->join('categories', 'products.category', 'categories.id')
-                ->join('category_segments', 'categories.category_segment_id', 'category_segments.id')
-                ->where('products.brand', $brand)
-                ->where('categories.category_segment_id', $segment)
-                ->get();
+            ->join('products', 'store_website_product_prices.product_id', 'products.id')
+            ->join('categories', 'products.category', 'categories.id')
+            ->join('category_segments', 'categories.category_segment_id', 'category_segments.id')
+            ->where('products.brand', $brand)
+            ->where('categories.category_segment_id', $segment)
+            ->get();
 
         if ($ps) {
             foreach ($ps as $p) {

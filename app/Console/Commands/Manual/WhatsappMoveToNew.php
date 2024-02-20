@@ -70,7 +70,6 @@ class WhatsappMoveToNew extends Command
                 number IS NOT NULL AND
                 created_at > DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)
         ';
-            // echo $sql;
             $rs = DB::select(DB::raw($sql));
 
             // Loop over customers

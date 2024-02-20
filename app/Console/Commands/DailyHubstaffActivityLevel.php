@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DailyHubstaffActivityLevel extends Command
@@ -71,16 +71,6 @@ class DailyHubstaffActivityLevel extends Command
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'HubstaffActivity record found']);
 
                 foreach ($activities as $act) {
-                    //STOPPED CERTAIN MESSAGES
-                    /*$actualPercentage = (float) ($act->total_spent * 100) / $act->total_track;
-                    // start to add report
-                    $hubsaffReport = [];
-                    if ($act->min_activity_percentage > 0 && ($act->min_activity_percentage > $actualPercentage)) {
-                        $userMessage = "Your Daily activity for date " . $checkDate . " is lower then " . $act->min_activity_percentage." Current : ".$actualPercentage;
-                        \App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
-                        $hubsaffReport[] = $act->user_name . " : Daily activity for date " . $checkDate . " is lower then " . $act->min_activity_percentage." Current : ".$actualPercentage;
-                    }*/
-
                     $hsn = new \App\Hubstaff\HubstaffActivityNotification;
                     $hsn->fill([
                         'user_id' => $act->erp_user_id,
@@ -95,10 +85,6 @@ class DailyHubstaffActivityLevel extends Command
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved hubstaff activity notification record']);
                 }
-
-                //STOPPED CERTAIN MESSAGES
-                //$message = implode(PHP_EOL, $hubsaffReport);
-                //\App\ChatMessage::sendWithChatApi('971502609192', null, $message);
             }
 
             $report->update(['end_time' => Carbon::now()]);

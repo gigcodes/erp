@@ -15,9 +15,9 @@ use App\Supplier;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use App\ColorReference;
-use App\ProductSupplier;
 use Illuminate\Http\Request;
 use App\SupplierBrandDiscount;
+use App\Models\DataTableColumn;
 use App\Imports\InventoryImport;
 use App\ProductDiscountExcelFile;
 use App\Jobs\UpdateFromSizeManager;
@@ -26,24 +26,15 @@ use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\DataTableColumn;
 
 class ProductInventoryController extends Controller
 {
-    public function __construct()
-    {
-        //		$this->middleware('permission:inventory-list',['only' => ['index']]);
-        //		$this->middleware('permission:inventory-edit',['only' => ['edit','stock']]);
-    }
-
     public function index(Stage $stage)
     {
         $products = Product::latest()
-                                            ->where('stock', '>=', 1)
-//		                   ->where('stage','>=',$stage->get('Approver') )
-                           ->whereNull('dnf')
-                                             ->select(['id', 'name', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at', 'category', 'color']);
-        //->limit(6);
+            ->where('stock', '>=', 1)
+            ->whereNull('dnf')
+            ->select(['id', 'name', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at', 'category', 'color']);
 
         $products_count = $products->count();
         $products = $products->paginate(Setting::get('pagination'));
@@ -51,8 +42,8 @@ class ProductInventoryController extends Controller
         $roletype = 'Inventory';
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control'])
-                                                ->selected(1)
-                                                ->renderAsDropdown();
+            ->selected(1)
+            ->renderAsDropdown();
 
         $categoryAll = Category::where('parent_id', 0)->get();
         foreach ($categoryAll as $category) {
@@ -113,8 +104,6 @@ class ProductInventoryController extends Controller
             }
         }
 
-        // dd($category_tree);
-
         // Flatten the $category_tree array into a 2-level array
         // Loop through each category and flatten its subcategories
         foreach ($category_tree as $category_id => $subcategories) {
@@ -128,18 +117,16 @@ class ProductInventoryController extends Controller
 
         $brands_array = Brand::getAll();
         $products_brands = Product::latest()
-                           ->where('stage', '>=', $stage->get('Approver'))
-                                             ->whereNull('dnf')
-                                             ->where('stock', '>=', 1)->get()
-                                             ->groupBy([function ($query) use ($brands_array) {
-                                                 if (isset($brands_array[$query->brand])) {
-                                                     return $brands_array[$query->brand];
-                                                 }
+            ->where('stage', '>=', $stage->get('Approver'))
+            ->whereNull('dnf')
+            ->where('stock', '>=', 1)->get()
+            ->groupBy([function ($query) use ($brands_array) {
+                if (isset($brands_array[$query->brand])) {
+                    return $brands_array[$query->brand];
+                }
 
-                                                 return 'Unknown Brand';
-                                             }, 'supplier', 'category']);
-
-        // dd($products_brands);
+                return 'Unknown Brand';
+            }, 'supplier', 'category']);
 
         $inventory_data = [];
 
@@ -161,8 +148,6 @@ class ProductInventoryController extends Controller
                 }
             }
         }
-
-        // dd($inventory_data);
 
         $categories_array = [];
         $categories = Category::all();
@@ -192,7 +177,6 @@ class ProductInventoryController extends Controller
         $product->save();
 
         if ($result) {
-            //		NotificaitonContoller::store('has Final Approved',['Admin'],$product->id);
             ActivityConroller::create($product->id, 'inventory', 'create');
 
             return back()->with('success', 'Product inventory has been updated');
@@ -224,7 +208,6 @@ class ProductInventoryController extends Controller
             if ($category->childs->count()) {
                 $childs = $category->childs;
                 foreach ($childs as $child) {
-                    // $category_children[] =  $child->id;
                     if ($child->childLevelSencond->count()) {
                         $grandChilds = $child->childLevelSencond;
                         foreach ($grandChilds as $grandChild) {
@@ -256,16 +239,16 @@ class ProductInventoryController extends Controller
         $productQuery->when(! empty($term), function ($e) use ($term) {
             $e->where(function ($q) use ($term) {
                 $q->where('sku', 'LIKE', "%$term%")
-                   ->orWhereHas('brands', function ($a) use ($term) {
-                       $a->where('name', 'LIKE', "%$term%");
-                   })->orwhereHas('product_category', function ($q) use ($term) {
-                       $q->where('title', 'LIKE', "%$term%");
-                   })
-                ->orWhere(function ($q) use ($term) {
-                    $arr_id = Product::STOCK_STATUS;
-                    $key = array_search(ucwords($term), $arr_id);
-                    $q->where('stock_status', $key);
-                });
+                    ->orWhereHas('brands', function ($a) use ($term) {
+                        $a->where('name', 'LIKE', "%$term%");
+                    })->orwhereHas('product_category', function ($q) use ($term) {
+                        $q->where('title', 'LIKE', "%$term%");
+                    })
+                    ->orWhere(function ($q) use ($term) {
+                        $arr_id = Product::STOCK_STATUS;
+                        $key = array_search(ucwords($term), $arr_id);
+                        $q->where('stock_status', $key);
+                    });
             });
         });
 
@@ -278,10 +261,9 @@ class ProductInventoryController extends Controller
         $selected_categories = $request->category ? $request->category : 1;
 
         $data['category_selection'] = Category::attr(['name' => 'category[]', 'class' => 'form-control'])
-                                                ->selected($selected_categories)
-                                                ->renderAsDropdown();
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
-//
         $stockStatus = $request->get('stock_status', '');
         if (! empty($stockStatus)) {
             $productQuery->where('stock_status', $stockStatus);
@@ -298,14 +280,7 @@ class ProductInventoryController extends Controller
         if ($request->get('in_pdf') === 'on') {
             $data['products'] = $productQuery->whereRaw("(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))")->get();
         } else {
-            // $sub_q = ProductSupplier::select('product_id')->where('supplier_id',11)->get()->pluck('product_id')->toArray();
             $data['products'] = $productQuery->whereRaw("(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))")->paginate(Setting::get('pagination'));
-
-            // $data[ 'products' ] = $productQuery->where(function($j) use($sub_q){
-            // 	$j->whereIn('products.id',$sub_q)->orWhere(function($q){
-            // 		$q->whereNotNull('location')->where('location','<>','');
-            // 	});
-            // })->paginate( Setting::get( 'pagination' ) );
         }
 
         $data['date'] = $request->date ? $request->date : '';
@@ -314,7 +289,7 @@ class ProductInventoryController extends Controller
         $data['locations'] = (new \App\ProductLocation())->pluck('name')->toArray() + ['In-Transit' => 'In-Transit'];
 
         $data['new_category_selection'] = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])
-                                                ->renderAsDropdown();
+            ->renderAsDropdown();
 
         $data['category_tree'] = [];
         $data['categories_array'] = [];
@@ -355,7 +330,7 @@ class ProductInventoryController extends Controller
         $term = $request->input('term');
         $data['term'] = $term;
 
-        $productQuery = ( new Product() )->newQuery()->latest();
+        $productQuery = (new Product())->newQuery()->latest();
         if ($request->brand[0] != null) {
             $productQuery = $productQuery->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
@@ -411,7 +386,7 @@ class ProductInventoryController extends Controller
         if (trim($term) != '') {
             $productQuery = $productQuery->where(function ($query) use ($term) {
                 $query->orWhere('sku', 'LIKE', "%$term%")
-                      ->orWhere('id', 'LIKE', "%$term%");
+                    ->orWhere('id', 'LIKE', "%$term%");
             });
 
             if ($term == -1) {
@@ -438,10 +413,8 @@ class ProductInventoryController extends Controller
         $selected_categories = $request->category ? $request->category : 1;
 
         $data['category_selection'] = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])
-                                                ->selected($selected_categories)
-                                                ->renderAsDropdown();
-
-        //		$data['products'] = $productQuery->paginate( Setting::get( 'pagination' ) );
+            ->selected($selected_categories)
+            ->renderAsDropdown();
 
         if ($request->get('shoe_size', false)) {
             $productQuery = $productQuery->where('products.size', 'like', '%' . $request->get('shoe_size') . '%');
@@ -465,8 +438,6 @@ class ProductInventoryController extends Controller
 
         $sku = $product->sku . $product->color;
         $result = false;
-
-        //		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
 
         if (! empty($product->size)) {
             $sizes_array = explode(',', $product->size);
@@ -493,7 +464,6 @@ class ProductInventoryController extends Controller
             $error_message = '';
             try {
                 $result = $proxy->catalogInventoryStockItemUpdate($sessionId, $sku, [
-                    //				'qty'         => 0,
                     'is_in_stock' => $stockQty ? 1 : 0,
                 ]);
             } catch (\Exception $e) {
@@ -647,8 +617,8 @@ class ProductInventoryController extends Controller
         $order = [];
         if ($product) {
             $order = \App\OrderProduct::where('product_id', $product->id)
-            ->join('orders as o', 'o.id', 'order_products.order_id')
-            ->select(['o.id', \DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck('client_name', 'id');
+                ->join('orders as o', 'o.id', 'order_products.order_id')
+                ->select(['o.id', \DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck('client_name', 'id');
         }
 
         $reply_categories = \App\ReplyCategory::whereHas('product_dispatch')->get();
@@ -692,8 +662,6 @@ class ProductInventoryController extends Controller
 
                     if ($order->customer) {
                         $customer = $order->customer;
-                        //$product->location =  null;
-                        //$product->save();
                     }
                 }
             } else {
@@ -781,7 +749,6 @@ class ProductInventoryController extends Controller
         $instruction->assigned_from = \Auth::user()->id;
         $instruction->assigned_to = $params['assign_to'];
         $instruction->product_id = $params['product_id'];
-        // $instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
         $instruction->order_id = isset($params['order_id']) ? $params['order_id'] : null;
         $instruction->save();
 
@@ -800,8 +767,8 @@ class ProductInventoryController extends Controller
         $locations = (new \App\ProductLocation())->pluck('name')->toArray();
         $product = \App\Product::where('id', $productId)->First();
         $history = \App\ProductLocationHistory::where('product_id', $productId)
-        ->orderBy('date_time', 'desc')
-        ->get();
+            ->orderBy('date_time', 'desc')
+            ->get();
 
         return view('instock.history_list', compact(['history', 'locations', 'product']));
     }
@@ -809,9 +776,6 @@ class ProductInventoryController extends Controller
     public function dispatchCreate()
     {
         $productId = request()->get('product_id', 0);
-        //$users = \App\User::all()->pluck("name","id");
-        //$product = \App\Product::where("id",$productId)->first();
-
         return view('instock.dispatch_create', compact(['productId', 'users', 'order']));
     }
 
@@ -823,7 +787,6 @@ class ProductInventoryController extends Controller
             'delivery_person' => 'required',
             'awb' => 'required',
             'eta' => 'required',
-            //'date_time' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -844,7 +807,7 @@ class ProductInventoryController extends Controller
                     $productDispatch->attachMedia($media, config('constants.media_tags'));
                 }
             } catch (\Exception $exception) {
-                // return response($exception->getMessage(), $exception->getCode());
+                //
             }
         }
 
@@ -956,7 +919,7 @@ class ProductInventoryController extends Controller
         // end for update request status
 
         $query = DB::table('products as p')
-                ->selectRaw('
+            ->selectRaw('
 				   sum(CASE WHEN p.category = ""
 			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
 			       sum(CASE WHEN p.color = ""
@@ -975,13 +938,13 @@ class ProductInventoryController extends Controller
 			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
-                ->where('p.supplier', '<>', '');
+            ->where('p.supplier', '<>', '');
         $query = $query->groupBy('p.supplier')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
         $reportData = $query->get();
 
         $scrapped_query = DB::table('scraped_products as p')
-                ->selectRaw('
+            ->selectRaw('
 				   sum(CASE WHEN p.category = ""
 			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
 			       sum(CASE WHEN p.color = ""
@@ -999,18 +962,15 @@ class ProductInventoryController extends Controller
 			       `p`.`supplier`,
 			       `p`.`website`
 				')
-                ->where('p.website', '<>', '');
+            ->where('p.website', '<>', '');
         $scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
         $scrappedReportData = $scrapped_query->get();
-        //dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
-        // $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
 
         foreach ($inventory_data as $product) {
             $product['medias'] = \App\Mediables::getMediasFromProductId($product['id']);
-            //			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
             $product_history = $product->productstatushistory;
 
             foreach ($product_history as $each) {
@@ -1037,28 +997,13 @@ class ProductInventoryController extends Controller
         }
 
         $selected_brand = null;
-        /*if ($request->brand_names) {
-            $selected_brand = Brand::select('id', 'name')->whereIn('id', $request->brand_names)->get();
-        }*/
         $selected_brand = Brand::select('id', 'name')->get();
 
         $selected_supplier = null;
-        /*if ($request->supplier) {
-            $selected_supplier = Supplier::select('id', 'supplier')->whereIn('id', $request->supplier)->get();
-        }*/
         $selected_supplier = Supplier::select('id', 'supplier')->get();
 
         $selected_categories = null;
-        /*if ($request->product_categories) {
-            $selected_categories = Category::select('id', 'title')->whereIn('id', $request->product_categories)->get();
-        }*/
         $selected_categories = Category::select('id', 'title')->get();
-
-        //        dd($brandsArray, $brandsArray);
-
-//        $brands_names        = \App\Brand::getAll();
-//        $products_names      = \App\Product::getPruductsNames();
-//        $products_sku        = \App\Product::getPruductsSku();
 
         $brands_names = $brandsArray;
         $products_names = $pname;
@@ -1066,15 +1011,13 @@ class ProductInventoryController extends Controller
 
         asort($products_names);
         asort($products_sku);
-        //$products_categories = \App\Product::getPruductsCategories();
-        //$products_categories = Category::attr(['name' => 'product_categories[]', 'data-placeholder' => 'Select a Category', 'class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories', []))->renderAsDropdown();
 
         $products_categories = [];
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'inventory-list')->first();
 
         $dynamicColumnsToShowPi = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPi = json_decode($hideColumns, true);
         }
 
@@ -1086,20 +1029,19 @@ class ProductInventoryController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','postman-listing')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'inventory-list';
-            $column->column_name = json_encode($request->column_pi); 
+            $column->column_name = json_encode($request->column_pi);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'inventory-list';
-            $column->column_name = json_encode($request->column_pi); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_pi);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -1109,7 +1051,6 @@ class ProductInventoryController extends Controller
     public function inventoryListNew(Request $request)
     {
         $filter_data = $request->input();
-        // $inventory_data = \App\Product::getProducts($filter_data);
         $selected_brand = null;
         $term = '';
         $inventory_data = \App\Product::join('store_website_product_attributes as swp', 'swp.product_id', 'products.id');
@@ -1147,10 +1088,10 @@ class ProductInventoryController extends Controller
         $inventory_data_count = $inventory_data->total();
 
         $totalProduct = \App\Supplier::join('scrapers as sc', 'sc.supplier_id', 'suppliers.id')
-                ->join('scraped_products as sp', 'sp.website', 'sc.scraper_name')
-                ->join('products as p', 'p.id', 'sp.product_id')
-                ->where('suppliers.supplier_status_id', 1)
-                ->select(\DB::raw('count(distinct p.id) as total'))->first();
+            ->join('scraped_products as sp', 'sp.website', 'sc.scraper_name')
+            ->join('products as p', 'p.id', 'sp.product_id')
+            ->where('suppliers.supplier_status_id', 1)
+            ->select(\DB::raw('count(distinct p.id) as total'))->first();
 
         $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
 
@@ -1159,14 +1100,6 @@ class ProductInventoryController extends Controller
         $productUpdated = ($productUpdated) ? $productUpdated->total : 0;
 
         $history = \App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
-        /*$date=date('Y-m-d');
-        $date=date("Y-m-d",strtotime($date . ' - 1 day'));
-        for($count=0;$count<7;$count++)
-        {
-            $nStock = \App\InventoryStatusHistory::whereDate('date' ,'=',$date )->select(\DB::raw("count(distinct product_id) as total"))->first();
-            $history[] = ['date'=>$date,'productUpdated'=>($nStock) ? $nStock->total : 0];
-            $date = date("Y-m-d",strtotime($date . ' - 1 day'));
-        }*/
 
         if (request()->ajax()) {
             return view('product-inventory.inventory-list-partials.load-more-new', compact('inventory_data', 'noofProductInStock', 'productUpdated', 'totalProduct', 'selected_brand', 'term'));
@@ -1178,7 +1111,7 @@ class ProductInventoryController extends Controller
     public function downloadReport()
     {
         $query = DB::table('products as p')
-                ->selectRaw('
+            ->selectRaw('
 				   sum(CASE WHEN p.category = ""
 			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
 			       sum(CASE WHEN p.color = ""
@@ -1197,7 +1130,7 @@ class ProductInventoryController extends Controller
 			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
-                ->where('p.supplier', '<>', '');
+            ->where('p.supplier', '<>', '');
         $query = $query->groupBy('p.supplier')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
         $reportDatas = $query->get();
@@ -1208,7 +1141,7 @@ class ProductInventoryController extends Controller
     public function downloadScrapReport()
     {
         $query = DB::table('scraped_products as p')
-                ->selectRaw('
+            ->selectRaw('
 				   sum(CASE WHEN p.category = ""
 			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
 			       sum(CASE WHEN p.color = ""
@@ -1225,7 +1158,7 @@ class ProductInventoryController extends Controller
 			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
 			       `p`.`supplier`
 				')
-                ->where('p.supplier', '<>', '');
+            ->where('p.supplier', '<>', '');
         $query = $query->groupBy('p.supplier')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
         $reportDatas = $query->get();
@@ -1288,7 +1221,6 @@ class ProductInventoryController extends Controller
             $html = '<h1>No product found</h1>';
         }
 
-        //return response()->json(['site_medias' => $site_medias]);
         return response()->json(['html' => $html]);
     }
 
@@ -1309,7 +1241,6 @@ class ProductInventoryController extends Controller
                         $euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $productSupplier->size_system);
                         $product->size_eu = implode(',', $euSize);
                         if (empty($euSize)) {
-                            //$product->size_system = "";
                             $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
                             $errorMessages[] = "$product->sku has issue with size";
                         } else {
@@ -1351,7 +1282,7 @@ class ProductInventoryController extends Controller
 
             // check size exist or not
             if (! empty($erpSizes)) {
-                foreach ($erpSizes as  $k => $epSize) {
+                foreach ($erpSizes as $k => $epSize) {
                     $existSize = \App\SystemSizeManager::where('category_id', $categoryId)->where('erp_size', $epSize)->first();
 
                     if (! $existSize) {
@@ -1364,9 +1295,9 @@ class ProductInventoryController extends Controller
 
                     if (isset($sizes[$k])) {
                         $checkMainSize = \App\SystemSizeRelation::where('system_size_manager_id', $sizeSystem->id)
-                        ->where('system_size', $existSize->id)
-                        ->where('size', $sizes[$k])
-                        ->first();
+                            ->where('system_size', $existSize->id)
+                            ->where('size', $sizes[$k])
+                            ->first();
 
                         if (! $checkMainSize) {
                             $checkMainSize = new \App\SystemSizeRelation;
@@ -1480,11 +1411,6 @@ class ProductInventoryController extends Controller
 
     public function supplierProductHistoryWithView(Request $request)
     {
-        /*$inventory = \App\InventoryStatusHistory::select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-            ->whereDate('inventory_status_histories.created_at','>=', Carbon::now()->subDays(7))
-            ->where('in_stock','>',0)
-            ->groupBy('inventory_status_histories.supplier_id');*/
-
         $suppliers = \App\Supplier::pluck('supplier', 'id')->toArray();
         $selectedDate = Carbon::now()->subDays(7);
         $dataToInsert = [];
@@ -1492,9 +1418,9 @@ class ProductInventoryController extends Controller
             $inventoryHistoryView = \App\InventoryStatusHistory::where('inventory_status_histories.created_at', 'like', $date . '%')->first();
             if ($inventoryHistoryView == null) {
                 $inventory = \App\InventoryStatusHistory::leftjoin('scrapers', 'scrapers.supplier_id', '=', 'inventory_status_histories.supplier_id')->select('inventory_status_histories.created_at', 'inventory_status_histories.supplier_id', 'scrapers.last_completed_at', DB::raw('count(distinct product_id) as product_count_count'))
-                ->whereDate('inventory_status_histories.created_at', '=', $selectedDate)
-                ->where('in_stock', '>', 0)
-                ->groupBy('inventory_status_histories.supplier_id');
+                    ->whereDate('inventory_status_histories.created_at', '=', $selectedDate)
+                    ->where('in_stock', '>', 0)
+                    ->groupBy('inventory_status_histories.supplier_id');
 
                 if ($request->supplier and $request->supplier != '') {
                     $inventory = $inventory->where('inventory_status_histories.supplier_id', $request->supplier);
@@ -1518,12 +1444,12 @@ class ProductInventoryController extends Controller
                         $newRow['supplier_name'] = $suppliers[$row->supplier_id];
                     }
                     $brandCount = \App\InventoryStatusHistory::join('products as p', 'p.id', 'inventory_status_histories.product_id')
-                    ->whereDate('inventory_status_histories.created_at', '>=', $selectedDate)
-                    ->where('inventory_status_histories.supplier_id', $row->supplier_id)
-                    ->groupBy('p.brand')
-                    ->select(\DB::raw('count(p.brand) as total'))
-                    ->get()
-                    ->count();
+                        ->whereDate('inventory_status_histories.created_at', '>=', $selectedDate)
+                        ->where('inventory_status_histories.supplier_id', $row->supplier_id)
+                        ->groupBy('p.brand')
+                        ->select(\DB::raw('count(p.brand) as total'))
+                        ->get()
+                        ->count();
 
                     $newRow['brands'] = $brandCount;
                     $newRow['products'] = $row->product_count_count;
@@ -1531,10 +1457,9 @@ class ProductInventoryController extends Controller
                     $newRow['last_scrapped_on'] = $row->last_completed_at;
 
                     foreach ($columnData as $c) {
-                        // code...
                         $totalProduct = \App\InventoryStatusHistory::whereDate('created_at', $c)
-                        ->where('supplier_id', $row->supplier_id)
-                        ->select(\DB::raw('count(distinct product_id) as total_product'))->first();
+                            ->where('supplier_id', $row->supplier_id)
+                            ->select(\DB::raw('count(distinct product_id) as total_product'))->first();
                         $newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
 
                         $dataToInsert[] = ['supplier_id' => $row->supplier_id, 'supplier_name' => $newRow['supplier_name'], 'last_scrapped_on' => $newRow['last_scrapped_on'], 'products' => $newRow['products'], 'brands' => $newRow['brands'], 'date' => $c, 'count' => $newRow['dates'][$c]];
@@ -1569,11 +1494,6 @@ class ProductInventoryController extends Controller
             ->where('in_stock', '>', 0)
             ->groupBy('inventory_status_histories.supplier_id');
 
-        /*$inventory = \App\InventoryStatusHistory::select('inventory_status_histories.created_at','inventory_status_histories.supplier_id', DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-            ->whereDate('inventory_status_histories.created_at','>=', Carbon::now()->subDays(7))
-            ->where('in_stock','>',0)
-            ->groupBy('inventory_status_histories.supplier_id');*/
-
         if ($request->supplier) {
             $inventory = $inventory->where('inventory_status_histories.supplier_id', $request->supplier);
         }
@@ -1597,11 +1517,11 @@ class ProductInventoryController extends Controller
             }
 
             $brandCount = \App\InventoryStatusHistory::join('products as p', 'p.id', 'inventory_status_histories.product_id')->whereDate('inventory_status_histories.created_at', '>', Carbon::now()->subDays(7))->where('inventory_status_histories.supplier_id', $row->supplier_id)
-            ->where('in_stock', '>', 0)
-            ->groupBy('p.brand')
-            ->select(\DB::raw('count(p.brand) as total'))
-            ->get()
-            ->count();
+                ->where('in_stock', '>', 0)
+                ->groupBy('p.brand')
+                ->select(\DB::raw('count(p.brand) as total'))
+                ->get()
+                ->count();
 
             $newRow['brands'] = $brandCount;
             $newRow['products'] = $row->product_count_count;
@@ -1609,7 +1529,6 @@ class ProductInventoryController extends Controller
             $newRow['last_scrapped_on'] = $row->last_completed_at;
 
             foreach ($columnData as $c) {
-                // code...
                 $totalProduct = \App\InventoryStatusHistory::whereDate('created_at', $c)->where('supplier_id', $row->supplier_id)->select(\DB::raw('count(distinct product_id) as total_product'))->first();
                 $newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
             }
@@ -1676,8 +1595,6 @@ class ProductInventoryController extends Controller
         $id = $request->id;
         $excel_data = ProductDiscountExcelFile::join('users', 'users.id', 'product_discount_excel_files.user_id')->select('product_discount_excel_files.*', 'users.name')->get();
 
-        // dd($excel_data);
-
         return view('product-inventory.discount-files', compact('suppliers', 'rows', 'brand_data', 'request', 'excel_data'));
     }
 
@@ -1720,26 +1637,14 @@ class ProductInventoryController extends Controller
         }
 
         try {
-            // 20148 starting
-            // $get_data = SupplierBrandDiscount::limit(8)->get();
-
-            // $data_arr = array();
-
-            // foreach($get_data as $key => $val){
-            // 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['generic_price'] = $val->generic_price;
-            // 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail'] = $val->condition_from_retail;
-            // 	$data_arr[$val->brand_id][$val->supplier_id][$val->gender][$val->category]['condition_from_retail_exceptions'] = $val->condition_from_retail_exceptions;
-            // }
             $ogfilename = $file->getClientOriginalName();
 
             $fileName_array = rtrim($ogfilename, '.xlsx');
-            // $filename_array = explode("." ,$ogfilename);
             $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
 
             $params_file['excel_name'] = $fileName;
             $params_file['user_id'] = \Auth::user()->id;
 
-            // 20148 ending
             $spreadsheet = $reader->load($file->getPathname());
 
             $rows = $spreadsheet->getActiveSheet()->toArray();
@@ -1763,7 +1668,6 @@ class ProductInventoryController extends Controller
                     }
 
                     $discount = new SupplierBrandDiscount();
-                    // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->whereNull('generic_price')->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $row[5])->first();
                     $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->first();
                     if ($row[4] != '') {
                         $segments = CategorySegment::where('status', 1)->get();
@@ -1814,7 +1718,6 @@ class ProductInventoryController extends Controller
                         $discount->brand_id = $brand->id;
                         $discount->gender = $row[1];
                         $discount->category = $row[2];
-                        // $discount->generic_price = $row['generic_price'];
                         $discount->exceptions = $row[3];
                         $discount->condition_from_retail = $row[4];
                         $discount->condition_from_retail_exceptions = $row[5];
@@ -1854,15 +1757,6 @@ class ProductInventoryController extends Controller
                     if ($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2) {
                         continue;
                     }
-
-                    // $row_1 = (isset($row[1]) &&  $row[1] != null ? $row[1] : '-');
-                    // $row_2 = (isset($row[2]) &&  $row[2] != null ? $row[2] : '-');
-
-                    // $row_4 = (isset($row[4]) &&  $row[4] != null ? $row[4] : '-');
-                    // $row_5 = (isset($row[5]) &&  $row[5] != null ? $row[5] : '-');
-
-                    // $array1[] = [$row_1, $row_2];
-                    // $array2[] = [$row_4, $row_5];
 
                     $array1[] = [$row[1], $row[2]];
                     $array2[] = [$row[4], $row[5]];
@@ -1944,11 +1838,9 @@ class ProductInventoryController extends Controller
                                     'name' => $brand_name,
                                 ];
                                 $brand = Brand::create($params_brand);
-                                // continue;
                             }
 
                             $discount = new SupplierBrandDiscount();
-                            // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
 
                             $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
 
@@ -2017,8 +1909,6 @@ class ProductInventoryController extends Controller
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             } else {
-                                // $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price  : $brand->deduction_percentage.'%');
-
                                 $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
                                 $discount->supplier_id = $request->supplier;
@@ -2120,7 +2010,6 @@ class ProductInventoryController extends Controller
                     foreach ($cats as $key => $cat) {
                         if ($key == 1) {
                             $category = trim($cat[0]);
-                            //$gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
                             $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : (strpos($category, 'MAN') !== false ? 'MAN' : '');
                             $category = str_replace(' + ACC', '', $category);
 
@@ -2148,10 +2037,6 @@ class ProductInventoryController extends Controller
                             $brand_name = $cat[0];
 
                             $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
-
-                            // $brand = Brand::where('name', $brand)->first();
-                            //$brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
-
                             $brand = Brand::where('name', $brand_name)->first();
 
                             if (! $brand) {
@@ -2182,7 +2067,6 @@ class ProductInventoryController extends Controller
                             }
 
                             $discount = new SupplierBrandDiscount();
-                            // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
 
                             $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
 
@@ -2386,7 +2270,6 @@ class ProductInventoryController extends Controller
                                 }
                             }
                             $discount = new SupplierBrandDiscount();
-                            // $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
 
                             $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->first();
 
@@ -2522,8 +2405,6 @@ class ProductInventoryController extends Controller
             $condition_from_retail_index = $request->condition_from_retail_dropdown;
             $condition_from_exceptions_index = $request->condition_from_exceptions_dropdown;
             $column_index = $request->column_index;
-
-            // dd($brand_index,$gender_index,$category_index,$exceptions_index,$generice_price_index,$condition_from_retail_index,$condition_from_exceptions_index);
 
             $ogfilename = $file->getClientOriginalName();
 
@@ -2757,67 +2638,67 @@ class ProductInventoryController extends Controller
         }
     }
 
-     // Inventory sold out products list
-     public function getStockwithZeroQuantity(Request $request)
-     {
-         if ($request->ajax()) {
-             $products = \App\InventoryStatusHistory::query();
-             $products->with('product', 'supplier');
+    // Inventory sold out products list
+    public function getStockwithZeroQuantity(Request $request)
+    {
+        if ($request->ajax()) {
+            $products = \App\InventoryStatusHistory::query();
+            $products->with('product', 'supplier');
 
-             if (isset($request->id) && ! empty($request->id)) {
-                 $products = $products->where('product_id', $request->id);
-             }
-             if (isset($request->name) && ! empty($request->name)) {
-                 $products->select('inventory_status_histories.*')->leftjoin('products as p1', 'p1.id', 'inventory_status_histories.product_id')->
-                 where('p1.name', $request->name);
-             }
+            if (isset($request->id) && ! empty($request->id)) {
+                $products = $products->where('product_id', $request->id);
+            }
+            if (isset($request->name) && ! empty($request->name)) {
+                $products->select('inventory_status_histories.*')->leftjoin('products as p1', 'p1.id', 'inventory_status_histories.product_id')->
+                where('p1.name', $request->name);
+            }
 
-             if (isset($request->sku) && ! empty($request->sku)) {
-                 $products->select('inventory_status_histories.*')->leftjoin('products as p2', 'p2.id', 'inventory_status_histories.product_id')->
-                 where('p2.sku', $request->sku);
-             }
+            if (isset($request->sku) && ! empty($request->sku)) {
+                $products->select('inventory_status_histories.*')->leftjoin('products as p2', 'p2.id', 'inventory_status_histories.product_id')->
+                where('p2.sku', $request->sku);
+            }
 
-             $products->where('in_stock', 1)
-                          ->groupBy('product_id')
-                          ->orderBy('created_at', 'desc');
+            $products->where('in_stock', 1)
+                ->groupBy('product_id')
+                ->orderBy('created_at', 'desc');
 
-             return Datatables::of($products)
-             ->addIndexColumn()
-             ->addColumn('product_name', function ($row) {
-                 $product = $row->product ? $row->product->name : 'N/A';
+            return Datatables::of($products)
+                ->addIndexColumn()
+                ->addColumn('product_name', function ($row) {
+                    $product = $row->product ? $row->product->name : 'N/A';
 
-                 return $product;
-             })
-             ->addColumn('sku', function ($row) {
-                 $product = $row->product ? $row->product->sku : 'N/A';
+                    return $product;
+                })
+                ->addColumn('sku', function ($row) {
+                    $product = $row->product ? $row->product->sku : 'N/A';
 
-                 return $product;
-             })
-             ->addColumn('action', function ($row) {
-                 $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-product-id="' . $row->product_id . '" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
+                    return $product;
+                })
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-product-id="' . $row->product_id . '" class="get-product-log-detail btn btn-warning btn-sm"><i class="fa fa-list fa-sm"></i></a>&nbsp;';
 
-                 return $actionBtn;
-             })
-             ->rawColumns(['action', 'product_name', 'sku'])
-             ->make(true);
-         }
+                    return $actionBtn;
+                })
+                ->rawColumns(['action', 'product_name', 'sku'])
+                ->make(true);
+        }
 
-         return view('product-inventory.out-of-stock');
-     }
+        return view('product-inventory.out-of-stock');
+    }
 
-     // Inventory sold out product history list
-     public function outOfStockProductLog(Request $request)
-     {
-         $product = $request->product;
-         if ($product) {
-             $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
-             $productName = $productsLog[0]->product ? $productsLog[0]->product->name : 'N/A';
-             $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : 'N/A';
-             $response = (string) view('product-inventory.out-of-stock-product-log', compact('productsLog'));
+    // Inventory sold out product history list
+    public function outOfStockProductLog(Request $request)
+    {
+        $product = $request->product;
+        if ($product) {
+            $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
+            $productName = $productsLog[0]->product ? $productsLog[0]->product->name : 'N/A';
+            $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : 'N/A';
+            $response = (string) view('product-inventory.out-of-stock-product-log', compact('productsLog'));
 
-             return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
-         } else {
-             return response()->json(['success' => false, 'msg' => 'No product history found']);
-         }
-     }
+            return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
+        } else {
+            return response()->json(['success' => false, 'msg' => 'No product history found']);
+        }
+    }
 }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Zabbix;
 
-use App\Zabbix\ZabbixApi;
-use App\Zabbix\ZabbixException;
 use Exception;
-use Illuminate\Routing\Controller;
+use App\Zabbix\ZabbixApi;
 use Illuminate\Http\Request;
 use App\Models\Zabbix\Trigger;
+use App\Zabbix\ZabbixException;
+use Illuminate\Routing\Controller;
 
 class TriggerController extends Controller
 {
@@ -25,10 +25,9 @@ class TriggerController extends Controller
         $trigger = new Trigger();
 
         $triggers = array_reverse($trigger->getAll());
-        $count = sizeof($triggers);
+        $count = count($triggers);
         $triggers = array_slice($triggers, $page * 20, 20);
         $templates = $trigger->getAllTemplates();
-
 
         array_map(function ($trigger) {
             $zbxTrigger = $this->zabbix->call('trigger.get', ['triggerids' => $trigger->getTemplateId()]);
@@ -42,7 +41,7 @@ class TriggerController extends Controller
                 'triggers' => $triggers,
                 'count' => $count,
                 'page' => $page,
-                'templates' => $templates
+                'templates' => $templates,
             ]);
         }
 
@@ -50,12 +49,11 @@ class TriggerController extends Controller
             'triggers' => $triggers,
             'count' => $count,
             'page' => $page,
-            'templates' => $templates
+            'templates' => $templates,
         ]);
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function save(Request $request)
@@ -64,8 +62,8 @@ class TriggerController extends Controller
 
         try {
             $item = new Trigger();
-            $itemId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $itemId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $item = $item->getById($itemId);
             }
 
@@ -75,25 +73,22 @@ class TriggerController extends Controller
             $item->setSeverity($data['severity'] ?? 1);
 
             $item->save();
-        }
-        catch (ZabbixException $zabbixException)
-        {
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $item->getName()),
             'item' => $item,
-            'code' => 200
+            'code' => 200,
         ]);
     }
 
@@ -103,33 +98,30 @@ class TriggerController extends Controller
 
         try {
             $trigger = new Trigger();
-            $triggerId = (int)$data['id'] ?? null;
-            if (!empty($data['id'])) {
+            $triggerId = (int) $data['id'] ?? null;
+            if (! empty($data['id'])) {
                 $trigger = $trigger->getById($triggerId);
             } else {
                 throw new ZabbixException(sprintf('Trigger with id: %s not found.', $triggerId));
             }
 
-            $trigger->changeStatus(!$trigger->isActive());
-        }
-        catch (ZabbixException $zabbixException)
-        {
+            $trigger->changeStatus(! $trigger->isActive());
+        } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500
+                'code' => 500,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $trigger->getName()),
             'trigger' => $trigger,
-            'code' => 200
+            'code' => 200,
         ]);
     }
 }
