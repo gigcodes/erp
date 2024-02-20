@@ -14,14 +14,16 @@ class AppointmentFound
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $newAppointments;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($newAppointments)
     {
-        //
+        $this->newAppointments = $newAppointments;
     }
 
     /**
@@ -31,6 +33,6 @@ class AppointmentFound
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user.' . auth()->id());
+        return new PrivateChannel('user-' . auth()->id());
     }
 }

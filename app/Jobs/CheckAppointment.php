@@ -9,9 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CheckAppointment implements ShouldQueue
+class CheckAppointment
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -30,10 +30,8 @@ class CheckAppointment implements ShouldQueue
      */
     public function handle()
     {
-        $user = Auth::user();
-
-        if ($user->isNotEmpty()) {
-            event(new \App\Events\AppointmentFound($user));
-        }
+        $data = ['data' => []];
+        \Log::info('job triggered');
+        event(new \App\Events\AppointmentFound($data));
     }
 }

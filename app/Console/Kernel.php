@@ -337,7 +337,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('insert-varnish-records')->everyFiveMinutes();
         $schedule->command('compare-scrapper-images')->dailyAt('23:58');
 
-        $schedule->job(new CheckAppointment)->everySecond();
+        $schedule->call(function () {
+            \Log::info('kernal triggered');
+            dispatch(new CheckAppointment());
+        })->everyMinute();
     }
 
     /**`

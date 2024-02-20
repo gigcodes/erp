@@ -4505,6 +4505,36 @@
     <script src="{{asset("js/email-alert-echo.js?v=0.1")}}"></script>
 @endif
 
+<script>
+$(document).ready(function () {
+
+    if(config.pusher.key) {
+
+
+        if (!window.Echo) {
+            console.log('craetin echo instance');
+            window.Echo = new Echo({
+                broadcaster: 'pusher',
+                key: config.pusher.key,
+                cluster: config.pusher.cluster,
+                forceTLS: true,
+                wsHost: window.location.hostname,
+                wsPort: 6001,
+                forceTLS: false,
+                disableStats: true,
+            });
+        }
+        console.log('exist echo instance');
+
+        window.Echo.private('user-{{ Auth::id()}}')
+        .listen('.test', (e) => {
+            console.log('broadcast',e);
+        });
+
+    }
+});
+</script>
+
 </body>
 
 </html>
