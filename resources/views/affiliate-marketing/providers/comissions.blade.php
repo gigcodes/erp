@@ -46,12 +46,12 @@
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-image">
-                                    <img src="/images/filter.png"/>
+                                    <img src="/images/filter.png" />
                                 </button>
                                 <button type="reset"
                                         onclick="window.location='{{route('affiliate-marketing.provider.commission.index', ['provider_account' => $provider->id])}}'"
                                         class="btn btn-image" id="resetFilter">
-                                    <img src="/images/resend2.png"/>
+                                    <img src="/images/resend2.png" />
                                 </button>
                             </div>
                         </div>
@@ -106,11 +106,11 @@
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.commission.approveDisapprove', [$providersCommission->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
                         @if($providersCommission->approved)
                             <button type="submit" class="btn btn-image">
-                                <img src="/images/icons-delete.png"/>
+                                <img src="/images/icons-delete.png" />
                             </button>
                         @else
                             <button type="submit" class="btn btn-image">
-                                <img src="/images/icons-checkmark.png"/>
+                                <img src="/images/icons-checkmark.png" />
                             </button>
                         @endif
                         {!! Form::close() !!}
@@ -130,7 +130,7 @@
                     </div>
                     <form id="add-group-form" method="POST"
                           action="{{route('affiliate-marketing.provider.commission.update', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
+                        @csrf
                         <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
                         <input type="hidden" id="commission_id" name="commission_id" value="">
                         <div class="form-group row">
@@ -160,22 +160,22 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
-        function editData(id) {
-            let url = "{{ route('affiliate-marketing.provider.commission.get', [":id", 'provider_account' => $provider->id]) }}";
-            url = url.replace(':id', id);
-            $.ajax({
-                url,
-                type: 'GET',
-                success: function (response) {
-                    if (!response.status) {
-                        toastr["error"](response.message);
-                        $('#update-commission').modal('hide');
-                    } else {
-                        $('#add-group-form [name="amount"]').val(response.data.amount);
-                        $('#add-group-form [name="commission_id"]').val(response.data.id);
-                    }
-                }
-            })
-        }
+      function editData(id) {
+        let url = "{{ route('affiliate-marketing.provider.commission.get', [":id", 'provider_account' => $provider->id]) }}";
+        url = url.replace(":id", id);
+        $.ajax({
+          url,
+          type: "GET",
+          success: function(response) {
+            if (!response.status) {
+              toastr["error"](response.message);
+              $("#update-commission").modal("hide");
+            } else {
+              $("#add-group-form [name=\"amount\"]").val(response.data.amount);
+              $("#add-group-form [name=\"commission_id\"]").val(response.data.id);
+            }
+          }
+        });
+      }
     </script>
 @endsection

@@ -120,7 +120,7 @@
                     </div>
                     <form id="add-site-provider-form" method="POST"
                           action="{{route('affiliate-marketing.createProviderAccount')}}">
-                        {{csrf_field()}}
+                        @csrf
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">Select Provider</label>
                             <div class="col-sm-10">

@@ -32,7 +32,7 @@
                                 
                             </div>
                             <div class="col-md-4">
-                            <?php echo Form::select("type",["" => "Select Type", "affiliate" => "Affiliate" , "influencer" => "Influencer"],request('type'),["class" =>"form-control type-filter"]) ?>
+                                {!! Form::select("type",["" => "Select Type", "affiliate" => "Affiliate" , "influencer" => "Influencer"],request('type'),["class" =>"form-control type-filter"]) !!}
                             </div>
                             <div class="col-md-4">
                                <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>

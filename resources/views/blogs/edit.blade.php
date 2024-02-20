@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', __('Update Blog'))
-@section('styles')
 @section("styles")
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="{{ asset('css/fm-tagator.css') }}">
@@ -18,7 +17,6 @@
 			width: 300px;
 		}
 	</style>
-@endsection
 @endsection
 @section('scripts')
 {{--  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>  --}}

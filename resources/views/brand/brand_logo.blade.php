@@ -28,10 +28,10 @@
 @endsection
 
 @section('content')
-<?php
+@php
 $query = http_build_query(Request::except('page'));
 $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
-?>
+@endphp
 <div class="ajax-loader" style="display: none;">
     <div class="inner_loader">
     <img src="{{ asset('/images/loading2.gif') }}">

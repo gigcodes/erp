@@ -87,18 +87,18 @@
                     <th width="20%">Erp Category</th>
                     <th width="20%">Action</th>
                 </tr>
-                <?php $count = 1; ?>
+                @php $count = 1; @endphp
                 {{-- @dd($unKnownCategories->items()); --}}
                 @foreach ($scrapped_category_mapping as $key => $unKnownCategory)
 
 
                     @if ($unKnownCategory->name != '')
-                        <?php
+                        @php
                         //getting name
                         $nameArray = explode('/', $unKnownCategory->name);
                         $name = end($nameArray);
-                        
-                        ?>
+
+                        @endphp
                         <tr>
                             <td>
                                 <input type="checkbox" name="categories[]" value="{{ $unKnownCategory }}"
@@ -137,10 +137,10 @@
                                 </select>
                             </td>
                             <td>
-                                <a title="Show History" data-id="<?php echo $unKnownCategory->id; ?>" class="btn btn-image show-user" href="javascript:;"  ><i class="fa fa-file" aria-hidden="true"></i></a>
+                                <a title="Show History" data-id="{{ $unKnownCategory->id }}" class="btn btn-image show-user" href="javascript:;"  ><i class="fa fa-file" aria-hidden="true"></i></a>
                             </td>
                         </tr>
-                        <?php $count++; ?>
+                        @php $count++; @endphp
                     @endif
                 @endforeach
             </table>

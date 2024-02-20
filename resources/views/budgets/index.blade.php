@@ -55,7 +55,7 @@
         <li>
           <a href="#variable_tab" data-toggle="tab">Variable</a>
         </li>
-      </u>
+      </ul>
     </div>
 
     <div class="tab-content">

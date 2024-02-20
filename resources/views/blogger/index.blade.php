@@ -240,9 +240,9 @@
                                                 <span class="td-full-container hidden">
                                                     @if($blogger->brands && count($blogger->brands))
                                                         @foreach($blogger->brands as $brand)
-                                                            <?php
+                                                            @php
                                                             $brand_name = optional(\App\Brand::find($brand))->name
-                                                            ?>
+                                                            @endphp
                                                             {{ $brand_name }}
                                                         @endforeach
                                                     @endif

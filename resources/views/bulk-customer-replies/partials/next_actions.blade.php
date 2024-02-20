@@ -8,9 +8,9 @@
             <div class="col-6 form-inline orm-inline pl-0 m-0">
                 <select name="next_action" class="form-control next_action w-75" data-id="{{$customer->id}}">
                     <option value="">Select Next Action</option> 
-                    <?php foreach ($nextActionArr as $value => $option) { ?>
+                    @foreach ($nextActionArr as $value => $option) {
                         <option value="{{$value}}" {{$value == $customer->customer_next_action_id ? 'selected' : ''}}>{{$option}}</option>
-                    <?php } ?>
+                    }@endforeach
                 </select>
                 <a class="btn btn-xs delete_next_action w-25 m-0"><i class="fa fa-trash" style="color:gray"></i></a>
             </div>

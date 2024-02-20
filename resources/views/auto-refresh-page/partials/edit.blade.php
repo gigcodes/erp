@@ -1,5 +1,5 @@
 <form action="/system/auto-refresh/{{$autoRefresh->id}}/update" method="post">
-    {{ csrf_field() }}
+    @csrf
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Update Auto Refresh Page</h5>

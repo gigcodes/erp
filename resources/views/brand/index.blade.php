@@ -40,10 +40,10 @@
 @endsection
 
 @section('content')
-<?php
+@php
 $query = http_build_query(Request::except('page'));
 $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
-?>
+@endphp
 <div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
     Goto :
     <select onchange="location.href = this.value;" class="form-control" id="page-goto">
@@ -96,13 +96,13 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         <div class="form-inline pl-3">
            
            <div class="form-group">
-           <?php
+           @php
                         echo Form::select(
                             "brand_segment_1",
                             ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
                             '',
                             ['id'=>'brand_segment_1',"class" => "form-control ", "data-brand-id" => '','data-placeholder'=>'-- Select Brand --']
-                        ); ?>
+                        ); @endphp
 
         
         </div>
@@ -167,9 +167,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <div class="row m-0 pl-3 pr-3">
 
 
-<?php 
+@php
     $bList = \App\Brand::pluck('name','id')->toArray();
-?>
+@endphp
 <div class="infinite-scroll" >
     {!! $brands->links() !!}
     <div class="table-responsive mt-3">
@@ -232,13 +232,13 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <td>{{ $brand->deduction_percentage }}</td>
                 <td>
                     <div class="form-select">
-                        <?php
+                        @php
                         echo Form::select(
                             "brand_segment",
                             ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
                             $brand->brand_segment,
                             ["class" => "form-control change-brand-segment globalSelect2 merge_brand_close_e", "data-brand-id" => $brand->id,'data-placeholder'=>'-- Select Brand --']
-                        ); ?>
+                        ); @endphp
                     </div>
                 </td>
                 @foreach($category_segments as $category_segment)
