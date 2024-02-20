@@ -2,30 +2,39 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class AppointmentFound
+class AppointmentFound implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $newAppointments;
+    public $userAppointments;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($newAppointments)
+    public function __construct($userAppointments)
     {
-        $this->newAppointments = $newAppointments;
+        $this->userAppointments = $userAppointments;
     }
 
+    public function broadcastWith(): array
+    {
+        return [
+            "userAppointments" => $this->userAppointments
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'appointment.found';
+    }
     /**
      * Get the channels the event should broadcast on.
      *
@@ -33,6 +42,6 @@ class AppointmentFound
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user-' . auth()->id());
+        return new PrivateChannel("notification.user." . $this->userAppointments['userId']);
     }
 }

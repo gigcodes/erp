@@ -338,7 +338,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('compare-scrapper-images')->dailyAt('23:58');
 
         $schedule->call(function () {
-            \Log::info('kernal triggered');
             dispatch(new CheckAppointment());
         })->everyMinute();
     }

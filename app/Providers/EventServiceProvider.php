@@ -133,9 +133,6 @@ class EventServiceProvider extends ServiceProvider
             // ... other providers
             \SocialiteProviders\YouTube\YouTubeExtendSocialite::class . '@handle',
         ],
-        'App\Events\AppointmentFound' => [
-            'App\Listeners\AppointmentNotify',
-        ],
 
     ];
 
