@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\CheckAppointment;
 use App\Console\Commands\ParseLog;
 use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\RoutesSync;
@@ -335,6 +336,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('insert-sonar-qube')->dailyAt('23:58');
         $schedule->command('insert-varnish-records')->everyFiveMinutes();
         $schedule->command('compare-scrapper-images')->dailyAt('23:58');
+
+        $schedule->call(function () {
+            dispatch(new CheckAppointment());
+        })->everyMinute();
     }
 
     /**`

@@ -4490,19 +4490,130 @@
     @endif
 </script>
 @include('layouts.partial.app_js')
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
+<script>
+    var config = {
+    pusher: {
+        key: "{{ config('broadcasting.connections.pusher.key') }}",
+        cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
+    }
+    };
+</script>
+
 @if($isAdmin)
-    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
-    <script>
-      var config = {
-        pusher: {
-          key: "{{ config('broadcasting.connections.pusher.key') }}",
-          cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
-        }
-      };
-    </script>
     <script src="{{asset("js/email-alert-echo.js?v=0.1")}}"></script>
 @endif
+
+<script>
+    if(config.pusher.key) {
+        if (!window.Echo.connector) {
+            window.Echo = new Echo({
+                broadcaster: 'pusher',
+                key: config.pusher.key,
+                cluster: config.pusher.cluster,
+                forceTLS: true,
+                wsHost: window.location.hostname,
+                wsPort: 6001,
+                forceTLS: false,
+                disableStats: true,
+            });
+        }
+
+        window.Echo.private('notification.user.{{ Auth::id()}}')
+        .listen('.appointment.found', (e) => {
+
+            if (e.userAppointments?.newAppointments?.length > 0) {
+                Swal.fire({
+                    title: e.userAppointments.newAppointments[0].user.name + ' Want to connect on Zoom  - Accept Decline',
+                    text: '',
+                    showCancelButton: true,
+                    confirmButtonText: 'Accept',
+                    cancelButtonText: 'Decline'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var requeststatus = 1;
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        var requeststatus = 2;
+
+                        $("#declien-remarks #appointment_requests_id").val(e.userAppointments.newAppointments[0].id);
+                    }
+
+                    if (requeststatus == 1 || requeststatus == 2) {
+                        $.ajax({
+                            type: 'POST',
+                            url: configs.routes.event_updateAppointmentRequest,
+                            beforeSend: function () {
+                                $("#loading-image-modal").show();
+                            },
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                id: e.userAppointments.newAppointments[0].id,
+                                request_status: requeststatus
+                            },
+                            dataType: "json"
+                        }).done(function (response) {
+                            $("#loading-image-modal").hide();
+                            if (response.code == 200) {
+
+                                if (requeststatus == 1) {
+                                    toastr['success']('You successfully accepeted request.', 'success');
+                                } else {
+                                    toastr['success']('You successfully decline request.', 'success');
+                                }
+                            }
+                        }).fail(function (response) {
+                            $("#loading-image-modal").hide();
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        });
+
+                        if (requeststatus == 2) {
+                            $("#declien-remarks").modal("show");
+                        }
+                    }
+                });
+            }
+
+            if (e.userAppointments?.reactedUnseenAppointments?.length > 0) {
+
+                if (e.userAppointments?.reactedUnseenAppointments[0].request_status == 1) {
+                    var msgText = e.userAppointments.reactedUnseenAppointments[0].userrequest.name + ' Confirmed your meeting Request pls. Join zoom'
+                } else {
+                    var msgText = e.userAppointments.reactedUnseenAppointments[0].userrequest.name + ' delicate your meeting request - ' + e.userAppointments.reactedUnseenAppointments[0].decline_remarks
+                }
+
+                Swal.fire({
+                    title: 'Hello!',
+                    text: msgText,
+                    showCancelButton: false,
+                    confirmButtonText: 'Okay'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: configs.routes.event_updateuserAppointmentRequest,
+                            beforeSend: function () {
+                                $("#loading-image-modal").show();
+                            },
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                id: e.userAppointments.reactedUnseenAppointments[0].id,
+                            },
+                            dataType: "json"
+                        }).done(function (response) {
+                            $("#loading-image-modal").hide();
+                        }).fail(function (response) {
+                            $("#loading-image-modal").hide();
+                        });
+                    }
+                });
+            }
+
+        });
+
+    }
+</script>
+
 </body>
 
 </html>
