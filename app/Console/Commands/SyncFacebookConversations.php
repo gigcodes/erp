@@ -58,16 +58,6 @@ class SyncFacebookConversations extends Command
                 $fb = new FB($config->page_token);
                 $conversations = $fb->getConversations($config->page_id);
 
-                foreach ($conversations['conversations'] as &$conversation) {
-                    // Sort the messages within the conversation in descending order of created_time
-                    usort($conversation['messages'], function ($a, $b) {
-                        $timeA = $a['created_time']->getTimestamp();
-                        $timeB = $b['created_time']->getTimestamp();
-
-                        return $timeB - $timeA; // For descending order
-                    });
-                }
-
                 foreach ($conversations['conversations'] as $convo) {
                     $contact = $config->contacts()->updateOrCreate(['conversation_id' => $convo['id']], [
                         'account_id' => $comment['message'] ?? '',
