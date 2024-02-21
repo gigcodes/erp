@@ -2722,6 +2722,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('tasks')->group(function () {
             Route::get('/', [TasksController::class, 'index'])->name('totem.tasks.all');
             Route::get('{task}', [TasksController::class, 'view'])->name('totem.task.view');
+            Route::get('{task}/execution-history', [TasksController::class, 'executionHistory'])->name('totem.task.execution-history');
             Route::post('{task}/delete', [TasksController::class, 'destroy'])->name('totem.task.delete');
             Route::post('{task}/edit', [TasksController::class, 'update'])->name('totem.task.update');
             Route::post('create', [TasksController::class, 'store'])->name('totem.task.create');
