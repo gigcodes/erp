@@ -401,6 +401,16 @@ class FB
     }
 
     /**
+     * @throws SDKException Get the conversation for page ID
+     */
+    public function getInstagramConversations(string|int $page_id): array
+    {
+        $conversation = self::get("$page_id/conversations?platform=instagram&fields=name,messages{created_time,from,id,is_unsupported,reactions,message,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000", true);
+
+        return ['success' => true, 'conversations' => $conversation];
+    }
+
+    /**
      * @throws SDKException Get the messages for the conversation for conversation ID
      */
     public function getConversation(int|string $conversation_id): array
