@@ -123,8 +123,8 @@ class DevelopmentController extends Controller
         //delete old priority
         \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
-        if (! empty($priority)) {
-            foreach ((array) $priority as $model_id) {
+        if (!empty($priority)) {
+            foreach ((array)$priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class,
@@ -146,14 +146,14 @@ class DevelopmentController extends Controller
                 $message .= $i . ' : #Task-' . $value->id . '-' . $value->subject . "\n";
                 $i++;
             }
-            if (! empty($message)) {
+            if (!empty($message)) {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
 
                 $string = '';
-                if (! empty($request->get('global_remarkes', null))) {
+                if (!empty($request->get('global_remarkes', null))) {
                     $string .= $request->get('global_remarkes') . "\n";
                 }
                 $string .= "Task Priority is : \n" . $message;
@@ -182,13 +182,13 @@ class DevelopmentController extends Controller
         $plannedTasks = new DeveloperTask();
         $completedTasks = new DeveloperTask();
         // For non-admins get tasks assigned to the user
-        if (! Auth::user()->hasRole('Admin')) {
+        if (!Auth::user()->hasRole('Admin')) {
             $progressTasks = DeveloperTask::where('user_id', Auth::id());
             $plannedTasks = DeveloperTask::where('user_id', Auth::id());
             $completedTasks = DeveloperTask::where('user_id', Auth::id());
         }
         // Get tasks for specific user if you are admin
-        if (Auth::user()->hasRole('Admin') && (int) $request->user > 0) {
+        if (Auth::user()->hasRole('Admin') && (int)$request->user > 0) {
             $progressTasks = DeveloperTask::where('user_id', $user);
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
@@ -315,48 +315,46 @@ class DevelopmentController extends Controller
     {
         $type = $request->tasktype ? $request->tasktype : 'all';
 
-        $estimate_date = '';
-
         $title = 'Task List';
 
         $issues = DeveloperTask::with('timeSpent', 'developerTaskHistory', 'assignedUser', 'masterUser', 'timeSpent', 'leadtimeSpent', 'testertimeSpent', 'messages.taskUser', 'messages.user', 'tester');
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
-        if (! empty($request->estimate_date)) {
+        if (!empty($request->estimate_date)) {
             $estimate_date = date('Y-m-d', strtotime($request->estimate_date));
             $issues = $issues->where('developer_tasks.estimate_date', $estimate_date);
         }
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
 
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
-        if ((int) $request->get('master_user_id') > 0) {
+        if ((int)$request->get('master_user_id') > 0) {
             $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('master_user_id'));
         }
-        if ((int) $request->get('team_lead_id') > 0) {
+        if ((int)$request->get('team_lead_id') > 0) {
             $issues = $issues->whereIn('developer_tasks.team_lead_id', $request->get('team_lead_id'));
         }
-        if ((int) $request->get('tester_id') > 0) {
+        if ((int)$request->get('tester_id') > 0) {
             $issues = $issues->whereIn('developer_tasks.tester_id', $request->get('tester_id'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
-        if (! empty($request->get('task_status', []))) {
+        if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
         if (isset($request->is_estimated)) {
@@ -370,7 +368,7 @@ class DevelopmentController extends Controller
             //
         }
 
-        if (! empty($request->get('repo_id'))) {
+        if (!empty($request->get('repo_id'))) {
             $issues = $issues->where('repository_id', $request->get('repo_id'));
         }
 
@@ -408,14 +406,13 @@ class DevelopmentController extends Controller
             return DeveloperModule::orderBy('name')->get();
         });
 
-        $usrlst = User::orderBy('name')->get();
-        $users = Helpers::getUserArray($usrlst);
+        $users = User::orderBy('name')->pluck('name', 'id')->toArray();
 
         $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
             return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id)
@@ -434,11 +431,11 @@ class DevelopmentController extends Controller
             return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         });
         $countPlanned = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -449,17 +446,12 @@ class DevelopmentController extends Controller
             ->groupBy('developer_tasks.assigned_to')
             ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
             ->pluck('total_product', 'assigned_to')->toArray();
-        $userIds = array_values(array_filter(array_keys($issuesGroups)));
-
-        $userModel = Cache::remember('User::whereIn::' . implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
-            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-        });
         $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -467,7 +459,8 @@ class DevelopmentController extends Controller
 
         // Sort
         if ($request->order == 'priority') {
-            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC'); // ->with('communications');
+            $issues = $issues->orderBy('priority', 'ASC')
+                ->orderBy('created_at', 'DESC');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
@@ -483,7 +476,7 @@ class DevelopmentController extends Controller
                 $task_csv['Subject'] = $value->subject;
                 $task_csv['Communication'] = $value->message;
                 $task_csv['Developer'] = ($value->assignedUser) ? $value->assignedUser->name : 'Unassigned';
-                array_push($tasks_csv, $task_csv);
+                $tasks_csv[] = $task_csv;
             }
             $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
         } else {
@@ -505,7 +498,7 @@ class DevelopmentController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-list')->first();
 
         $dynamicColumnsToShowDl = [];
-        if (! empty($datatableModel->column_name)) {
+        if (!empty($datatableModel->column_name)) {
             $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowDl = json_decode($hideColumns, true);
         }
@@ -582,7 +575,7 @@ class DevelopmentController extends Controller
 
         $issues = $issues->select('developer_tasks.*');
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id)
@@ -636,38 +629,38 @@ class DevelopmentController extends Controller
         if ($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
-        if (! empty($request->estimate_date)) {
+        if (!empty($request->estimate_date)) {
             $estimate_date = date('Y-m-d', strtotime($request->estimate_date));
             $issues = $issues->where('developer_tasks.estimate_date', $estimate_date);
         }
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
-        if ((int) $request->get('master_user_id') > 0) {
+        if ((int)$request->get('master_user_id') > 0) {
             $issues = $issues->where('developer_tasks.master_user_id', $request->get('master_user_id'));
         }
-        if ((int) $request->get('team_lead_id') > 0) {
+        if ((int)$request->get('team_lead_id') > 0) {
             $issues = $issues->where('developer_tasks.team_lead_id', $request->get('team_lead_id'));
         }
-        if ((int) $request->get('tester_id') > 0) {
+        if ((int)$request->get('tester_id') > 0) {
             $issues = $issues->where('developer_tasks.tester_id', $request->get('tester_id'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
-        if (! empty($request->get('task_status', []))) {
+        if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
 
@@ -678,7 +671,7 @@ class DevelopmentController extends Controller
         }
 
         $issues = $issues->select('developer_tasks.*', 'chat_messages.message', 'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id');
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id)
@@ -693,11 +686,11 @@ class DevelopmentController extends Controller
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -710,11 +703,11 @@ class DevelopmentController extends Controller
 
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -741,7 +734,7 @@ class DevelopmentController extends Controller
             $task_csv['id'] = $value->id;
             $task_csv['Subject'] = $value->subject;
             $task_csv['Communication'] = $value->message;
-            $task_csv['Developer'] = (! empty($users[$value->assigned_to]) ? $users[$value->assigned_to] : 'Unassigned');
+            $task_csv['Developer'] = (!empty($users[$value->assigned_to]) ? $users[$value->assigned_to] : 'Unassigned');
             $task_csv['Approved Time'] = $value->estimate_minutes;
             $task_csv['Status'] = $value->status;
             $startTime = Carbon::parse($value->start_time);
@@ -787,33 +780,33 @@ class DevelopmentController extends Controller
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
 
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
-        if ((int) $request->get('lead') > 0) {
+        if ((int)$request->get('lead') > 0) {
             $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('lead'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
-        if (! empty($request->get('task_status', []))) {
+        if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         } else {
             $issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
-        if (! empty($request->get('module_id', []))) {
+        if (!empty($request->get('module_id', []))) {
             $issues = $issues->whereIn('developer_tasks.module_id', $request->get('module_id'));
         }
 
@@ -856,7 +849,7 @@ class DevelopmentController extends Controller
             '' => 'Select Status',
         ], $statusList);
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -870,11 +863,11 @@ class DevelopmentController extends Controller
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -886,11 +879,11 @@ class DevelopmentController extends Controller
 
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -912,7 +905,7 @@ class DevelopmentController extends Controller
 
         //Get all searchable user list
         $userslist = null;
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
         }
 
@@ -921,7 +914,7 @@ class DevelopmentController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-summarylist')->first();
 
         $dynamicColumnsToShowDs = [];
-        if (! empty($datatableModel->column_name)) {
+        if (!empty($datatableModel->column_name)) {
             $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowDs = json_decode($hideColumns, true);
         }
@@ -976,27 +969,27 @@ class DevelopmentController extends Controller
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
 
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
-        if ((int) $request->get('lead') > 0) {
+        if ((int)$request->get('lead') > 0) {
             $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('lead'));
         }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
-        if (! empty($request->get('task_status', []))) {
+        if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         } else {
             $issues = $issues->where('developer_tasks.status', 'In Progress');
@@ -1041,7 +1034,7 @@ class DevelopmentController extends Controller
             '' => 'Select Status',
         ], $statusList);
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1055,11 +1048,11 @@ class DevelopmentController extends Controller
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -1071,11 +1064,11 @@ class DevelopmentController extends Controller
 
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -1097,7 +1090,7 @@ class DevelopmentController extends Controller
 
         //Get all searchable user list
         $userslist = null;
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
         }
 
@@ -1186,7 +1179,7 @@ class DevelopmentController extends Controller
         ], $statusList);
 
         // Hide resolved
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1200,11 +1193,11 @@ class DevelopmentController extends Controller
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -1216,11 +1209,11 @@ class DevelopmentController extends Controller
 
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
+        if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
                     'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'name' => !empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -1280,7 +1273,7 @@ class DevelopmentController extends Controller
         $devCheckboxs = $request->get('devCheckboxs');
         $dev = [];
 
-        if (isset($request->term) && ! empty($request->term)) {
+        if (isset($request->term) && !empty($request->term)) {
             $task = $task->where(function ($query) use ($request) {
                 $term = $request->get('term');
                 $query->where('tasks.id', 'LIKE', "%$term%")
@@ -1292,11 +1285,11 @@ class DevelopmentController extends Controller
             });
         }
 
-        if (isset($request->assigned_to) && ! empty($request->assigned_to)) {
+        if (isset($request->assigned_to) && !empty($request->assigned_to)) {
             $task = $task->where('tasks.assign_to', $request->assigned_to);
         }
 
-        if (isset($request->task_status) && ! empty($request->task_status)) {
+        if (isset($request->task_status) && !empty($request->task_status)) {
             $task = $task->where('tasks.status', $request->task_status);
         }
 
@@ -1317,7 +1310,7 @@ class DevelopmentController extends Controller
             }
         }
 
-        if (! auth()->user()->isReviwerLikeAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             if (count($dev) == 0) {
                 $task = $task->where(function ($query) {
                     $query->where('tasks.assign_to', auth()->user()->id)
@@ -1333,7 +1326,7 @@ class DevelopmentController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('task-module.partials.flagsummarydata', compact('users', 'request', 'title', 'task_statuses', 'tasks', 'dev'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string) $tasks->render(),
+                'links' => (string)$tasks->render(),
                 'count' => $tasks->total(),
             ], 200);
         }
@@ -1409,14 +1402,14 @@ class DevelopmentController extends Controller
         if ($type == 'devtask') {
             $issues = $issues->where('developer_tasks.task_type_id', '1');
         }
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
 
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
             $task = $task->where('tasks.assign_from', $request->get('corrected_by'));
         }
@@ -1427,13 +1420,13 @@ class DevelopmentController extends Controller
                 $task = $task->whereIn('tasks.assign_to', $s);
             }
         }
-        if ((int) $request->get('empty_estimated_time') > 0) {
+        if ((int)$request->get('empty_estimated_time') > 0) {
             $issues = $issues->where('developer_tasks.estimate_time', null);
             $issues = $issues->where('developer_tasks.estimate_date', null);
             $task = $task->where('tasks.approximate', 0);
             $task = $task->where('tasks.due_date', null);
         }
-        if ((int) $request->get('time_is_overdue') > 0) {
+        if ((int)$request->get('time_is_overdue') > 0) {
             $issues = $issues->where('developer_tasks.estimate_date', '>', date('Y-m-d'))->where('developer_tasks.status', '!=', 'Done');
 
             $task = $task->where('tasks.due_date', '>', date('Y-m-d'))->where('tasks.status', '!=', 3);
@@ -1443,7 +1436,7 @@ class DevelopmentController extends Controller
                 $issues = $issues->whereIn('developer_tasks.module_id', $s);
             }
         }
-        if (! empty($request->get('task_status', []))) {
+        if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
 
             $requestStatusArray = [];
@@ -1483,7 +1476,7 @@ class DevelopmentController extends Controller
         $task = $task->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         $task = $task->select('tasks.*', 'chat_messages.message');
 
-        if ($isTeamLeader && ! Auth::user()->hasRole('Admin')) {
+        if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1492,7 +1485,7 @@ class DevelopmentController extends Controller
                 $query->whereIn('tasks.assign_to', $team_members_array_unique)
                     ->orWhere('tasks.master_user_id', auth()->user()->id);
             });
-        } elseif (! auth()->user()->isReviwerLikeAdmin()) {
+        } elseif (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
                 $query->where('developer_tasks.assigned_to', auth()->user()->id)
                     ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
@@ -1677,16 +1670,16 @@ class DevelopmentController extends Controller
     {
         $issues = new Issue;
 
-        if ((int) $request->get('submitted_by') > 0) {
+        if ((int)$request->get('submitted_by') > 0) {
             $issues = $issues->where('submitted_by', $request->get('submitted_by'));
         }
-        if ((int) $request->get('responsible_user') > 0) {
+        if ((int)$request->get('responsible_user') > 0) {
             $issues = $issues->where('responsible_user_id', $request->get('responsible_user'));
         }
-        if ((int) $request->get('assigned_to') > 0) {
+        if ((int)$request->get('assigned_to') > 0) {
             $issues = $issues->where('assigned_to', $request->get('assigned_to'));
         }
-        if ((int) $request->get('corrected_by') > 0) {
+        if ((int)$request->get('corrected_by') > 0) {
             $issues = $issues->where('user_id', $request->get('corrected_by'));
         }
         if ($request->get('module')) {
@@ -1701,7 +1694,7 @@ class DevelopmentController extends Controller
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
         // Hide resolved
-        if ((int) $request->show_resolved !== 1) {
+        if ((int)$request->show_resolved !== 1) {
             $issues = $issues->where('is_resolved', 0);
         }
         // Sort
@@ -1769,8 +1762,8 @@ class DevelopmentController extends Controller
         //delete old priority
         \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
-        if (! empty($priority)) {
-            foreach ((array) $priority as $model_id) {
+        if (!empty($priority)) {
+            foreach ((array)$priority as $model_id) {
                 \App\ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class,
@@ -1794,14 +1787,14 @@ class DevelopmentController extends Controller
                 $message .= $i . ' : ' . $mode . $value->id . '-' . $value->subject . "\n";
                 $i++;
             }
-            if (! empty($message)) {
+            if (!empty($message)) {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $params = [];
                 $params['user_id'] = $request->get('user_id', 0);
 
                 $string = '';
-                if (! empty($request->get('global_remarkes', null))) {
+                if (!empty($request->get('global_remarkes', null))) {
                     $string .= $request->get('global_remarkes') . "\n";
                 }
                 $string .= "Issue Priority is : \n" . $message;
@@ -1895,7 +1888,7 @@ class DevelopmentController extends Controller
         if (config('app.env') === 'production') {
             $timeDoctorTaskId = '';
             $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
-            if (! empty($timeDoctorTaskResponse['data'])) {
+            if (!empty($timeDoctorTaskResponse['data'])) {
                 $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
             }
 
@@ -1990,7 +1983,7 @@ class DevelopmentController extends Controller
 
         $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
 
-        if (! empty($slotAvailable)) {
+        if (!empty($slotAvailable)) {
             $data['status'] = 'Planned';
             $data['start_date'] = $slotAvailable['st'];
             $data['estimate_date'] = $slotAvailable['en'];
@@ -2143,7 +2136,7 @@ class DevelopmentController extends Controller
             }
         }
 
-        if (! isset($reference)) {
+        if (!isset($reference)) {
             $reference = null;
         }
 
@@ -2153,14 +2146,14 @@ class DevelopmentController extends Controller
             $module = DeveloperModule::find($module);
         }
 
-        if (! $module) {
+        if (!$module) {
             $module = new DeveloperModule();
             $module->name = $request->get('module');
             $module->save();
             $data['module'] = $module->id;
         }
         $userId = Auth::id();
-        $userId = ! empty($userId) ? $userId : $request->get('assigned_to', 0);
+        $userId = !empty($userId) ? $userId : $request->get('assigned_to', 0);
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
@@ -2294,7 +2287,7 @@ class DevelopmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -2399,7 +2392,7 @@ class DevelopmentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $id)
@@ -2439,7 +2432,7 @@ class DevelopmentController extends Controller
 
         $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
 
-        if (! empty($slotAvailable)) {
+        if (!empty($slotAvailable)) {
             $issue->status = 'Planned';
             $issue->start_date = $slotAvailable['st'];
             $issue->estimate_date = $slotAvailable['en'];
@@ -2447,7 +2440,7 @@ class DevelopmentController extends Controller
 
         $user = User::find($request->get('assigned_to'));
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'status' => 'success', 'message' => 'user not found',
             ], 500);
@@ -2488,7 +2481,7 @@ class DevelopmentController extends Controller
         }
 
         $old_id = $issue->assigned_to;
-        if (! $old_id) {
+        if (!$old_id) {
             $old_id = 0;
         }
         $issue->assigned_to = $request->get('assigned_to');
@@ -2510,7 +2503,7 @@ class DevelopmentController extends Controller
 
     public function userSchedulesLoadData($user_id)
     {
-        $isPrint = ! request()->ajax();
+        $isPrint = !request()->ajax();
 
         $stDate = $start_date = date('Y-m-d');
         $enDate = $start_date = date('Y-m-d', strtotime(' + 30 days'));
@@ -2525,7 +2518,7 @@ class DevelopmentController extends Controller
             $q->leftJoin('user_avaibilities as ua', 'ua.user_id', '=', 'users.id');
             $q->where('users.is_task_planned', 1);
             $q->where('ua.is_latest', 1);
-            if (! isAdmin()) {
+            if (!isAdmin()) {
                 $q->where('users.id', loginId());
             }
 
@@ -2606,7 +2599,7 @@ class DevelopmentController extends Controller
                         foreach ($tasksInProgress as $task) {
                             $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
 
-                            if (! isset($task->en_date)) {
+                            if (!isset($task->en_date)) {
                                 $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
                             }
 
@@ -2678,7 +2671,7 @@ class DevelopmentController extends Controller
                                     $ut_array = [];
                                     $ut_arrayManually = [];
 
-                                    if (! empty($slot['userTasks'])) {
+                                    if (!empty($slot['userTasks'])) {
                                         foreach ($slot['userTasks'] as $ut) {
                                             if ($ut['manually_assign'] == 1) {
                                                 $ut_arrayManually[] = $ut['typeId'];
@@ -2859,13 +2852,13 @@ class DevelopmentController extends Controller
 
         $user = User::find($masterUserId);
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'status' => 'success', 'message' => 'user not found',
             ], 500);
         }
         $old_id = $issue->master_user_id;
-        if (! $old_id) {
+        if (!$old_id) {
             $old_id = 0;
         }
         $issue->master_user_id = $masterUserId;
@@ -2929,7 +2922,7 @@ class DevelopmentController extends Controller
 
         $user = User::find($team_lead_id);
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'status' => 'success', 'message' => 'user not found',
             ], 500);
@@ -2942,7 +2935,7 @@ class DevelopmentController extends Controller
             ], 500);
         } else {
             $isLeader = Team::where('user_id', $team_lead_id)->first();
-            if (! $isLeader) {
+            if (!$isLeader) {
                 $team = new Team;
                 $team->name = $request->name;
                 $team->user_id = $team_lead_id;
@@ -2964,13 +2957,13 @@ class DevelopmentController extends Controller
 
         $user = User::find($tester_id);
 
-        if (! $user) {
+        if (!$user) {
             return response()->json([
                 'status' => 'success', 'message' => 'user not found',
             ], 500);
         }
         $old_id = $issue->tester_id;
-        if (! $old_id) {
+        if (!$old_id) {
             $old_id = 0;
         }
         $issue->tester_id = $tester_id;
@@ -3039,7 +3032,7 @@ class DevelopmentController extends Controller
     public function saveMilestone(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
-        if (! $issue->is_milestone) {
+        if (!$issue->is_milestone) {
             return;
         }
         $total = $request->total;
@@ -3056,7 +3049,7 @@ class DevelopmentController extends Controller
                 'message' => 'Estimated milestone exceeded',
             ], 500);
         }
-        if (! $issue->cost || $issue->cost == '') {
+        if (!$issue->cost || $issue->cost == '') {
             return response()->json([
                 'message' => 'Please provide cost first',
             ], 500);
@@ -3096,7 +3089,7 @@ class DevelopmentController extends Controller
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                if (! $assigned_to) {
+                if (!$assigned_to) {
                     return response()->json([
                         'message' => 'Please assign the task.',
                     ], 500);
@@ -3126,7 +3119,7 @@ class DevelopmentController extends Controller
                         ], 500);
                     }
 
-                    if (! $issue->is_milestone) {
+                    if (!$issue->is_milestone) {
                         $payment_receipt = new PaymentReceipt;
                         $payment_receipt->date = date('Y-m-d');
                         $payment_receipt->worked_minutes = $issue->estimate_minutes;
@@ -3216,7 +3209,7 @@ class DevelopmentController extends Controller
                     $msg = '';
                     foreach ($request->checklist as $key => $list) {
                         $checkList = DeveloperTaskStatusChecklist::find($key);
-                        if (! empty($checkList)) {
+                        if (!empty($checkList)) {
                             DeveloperTaskStatusChecklistRemarks::create([
                                 'user_id' => Auth::id(),
                                 'task_id' => $issue->id,
@@ -3227,9 +3220,9 @@ class DevelopmentController extends Controller
                         }
                     }
 
-                    $message = ! empty($msg) ? $statusMsg . $msg : '';
+                    $message = !empty($msg) ? $statusMsg . $msg : '';
 
-                    if (! empty($message)) {
+                    if (!empty($message)) {
                         ChatMessage::create([
                             'user_id' => Auth::user()->id,
                             'developer_task_id' => $issue->id,
@@ -3283,7 +3276,7 @@ class DevelopmentController extends Controller
     public function approveTimeHistory(Request $request)
     {
         if (Auth::user()->isAdmin) {
-            if (! $request->approve_time || $request->approve_time == '' || ! $request->developer_task_id || $request->developer_task_id == '') {
+            if (!$request->approve_time || $request->approve_time == '' || !$request->developer_task_id || $request->developer_task_id == '') {
                 return response()->json([
                     'message' => 'Select one time first',
                 ], 500);
@@ -3502,13 +3495,13 @@ class DevelopmentController extends Controller
         $task_type = 1;
         $taskTypes = TaskTypes::all();
         $users = Helpers::getUsersByRoleName('Developer');
-        if (! empty($request->get('task_type'))) {
+        if (!empty($request->get('task_type'))) {
             $task_type = $request->get('task_type');
         }
-        if (! empty($request->get('task_status'))) {
+        if (!empty($request->get('task_status'))) {
             $status = $request->get('task_status');
         }
-        if (! empty($request->get('task_type')) && ! empty($request->get('task_status'))) {
+        if (!empty($request->get('task_type')) && !empty($request->get('task_status'))) {
             $status = $request->get('task_status');
             $task_type = $request->get('task_type');
         }
@@ -3571,7 +3564,7 @@ class DevelopmentController extends Controller
 
     public function changeTaskStatus(Request $request)
     {
-        if (! empty($request->input('task_id'))) {
+        if (!empty($request->input('task_id'))) {
             $task = DeveloperTask::find($request->input('task_id'));
             $task->status = $request->input('status');
             $task->save();
@@ -3611,7 +3604,7 @@ class DevelopmentController extends Controller
                 $task->attachMedia($media, config('constants.media_tags'));
             }
         }
-        if (! empty($request->file('attached_document'))) {
+        if (!empty($request->file('attached_document'))) {
             foreach ($request->file('attached_document') as $file) {
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
@@ -3693,8 +3686,8 @@ class DevelopmentController extends Controller
     {
         $language = $request->get('language');
 
-        if (! empty(trim($language))) {
-            if (! is_numeric($language)) {
+        if (!empty(trim($language))) {
+            if (!is_numeric($language)) {
                 $languageModal = \App\DeveloperLanguage::updateOrCreate(
                     ['name' => $language],
                     ['name' => $language]
@@ -3718,10 +3711,10 @@ class DevelopmentController extends Controller
 
         $loggedUser = $request->user();
 
-        if ($id > 0 && ! empty($subject)) {
+        if ($id > 0 && !empty($subject)) {
             $devTask = DeveloperTask::find($id);
 
-            if (! empty($devTask)) {
+            if (!empty($devTask)) {
                 $devDocuments = new \App\DeveloperTaskDocument;
                 $devDocuments->fill(request()->all());
                 $devDocuments->created_by = \Auth::id();
@@ -3915,7 +3908,7 @@ class DevelopmentController extends Controller
             } else {
                 $timeDoctorTaskResponse = $this->timeDoctorActions('DEVTASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
                 $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
-                if (! $timeDoctorTaskResponse) {
+                if (!$timeDoctorTaskResponse) {
                     return response()->json(['message' => 'Unable to create task'], 500);
                 }
                 if ($timeDoctorTaskResponse['code'] != '200') {
@@ -3991,7 +3984,7 @@ class DevelopmentController extends Controller
 
     public function storeMeetingTime(Request $request)
     {
-        if (! $request->task_id || $request->task_id == '' || ! $request->time || $request->time == '' || ! $request->user_type || $request->user_type == '' || ! $request->timing_type || $request->timing_type == '') {
+        if (!$request->task_id || $request->task_id == '' || !$request->time || $request->time == '' || !$request->user_type || $request->user_type == '' || !$request->timing_type || $request->timing_type == '') {
             return response()->json(['message' => 'Incomplete data'], 500);
         }
         $query = MeetingAndOtherTime::where('model', \App\DeveloperTask::class)->where('model_id', $request->task_id)->where('type', $request->timing_type);
@@ -4030,7 +4023,7 @@ class DevelopmentController extends Controller
     public function approveMeetingHistory($task_id, Request $request)
     {
         if (Auth::user()->isAdmin) {
-            if (! $request->approve_time || $request->approve_time == '') {
+            if (!$request->approve_time || $request->approve_time == '') {
                 return response()->json([
                     'message' => 'Select one time first',
                 ], 500);
@@ -4121,7 +4114,7 @@ class DevelopmentController extends Controller
         $user = $request->user;
         $issues = DeveloperTask::with('timeSpent', 'developerTaskHistory', 'assignedUser', 'masterUser', 'timeSpent', 'leadtimeSpent', 'testertimeSpent', 'messages.taskUser', 'messages.user', 'tester');
 
-        if (Auth::user()->hasRole('Admin') && isset($user) && (int) count($request->user) > 0) {
+        if (Auth::user()->hasRole('Admin') && isset($user) && (int)count($request->user) > 0) {
             $issues = $issues->whereIn('assigned_to', $user);
         }
 
@@ -4209,7 +4202,7 @@ class DevelopmentController extends Controller
             }
 
             $single = DeveloperTask::find(request('id'));
-            if (! $single) {
+            if (!$single) {
                 return respJson(404, 'No task found.');
             }
 
@@ -4417,9 +4410,9 @@ class DevelopmentController extends Controller
     {
         if (isAdmin()) {
             if (
-                ! $request->approve_time
+                !$request->approve_time
                 || $request->approve_time == ''
-                || ! $request->lead_developer_task_id
+                || !$request->lead_developer_task_id
                 || $request->lead_developer_task_id == ''
             ) {
                 return respJson(400, 'Select one time first.');
@@ -4590,7 +4583,7 @@ class DevelopmentController extends Controller
     /**
      * function to show the user wise development task's statuses counts.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function developmentTaskSummary(Request $request)
@@ -4609,7 +4602,7 @@ class DevelopmentController extends Controller
         $filterStatusIds = $request->get('status_filter');
 
         //Get all searchable status list
-        if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
+        if ((int)$filterUserIds > 0 && (int)$filterStatusIds > 0) {
             $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('developer_tasks.user_id', $filterUserIds)->where(function ($query) use ($searchableStatus) {
                 foreach ($searchableStatus as $searchTerm) {
@@ -4618,10 +4611,10 @@ class DevelopmentController extends Controller
             });
             $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
             $userslist = User::whereIn('id', $filterUserIds)->get();
-        } elseif ((int) $filterUserIds > 0) {
+        } elseif ((int)$filterUserIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds);
             $userslist = User::whereIn('id', $request->get('users_filter'))->get();
-        } elseif ((int) $filterStatusIds > 0) {
+        } elseif ((int)$filterStatusIds > 0) {
             $searchableStatus = TaskStatus::WhereIn('id', $filterStatusIds)->get();
             $userListWithStatuesCnt = $userListWithStatuesCnt->where(function ($query) use ($searchableStatus) {
                 foreach ($searchableStatus as $searchTerm) {
@@ -4643,7 +4636,7 @@ class DevelopmentController extends Controller
             $arrUserNameId[$value['userid']]['name'] = $value['name'];
             $arrUserNameId[$value['userid']]['userid'] = $value['userid'];
             foreach ($arrTaskStatusNames as $key => $arrTaskStatusNamevalue) {
-                if (! array_key_exists($arrTaskStatusNamevalue, $arrStatusCount[$value['userid']])) {
+                if (!array_key_exists($arrTaskStatusNamevalue, $arrStatusCount[$value['userid']])) {
                     $arrStatusCount[$value['userid']][$arrTaskStatusNamevalue] = 0;
                 }
             }
@@ -4673,7 +4666,7 @@ class DevelopmentController extends Controller
     public function usersList(Request $request)
     {
         $users = User::orderBy('name');
-        if (! empty($request->q)) {
+        if (!empty($request->q)) {
             $users->where(function ($q) use ($request) {
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
@@ -4806,7 +4799,7 @@ class DevelopmentController extends Controller
                 ->whereIn('developer_tasks_history.id', $t_developerTaskID)
                 ->where(function ($query) use ($request) {
                     if (isset($request->task_id)) {
-                        if (! str_contains($request->task_id, 'DEVTASK')) {
+                        if (!str_contains($request->task_id, 'DEVTASK')) {
                             $query = $query->where('tasks.id', trim($request->task_id, 'TASK-'));
                         }
                     }
@@ -4819,7 +4812,7 @@ class DevelopmentController extends Controller
                 if (str_contains($request->task_id, 'DEVTASK')) {
                     $t_developerTaskHistory = [];
                 }
-                if (! str_contains($request->task_id, 'DEVTASK')) {
+                if (!str_contains($request->task_id, 'DEVTASK')) {
                     $developerTaskHistory = [];
                 }
             }
@@ -4863,7 +4856,7 @@ class DevelopmentController extends Controller
                 ->whereIn('developer_tasks_history.id', $t_developerTaskID)
                 ->where(function ($query) use ($request) {
                     if (isset($request->task_id)) {
-                        if (! str_contains($request->task_id, 'DEVTASK')) {
+                        if (!str_contains($request->task_id, 'DEVTASK')) {
                             $query = $query->where('tasks.id', trim($request->task_id, 'TASK-'));
                         }
                     }
@@ -4898,7 +4891,7 @@ class DevelopmentController extends Controller
             );
 
             $returnData = [];
-            if (! empty($returnData)) {
+            if (!empty($returnData)) {
                 return response()->json(
                     [
                         'code' => 500,
@@ -4940,11 +4933,11 @@ class DevelopmentController extends Controller
         $ScrapperValuesRemarksHistory = [];
         $returnData = [];
         $id = 0;
-        if (! empty($ScrapperValues)) {
+        if (!empty($ScrapperValues)) {
             $jsonString = $ScrapperValues['scrapper_values'];
             $phpArray = json_decode($jsonString, true);
-            if (! empty($phpArray)) {
-                if (! empty($phpArray)) {
+            if (!empty($phpArray)) {
+                if (!empty($phpArray)) {
                     $ScrapperValuesHistory = ScrapperValuesHistory::where('task_id', $task_id)->get();
                     $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id', $task_id)->get();
 
@@ -4976,7 +4969,7 @@ class DevelopmentController extends Controller
         );
 
         if ($request->status == 'Unapprove') {
-            if (! empty($request->remarks)) {
+            if (!empty($request->remarks)) {
                 ScrapperValuesRemarksHistory::updateOrCreate(
                     ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
                 );
@@ -5033,7 +5026,7 @@ class DevelopmentController extends Controller
         $records = ScrapperValues::with('tasks');
 
         $keywords = request('keywords');
-        if (! empty($keywords)) {
+        if (!empty($keywords)) {
             $records = $records->where(function ($q) use ($keywords) {
                 $q->where('scrapper_values', 'LIKE', "%$keywords%")
                     ->orWhere('task_id', 'LIKE', "%$keywords%");
@@ -5048,7 +5041,7 @@ class DevelopmentController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
         $dynamicColumnsToShowscrapper = [];
-        if (! empty($datatableModel->column_name)) {
+        if (!empty($datatableModel->column_name)) {
             $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowscrapper = json_decode($hideColumns, true);
         }
@@ -5087,7 +5080,7 @@ class DevelopmentController extends Controller
         $properties = [];
         $jsonString = $ScrapperValues['scrapper_values'];
         $phpArray = json_decode($jsonString, true);
-        if (! empty($phpArray)) {
+        if (!empty($phpArray)) {
             foreach ($phpArray as $key_json => $value_json) {
                 if ($key_json == 'properties') {
                     $properties[] = $value_json;
@@ -5096,13 +5089,13 @@ class DevelopmentController extends Controller
         }
 
         $html = '';
-        if (! empty($properties)) {
+        if (!empty($properties)) {
             $html = '<table class="table table-bordered table-striped">
                     <tbody class="text-center task_queue_list">';
             foreach ($properties as $key => $value) {
                 $keys = array_keys($value);
 
-                if (! empty($keys)) {
+                if (!empty($keys)) {
                     foreach ($keys as $key_k => $value_k) {
                         $html .= '<tr>';
                         $html .= '<th>' . ucwords(str_replace('_', ' ', $value_k)) . '</th>';
@@ -5135,7 +5128,7 @@ class DevelopmentController extends Controller
         $images = [];
         $jsonString = $ScrapperValues['scrapper_values'];
         $phpArray = json_decode($jsonString, true);
-        if (! empty($phpArray)) {
+        if (!empty($phpArray)) {
             foreach ($phpArray as $key_json => $value_json) {
                 if ($key_json == 'images') {
                     $images[] = $value_json;
@@ -5144,11 +5137,11 @@ class DevelopmentController extends Controller
         }
 
         $html = '';
-        if (! empty($images)) {
+        if (!empty($images)) {
             $html = '<div class="row">
                     <div class="col-lg-12">';
             foreach ($images as $key => $value) {
-                if (! empty($value)) {
+                if (!empty($value)) {
                     foreach ($value as $key_k => $value_k) {
                         $html .= '<div class="col-lg-1">';
                         $html .= '<img src="' . $value_k . '">';
@@ -5173,7 +5166,7 @@ class DevelopmentController extends Controller
         $ScrapperValuesHistory = ScrapperValuesHistory::where('task_id', $request->task_id)->where('column_name', $request->column_name)->first();
 
         $ScrapperValuesRemarksHistory = [];
-        if (! empty($ScrapperValuesHistory)) {
+        if (!empty($ScrapperValuesHistory)) {
             if ($ScrapperValuesHistory['status'] == 'Unapprove') {
                 $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id', $request->task_id)->where('column_name', $request->column_name)->first();
             }
@@ -5191,11 +5184,11 @@ class DevelopmentController extends Controller
     {
         $ScrapperValues = ScrapperValues::where('task_id', $request->task_id)->where('id', '!=', $request->id)->orderBy('id', 'DESC')->get();
         $returnData = [];
-        if (! empty($ScrapperValues)) {
+        if (!empty($ScrapperValues)) {
             foreach ($ScrapperValues as $key => $value) {
                 $jsonString = $value['scrapper_values'];
                 $phpArray = json_decode($jsonString, true);
-                if (! empty($phpArray)) {
+                if (!empty($phpArray)) {
                     foreach ($phpArray as $key_json => $value_json) {
                         $returnData[$key][$key_json] = $value_json;
                     }
@@ -5215,7 +5208,7 @@ class DevelopmentController extends Controller
         $records = ScrapperValues::with('tasks')->where('task_id', $recordsSingle['task_id'])->orderBy('id', 'DESC');
 
         $keywords = request('keywords');
-        if (! empty($keywords)) {
+        if (!empty($keywords)) {
             $records = $records->where(function ($q) use ($keywords) {
                 $q->where('scrapper_values', 'LIKE', "%$keywords%")
                     ->orWhere('task_id', 'LIKE', "%$keywords%");
@@ -5226,7 +5219,7 @@ class DevelopmentController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
         $dynamicColumnsToShowscrapper = [];
-        if (! empty($datatableModel->column_name)) {
+        if (!empty($datatableModel->column_name)) {
             $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowscrapper = json_decode($hideColumns, true);
         }
@@ -5241,14 +5234,14 @@ class DevelopmentController extends Controller
     {
         $recordsScrapper = ScrapperValues::where('id', $request->scrapper_id)->first();
 
-        if (! empty($recordsScrapper)) {
+        if (!empty($recordsScrapper)) {
             if ($request->type == 1) {
                 $jsonString = $recordsScrapper['scrapper_values'];
                 $phpArray = json_decode($jsonString, true);
-                if (! empty($phpArray)) {
+                if (!empty($phpArray)) {
                     foreach ($phpArray as $key_json => $value_json) {
                         if ($key_json == 'properties') {
-                            if (! empty($value_json)) {
+                            if (!empty($value_json)) {
                                 foreach ($value_json as $key => $value) {
                                     $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->first();
 
@@ -5334,7 +5327,7 @@ class DevelopmentController extends Controller
 
             $history = DeveloperTaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
 
-            if (! empty($history)) {
+            if (!empty($history)) {
                 $history->end_date = Carbon::now();
                 $history->save();
             }
