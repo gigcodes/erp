@@ -231,6 +231,30 @@ class FB
     }
 
     /**
+     * DELETE Facebook Page post Graph API.
+     *
+     * @param  string  $comment_id Comment ID
+     *
+     * @throws SDKException|FbException
+     */
+    public function deletePagePost(string $post_id): array
+    {
+        if (empty($comment_id)) {
+            $error = 'Facebook DELETE Post Message: Missing Post ID!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $endpoint = '/' . $comment_id;
+
+        $params = [];
+
+        return self::delete($params, $endpoint);
+    }
+
+    /**
      * Hide Comment Graph API.
      *
      * @param  string  $comment_id Comment ID
