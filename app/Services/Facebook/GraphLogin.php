@@ -2,8 +2,9 @@
 
 namespace App\Services\Facebook;
 
-use Facebook\Exceptions\FacebookSDKException;
-use Facebook\Facebook;
+use JanuSoftware\Facebook\Facebook;
+use JanuSoftware\Facebook\Exception\SDKException;
+use JanuSoftware\Facebook\Exception\ResponseException;
 
 class GraphLogin
 {
@@ -15,10 +16,12 @@ class GraphLogin
     /*
      * Facebook helper
      */
-    private $fbHelper;
+    private \JanuSoftware\Facebook\Helper\RedirectLoginHelper $fbHelper;
 
     /**
      * Instantiates a new Facebook class object, Facebook Helper
+     *
+     * @throws SDKException
      */
     public function __construct()
     {
@@ -41,17 +44,17 @@ class GraphLogin
      *
      * @return null|false
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getAccessToken()
     {
         try {
             $accessToken = $this->fbHelper->getAccessToken();
-        } catch (\Facebook\Exceptions\FacebookResponseException $e) {
+        } catch (ResponseException $e) {
             error_log('Graph returned an error: ' . $e->getMessage());
 
             return false;
-        } catch (FacebookSDKException $e) {
+        } catch (SDKException $e) {
             error_log('Facebook SDK returned an error: ' . $e->getMessage());
 
             return false;
@@ -85,7 +88,7 @@ class GraphLogin
      *
      * @return array|false
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getUserInfo()
     {

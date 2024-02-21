@@ -2,7 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CronJob;
+use App\CronJobReport;
 use App\Social\SocialConfig;
+use App\Services\Facebook\FB;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SyncFacebookConversations extends Command
@@ -38,64 +42,57 @@ class SyncFacebookConversations extends Command
      */
     public function handle()
     {
-        $configs = SocialConfig::where([
-            'page_id' => $this->argument('page_id'),
-            'platform' => 'facebook',
-            'status' => 1,
-        ])->get();
+        try {
+            $report = CronJobReport::create([
+                'signature' => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        foreach ($configs as $config) {
-            $pageInfoParams = [ // endpoint and params for getting page
-                'endpoint_path' => $config->page_id . '/conversations',
-                'fields' => 'user_id,id,created_time',
-                'access_token' => $config->page_token,
-                'request_type' => 'GET',
-            ];
+            $configs = SocialConfig::where([
+                'page_id' => $this->argument('page_id'),
+                'platform' => 'facebook',
+                'status' => 1,
+            ])->get();
 
-            $response = getFacebookResults($pageInfoParams);
+            foreach ($configs as $config) {
+                $fb = new FB($config->page_token);
+                $conversations = $fb->getConversations($config->page_id);
 
-            if (isset($response['data']['data'])) {
-                $conversations = $response['data']['data'];
-                foreach ($conversations as $conversation) {
-                    $contact = $config->contacts()->updateOrCreate(['conversation_id' => $conversation['id']], [
+                foreach ($conversations['conversations'] as &$conversation) {
+                    // Sort the messages within the conversation in descending order of created_time
+                    usort($conversation['messages'], function ($a, $b) {
+                        $timeA = $a['created_time']->getTimestamp();
+                        $timeB = $b['created_time']->getTimestamp();
+
+                        return $timeB - $timeA; // For descending order
+                    });
+                }
+
+                foreach ($conversations['conversations'] as $convo) {
+                    $contact = $config->contacts()->updateOrCreate(['conversation_id' => $convo['id']], [
                         'account_id' => $comment['message'] ?? '',
                         'social_config_id' => $config->id,
                         'platform' => 2,
                     ]);
 
-                    $pageInfoParams = [ // endpoint and params for getting page
-                        'endpoint_path' => $conversation['id'] . '/messages',
-                        'fields' => '',
-                        'access_token' => $config->page_token,
-                        'request_type' => 'GET',
-                    ];
-
-                    $messages = getFacebookResults($pageInfoParams);
-
-                    foreach ($messages['data']['data'] as $message) {
-                        $pageInfoParams = [ // endpoint and params for getting page
-                            'endpoint_path' => $message['id'],
-                            'fields' => 'message,from,to,attachments,created_time,is_unsupported',
-                            'access_token' => $config->page_token,
-                            'request_type' => 'GET',
-                        ];
-
-                        $response = getFacebookResults($pageInfoParams);
-
-                        $message_summary = $response['data'];
-
+                    foreach ($convo['messages'] as $message) {
                         $contact->messages()->updateOrCreate(['message_id' => $message['id']], [
-                            'from' => $message_summary['from'],
-                            'to' => $message_summary['to'],
-                            'message' => $message_summary['message'],
-                            'reactions' => $message_summary['reactions'] ?? null,
-                            'is_unsupported' => $message_summary['is_unsupported'] ?? false,
-                            'attachments' => $message_summary['attachments'] ?? null,
-                            'created_time' => $message_summary['created_time'],
+                            'from' => $message['from'],
+                            'to' => $message['to'],
+                            'message' => $message['message'],
+                            'reactions' => $message['reactions'] ?? null,
+                            'is_unsupported' => $message['is_unsupported'] ?? false,
+                            'attachments' => $message['attachments'] ?? null,
+                            'created_time' => $message['created_time'],
                         ]);
                     }
                 }
             }
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            CronJob::insertLastError($this->signature, $e->getMessage());
         }
+
+        return 0;
     }
 }

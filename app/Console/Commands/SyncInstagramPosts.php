@@ -6,6 +6,7 @@ use App\CronJob;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\Social\SocialConfig;
+use App\Services\Facebook\FB;
 use Illuminate\Console\Command;
 
 class SyncInstagramPosts extends Command
@@ -53,18 +54,11 @@ class SyncInstagramPosts extends Command
             ])->get();
 
             foreach ($configs as $config) {
-                $pageInfoParams = [ // endpoint and params for getting page
-                    'endpoint_path' => $config->account_id,
-                    'fields' => 'media{id,caption,like_count,comments_count,timestamp,media_product_type,media_type,owner,permalink,media_url,children{media_url}}',
-                    'access_token' => $config->page_token,
-                    'request_type' => 'GET',
-                ];
+                $fb = new FB($config->page_token);
 
-                $pageInfo = getFacebookResults($pageInfoParams);
+                $posts = $fb->getInstagramPosts($config->account_id);
 
-                $posts = $pageInfo['data']['media']['data'];
-
-                foreach ($posts as $post) {
+                foreach ($posts['posts']['media'] as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
                         'post_body' => $post['caption'] ?? '',
                         'post_by' => $config->page_id,
@@ -73,7 +67,7 @@ class SyncInstagramPosts extends Command
                         'status' => 1,
                         'permalink' => $post['permalink'],
                         'image_path' => $post['media_url'],
-                        'media' => isset($post['children']) ? $post['children']['data'] : null,
+                        'media' => $post['children'] ?? null,
                         'custom_data' => [
                             'like_count' => $post['like_count'],
                             'comments_count' => $post['comments_count'],

@@ -2,8 +2,8 @@
 
 namespace App\Services\Facebook;
 
-use Facebook\Exceptions\FacebookResponseException;
-use Facebook\Exceptions\FacebookSDKException;
+use JanuSoftware\Facebook\Exception\ResponseException;
+use JanuSoftware\Facebook\Exception\SDKException;
 
 class FbPayloads extends FB
 {
@@ -11,7 +11,7 @@ class FbPayloads extends FB
      * Send POST request to Instagram Graph API.
      *
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function postPayload(array $params, string $endpoint, string $token): array
     {
@@ -21,10 +21,10 @@ class FbPayloads extends FB
                 $params,
                 $token
             );
-        } catch (FacebookResponseException $e) {
+        } catch (ResponseException $e) {
             echo 'Graph returned an error: ' . json_encode($e->getResponseData());
             exit;
-        } catch (FacebookSDKException $e) {
+        } catch (SDKException $e) {
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
         }
@@ -37,7 +37,7 @@ class FbPayloads extends FB
      * Login and Authenticate to Instagram Graph API.
      *
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getPayload(string $endpoint, string $token, bool $graphEdge = null): array
     {
@@ -46,10 +46,10 @@ class FbPayloads extends FB
                 $endpoint,
                 $token
             );
-        } catch (FacebookResponseException $e) {
+        } catch (ResponseException $e) {
             echo 'Graph returned an error: ' . json_encode($e->getResponseData());
             exit;
-        } catch (FacebookSDKException $e) {
+        } catch (SDKException $e) {
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
         }
@@ -65,7 +65,7 @@ class FbPayloads extends FB
      * Send DELETE request to Instagram Graph API.
      *
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function deletePayload(array $params, string $endpoint, string $token): array
     {
@@ -75,10 +75,10 @@ class FbPayloads extends FB
                 $params,
                 $token
             );
-        } catch (FacebookResponseException $e) {
+        } catch (ResponseException $e) {
             echo 'Graph returned an error: ' . json_encode($e->getResponseData());
             exit;
-        } catch (FacebookSDKException $e) {
+        } catch (SDKException $e) {
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
         }

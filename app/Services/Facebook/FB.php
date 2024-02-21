@@ -3,8 +3,8 @@
 namespace App\Services\Facebook;
 
 use FbException;
-use Facebook\Facebook;
-use Facebook\Exceptions\FacebookSDKException;
+use JanuSoftware\Facebook\Facebook;
+use JanuSoftware\Facebook\Exception\SDKException;
 
 class FB
 {
@@ -21,7 +21,7 @@ class FB
     /**
      * @param  string|null  $token The Instagram or Facebook AccessToken.
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function __construct(string $token = null)
     {
@@ -46,7 +46,7 @@ class FB
      * Get User Access Token from Instagram Graph API Callback.
      *
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public static function getUserAccessToken(): string
     {
@@ -62,7 +62,7 @@ class FB
      * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
      * @param  bool|null  $graphEdge The request should be on `graphEdge` or `graphNode`.
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function get(string $endpoint, bool $graphEdge = null): array
     {
@@ -75,7 +75,7 @@ class FB
      * @param  array  $params Post parameters.
      * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function post(array $params, string $endpoint): array
     {
@@ -88,7 +88,7 @@ class FB
      * @param  array  $params DELETE parameters.
      * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function delete(array $params, string $endpoint): array
     {
@@ -99,7 +99,7 @@ class FB
      * Get Instagram connected Accounts List.
      *
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getConnectedAccountsList(): array
     {
@@ -141,7 +141,7 @@ class FB
      * @param  string  $facebookPageAccessToken Facebook Page Access Token
      * @param  array  $subscribed_fields Page field (example: ["feed"])
      *
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function subscribeWebhook(int $facebookPageId, string $facebookPageAccessToken, array $subscribed_fields = ['email']): array
     {
@@ -156,7 +156,7 @@ class FB
      * @param  string  $comment_id Comment ID
      * @param  array  $fields Required fields
      *
-     * @throws FbException|FacebookSDKException
+     * @throws FbException|SDKException
      */
     public function getComment(string $comment_id, array $fields = []): array
     {
@@ -184,7 +184,7 @@ class FB
      * @param  string  $message Comment's Text
      * @param  string  $recipient_id Post or Comment ID
      *
-     * @throws FbException|FacebookSDKException
+     * @throws FbException|SDKException
      */
     public function addComment(string $message, string $recipient_id): array
     {
@@ -211,7 +211,7 @@ class FB
      *
      * @param  string  $comment_id Comment ID
      *
-     * @throws FacebookSDKException|FbException
+     * @throws SDKException|FbException
      */
     public function deleteComment(string $comment_id): array
     {
@@ -236,7 +236,7 @@ class FB
      * @param  string  $comment_id Comment ID
      * @param  bool  $status Hide => true | UnHide => false
      *
-     * @throws FacebookSDKException|FbException
+     * @throws SDKException|FbException
      */
     public function hideComment(string $comment_id, bool $status): array
     {
@@ -263,7 +263,7 @@ class FB
      * @param  string  $message_id Message ID
      * @param  array  $fields Required fields
      *
-     * @throws FacebookSDKException|FbException
+     * @throws SDKException|FbException
      */
     public function getMessage(string $message_id, array $fields = []): array
     {
@@ -291,7 +291,7 @@ class FB
      * @param  string  $recipient_id Instagram USER_ID
      * @param  string  $message Message's Text
      *
-     * @throws FacebookSDKException|FbException
+     * @throws SDKException|FbException
      */
     public function addTextMessage(string $recipient_id, string $message): array
     {
@@ -324,7 +324,7 @@ class FB
      * @param  string  $url Message Attachment's url
      * @param  string  $type Message Attachment's type
      *
-     * @throws FacebookSDKException|FbException
+     * @throws SDKException|FbException
      */
     public function addMediaMessage(string $recipient_id, string $url, string $type = 'image'): array
     {
@@ -366,57 +366,64 @@ class FB
      * AdCampaign based on the ad account id API
      * FB get /act_{ad_account_id}/campaigns
      *
-     * @param string $ad_account_id
      *
-     * @return array
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getCampaigns(string $ad_account_id): array
     {
         $campaigns = self::get("$ad_account_id/campaigns", true);
 
-        return ['success' => true, $campaigns];
+        return ['success' => true, 'campaigns' => $campaigns];
     }
 
     /**
      * Ads based on the ad account id API
      * FB get /act_{ad_account_id}/ads
      *
-     * @param int|string $ad_account_id
      *
-     * @return array
-     * @throws FacebookSDKException
+     * @throws SDKException
      */
     public function getAds(string|int $ad_account_id): array
     {
         $ads = self::get("$ad_account_id/ads", true);
 
-        return ['success' => true, $ads];
+        return ['success' => true, 'ads' => $ads];
     }
 
     /**
-     * @param string|int $page_id
-     * @return array
-     *
-     * @throws FacebookSDKException Get the conversation for page ID
+     * @throws SDKException Get the conversation for page ID
      */
     public function getConversations(string|int $page_id): array
     {
-        $conversation = self::get("$page_id/conversations?fields=name,messages{created_time,from,id,message,sticker,tags,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000", true);
+        $conversation = self::get("$page_id/conversations?fields=name,messages{created_time,from,id,is_unsupported,reactions,message,to,attachments.limit(1000)},can_reply,id,is_subscribed,link,message_count,participants,senders,subject&limit=1000000", true);
 
-        return ['success' => true, $conversation];
+        return ['success' => true, 'conversations' => $conversation];
     }
 
     /**
-     * @param int|string $conversation_id
-     * @return array
-     *
-     * @throws FacebookSDKException Get the messages for the conversation for conversation ID
+     * @throws SDKException Get the messages for the conversation for conversation ID
      */
     public function getConversation(int|string $conversation_id): array
     {
         $conversation = self::get($conversation_id . '?fields=id,messages.limit(1000){created_time,from,id,message,to}');
 
-        return ['success' => true, $conversation];
+        return ['success' => true, 'conversation' => $conversation];
+    }
+
+    /**
+     * @throws SDKException Get the messages for the conversation for conversation ID
+     */
+    public function getPageFeed(int|string $page_id): array
+    {
+        $feed = self::get($page_id . '/feed?fields=message,id,created_time', true);
+
+        return ['success' => true, 'feed' => $feed];
+    }
+
+    public function getInstagramPosts(string|int $account_id): array
+    {
+        $feed = self::get($account_id . '?fields=media{id,caption,like_count,comments_count,timestamp,media_product_type,media_type,owner,permalink,media_url,children{media_url}}&limit=1000000');
+
+        return ['success' => true, 'posts' => $feed];
     }
 }

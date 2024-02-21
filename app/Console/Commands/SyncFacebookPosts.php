@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
+use App\Services\Facebook\FB;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\Social\SocialConfig;
@@ -15,7 +16,7 @@ class SyncFacebookPosts extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:facebook-posts';
+    protected $signature = 'facebook:sync-posts';
 
     /**
      * The console command description.
@@ -54,22 +55,18 @@ class SyncFacebookPosts extends Command
             ])->get();
 
             foreach ($configs as $config) {
-                $pageInfoParams = [ // endpoint and params for getting page
-                    'endpoint_path' => $config->page_id . '/feed',
-                    'fields' => 'message,id,created_time',
-                    'access_token' => $config->page_token,
-                    'request_type' => 'GET',
-                ];
 
-                $pageInfo = getFacebookResults($pageInfoParams);
+                $fb = new FB($config->page_token);
+                $pageInfo = $fb->getPageFeed($config->page_id);
 
-                $posts = $pageInfo['data']['data'];
+                $posts = $pageInfo['feed'];
+
                 foreach ($posts as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
                         'post_body' => $post['message'] ?? '',
                         'post_by' => $config->page_id,
                         'ref_post_id' => $post['id'],
-                        'posted_on' => \Carbon\Carbon::parse($post['created_time']),
+                        'posted_on' => Carbon::parse($post['created_time']),
                         'status' => 1,
                     ]);
                 }
