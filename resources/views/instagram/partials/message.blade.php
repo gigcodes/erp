@@ -51,7 +51,8 @@
                     <td>
                         @php
                             $message = $contact->messages->first();
-                            $from = $message->from
+                            $page_id = $contact->socialConfig->page_id;
+                            $from = $message->from['id'] != $page_id ? $message->from : $message->to[0];
                         @endphp
                         {{ $from['name'] }} : {{ $from['email'] }}
                     </td>
