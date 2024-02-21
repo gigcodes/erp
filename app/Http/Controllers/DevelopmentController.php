@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Illuminate\Database\Eloquent\Builder;
 use View;
 use App\Task;
 use App\Team;
@@ -314,49 +315,31 @@ class DevelopmentController extends Controller
     public function issueTaskIndex(Request $request)
     {
         $type = $request->tasktype ? $request->tasktype : 'all';
+        $users = User::orderBy('name')->pluck('name', 'id');
 
         $title = 'Task List';
 
-        $issues = DeveloperTask::with('timeSpent', 'developerTaskHistory', 'assignedUser', 'masterUser', 'timeSpent', 'leadtimeSpent', 'testertimeSpent', 'messages.taskUser', 'messages.user', 'tester');
-        if ($type == 'issue') {
-            $issues = $issues->where('developer_tasks.task_type_id', '3');
-        }
-        if (!empty($request->estimate_date)) {
+        $issues = DeveloperTask::with(['timeSpent', 'developerTaskHistory', 'assignedUser', 'masterUser', 'timeSpent', 'leadtimeSpent', 'testertimeSpent', 'messages.taskUser', 'messages.user', 'tester']);
+
+        $issues->when($type == 'issue', fn($q) => $q->where('task_type_id', '3'));
+        $issues->when(!empty($request->estimate_date), function (Builder $query) use ($request) {
             $estimate_date = date('Y-m-d', strtotime($request->estimate_date));
-            $issues = $issues->where('developer_tasks.estimate_date', $estimate_date);
-        }
-        if ($type == 'devtask') {
-            $issues = $issues->where('developer_tasks.task_type_id', '1');
-        }
-        if ((int)$request->get('submitted_by') > 0) {
-            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
-        }
-        if ((int)$request->get('responsible_user') > 0) {
-            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
-        }
+            return $query->where('estimate_date', $estimate_date);
+        });
+        $issues->when($type == 'devtask', fn($q) => $q->where('task_type_id', '1'));
 
-        if ((int)$request->get('corrected_by') > 0) {
-            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
-        }
+        $issues->when((int)$request->get('submitted_by') > 0, fn(Builder $query) => $query->where('created_by', $request->get('submitted_by')));
+        $issues->when((int)$request->get('responsible_user') > 0, fn(Builder $query) => $query->where('responsible_user_id', $request->get('responsible_user')));
+        $issues->when((int)$request->get('corrected_by') > 0, fn(Builder $query) => $query->where('user_id', $request->get('corrected_by')));
+        $issues->when((int)$request->get('assigned_to') > 0, fn(Builder $query) => $query->where('assigned_to', $request->get('assigned_to')));
+        $issues->when((int)$request->get('master_user_id') > 0, fn(Builder $query) => $query->where('master_user_id', $request->get('master_user_id')));
+        $issues->when((int)$request->get('team_lead_id') > 0, fn(Builder $query) => $query->where('team_lead_id', $request->get('team_lead_id')));
+        $issues->when((int)$request->get('tester_id') > 0, fn($q) => $q->where('tester_id', $request->get('tester_id')));
+        $issues->when($request->get('module'), fn($q) => $q->where('module_id', $request->get('module')));
+        $issues->when(!empty($request->get('task_status', [])), fn($q) => $q->whereIn('status', $request->get('task_status')));
+        $issues->when(!empty($request->get('repo_id')), fn($q) => $q->where('repository_id', $request->get('repo_id')));
 
-        if ((int)$request->get('assigned_to') > 0) {
-            $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
-        }
-        if ((int)$request->get('master_user_id') > 0) {
-            $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('master_user_id'));
-        }
-        if ((int)$request->get('team_lead_id') > 0) {
-            $issues = $issues->whereIn('developer_tasks.team_lead_id', $request->get('team_lead_id'));
-        }
-        if ((int)$request->get('tester_id') > 0) {
-            $issues = $issues->whereIn('developer_tasks.tester_id', $request->get('tester_id'));
-        }
-        if ($request->get('module')) {
-            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
-        }
-        if (!empty($request->get('task_status', []))) {
-            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
-        }
+
         if (isset($request->is_estimated)) {
             if ($request->get('is_estimated') == 'null') {
                 $issues = $issues->notEstimated();
@@ -364,12 +347,6 @@ class DevelopmentController extends Controller
             if ($request->get('is_estimated') == 'not_approved') {
                 $issues = $issues->adminNotApproved();
             }
-        } else {
-            //
-        }
-
-        if (!empty($request->get('repo_id'))) {
-            $issues = $issues->where('repository_id', $request->get('repo_id'));
         }
 
         $whereCondition = '';
@@ -406,8 +383,6 @@ class DevelopmentController extends Controller
             return DeveloperModule::orderBy('name')->get();
         });
 
-        $users = User::orderBy('name')->pluck('name', 'id')->toArray();
-
         $statusList = Cache::remember('task_status_select_name', 60 * 60 * 24 * 7, function () {
             return TaskStatus::select('name')->pluck('name', 'name')->toArray();
         });
@@ -427,9 +402,7 @@ class DevelopmentController extends Controller
             ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
             ->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = Cache::remember('User::whereIn::' . implode(',', $userIds), 60 * 60 * 24 * 7, function () use ($userIds) {
-            return \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-        });
+        $userModel = $users->whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -459,8 +432,7 @@ class DevelopmentController extends Controller
 
         // Sort
         if ($request->order == 'priority') {
-            $issues = $issues->orderBy('priority', 'ASC')
-                ->orderBy('created_at', 'DESC');
+            $issues = $issues->orderBy('created_at', 'DESC');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
@@ -598,7 +570,7 @@ class DevelopmentController extends Controller
 
         if (@$inputs['user_id']) {
             $issues->where('assigned_to', $inputs['user_id']);
-            $users = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
+            $users = User::where('id', $request->user_id)->select(['id', 'name'])->first();
         }
 
         if (@$inputs['status']) {
@@ -683,7 +655,7 @@ class DevelopmentController extends Controller
         $issuesGroups = clone $issues;
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
@@ -701,7 +673,7 @@ class DevelopmentController extends Controller
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -860,7 +832,7 @@ class DevelopmentController extends Controller
         $issuesGroups = clone $issues;
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
@@ -877,7 +849,7 @@ class DevelopmentController extends Controller
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -1045,7 +1017,7 @@ class DevelopmentController extends Controller
         $issuesGroups = clone $issues;
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
@@ -1062,7 +1034,7 @@ class DevelopmentController extends Controller
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -1190,7 +1162,7 @@ class DevelopmentController extends Controller
         $issuesGroups = clone $issues;
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
@@ -1207,7 +1179,7 @@ class DevelopmentController extends Controller
         $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
 
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $userModel = User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
         $countInProgress = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
