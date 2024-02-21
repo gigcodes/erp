@@ -19,23 +19,6 @@ class ToryDetailsScraper extends Scraper
         }
     }
 
-    public function doesProductExist($url)
-    {
-        $content = $this->getContent($url);
-        if ($content === '') {
-            return false;
-        }
-
-        $c = new HtmlPageCrawler($content);
-        $title = $this->getTitle($c);
-
-        if ($title !== '' && strlen($title) > 2) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
      * @throws \Exception
      */
@@ -162,17 +145,6 @@ class ToryDetailsScraper extends Scraper
         }
 
         return $this->downloadImages($content, 'tory');
-    }
-
-    private function getDesignerName(HtmlPageCrawler $c)
-    {
-        try {
-            $title = preg_replace('/\s\s+/', '', $c->filter('div.product-name h2 strong a')->getInnerHtml());
-        } catch (\Exception $exception) {
-            $title = '';
-        }
-
-        return $title;
     }
 
     private function getBrandId($brandName)

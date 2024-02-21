@@ -30,7 +30,7 @@
 @endsection
 @section('content')
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -49,12 +49,12 @@
                             </div>
                             <div class="col-md-6">
                                 <button type="submit" class="btn btn-image">
-                                    <img src="/images/filter.png"/>
+                                    <img src="/images/filter.png" />
                                 </button>
                                 <button type="reset"
                                         onclick="window.location='{{route('affiliate-marketing.provider.index', ['provider_account' => $provider->id])}}'"
                                         class="btn btn-image" id="resetFilter">
-                                    <img src="/images/resend2.png"/>
+                                    <img src="/images/resend2.png" />
                                 </button>
                             </div>
                         </div>
@@ -62,10 +62,10 @@
                 </form>
             </div>
             <div class="col-md-6 pl-0 float-right">
-{{--                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}--}}
-{{--                <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data--}}
-{{--                </button>--}}
-{{--                {!! Form::close() !!}--}}
+                {{--                {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.syncData', ['provider_account' => $provider->id]],'style'=>'display:inline']) !!}--}}
+                {{--                <button type="submit" class="float-right mb-3 btn-secondary">Refresh Data--}}
+                {{--                </button>--}}
+                {{--                {!! Form::close() !!}--}}
                 <button data-toggle="modal" data-target="#create-group" type="button"
                         class="float-right mb-3 mr-2 btn-secondary">New Group
                 </button>
@@ -135,7 +135,7 @@
                     </div>
                     <form id="add-group-form" method="POST"
                           action="{{route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id])}}">
-                        {{csrf_field()}}
+                        @csrf
                         <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
                         <div class="form-group row">
                             <label for="headline1" class="col-sm-2 col-form-label">
@@ -145,15 +145,18 @@
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="group_title" name="title"
                                        placeholder="Title" value="{{ old('title') }}">
-                                <span id="group_title_err" class="text-danger">{{($errors->has('title'))? $errors->first('title'):''}}</span>
-                                
+                                <span id="group_title_err"
+                                      class="text-danger">{{($errors->has('title'))? $errors->first('title'):''}}</span>
+
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
                                     aria-label="Close">Close
                             </button>
-                            <button type="submit" onclick="return validateForm()" class="float-right custom-button btn">Create</button>
+                            <button type="submit" onclick="return validateForm()" class="float-right custom-button btn">
+                                Create
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -167,60 +170,60 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
     <script type="text/javascript">
-        let showPopup;
-        @if(Session::get('create_popup'))
-            showPopup = true;
-        @endif
+      let showPopup;
+      @if(Session::get('create_popup'))
+        showPopup = true;
+      @endif
 
-        if (showPopup) {
-            $('#create-group').modal('show');
-        }
+      if (showPopup) {
+        $("#create-group").modal("show");
+      }
 
-        $('#create-group').on('show.bs.modal', function () {
-            $('#create-group .page-header h2').text('Create Affiliate Group');
-            $('#add-group-form').attr('action', "{{ route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id]) }}");
-            $('#add-group-form button[type="submit"]').text('Create');
-        })
+      $("#create-group").on("show.bs.modal", function() {
+        $("#create-group .page-header h2").text("Create Affiliate Group");
+        $("#add-group-form").attr("action", "{{ route('affiliate-marketing.provider.createGroup', ['provider_account' => $provider->id]) }}");
+        $("#add-group-form button[type=\"submit\"]").text("Create");
+      });
 
-        $('#create-group').on('hidden.bs.modal', function () {
-            $('#add-group-form').get(0).reset();
-        })
+      $("#create-group").on("hidden.bs.modal", function() {
+        $("#add-group-form").get(0).reset();
+      });
 
-        function editData(id) {
-            let url = "{{ route('affiliate-marketing.provider.getGroup', [":id", 'provider_account' => $provider->id]) }}";
-            url = url.replace(':id', id);
-            $.ajax({
-                url,
-                type: 'GET',
-                params: {id},
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-                success: function (response) {
-                    $("#loading-image").hide();
-                    if (!response.status) {
-                        toastr["error"](response.message);
-                        $('#create-group').modal('hide');
-                    } else {
-                        let url = "{{ route('affiliate-marketing.provider.updateGroup', [":id", 'provider_account' => $provider->id]) }}";
-                        url = url.replace(':id', id);
-                        $('#add-group-form').attr('action', url);
-                        $('#add-group-form button[type="submit"]').text('Update');
-                        $('#create-group .page-header h2').text('Update Affiliate Group');
-                        $('#add-group-form [name="title"]').val(response.data.title);
-                        $('#add-group-form [name="provider_id"]').val(response.data.affiliate_account_id);
-                    }
-                }
-            })
-        }
-
-        function validateForm() {
-            let title = $('#group_title').val();
-            if(title == ''){
-                $('#group_title_err').text('The title field is required.');
-                return false;
+      function editData(id) {
+        let url = "{{ route('affiliate-marketing.provider.getGroup', [":id", 'provider_account' => $provider->id]) }}";
+        url = url.replace(":id", id);
+        $.ajax({
+          url,
+          type: "GET",
+          params: { id },
+          beforeSend: function() {
+            $("#loading-image").show();
+          },
+          success: function(response) {
+            $("#loading-image").hide();
+            if (!response.status) {
+              toastr["error"](response.message);
+              $("#create-group").modal("hide");
+            } else {
+              let url = "{{ route('affiliate-marketing.provider.updateGroup', [":id", 'provider_account' => $provider->id]) }}";
+              url = url.replace(":id", id);
+              $("#add-group-form").attr("action", url);
+              $("#add-group-form button[type=\"submit\"]").text("Update");
+              $("#create-group .page-header h2").text("Update Affiliate Group");
+              $("#add-group-form [name=\"title\"]").val(response.data.title);
+              $("#add-group-form [name=\"provider_id\"]").val(response.data.affiliate_account_id);
             }
-            return true;
+          }
+        });
+      }
+
+      function validateForm() {
+        let title = $("#group_title").val();
+        if (title == "") {
+          $("#group_title_err").text("The title field is required.");
+          return false;
         }
+        return true;
+      }
     </script>
 @endsection

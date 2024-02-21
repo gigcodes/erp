@@ -31,20 +31,20 @@
                 </div>
                 <div class="form-group ml-3">
                   <br>
-                  <?php echo Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]); ?>
+                  {!! Form::select("asset_type", \App\AssetsManager::assertTypeList(), request("asset_type", ""), ["class" => "form-control"]) !!}
                 </div>
                 <div class="form-group ml-3">
                   <br>
-                  <?php echo Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]); ?>
+                  {!! Form::select("purchase_type", \App\AssetsManager::purchaseTypeList(), request("purchase_type", ""), ["class" => "form-control"]) !!}
                 </div>
                 <div class="form-group ml-3">
                   <br>
-                  <?php echo Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]); ?>
+                    {!! Form::select("payment_cycle", \App\AssetsManager::paymentCycleList(), request("payment_cycle", ""), ["class" => "form-control"]) !!}
                 </div>
                 <div class="col-md-1">
                   <br>
                   <select class="form-control" id="createdAt-select">
-                    <option value="">Select SortBy CreatedAt</option>						
+                    <option value="">Select SortBy CreatedAt</option>
                     <option value="asc">Asc</option>
                     <option value="desc">Desc</option>
                   </select>
@@ -52,12 +52,12 @@
                 <div class="form-group ml-3">
                   Select Created Users
                   <br>
-                  {{ Form::select("user_ids[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
+                  {!! Form::select("user_ids[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) !!}
                 </div>
                 <div class="form-group ml-3">
                   Select Ips
                   <br>
-                  {{ Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control select2", "multiple"]) }}
+                  {!! Form::select("ip_ids[]", \App\AssetsManager::pluck('ip','ip')->toArray(), request('ip_ids'), ["class" => "form-control select2", "multiple"]) !!}
                 </div>
                 <br>
                   <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
@@ -378,7 +378,7 @@
                         @if (!in_array('VNC Password', $dynamicColumnsToShowAM))
                             <td>{{ $asset->vnc_password }}</td>
                         @endif
-                        
+
                         @if (!in_array('Created By', $dynamicColumnsToShowAM))
                             <td>{{ $asset->user?->name }}</td>
                         @endif
@@ -434,7 +434,7 @@
                         </tr>
                     @endif
 
-                @else 
+                @else
                     <tr>
                         <td>{{ $asset->id }}</td>
                         <td class="expand-row-msg" data-name="name" data-id="{{$asset->id}}">
@@ -599,7 +599,7 @@
                   </tr>
                 </thead>
                 <tbody id="execute_select_folder_tbody">
-    
+
                 </tbody>
               </table>
             </div>
@@ -753,7 +753,7 @@
 
   <script>
     $(document).ready(function () {
-       
+
         $(".ipButton").click(function () {
             var textToCopy = $(this).data("value");
             var id = $(this).data("id");
@@ -763,7 +763,7 @@
             $tempInput.val(textToCopy).select();
             document.execCommand("copy");
             $tempInput.remove();
-            
+
             setTimeout(function () {
                  $('.ipButton-'+id).text('');
              }, 1500);
@@ -792,9 +792,9 @@
     //     }
     //   });
     // });
-      
+
     $(document).on("click", ".execute-bash-command-select-folder", function(href) {
-        
+
       var folder_name = $(this).data('folder_name');
       var id = $(this).data('id');
       var html = '';
@@ -811,8 +811,8 @@
       } else {
         alert("Please Check Record Site Folder Name.");
       }
-      
-		
+
+
 	});
 	$(document).on("click", ".execute-bash-command", function(href) {
 		if(confirm ("Do you want to run this script???")){
@@ -842,7 +842,7 @@
 	});
 
   $(document).on("click", ".execute_bash_command_response_history", function(href) {
-		
+
       $.ajax({
         type: 'POST',
         url: 'assets-manager/magento-dev-update-script-history/'+ $(this).data('id') ,
@@ -865,7 +865,7 @@
         $("#loading-image").hide();
         console.log("Sorry, something went wrong");
       });
-    
+
   });
 
     $(document).on('click', '.edit-assets', function() {
@@ -917,15 +917,15 @@
       $('#vnc_ip').val(asset.vnc_ip);
       $('#vnc_port').val(asset.vnc_port);
       $('#vnc_password').val(asset.vnc_password);
-      
+
       $('#ip_name_ins').val(asset.ip_name);
-      
+
       $(".addServerUpdate").html("");
       var addserver = '';
       let folderName = JSON.parse(asset.folder_name);
       $.each(folderName,function(key,value){
         addserver = addserver+'<input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
-          
+
       });
       $(".addServerUpdate").append(addserver);
       $('#server_password').val(asset.server_password);
@@ -1020,7 +1020,7 @@
       });
 
     });
-    
+
     $(document).ready(function() {
           $('.payment-history-btn').click(function(){
             var asset_id = $(this).data('id');
@@ -1113,7 +1113,7 @@
           var addIpName = '<br/><input type="text" name="ip_name[]" id="ip_name'+getCount+'" class="form-control"  value="" >';
           $(".addInsIpName").append(addIpName);
       });
-      
+
       $( ".serverUpdbtn" ).bind( "click", function() {
           var getServerUpdCount = $(".getServerUpdCount").val();
           getServerUpdCount = (parseInt(getServerUpdCount) + parseInt(1));
@@ -1174,7 +1174,7 @@
         active_btn = jQuery(ele);
         let asset_id = active_btn.data("id");
         // let is_task_planned = btn.data("is_task_planned");
-      
+
         if (
           confirm("Are you sure want to update?")
         ) {
@@ -1248,12 +1248,12 @@
                     assets_management_id : assets_management_id
                 },
             }).done(response => {
-                
+
                 if(response.success==true){
                     $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
                     $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
                     $('#showAssetsManagementUsersModel #assets_management_ip_address').val(assets_management_ip);
-                    $('#showAssetsManagementUsersModel').modal('show');                    
+                    $('#showAssetsManagementUsersModel').modal('show');
                 }
 
             }).fail(function(response) {
@@ -1276,11 +1276,11 @@
                     assets_management_id : assets_management_id
                 },
             }).done(response => {
-                
+
                 if(response.success==true){
                     $('#showAssetsManagementTerminalUsersModel').find('#showAssetsManagementTerminalUsersView').html(response.html);
                     $('#showAssetsManagementTerminalUsersModel #tua_assets_management_id').val(assets_management_id);
-                    $('#showAssetsManagementTerminalUsersModel').modal('show');                    
+                    $('#showAssetsManagementTerminalUsersModel').modal('show');
                 }
 
             }).fail(function(response) {
@@ -1313,7 +1313,7 @@
                 setTimeout(function() {
                     location.reload();
                 }, 1000);
-                
+
             }).fail(function (response) {
                 $("#loading-image-modal").hide();
                 toastr['error'](response.message, 'error');
@@ -1351,7 +1351,7 @@
                     toastr['success'](response.message, 'success');
 
                     $("#remark_"+asset_manager_terminal_user_accesses_id).val('');
-                }                
+                }
             }
         }).fail(function(response) {
             $("#loading-image").hide();
@@ -1393,7 +1393,7 @@
                     $("#remark_"+asset_manager_terminal_user_accesses_id).val('');
                 } else if (response.code == 500) {
                     toastr['error'](response.message, 'username already exists.');
-                }                
+                }
             }
         }).fail(function(response) {
             $("#loading-image").hide();
@@ -1403,7 +1403,7 @@
 
     $(document).on('click', '.remarks-history-show', function() {
         var amtua_id = $(this).attr('data-id');
-        
+
         $.ajax({
             url: "{{route('assetsmanager.getremarks')}}",
             type: 'POST',
@@ -1465,7 +1465,7 @@
         }
 
         if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('#assets_management_id').val() != '' && $('.ua_user_role').val() != '' && $('.ua_login_type').val() != '' && $('#assets_management_ip_address').val() != '') {
-        
+
             $.ajax({
                 type: 'POST',
                 url: 'assets-manager/user-access-create',
@@ -1510,7 +1510,7 @@
     $(document).on("click", "#create-terminal-user-acccess-btn", function(href) {
 
         $('.text-danger-access').html('');
-       
+
         if($('.tua_username').val() == '') {
             $('.tua_username').next().text("Please enter user name");
             return false;
@@ -1522,7 +1522,7 @@
         }
 
         if($('.tua_username').val() != '' && $('.tua_password').val() != '' && $('#tua_assets_management_id').val() != '') {
-        
+
             $.ajax({
                 type: 'POST',
                 url: 'assets-manager/terminal-user-access-create',
@@ -1581,7 +1581,7 @@
             setTimeout(function() {
                 location.reload();
             }, 1000);
-            
+
         }).fail(function (response) {
             $("#loading-image-modal").hide();
             toastr['error'](response.message, 'error');
@@ -1619,10 +1619,10 @@
               url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
               dataType: "json",
               success: function(response) {
-                 
+
                     $("#user-access-request-list-header").find(".user-access-request-header-view").html(response.request_data);
                     $("#user-access-request-list-header").modal("show");
-           
+
               }
           });
     });
@@ -1634,10 +1634,10 @@
               url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
               dataType: "json",
               success: function(response) {
-                 
+
                     $("#user-access-response-list-header").find(".user-access-response-header-view").html(response.response_data);
                     $("#user-access-response-list-header").modal("show");
-           
+
               }
           });
     });

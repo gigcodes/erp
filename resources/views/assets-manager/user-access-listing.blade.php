@@ -19,14 +19,14 @@
 		           	<div class="form-group  ml-3">
 						Search Username
 						<br>
-						<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+						{!! Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) !!}
 					</div>
 				</div>
 				<div class="col-lg-4 margin-tb">
 		            <div class="form-group ml-3" style=" width: 100%;">
 		              	Select Created By User
 		              	<br>
-		              	{{ Form::select("created_by[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('created_by'), ["class" => "form-control select2", "multiple"]) }}
+						{!! Form::select("created_by[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('created_by'), ["class" => "form-control select2", "multiple"]) !!}
 		            </div>
 	            </div>
 	            <div class="col-lg-3 margin-tb" style=" margin-top: 15px;">

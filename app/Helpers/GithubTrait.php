@@ -12,13 +12,6 @@ use GuzzleHttp\Exception\ClientException;
 
 trait GithubTrait
 {
-    private function getGithubClient()
-    {
-        return new Client([
-            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
-        ]);
-    }
-
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([

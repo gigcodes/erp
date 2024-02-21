@@ -1,6 +1,6 @@
 <form id="add-group-form" method="POST"
       action="{{route('affiliate-marketing.provider.affiliate.create', ['provider_account' => $provider->id])}}">
-    {{csrf_field()}}
+    @csrf
     <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
     <div class="form-group row">
         <label for="headline1" class="col-sm-3 col-form-label">

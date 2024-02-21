@@ -16,45 +16,45 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>User</strong>
-									<?php
-									echo Form::select( 'selected_user', $users, $selected_user, [
-										'class' => 'form-control',
-										'id'    => 'userList',
-										'name'  => 'selected_user'
-									] );?>
+                                    @php
+                                        echo Form::select( 'selected_user', $users, $selected_user, [
+                                            'class' => 'form-control',
+                                            'id'    => 'userList',
+                                            'name'  => 'selected_user'
+                                        ] );
+                                    @endphp
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>By Day/Month</strong>
-									<?php
 
-									$date_types = [ 'day' => 'day', 'month' => 'month' ];
-
-									echo Form::select( 'date_type', $date_types, $date_type, [
-										'class' => 'form-control',
-										'id'    => 'date_type',
-										'name'  => 'date_type'
-									] );?>
+                                    @php
+                                        $date_types = ['day' => 'day', 'month' => 'month'];
+                                        echo Form::select('date_type', $date_types, $date_type, [
+                                            'class' => 'form-control',
+                                            'id' => 'date_type',
+                                            'name' => 'date_type'
+                                        ]);
+                                    @endphp
 
                                     <script>
-                                        jQuery(document).ready(function () {
+                                      jQuery(document).ready(function() {
 
-                                            jQuery('#date_type').change(function () {
-                                                let date_type = jQuery(this).val();
+                                        jQuery("#date_type").change(function() {
+                                          let date_type = jQuery(this).val();
 
-                                                if (date_type === 'day') {
-                                                    jQuery('input[name="day_range"]').show();
-                                                    jQuery('input[name="month_range"]').hide();
-                                                }
-                                                else {
-                                                    jQuery('input[name="day_range"]').hide();
-                                                    jQuery('input[name="month_range"]').show();
-                                                }
-                                            });
-
-                                            jQuery('#date_type').trigger('change');
+                                          if (date_type === "day") {
+                                            jQuery("input[name=\"day_range\"]").show();
+                                            jQuery("input[name=\"month_range\"]").hide();
+                                          } else {
+                                            jQuery("input[name=\"day_range\"]").hide();
+                                            jQuery("input[name=\"month_range\"]").show();
+                                          }
                                         });
+
+                                        jQuery("#date_type").trigger("change");
+                                      });
 
                                     </script>
                                 </div>
@@ -64,9 +64,9 @@
                                 <div class="form-group">
                                     <strong>Date Range</strong>
                                     <input style="{{ ( $date_type == 'month' )? 'display: none;' : '' }}" type="date"
-                                           class="form-control" value="{{ $day_range }}" name="day_range"/>
+                                           class="form-control" value="{{ $day_range }}" name="day_range" />
                                     <input style="{{ ( $date_type == 'day' )? 'display: none;' : '' }}" type="month"
-                                           class="form-control" value="{{ $month_range }}" name="month_range"/>
+                                           class="form-control" value="{{ $month_range }}" name="month_range" />
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -100,78 +100,78 @@
     </section>
 
     <script>
-        $(document).ready(function () {
+      $(document).ready(function() {
 
-            'use strict';
+        "use strict";
 
-            let brandPrimary = 'rgba(51, 179, 90, 1)';
-            let color = {
-                'selection': '#6F90D0',
-                'searcher': '#E49233',
-                'attribute': '#6FBE4E',
-                'supervisor' : '#DF5056',
-                'imagecropper' : '#7C8383',
-                'lister' : '#995CAB',
-                'approver' : '#B66651',
-                'inventory' : '#CCC768',
-                'sales' : '#009EF2',
-                // 'attribute': '#FF4D7D',
-                // 'approver': '#00C4C3',
-            };
+        let brandPrimary = "rgba(51, 179, 90, 1)";
+        let color = {
+          "selection": "#6F90D0",
+          "searcher": "#E49233",
+          "attribute": "#6FBE4E",
+          "supervisor": "#DF5056",
+          "imagecropper": "#7C8383",
+          "lister": "#995CAB",
+          "approver": "#B66651",
+          "inventory": "#CCC768",
+          "sales": "#009EF2"
+// 'attribute': '#FF4D7D',
+// 'approver': '#00C4C3',
+        };
 
-            let ActivityChart = $('#ActivityChart');
+        let ActivityChart = $("#ActivityChart");
 
-            var barChartExample = new Chart(ActivityChart, {
-                type: 'bar',
-                data: {
-                    labels: [
-                        @foreach($dataLabel as $item)
-                            '{{ $item }}',
-                        @endforeach
-                    ],
-                    datasets: [
-                            @foreach($workDone as $key => $value)
-                        {
-                            label: "{{$key}}",
-                            backgroundColor: color["{{$key}}"],
-                            data: [
-                                @for($i = $date_type == 'day' ? 0 : 1; $i < sizeof($value); $i++)
-                                    '{{ $value[$i] }}',
-                                @endfor
-                            ],
-                        },
-                        @endforeach
+        var barChartExample = new Chart(ActivityChart, {
+          type: "bar",
+          data: {
+            labels: [
+                @foreach($dataLabel as $item)
+                  '{{ $item }}',
+                @endforeach
+            ],
+            datasets: [
+                    @foreach($workDone as $key => $value)
+              {
+                label: "{{$key}}",
+                backgroundColor: color["{{$key}}"],
+                data: [
+                    @for($i = $date_type == 'day' ? 0 : 1; $i < sizeof($value); $i++)
+                      '{{ $value[$i] }}',
+                    @endfor
+                ]
+              },
+                @endforeach
 
-                    ],
+            ]
+          },
+          options: {
+            scaleShowValues: true,
+            scales: {
+              yAxes: [{
+                stacked: true,
+                ticks: {
+                  beginAtZero: true
                 },
-                options: {
-                    scaleShowValues: true,
-                    scales: {
-                        yAxes: [{
-                            stacked: true,
-                            ticks: {
-                                beginAtZero: true
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Work Done'
-                            }
-                        }],
-                        xAxes: [{
-                            stacked: true,
-                            ticks: {
-                                autoSkip: false
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Days'
-                            }
-                        }]
-                    }
+                scaleLabel: {
+                  display: true,
+                  labelString: "Work Done"
                 }
-            });
-
+              }],
+              xAxes: [{
+                stacked: true,
+                ticks: {
+                  autoSkip: false
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: "Days"
+                }
+              }]
+            }
+          }
         });
+
+      });
 
     </script>
 

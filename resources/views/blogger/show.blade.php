@@ -26,7 +26,7 @@
 @endsection
 
 @section('content')
-    <?php $blogger = $blogger_product->blogger ?>
+    @php $blogger = $blogger_product->blogger @endphp
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">

@@ -2043,17 +2043,6 @@ class HubstaffActivitiesController extends Controller
         ], 500);
     }
 
-    private function array_except($array, $keys)
-    {
-        foreach ($array as $key => $value) {
-            if (in_array($value, $keys)) {
-                unset($array[$key]);
-            }
-        }
-
-        return $array;
-    }
-
     public function approvedPendingPayments(Request $request)
     {
         $title = 'Approved pending payments';

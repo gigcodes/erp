@@ -209,10 +209,6 @@ class InstagramPostsController extends Controller
     {
     }
 
-    private function _getFilteredInstagramPosts(Request $request)
-    {
-    }
-
     /**
      * @SWG\Post(
      *   path="/instagram/post",
@@ -459,29 +455,6 @@ class InstagramPostsController extends Controller
 
                 return $responseData['access_token'];
             }
-        }
-    }
-
-    public function getHashTashSuggestions($token, $word)
-    {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = 'https://api.hashtagify.me/1.0/tag/' . $word;
-
-        $response = Http::withHeaders(['authorization: Bearer ' . $token,
-            'cache-control: no-cache', ])->get($url);
-
-        $responseData = $response->json();
-
-        if ($response->failed()) {
-            $err = $response->body();
-        }
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), InstagramPostsController::class, 'getHashTashSuggestions');
-
-        if ($err) {
-            //
-        } else {
-            return $response;
         }
     }
 

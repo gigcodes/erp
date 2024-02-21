@@ -133,29 +133,4 @@ class DoubleFScraper extends Scraper
 
         return $link;
     }
-
-    private function getPaginationData(HtmlPageCrawler $c): array
-    {
-        $maxPageNumber = 1;
-        $options = [
-            'current_page_number' => 1,
-            'total_pages' => $maxPageNumber,
-        ];
-
-        $text = $c->filter('div.pages ol li.current span')->getInnerHtml();
-        $text = preg_replace('/\s\s+/', '', $text);
-        if (strlen($text) < 5) {
-            return $options;
-        }
-
-        $text = explode(' ', $text);
-        $maxPageNumber = $text[count($text) - 1];
-
-        $options = [
-            'current_page_number' => 0,
-            'total_pages' => $maxPageNumber,
-        ];
-
-        return $options;
-    }
 }

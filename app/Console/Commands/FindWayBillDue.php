@@ -53,29 +53,4 @@ class FindWayBillDue extends Command
 
         Waybillinvoice::where('status', '!=', 'paid')->whereDate('due_date', '<', Carbon::today())->update(['status' => 'due']);
     }
-
-    /**
-     * Check all the emails in the DB and extract the model type from there
-     *
-     * @param [type] $email
-     * @param [type] $email_list
-     * @return array(model_id,miodel_type)
-     */
-    private function getModel($email, $email_list)
-    {
-        $model_id = null;
-        $model_type = null;
-
-        // Traverse all models
-        foreach ($email_list as $key => $value) {
-            // If email exists in the DB
-            if (isset($value[$email])) {
-                $model_id = $value[$email];
-                $model_type = $key;
-                break;
-            }
-        }
-
-        return compact('model_id', 'model_type');
-    }
 }

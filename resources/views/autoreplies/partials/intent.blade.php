@@ -7,8 +7,8 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="<?php echo route('reply.create.chatbot_questions'); ?>" method="post">
-                    <?php echo csrf_field(); ?>
+                <form action="{{ route('reply.create.chatbot_questions') }}" method="post">
+                   @csrf
                     <input type="hidden" name="intent_reply_id" id="reply_id_edit">
                     <div class="form-row">
                         <div class="form-group col-md-12">

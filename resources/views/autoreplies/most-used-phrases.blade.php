@@ -70,11 +70,11 @@
     @include('partials.flash_messages')
     <div class="col-md-12 margin-tb" style="margin-top:10px;">
         <ul class="pagination" role="navigation">
-            <?php for($i = 1; $i <= $recordsNeedToBeShown; $i++) { ?>
+            @for($i = 1; $i <= $recordsNeedToBeShown; $i++) {
                  <li  class="page-item @if($activeNo == $i) active  @endif" style="display:inline-block;margin-right: 2px;">
                     <a class="page-link" href="{{ route('chatbot.mostUsedPhrases', request()->except('page') + ['page' => ($i * $multiple)]) }}" rel="prev" aria-label="From {{ $i }}">From {{ $i * $multiple }} >></a>
                 </li>
-            <?php } ?>
+             }@endfor
         </ul>
     </div>    
     <div class="col-md-12 margin-tb" style="margin-top:10px;">
@@ -139,7 +139,7 @@
         </div>
       </div>
     </div>
-    <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
+    @php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); @endphp
 @endsection
 
 @section('scripts')
@@ -270,7 +270,7 @@
                 },
                 "assistant_report" : assistantReport,
                 "response" :  $(this).data("a"),
-                "allSuggestedOptions" : JSON.parse('<?php echo json_encode($allSuggestedOptions) ?>')
+                "allSuggestedOptions" : JSON.parse('{{ json_encode($allSuggestedOptions) }}')
             };
             var html = myTmpl.render({
                 "data": json

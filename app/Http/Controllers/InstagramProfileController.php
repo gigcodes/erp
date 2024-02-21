@@ -18,10 +18,6 @@ class InstagramProfileController extends Controller
     {
     }
 
-    private function getInstagramUserData($customer)
-    {
-    }
-
     public function getFollowers($id)
     {
     }

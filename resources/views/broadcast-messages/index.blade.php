@@ -94,14 +94,14 @@
                     <td id="name">{{$value->name??''}}</td>
                     <td id="name">{{$value->created_at->format('Y-m-d')??''}}</td>
                     <td>
-                        <a class="create_broadcast" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color: gray;"></i></a>
-                        <a title="Preview Broadcast Numbers" data-message-id="<?php echo $value->id; ?>" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+                        <a class="create_broadcast" data-message-id="{{ $value->id }}" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color: gray;"></i></a>
+                        <a title="Preview Broadcast Numbers" data-message-id="{{ $value->id }}" class="btn btn-image preview_broadcast_numbers" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
                         {{-- <a title="Resend Massage" data-message-id="{{$value->id}}" class="resend_massage" href="javascript:;"> <i style="cursor: pointer;" class="fa fa-repeat" aria-hidden="true"></i></a> --}}
 						<a data-route="{{route('delete.message')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>
-                        <a class=" show_massage ml-3" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-comments-o" aria-hidden="true" style="color:gray;"></i></a>
-                        <a class=" add_type ml-3" data-type="supplier" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-user" aria-hidden="true"style="color:gray;"></i></a>
-                        <a class=" add_type ml-3" data-type="vendor" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-users" aria-hidden="true" style="color:gray;"></i></a>
-                        <a class=" add_type ml-3" data-type="customer" data-message-id="<?php echo $value->id; ?>" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color:gray;"></i></a>
+                        <a class=" show_massage ml-3" data-message-id="{{ $value->id }}" href="javascript:;"><i class="fa fa-comments-o" aria-hidden="true" style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="supplier" data-message-id="{{ $value->id }}" href="javascript:;"><i class="fa fa-user" aria-hidden="true"style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="vendor" data-message-id="{{ $value->id }}" href="javascript:;"><i class="fa fa-users" aria-hidden="true" style="color:gray;"></i></a>
+                        <a class=" add_type ml-3" data-type="customer" data-message-id="{{ $value->id }}" href="javascript:;"><i class="fa fa-plus" aria-hidden="true" style="color:gray;"></i></a>
                     </td>
                 </tr>
             @endforeach
