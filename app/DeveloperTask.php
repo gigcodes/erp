@@ -6,6 +6,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Hubstaff\HubstaffActivity;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -248,7 +249,7 @@ class DeveloperTask extends Model
     public function timeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'hubstaff_task_id'
         )
@@ -259,7 +260,7 @@ class DeveloperTask extends Model
     public function leadtimeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'lead_hubstaff_task_id'
         )
@@ -270,7 +271,7 @@ class DeveloperTask extends Model
     public function testertimeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'tester_hubstaff_task_id'
         )

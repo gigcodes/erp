@@ -318,7 +318,7 @@ class DevelopmentController extends Controller
     {
         $type = $request->tasktype ? $request->tasktype : 'all';
         $users = User::orderBy('name')->pluck('name', 'id');
-
+        $auth_user = auth()->user();
         $title = 'Task List';
 
         $issues = DeveloperTask::with([
@@ -353,7 +353,6 @@ class DevelopmentController extends Controller
         $issues->when(!empty($request->get('task_status', [])), fn($q) => $q->whereIn('status', $request->get('task_status')));
         $issues->when(!empty($request->get('repo_id')), fn($q) => $q->where('repository_id', $request->get('repo_id')));
 
-
         if (isset($request->is_estimated)) {
             if ($request->get('is_estimated') == 'null') {
                 $issues = $issues->notEstimated();
@@ -366,12 +365,8 @@ class DevelopmentController extends Controller
         $whereCondition = '';
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
-            $issues = $issues->where(function ($query) use ($request) {
-                $subject = $request->get('subject');
-                $query->where('developer_tasks.id', 'LIKE', "%$subject%")
-                    ->orWhere('subject', 'LIKE', "%$subject%")
-                    ->orWhere('task', 'LIKE', "%$subject%")
-                    ->orwhere('chat_messages.message', 'LIKE', "%$subject%");
+            $issues = $issues->where(function (Builder $query) use ($request) {
+                $query->whereLike(['developer_tasks.id', 'subject', 'task', 'chat_messages.message'], $request->get('subject'));
             });
         }
         $issues = $issues->leftJoin(
@@ -382,9 +377,7 @@ class DevelopmentController extends Controller
 
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
-        if ($request->get('last_communicated', 'off') == 'on') {
-            $issues = $issues->orderBy('chat_messages.id', 'desc');
-        }
+        $issues->when($request->get('last_communicated', 'off') == 'on',fn($q)=> $q->orderBy('chat_messages.id', 'desc'));
 
         $issues = $issues->select('developer_tasks.*',
             'chat_messages.message',
@@ -405,11 +398,11 @@ class DevelopmentController extends Controller
         });
 
         if (!auth()->user()->isReviwerLikeAdmin()) {
-            $issues = $issues->where(function ($query) {
-                $query->where('assigned_to', auth()->user()->id)
-                    ->orWhere('master_user_id', auth()->user()->id)
-                    ->orWhere('tester_id', auth()->user()->id)
-                    ->orWhere('team_lead_id', auth()->user()->id);
+            $issues = $issues->where(function ($query) use ($auth_user) {
+                $query->where('assigned_to', $auth_user->id)
+                    ->orWhere('master_user_id', $auth_user->id)
+                    ->orWhere('tester_id', $auth_user->id)
+                    ->orWhere('team_lead_id', $auth_user->id);
             });
         }
 
