@@ -86,7 +86,7 @@
             @include("development.partials.task-issue-search")
             <div class="pull-right mt-4">
 
-                @if (Auth::user()->isAdmin())
+                @if (auth()->user()->isAdmin())
                     <a class="btn btn-secondary" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper
                         Verification Data </a>
                     <button class="btn btn-secondary" style="color:white;" data-toggle="modal"
@@ -121,10 +121,10 @@
     </div>
     @include("development.partials.task-issue-counter")
 
-    <?php
-    $query = http_build_query(Request::except('page'));
-    $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
-    ?>
+    @php
+        $query = http_build_query(Request::except('page'));
+        $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query . '&page=');
+    @endphp
 
     <div class="form-group position-fixed" style="top: 50px; left: 20px;">
         Goto :
@@ -295,10 +295,10 @@
 @section('scripts')
 
     <script src="{{asset('js/bootstrap-datetimepicker.min.js')}}"></script>
-    <script src="{{env('APP_URL')}}/js/jquery-ui.js"></script>
-    <script src="{{env('APP_URL')}}/js/jquery.jscroll.min.js"></script>
-    <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
-    <script src="{{env('APP_URL')}}/js/bootstrap-filestyle.min.js"></script>
+    <script src="{{asset('js/jquery-ui.js')}}"></script>
+    <script src="{{asset('js/jquery.jscroll.min.js')}}"></script>
+    <script src="{{asset('js/bootstrap-multiselect.min.js')}}"></script>
+    <script src="{{asset('js/bootstrap-filestyle.min.js')}}"></script>
     <script type="text/javascript" src="/js/recorder.js"></script>
     <script type="text/javascript" src="/js/record-voice-notes.js"></script>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
