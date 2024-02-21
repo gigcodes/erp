@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\Social\SocialConfig;
 use App\Services\Facebook\FB;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SyncFacebookConversations extends Command
@@ -63,6 +63,7 @@ class SyncFacebookConversations extends Command
                         'account_id' => $comment['message'] ?? '',
                         'social_config_id' => $config->id,
                         'platform' => 2,
+                        'can_reply' => $convo['can_reply'],
                     ]);
 
                     foreach ($convo['messages'] as $message) {

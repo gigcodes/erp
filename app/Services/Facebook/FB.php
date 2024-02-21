@@ -297,13 +297,35 @@ class FB
     {
         if (empty($recipient_id) || empty($message)) {
             $error = 'Instagram ADD Text Message in Messenger: Missing message or recipient!';
-
-            error_log($error);
-
             throw new FbException($error);
         }
 
         $endpoint = '/me/messages';
+
+        $params = [
+            'recipient' => [
+                'id' => $recipient_id,
+            ],
+            'message' => [
+                'text' => $message,
+            ],
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    /**
+     * @throws SDKException
+     * @throws FbException
+     */
+    public function replyFbMessage(string $page_id, string $recipient_id, string $message): array
+    {
+        if (empty($recipient_id) || empty($message)) {
+            $error = 'Facebook ADD Text Message in Messenger: Missing message or recipient!';
+            throw new FbException($error);
+        }
+
+        $endpoint = "/$page_id/messages";
 
         $params = [
             'recipient' => [
