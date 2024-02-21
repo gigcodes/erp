@@ -13,6 +13,7 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FacebookPostController;
 use App\Http\Controllers\Logging;
 use App\Http\Controllers\MagentoCareersController;
+use App\Http\Controllers\NodeScrapperCategoryMapController;
 use App\Http\Controllers\Products;
 use App\Http\Controllers\Shopify\ShopifyController;
 use App\Http\Controllers\TodoListController;
@@ -347,3 +348,5 @@ Route::post('/github-action', [GitHubActionController::class, 'store']);
 
 Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
 Route::get('magento_modules/listing-careers', [MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
+
+Route::post('scrapper-category-map', [NodeScrapperCategoryMapController::class, 'store']);
