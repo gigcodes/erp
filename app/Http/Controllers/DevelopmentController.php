@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ErpPriority;
+use App\ReplyCategory;
 use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use View;
@@ -122,11 +124,11 @@ class DevelopmentController extends Controller
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
         //delete old priority
-        \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
+        ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
             foreach ((array)$priority as $model_id) {
-                \App\ErpPriority::create([
+                ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class,
                     'user_id' => $user_id,
@@ -319,15 +321,27 @@ class DevelopmentController extends Controller
 
         $title = 'Task List';
 
-        $issues = DeveloperTask::with(['timeSpent', 'developerTaskHistory', 'assignedUser', 'masterUser', 'timeSpent', 'leadtimeSpent', 'testertimeSpent', 'messages.taskUser', 'messages.user', 'tester']);
+        $issues = DeveloperTask::with([
+            'timeSpent',
+            'developerTaskHistory',
+            'assignedUser',
+            'masterUser',
+            'timeSpent',
+            'leadtimeSpent',
+            'testertimeSpent',
+            'messages.taskUser',
+            'messages.user',
+            'dthWithMinuteEstimate',
+            'tester'
+        ]);
 
         $issues->when($type == 'issue', fn($q) => $q->where('task_type_id', '3'));
         $issues->when(!empty($request->estimate_date), function (Builder $query) use ($request) {
             $estimate_date = date('Y-m-d', strtotime($request->estimate_date));
             return $query->where('estimate_date', $estimate_date);
         });
-        $issues->when($type == 'devtask', fn($q) => $q->where('task_type_id', '1'));
 
+        $issues->when($type == 'devtask', fn($q) => $q->where('task_type_id', '1'));
         $issues->when((int)$request->get('submitted_by') > 0, fn(Builder $query) => $query->where('created_by', $request->get('submitted_by')));
         $issues->when((int)$request->get('responsible_user') > 0, fn(Builder $query) => $query->where('responsible_user_id', $request->get('responsible_user')));
         $issues->when((int)$request->get('corrected_by') > 0, fn(Builder $query) => $query->where('user_id', $request->get('corrected_by')));
@@ -375,7 +389,10 @@ class DevelopmentController extends Controller
         $issues = $issues->select('developer_tasks.*',
             'chat_messages.message',
             'chat_messages.is_audio',
-            'chat_messages.user_id AS message_user_id', 'chat_messages.is_reminder AS message_is_reminder', 'chat_messages.status as message_status', 'chat_messages.sent_to_user_id'
+            'chat_messages.user_id AS message_user_id',
+            'chat_messages.is_reminder AS message_is_reminder',
+            'chat_messages.status as message_status',
+            'chat_messages.sent_to_user_id'
         );
 
         // Set variables with modules and users
@@ -389,20 +406,26 @@ class DevelopmentController extends Controller
 
         if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) {
-                $query->where('developer_tasks.assigned_to', auth()->user()->id)
-                    ->orWhere('developer_tasks.master_user_id', auth()->user()->id)
-                    ->orWhere('developer_tasks.tester_id', auth()->user()->id)
-                    ->orWhere('developer_tasks.team_lead_id', auth()->user()->id);
+                $query->where('assigned_to', auth()->user()->id)
+                    ->orWhere('master_user_id', auth()->user()->id)
+                    ->orWhere('tester_id', auth()->user()->id)
+                    ->orWhere('team_lead_id', auth()->user()->id);
             });
         }
-        // category filter start count
-        $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')
+
+
+        $plannedTasks = DeveloperTask::where('developer_tasks.status', 'Planned')
             ->groupBy('developer_tasks.assigned_to')
             ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
             ->pluck('total_product', 'assigned_to')->toArray();
-        $userIds = array_values(array_filter(array_keys($issuesGroups)));
-        $userModel = $users->whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+
+        $inProgressTasks = DeveloperTask::where('developer_tasks.status', 'In Progress')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')->toArray();
+
+        $usersCount = array_values(array_filter(array_keys($plannedTasks)));
+        $userModel = empty($usersCount) ? [] : $users->whereIn('id', $usersCount)->pluck('name', 'id')->toArray();
         $countPlanned = [];
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
@@ -413,13 +436,11 @@ class DevelopmentController extends Controller
                 ];
             }
         }
+
         // category filter start count
-        $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')
-            ->groupBy('developer_tasks.assigned_to')
-            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
-            ->pluck('total_product', 'assigned_to')->toArray();
         $countInProgress = [];
+        $usersCount = array_values(array_filter(array_keys($inProgressTasks)));
+        $userModel = empty($usersCount) ? [] : $users->whereIn('id', $usersCount)->pluck('name', 'id')->toArray();
         if (!empty($issuesGroups) && !empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countInProgress[] = [
@@ -455,7 +476,7 @@ class DevelopmentController extends Controller
             $issues = $issues->paginate(50);
         }
 
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         $respositories = Cache::remember('GithubRepository::all()', 60 * 60 * 24 * 7, function () {
             return GithubRepository::all();
@@ -467,7 +488,7 @@ class DevelopmentController extends Controller
             $checkList[$list['task_status']][] = $list;
         }
 
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-list')->first();
+        $datatableModel = DataTableColumn::select('column_name', 'user_id', 'section_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-list')->first();
 
         $dynamicColumnsToShowDl = [];
         if (!empty($datatableModel->column_name)) {
@@ -478,6 +499,12 @@ class DevelopmentController extends Controller
         if (request()->ajax()) {
             return view('development.partials.load-more', compact('issues', 'users', 'modules', 'request', 'title', 'type', 'countPlanned', 'countInProgress', 'statusList', 'priority', 'dynamicColumnsToShowDl'));
         }
+
+        $reply_categories = ReplyCategory::select('id', 'name')
+            ->with('approval_leads', 'sub_categories')
+            ->where('parent_id', 0)
+            ->where('id', 44)
+            ->orderby('name', 'ASC')->get();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -493,7 +520,7 @@ class DevelopmentController extends Controller
             'statusList' => $statusList,
             'respositories' => $respositories,
             'dynamicColumnsToShowDl' => $dynamicColumnsToShowDl,
-            // 'languages' => $languages
+            'reply_categories' => $reply_categories
         ]);
     }
 
@@ -873,7 +900,7 @@ class DevelopmentController extends Controller
         $issues = $issues->with('communications');
 
         $issues = $issues->paginate(Setting::get('pagination'));
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         //Get all searchable user list
         $userslist = null;
@@ -891,6 +918,12 @@ class DevelopmentController extends Controller
             $dynamicColumnsToShowDs = json_decode($hideColumns, true);
         }
 
+        $reply_categories = ReplyCategory::select('id', 'name')
+            ->with('approval_leads', 'sub_categories')
+            ->where('parent_id', 0)
+            ->where('id', 44)
+            ->orderby('name', 'ASC')->get();
+
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -905,7 +938,7 @@ class DevelopmentController extends Controller
                 'statusList' => $statusList,
                 'userslist' => $userslist,
                 'dynamicColumnsToShowDs' => $dynamicColumnsToShowDs,
-                // 'languages' => $languages
+                'reply_categories' => $reply_categories
             ]);
         }
 
@@ -923,7 +956,7 @@ class DevelopmentController extends Controller
             'userslist' => $userslist,
             'time_doctor_projects' => $time_doctor_projects,
             'dynamicColumnsToShowDs' => $dynamicColumnsToShowDs,
-            // 'languages' => $languages
+            'reply_categories' => $reply_categories
         ]);
     }
 
@@ -1058,7 +1091,7 @@ class DevelopmentController extends Controller
         $issues = $issues->with('communications');
 
         $issues = $issues->paginate(Setting::get('pagination'));
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         //Get all searchable user list
         $userslist = null;
@@ -1068,6 +1101,11 @@ class DevelopmentController extends Controller
 
         $time_doctor_projects = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get()->toArray();
 
+        $reply_categories = ReplyCategory::select('id', 'name')
+            ->with('approval_leads', 'sub_categories')
+            ->where('parent_id', 0)
+            ->where('id', 44)
+            ->orderby('name', 'ASC')->get();
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -1081,7 +1119,7 @@ class DevelopmentController extends Controller
                 'countInProgress' => $countInProgress,
                 'statusList' => $statusList,
                 'userslist' => $userslist,
-                // 'languages' => $languages
+                'reply_categories' => $reply_categories
             ]);
         }
 
@@ -1098,7 +1136,7 @@ class DevelopmentController extends Controller
             'statusList' => $statusList,
             'userslist' => $userslist,
             'time_doctor_projects' => $time_doctor_projects,
-            // 'languages' => $languages
+            'reply_categories' => $reply_categories
         ]);
     }
 
@@ -1203,7 +1241,7 @@ class DevelopmentController extends Controller
         $issues = $issues->with('communications');
 
         $issues = $issues->paginate(Setting::get('pagination'));
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         return view('development.partials.menu-summarydata', [
             'issues' => $issues,
@@ -1495,7 +1533,7 @@ class DevelopmentController extends Controller
 
         $tasks = $task->paginate($paginateLimit);
 
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
         if ($request->ajax()) {
             $data = '';
             $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
@@ -1675,7 +1713,7 @@ class DevelopmentController extends Controller
         } else {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications')->get();
         }
-        $priority = \App\ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
+        $priority = ErpPriority::where('model_type', '=', Issue::class)->pluck('model_id')->toArray();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -1732,11 +1770,11 @@ class DevelopmentController extends Controller
         $priority = $request->get('priority', null);
         $user_id = $request->get('user_id', 0);
         //delete old priority
-        \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
+        ErpPriority::where('user_id', $user_id)->where('model_type', '=', DeveloperTask::class)->delete();
 
         if (!empty($priority)) {
             foreach ((array)$priority as $model_id) {
-                \App\ErpPriority::create([
+                ErpPriority::create([
                     'model_id' => $model_id,
                     'model_type' => DeveloperTask::class,
                     'user_id' => $user_id,
@@ -3580,7 +3618,6 @@ class DevelopmentController extends Controller
             foreach ($request->file('attached_document') as $file) {
                 $name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('images/task_files/'), $name);
-                $filepath[] = 'images/task_files/' . $name;
                 $task_attachment = new TaskAttachment;
                 $task_attachment->task_id = $task_id;
                 $task_attachment->name = $name;
@@ -3596,7 +3633,6 @@ class DevelopmentController extends Controller
     public function downloadFile(Request $request)
     {
         $file_name = $request->input('file_name');
-        //PDF file is stored under project/public/download/info.pdf
         $file = public_path() . '/images/task_files/' . $file_name;
         $ext = substr($file_name, strrpos($file_name, '.') + 1);
         $headers = [];
@@ -3613,7 +3649,7 @@ class DevelopmentController extends Controller
     {
         $status = 'ok';
         // Get all developers
-        if (env('PRODUCTION', true)) {
+        if (config('app.env')) {
             $userlst = User::role('Developer')->orderby('name', 'asc')->get(); // Production
         } else {
             $userlst = User::orderby('name', 'asc')->get(); // Local system
@@ -3739,7 +3775,6 @@ class DevelopmentController extends Controller
     public function changeModule(Request $request)
     {
         if ($request->ajax()) {
-            $message = [];
             $task_module = DeveloperTask::find($request->get('issue_id'));
             if ($task_module) {
                 $task_module->module_id = $request->get('module_id');

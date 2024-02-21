@@ -43,6 +43,33 @@
             bottom: 50%;
         }
 
+        .green-notification {
+            color: green;
+        }
+
+        .red-notification {
+            color: grey;
+        }
+
+        .table-scrapper, .table-scrapper th, .table-scrapper td {
+            font-size: 14px
+        }
+
+        .add-scrapper-remarks {
+            float: left;
+            padding: 10px 2px;
+        }
+
+        .add-scrapper-textarea {
+            float: left;
+            display: inline-block;
+            width: 90%;
+        }
+
+        #task_Tables td {
+            word-break: break-all;
+        }
+
     </style>
 @endsection
 
@@ -255,7 +282,6 @@
                             -webkit-animation: ellipsis steps(4, end) 900ms infinite;
                             animation: ellipsis steps(4, end) 900ms infinite;
                             content: "\2026";
-                            /* ascii code for the ellipsis character */
                             width: 0px;
                         }
 
@@ -301,7 +327,6 @@
     <script src="{{asset('js/bootstrap-filestyle.min.js')}}"></script>
     <script type="text/javascript" src="/js/recorder.js"></script>
     <script type="text/javascript" src="/js/record-voice-notes.js"></script>
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
 
     <script>
       jQuery(document).ready(function() {
@@ -557,7 +582,6 @@
         });
 
 
-        var isLoadingProducts = false;
         $(document).on("click", ".assign-issue-button", function() {
           var issue_id = $(this).data("id");
           var url = "{{ url('development') }}/" + issue_id + "/assignIssue";
@@ -570,45 +594,6 @@
           includeSelectAllOption: true
         });
 
-        $(window).scroll(function() {
-          if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
-            // loadMoreProducts();
-          }
-        });
-
-        function loadMoreProducts() {
-          if (isLoadingProducts)
-            return;
-          isLoadingProducts = true;
-          if (!$(".pagination li.active + li a").attr("href"))
-            return;
-
-          var $loader = $(".infinite-scroll-products-loader");
-          $.ajax({
-            url: $(".pagination li.active + li a").attr("href"),
-            type: "GET",
-            beforeSend: function() {
-              $loader.show();
-              $("ul.pagination").remove();
-            }
-          })
-            .done(function(data) {
-              // console.log(data);
-              if ("" === data.trim())
-                return;
-
-              $loader.hide();
-
-              $(".infinite-scroll-products-inner").append(data);
-
-              isLoadingProducts = false;
-            })
-            .fail(function(jqXHR, ajaxOptions, thrownError) {
-              console.error("something went wrong");
-
-              isLoadingProducts = false;
-            });
-        }
 
         $("select.select2").select2({
           tags: true,
@@ -673,17 +658,6 @@
             selected_issue: selected_issue
           },
           success: function(response) {
-            // var html = '';
-            // response.forEach(function (issue) {
-            //     html += '<tr>';
-            //     html += '<td><input type="hidden" name="priority[]" value="' + issue.id + '">' + issue.id + '</td>';
-            //     html += '<td>' + issue.module + '</td>';
-            //     html += '<td>' + issue.subject + '</td>';
-            //     html += '<td>' + issue.task + '</td>';
-            //     html += '<td>' + issue.submitted_by + '</td>';
-            //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + issue.id + '">Remove<a></td>';
-            //     html += '</tr>';
-            // });
             $(".show_issue_priority").html(response.html);
               <?php if (auth()->user()->isAdmin()) { ?>
               $(".show_issue_priority").sortable();
@@ -993,7 +967,6 @@
             }
           });
         } else {
-          // toastr["warning"]("Remark and Datetime fields are required  ", "Message");
           toastr["warning"]("Remark and EST Time fields are required", "Message");
         }
 
@@ -1036,11 +1009,6 @@
           success: function(data) {
             if (data != "error") {
               $.each(data, function(i, item) {
-                if (item["is_approved"] == 1) {
-                  var checked = "checked";
-                } else {
-                  var checked = "";
-                }
                 $("#status_history_modal table tbody").append(
                   "<tr>\
                           <td>" + moment(item["created_at"]).format("DD/MM/YYYY") + "</td>\
@@ -1117,27 +1085,6 @@
         $("#create-d-task-modal").modal("show");
 
         $(this).css("display", "none");
-        /*$.ajax({
-            url: "{{ route('development/create/hubstaff_task') }}",
-            type: 'POST',
-            data: {
-                id: issueId,
-                type: type,
-                _token: "{{csrf_token()}}"
-            },
-            beforeSend: function() {
-                $("#loading-image").show();
-            },
-            success: function(data) {
-
-                toastr['success']('created successfully!');
-                $("#loading-image").hide();
-            },
-            error: function(error) {
-                $("#loading-image").hide();
-                toastr["error"](error.responseJSON.message);
-            }
-        });*/
       });
 
       $(document).on("submit", "#assign_task_form", function(event) {
@@ -1274,7 +1221,6 @@
       function resolveIssue(obj, task_id) {
         let id = task_id;
         let status = $(obj).val();
-        let self = this;
         let checkList = {!! json_encode($checkList) !!};
 
         if (status == "") {
@@ -1325,8 +1271,6 @@
           }
         });
       });
-
-      console.log($("#filecount"));
 
       $("#filecount").filestyle({
         htmlIcon: "<span class=\"oi oi-random\"></span>",
@@ -1694,14 +1638,12 @@
               },
               beforeSend: function() {
                 $("#loading-image").show();
-                // $("#btnCreateTaskDocument").attr('disabled', true)
               },
               success: function(response) {
                 $("#loading-image").hide();
                 if (typeof response.data != "undefined") {
                   $("#taskGoogleDocListModal tbody").html(response.data);
                 } else {
-                  // display unauthorized permission message
                   $("#taskGoogleDocListModal tbody").html(response);
                 }
 
@@ -1720,7 +1662,6 @@
         $(document).on("click", "#btnCreateTaskDocument", function() {
           let doc_type = $("#doc-type").val();
           let doc_name = $("#doc-name").val();
-          let doc_category = $("#doc-category").val();
           let task_id = $("#task_id").val();
 
           if (doc_type.trim() == "") {
@@ -1731,17 +1672,11 @@
             toastr["error"]("Insert document name.");
             return;
           }
-          // if(doc_category.trim() == "") {
-          //     toastr["error"]("Insert document category.");
-          //     return
-          // }
-
           $.ajax({
             type: "POST",
             url: "{{route('google-docs.task')}}",
             data: {
               _token: "{{csrf_token()}}",
-              // doc_category,
               doc_type,
               doc_name,
               task_id,
@@ -2085,7 +2020,6 @@
 
         if (confirm(msg)) {
           event.preventDefault();
-          let type = $(this).data("type");
           let task_id = $(this).data("task");
 
           $.ajax({
@@ -2113,7 +2047,6 @@
       });
 
       $(document).ready(function() {
-        // Iterate through elements with class 'myClass'
         $(".m_start_date_").each(function() {
           var elementId = $(this).attr("id"); // Get ID of each element
 
@@ -2121,7 +2054,6 @@
           var inputTime = $("#" + elementId).attr("data-value");
 
           startTime = new Date(inputTime);
-          //setInterval(updateTimeCounter(startTime, task_id), 1000);
 
           (function(startTime, id) {
             setInterval(function() {
@@ -2132,27 +2064,18 @@
       });
 
       function updateTimeCounter(startTime, id) {
-        // Check if startTime is defined
         if (startTime && !isNaN(startTime.getTime())) {
-          // Get the current time
           var currentTime = new Date();
-
-          // Calculate the difference in milliseconds
           var timeDifference = currentTime - startTime;
-
-          // Convert milliseconds to hours, minutes, and seconds
           var hours = Math.floor(timeDifference / (60 * 60 * 1000));
           var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
           var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
-
-          // Display the time counter
           var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
 
           $("#time-counter_" + id).text(counterText);
         }
       }
 
-      // Function to pad single digits with leading zeros
       function pad(number) {
         return (number < 10 ? "0" : "") + number;
       }

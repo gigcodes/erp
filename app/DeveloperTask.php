@@ -19,7 +19,6 @@ class DeveloperTask extends Model
      *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="module_id",type="integer")
-
      * @SWG\Property(property="priority",type="string")
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="task",type="string")
@@ -311,12 +310,17 @@ class DeveloperTask extends Model
 
     public function developerTaskHistory()
     {
-        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
+        return $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
+    }
+
+    public function dthWithMinuteEstimate()
+    {
+        return $this->developerTaskHistory()->where('attribute', 'estimation_minute')->where('model', 'App\DeveloperTask');
     }
 
     public function ApprovedDeveloperTaskHistory()
     {
-        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
+        return $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
     }
 
     public function updateHistory($type, $oldValue, $newValue)

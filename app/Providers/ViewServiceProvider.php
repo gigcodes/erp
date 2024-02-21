@@ -43,7 +43,7 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(Request $request)
     {
-        View::composer('layouts.app', function ($view) use ($request) {
+        View::composer(['layouts.app'], function ($view) use ($request) {
             $auth_user = $request->user();
             $route_name = request()->route()->getName();
             if ($auth_user) {
@@ -137,7 +137,7 @@ class ViewServiceProvider extends ServiceProvider
                         'database_table_name',
                         'route_name',
                         'shell_list',
-                        'vendors'
+                        'vendors',
                     ));
             } else {
                 $view->with('route_name', $route_name)

@@ -7,11 +7,6 @@
         <div style="float: left; width: 86%">
             <select name="quickCategory" class="form-control mb-3 quickCategory">
                 <option value="">Select Category</option>
-
-                @php
-                $reply_categories = \App\ReplyCategory::select('id', 'name')->with('approval_leads', 'sub_categories')->where('parent_id', 0)->where('id', 44)->orderby('name', 'ASC')->get();
-                @endphp
-
                 @foreach($reply_categories as $category)
                     <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}" data-value="{{ $category->sub_categories }}">{{ $category->name }}</option>
                 @endforeach

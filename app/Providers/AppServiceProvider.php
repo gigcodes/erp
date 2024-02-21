@@ -14,6 +14,7 @@ use App\Models\GoogleDocsCategory;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use App\Observers\CallBusyMessageObserver;
 
@@ -100,6 +101,16 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return response()->json($response, $code, $headers);
+        });
+
+        Builder::macro('whereLike', function ($columns, $search) {
+            $this->where(function ($query) use ($columns, $search) {
+                foreach (\Arr::wrap($columns) as $column) {
+                    $query->orWhere($column, $search);
+                }
+            });
+
+            return $this;
         });
     }
 
