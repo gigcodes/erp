@@ -273,7 +273,7 @@ class SocialAdsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\SocialAd  $SocialAd
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request)
     {
@@ -284,67 +284,6 @@ class SocialAdsController extends Controller
             'success' => true,
             'message' => ' Config Deleted',
         ]);
-    }
-
-    public function getPageAccessToken($config, $fb, $post_id)
-    {
-        $response = '';
-
-        try {
-            $token = $config->token;
-            $page_id = $config->page_id;
-            // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-            // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $fb->get('/me/accounts', $token);
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
-        } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-            // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
-        }
-        if ($response != '') {
-            try {
-                $pages = $response->getGraphEdge()->asArray();
-                foreach ($pages as $key) {
-                    if ($key['id'] == $page_id) {
-                        return $key['access_token'];
-                    }
-                }
-            } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
-            }
-        }
-    }
-
-    public function getAdAccount($config, $fb, $post_id)
-    {
-        $response = '';
-
-        try {
-            $token = $config->token;
-            $page_id = $config->page_id;
-            // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-            // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token);
-            $response = SocialHelper::curlGetRequest($url);
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my adaccounts');
-        } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-            // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts->' . $e->getMessage());
-        }
-        if ($response != '') {
-            try {
-                $pages = $response->getGraphEdge()->asArray();
-                foreach ($pages as $key) {
-                    return $key['id'];
-                }
-            } catch (\exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get adaccounts id->' . $e->getMessage());
-            }
-        }
     }
 
     public function history(Request $request)

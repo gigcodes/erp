@@ -18,7 +18,11 @@ class SocialContact extends Model
 
     const TEXT_FB = 'page';
 
-    protected $fillable = ['account_id', 'name', 'social_config_id', 'platform', 'conversation_id'];
+    protected $fillable = ['account_id', 'name', 'social_config_id', 'platform', 'conversation_id', 'can_reply'];
+
+    protected $casts = [
+        'can_reply' => 'boolean',
+    ];
 
     public function socialConfig(): BelongsTo
     {

@@ -233,15 +233,14 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne(\App\User::class, 'id', 'user_id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->belongsTo(User::class);
     }
 
-    //START - Purpose : Add relationship - DEVTASK-4203
     public function chatmsg()
     {
         return $this->hasOne(\App\ChatMessage::class, 'user_id', 'user_id')->latest();

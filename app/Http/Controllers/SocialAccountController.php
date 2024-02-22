@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\SocialContact;
 use Illuminate\Http\Request;
+use App\Services\Facebook\FB;
 use App\Models\SocialMessages;
 
 class SocialAccountController extends Controller
@@ -27,6 +28,7 @@ class SocialAccountController extends Controller
         try {
             $contactId = $request->id;
             $messages = SocialMessages::where('social_contact_id', $contactId)->get();
+
             return response()->json(['messages' => $messages]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -40,29 +42,19 @@ class SocialAccountController extends Controller
     {
         $contact = SocialContact::with('socialConfig')->findOrFail($request->contactId);
         $firstMessage = $contact->messages()->first();
+        $page_id = $contact->socialConfig->page_id;
+        $to = $firstMessage->from['id'] != $page_id ? $firstMessage->from : $firstMessage->to[0];
+        $from = $firstMessage->from['id'] == $page_id ? $firstMessage->from : $firstMessage->to[0];
+
         $message = $request->input;
 
-        $pageInfoParams = [ // endpoint and params for getting page
-            'endpoint_path' => $contact->socialConfig->page_id . '/messages',
-            'fields' => '',
-            'access_token' => $contact->socialConfig->page_token,
-            'request_type' => 'POST',
-            'data' => [
-                'recipient' => [
-                    'id' => $firstMessage->from['id'],
-                ],
-                'message' => [
-                    'text' => $message,
-                ],
-            ],
-        ];
+        $fb = new FB($contact->socialConfig->page_token);
 
-        $response = getFacebookResults($pageInfoParams);
-
-        if (! isset($response['data']['error'])) {
+        try {
+            $response = $fb->replyFbMessage($contact->socialConfig->page_id, $to['id'], $message);
             $contact->messages()->create([
-                'from' => $firstMessage->to,
-                'to' => $firstMessage->from,
+                'from' => $from,
+                'to' => $to,
                 'message' => $message,
                 'message_id' => $response['data']['message_id'],
                 'created_time' => Carbon::now(),
@@ -71,7 +63,8 @@ class SocialAccountController extends Controller
             return response()->json([
                 'message' => 'Message sent successfully',
             ]);
-        } else {
+
+        } catch (\FbException $e) {
             return response()->json([
                 'message' => 'Unable to sent message',
             ]);

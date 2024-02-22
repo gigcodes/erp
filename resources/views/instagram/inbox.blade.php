@@ -138,7 +138,7 @@
             if (res.length > 0) {
               $(res).each(function(key, value) {
                 const sentBy =
-                  `From ${value.from.name} To ${value.to.data[0].name} On ${value.created_time}`;
+                  `From ${value.from.name} To ${value.to[0].name} On ${value.created_time}`;
 
                 $("#contact-chat-list-history .modal-body").append(`
                             <table class="table table-bordered">

@@ -6,6 +6,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Hubstaff\HubstaffActivity;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,6 @@ class DeveloperTask extends Model
      *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="module_id",type="integer")
-
      * @SWG\Property(property="priority",type="string")
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="task",type="string")
@@ -249,7 +249,7 @@ class DeveloperTask extends Model
     public function timeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'hubstaff_task_id'
         )
@@ -260,7 +260,7 @@ class DeveloperTask extends Model
     public function leadtimeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'lead_hubstaff_task_id'
         )
@@ -271,7 +271,7 @@ class DeveloperTask extends Model
     public function testertimeSpent()
     {
         return $this->hasOne(
-            \App\Hubstaff\HubstaffActivity::class,
+            HubstaffActivity::class,
             'task_id',
             'tester_hubstaff_task_id'
         )
@@ -311,12 +311,17 @@ class DeveloperTask extends Model
 
     public function developerTaskHistory()
     {
-        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
+        return $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id');
+    }
+
+    public function dthWithMinuteEstimate()
+    {
+        return $this->developerTaskHistory()->where('attribute', 'estimation_minute')->where('model', 'App\DeveloperTask');
     }
 
     public function ApprovedDeveloperTaskHistory()
     {
-        return  $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
+        return $this->hasOne(DeveloperTaskHistory::class, 'developer_task_id', 'id')->where('is_approved', 1);
     }
 
     public function updateHistory($type, $oldValue, $newValue)

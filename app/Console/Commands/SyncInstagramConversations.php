@@ -9,21 +9,21 @@ use App\Social\SocialConfig;
 use App\Services\Facebook\FB;
 use Illuminate\Console\Command;
 
-class SyncFacebookConversations extends Command
+class SyncInstagramConversations extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'facebook:sync-dm {page_id}';
+    protected $signature = 'instagram:sync-dm {page_id}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync all the facebook messages on the page with respect to the page id';
+    protected $description = 'Sync all the instagram messages on the page with respect to the page id';
 
     /**
      * Create a new command instance.
@@ -47,23 +47,21 @@ class SyncFacebookConversations extends Command
                 'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
             $configs = SocialConfig::where([
                 'page_id' => $this->argument('page_id'),
-                'platform' => 'facebook',
+                'platform' => 'instagram',
                 'status' => 1,
             ])->get();
 
             foreach ($configs as $config) {
                 $fb = new FB($config->page_token);
-                $conversations = $fb->getConversations($config->page_id);
+                $conversations = $fb->getInstagramConversations($config->page_id);
 
                 foreach ($conversations['conversations'] as $convo) {
                     $contact = $config->contacts()->updateOrCreate(['conversation_id' => $convo['id']], [
                         'account_id' => $comment['message'] ?? '',
                         'social_config_id' => $config->id,
                         'platform' => 2,
-                        'can_reply' => $convo['can_reply'],
                     ]);
 
                     foreach ($convo['messages'] as $message) {
