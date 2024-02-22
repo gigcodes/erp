@@ -1133,6 +1133,9 @@
                                                                     {{-- @else
                                                     <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button> --}}
                                                                 @endif
+
+                                                                @include('task-module.partials.show-status-history-btn')
+
                                                                 <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
                                                                 <button type="button" data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                                                                     <i class="fa fa-upload" aria-hidden="true"></i>
@@ -1490,6 +1493,9 @@
                                                                     {{-- @else
                                                     <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button> --}}
                                                                 @endif
+
+                                                                @include('task-module.partials.show-status-history-btn')
+
                                                                 <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
                                                                 <button type="button" data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                                                                     <i class="fa fa-upload" aria-hidden="true"></i>
@@ -1844,6 +1850,9 @@
                                                                 {{-- @else
                                                 <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button> --}}
                                                             @endif
+
+                                                            @include('task-module.partials.show-status-history-btn')
+
                                                             <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
                                                             <button type="button" data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                                                                 <i class="fa fa-upload" aria-hidden="true"></i>
@@ -2581,6 +2590,39 @@
             <div class="modal-footer">
                 <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+<div id="status_quick_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Status History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" id="status_history_div">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Old Status</th>
+                            <th>New Status</th>
+                            <th>Updated by</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -5079,5 +5121,53 @@ function updateTimeCounter(startTime, id) {
 function pad(number) {
     return (number < 10 ? '0' : '') + number;
 }
+
+@php
+    $filtered_statuses = [];
+    foreach ($task_statuses as $status) {
+        $filtered_statuses[] = ['id' => $status['id'], 'name' => $status['name']];
+    }
+@endphp
+
+const taskStatusList = {!! json_encode($filtered_statuses) !!};
+
+function findStatusNameById(id) {
+    const foundStatus = taskStatusList.find(status => status.id === id);
+    return foundStatus ? foundStatus.name : null;
+}
+
+$(document).on('click', '.show-status-history', function () {
+    var data = $(this).data('history');
+    var issueId = $(this).data('id');
+
+    $('#status_quick_history_modal table tbody').html('');
+    $.ajax({
+        url: "{{ route('development/status/history') }}",
+        data: {
+            id: issueId,
+            type: 'task'
+        },
+        success: function (data) {
+            if (data != 'error') {
+                $.each(data, function (i, item) {
+                    if (item['is_approved'] == 1) {
+                        var checked = 'checked';
+                    } else {
+                        var checked = '';
+                    }
+                    $('#status_quick_history_modal table tbody').append(
+                        '<tr>\
+                                    <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
+                                    <td>' + ((item['old_value'] != null) ? findStatusNameById(parseInt(item['old_value'])) : '-') + '</td>\
+                                    <td>' + findStatusNameById(parseInt(item['new_value'])) + '</td>\
+                                    <td>' + item['name'] + '</td>\
+                                </tr>'
+                    );
+                });
+            }
+        }
+    });
+    $('#status_quick_history_modal').modal('show');
+});
 </script>
 @endsection

@@ -402,6 +402,8 @@
                                             src="{{asset('/images/completed-green.png')}}" /></button>
                             @endif
 
+                            @include('task-module.partials.show-status-history-btn')
+
                             <button type="button" class='btn btn-image ml-1 reminder-message pd-5'
                                     data-id="{{ $task->message_id }}" data-toggle='modal'
                                     data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
@@ -813,6 +815,8 @@
                             <button type="button" class="btn btn-image pd-5"><img
                                         src="{{asset('/images/completed-green.png')}}" /></button>
                         @endif
+
+                        @include('task-module.partials.show-status-history-btn')
 
                         <button type="button" class='btn btn-image ml-1 reminder-message pd-5'
                                 data-id="{{ $task->message_id }}" data-toggle='modal'
@@ -1226,6 +1230,8 @@
                         <button type="button" class="btn btn-image pd-5"><img
                                     src="{{asset('/images/completed-green.png')}}" /></button>
                     @endif
+
+                    @include('task-module.partials.show-status-history-btn')
 
                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5'
                             data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'>
