@@ -117,7 +117,7 @@
                                        value="{{ isset($term) ? $term : '' }}"
                                        placeholder="whatsapp number , broadcast id , remark" id="term">
                             </div>
-                            
+
                              <div class="col-md-3">
                                    <select class="form-control customer_type" id="total" name="total">
                                         <option value="0">Select Customer Type</option>
@@ -131,23 +131,23 @@
                                     </select>
                             </div>
                             <div class="col-md-5">
-                                
+
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                 <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
                                 <i class="fa fa-calendar"></i>&nbsp;
                                 @php
                                     if(isset($customrange)){
                                          $customrange =  $range = explode(' - ', $customrange);
-                                        $from = \Carbon\Carbon::parse($customrange[0])->format('F d, Y'); 
-                                        $to = \Carbon\Carbon::parse(end($customrange))->format('F d, Y'); 
+                                        $from = \Carbon\Carbon::parse($customrange[0])->format('F d, Y');
+                                        $to = \Carbon\Carbon::parse(end($customrange))->format('F d, Y');
                                     }
                                 @endphp
                                 <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
                             </div>
                             </div>
-     
+
                             <div class="col-md-1">
-                                <button type="button" class="btn btn-image" id="resetFilter"><img src="/images/resend2.png"/></button>    
+                                <button type="button" class="btn btn-image" id="resetFilter"><img src="/images/resend2.png"/></button>
                             </div>
                             <div class="col-md-1">
                                <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
@@ -218,7 +218,7 @@
                                             </div>
                                         </div>
 
-                                        
+
                                         <div class="col-md-1">
                                          <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                                      </div>
@@ -278,12 +278,12 @@
                                                 <i class="fa fa-calendar"></i>&nbsp;
                                                 <span></span> <i class="fa fa-caret-down"></i>
                                             </div></th>
-                                            
-                                    <th> <button type="button" class="btn btn-image" id="count_filter"><img src="/images/filter.png"/></button></th>     
-                                    
+
+                                    <th> <button type="button" class="btn btn-image" id="count_filter"><img src="/images/filter.png"/></button></th>
+
                                 </tr>
                                 </thead>
-                                
+
                             </table>
                         </div>
                     </div>
@@ -297,7 +297,7 @@
                 <button type="button" class="btn btn-secondary" id="enable">Enable</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
             </div>
-            
+
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="customers-table">
             <thead>
@@ -354,11 +354,11 @@
             </thead>
 
             <tbody>
-                
+
             {!! $customers->render() !!}
             @include('marketing.broadcasts.partials.data')
-                
-            
+
+
             @include('marketing.broadcasts.partials.remark')
             </tbody>
         </table>
@@ -378,14 +378,14 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-   
+
     <script>
         $('.multiselect-2').select2({width:'92%'});
         $('.select-multiple').select2({width: '100%'});
 
         $('#filter-date').datetimepicker(
-            { format: 'YYYY/MM/DD' }).on('dp.change', 
-            function (e) 
+            { format: 'YYYY/MM/DD' }).on('dp.change',
+            function (e)
             { var formatedValue = e.date.format(e.date._f);
 
 
@@ -418,7 +418,7 @@
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
-                });  
+                });
 
             });
 
@@ -441,11 +441,11 @@
                         console.log(data);
                         $("#message").empty().html(data.data);
                         $('#sendMessageModal').modal('show');
-                    
+
 
                     }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
-                    });  
+                    });
             }
 
             function addToEnable(id){
@@ -493,10 +493,10 @@
                         }
                     });
                 }
-                    
+
             }
 
-            
+
             function enableDND(id){
                 method = $('#checkbox_value_dnd').val();
                 if(method == 1){
@@ -546,13 +546,13 @@
                 });
 
                 }
-                     
+
             }
 
 
             $('#filter-phone-date').datetimepicker(
-            { format: 'YYYY/MM/DD' }).on('dp.change', 
-            function (e) 
+            { format: 'YYYY/MM/DD' }).on('dp.change',
+            function (e)
             { var formatedValue = e.date.format(e.date._f);
 
 
@@ -576,17 +576,17 @@
                     $("#loading-image").hide();
                     console.log(data);
                     $("#phone-table tbody").empty().html(data.tbody);
-                    
+
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
-                });  
+                });
 
             });
 
              $('#filter-count-date').datetimepicker(
-            { format: 'YYYY/MM/DD' }).on('dp.change', 
-            function (e) 
+            { format: 'YYYY/MM/DD' }).on('dp.change',
+            function (e)
             { var formatedValue = e.date.format(e.date._f);
 
                 count_date = $('#count_date').val();
@@ -608,11 +608,11 @@
                     console.log(data);
                     $("#count").text(data.data);
 
-                    
+
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
-                });  
+                });
 
             });
 
@@ -684,15 +684,15 @@
                      'This Month': [moment().startOf('month'), moment().endOf('month')],
                      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                  }
-             }, cd) 
-             cd(start, end)  
+             }, cd)
+             cd(start, end)
             });
 
-           
-            
+
+
              $("#count_filter").click(function () {
                 custom_date = $("#custom_count").val();
-                
+
                  $.ajax({
                     url: "{{ route('broadcast.enable.count') }}",
                     dataType: "json",
@@ -712,15 +712,15 @@
 
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
-                });  
+                });
 
 
              });
 
-           
+
     </script>
     <script type="text/javascript">
-        
+
 
         $(document).on('click', '.make-remarks', function (e) {
             e.preventDefault();
@@ -790,7 +790,7 @@
                 alert('Something went wrong');
             });
         }
-        
+
 
         $(document).ready(function () {
             src = "{{ route('broadcasts.index') }}";
@@ -819,7 +819,7 @@
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
                         $("#customer_count").text(data.count);
-                        
+
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
@@ -846,7 +846,7 @@
                         url: src,
                         dataType: "json",
                         data: {
-                            
+
                             total: total,
 
                         },
@@ -859,7 +859,7 @@
                         console.log(data);
                         $("#customers-table tbody").empty().html(data.tbody);
                         $("#customer_count").text(data.count);
-                        
+
                         if (data.links.length > 10) {
                             $('ul.pagination').replaceWith(data.links);
                         } else {
@@ -1021,12 +1021,12 @@
         });
 
         //select all checkboxes
-        $("#select_all").change(function(){  //"select all" change 
+        $("#select_all").change(function(){  //"select all" change
         $(".checkbox_select").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status
         });
 
-        //".checkbox" change 
-        $('.checkbox_select').change(function(){ 
+        //".checkbox" change
+        $('.checkbox_select').change(function(){
         //uncheck "select all", if one of the listed checkbox item is unchecked
         if(false == $(this).prop("checked")){ //if this item is unchecked
         $("#select_all").prop('checked', false); //change "select all" checked status to false
@@ -1073,7 +1073,7 @@
             }
         });
 
-        
+
           $(document).ready(function () {
             src = "{{ route('broadcasts.index') }}";
             $(".phone_global").autocomplete({
@@ -1098,7 +1098,7 @@
                         $("#loading-image").hide();
                         console.log(data);
                         $("#phone-table tbody").empty().html(data.tbody);
-                        
+
 
                     }).fail(function (jqXHR, ajaxOptions, thrownError) {
                         alert('No response from server');
@@ -1108,17 +1108,17 @@
 
             });
         });
-        
+
     </script>
        <script type="text/javascript" src="/js/common-helper.js"></script>
     <script type="text/javascript">
 
 
-       
+
 
         $('.multiselect-2').select2({width:'92%'});
         $('.select-multiple').select2({width: '100%'});
-        
+
         var siteHelpers = {
             customerSearch : function(ele) {
                 ele.select2({
@@ -1251,13 +1251,13 @@
                 };
                 siteHelpers.sendAjax(params);
             }
-            
+
         };
 
         $.extend(siteHelpers, common);
 
-        
-       
+
+
         siteHelpers.customerSearch($('#first_customer'));
         siteHelpers.customerSearch($('#second_customer'));
         siteHelpers.customerSearch($('#forword_customer'));
@@ -1359,10 +1359,6 @@
         });
 
         var all_customers = [];
-        // <?php if(request()->get('all_customer') != '1') { ?>
-        //     setTimeout(function(){siteHelpers.autoRefreshColumn();}, 15000);
-        // <?php } ?>
-
         $('#schedule-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
@@ -1375,7 +1371,7 @@
             siteHelpers.loadCustomers($(this));
         });
 
-    
+
       function updateCustomer(id){
         phone = $("#phone"+id).val();
 
@@ -1401,7 +1397,7 @@
         };
 
         function showBroadcast(id){
-            
+
             $.ajax({
                 url: "{{ route('broadcast.customer.list') }}",
                 type: 'POST',
@@ -1431,7 +1427,7 @@
             $('#date_current_show').toggle();
             $('#date_value_show').toggle();
         });
-         
+
     function sortByManual(){
 
         manualApproval =  $('#manual-approval').val();

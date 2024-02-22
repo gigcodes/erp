@@ -16,7 +16,7 @@
 	.daterangepicker .ranges li.active {
 		background-color : #08c !important;
 	}
-    .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover 
+    .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover
     {
         background-color :  #fff ;
         border-color : #6c757d;
@@ -29,15 +29,15 @@
         color: #6c757d;
     }
     .pagination>li>a:focus, .pagination>li>a:hover, .pagination>li>span:focus, .pagination>li>span:hover {
-        color: #6c757d;   
+        color: #6c757d;
     }
 
     .pagination>li>a, .pagination>li>span {
-        color: #6c757d;   
+        color: #6c757d;
     }
 
     .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
-        color: #6c757d;   
+        color: #6c757d;
     }
 
 </style>
@@ -109,7 +109,7 @@
 		</div>
 	</div>
 </div>
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
 </div>
 <div class="common-modal modal" role="dialog">
@@ -124,7 +124,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body" id="task_statistics_content">
-                    
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
@@ -328,13 +328,13 @@
             modalH.find("#hidden-category-id").remove();
             modalH.find("form").append('<input id="hidden-category-id" type="hidden" name="category_id" value="42" />');
             modalH.find("form").append('<input id="hidden-customer-id" type="hidden" name="customer_id" value="'+customer_id+'" />');
-            modalH.modal("show");  
+            modalH.modal("show");
     });
 
 </script>
 
 <script>
-    
+
     var siteHelpers = {
             verifyInstruction :  function(ele) {
                 let instructionId = ele.attr('data-instructionId');
@@ -1282,39 +1282,6 @@
                 };
                 siteHelpers.sendAjax(params);
             },
-            autoRefreshColumn : function() {
-                var params = {
-                    method : 'post',
-                    data : {_token : $('meta[name="csrf-token"]').attr('content'), customers_id : $('input[name="paginate_customer_ids"]').val(),
-                        type : "{{ request()->get('type','any') }}"
-                    },
-                    url: "/erp-customer/auto-refresh-column",
-                    doneAjax : function(response) {
-                        $.each(response, function(k,customer) {
-                            $.each(customer, function(k,td_data) {
-                                var needaBox = false;
-                                if(typeof td_data.last_message != "undefined" && typeof td_data.last_message.full_message != "undefined") {
-                                        var box = $(td_data.class).find(".message-chat-txt");
-                                        if(box.length > 0 ) {
-                                            box.attr("data-content",td_data.last_message.full_message);
-                                            $(td_data.class).find(".add-chat-phrases").attr("data-message",td_data.last_message.full_message);
-                                            box.html(td_data.last_message.short_message);
-                                        }else{
-                                            $(td_data.class).html(td_data.html);
-                                        }
-                                }else{
-                                    $(td_data.class).html(td_data.html);
-                                }
-                            });
-                        });
-                        $('[data-toggle="popover"]').popover();
-                        setTimeout(function(){
-                            if(!isTextMessageFocused) siteHelpers.autoRefreshColumn();
-                        }, 10000);
-                    },
-                };
-                siteHelpers.sendAjax(params);
-            },
             selectAllCustomer : function(ele){
                 if (ele.text() == 'Unselect All Customers') {
                     all_customers = [];
@@ -1529,7 +1496,7 @@
             var id = $(this).data('id');
             $('#categoryBrandModal').find('input[name="customer_id"]').val(id);
 });
-        
+
     $('.select-phrase-group').select2({
         tags : true,
         allowClear: true,
@@ -1605,7 +1572,7 @@
 
         $("#customerSendScrap").on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var url = $('#customerSendScrap').attr('action');
 
                 $.ajax({
@@ -1624,8 +1591,8 @@
                         toastr["error"](error.responseJSON.message);
                         $("#loading-image").hide();
                     }
-                }); 
-                
+                });
+
         });
 
         $(document).on('click', '.old-send-btn', function (e) {
@@ -1645,9 +1612,9 @@
      });
 
      function refresh() {
-         if(new Date().getTime() - time >= 300000) 
+         if(new Date().getTime() - time >= 300000)
              window.location.reload(true);
-         else 
+         else
              setTimeout(refresh, 10000);
      }
 
