@@ -342,16 +342,16 @@ class DevelopmentController extends Controller
         });
 
         $issues->when($type == 'devtask', fn($q) => $q->where('task_type_id', '1'));
-        $issues->when((int)$request->get('submitted_by') > 0, fn(Builder $query) => $query->where('created_by', $request->get('submitted_by')));
-        $issues->when((int)$request->get('responsible_user') > 0, fn(Builder $query) => $query->where('responsible_user_id', $request->get('responsible_user')));
-        $issues->when((int)$request->get('corrected_by') > 0, fn(Builder $query) => $query->where('user_id', $request->get('corrected_by')));
-        $issues->when((int)$request->get('assigned_to') > 0, fn(Builder $query) => $query->where('assigned_to', $request->get('assigned_to')));
-        $issues->when((int)$request->get('master_user_id') > 0, fn(Builder $query) => $query->where('master_user_id', $request->get('master_user_id')));
-        $issues->when((int)$request->get('team_lead_id') > 0, fn(Builder $query) => $query->where('team_lead_id', $request->get('team_lead_id')));
-        $issues->when((int)$request->get('tester_id') > 0, fn($q) => $q->where('tester_id', $request->get('tester_id')));
+        $issues->when((int)$request->get('submitted_by') > 0, fn(Builder $query) => $query->where('developer_tasks.created_by', $request->get('submitted_by')));
+        $issues->when((int)$request->get('responsible_user') > 0, fn(Builder $query) => $query->where('developer_tasks.responsible_user_id', $request->get('responsible_user')));
+        $issues->when((int)$request->get('corrected_by') > 0, fn(Builder $query) => $query->where('developer_tasks.user_id', $request->get('corrected_by')));
+        $issues->when((int)$request->get('assigned_to') > 0, fn(Builder $query) => $query->where('developer_tasks.assigned_to', $request->get('assigned_to')));
+        $issues->when((int)$request->get('master_user_id') > 0, fn(Builder $query) => $query->where('developer_tasks.master_user_id', $request->get('master_user_id')));
+        $issues->when((int)$request->get('team_lead_id') > 0, fn(Builder $query) => $query->where('developer_tasks.team_lead_id', $request->get('team_lead_id')));
+        $issues->when((int)$request->get('tester_id') > 0, fn($q) => $q->where('developer_tasks.tester_id', $request->get('tester_id')));
         $issues->when($request->get('module'), fn($q) => $q->where('module_id', $request->get('module')));
-        $issues->when(!empty($request->get('task_status', [])), fn($q) => $q->whereIn('status', $request->get('task_status')));
-        $issues->when(!empty($request->get('repo_id')), fn($q) => $q->where('repository_id', $request->get('repo_id')));
+        $issues->when(!empty($request->get('task_status', [])), fn($q) => $q->whereIn('developer_tasks.status', $request->get('task_status')));
+        $issues->when(!empty($request->get('repo_id')), fn($q) => $q->where('developer_tasks.repository_id', $request->get('repo_id')));
 
         if (isset($request->is_estimated)) {
             if ($request->get('is_estimated') == 'null') {
@@ -366,7 +366,7 @@ class DevelopmentController extends Controller
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
             $issues = $issues->where(function (Builder $query) use ($request) {
-                $query->whereLike(['developer_tasks.id', 'subject', 'task', 'chat_messages.message'], $request->get('subject'));
+                $query->whereLike(['developer_tasks.id', 'developer_tasks.subject', 'developer_tasks.task', 'chat_messages.message'], $request->get('subject'));
             });
         }
         $issues = $issues->leftJoin(
@@ -399,10 +399,10 @@ class DevelopmentController extends Controller
 
         if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($query) use ($auth_user) {
-                $query->where('assigned_to', $auth_user->id)
-                    ->orWhere('master_user_id', $auth_user->id)
-                    ->orWhere('tester_id', $auth_user->id)
-                    ->orWhere('team_lead_id', $auth_user->id);
+                $query->where('developer_tasks.assigned_to', $auth_user->id)
+                    ->orWhere('developer_tasks.master_user_id', $auth_user->id)
+                    ->orWhere('developer_tasks.tester_id', $auth_user->id)
+                    ->orWhere('developer_tasks.team_lead_id', $auth_user->id);
             });
         }
 
@@ -446,7 +446,7 @@ class DevelopmentController extends Controller
 
         // Sort
         if ($request->order == 'priority') {
-            $issues = $issues->orderBy('created_at', 'DESC');
+            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC');
         } elseif ($request->order == 'latest_task_first') {
             $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
