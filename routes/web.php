@@ -1026,6 +1026,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
     Route::post('postman/statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
     Route::get('postman/countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
+    Route::post('postman/update-postman-field', [PostmanRequestCreateController::class, 'updatePostManField'])->name('postman.updateField');
+    Route::post('postman/add-remark', [PostmanRequestCreateController::class, 'addRemark'])->name('postman.addRemark');
+    Route::get('postman/responses/history/{id}', [PostmanRequestCreateController::class, 'responsesHistory'])->name('postman.responsesHistory');
     Route::post('run-request-url', [PostmanRequestCreateController::class, 'postmanRunRequestUrl'])->name('postman.runrequesturl');
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
