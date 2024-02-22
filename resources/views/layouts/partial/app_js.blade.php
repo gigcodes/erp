@@ -90,7 +90,7 @@
 
     };
 </script>
-<script src="{{asset('js/custom_app.js')}}"></script>
+<script src="{{asset('js/custom_app.js?v=0.1')}}"></script>
 
 @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" &&
 !stristr($_SERVER['HTTP_HOST'], '.mac') )
