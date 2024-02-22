@@ -28,19 +28,20 @@ class CheckAppointment
      */
     public function handle()
     {
-        for ($i=0; $i < 10; $i++) { 
+        for ($i = 0; $i < 10; $i++) {
             $this->getAppointments();
             sleep(8);
         }
     }
 
-    public function getAppointments(){
+    public function getAppointments()
+    {
         $currentDateTimeFormatted = Carbon::now()->format('Y-m-d H:i:s');
 
         $newAppointments = AppointmentRequest::with([
-                'user' => function ($query) {
-                    $query->select('id', 'name');
-                }])
+            'user' => function ($query) {
+                $query->select('id', 'name');
+            }])
             ->where('requested_time', '<=', $currentDateTimeFormatted)
             ->where('requested_time_end', '>=', $currentDateTimeFormatted)
             ->where('request_status', 0)
@@ -50,9 +51,9 @@ class CheckAppointment
             ->get();
 
         $reactedUnseenAppointments = AppointmentRequest::with([
-                'userrequest' => function ($query) {
-                    $query->select('id', 'name');
-                }])
+            'userrequest' => function ($query) {
+                $query->select('id', 'name');
+            }])
             ->where('request_status', '!=', 0)
             ->where('is_view', 0)
             ->orderBy('id', 'DESC')
@@ -64,22 +65,22 @@ class CheckAppointment
 
         $newAppointments->each(function ($appointment) use (&$userAppointments) {
             $userId = $appointment->requested_user_id;
-        
-            if (!isset($userAppointments[$userId]['newAppointments'])) {
+
+            if (! isset($userAppointments[$userId]['newAppointments'])) {
                 $userAppointments[$userId]['newAppointments'] = [];
             }
-        
+
             $userAppointments[$userId]['newAppointments'][] = $appointment;
             $userAppointments[$userId]['userId'] = $userId;
         });
 
         $reactedUnseenAppointments->each(function ($appointment) use (&$userAppointments) {
             $userId = $appointment->user_id;
-        
-            if (!isset($userAppointments[$userId]['reactedUnseenAppointments'])) {
+
+            if (! isset($userAppointments[$userId]['reactedUnseenAppointments'])) {
                 $userAppointments[$userId]['reactedUnseenAppointments'] = [];
             }
-        
+
             $userAppointments[$userId]['reactedUnseenAppointments'][] = $appointment;
             $userAppointments[$userId]['userId'] = $userId;
         });

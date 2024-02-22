@@ -2,7 +2,7 @@
 
 @section('styles')
     <style>
-       
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -96,7 +96,7 @@
             </form>
     	</div>
     </div>
-    
+
     <div class="row">
         <div class="col-lg-12">
         	<div class="infinite-scroll">
@@ -131,21 +131,21 @@
 	                                        		<a class="btn btn-image cls_dnt_btn do_not_disturb" href="javascript:;" data-id="<?php echo $customer->id;?>" data-user-id="">
 	                                                <img src="{{asset('images/do-not-disturb.png')}}" />
 	                                            	</a>
-	                                        	<?php 
+	                                        	<?php
 	                                        	}
 	                                        	else{ ?>
 	                                        		<a class="btn btn-image cls_dnt_btn do_not_disturb" href="javascript:;" data-id="<?php echo $customer->id;?>" data-user-id="">
 	                                                	<img src="{{asset('images/do-disturb.png')}}" />
 	                                            	</a>
-	                                        	<?php }	 
+	                                        	<?php }
 	                                        	?>
-	                                            
+
 	                                            <a class="btn btn-image  create-customer-related-task" title="Task" href="javascript:;" data-id="<?php echo $customer->id;?>" data-user-id=""><i class="fa fa-plus" aria-hidden="true"></i></a>
 	                                            <a class="btn btn-image  count-customer-tasks" title="Task Count" href="javascript:;" data-id="<?php echo $customer->id;?>" data-user-id=""><img src="{{asset('images/remark.png')}}" /></a>
 	                                        </div>
 	                                    </div>
-	                                    
-	                                        
+
+
 	                                </td>
 	                                <td>
 	                                    <div class="row">
@@ -158,7 +158,7 @@
     	                                            <div class="col-6 d-inline form-inline">
     	                                                <div style="float: left; width: 88%">
     	                                                    <select name="next_action" class="form-control next_action" data-id="{{$customer->id}}">
-    	                                                        <option value="">Select Next Action</option> 
+    	                                                        <option value="">Select Next Action</option>
     	                                                        <?php foreach ($nextActionArr as $option) { ?>
     	                                                            <option value="<?php echo $option->id;?>"><?php echo $option->name;?></option>
     	                                                        <?php } ?>
@@ -170,7 +170,7 @@
     	                                            </div>
     	                                        </div>
     	                                    </div>
-	                                   </div>  
+	                                   </div>
 	                                </td>
 	                                <td class="expand-row">
 	                                    <div class="row">
@@ -179,7 +179,7 @@
 	                                                <div class="col-md-8 form-inline cls_remove_right">
 	                                                    <textarea rows="1" style="width: 100%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
 	                                                </div>
-	                                                <div class="col-md-1 form-inline cls_remove_all">    
+	                                                <div class="col-md-1 form-inline cls_remove_all">
 	                                                    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-customerid="{{ $customer->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
 	                                                </div>
 	                                                <div class="col-md-3 cls_remove_all cls_last_mesg_div">
@@ -219,7 +219,7 @@
                 </form>
 
                 {!! $customers->appends(Request::except('page'))->links() !!}
-        	</div>        
+        	</div>
         </div>
     </div>
 
@@ -230,7 +230,7 @@
                     <h2>Task statistics</h2>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <div class="modal-body" id="task_statistics_content">  
+                <div class="modal-body" id="task_statistics_content">
                     <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
@@ -319,7 +319,7 @@
         // this is helper class we need to move to another location
         // @todo
         var siteHelpers = {
-            
+
             approveMessage : function(ele) {
                 var params = {
                     method : 'post',
@@ -411,39 +411,6 @@
                     };
                     siteHelpers.sendFormDataAjax(params);
                 }
-            },
-            autoRefreshColumn : function() {
-                var params = {
-                    method : 'post',
-                    data : {_token : $('meta[name="csrf-token"]').attr('content'), customers_id : $('input[name="paginate_customer_ids"]').val(),
-                        type : "{{ request()->get('type','any') }}"
-                    },
-                    url: "/erp-customer/auto-refresh-column",
-                    doneAjax : function(response) {
-                        $.each(response, function(k,customer) {
-                            $.each(customer, function(k,td_data) {
-                                var needaBox = false;
-                                if(typeof td_data.last_message != "undefined" && typeof td_data.last_message.full_message != "undefined") {
-                                        var box = $(td_data.class).find(".message-chat-txt");
-                                        if(box.length > 0 ) {
-                                            box.attr("data-content",td_data.last_message.full_message);
-                                            $(td_data.class).find(".add-chat-phrases").attr("data-message",td_data.last_message.full_message);
-                                            box.html(td_data.last_message.short_message);
-                                        }else{
-                                            $(td_data.class).html(td_data.html);
-                                        }
-                                }else{
-                                    $(td_data.class).html(td_data.html);
-                                }
-                            });
-                        });
-                        $('[data-toggle="popover"]').popover();
-                        setTimeout(function(){
-                            if(!isTextMessageFocused) siteHelpers.autoRefreshColumn();
-                        }, 10000);
-                    },
-                };
-                siteHelpers.sendAjax(params);
             },
             selectAllCustomer : function(ele){
                 if (ele.text() == 'Unselect All Customers') {
@@ -537,7 +504,7 @@
         var all_customers = [];
         var isTextMessageFocused = false;
 
-        
+
         $(document).on('click', '.quick_category_add', function () {
             siteHelpers.quickCategoryAdd($(this));
         });
@@ -588,17 +555,17 @@
         // started the return exchange code
         // need to move on partial
         // @todo use for multiple place
-    
 
-        $(document).on('click', '.add_next_action', function (e) {    
+
+        $(document).on('click', '.add_next_action', function (e) {
             siteHelpers.addNextAction($(this));
         });
 
-        $(document).on('click', '.delete_next_action', function (e) {    
+        $(document).on('click', '.delete_next_action', function (e) {
             siteHelpers.deleteNextAction($(this));
         });
 
-        $(document).on('change', '.next_action', function (e) {    
+        $(document).on('change', '.next_action', function (e) {
             siteHelpers.changeNextAction($(this));
         });
 
@@ -666,12 +633,12 @@
                 modalH.find("#hidden-category-id").remove();
                 modalH.find("form").append('<input id="hidden-category-id" type="hidden" name="category_id" value="42" />');
                 modalH.find("form").append('<input id="hidden-customer-id" type="hidden" name="customer_id" value="'+customer_id+'" />');
-                modalH.modal("show");  
+                modalH.modal("show");
         });
 
 
         $(document).on("click",".count-customer-tasks",function() {
-            
+
             var $this = $(this);
             // var user_id = $(this).closest("tr").find(".ucfuid").val();
             var customer_id = $(this).data("id");
@@ -690,7 +657,7 @@
                     console.log(error);
                 }
             });
-            
+
             // var modalH = $("#quick-create-task");
             //     modalH.find(".task_asssigned_to").select2('destroy');
             //     modalH.find(".task_asssigned_to option[value='"+user_id+"']").prop('selected', true);
@@ -698,10 +665,10 @@
             //     modalH.find("#task_subject").val("Customer #"+customer_id+" : ");
             //     modalH.find("#hidden-category-id").remove();
             //     modalH.find("form").append('<input id="hidden-category-id" type="hidden" name="category_id" value="42" />');
-            //     modalH.modal("show");  
+            //     modalH.modal("show");
 
         });
-        
+
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,

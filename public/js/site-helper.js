@@ -1022,46 +1022,6 @@ var siteHelpers = {
     };
     siteHelpers.sendAjax(params);
   },
-  autoRefreshColumn: function () {
-    var params = {
-      method: "post",
-      data: {
-        _token: $('meta[name="csrf-token"]').attr("content"),
-        customers_id: $('input[name="paginate_customer_ids"]').val(),
-        type: "{{ request()->get('type','any') }}",
-      },
-      url: "/erp-customer/auto-refresh-column",
-      doneAjax: function (response) {
-        $.each(response, function (k, customer) {
-          $.each(customer, function (k, td_data) {
-            var needaBox = false;
-            if (
-              typeof td_data.last_message != "undefined" &&
-              typeof td_data.last_message.full_message != "undefined"
-            ) {
-              var box = $(td_data.class).find(".message-chat-txt");
-              if (box.length > 0) {
-                box.attr("data-content", td_data.last_message.full_message);
-                $(td_data.class)
-                  .find(".add-chat-phrases")
-                  .attr("data-message", td_data.last_message.full_message);
-                box.html(td_data.last_message.short_message);
-              } else {
-                $(td_data.class).html(td_data.html);
-              }
-            } else {
-              $(td_data.class).html(td_data.html);
-            }
-          });
-        });
-        $('[data-toggle="popover"]').popover();
-        setTimeout(function () {
-          if (!isTextMessageFocused) siteHelpers.autoRefreshColumn();
-        }, 10000);
-      },
-    };
-    siteHelpers.sendAjax(params);
-  },
   selectAllCustomer: function (ele) {
     if (ele.text() == "Unselect All Customers") {
       all_customers = [];
