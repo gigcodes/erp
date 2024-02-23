@@ -23,7 +23,6 @@
     "dompdf/dompdf": "1.0.2",
     "elasticsearch/elasticsearch": "^8.10",
     "facebook/graph-sdk": "~5.0",
-    "facebook/php-business-sdk": "^19.0",
     "fruitcake/laravel-cors": "^2.0",
     "giggsey/libphonenumber-for-php": "^8.11",
     "google/apiclient": "^2.12.1",

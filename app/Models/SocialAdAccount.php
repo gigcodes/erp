@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialAdAccount extends Model
@@ -13,4 +14,9 @@ class SocialAdAccount extends Model
         'page_token',
         'status',
     ];
+
+    public function storeWebsite()
+    {
+        return $this->belongsTo(StoreWebsite::class);
+    }
 }

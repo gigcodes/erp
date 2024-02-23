@@ -110,7 +110,12 @@ class SocialConfigController extends Controller
             'status' => 'required',
         ]);
 
-        SocialAdAccount::create($request->all(['name', 'store_website_id', 'ad_account_id', 'page_token', 'status']));
+        $url = $this->fb_base_url . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . config('facebook.config.app_id')
+            . '&client_secret=' . config('facebook.config.app_secret') . '&fb_exchange_token=' . $request['page_token'];
+        $http = Http::get($url);
+        $response = $http->json();
+
+        SocialAdAccount::create([...$request->all(['name', 'store_website_id', 'ad_account_id', 'status']), 'page_token' => $response['access_token']]);
 
         return redirect()->back()->withSuccess('You have successfully stored Config.');
     }
@@ -121,10 +126,6 @@ class SocialConfigController extends Controller
             . '&client_secret=' . config('facebook.config.app_secret') . '&fb_exchange_token=' . $data['page_token'];
         $http = Http::get($url);
         $response = $http->json();
-
-        if ($data['platform'] == 'instagram') {
-            return $response['access_token'];
-        }
 
         if (isset($response['error'])) {
             return false;

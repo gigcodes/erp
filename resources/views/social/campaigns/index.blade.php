@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     @include("social.campaigns.history")
-   
+
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  Campaigns ({{ $campaigns->total() }})<span class="count-text"></span></h2>
@@ -22,19 +22,15 @@
                     </div>
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
-                            @foreach($campaign_data as $campaign)
-                                @php
-                                    $config_name = App\Social\SocialConfig::where('id',$campaign->config_id)->first();
-                                @endphp
-                                <option value="{{$config_name->id}}" {{ isset($_GET['config_name']) && in_array($config_name->id,$_GET['config_name']) ? 'selected' : '' }}
-
-                                >{{$config_name->name}}</option>
+                            @foreach($campaigns as $campaign)
+                                <option value="{{$campaign->account->id}}" {{ isset($_GET['config_name']) && in_array($campaign->account->id,$_GET['config_name']) ? 'selected' : '' }}
+                                >{{$campaign->account->name}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="campaign_name[]"  data-placeholder="Campaign Name" id="campaign_name" style="width:250px !important" multiple>
-                            @foreach($campaign_data as $campaign)
+                            @foreach($campaigns as $campaign)
                                 <option value="{{$campaign->name}}" {{ isset($_GET['campaign_name']) && in_array($campaign->name,$_GET['campaign_name']) ? 'selected' : '' }}>{{$campaign->name}}</option>
                             @endforeach
                         </select>
@@ -42,7 +38,7 @@
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="objective[]" data-placeholder="Objective"  id="objective" style="width:250px !important" multiple>
                             <option value="">Objective</option>
-                            @foreach($campaign_data as $campaign)
+                            @foreach($campaigns as $campaign)
                                 <option value="{{$campaign->objective_name}}" {{ isset($_GET['objective']) && in_array($campaign->objective_name,$_GET['objective']) ? 'selected' : '' }}>{{$campaign->objective_name}}</option>
                             @endforeach
                         </select>
@@ -50,7 +46,7 @@
                     <div class="form-group mr-2">
                         <select class="form-control" name="type" id="type" style="width:250px !important">
                             <option value="">Type</option>.
-                            @foreach($campaign_data as $campaign)
+                            @foreach($campaigns as $campaign)
                                 <option value="{{$campaign->buying_type}}" {{ isset($_GET['type']) && !empty($campaign->buying_type == $_GET['type']) ? 'selected' : '' }}>{{$campaign->buying_type}}</option>
                             @endforeach
                         </select>
@@ -58,17 +54,15 @@
                     <div class="form-group mr-2">
                         <select class="form-control" name="status" id="status" style="width:250px !important">
                             <option value="">Status</option>
-                            @foreach($campaign_data as $campaign)
+                            @foreach($campaigns as $campaign)
                                 <option value="{{$campaign->status}}" {{ isset($_GET['status']) && !empty($campaign->status == $_GET['status']) ? 'selected' : '' }}>{{$campaign->status}}</option>
                             @endforeach
-{{--                            {{ !empty($campaign->status == $status)  ? 'selected' : '' }}--}}
                         </select>
                     </div>
                     <div class="form-group mr-2">
                         <button type="submit" class="btn btn-image3 btn-sm text-dark">
                             <i class="fa fa-filter"></i>
                         </button>
-                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                     </div>
                 </form>
             </div>
@@ -124,13 +118,13 @@
             </div>
         </div>
     </div>
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
               50% 50% no-repeat;display:none;">
     </div>
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">
-                    
+
             </div>
         </div>
     </div>
@@ -178,7 +172,7 @@
 
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
-            
+
             var $action_url = "{{ route('social.campaign.create') }}";
             jQuery.ajax({
 

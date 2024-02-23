@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Social;
 
+use App\Models\SocialAdAccount;
 use Crypt;
 use Session;
 use Response;
@@ -34,19 +35,13 @@ class SocialCampaignController extends Controller
 
     public function index(Request $request)
     {
-        $socialcampaign = SocialCampaign::orderby('id', 'desc');
-        $campaign_data = $socialcampaign->get();
-
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
-
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            $campaigns = SocialCampaign::orderby('id', 'desc');
+            $campaigns = SocialCampaign::orderby('id', 'desc')->with('account.storeWebsite');
         } else {
-            $campaigns = SocialCampaign::latest();
+            $campaigns = SocialCampaign::latest()->with('account.storeWebsite');
         }
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
 
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
+        $configs = SocialAdAccount::pluck('name', 'id');
 
         if (! empty($request->date)) {
             $campaigns->where('created_at', 'LIKE', '%' . $request->date . '%');
@@ -78,12 +73,12 @@ class SocialCampaignController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs', 'campaign_data', 'type', 'status'))->render(),
+                'tbody' => view('social.campaigns.data', compact('campaigns', 'configs', 'type', 'status'))->render(),
                 'links' => (string) $campaigns->render(),
-            ], 200);
+            ]);
         }
 
-        return view('social.campaigns.index', compact('campaigns', 'configs', 'campaign_data'));
+        return view('social.campaigns.index', compact('campaigns', 'configs'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)

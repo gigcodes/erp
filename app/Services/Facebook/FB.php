@@ -436,7 +436,7 @@ class FB
      */
     public function getCampaigns(string $ad_account_id): array
     {
-        $campaigns = self::get("$ad_account_id/campaigns", true);
+        $campaigns = self::get("$ad_account_id/campaigns?fields=buying_type,name,objective,daily_budget,created_time,status,lifetime_budget,id&limit=1000", true);
 
         return ['success' => true, 'campaigns' => $campaigns];
     }

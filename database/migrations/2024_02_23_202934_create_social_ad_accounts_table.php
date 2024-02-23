@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('store_website_id');
             $table->string('name');
             $table->string('ad_account_id');
-            $table->string('page_token');
+            $table->string('page_token', 3000);
             $table->integer('status')->default(1);
             $table->timestamps();
         });
