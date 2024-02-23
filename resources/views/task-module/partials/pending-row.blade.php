@@ -422,6 +422,7 @@
                                     <img
                                             src="{{asset('images/private.png')}}" /></button>
                             @endif
+                        @endif
 
                             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
                                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img

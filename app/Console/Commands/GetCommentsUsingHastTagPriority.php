@@ -37,6 +37,5 @@ class GetCommentsUsingHastTagPriority extends Command
      */
     public function handle()
     {
-
     }
 }

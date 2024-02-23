@@ -353,6 +353,7 @@ class ContentController extends Controller
                     foreach ($val->keywords as $item) {
                         $keywordArray[] = $item->name;
                     }
+
                     return implode(', ', $keywordArray);
                 }
 

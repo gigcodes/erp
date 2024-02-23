@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateGoogleFileTranslateHistoriesTable extends Migration
 {
@@ -22,7 +22,6 @@ class CreateGoogleFileTranslateHistoriesTable extends Migration
             $table->integer('status')->nullable();
             $table->integer('google_file_translate_csv_data_id')->nullable();
             $table->timestamps();
-
         });
     }
 

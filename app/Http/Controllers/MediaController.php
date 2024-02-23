@@ -78,7 +78,6 @@ class MediaController extends Controller
                         $savedMedia = MediaUploader::fromSource($file)->toDirectory('instagram-media')->upload();
                         $user->attachMedia($savedMedia, 'instagram');
                     }
-
                 } else {
                     return response()->json([
                         'success' => false,

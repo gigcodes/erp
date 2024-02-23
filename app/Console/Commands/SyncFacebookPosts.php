@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
-use App\Services\Facebook\FB;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\Social\SocialConfig;
+use App\Services\Facebook\FB;
 use Illuminate\Console\Command;
 
 class SyncFacebookPosts extends Command
@@ -55,7 +55,6 @@ class SyncFacebookPosts extends Command
             ])->get();
 
             foreach ($configs as $config) {
-
                 $fb = new FB($config->page_token);
                 $pageInfo = $fb->getPageFeed($config->page_id);
 

@@ -20,6 +20,7 @@ class NegativeCouponResponseController extends Controller
         });
 
         $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination', 25));
+
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
 

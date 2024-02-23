@@ -40,7 +40,6 @@ class StoreWebsiteCategory extends Model
 
     public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyId = 0)
     {
-
         $categoryDetails = \App\ReplyCategory::find($categoryId);
 
         $faqCategoryName = $categoryDetails->name ?? 'Question?';

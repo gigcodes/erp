@@ -28,6 +28,7 @@ class GTMatrixErrorLogController extends Controller
             if (isset($request->name) && ! empty($request->name)) {
                 $items->where('error_title', 'Like', '%' . $request->name . '%')->orWhere('error', 'Like', '%' . $request->name . '%')->orWhere('store_viewGTM_id', 'Like', '%' . $request->name . '%');
             }
+
             return datatables()->eloquent($items)->toJson();
         }
 

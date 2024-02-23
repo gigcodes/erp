@@ -172,6 +172,7 @@ class ScriptDocumentsController extends Controller
     {
         try {
             $script_document = ScriptDocuments::where('id', '=', $request->id)->delete();
+
             return response()->json(
                 [
                     'code' => 200,

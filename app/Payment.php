@@ -6,7 +6,6 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use App\Events\PaymentCreated;
-use App\Events\PaymentUpdated;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model

@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CreateCustomerIfColdLeadReplied extends Command

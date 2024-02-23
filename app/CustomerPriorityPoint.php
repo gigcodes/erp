@@ -19,7 +19,6 @@ class CustomerPriorityPoint extends Model
      * @SWG\Property(property="refund_points",type="integet")
      * @SWG\Property(property="ticket_points",type="integer")
      */
-
     protected $table = 'customer_priority_points';
 
     protected $fillable = [

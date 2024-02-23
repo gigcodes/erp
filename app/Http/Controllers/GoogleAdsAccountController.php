@@ -277,6 +277,7 @@ class GoogleAdsAccountController extends Controller
         if (isset($result->config_file_path) && $result->config_file_path != '' && \Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
             $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
+
             return $storagepath;
         } else {
             return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');

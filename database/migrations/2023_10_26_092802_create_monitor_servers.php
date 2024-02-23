@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorServers extends Migration
 {
@@ -14,7 +14,7 @@ class CreateMonitorServers extends Migration
     public function up()
     {
         Schema::dropIfExists('monitor_servers');
-        
+
         Schema::create('monitor_servers', function (Blueprint $table) {
             $table->increments('server_id');
             $table->string('ip', 500);

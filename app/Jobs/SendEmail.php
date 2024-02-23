@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     public $emailNewData;
 
     public $emailOldData;

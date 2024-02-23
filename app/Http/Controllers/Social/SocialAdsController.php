@@ -11,7 +11,6 @@ use Facebook\Facebook;
 use App\Social\SocialAd;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
-use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
 use App\Http\Controllers\Controller;
 

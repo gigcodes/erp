@@ -37,6 +37,5 @@ class GetPostFromUserLocalInstagram extends Command
      */
     public function handle()
     {
-
     }
 }

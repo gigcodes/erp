@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorUsersPreferences extends Migration
 {
@@ -14,7 +14,7 @@ class CreateMonitorUsersPreferences extends Migration
     public function up()
     {
         Schema::dropIfExists('monitor_users_preferences');
-        
+
         Schema::create('monitor_users_preferences', function (Blueprint $table) {
             $table->unsignedInteger('user_id');
             $table->string('key', 255);
@@ -25,7 +25,7 @@ class CreateMonitorUsersPreferences extends Migration
 
         $charset = config('database.connections.mysql.charset');
         $collation = config('database.connections.mysql.collation');
-  
+
         //DB::statement("ALTER TABLE `monitor_users_preferences` ENGINE = MyISAM DEFAULT CHARSET = $charset COLLATE = $collation");
     }
 
@@ -36,8 +36,6 @@ class CreateMonitorUsersPreferences extends Migration
      */
     public function down()
     {
-
         Schema::dropIfExists('monitor_users_preferences');
     }
 }
-

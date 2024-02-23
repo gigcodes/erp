@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\User;
 use App\GoogleClientAccount;
+use Illuminate\Console\Command;
 use App\GoogleClientAccountMail;
 use App\GoogleClientNotification;
-use App\User;
-use Illuminate\Console\Command;
 
 class ConnectGoogleClientAccounts extends Command
 {

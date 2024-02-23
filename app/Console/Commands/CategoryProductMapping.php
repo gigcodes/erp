@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
 use App\ScrappedCategoryMapping;
 use App\ScrappedProductCategoryMapping;
-use Illuminate\Console\Command;
 
 class CategoryProductMapping extends Command
 {

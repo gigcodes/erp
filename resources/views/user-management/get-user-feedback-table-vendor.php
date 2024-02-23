@@ -46,10 +46,11 @@
                                             <select name="user_id" class="form-control  select-multiple">
                                                 <option>-select-</option>
                                                 <?php foreach ($users as $key => $user) {
-                                                        $selectedUser = '';
-                                                        if($user->id == $request->user_id)
-                                                            $selectedUser = 'selected="selected"';
-                                                        echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
+                                                    $selectedUser = '';
+                                                    if ($user->id == $request->user_id) {
+                                                        $selectedUser = 'selected="selected"';
+                                                    }
+                                                    echo '<option value="' . $user->id . '" ' . $selectedUser . '>' . $user->name . '</option>';
                                                 }?>
                                             </select>
                                         </div>
@@ -106,7 +107,7 @@
             @endif
             <?php $sopOps = ''; ?>
             @foreach ($sops as $sop)
-                <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
+                <?php $sopOps .= '<option value="' . $sop->id . '">' . $sop->name . '</option>' ?>
             @endforeach
             @foreach ($category as $cat)
                 @php
@@ -143,7 +144,7 @@
                             <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
                                 <option value="">-Select sop-</option>
                                 @foreach ($sops as $sop)
-                                    <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
+                                    <?php echo '<option value="' . $sop->id . '">' . $sop->name . '</option>'; ?>
                                 @endforeach
                             </select>
                             <div class="row">

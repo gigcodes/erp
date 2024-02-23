@@ -86,5 +86,4 @@ class GetCuccuiniWithEmulator extends Command
     {
         $this->country = 'IT';
     }
-
 }

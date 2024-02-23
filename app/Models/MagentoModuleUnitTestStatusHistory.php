@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\User;
-use App\Models\MagentoModuleUnitTestStatus;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoModuleUnitTestStatusHistory extends Model
 {
@@ -17,7 +16,6 @@ class MagentoModuleUnitTestStatusHistory extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
 
     public function newTestStatus()
     {

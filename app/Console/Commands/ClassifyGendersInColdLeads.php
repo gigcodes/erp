@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use App\CronJobReport;
-use App\PeopleNames;
 use Carbon\Carbon;
+use App\PeopleNames;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ClassifyGendersInColdLeads extends Command

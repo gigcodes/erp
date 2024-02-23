@@ -37,6 +37,5 @@ class GetCompetitorFollowers extends Command
      */
     public function handle()
     {
-
     }
 }

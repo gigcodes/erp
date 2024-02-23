@@ -144,7 +144,7 @@ class PostmanRequestCreateController extends Controller
 
             if (request()->ajax()) {
                 return response()->json([
-                    'tbody' => view('postman.partials.table.tbody',compact(
+                    'tbody' => view('postman.partials.table.tbody', compact(
                         'postmans',
                         'userID',
                         'addAdimnAccessID',
@@ -249,7 +249,7 @@ class PostmanRequestCreateController extends Controller
      */
     public function store(Request $request)
     {
-        $rules =  [
+        $rules = [
             'request_name' => 'required|string|max:255',
             'folder_name' => 'required|string|max:255',
             'request_types' => 'required|string|max:255',
@@ -349,16 +349,16 @@ class PostmanRequestCreateController extends Controller
                 $first_request_url = $request->request_url[0];
                 $path = parse_url($first_request_url, PHP_URL_PATH);
                 $query_str = parse_url($first_request_url, PHP_URL_QUERY);
-                $url_suffix = $path.($query_str ? '?'.$query_str : '');
-                foreach ($request->request_url as $req_key=>$reqUrl) {
+                $url_suffix = $path . ($query_str ? '?' . $query_str : '');
+                foreach ($request->request_url as $req_key => $reqUrl) {
                     if ($reqUrl) {
-                        if($req_key > 0 && $url_suffix) {
+                        if ($req_key > 0 && $url_suffix) {
                             //Check if request contains suffix or not
-                            $check_req = trim($reqUrl,'/');
+                            $check_req = trim($reqUrl, '/');
                             $path = parse_url($check_req, PHP_URL_PATH);
                             $query_str = parse_url($check_req, PHP_URL_QUERY);
-                            if($path == '' && $query_str == '') {
-                                $reqUrl = $check_req.$url_suffix;
+                            if ($path == '' && $query_str == '') {
+                                $reqUrl = $check_req . $url_suffix;
                             }
                         }
 
@@ -410,6 +410,7 @@ class PostmanRequestCreateController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman User permission Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
@@ -847,6 +848,7 @@ class PostmanRequestCreateController extends Controller
             $postHis = PostmanResponse::select('postman_responses.*', 'u.name AS userName')
                 ->leftJoin('users AS u', 'u.id', 'postman_responses.user_id')
                 ->where('request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+
             return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -1554,10 +1556,11 @@ class PostmanRequestCreateController extends Controller
         }
     }
 
-    public function updatePostManField(Request $request){
+    public function updatePostManField(Request $request)
+    {
         $fieldId = $request->id;
         $postManRequest = PostmanRequestCreate::findOrfail($fieldId);
-        
+
         if ($postManRequest->body_json != $request->body_json) {
             $jsonVersion = PostmanRequestJsonHistory::create(
                 [
@@ -1567,7 +1570,7 @@ class PostmanRequestCreateController extends Controller
                 ]
             );
             PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v' . $jsonVersion->id]);
-            
+
             $postmanH = new PostmanEditHistory();
             $postmanH->user_id = \Auth::user()->id;
             $postmanH->postman_request_id = $postManRequest->id;
@@ -1603,13 +1606,14 @@ class PostmanRequestCreateController extends Controller
 
         $postManRequest->body_json = $request->body_json;
         $postManRequest->save();
+
         return redirect()->back()->with('success', 'Field Updated successfully');
 
         //updateField
-
     }
 
-    public function addRemark(Request $request) {
+    public function addRemark(Request $request)
+    {
         $fieldId = $request->id;
         $postManRequest = PostmanRequestCreate::findOrfail($fieldId);
         PostmanRemarkHistory::create(
@@ -1622,10 +1626,12 @@ class PostmanRequestCreateController extends Controller
         );
         $postManRequest->remark = $request->remark;
         $postManRequest->save();
+
         return response()->json(['code' => 200, 'message' => 'Remark Added']);
     }
 
-    public function responsesHistory(Request $request) {
+    public function responsesHistory(Request $request)
+    {
         try {
             $id = $request->id;
             $q = PostmanResponse::query();
@@ -1638,8 +1644,6 @@ class PostmanRequestCreateController extends Controller
             // $postHis = $q->paginate(Setting::get('pagination'));
 
             return response()->json(['code' => 200, 'data' => $postHis]);
-
-            
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman controller index method error => ' . json_encode($msg));

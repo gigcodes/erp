@@ -19,6 +19,7 @@ use App\EmailCategory;
 use App\ReplyCategory;
 use App\Models\EmailBox;
 use App\EmailRunHistories;
+use App\Models\EmailStatus;
 use App\SendgridEventColor;
 use Illuminate\Http\Request;
 use App\Models\DataTableColumn;
@@ -27,7 +28,6 @@ use App\Mails\Manual\ForwardEmail;
 use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
 use App\Models\EmailCategoryHistory;
-use App\Models\EmailStatus;
 use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
@@ -222,12 +222,10 @@ class EmailController extends Controller
 
         $email_status = EmailStatus::select('id', 'email_status')->get();
 
-
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
 
         $email_categories = EmailCategory::select('id', 'category_name')->get();
-
 
         if ($request->ajax()) {
             return response()->json([

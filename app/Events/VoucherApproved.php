@@ -17,7 +17,6 @@ class VoucherApproved
      *
      * @return void
      */
-
     public function __construct(public Voucher $voucher)
     {
     }

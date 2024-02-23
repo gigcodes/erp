@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use App\Social\SocialPost;
 use Illuminate\Console\Command;
 
@@ -61,7 +61,6 @@ class SyncFacebookPostComments extends Command
                     ]);
                 }
             }
-
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

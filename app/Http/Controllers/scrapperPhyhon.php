@@ -395,7 +395,7 @@ class scrapperPhyhon extends Controller
         try {
             $api_host = config('env.PYTHON_SCRAPPER_API');
 
-            $url = $api_host.$request->data_name;
+            $url = $api_host . $request->data_name;
             $data = [
                 'type' => $request->type,
                 'name' => $store_website->title,

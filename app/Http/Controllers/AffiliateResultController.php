@@ -115,10 +115,8 @@ class AffiliateResultController extends Controller
         $id = $request->id;
         if (is_array($id)) {
             Affiliates::whereIn('id', $id)->delete();
-
         } else {
             Affiliates::where('id', $id)->delete();
-
         }
 
         return redirect()->route('affiliates.list')

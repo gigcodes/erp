@@ -2,8 +2,8 @@
 
 namespace App\Services\Facebook;
 
-use JanuSoftware\Facebook\Exception\ResponseException;
 use JanuSoftware\Facebook\Exception\SDKException;
+use JanuSoftware\Facebook\Exception\ResponseException;
 
 class FbPayloads extends FB
 {

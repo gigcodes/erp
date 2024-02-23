@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddHistoryColumnsIdToMagentoBackendDocsHistoriesTable extends Migration
 {
@@ -26,7 +26,6 @@ class AddHistoryColumnsIdToMagentoBackendDocsHistoriesTable extends Migration
             $table->text('template_file_type')->nullable();
             $table->text('old_bug_type')->nullable();
             $table->text('old_bug_solutuion_type')->nullable();
-
         });
     }
 

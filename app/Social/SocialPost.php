@@ -40,7 +40,7 @@ class SocialPost extends Model
         'post_medium',
         'media',
         'permalink',
-        'custom_data'
+        'custom_data',
     ];
 
     public function account(): BelongsTo
@@ -51,7 +51,7 @@ class SocialPost extends Model
     protected $casts = [
         'posted_on' => 'datetime',
         'media' => 'json',
-        'custom_data' => 'json'
+        'custom_data' => 'json',
     ];
 
     public function comments(): HasMany

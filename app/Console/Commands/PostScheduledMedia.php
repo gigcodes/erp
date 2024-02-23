@@ -9,7 +9,6 @@ use App\ScheduleGroup;
 use Illuminate\Console\Command;
 use App\Services\Facebook\Facebook;
 
-
 class PostScheduledMedia extends Command
 {
     /**

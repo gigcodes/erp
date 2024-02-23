@@ -218,6 +218,7 @@ class CouponController extends Controller
                     if ($row['currency']) {
                         $discount .= $row['currency'] . ' ';
                     }
+
                     return $discount;
                 },
             ],

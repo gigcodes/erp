@@ -89,7 +89,7 @@ class SocialPostController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
-                'links' => (string)$posts->render(),
+                'links' => (string) $posts->render(),
             ], 200);
         }
 
@@ -111,6 +111,7 @@ class SocialPostController extends Controller
             $response = getFacebookResults($pageInfoParams);
             if (isset($response['data']['success']) && $response['data']['success']) {
                 $post->delete();
+
                 return Response::json([
                     'success' => true,
                     'message' => 'Post deleted successfully',
@@ -120,6 +121,7 @@ class SocialPostController extends Controller
             }
         } else {
             $post->delete();
+
             return Response::json([
                 'success' => true,
                 'message' => 'Post deleted successfully',

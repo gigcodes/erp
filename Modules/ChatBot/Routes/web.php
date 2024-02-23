@@ -126,7 +126,6 @@ Route::group([
     });
 
     Route::group(['prefix' => 'messages'], function () {
-
         Route::post('chatbot-messages-column-visbility', [MessageController::class, 'chatbotMessagesColumnVisbilityUpdate'])->name('chatbot.messages.column.update');
         Route::get('/', [MessageController::class, 'index'])->name('chatbot.messages.list');
 

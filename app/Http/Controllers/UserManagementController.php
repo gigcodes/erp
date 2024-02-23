@@ -152,6 +152,7 @@ class UserManagementController extends Controller
             } else {
                 $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
             }
+
             return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500', 'message' => $e->getMessage()]);
@@ -223,6 +224,7 @@ class UserManagementController extends Controller
             } else {
                 $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
             }
+
             return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
         } catch (\Exception $e) {
             return response()->json(['code' => '500', 'message' => $e->getMessage()]);

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\StoreWebsite;
 use App\WebsiteStoreView;
 use Illuminate\Console\Command;
 
