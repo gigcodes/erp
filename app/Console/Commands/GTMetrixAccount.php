@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\LogRequest;
-use App\StoreGTMetrixAccount;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\CronJobReport;
+use App\StoreGTMetrixAccount;
 use Illuminate\Console\Command;
 
 class GTMetrixAccount extends Command

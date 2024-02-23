@@ -6,12 +6,12 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\Hubstaff\HubstaffActivity;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use Plank\Mediable\Mediable;
+use App\Hubstaff\HubstaffActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Plank\Mediable\Mediable;
 
 class DeveloperTask extends Model
 {

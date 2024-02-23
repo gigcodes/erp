@@ -776,6 +776,7 @@ class ProductInventoryController extends Controller
     public function dispatchCreate()
     {
         $productId = request()->get('product_id', 0);
+
         return view('instock.dispatch_create', compact(['productId', 'users', 'order']));
     }
 

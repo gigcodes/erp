@@ -1285,6 +1285,7 @@ class LiveChatController extends Controller
                     \Cache::add('key', $request->accessToken, $request->seconds);
                 }
             }
+
             return response()->json(['status' => 'success', 'message' => 'AccessToken saved'], 200);
         }
 

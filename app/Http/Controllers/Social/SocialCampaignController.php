@@ -40,7 +40,6 @@ class SocialCampaignController extends Controller
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-
             $campaigns = SocialCampaign::orderby('id', 'desc');
         } else {
             $campaigns = SocialCampaign::latest();
@@ -380,5 +379,4 @@ class SocialCampaignController extends Controller
 
         return response()->json(['code' => 200, 'data' => $logs]);
     }
-
 }

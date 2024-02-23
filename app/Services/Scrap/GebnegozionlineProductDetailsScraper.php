@@ -7,7 +7,6 @@ use App\Brand;
 use App\Product;
 use App\Setting;
 use App\ScrapEntries;
-use GuzzleHttp\Client;
 use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;

@@ -237,6 +237,7 @@ class InstagramConfigController extends Controller
         } elseif ($config->provider === 'Chat-API') {
             $data = ChatApi::chatQueue($config->number);
         }
+
         return view('marketing.instagram-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
 

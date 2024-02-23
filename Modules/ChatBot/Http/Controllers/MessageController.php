@@ -2,9 +2,6 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
-use App\Console\Commands\ReindexMessages;
-use App\Elasticsearch\Elasticsearch;
-use App\Elasticsearch\Reindex\Messages;
 use App\Task;
 use App\Vendor;
 use App\Customer;
@@ -14,23 +11,24 @@ use App\ChatbotCategory;
 use App\ChatbotQuestion;
 use App\Models\TmpReplay;
 use App\SuggestedProduct;
-use Illuminate\Container\Container;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use App\ChatbotQuestionReply;
 use Illuminate\Http\Response;
 use App\ChatbotQuestionExample;
+use App\Models\DataTableColumn;
 use App\Models\GoogleResponseId;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use App\Models\GoogleDialogAccount;
+use Illuminate\Container\Container;
+use App\Elasticsearch\Elasticsearch;
 use App\Models\DialogflowEntityType;
+use Illuminate\Pagination\Paginator;
+use App\Elasticsearch\Reindex\Messages;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Console\Commands\ReindexMessages;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Library\Google\DialogFlow\DialogFlowService;
-use App\Models\DataTableColumn;
 
 class MessageController extends Controller
 {
@@ -47,8 +45,9 @@ class MessageController extends Controller
         $elastic = new Elasticsearch();
         $sizeof = $elastic->count(Messages::INDEX_NAME);
 
-        if (!$isElastic) {
+        if (! $isElastic) {
             $isElastic = false;
+
             return $this->indexDB($request, $isElastic);
         }
 
@@ -148,8 +147,8 @@ class MessageController extends Controller
                                 ['exists' => ['field' => 'developer_task_id']],
                                 ['exists' => ['field' => 'bug_id']],
                             ],
-                            'minimum_should_match' => 1
-                        ]
+                            'minimum_should_match' => 1,
+                        ],
                     ],
                     'aggs' => [
                         'group_by_customer' => [
@@ -223,16 +222,15 @@ class MessageController extends Controller
                         ],
                     ],
                     'sort' => [
-                        ['id' => 'desc']
-                    ]
-                ]
+                        ['id' => 'desc'],
+                    ],
+                ],
             ]);
 
         $allItems = $response['hits']['hits'] ?? [];
         $total = $response['hits']['total']['value'] ?? 0;
 
-
-        $pendingApprovalMsg = array_map(fn($item) => (new \App\ChatMessage())->setRawAttributes($item['_source']),
+        $pendingApprovalMsg = array_map(fn ($item) => (new \App\ChatMessage())->setRawAttributes($item['_source']),
             $allItems
         );
 
@@ -243,13 +241,13 @@ class MessageController extends Controller
             'currentPage' => $currentPage,
             'options' => [
                 'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page'
-            ]
+                'pageName' => 'page',
+            ],
         ]);
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
-        if (!$allCategory->isEmpty()) {
+        if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
@@ -271,8 +269,8 @@ class MessageController extends Controller
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'chatbot-messages')->first();
 
         $dynamicColumnsToShowPostman = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
@@ -293,6 +291,7 @@ class MessageController extends Controller
         }
 
         Artisan::call('reindex:messages');
+
         return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
     }
 
@@ -950,26 +949,25 @@ class MessageController extends Controller
     }
 
     public function chatbotMessagesColumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','chatbot-messages')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'chatbot-messages')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'chatbot-messages';
-            $column->column_name = json_encode($request->column_chatbox); 
+            $column->column_name = json_encode($request->column_chatbox);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'chatbot-messages';
-            $column->column_name = json_encode($request->column_chatbox); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_chatbox);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
-    
+
     public function messagesJson(Request $request)
     {
         $search = request('search');
@@ -1077,9 +1075,9 @@ class MessageController extends Controller
         $page = $pendingApprovalMsg->currentPage();
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
-        return response()->json(['code' => 200, 'items' => (array)$pendingApprovalMsg->getIterator(), 'page' => $page]);
+        return response()->json(['code' => 200, 'items' => (array) $pendingApprovalMsg->getIterator(), 'page' => $page]);
     }
-  
+
     public function indexDB(Request $request, $isElastic)
     {
         $search = request('search');
@@ -1168,7 +1166,6 @@ class MessageController extends Controller
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
-
         $currentPage = Paginator::resolveCurrentPage();
         $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
@@ -1191,8 +1188,8 @@ class MessageController extends Controller
             'currentPage' => $currentPage,
             'options' => [
                 'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page'
-            ]
+                'pageName' => 'page',
+            ],
         ]);
 
         $allCategory = ChatbotCategory::all();

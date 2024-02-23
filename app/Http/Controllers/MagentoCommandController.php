@@ -914,6 +914,7 @@ class MagentoCommandController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Magento Command User permission Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
+
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }

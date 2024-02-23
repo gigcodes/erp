@@ -25,7 +25,7 @@ class TestMagentoServiceJob
      * @param  null  $log
      * @param  null  $mode
      */
-    public function __construct(Product $product, StoreWebsite $website,protected $log = null,protected $mode = null)
+    public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null)
     {
         // Set product and website
         $this->_product = $product;

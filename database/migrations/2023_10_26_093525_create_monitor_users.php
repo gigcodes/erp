@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorUsers extends Migration
 {
@@ -14,7 +14,7 @@ class CreateMonitorUsers extends Migration
     public function up()
     {
         Schema::dropIfExists('monitor_users');
-        
+
         Schema::create('monitor_users', function (Blueprint $table) {
             $table->increments('user_id');
             $table->string('user_name', 64)->unique();

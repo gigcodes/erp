@@ -13,10 +13,6 @@ class SizesImport implements ToModel, WithHeadingRow, WithBatchInserts, WithChun
 {
     use Importable;
 
-    /**
-     * @param array $row
-     * @return array
-     */
     public function model(array $row): array
     {
         return $row;

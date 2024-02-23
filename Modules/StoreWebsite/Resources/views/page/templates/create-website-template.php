@@ -197,12 +197,12 @@
       <select class="btn-edit-cms-page-select">
         <?php
         foreach ($storeWebsitesModel as $title => $url) {
-            if (!$url) {
+            if (! $url) {
                 continue;
             }
             echo "<option value='" . $url . "'>" . $title . '</option>';
         }
-        ?>
+    ?>
       </select>
               <div class="form-row">
                 <div class="form-group col-md-12 mb-0">
@@ -220,9 +220,9 @@
                      <select name="active" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach ([0 => 'No', 1 => 'Yes'] as $k => $l) {
-                                echo "<option {{if data.active == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
-                            }
+                        foreach ([0 => 'No', 1 => 'Yes'] as $k => $l) {
+                            echo "<option {{if data.active == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+                        }
     ?>
                      </select>
                   </div>

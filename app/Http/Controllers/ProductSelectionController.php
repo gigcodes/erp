@@ -12,7 +12,6 @@ use Plank\Mediable\Media;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductSelectionController extends Controller

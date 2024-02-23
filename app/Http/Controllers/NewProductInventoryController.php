@@ -130,6 +130,7 @@ class NewProductInventoryController extends Controller
 
         return view('product-inventory.upteam_logs', compact('logs'));
     }
+
     public function pushInStore(Request $request)
     {
         if (! empty($request->product_ids)) {

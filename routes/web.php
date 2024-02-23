@@ -11,13 +11,6 @@
 |
  */
 
-use App\Http\Controllers\Api\v1\BrandReviewController;
-use App\Http\Controllers\BankStatementController;
-use App\Http\Controllers\BlogCentralizeController;
-use App\Http\Controllers\EmailReceiverMasterController;
-use App\Http\Controllers\IndexerStateController;
-use App\Http\Controllers\MagentoCareersController;
-use App\Http\Controllers\MindMapDiagramController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Github;
@@ -27,8 +20,6 @@ use App\Http\Controllers\gtmetrix;
 use App\Http\Controllers\Hubstaff;
 use App\Http\Controllers\Products;
 use App\Http\Controllers\Marketing;
-use App\Http\Controllers\Zabbix\ItemController;
-use App\Http\Controllers\Zabbix\TriggerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdsController;
 use App\Http\Controllers\EnvController;
@@ -95,6 +86,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DBQueryController;
 use App\Http\Controllers\DetailsController;
+use App\Http\Controllers\DevOppsController;
 use App\Http\Controllers\EncryptController;
 use App\Http\Controllers\FaqPushController;
 use App\Http\Controllers\FlowLogController;
@@ -193,6 +185,7 @@ use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\InfluencersController;
 use App\Http\Controllers\InstructionController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\NotificaitonContoller;
 use App\Http\Controllers\OldIncomingController;
 use App\Http\Controllers\OrderReportController;
@@ -201,16 +194,19 @@ use App\Http\Controllers\ResourceImgController;
 use App\Http\Controllers\TaskHistoryController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\UserActionsController;
+use App\Http\Controllers\Zabbix\ItemController;
 use App\Http\Controllers\ChatMessagesController;
 use App\Http\Controllers\CodeShortcutController;
 use App\Http\Controllers\CompositionsController;
 use App\Http\Controllers\CropRejectedController;
 use App\Http\Controllers\DailyPlannerController;
 use App\Http\Controllers\FacebookPostController;
+use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\GoogleAdsLogController;
 use App\Http\Controllers\GoogleSearchController;
 use App\Http\Controllers\GoogleServerController;
 use App\Http\Controllers\HashtagPostsController;
+use App\Http\Controllers\IndexerStateController;
 use App\Http\Controllers\MissingBrandController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\ProjectThemeController;
@@ -219,6 +215,7 @@ use App\Http\Controllers\SitejabberQAController;
 use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\VendorResumeController;
 use App\Http\Controllers\AssetsManagerController;
+use App\Http\Controllers\BankStatementController;
 use App\Http\Controllers\BingWebMasterController;
 use App\Http\Controllers\CsvTranslatorController;
 use App\Http\Controllers\DailyActivityController;
@@ -239,6 +236,7 @@ use App\Http\Controllers\StatusMappingController;
 use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\VendorPaymentController;
 use App\Http\Controllers\VoucherCouponController;
+use App\Http\Controllers\BlogCentralizeController;
 use App\Http\Controllers\BloggerPaymentController;
 use App\Http\Controllers\BloggerProductController;
 use App\Http\Controllers\BrandSizeChartController;
@@ -257,8 +255,11 @@ use App\Http\Controllers\KeywordVariantController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\ListingHistoryController;
 use App\Http\Controllers\LogScraperVsAiController;
+use App\Http\Controllers\MagentoCareersController;
 use App\Http\Controllers\MagentoCommandController;
+use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\MagentoProductPushErrors;
+use App\Http\Controllers\MindMapDiagramController;
 use App\Http\Controllers\ProductCropperController;
 use App\Http\Controllers\PurchaseStatusController;
 use App\Http\Controllers\ReturnExchangeController;
@@ -270,6 +271,7 @@ use App\Http\Controllers\UserAvaibilityController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\VendorCategoryController;
 use App\Http\Controllers\VendorSupplierController;
+use App\Http\Controllers\Zabbix\TriggerController;
 use App\Http\Controllers\AffiliateResultController;
 use App\Http\Controllers\CategorySegmentController;
 use App\Http\Controllers\ChatGPT\ChatGPTController;
@@ -292,6 +294,7 @@ use App\Http\Controllers\ProductSearcherController;
 use App\Http\Controllers\PurchaseProductController;
 use App\Http\Controllers\ReferralProgramController;
 use App\Http\Controllers\ScrapStatisticsController;
+use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\WebNotificationController;
 use App\Http\Controllers\BrandTaggedPostsController;
 use App\Http\Controllers\BroadcastMessageController;
@@ -328,7 +331,9 @@ use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutySegmentController;
 use App\Http\Controllers\SopShortcutCreateController;
 use App\Http\Controllers\ZabbixWebhookDataController;
+use App\Http\Controllers\Api\v1\BrandReviewController;
 use App\Http\Controllers\ApiResponseMessageController;
+use App\Http\Controllers\AppointmentRequestController;
 use App\Http\Controllers\AutoCommentHistoryController;
 use App\Http\Controllers\ChatbotMessageLogsController;
 use App\Http\Controllers\ColdLeadBroadcastsController;
@@ -347,6 +352,7 @@ use App\Http\Controllers\ChatbotTypeErrorLogController;
 use App\Http\Controllers\DomainSearchKeywordController;
 use App\Http\Controllers\EmailContentHistoryController;
 use App\Http\Controllers\EmailDataExtractionController;
+use App\Http\Controllers\EmailReceiverMasterController;
 use App\Http\Controllers\GoogleDeveloperLogsController;
 use App\Http\Controllers\MessageQueueHistoryController;
 use App\Http\Controllers\MonitorJenkinsBuildController;
@@ -374,19 +380,12 @@ use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\UnknownAttributeProductController;
+use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DatabaseBackupMonitoringController;
 use App\Http\Controllers\GoogleTraslationSettingsController;
 use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
-use App\Http\Controllers\GitHubActionController;
-use App\Http\Controllers\MonitStatusController;
-use App\Http\Controllers\MagentoProblemController;
-use App\Http\Controllers\ScriptDocumentsController;
-use App\Http\Controllers\AssetsManagerUsersAccessController;
-use App\Http\Controllers\DevOppsController;
-use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
-use App\Http\Controllers\AppointmentRequestController;
 use App\Http\Controllers\InstagramAutomatedMessagesController;
 use App\Http\Controllers\Pinterest\PinterestAccountController;
 use App\Http\Controllers\MagentoBackendDocumentationController;
@@ -396,14 +395,15 @@ use App\Http\Controllers\MagentoFrontendDocumentationController;
 use App\Http\Controllers\Pinterest\PinterestCampaignsController;
 use App\Http\Controllers\MagentoModuleJsRequireHistoryController;
 use App\Http\Controllers\MagentoSettingRevisionHistoryController;
+use Modules\MessageQueue\Http\Controllers\MessageQueueController;
 use App\Http\Controllers\MagentoModuleCustomizedHistoryController;
 use App\Http\Controllers\Pinterest\PinterestAdsAccountsController;
 use App\Http\Controllers\DeveloperMessagesAlertSchedulesController;
 use App\Http\Controllers\Marketing\WhatsappBusinessAccountController;
 use App\Http\Controllers\MagentoModuleReturnTypeErrorStatusController;
+use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
-use Modules\MessageQueue\Http\Controllers\MessageQueueController;
 
 Route::post('global_files_and_attachments_store', [FilesAndAttachmentsController::class, 'store_data'])->name('global_files_and_attachments_store');
 Route::post('global_files_and_attachments', [FilesAndAttachmentsController::class, 'get_data'])->name('global_files_and_attachments');
@@ -425,7 +425,6 @@ Route::get('send_auto_emails', [Marketing\MailinglistController::class, 'sendAut
 Route::get('textcurl', [Marketing\MailinglistController::class, 'textcurl']);
 Route::get('totem/query-command/{name}', [TasksController::class, 'queryCommand']);
 Route::get('totem/cron-history/{name}', [TasksController::class, 'cronHistory']);
-
 
 Route::get('/test/dummydata', [TestingController::class, 'testingFunction']);
 Route::get('/test/translation', [GoogleTranslateController::class, 'testTranslation']);
@@ -545,7 +544,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/run-magento-cron', [Cron\ShowMagentoCronDataController::class, 'runMagentoCron'])->name('magento-cron-runMagentoCron');
     Route::post('/show-magento-cron-data/statuscolor', [Cron\ShowMagentoCronDataController::class, 'statusColor'])->name('magento-cron-data.statuscolor');
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
-
 
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
@@ -765,7 +763,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/all-records', [GoogleWebMasterController::class, 'allRecords'])->name('googlewebmaster.get.records');
     });
 
-
     //Bing webmaster routes
     Route::prefix('bing-webmaster')->group(function () {
         Route::get('/index', [BingWebMasterController::class, 'index'])->name('bingwebmaster.index');
@@ -777,7 +774,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/all-records', [BingWebMasterController::class, 'allRecords'])->name('bingwebmaster.get.records');
         Route::post('delete-site', [BingWebMasterController::class, 'deleteSiteFromWebmaster'])->name('bingwebmaster.delete.site.webmaster');
     });
-
 
     Route::prefix('product')->group(function () {
         Route::get('manual-crop/assign-products', [Products\ManualCroppingController::class, 'assignProductsToUser']);
@@ -843,7 +839,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('log-scraper-api', [Logging\LogScraperController::class, 'scraperApiLog'])->name('log-scraper.api');
     Route::get('log-scraper', [Logging\LogScraperController::class, 'index'])->name('log-scraper.index');
-
 
     Route::prefix('category-messages')->group(function () {
         Route::post('bulk-messages/addToDND', [BulkCustomerRepliesController::class, 'addToDND']);
@@ -1226,7 +1221,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('pre-accounts', PreAccountController::class);
 
     Route::prefix('instagram')->group(function () {
-
         Route::get('get/hashtag/{word}', [InstagramPostsController::class, 'hashtag']);
         Route::post('post/update-hashtag-post', [InstagramPostsController::class, 'updateHashtagPost']);
         Route::post('post/update-hashtag-post', [InstagramPostsController::class, 'updateHashtagPost']);
@@ -1237,7 +1231,6 @@ Route::middleware('auth')->group(function () {
         Route::post('post/likeUserPost', [InstagramPostsController::class, 'likeUserPost']);
         Route::post('post/acceptRequest', [InstagramPostsController::class, 'acceptRequest']);
         Route::post('post/sendRequest', [InstagramPostsController::class, 'sendRequest']);
-
 
         Route::get('auto-comment-history', [UsersAutoCommentHistoriesController::class, 'index']);
         Route::get('auto-comment-history/assign', [UsersAutoCommentHistoriesController::class, 'assignPosts']);
@@ -1500,7 +1493,6 @@ Route::middleware('auth')->group(function () {
     Route::get('competitor-page/approve/{id}', [CompetitorPageController::class, 'approveLead']);
     Route::resource('competitor-page', CompetitorPageController::class);
     Route::resource('target-location', TargetLocationController::class);
-
 
     //Legal Module
     Route::post('lawyer-speciality', [LawyerController::class, 'storeSpeciality'])->name('lawyer.speciality.store');
@@ -1797,7 +1789,6 @@ Route::middleware('auth')->group(function () {
         Route::post('whatsapp-queue/switchBroadcast', [Marketing\BroadcastController::class, 'switchBroadcast'])->name('whatsapp.config.switchBroadcast');
 
         //Instagram Config
-
 
         // Marketing Platform
         Route::get('platforms', [Marketing\MarketingPlatformController::class, 'index'])->name('platforms.index');
@@ -2795,7 +2786,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/cal/log', [LeadOrderController::class, 'leadProductPriceCalLog'])->name('lead.product.cal.log');
     });
 
-
     Route::resource('taskcategories', TaskCategoriesController::class);
     Route::delete('tasklist/{id}', [TaskCategoriesController::class, 'delete']);
     Route::delete('tasksubject/{id}', [TaskCategoriesController::class, 'destroy']);
@@ -3092,7 +3082,6 @@ Route::middleware('auth')->group(function () {
     //Mind Map
     Route::resource('mind-map', MindMapDiagramController::class);
 });
-
 
 Route::middleware(['auth', 'optimizeImages'])->group(function () {
     //Crop Reference
@@ -4062,7 +4051,6 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::post('task/send-sop', [TaskModuleController::class, 'SendTaskSOP'])->name('task.sendSop');
     Route::post('task/create-multiple-task-from-shortcutsonar', [TaskModuleController::class, 'createMultipleTaskFromSortcutSonar'])->name('task.create.multiple.task.shortcutsonar');
 
-
     Route::resource('learning', LearningModuleController::class);
     Route::get('learning/status/history', [LearningModuleController::class, 'getStatusHistory'])->name('learning/status/history');
     Route::post('learning/due_date-change', [LearningModuleController::class, 'saveDueDateUpdate'])->name('learning-due-change');
@@ -4554,7 +4542,6 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::post('development/upload-attachments', [DevelopmentController::class, 'uploadAttachDocuments'])->name('development.upload.files');
     Route::get('download-file', [DevelopmentController::class, 'downloadFile'])->name('download.file');
 
-
     Route::post('development/reminder', [DevelopmentController::class, 'updateDevelopmentReminder']);
     Route::post('log_status/change/{id}', [MagentoProductPushErrors::class, 'changeStatus']);
     Route::post('log_history/list/{id}', [MagentoProductPushErrors::class, 'getHistory']);
@@ -4573,7 +4560,6 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::post('development/historyscrapper', [DevelopmentController::class, 'devScrappingTaskHistoryIndex'])->name('development.historyscrapper');
     Route::get('development/scrapperhistory/{id}', [DevelopmentController::class, 'devScrappingTaskHistory'])->name('development.scrapper_hisotry');
     Route::post('development-scrapper-update-all-statusdata', [DevelopmentController::class, 'developmentUpdateAllScrapperStatusData'])->name('development.updateallstatusdata');
-
 
     Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
     Route::post('dl-column-visbility', [DevelopmentController::class, 'dlColumnVisbilityUpdate'])->name('dl.column.update');
@@ -5220,7 +5206,6 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     });
 });
 
-
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 Route::get('twilio/token', [TwilioController::class, 'createToken']);
 Route::post('twilio/ivr', [TwilioController::class, 'ivr'])->name('ivr')->middleware('twilio.voice.validate');
@@ -5363,7 +5348,6 @@ Route::post('/google/bigData/bigQuery/column-visibility-update', [GoogleBigQuery
 Route::get('google/bigData/search', [GoogleBigQueryDataController::class, 'search'])->name('google.bigdata.search');
 Route::delete('google/bigData/delete', [GoogleBigQueryDataController::class, 'destroy'])->name('google.bigdata.delete');
 
-
 Route::get('instagram/logs', [InstagramPostsController::class, 'instagramUserLogs'])->name('instagram.logs');
 Route::post('instagram/history', [InstagramPostsController::class, 'history'])->name('instagram.accounts.histroy');
 Route::get('instagram/addmailinglist', [HashtagController::class, 'addmailinglist']);
@@ -5456,7 +5440,6 @@ Route::middleware(['auth', 'role_or_permission:Admin|deployer'])->group(function
     Route::get('/deploy-node', [Github\RepositoryController::class, 'deployNodeScrapers']);
 });
 
-
 Route::prefix('calendar/public')->group(function () {
     Route::get('/{id}', [UserEventController::class, 'publicCalendar']);
     Route::get('/events/{id}', [UserEventController::class, 'publicEvents']);
@@ -5469,7 +5452,6 @@ Route::any('/run-webhook/{sid}', [TwilioController::class, 'runWebhook']);
 
 Route::any('fetch/customers', [TwillioMessageController::class, 'fetchCustomers']);
 
-
 //CommonMailPopup
 
 // auth not applied
@@ -5477,10 +5459,8 @@ Route::post('/common/sendEmail', [CommonController::class, 'sendCommonEmail'])->
 Route::post('/common/sendclanaderLinkEmail', [CommonController::class, 'sendClanaderLinkEmail'])->name('common.send.clanaderLinkEmail');
 Route::get('/common/getmailtemplate', [CommonController::class, 'getMailTemplate'])->name('common.getmailtemplate');
 
-
 //for email templates page
 Route::get('getTemplateProduct', [TemplatesController::class, 'getTemplateProduct'])->middleware('auth')->name('getTemplateProduct');
-
 
 Route::post('displayContentModal', [EmailContentHistoryController::class, 'displayModal'])->name('displayContentModal');
 Route::post('add_content', [EmailContentHistoryController::class, 'store'])->name('add_content');
@@ -5585,7 +5565,6 @@ Route::get('test-cron', function () {
     \Illuminate\Support\Facades\Artisan::call('GT-metrix-test-get-report');
 });
 
-
 Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');
 
 // Task Summary::
@@ -5623,10 +5602,8 @@ Route::post('database/backup/store-status', [DatabaseBackupMonitoringController:
 Route::post('database/backup//status-update', [DatabaseBackupMonitoringController::class, 'statusDbColorUpdate'])->name('db-backup-color-update');
 Route::post('database/change-status', [DatabaseBackupMonitoringController::class, 'dbUpdateStatus'])->name('db-backup.change.status');
 
-
 Route::get('ssh/logins', [SshLoginController::class, 'getSshLogins'])->name('get.ssh.logins');
 Route::get('file/permissions', [FilePermissionController::class, 'getFilePermissions'])->name('get.file.permissions');
-
 
 Route::get('/technical-debt', [TechnicalDebtController::class, 'index'])->name('technical-debt-lists');
 Route::post('frame-work/store', [TechnicalDebtController::class, 'frameWorkStore'])->name('frame-work-store');

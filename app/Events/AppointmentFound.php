@@ -27,7 +27,7 @@ class AppointmentFound implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            "userAppointments" => $this->userAppointments
+            'userAppointments' => $this->userAppointments,
         ];
     }
 
@@ -35,6 +35,7 @@ class AppointmentFound implements ShouldBroadcastNow
     {
         return 'appointment.found';
     }
+
     /**
      * Get the channels the event should broadcast on.
      *
@@ -42,6 +43,6 @@ class AppointmentFound implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PrivateChannel("notification.user." . $this->userAppointments['userId']);
+        return new PrivateChannel('notification.user.' . $this->userAppointments['userId']);
     }
 }

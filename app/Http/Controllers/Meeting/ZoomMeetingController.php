@@ -438,6 +438,7 @@ class ZoomMeetingController extends Controller
                     return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
                 } else {
                     \Log::info('##########  Error deleting the recording for the meeting, Please check the logs ##############');
+
                     return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
                 }
             } catch (\Exception $e) {

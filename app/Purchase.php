@@ -6,7 +6,6 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\Events\PurchaseCreated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

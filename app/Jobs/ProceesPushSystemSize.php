@@ -19,7 +19,6 @@ class ProceesPushSystemSize implements ShouldQueue
      *
      * @return void
      */
-
     public function __construct(private $data)
     {
     }

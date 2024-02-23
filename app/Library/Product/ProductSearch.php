@@ -7,7 +7,6 @@ use App\Category;
 
 class ProductSearch
 {
-
     public function __construct(public $params)
     {
         $this->cleanParams();

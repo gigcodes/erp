@@ -1921,7 +1921,6 @@ class TimeDoctorActivitiesController extends Controller
         $appArr = [];
 
         foreach ($activityrecords as $record) {
-
             $activities = TimeDoctorActivity::whereDate('starts_at', $request->date)
                 ->where('user_id', $request->user_id)
                 ->whereRaw('HOUR(starts_at) = ?', [$record->onHour])

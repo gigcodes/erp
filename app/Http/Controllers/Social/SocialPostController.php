@@ -67,6 +67,7 @@ class SocialPostController extends Controller
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
+    //@todo post approval need to be added
     public function approvepost(Request $request)
     {
     }

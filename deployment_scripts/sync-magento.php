@@ -1,8 +1,7 @@
 <?php
 
-
 if (count($argv) < 2) {
-    die("Usage: php script.php <website_store_id>\n");
+    exit("Usage: php script.php <website_store_id>\n");
 }
 
 $store_website_id = $argv[1];
@@ -32,7 +31,7 @@ try {
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         // Define the INSERT query for the local database
-        $insertQuery = "INSERT INTO magento_settings (website_store_id, website_store_view_id, name, config_id, scope, scope_id, path, value, store_website_id) VALUES (:website_store_id, :website_store_view_id, :name, :config_id, :scope, :scope_id, :path, :value, :store_website_id)";
+        $insertQuery = 'INSERT INTO magento_settings (website_store_id, website_store_view_id, name, config_id, scope, scope_id, path, value, store_website_id) VALUES (:website_store_id, :website_store_view_id, :name, :config_id, :scope, :scope_id, :path, :value, :store_website_id)';
 
         // Prepare the INSERT statement
         $insertStmt = $localDb->prepare($insertQuery);
@@ -47,14 +46,11 @@ try {
         $insertStmt->bindParam(':path', $row['path']);
         $insertStmt->bindParam(':value', $row['value']);
         $insertStmt->bindParam(':store_website_id', $store_website_id);
-	echo $row['scope']."\n";
-	echo $row['value']."\n";
+        echo $row['scope'] . "\n";
+        echo $row['value'] . "\n";
         // Execute the INSERT statement
         $insertStmt->execute();
     }
-
-
-
 
     echo 'Data inserted successfully!';
 } catch (PDOException $e) {

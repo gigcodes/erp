@@ -2,13 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
-use App\ScrapedProducts;
+use Illuminate\Console\Command;
 use App\Services\Bots\CucProductDataEmulator;
 use App\Services\Bots\CucProductExistsEmulator;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Console\Command;
 
 class GetCuccuiniDetailsWithEmulator extends Command
 {

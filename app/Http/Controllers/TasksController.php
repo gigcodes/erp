@@ -58,16 +58,17 @@ class TasksController extends Controller
         ])->with('i', (request()->input('page', 1) - 1) * 50);
     }
 
-    public function executionHistory($task){
+    public function executionHistory($task)
+    {
         $taskResults = [];
         $assigned = CronActivity::where('assign_to_id', \Auth::User()->id)->where('cron_id', $task->id)->first();
-        
-        if(auth()->user()->isAdmin() || auth()->user()->isCronManager() || $assigned){
+
+        if (auth()->user()->isAdmin() || auth()->user()->isCronManager() || $assigned) {
             $taskResults = $task->results()->latest()->take(10)->get();
         }
 
         return response()->json([
-            'task' => $taskResults
+            'task' => $taskResults,
         ]);
     }
 

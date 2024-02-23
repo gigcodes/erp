@@ -7,7 +7,6 @@ use App\Product;
 use App\Setting;
 use Carbon\Carbon;
 use App\CronJobReport;
-use GuzzleHttp\Client;
 use App\ScrapedProducts;
 use Illuminate\Console\Command;
 use App\Services\Bots\WebsiteEmulator;

@@ -16,7 +16,6 @@ class ProformaConfirmed
      *
      * @return void
      */
-
     public function __construct(public Purchase $purchase, public $purchase_amount)
     {
     }

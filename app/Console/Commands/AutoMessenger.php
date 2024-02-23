@@ -144,7 +144,6 @@ class AutoMessenger extends Command
                     $chat_message = ChatMessage::create($params);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
-
                 }
 
                 if ($time_diff == 72) {

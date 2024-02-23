@@ -2,21 +2,21 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use Auth;
+use App\User;
+use Exception;
 use App\Language;
 use App\StoreWebsite;
 use App\GoogleTranslate;
 use App\StoreWebsitePage;
 use Illuminate\Http\Request;
 use App\StoreWebsitePagePullLog;
+use App\Models\StoreWebsiteStatus;
 use App\Http\Controllers\Controller;
-use Exception;
 use Spatie\Activitylog\Models\Activity;
+use App\Models\StoreWebsiteStatusHistory;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
-use App\Models\StoreWebsiteStatus;
-use Auth;
-use App\Models\StoreWebsiteStatusHistory;
-use App\User;
 
 class PageController extends Controller
 {
@@ -39,7 +39,7 @@ class PageController extends Controller
 
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
-        $languagesList = Language::pluck('name', 'name')->toArray(); //     
+        $languagesList = Language::pluck('name', 'name')->toArray(); //
         $statuses = StoreWebsiteStatus::all();
         $users = User::all();
 
@@ -51,7 +51,7 @@ class PageController extends Controller
             'languagesList' => $languagesList,
             'statuses' => $statuses,
             'users' => $users,
-            'storeWebsitesModel' => $storeWebsitesModel
+            'storeWebsitesModel' => $storeWebsitesModel,
         ]);
     }
 
@@ -138,7 +138,7 @@ class PageController extends Controller
             $pages = $pages->where('store_website_pages.url_key', 'LIKE', '%' . $request->search_url . '%');
         }
 
-        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by' , 's.color as colorcode'])->paginate();
+        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by', 's.color as colorcode'])->paginate();
 
         $items = $pages->items();
 
@@ -150,7 +150,7 @@ class PageController extends Controller
             $recItems[] = $attributes;
         }
 
-        return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'statuses' => $statuses, 'total' => $pages->total(), 
+        return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'statuses' => $statuses, 'total' => $pages->total(),
             'pagination' => (string) $pages->links(),
         ]);
     }
@@ -236,7 +236,7 @@ class PageController extends Controller
         $id = $request->get('id', 0);
 
         try {
-            if (!empty($post['copy_to']) && is_array($post['copy_to'])) {
+            if (! empty($post['copy_to']) && is_array($post['copy_to'])) {
                 $pages = StoreWebsitePage::whereIn('id', $post['copy_to'])->getModels();
 
                 foreach ($pages as $page) {
@@ -247,9 +247,7 @@ class PageController extends Controller
                 return response()->json(['code' => 200, 'data' => $pages]);
             }
         } catch (Exception|\Throwable $e) {
-
         }
-
 
         $params = [
             'title' => 'required',
@@ -850,7 +848,7 @@ class PageController extends Controller
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
-    
+
     public function StatusColorUpdate(Request $request)
     {
         $statusColor = $request->all();
@@ -864,27 +862,26 @@ class PageController extends Controller
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
-    public function websiteStatusUpdate(Request $request) 
+    public function websiteStatusUpdate(Request $request)
     {
-       $storewebsite =  \App\StoreWebsitePage::find($request->dataId);
-       $storewebsiteOldStatusId = $storewebsite->website_store_views_status_id;
-       $storewebsite->website_store_views_status_id = $request->statusId;
-       $storewebsite->save();
+        $storewebsite = \App\StoreWebsitePage::find($request->dataId);
+        $storewebsiteOldStatusId = $storewebsite->website_store_views_status_id;
+        $storewebsite->website_store_views_status_id = $request->statusId;
+        $storewebsite->save();
 
-       $storewebsitHistory =  new StoreWebsiteStatusHistory();
-       $storewebsitHistory->old_status_id = $storewebsiteOldStatusId;
-       $storewebsitHistory->new_status_id = $request->statusId;
-       $storewebsitHistory->user_id = Auth::user()->id;
-       $storewebsitHistory->store_website_page_id = $request->dataId;
-       $storewebsitHistory->save();
+        $storewebsitHistory = new StoreWebsiteStatusHistory();
+        $storewebsitHistory->old_status_id = $storewebsiteOldStatusId;
+        $storewebsitHistory->new_status_id = $request->statusId;
+        $storewebsitHistory->user_id = Auth::user()->id;
+        $storewebsitHistory->store_website_page_id = $request->dataId;
+        $storewebsitHistory->save();
 
-       return response()->json(['code' => 200, 'data' => $storewebsite, 'message' => 'status updated successfully']);
-
+        return response()->json(['code' => 200, 'data' => $storewebsite, 'message' => 'status updated successfully']);
     }
 
     public function statusHistoryList(Request $request)
     {
-        $history = StoreWebsiteStatusHistory::with(['user','newstatus','oldstatus'])->where('store_website_page_id', $request->id)->latest()->get();
+        $history = StoreWebsiteStatusHistory::with(['user', 'newstatus', 'oldstatus'])->where('store_website_page_id', $request->id)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -893,5 +890,4 @@ class PageController extends Controller
             'status_name' => 'success',
         ], 200);
     }
-
 }

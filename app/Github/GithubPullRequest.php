@@ -21,5 +21,4 @@ class GithubPullRequest extends Model
         'destination',
         'mergeable_state',
     ];
-
 }

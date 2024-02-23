@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorLogUsers extends Migration
 {
@@ -14,7 +14,7 @@ class CreateMonitorLogUsers extends Migration
     public function up()
     {
         Schema::dropIfExists('monitor_log_users');
-        
+
         Schema::create('monitor_log_users', function (Blueprint $table) {
             $table->unsignedInteger('log_id');
             $table->unsignedInteger('user_id');

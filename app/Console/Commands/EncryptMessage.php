@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
 use App\PublicKey;
+use App\ChatMessage;
 use Illuminate\Console\Command;
 
 class EncryptMessage extends Command

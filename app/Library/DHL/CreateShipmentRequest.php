@@ -483,6 +483,7 @@ class CreateShipmentRequest extends APIAbstract
         $xml->endElement();
         $xml->endElement();
         $xml->endElement();
+
         return $this->document = $xml->outputMemory();
     }
 

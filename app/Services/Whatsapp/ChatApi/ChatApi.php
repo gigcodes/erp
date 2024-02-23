@@ -4,7 +4,6 @@ namespace App\Services\Whatsapp\ChatApi;
 
 class ChatApi
 {
-
     /**
      * Get Queues from Chat-Api
      *

@@ -169,10 +169,9 @@ class WebsiteStoreController extends Controller
     public function dropdown()
     {
         if ($s = request('srch_website_store')) {
-
             $websites = Website::whereIn('store_website_id', $s)->pluck('id');
 
-            if(!empty($websites)){
+            if (! empty($websites)) {
                 $websiteStores = WebsiteStore::whereIn('website_id', $websites)->orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
 
                 if ($websiteStores) {
@@ -186,7 +185,7 @@ class WebsiteStoreController extends Controller
             } else {
                 $options = ['<option value="" >No records found.</option>'];
             }
-            
+
             /*$websiteStores = WebsiteStore::whereRaw('website_id IN (SELECT id FROM websites WHERE store_website_id = ? )', [$s])
                 ->orderBy('name', 'ASC')
                 ->pluck('name', 'id')

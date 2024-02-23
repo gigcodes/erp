@@ -72,6 +72,5 @@ class InstagramAutomatedMessagesController extends Controller
      */
     public function destroy($id)
     {
-
     }
 }

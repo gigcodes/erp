@@ -395,5 +395,4 @@ class SocialAdCreativeController extends Controller
             return ['type' => 'success', 'message' => $resp];
         }
     }
-
 }

@@ -20,8 +20,8 @@ use App\SiteDevelopmentCategory;
 use Illuminate\Routing\Controller;
 use App\SiteDevelopmentArtowrkHistory;
 use App\SiteDevelopmentMasterCategory;
-use App\SiteDevelopmentCategoryBuilderIoHistory;
 use Illuminate\Support\Facades\Validator;
+use App\SiteDevelopmentCategoryBuilderIoHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteDevelopmentController extends Controller
@@ -283,8 +283,8 @@ class SiteDevelopmentController extends Controller
         $login_user_id = Auth::user()->id;
 
         $user_ids = [];
-        if (isset($sd_create_task_user->user_ids) && !empty($sd_create_task_user->user_ids)) {
-            $user_ids = explode(",",$sd_create_task_user->user_ids);
+        if (isset($sd_create_task_user->user_ids) && ! empty($sd_create_task_user->user_ids)) {
+            $user_ids = explode(',', $sd_create_task_user->user_ids);
         }
 
         if ($request->ajax() && $request->pagination == null) {
@@ -1358,7 +1358,7 @@ class SiteDevelopmentController extends Controller
     }
 
     public function createTaskUsers(Request $request)
-    {   
+    {
         $post = $request->all();
         $validator = Validator::make($post, [
             'user_ids' => 'required',
@@ -1378,7 +1378,7 @@ class SiteDevelopmentController extends Controller
 
         $siteDevHiddenCat = \App\Models\SiteDevelopmentCreateTaskUsres::updateOrCreate(
             ['id' => 1],
-            ['user_ids' => implode(",",$request->user_ids)]
+            ['user_ids' => implode(',', $request->user_ids)]
         );
 
         return redirect()->back()->with('success', 'Updated successfully');

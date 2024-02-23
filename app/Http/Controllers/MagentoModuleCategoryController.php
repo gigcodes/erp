@@ -26,7 +26,6 @@ class MagentoModuleCategoryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
             $items = MagentoModuleCategory::query();
 
             return datatables()->eloquent($items)->toJson();

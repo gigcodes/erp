@@ -16,7 +16,6 @@ class CashFlowUpdated
      *
      * @return void
      */
-
     public function __construct(public CashFlow $cashflow)
     {
     }

@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\CronJobReport;
-use App\Helpers\LogHelper;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command

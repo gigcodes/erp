@@ -129,7 +129,6 @@ class ScrapStatisticsController extends Controller
             if ($supplier->id !== null) {
                 $data[$supplier->id]['inventory'] = $supplier->inventory;
                 $data[$supplier->id]['last_date'] = $supplier->last_date;
-
             }
         }
 
@@ -507,6 +506,7 @@ class ScrapStatisticsController extends Controller
     {
         $start = Carbon::now()->format('Y-m-d 00:00:00');
         $end = Carbon::now()->format('Y-m-d 23:59:00');
+
         return view('scrap.asset-manager');
     }
 
@@ -832,7 +832,6 @@ class ScrapStatisticsController extends Controller
 
     public function getLastRemark(Request $request)
     {
-
         $lastRemark = \DB::select("select * from scrap_remarks as sr join ( SELECT MAX(id) AS id FROM scrap_remarks WHERE user_name != '' AND scrap_field IS NULL  GROUP BY scraper_name ) as max_s on sr.id =  max_s.id   join scrapers as scr on scr.scraper_name = sr.scraper_name  left join scrap_logs as scr_logs on scr_logs.scraper_id = scr.id  WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
 
         $suppliers = DB::table('products')

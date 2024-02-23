@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\StoreWebsite;
 use App\User;
-
+use App\StoreWebsite;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class StoreWebsiteCsvPullHistory extends Model
 {
@@ -23,6 +22,4 @@ class StoreWebsiteCsvPullHistory extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
-
 }

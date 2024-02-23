@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-
 use App\User;
 use App\Setting;
 use App\EmailAddress;
 use App\StoreWebsite;
 use App\AssetsManager;
 use App\AssetPlateForm;
-use App\GoogleTranslate;
 use App\AssetsCategory;
-use App\Marketing\WhatsappConfig;
+use App\GoogleTranslate;
 use App\WebsiteStoreView;
 use App\ApiResponseMessage;
 use Illuminate\Http\Request;
+use App\Marketing\WhatsappConfig;
 use Illuminate\Support\Facades\Auth;
 use App\ApiResponseMessagesTranslation;
 use App\ApiResponseMessageValueHistory;

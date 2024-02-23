@@ -26,7 +26,7 @@ class StoreNodeScrapperCategoryMapRequest extends FormRequest
         return [
             'category_stack' => 'required|array',
             'product_urls' => 'required|array',
-            'supplier' => 'required'
+            'supplier' => 'required',
         ];
     }
 }

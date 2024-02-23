@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Helpers\LogHelper;
-use App\LogRequest;
-use App\Mails\Manual\TicketAck;
 use App\Tickets;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
+use App\Mails\Manual\TicketAck;
 use Illuminate\Console\Command;
 
 class getLiveChatIncTickets extends Command

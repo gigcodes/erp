@@ -301,6 +301,7 @@ class VoucherController extends Controller
         $input['status'] = 'Pending';
         $input['rate_estimated'] = $input['amount'];
         PaymentReceipt::create($input);
+
         return redirect()->back()->with('success', 'Successfully created');
     }
 
@@ -373,6 +374,7 @@ class VoucherController extends Controller
             $cashdata['order_status'] = 'Done';
             $cashdata['status'] = 1;
         }
+
         return redirect()->back()->with('success', 'Successfully submitted');
     }
 
@@ -492,6 +494,7 @@ class VoucherController extends Controller
         }
 
         Payment::create($input);
+
         return redirect()->back()->with('success', 'Successfully submitted');
     }
 

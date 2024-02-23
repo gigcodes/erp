@@ -3,57 +3,57 @@
 		<table class="table table-bordered" style="">
 		    <thead>
 		      <tr>
-		      	<?php if(!empty($dynamicColumnsToShowPostman)){ ?>
+		      	<?php if (! empty($dynamicColumnsToShowPostman)) { ?>
 					<th style="width:3%;"><input type="checkbox" class="select-all-records"></th>
-					<?php if(!in_array('ID', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('ID', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">ID</th>
 					<?php } ?>		
-					<?php if(!in_array('Customer', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Customer', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:8%;">Customer</th>
 					<?php } ?>	
-					<?php if(!in_array('Product', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Product', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Product</th>
 					<?php } ?>	
-					<?php if(!in_array('Website', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Website', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Website</th>
 					<?php } ?>	
-					<?php if(!in_array('Type', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Type', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Type</th>
 					<?php } ?>
-					<?php if(!in_array('Refund', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Refund', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Refund</th>
 					<?php } ?>
-					<?php if(!in_array('Refund Reason', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Refund Reason', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Refund Reason</th>
 					<?php } ?>
-					<?php if(!in_array('Status', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Status', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:15%;">Status</th>
 					<?php } ?>
-					<?php if(!in_array('Pickup Address', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Pickup Address', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Pickup Address</th>
 					<?php } ?>
-					<?php if(!in_array('DOR', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('DOR', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:6%;">DOR</th>
 					<?php } ?>
-					<?php if(!in_array('DOI', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('DOI', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:6%;">DOI</th>
 					<?php } ?>
-					<?php if(!in_array('DOD', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('DOD', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:6%;">DOD</th>
 					<?php } ?>
-					<?php if(!in_array('Credited', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Credited', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:6%;">Credited</th>
 					<?php } ?>
-					<?php if(!in_array('Est Refund / Ex. date', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Est Refund / Ex. date', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:14%;">Est Refund / Ex. date</th>
 					<?php } ?>
-					<?php if(!in_array('Remarks', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Remarks', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Remarks</th>
 					<?php } ?>
-					<?php if(!in_array('Created At', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Created At', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:5%;">Created At</th>
 					<?php } ?>
-					<?php if(!in_array('Action', $dynamicColumnsToShowPostman)){ ?>
+					<?php if (! in_array('Action', $dynamicColumnsToShowPostman)) { ?>
 						<th style="width:3%;">Action</th>
 					<?php } ?>
 				<?php } else { ?>
@@ -81,52 +81,52 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-	    		<?php if(!empty($dynamicColumnsToShowPostman)){ ?>
+	    		<?php if (! empty($dynamicColumnsToShowPostman)) { ?>
     				{{props data ~oslist = order_status_list}}
 						<tr style="background-color: {{:prop.return_exchange_color}} !important;">
 							<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
 
-							<?php if(!in_array('ID', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('ID', $dynamicColumnsToShowPostman)) { ?>
 								<td>{{:prop.id}}</td>
 							<?php } ?>
 
-							<?php if(!in_array('Customer', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Customer', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="customer" data-id="{{:prop.id}}">
 									<span class="show-short-customer-{{:prop.id}}">{{:~trimlength(prop.customer_name, 10)}}</span>
 									<span class="show-full-customer-{{:prop.id}} hidden">{{:prop.customer_name}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Product', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Product', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="product" data-id="{{:prop.id}}">
 									<span class="show-short-product-{{:prop.id}}">{{:~trimlength(prop.name, 4)}}</span>
 									<span class="show-full-product-{{:prop.id}} hidden">{{:prop.name}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Website', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Website', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="website" data-id="{{:prop.id}}">
 									<span class="show-short-website-{{:prop.id}}">{{:~trimlength(prop.website, 10)}}</span>
 									<span class="show-full-website-{{:prop.id}} hidden">{{:prop.website}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Type', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Type', $dynamicColumnsToShowPostman)) { ?>
 								<td>{{:prop.type}}</td>
 							<?php } ?>
 
-							<?php if(!in_array('Refund', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Refund', $dynamicColumnsToShowPostman)) { ?>
 								<td>{{:prop.refund_amount}}</td>
 							<?php } ?>
 
-							<?php if(!in_array('Refund Reason', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Refund Reason', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="reason" data-id="{{:prop.id}}">
 									<span class="show-short-reason-{{:prop.id}}">{{:~trimlength(prop.reason_for_refund, 10)}} at {{:prop.date_of_refund_formated}} </span>
 									<span class="show-full-reason-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span></span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Status', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Status', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}" >
 									<div class="form-group" style="margin-bottom:0px;">
 										<div class="pt-2" style="display:flex;">
@@ -146,41 +146,41 @@
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Pickup Address', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Pickup Address', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
 									<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
 									<span class="show-full-pickupAdd-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.pickup_address}}</span></span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('DOR', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('DOR', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="DOR" data-id="{{:prop.id}}">
 									<span class="show-short-DOR-{{:prop.id}}">{{:~trimlength(prop.date_of_request_formated, 5)}}</span>
 									<span class="show-full-DOR-{{:prop.id}} hidden">{{:prop.date_of_request_formated}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('DOI', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('DOI', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="DOI" data-id="{{:prop.id}}">
 									<span class="show-short-DOI-{{:prop.id}}">{{:~trimlength(prop.date_of_issue_formated, 5)}}</span>
 									<span class="show-full-DOI-{{:prop.id}} hidden">{{:prop.date_of_issue_formated}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('DOD', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('DOD', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="DOI" data-id="{{:prop.id}}">
 									<span class="show-short-DOD-{{:prop.id}}">{{:~trimlength(prop.dispatch_date_formated, 5)}}</span>
 									<span class="show-full-DOD-{{:prop.id}} hidden">{{:prop.dispatch_date_formated}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Credited', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Credited', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row" data-id="{{>prop.id}}">
 									{{if prop.credited}} Yes {{else}} No {{/if}}
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Est Refund / Ex. date', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Est Refund / Ex. date', $dynamicColumnsToShowPostman)) { ?>
 								<td style="padding:1px;">
 									<div class="form-group" style="margin-bottom:0px;">
 										<div class="pt-2" style="display:flex;">
@@ -197,25 +197,25 @@
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Remarks', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Remarks', $dynamicColumnsToShowPostman)) { ?>
 								<td class="expand-row-msg" data-name="remarks" data-id="{{:prop.id}}">
 									<span class="show-short-remarks-{{:prop.id}}">{{:~trimlength(prop.remarks, 5)}}</span>
 									<span class="show-full-remarks-{{:prop.id}} hidden">{{:prop.remarks}}</span>
 								</td>
 							<?php } ?>
 
-							<?php if(!in_array('Created At', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Created At', $dynamicColumnsToShowPostman)) { ?>
 								<td>{{:prop.created_at_formated}}</td>
 							<?php } ?>
 
-							<?php if(!in_array('Action', $dynamicColumnsToShowPostman)){ ?>
+							<?php if (! in_array('Action', $dynamicColumnsToShowPostman)) { ?>
 								<td>
 									<button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{>prop.id}}')"><i class="fa fa-arrow-down"></i></button>
 								</td>
 							<?php } ?>
 						</tr>
 
-						<?php if(!in_array('Action', $dynamicColumnsToShowPostman)){ ?>
+						<?php if (! in_array('Action', $dynamicColumnsToShowPostman)) { ?>
 							<tr class="action-btn-tr-{{>prop.id}} d-none">
 								<td>Action</td>
 								<td colspan="17">

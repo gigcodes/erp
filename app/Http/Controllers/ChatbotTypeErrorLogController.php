@@ -117,7 +117,6 @@ class ChatbotTypeErrorLogController extends Controller
             ChatbotTypeErrorLog::whereIn('id', $id)->delete();
         } else {
             ChatbotTypeErrorLog::where('id', $id)->delete();
-
         }
 
         return redirect()->route('chatboat-type-error-log.index')

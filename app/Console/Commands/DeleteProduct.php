@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Product;
 use File;
+use App\Product;
 use Illuminate\Console\Command;
 
 class DeleteProduct extends Command

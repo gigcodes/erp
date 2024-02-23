@@ -199,6 +199,7 @@ class SitejabberQAController extends Controller
         $quickReplies = QuickReply::all();
         $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
         $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
+
         return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
     }
 

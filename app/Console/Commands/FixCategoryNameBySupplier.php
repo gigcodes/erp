@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Category;
-use App\CronJobReport;
 use App\Product;
+use App\Category;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class FixCategoryNameBySupplier extends Command

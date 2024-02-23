@@ -14,7 +14,6 @@ class PlankMediaSeeder extends Seeder
      */
     public function run()
     {
-
         DB::statement("update IGNORE media SET disk = 's3' where disk = 'uploads'");
     }
 }

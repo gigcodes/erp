@@ -15,7 +15,6 @@ class PaymentReceiptUpdated
      *
      * @return void
      */
-
     public function __construct(public $paymentReceipt)
     {
     }

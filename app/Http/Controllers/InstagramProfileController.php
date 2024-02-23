@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Instagram\Instagram;
 use Illuminate\Http\Request;
-
+use App\Services\Instagram\Instagram;
 
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 

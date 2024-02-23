@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\DatabaseLog;
-use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class DatabaseLogCron extends Command
 {
