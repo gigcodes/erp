@@ -27,10 +27,10 @@ Route::any('get-post/page', [SocialController::class, 'pagePost'])->name('get-po
 Route::prefix('config')->group(function () {
     Route::get('/', [SocialConfigController::class, 'index'])->name('config.index');
     Route::post('store', [SocialConfigController::class, 'store'])->name('config.store');
+    Route::post('ad/store', [SocialConfigController::class, 'adStore'])->name('config.adStore');
     Route::post('edit', [SocialConfigController::class, 'edit'])->name('config.edit');
     Route::post('delete', [SocialConfigController::class, 'destroy'])->name('config.delete');
     Route::get('adsmanager', [SocialConfigController::class, 'getadsAccountManager'])->name('config.adsmanager');
-    Route::get('fbtokenback', [SocialConfigController::class, 'getfbTokenBack'])->name('config.fbtokenback');
     Route::get('fbtoken', [SocialConfigController::class, 'getfbToken'])->name('config.fbtoken');
 });
 
@@ -109,4 +109,8 @@ Route::prefix('ad')->group(function () {
     Route::post('adset/store', [SocialController::class, 'storeAdset'])->name('ad.adset.store');
     Route::get('create', [SocialController::class, 'createAd'])->name('ad.create');
     Route::post('store', [SocialController::class, 'storeAd'])->name('ad.store');
+});
+
+Route::get('test',function (){
+
 });

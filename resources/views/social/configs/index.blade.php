@@ -12,16 +12,6 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
-
-        .fb-login-btn {
-            padding: 7px;
-            background-color: #6c757d;
-            color: #fff;
-            border-radius: 4px;
-            margin-left: 5px;
-            display: inline-block;
-            vertical-align: middle;
-        }
     </style>
 @endsection
 
@@ -65,7 +55,10 @@
                 </div>
                 <div class="pull-right">
                     <button type="button" class="btn btn-secondary" data-toggle="modal"
-                            data-target="#ConfigCreateModal">+
+                            data-target="#ConfigCreateModal">Add FB/Insta Account
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal"
+                            data-target="#AdConfigCreateModal">Add Ad Account
                     </button>
                 </div>
             </div>
@@ -111,43 +104,13 @@
         </div>
     </div>
     @include('social.configs.partials.add-modal')
+    @include('social.configs.partials.add-adaccount-modal')
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
-      $("#fb_redirect").click(function() {
-        $.ajax({
-          url: '{{route("social.config.fbtoken")}}',
-          dataType: "json",
-          data: {
-            token: token
-          },
-          success: function(result) {
-            if (result) {
-              $("#loading-image").hide();
-              let html = `<option value="">-----Select Adsets-----</option>`;
-              if (result) {
-                console.log("come toadsets adsets ");
-                console.log(result);
-                $.each(result, function(key, value) {
-                  html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
-                });
-              }
-              $("#adset_id").html(html);
-
-            } else {
-              $("#loading-image").hide();
-              alert("token Expired");
-            }
-          },
-          error: function(exx) {
-
-          }
-        });
-
-      });
       $("#token").focusout(function() {
         let token = $("#token").val();
         if (!token) {

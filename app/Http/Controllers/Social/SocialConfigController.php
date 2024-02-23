@@ -4,16 +4,15 @@ namespace App\Http\Controllers\Social;
 
 use App\Setting;
 use App\Language;
-use App\LogRequest;
 use App\StoreWebsite;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\SocialAdAccount;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use App\Http\Requests\SocialConfig\EditRequest;
 use App\Http\Requests\SocialConfig\StoreRequest;
@@ -93,6 +92,7 @@ class SocialConfigController extends Controller
             'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
             'platforms' => SocialConfig::select('platform')->distinct()->get(),
+            'ad_accounts' => SocialAdAccount::where('status', 1)->get()->toArray(),
             'languages' => Language::get(),
             'selected_website' => $request->store_website_id,
             'selected_user_name' => $request->user_name,
@@ -100,87 +100,19 @@ class SocialConfigController extends Controller
         ];
     }
 
-    //@todo on validation of the request it is redirecting the page multiple times. Need to validate what is happening.
-    public function getadsAccountManager(Request $request)
+    public function adStore(Request $request)
     {
-        $user_access_token = $request['token'];
-        $fields = 'account_id,name,currency,balance,account_status,business_name,business_id';
-
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = $this->fb_base_url . 'me/adaccounts?fields=' . $fields;
-
-        $http = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $user_access_token,
-        ])->get($url);
-
-        $response = $http->json();
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'getadsAccountManager');
-
-        return $response['data'];
-    }
-
-    public function getfbToken()
-    {
-        return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
-        $curl = curl_init();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = sprintf('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
+        $request->validate([
+            'name' => 'required',
+            'page_token' => 'required',
+            'store_website_id' => 'required',
+            'ad_account_id' => 'required',
+            'status' => 'required',
         ]);
 
-        $response = json_decode(curl_exec($curl), true); //response decoded
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        SocialAdAccount::create($request->all(['name', 'store_website_id', 'ad_account_id', 'page_token', 'status']));
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'getfbToken');
-    }
-
-    /**
-     * Method to generate the Facebook access token and get
-     * the basic profile details about the account.
-     *
-     * @return RedirectResponse
-     */
-    public function getfbTokenBack(Request $request)
-    {
-        $code = $request['code'];
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $accessTokenUrl = $this->fb_base_url .
-            'oauth/access_token?client_id=' .
-            config('facebook.config.app_id') . '&redirect_uri=' . route('social.config.fbtokenback') .
-            '&client_secret=' . config('facebook.config.app_secret') . '&code=' . $code;
-
-        $http = Http::get($accessTokenUrl);
-        $response = $http->json();
-
-        LogRequest::log(
-            $startTime, $accessTokenUrl, 'GET',
-            json_encode([]), $response, $http->status(),
-            SocialConfigController::class,
-            'getfbTokenBack'
-        );
-
-        $meUrl = $this->fb_base_url . 'me/?access_token=' . $response['access_token'];
-        $meHttp = Http::get($meUrl);
-        $meResponse = $meHttp->json();
-
-        LogRequest::log($startTime, $meUrl, 'GET', json_encode([]), $meResponse, $meHttp->status(), SocialConfigController::class, 'getfbTokenBack');
-
-        SocialConfig::create([
-            'account_id' => $meResponse['id'],
-            'name' => $meResponse['name'],
-            'token' => $response['access_token'],
-        ]);
-
-        return redirect()->route('social.config.index');
+        return redirect()->back()->withSuccess('You have successfully stored Config.');
     }
 
     public function getNeverExpiringToken(array $data): string|bool
