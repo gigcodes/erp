@@ -48,6 +48,9 @@
                 <br>
                 <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
             </form>
+            <a href="{{route('social.account.comments.sync',$post->id)}}">
+                <button class="btn btn-primary mt-3">Sync Comments</button>
+            </a>
         </div>
     </div>
     <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id ?? '' }}">
@@ -92,26 +95,28 @@
                             <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
                         @endif
                     </td>
-
                     <td class="message-input p-0 pt-2 pl-3">
-                        <div class="cls_textarea_subbox">
-                            <div class="btn-toolbar" role="toolbar">
-                                <div class="w-75">
+                        @if($value->can_comment)
+                            <div class="cls_textarea_subbox">
+                                <div class="btn-toolbar" role="toolbar">
+                                    <div class="w-75">
                                         <textarea rows="1"
                                                   class="form-control quick-message-field cls_quick_message addToAutoComplete"
                                                   name="message" placeholder="Message"
                                                   id="textareaBox_{{ $value->id }}"
                                                   data-customer-id="{{ $value->id }}"></textarea>
-                                </div>
-                                <div class="w-25 pl-2" role="group" aria-label="First group">
-                                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
-                                            data-id="textareaBox_{{ $value->id }}">
-                                        <img src="/images/filled-sent.png">
-                                    </button>
+                                    </div>
+                                    <div class="w-25 pl-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
+                                                data-id="textareaBox_{{ $value->id }}">
+                                            <img src="/images/filled-sent.png">
+                                        </button>
 
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @else Cannot reply to this comment
+                        @endif
                     </td>
 
                     <td>{{ $value->commented_by_user }}</td>

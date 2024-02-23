@@ -34,7 +34,7 @@
                 <i class="fa fa-history" title="History"></i>
             </a>
             @if($post->ref_post_id)
-                <a href="{{ route('social.account.comments',$post->ref_post_id) }}">
+                <a href="{{ route('social.account.comments',$post->id) }}">
                     <i class="fa fa-envelope" aria-hidden="true" title="comment"></i>
                 </a>
             @endif

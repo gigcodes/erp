@@ -2,7 +2,6 @@
 
 namespace App\Services\Facebook;
 
-use FbException;
 use JanuSoftware\Facebook\Facebook;
 use JanuSoftware\Facebook\Exception\SDKException;
 
@@ -508,16 +507,35 @@ class FB
         return self::post($params, $endpoint);
     }
 
+    public function replyToPostComments(string $message,string $comment_id)
+    {
+        $endpoint = $comment_id . '/comments';
+
+        // Check if we have recipient or content
+        if (empty($message) || empty($comment_id)) {
+            $error = 'Facebook Comment Message: Missing message or comment id!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $params = [
+            'message' => $message,
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
     public function getPostComments(string|int $post_id)
     {
-        $endpoint = $post_id . '/comments?fields=from,message';
-
-        if (empty($message) || empty($recipient_id)) {
+        $endpoint = $post_id . '/comments?fields=from,message,can_comment,parent,comments{created_time,message,object,id,from},id,object,comment_count,created_time&limit=1000';
+        if (empty($post_id)) {
             $error = 'Facebook Comment Message: Missing message or post id!';
             error_log($error);
             throw new FbException($error);
         }
 
-        return self::get($endpoint);
+        return self::get($endpoint, true);
     }
 }

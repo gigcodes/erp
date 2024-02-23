@@ -16,5 +16,10 @@ class SocialComments extends Model
         'parent_id',
         'user_id',
         'created_at',
+        'can_comment',
+    ];
+
+    protected $casts = [
+        'can_comment' => 'boolean'
     ];
 }

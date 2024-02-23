@@ -1,7 +1,7 @@
 <?php
-/**
- * A general exception for amirsarhang/instagram-php-sdk.
- */
+
+namespace App\Services\Facebook;
+
 class FbException extends \Exception
 {
 }
