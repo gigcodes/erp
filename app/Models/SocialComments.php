@@ -20,6 +20,6 @@ class SocialComments extends Model
     ];
 
     protected $casts = [
-        'can_comment' => 'boolean'
+        'can_comment' => 'boolean',
     ];
 }
