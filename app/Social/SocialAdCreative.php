@@ -7,14 +7,23 @@ namespace App\Social;
  */
 
 use Plank\Mediable\Mediable;
+use App\Models\SocialAdAccount;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialAdCreative extends Model
 {
     use Mediable;
 
+    protected $fillable = [
+        'ref_adcreative_id',
+        'config_id',
+        'object_story_title',
+        'object_story_id',
+        'live_status',
+    ];
+
     public function account()
     {
-        return $this->belongsTo(\App\Social\SocialConfig::class);
+        return $this->belongsTo(SocialAdAccount::class);
     }
 }

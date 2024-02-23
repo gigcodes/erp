@@ -13,6 +13,19 @@ class SocialAd extends Model
 {
     use Mediable;
 
+    protected $fillable = [
+        'ref_ads_id',
+        'adset_id',
+        'config_id',
+        'name',
+        'creative_id',
+        'ad_set_name',
+        'ad_creative_name',
+        'status',
+        'live_status',
+        'created_at'
+    ];
+
     public function account()
     {
         return $this->belongsTo(\App\Social\SocialConfig::class);

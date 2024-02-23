@@ -436,7 +436,10 @@ class FB
      */
     public function getCampaigns(string $ad_account_id): array
     {
-        $campaigns = self::get("act_$ad_account_id/campaigns?fields=buying_type,name,objective,daily_budget,created_time,status,lifetime_budget,id&limit=1000", true);
+        $creatives = 'name,id,object_id,object_story_id,object_type,object_url,title,status';
+        $ads = "id,status,name,effective_status,created_time,creative{{$creatives}}";
+        $adsets = "bid_amount,name,campaign_id,objective,status,effective_status,created_time,lifetime_budget,billing_event,destination_type,start_time,end_time,daily_budget,id,ads{{$ads}},adcreatives{{$creatives}}";
+        $campaigns = self::get("act_$ad_account_id/campaigns?fields=buying_type,name,objective,daily_budget,created_time,status,lifetime_budget,id,adsets{{$adsets}}&limit=1000", true);
 
         return ['success' => true, 'campaigns' => $campaigns];
     }
@@ -464,7 +467,7 @@ class FB
 
     public function getCreatives(string|int $ad_account_id): array
     {
-        $ads = self::get("act_$ad_account_id/adcreatives", true);
+        $ads = self::get("act_$ad_account_id/adcreatives?fields=object_id,id,object_store_url,object_story_id,object_story_spec,object_type,object_url,title,name&limit=1000", true);
 
         return ['success' => true, 'adcreatives' => $ads];
     }
