@@ -18,7 +18,7 @@ class FB
     protected Facebook|string|null $fb;
 
     /**
-     * @param string|null $token The Instagram or Facebook AccessToken.
+     * @param  string|null  $token The Instagram or Facebook AccessToken.
      *
      * @throws SDKException
      */
@@ -32,7 +32,7 @@ class FB
     /**
      * Generate Login and Authenticate URL to Instagram Graph API.
      *
-     * @param array $permissions Instagram permissions
+     * @param  array  $permissions Instagram permissions
      */
     public function getLoginUrl(array $permissions): string
     {
@@ -58,8 +58,8 @@ class FB
     /**
      * Get Request on Instagram Graph API.
      *
-     * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
-     * @param bool|null $graphEdge The request should be on `graphEdge` or `graphNode`.
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
+     * @param  bool|null  $graphEdge The request should be on `graphEdge` or `graphNode`.
      *
      * @throws SDKException
      */
@@ -71,8 +71,8 @@ class FB
     /**
      * POST Request on Instagram Graph API.
      *
-     * @param array $params Post parameters.
-     * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
+     * @param  array  $params Post parameters.
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
      *
      * @throws SDKException
      */
@@ -84,8 +84,8 @@ class FB
     /**
      * DELETE Request on Instagram Graph API.
      *
-     * @param array $params DELETE parameters.
-     * @param string $endpoint Destination Instagram endpoint that request should be sent to there.
+     * @param  array  $params DELETE parameters.
+     * @param  string  $endpoint Destination Instagram endpoint that request should be sent to there.
      *
      * @throws SDKException
      */
@@ -136,9 +136,9 @@ class FB
     /**
      * Subscribe Webhook to Graph API.
      *
-     * @param int $facebookPageId Facebook Page ID
-     * @param string $facebookPageAccessToken Facebook Page Access Token
-     * @param array $subscribed_fields Page field (example: ["feed"])
+     * @param  int  $facebookPageId Facebook Page ID
+     * @param  string  $facebookPageAccessToken Facebook Page Access Token
+     * @param  array  $subscribed_fields Page field (example: ["feed"])
      *
      * @throws SDKException
      */
@@ -152,8 +152,8 @@ class FB
     /**
      * Get Comment Graph API.
      *
-     * @param string $comment_id Comment ID
-     * @param array $fields Required fields
+     * @param  string  $comment_id Comment ID
+     * @param  array  $fields Required fields
      *
      * @throws FbException|SDKException
      */
@@ -195,8 +195,8 @@ class FB
     /**
      * Add Comment Graph API.
      *
-     * @param string $message Comment's Text
-     * @param string $recipient_id Post or Comment ID
+     * @param  string  $message Comment's Text
+     * @param  string  $recipient_id Post or Comment ID
      *
      * @throws FbException|SDKException
      */
@@ -223,7 +223,7 @@ class FB
     /**
      * DELETE Comment Graph API.
      *
-     * @param string $comment_id Comment ID
+     * @param  string  $comment_id Comment ID
      *
      * @throws SDKException|FbException
      */
@@ -247,7 +247,7 @@ class FB
     /**
      * DELETE Facebook Page post Graph API.
      *
-     * @param string $comment_id Comment ID
+     * @param  string  $comment_id Comment ID
      *
      * @throws SDKException|FbException
      */
@@ -276,8 +276,8 @@ class FB
     /**
      * Hide Comment Graph API.
      *
-     * @param string $comment_id Comment ID
-     * @param bool $status Hide => true | UnHide => false
+     * @param  string  $comment_id Comment ID
+     * @param  bool  $status Hide => true | UnHide => false
      *
      * @throws SDKException|FbException
      */
@@ -303,8 +303,8 @@ class FB
     /**
      * Get Message Graph API.
      *
-     * @param string $message_id Message ID
-     * @param array $fields Required fields
+     * @param  string  $message_id Message ID
+     * @param  array  $fields Required fields
      *
      * @throws SDKException|FbException
      */
@@ -331,8 +331,8 @@ class FB
     /**
      * Add Text Message Graph API.
      *
-     * @param string $recipient_id Instagram USER_ID
-     * @param string $message Message's Text
+     * @param  string  $recipient_id Instagram USER_ID
+     * @param  string  $message Message's Text
      *
      * @throws SDKException|FbException
      */
@@ -385,9 +385,9 @@ class FB
     /**
      * Add Media Message Graph API.
      *
-     * @param string $recipient_id Instagram USER_ID
-     * @param string $url Message Attachment's url
-     * @param string $type Message Attachment's type
+     * @param  string  $recipient_id Instagram USER_ID
+     * @param  string  $url Message Attachment's url
+     * @param  string  $type Message Attachment's type
      *
      * @throws SDKException|FbException
      */
@@ -436,9 +436,16 @@ class FB
      */
     public function getCampaigns(string $ad_account_id): array
     {
-        $campaigns = self::get("$ad_account_id/campaigns?fields=buying_type,name,objective,daily_budget,created_time,status,lifetime_budget,id&limit=1000", true);
+        $campaigns = self::get("act_$ad_account_id/campaigns?fields=buying_type,name,objective,daily_budget,created_time,status,lifetime_budget,id&limit=1000", true);
 
         return ['success' => true, 'campaigns' => $campaigns];
+    }
+
+    public function createCampaign(string $ad_account_id, array $data): array
+    {
+        $endpoint = "/act_$ad_account_id/campaigns";
+
+        return self::post($data, $endpoint);
     }
 
     /**
@@ -450,7 +457,7 @@ class FB
      */
     public function getAds(string|int $ad_account_id): array
     {
-        $ads = self::get("$ad_account_id/ads", true);
+        $ads = self::get("act_$ad_account_id/ads", true);
 
         return ['success' => true, 'ads' => $ads];
     }

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content" style="height: 80%;">
         <div class="modal-header">
-          <h4 class="modal-title">Log History</span></h4>
+          <h4 class="modal-title">Log History</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body" style="max-height: calc(100% - 120px);overflow-y: scroll;">

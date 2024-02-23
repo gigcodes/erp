@@ -44,7 +44,7 @@ class SyncFacebookCampaign extends Command
         $ad_accounts = SocialAdAccount::where('status', 1)->get();
         foreach ($ad_accounts as $account) {
             $fb = new FB($account->page_token);
-            $results = $fb->getCampaigns('act_' . $account->ad_account_id);
+            $results = $fb->getCampaigns($account->ad_account_id);
             foreach ($results['campaigns'] as $campaign) {
                 SocialCampaign::updateOrCreate(['ref_campaign_id' => $campaign['id']], [
                     'config_id' => $account->id,
