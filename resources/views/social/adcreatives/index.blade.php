@@ -10,7 +10,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
-   
+
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  AdCreatives ({{ $adcreatives->total() }})<span class="count-text"></span></h2>
@@ -24,17 +24,14 @@
                     </div>
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
-                            @foreach($adcreatives_data as $adcreative_config)
-                                @php
-                                    $config_name = App\Social\SocialConfig::where('id',$adcreative_config->config_id)->first();
-                                @endphp
-                                <option value="{{$config_name->id}}" {{ isset($_GET['config_name']) && in_array($config_name->id,$_GET['config_name']) ? 'selected' : '' }}>{{$config_name->name}}</option>
+                            @foreach($adcreatives as $adcreative_config)
+                                <option value="{{$adcreative_config->account->id}}" {{ isset($_GET['config_name']) && in_array($adcreative_config->account->id,$_GET['config_name']) ? 'selected' : '' }}>{{$adcreative_config->account->name}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="name[]" data-placeholder="Ad Creative Name" id="name" style="width:250px !important" multiple>
-                            @foreach($adcreatives_data as $adcreative_value)
+                            @foreach($adcreatives as $adcreative_value)
                                 <option value="{{$adcreative_value->name}}" {{ isset($_GET['name']) && in_array($adcreative_value->name,$_GET['name']) ? 'selected' : '' }}>{{$adcreative_value->name}}</option>
                             @endforeach
                         </select>
@@ -43,7 +40,6 @@
                         <button type="submit" class="btn btn-image3 btn-sm text-dark">
                             <i class="fa fa-filter"></i>
                         </button>
-                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                     </div>
                 </form>
             </div>
@@ -94,7 +90,7 @@
             </div>
         </div>
     </div>
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
               50% 50% no-repeat;display:none;">
     </div>
 
@@ -103,7 +99,7 @@
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">
-                    
+
             </div>
         </div>
     </div>
@@ -151,7 +147,7 @@
        });
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
-            
+
             var $action_url = "{{ route('social.adcreative.create') }}";
             jQuery.ajax({
 
@@ -160,7 +156,7 @@
                 dataType: 'html',
                 success: function(data) {
                     $("#create-modal").modal('show');
-                    
+
                     $("#record-content").html(data);
 
                 },
@@ -191,7 +187,7 @@
                             if(result.message.posts.data){
                                 console.log(result.message.posts.data);
                                 $.each(result.message.posts.data,function(key,value){
-                                    html += `<option value="${value.id}" rel="${value.message}" >${value.message}</option>`; 
+                                    html += `<option value="${value.id}" rel="${value.message}" >${value.message}</option>`;
                                 });
                             }
                             $('#post_id').html(html);
@@ -201,7 +197,7 @@
                         }
                     },
                     error:function(exx){
-                        
+
                     }
                 });
             //}
@@ -215,7 +211,7 @@
             }
         });
 
-      
+
         $(window).scroll(function() {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                 loadMore();

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Social;
 
+use App\Models\SocialAdAccount;
+use App\Social\SocialCampaign;
 use Crypt;
 use Session;
 use Response;
@@ -34,16 +36,13 @@ class SocialAdCreativeController extends Controller
 
     public function index(Request $request)
     {
-        $adcreatives_data = SocialAdCreative::orderby('id', 'desc');
-        $adcreatives_data = $adcreatives_data->get();
-
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        $campaingns = \App\Social\SocialCampaign::pluck('name', 'ref_campaign_id')->where('ref_campaign_id', '!=', '');
+        $configs = SocialAdAccount::pluck('name', 'id');
+        $campaingns = SocialCampaign::pluck('name', 'ref_campaign_id')->where('ref_campaign_id', '!=', '');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            $adcreatives = SocialAdCreative::orderby('id', 'desc');
+            $adcreatives = SocialAdCreative::orderby('id', 'desc')->with('account.storeWebsite');
         } else {
-            $adcreatives = SocialAdCreative::latest();
+            $adcreatives = SocialAdCreative::latest()->with('account.storeWebsite');
         }
 
         if (! empty($request->date)) {
@@ -64,16 +63,14 @@ class SocialAdCreativeController extends Controller
 
         $adcreatives = $adcreatives->paginate(Setting::get('pagination'));
 
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
-
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.adcreatives.data', compact('campaingns', 'adcreatives', 'configs', 'adcreatives_data'))->render(),
+                'tbody' => view('social.adcreatives.data', compact('campaingns', 'adcreatives', 'configs'))->render(),
                 'links' => (string) $adcreatives->render(),
             ], 200);
         }
 
-        return view('social.adcreatives.index', compact('campaingns', 'adcreatives', 'configs', 'adcreatives_data'));
+        return view('social.adcreatives.index', compact('campaingns', 'adcreatives', 'configs'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -98,7 +95,7 @@ class SocialAdCreativeController extends Controller
     public function create()
     {
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        $campaingns = \App\Social\SocialCampaign::where('ref_campaign_id', '!=', '')->get();
+        $campaingns = SocialCampaign::where('ref_campaign_id', '!=', '')->get();
 
         return view('social.adcreatives.create', compact('configs', 'campaingns'));
     }
