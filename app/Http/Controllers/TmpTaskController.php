@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
 use App\Library\DHL\GetRateRequest;
-use App\Mails\Manual\OrderConfirmation;
 
 class TmpTaskController extends Controller
 {

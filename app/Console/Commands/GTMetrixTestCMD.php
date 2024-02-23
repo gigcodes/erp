@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Helpers\LogHelper;
-use App\LogRequest;
 use App\Setting;
-use App\StoreViewsGTMetrix;
-use App\WebsiteStoreView;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\CronJobReport;
+use App\WebsiteStoreView;
+use App\Helpers\LogHelper;
+use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
 
 class GTMetrixTestCMD extends Command

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\EmailAddress;
-use App\Jobs\FetchEmail;
 use Carbon\Carbon;
+use App\EmailAddress;
+use App\CronJobReport;
+use App\Jobs\FetchEmail;
 use Illuminate\Console\Command;
 
 /**

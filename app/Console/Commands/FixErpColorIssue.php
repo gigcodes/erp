@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\LogHelper;
-use App\Helpers\StatusHelper;
 use App\Product;
 use App\ScrapedProducts;
+use App\Helpers\LogHelper;
+use App\Helpers\StatusHelper;
 use Illuminate\Console\Command;
 
 class FixErpColorIssue extends Command

@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Helpers\LogHelper;
 use App\LandingPageProduct;
-use App\Library\Shopify\Client as ShopifyClient;
 use Illuminate\Console\Command;
+use App\Library\Shopify\Client as ShopifyClient;
 
 class CheckLandingProducts extends Command
 {

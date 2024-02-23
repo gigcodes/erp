@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoModuleUnitTestStatus extends Model
 {
@@ -13,5 +12,4 @@ class MagentoModuleUnitTestStatus extends Model
     public $table = 'magento_modules_unit_test_statuses';
 
     protected $fillable = ['unit_test_status_name'];
-
 }

@@ -1,9 +1,7 @@
 <?php
 
-use Database\Seeders\StoreWebsiteTableProjectUpdateSeeder;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Database\Seeders\StoreWebsiteTableProjectUpdateSeeder;
 
 class UpdateStoreWebsiteTableProjectSeeder extends Migration
 {

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateBankStatementFileTable extends Migration
 {
@@ -19,7 +19,7 @@ class CreateBankStatementFileTable extends Migration
             $table->text('path');
             $table->text('mapping_fields'); //json field with mapping of database
             $table->string('status')->nullable();
-            $table->integer("created_by")->default(0);//logged in user id
+            $table->integer('created_by')->default(0); //logged in user id
             $table->timestamps();
         });
     }

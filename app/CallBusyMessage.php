@@ -86,7 +86,6 @@ class CallBusyMessage extends Model
         $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
         if (($http_code == '200') || ($http_code == '302')) {
-
             // If store id not found
             if ($store_website_id == 0) {
                 // Check To number is exist in DB

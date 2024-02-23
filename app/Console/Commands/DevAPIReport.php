@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\GoogleDeveloper;
-use App\GoogleDeveloperLogs;
-use App\Helpers\LogHelper;
 use Google\Client;
+use App\GoogleDeveloper;
+use App\Helpers\LogHelper;
+use App\GoogleDeveloperLogs;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 

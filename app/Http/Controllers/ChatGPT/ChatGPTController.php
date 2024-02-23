@@ -274,6 +274,7 @@ class ChatGPTController extends Controller
                 foreach ($response['data']['data'] as $key => $value) {
                     $url['Response:' . $key + 1] = $value['url'];
                 }
+
                 return response()->json(['status' => true, 'message' => 'Response found', 'data' => ['response' => $url, 'getting_type' => 'chatGPT', 'type' => 'image_variation']]);
             }
         } catch (\Exception $e) {

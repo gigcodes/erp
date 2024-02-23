@@ -7,7 +7,7 @@ return [
      * Should extend `Plank\Mediable\Media`
      */
     // 'model' => Plank\Mediable\Media::class,
-    'model' => App\Models\PlankMediaCustom::class, //Added this class to Override getUrl Method 
+    'model' => App\Models\PlankMediaCustom::class, //Added this class to Override getUrl Method
 
     /*
      * Filesystem disk to use if none is specified
@@ -24,7 +24,7 @@ return [
         'files',
         'adsapi',
         'google_ads',
-        's3'
+        's3',
     ],
 
     /*

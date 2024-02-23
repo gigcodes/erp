@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductSearcherController extends Controller
 {
-
     public function index()
     {
         $products = Product::where('stock', '>=', 1)->latest()

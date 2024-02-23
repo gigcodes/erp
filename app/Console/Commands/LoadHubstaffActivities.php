@@ -134,6 +134,7 @@ class LoadHubstaffActivities extends Command
             return $activities;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
+
             return false;
         }
     }

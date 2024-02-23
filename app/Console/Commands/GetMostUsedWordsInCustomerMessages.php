@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
 use Illuminate\Console\Command;
-use App\BulkCustomerRepliesKeyword;
 
 class GetMostUsedWordsInCustomerMessages extends Command
 {

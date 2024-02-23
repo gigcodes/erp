@@ -4,15 +4,19 @@ namespace Modules\StoreWebsite\Http\Controllers;
 
 use Auth;
 use App\User;
+use Exception;
 use App\Service;
 use App\Setting;
 use App\Website;
+use App\Language;
 use Carbon\Carbon;
 use App\ChatMessage;
 use App\StoreWebsite;
+use App\Translations;
 use App\WebsiteStore;
 use App\AssetsManager;
 use App\SocialStrategy;
+use App\GoogleTranslate;
 use App\SiteDevelopment;
 use App\StoreWebsiteGoal;
 use App\StoreWebsitePage;
@@ -25,6 +29,7 @@ use App\StoreWebsiteUsers;
 use Illuminate\Support\Str;
 use App\BuildProcessHistory;
 use App\LogStoreWebsiteUser;
+use App\Models\VarnishStats;
 use App\StoreReIndexHistory;
 use App\StoreWebsiteProduct;
 use Illuminate\Http\Request;
@@ -37,6 +42,8 @@ use App\Models\WebsiteStoreTag;
 use App\StoreViewCodeServerMap;
 use App\StoreWebsiteAttributes;
 use App\Github\GithubRepository;
+use App\Models\MagentoMediaSync;
+use App\Models\VarnishStatsLogs;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsiteCategorySeo;
 use App\StoreWebsiteUserHistory;
@@ -45,31 +52,24 @@ use App\StoreWebsiteProductPrice;
 use App\StoreWebsitesApiTokenLog;
 use App\StoreWebsiteTwilioNumber;
 use Illuminate\Routing\Controller;
+use App\Models\StoreWebsiteCsvFile;
+use App\Models\WebsiteStoreProject;
 use App\ProductCancellationPolicie;
+use App\Models\StoreWebsiteAdminUrl;
 use Illuminate\Support\Facades\Http;
 use App\StoreWebsiteProductAttribute;
 use App\StoreWebsitesCountryShipping;
 use App\Jobs\DuplicateStoreWebsiteJob;
+use App\Models\GoogleTranslateCsvData;
 use App\StoreWebsiteProductScreenshot;
 use Illuminate\Support\Facades\Storage;
 use App\MagentoSettingUpdateResponseLog;
 use Illuminate\Support\Facades\Validator;
+use App\Models\StoreWebsiteCsvPullHistory;
 use App\Models\StoreWebsiteApiTokenHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\Models\StoreWebsiteBuilderApiKeyHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
-use App\Models\StoreWebsiteCsvFile;
-use Exception;
-use App\Translations;
-use App\GoogleTranslate;
-use App\Language;
-use App\Models\GoogleTranslateCsvData;
-use App\Models\WebsiteStoreProject;
-use App\Models\StoreWebsiteCsvPullHistory;
-use App\Models\StoreWebsiteAdminUrl;
-use App\Models\MagentoMediaSync;
-use App\Models\VarnishStats;
-use App\Models\VarnishStatsLogs;
 
 class StoreWebsiteController extends Controller
 {
@@ -149,7 +149,6 @@ class StoreWebsiteController extends Controller
 
     public function adminPassword(Request $request)
     {
-
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
 
         if ($keyword = request('storewebsiteid')) {
@@ -173,7 +172,7 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user','storewebsite'])->where('status', 1)->orderBy('id', 'DESC');
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user', 'storewebsite'])->where('status', 1)->orderBy('id', 'DESC');
 
         if ($keyword = request('searchstorewebsiteids')) {
             $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->where(function ($q) use ($keyword) {
@@ -916,7 +915,7 @@ class StoreWebsiteController extends Controller
                 }
 
                 $magentoHelper = new MagentoHelperv2();
-                $magentoHelper->addMagentouser($storeWebsite, $post,$StoreWebsiteUsersid->id);
+                $magentoHelper->addMagentouser($storeWebsite, $post, $StoreWebsiteUsersid->id);
 
                 StoreWebsiteUserHistory::create([
                     'store_website_id' => $StoreWebsiteUsersid->store_website_id,
@@ -2281,7 +2280,7 @@ class StoreWebsiteController extends Controller
 
     public function StorewebsiteDownloadListing(Request $request)
     {
-        $perPage =  20;
+        $perPage = 20;
 
         $storeWebsites = new StoreWebsite();
 
@@ -2294,7 +2293,6 @@ class StoreWebsiteController extends Controller
         $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
 
         return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites', 'storeWebsitesDropdown'));
-
     }
 
     public function mulitipleStorewebsiteDownload(Request $request)
@@ -2309,8 +2307,9 @@ class StoreWebsiteController extends Controller
 
         try {
             foreach ($webIdsArray as $webId) {
-                $action = "pull";
-                return $this->csvFilePullCommand($webId,$action);
+                $action = 'pull';
+
+                return $this->csvFilePullCommand($webId, $action);
             }
         } catch (Exception $e) {
             return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
@@ -2319,41 +2318,41 @@ class StoreWebsiteController extends Controller
 
     public function runCsvSingleCommand(Request $request)
     {
-        $action = "pull";
+        $action = 'pull';
+
         return $this->csvFilePullCommand($request->input('id'), $action);
     }
 
     public function runCsvSinglePushCommand(Request $request)
     {
         $storewebsite = StoreWebsite::find($request->input('id'));
-        $action = "push";
+        $action = 'push';
         $storeWebsiteId = $request->input('id');
         $serverName = $storewebsite->server_ip;
         $websiteName = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
-        $storeCode = "gb-en";
-        
+        $storeCode = 'gb-en';
+
         //get filename
         $fileName = basename($request->input('filename'));
 
-         // Construct and execute the command
-         $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
-         $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
- 
- 
-         $allOutput = [];
-         $allOutput[] = $command;
-         $result = exec($command, $allOutput);
-        
+        // Construct and execute the command
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+        $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
+
+        $allOutput = [];
+        $allOutput[] = $command;
+        $result = exec($command, $allOutput);
+
         //  $allOutput = [
         //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
         //     '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
         // ];
 
-         $response = json_decode($allOutput[1], true);
-         \Log::info('command:' . $command);
-         \Log::info('output:' . print_r($allOutput, true));
-         \Log::info('response:' . print_r($response, true));
+        $response = json_decode($allOutput[1], true);
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($allOutput, true));
+        \Log::info('response:' . print_r($response, true));
 
         if (is_array($response)) {
             $status = $response['status'];
@@ -2394,7 +2393,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
                 'status' => 'fail',
-                'message' => "Invalid JSON response",
+                'message' => 'Invalid JSON response',
                 'action' => $action,
                 'command' => $command,
                 'user_id' => Auth::user()->id,
@@ -2404,16 +2403,15 @@ class StoreWebsiteController extends Controller
             \Log::info('command:' . $command);
             \Log::info('output:' . print_r($allOutput, true));
 
-            return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
+            return response()->json(['message' => 'Invalid JSON response', 'code' => 500]);
         }
- 
     }
 
     public function csvFilePullCommand($id, $action)
     {
         $storewebsite = StoreWebsite::find($id);
 
-        if (!$storewebsite) {
+        if (! $storewebsite) {
             return response()->json(['code' => 400, 'data' => [], 'message' => 'Invalid website ID']);
         }
 
@@ -2422,8 +2420,8 @@ class StoreWebsiteController extends Controller
         $serverName = $storewebsite->server_ip;
         $websiteName = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
-        $storeCode = "gb-en";
-        $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
+        $storeCode = 'gb-en';
+        $fileName = str_replace(' ', '-', $storewebsite->title) . '-gb-en.csv';
         $action = $action;
 
         $pullHistory = new StoreWebsiteCsvPullHistory();
@@ -2431,27 +2429,27 @@ class StoreWebsiteController extends Controller
         $pullHistory->store_website_id = $id;
         $pullHistory->save();
 
-        $languageData = Language::where('status',1)->where('locale', '!=', 'en')->get();
-        
+        $languageData = Language::where('status', 1)->where('locale', '!=', 'en')->get();
+
         $message = '';
 
-        if (!$storewebsite) {
-            $message = "websiteId is required";
+        if (! $storewebsite) {
+            $message = 'websiteId is required';
         }
 
-        if (!$serverName) {
-            $message = "Serve name is required";
+        if (! $serverName) {
+            $message = 'Serve name is required';
         }
 
-        if (!$websiteName) {
-            $message = "Website name is required";
+        if (! $websiteName) {
+            $message = 'Website name is required';
         }
 
-        if (!$websiteDirectory) {
-            $message = "websiteDirectory is required";
+        if (! $websiteDirectory) {
+            $message = 'websiteDirectory is required';
         }
 
-        if ($message !== "") {
+        if ($message !== '') {
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
                 'status' => 'fail',
@@ -2464,18 +2462,17 @@ class StoreWebsiteController extends Controller
         }
 
         // Construct and execute the command
-        $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
         // $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh'  . '-a ' . $action . '-s ' . $serverName . ' -w ' . $websiteName . ' -d ' . $websiteDirectory . ' -S ' . $storeCode . ' -f' . $fileName . '';
         $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
-
 
         $allOutput = [];
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
-       // Below static code for testing purpose. 
+        // Below static code for testing purpose.
         $allOutput = [
-            "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
-            '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
+            'bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a "pull" -s "85.208.51.101" -w "Brands QA" -d "/home/brands-qa-1-1/current/" -S "gb-en" -f "Brands-QA-gb-en.csv" 2>&1',
+            '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}',
         ];
 
         $response = json_decode($allOutput[1], true);
@@ -2500,17 +2497,15 @@ class StoreWebsiteController extends Controller
                     'user_id' => Auth::user()->id,
                 ]);
 
-
-                if (!file_exists($path)) {
+                if (! file_exists($path)) {
                     try {
-                        foreach ($languageData as $language)
-                        {
+                        foreach ($languageData as $language) {
                             $new_file_path = str_replace('-en.cs', '-' . $language->locale . '.cs', $path);
-                            $result = $this->translateFile($path, $language->locale, ','); 
+                            $result = $this->translateFile($path, $language->locale, ',');
                             StoreWebsiteCsvFile::create([
                                 'storewebsite_id' => $storeWebsiteId,
-                                'status' => "success",
-                                'message' => "csv file created",
+                                'status' => 'success',
+                                'message' => 'csv file created',
                                 'action' => $action,
                                 'filename' => $new_file_path,
                                 'user_id' => Auth::user()->id,
@@ -2526,23 +2521,19 @@ class StoreWebsiteController extends Controller
                                     $translationDataStored->storewebsite_id = $storeWebsiteId;
                                     $translationDataStored->lang_id = $language->id;
                                     $translationDataStored->save();
-                             
-                            
                                 } catch (\Exception $e) {
                                     return 'Upload failed: ' . $e->getMessage();
+                                }
                             }
-                            }        
-
                         }
                     } catch (\Exception $e) {
-                        return response()->json(['message' =>$e->getMessage(), 'code' => 500]);
+                        return response()->json(['message' => $e->getMessage(), 'code' => 500]);
                     }
                 } else {
-
                     StoreWebsiteCsvFile::create([
                         'storewebsite_id' => $storeWebsiteId,
                         'status' => $status,
-                        'message' => "File not found",
+                        'message' => 'File not found',
                         'action' => $action,
                         'path' => $path,
                         'user_id' => Auth::user()->id,
@@ -2572,7 +2563,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
                 'status' => 'fail',
-                'message' => "Invalid JSON response",
+                'message' => 'Invalid JSON response',
                 'action' => $action,
                 'user_id' => Auth::user()->id,
                 'command' => $command,
@@ -2581,10 +2572,9 @@ class StoreWebsiteController extends Controller
             \Log::info('command:' . $command);
             \Log::info('output:' . print_r($allOutput, true));
 
-            return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
+            return response()->json(['message' => 'Invalid JSON response', 'code' => 500]);
         }
     }
-
 
     public function translateFile($path, $language, $delimiter = ',')
     {
@@ -2653,32 +2643,31 @@ class StoreWebsiteController extends Controller
                 if (! empty($insertData)) {
                     Translations::insert($insertData);
                 }
-             }
+            }
 
-                //Update the csv with Translated data
-                if (isset($newCsvData) && count($newCsvData) > 0) {
-                    for ($i = 0; $i < count($newCsvData); $i++) {
-                        $last = array_pop($newCsvData[$i]);
-                        array_push($newCsvData[$i], htmlspecialchars_decode($translateKeyPair[$last] ?? $last));
-                    }
-
-                    $handle = fopen($copiedFilePath, 'r+');
-                    foreach ($newCsvData as $line) {
-                        fputcsv($handle, $line, $delimiter, $enclosure = '"');
-                    }
-                    fclose($handle);
+            //Update the csv with Translated data
+            if (isset($newCsvData) && count($newCsvData) > 0) {
+                for ($i = 0; $i < count($newCsvData); $i++) {
+                    $last = array_pop($newCsvData[$i]);
+                    array_push($newCsvData[$i], htmlspecialchars_decode($translateKeyPair[$last] ?? $last));
                 }
 
+                $handle = fopen($copiedFilePath, 'r+');
+                foreach ($newCsvData as $line) {
+                    fputcsv($handle, $line, $delimiter, $enclosure = '"');
+                }
+                fclose($handle);
+            }
+
             return $newCsvData;
-        }
-        else {
-            return false; 
+        } else {
+            return false;
         }
     }
 
     public function dataViewPage($id)
     {
-        $googleTranslateDatas=  GoogleTranslateCsvData::Where('storewebsite_id',$id)->latest()->get();
+        $googleTranslateDatas = GoogleTranslateCsvData::Where('storewebsite_id', $id)->latest()->get();
 
         return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
@@ -2704,16 +2693,15 @@ class StoreWebsiteController extends Controller
         }
 
         $query->groupBy('filename');
-         
+
         $filenames = $query->paginate(25);
 
         return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames])->with('i', ($request->input('page', 1) - 1) * 25);
-       
     }
 
     public function pullRequestHistoryShow($id)
     {
-        $histories = StoreWebsiteCsvPullHistory::with(['storewebsite','user'])->where('store_website_id', $id)->where('user_id', Auth::user()->id)->get();
+        $histories = StoreWebsiteCsvPullHistory::with(['storewebsite', 'user'])->where('store_website_id', $id)->where('user_id', Auth::user()->id)->get();
 
         return response()->json([
             'status' => true,
@@ -2725,12 +2713,10 @@ class StoreWebsiteController extends Controller
 
     public function pullRequesLogShow(Request $request)
     {
-
         $action = $request->get('action');
 
-        if($action ==  "pull")
-        {
-            $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('storewebsite_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
+        if ($action == 'pull') {
+            $histories = StoreWebsiteCsvFile::with(['storewebsite', 'user'])->where('storewebsite_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
 
             return response()->json([
                 'status' => true,
@@ -2738,9 +2724,8 @@ class StoreWebsiteController extends Controller
                 'message' => 'Successfully get history status',
                 'status_name' => 'success',
             ], 200);
-    
         } else {
-            $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('csv_file_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
+            $histories = StoreWebsiteCsvFile::with(['storewebsite', 'user'])->where('csv_file_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
 
             return response()->json([
                 'status' => true,
@@ -2750,7 +2735,6 @@ class StoreWebsiteController extends Controller
             ], 200);
         }
     }
-
 
     public function csvFileTruncate()
     {
@@ -2762,21 +2746,22 @@ class StoreWebsiteController extends Controller
     }
 
     public function deleteAdminPasswords(Request $request)
-    {   
-
+    {
         StoreWebsiteUsers::whereIn('id', $request->ids)->update(['is_deleted' => 1]);
 
         return response()->json([
             'status' => true,
-            'message' => " column visiblity Added Successfully",
+            'message' => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
-  
-    public function generateRandomString($length) {
+
+    public function generateRandomString($length)
+    {
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = str_shuffle($characters);
         $randomString = substr($randomString, 0, $length);
+
         return $randomString;
     }
 
@@ -2805,12 +2790,11 @@ class StoreWebsiteController extends Controller
 
         // New Script
         $title = $post['title'];
-        $admin_url_var = $title.'_admin_'.$this->generateRandomString(6);
+        $admin_url_var = $title . '_admin_' . $this->generateRandomString(6);
         $password = '';
         $store_dir = $post['store_dir'];
         $server_ip_address = $post['server_ip_address'];
 
-                   
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
         $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
@@ -2829,12 +2813,12 @@ class StoreWebsiteController extends Controller
         $adminurl->store_website_id = $post['store_website_id'];
         $adminurl->website_url = $post['admin_url'];
 
-        if(substr($post['admin_url'] , -1)=='/'){
-            $adminurl->admin_url = $post['admin_url'].$admin_url_var;
+        if (substr($post['admin_url'], -1) == '/') {
+            $adminurl->admin_url = $post['admin_url'] . $admin_url_var;
         } else {
-            $adminurl->admin_url = $post['admin_url'].'/'.$admin_url_var;
+            $adminurl->admin_url = $post['admin_url'] . '/' . $admin_url_var;
         }
-        
+
         $adminurl->request_data = $cmd;
         $adminurl->response_data = json_encode($result);
         $adminurl->save();
@@ -2844,27 +2828,23 @@ class StoreWebsiteController extends Controller
 
     public function adminUrlBulkGenerate(Request $request)
     {
-
         if ($request->has('storewebsiteids') && empty($request->storewebsiteids)) {
-
-            return back()->with('error', "The request parameter ids missing");
+            return back()->with('error', 'The request parameter ids missing');
         }
 
         $available = 0;
         $notavailable = 0;
         foreach ($request->storewebsiteids as $id) {
-
             $storeWebsite = StoreWebsite::where('id', $id)->first();
 
-            if(!empty($storeWebsite['working_directory']) && !empty($storeWebsite['server_ip']) && !empty($storeWebsite['website']) && !empty($storeWebsite['title'])){
-
+            if (! empty($storeWebsite['working_directory']) && ! empty($storeWebsite['server_ip']) && ! empty($storeWebsite['website']) && ! empty($storeWebsite['title'])) {
                 StoreWebsiteAdminUrl::where('store_website_id', $id)->update(['status' => 0]);
 
-                $admin_url_var = $storeWebsite['title'].'_admin_'.$this->generateRandomString(6);
+                $admin_url_var = $storeWebsite['title'] . '_admin_' . $this->generateRandomString(6);
                 $password = '';
                 $store_dir = $storeWebsite['working_directory'];
                 $server_ip_address = $storeWebsite['server_ip'];
-                           
+
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
                 $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
@@ -2883,10 +2863,10 @@ class StoreWebsiteController extends Controller
 
                 $adminurl->website_url = $storeWebsite['website'];
 
-                if(substr($storeWebsite['website'] , -1)=='/'){
-                    $adminurl->admin_url = $storeWebsite['website'].$admin_url_var;
+                if (substr($storeWebsite['website'], -1) == '/') {
+                    $adminurl->admin_url = $storeWebsite['website'] . $admin_url_var;
                 } else {
-                    $adminurl->admin_url = $storeWebsite['website'].'/'.$admin_url_var;
+                    $adminurl->admin_url = $storeWebsite['website'] . '/' . $admin_url_var;
                 }
 
                 $adminurl->request_data = $cmd;
@@ -2899,12 +2879,12 @@ class StoreWebsiteController extends Controller
             }
         }
 
-        if($notavailable==1 && $available==0){
-            return back()->with('error', "Store website not have directory or ip address or website url or title.");
-        } else if($notavailable==0 && $available==1){
-            return back()->with('success', "Bulk Admin url generate completed, You can check logs individually.");
-        } else if($notavailable==1 && $available==1){
-            return back()->with('success', "Bulk Admin url generate completed, You can check logs individually. and Some Store website not have directory or ip address or website url or title. so that Store Website Admin url not generated.");
+        if ($notavailable == 1 && $available == 0) {
+            return back()->with('error', 'Store website not have directory or ip address or website url or title.');
+        } elseif ($notavailable == 0 && $available == 1) {
+            return back()->with('success', 'Bulk Admin url generate completed, You can check logs individually.');
+        } elseif ($notavailable == 1 && $available == 1) {
+            return back()->with('success', 'Bulk Admin url generate completed, You can check logs individually. and Some Store website not have directory or ip address or website url or title. so that Store Website Admin url not generated.');
         }
 
         //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
@@ -2933,29 +2913,24 @@ class StoreWebsiteController extends Controller
         $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->source_store_website_id)->first();
         $destStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->dest_store_website_id)->first();
 
-        if(!empty($sourceStoreWebsites) && !empty($destStoreWebsites)){
-
-            if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->working_directory) && !empty($destStoreWebsites->server_ip) && !empty($destStoreWebsites->working_directory)){
-
+        if (! empty($sourceStoreWebsites) && ! empty($destStoreWebsites)) {
+            if (! empty($sourceStoreWebsites->server_ip) && ! empty($sourceStoreWebsites->working_directory) && ! empty($destStoreWebsites->server_ip) && ! empty($destStoreWebsites->working_directory)) {
                 \App\Jobs\MagentoMediaSyncJob::dispatch($sourceStoreWebsites, $destStoreWebsites, $request->source_store_website_id, $request->dest_store_website_id, Auth::user()->id)->onQueue('magento_media_sync');
 
                 return response()->json(['code' => 200, 'message' => 'Magento media sync Successfully.']);
-
             } else {
-    
-                return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+                return response()->json(['code' => 400, 'message' => 'Something went wrong. Please try again.']);
             }
-                
         } else {
-            return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
-        } 
+            return response()->json(['code' => 400, 'message' => 'Something went wrong. Please try again.']);
+        }
     }
 
     public function magentoMediaSyncLogs(Request $request)
     {
         $title = 'Magento Media Sync | Store Website';
 
-        $MagentoMediaSyncLogs = MagentoMediaSync::with(['user','sourcestorewebsite','deststorewebsite'])->orderBy('id', 'DESC');
+        $MagentoMediaSyncLogs = MagentoMediaSync::with(['user', 'sourcestorewebsite', 'deststorewebsite'])->orderBy('id', 'DESC');
 
         $MagentoMediaSyncLogs = $MagentoMediaSyncLogs->get();
 
@@ -2982,14 +2957,13 @@ class StoreWebsiteController extends Controller
         }
 
         $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->varnish_store_website_id)->first();
-        $cwd='';
+        $cwd = '';
         $assetsmanager = new AssetsManager;
-        if($sourceStoreWebsites){
+        if ($sourceStoreWebsites) {
             $assetsmanager = AssetsManager::where('id', $sourceStoreWebsites->assets_manager_id)->first();
         }
-        
-        if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->title) && !empty($assetsmanager->ip_name)){
 
+        if (! empty($sourceStoreWebsites->server_ip) && ! empty($sourceStoreWebsites->title) && ! empty($assetsmanager->ip_name)) {
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
             $cmd = "bash $scriptsPath" . "varnish_get_details.sh -s \"$assetsmanager->ip_name\" -i \"$sourceStoreWebsites->server_ip\" -w \"$sourceStoreWebsites->title\" 2>&1";
@@ -3012,7 +2986,7 @@ class StoreWebsiteController extends Controller
                 'response_data' => json_encode($result),
             ]);
         } else {
-            return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+            return response()->json(['code' => 400, 'message' => 'Something went wrong. Please try again.']);
         }
     }
 

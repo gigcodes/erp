@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use ColorThief\ColorThief;
 use Illuminate\Console\Command;
 

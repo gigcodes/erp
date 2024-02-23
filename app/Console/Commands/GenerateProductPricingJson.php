@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Helpers\LogHelper;
 use App\Helpers\StatusHelper;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GenerateProductPricingJson extends Command

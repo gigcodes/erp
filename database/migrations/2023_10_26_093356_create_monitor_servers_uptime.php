@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorServersUptime extends Migration
 {
@@ -14,7 +14,7 @@ class CreateMonitorServersUptime extends Migration
     public function up()
     {
         Schema::dropIfExists('monitor_servers_uptime');
-        
+
         Schema::create('monitor_servers_uptime', function (Blueprint $table) {
             $table->increments('servers_uptime_id');
             $table->unsignedInteger('server_id');

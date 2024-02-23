@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use Illuminate\Console\Command;
 
-
 class PostMediaToInstagramAccounts extends Command
 {
     /**

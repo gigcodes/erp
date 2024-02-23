@@ -23,7 +23,7 @@ class SyncMagentoModules implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(protected $storeWebsite,protected $scriptsPath,protected $updated_by)
+    public function __construct(protected $storeWebsite, protected $scriptsPath, protected $updated_by)
     {
     }
 

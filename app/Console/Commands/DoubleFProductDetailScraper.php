@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Scrap\DoubleFProductDetailsScraper;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Scrap\DoubleFProductDetailsScraper;
 
 class DoubleFProductDetailScraper extends Command
 {

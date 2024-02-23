@@ -134,6 +134,7 @@ class AccountController extends Controller
         foreach ($request->except('_token') as $key => $val) {
             $setting1 = Setting::where('name', $key)->update(['val' => $val]);
         }
+
         return redirect()->back()->with('message', 'Automation form Updated');
     }
 }

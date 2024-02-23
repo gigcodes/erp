@@ -22,7 +22,6 @@ use App\CroppedImageReference;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductCropperController extends Controller

@@ -108,7 +108,6 @@ class ShopifyHelper
      */
     public static function syncShopifyOrders($store_id, $order)
     {
-
         //Checking in order table
         $shopify_order_id = $order['id'];
         $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $shopify_order_id)->where('website_id', $store_id)->first();
@@ -195,7 +194,6 @@ class ShopifyHelper
         $items = $order['line_items'];
         foreach ($items as $item) {
             if (round($item['price']) > 0) {
-
                 $size = '';
 
                 // We already have a helper function to get the product attributes
@@ -243,7 +241,6 @@ class ShopifyHelper
      */
     public static function syncShopifyCustomers($store_id, $store_customer)
     {
-
         // Extract customer details from the payload
         $firstName = isset($store_customer) ? (isset($store_customer['first_name']) ? $store_customer['first_name'] : 'N/A') : 'N/A';
         $lastName = isset($store_customer) ? (isset($store_customer['last_name']) ? $store_customer['last_name'] : 'N/A') : 'N/A';

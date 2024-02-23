@@ -15,7 +15,6 @@ class SiteCroppedImages extends Model
      * @SWG\Property(property="website_id",type="insteger")
      * @SWG\Property(property="product_id",type="insteger")
      */
-
     protected $fillable = [
         'website_id', 'product_id',
     ];

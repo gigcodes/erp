@@ -16,7 +16,6 @@ class PaymentUpdated
      *
      * @return void
      */
-
     public function __construct(public Payment $payment)
     {
     }

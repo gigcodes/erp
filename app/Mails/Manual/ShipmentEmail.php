@@ -20,6 +20,7 @@ class ShipmentEmail extends Mailable
     public $message;
 
     public $file_paths;
+
     public $customConfig;
 
     public function __construct(string $subject, string $message, array $file_paths, $customConfig = [])

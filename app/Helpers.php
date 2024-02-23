@@ -93,11 +93,12 @@ class Helpers
     public static function explodeToArray($item)
     {
         $temp_values = explode(',', $item);
-        
-        $values = array_reduce($temp_values, function($carry,$size){
+
+        $values = array_reduce($temp_values, function ($carry, $size) {
             $carry[$size] = $size;
+
             return $carry;
-        },[]);
+        }, []);
 
         return $values;
     }

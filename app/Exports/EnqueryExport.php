@@ -17,7 +17,6 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
 
     protected $count = 0;
 
-
     public function __construct(protected array $products, protected array $orders, protected $path)
     {
     }

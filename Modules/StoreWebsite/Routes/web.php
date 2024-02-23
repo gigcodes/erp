@@ -67,11 +67,10 @@ Route::group([
     Route::post('single/csv/command/run', [StoreWebsiteController::class, 'runCsvSingleCommand'])->name('store-website.single.command.run');
     Route::post('single/push/csv/command/run', [StoreWebsiteController::class, 'runCsvSinglePushCommand'])->name('store-website.single.push.command.run');
     Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
-    Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
+    Route::get('/push-csv/{id}', [StoreWebsiteController::class, 'pushCsvFile'])->name('store-website.push.csv');
     Route::get('pull-request/histories/{id}', [StoreWebsiteController::class, 'pullRequestHistoryShow'])->name('pull-request.histories.show');
     Route::get('pull-request/log/', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
     Route::get('csv-file/truncate', [StoreWebsiteController::class, 'csvFileTruncate'])->name('store-website-csv-truncate');
-
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 
@@ -237,7 +236,7 @@ Route::group([
     Route::group(['prefix' => 'category'], function () {
         Route::get('/', [CategoryController::class, 'list'])->name('store-website.category.list');
         Route::post('/column-visibility-update-app-sales', [CategoryController::class, 'columnVisibilityUpdateStoreWebsiteCategory'])->name('store-website.category.column.update');
-    // columnVisbilityUpdate
+        // columnVisbilityUpdate
         Route::post('category-history', [CategoryController::class, 'categoryHistory'])->name('store-website.category,categoryHistory');
         Route::post('website-category-user-history', [CategoryController::class, 'webiteCategoryUserHistory'])->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', [CategoryController::class, 'saveStoreCategory'])->name('store-website.save.store.category');
@@ -333,8 +332,7 @@ Route::group([
         Route::post('/store-website/status-create', [PageController::class, 'statusCreate'])->name('store_website_page.status');
         Route::post('/store-website/status/color-update', [PageController::class, 'StatusColorUpdate'])->name('todolist-color-update');
         Route::get('/store-website/status-update', [PageController::class, 'websiteStatusUpdate'])->name('store_website_status-update');
-        Route::get('store-website/status-history', [PageController::class,'statusHistoryList'])->name('store_website-status-history-list');
-
+        Route::get('store-website/status-history', [PageController::class, 'statusHistoryList'])->name('store_website-status-history-list');
     });
 
     Route::group(['prefix' => 'category-seo'], function () {

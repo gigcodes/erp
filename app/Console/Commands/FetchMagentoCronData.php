@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\LogRequest;
-use App\MagentoCronData;
-use App\StoreWebsite;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\StoreWebsite;
+use App\MagentoCronData;
 use Illuminate\Console\Command;
 
 class FetchMagentoCronData extends Command

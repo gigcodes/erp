@@ -93,6 +93,7 @@ class BrandController extends Controller
 
         return view('brand.scrap_brand', compact('brands', 'filters', 'alldevs', 'dev'));
     }
+
     public function create()
     {
         $data['name'] = '';

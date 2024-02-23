@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMindMapDiagramsTable extends Migration
 {
@@ -20,7 +20,7 @@ class CreateMindMapDiagramsTable extends Migration
             $table->text('description')->nullable();
             $table->json('data')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users');  
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

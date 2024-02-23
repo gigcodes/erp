@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\LogHelper;
-use App\Marketing\WhatsappConfig;
 use Carbon\Carbon;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
+use App\Marketing\WhatsappConfig;
 
 class CheckWhatsAppActive extends Command
 {

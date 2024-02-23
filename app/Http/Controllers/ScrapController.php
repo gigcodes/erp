@@ -44,8 +44,7 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ScrapController extends Controller
 {
-
-    public function __construct(private GoogleImageScraper $googleImageScraper, private PinterestScraper $pinterestScraper,private GnbProductsCreator $gnbCreator)
+    public function __construct(private GoogleImageScraper $googleImageScraper, private PinterestScraper $pinterestScraper, private GnbProductsCreator $gnbCreator)
     {
     }
 
@@ -1995,6 +1994,7 @@ class ScrapController extends Controller
                     $totalScraper[] = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
                 }
             }
+
             return response()->json(['code' => 200, 'data' => $totalScraper, 'message' => '']);
         } else {
             return response()->json(['code' => 500, 'message' => 'Please send server id']);

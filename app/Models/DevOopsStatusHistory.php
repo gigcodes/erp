@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
-use App\Models\DevOopsStatus;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DevOopsStatusHistory extends Model
 {

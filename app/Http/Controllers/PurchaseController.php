@@ -31,7 +31,6 @@ use App\StatusChange;
 use App\ReplyCategory;
 use App\LogExcelImport;
 use App\PurchaseDiscount;
-use App\Mail\CustomerEmail;
 use App\Mail\PurchaseEmail;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -238,7 +237,6 @@ class PurchaseController extends Controller
                 }
 
                 $orders = $orders->get();
-
             } else {
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id');
                 if ($page == 'canceled-refunded') {
@@ -287,9 +285,7 @@ class PurchaseController extends Controller
                 }
 
                 $orders = $orders->get();
-
             } else {
-
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id');
                 if ($page == 'canceled-refunded') {
                     $orders = $orders->whereIn('o.order_status_id', [
@@ -360,7 +356,6 @@ class PurchaseController extends Controller
         }
 
         if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null && empty($request->order_id)) {
-
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
                 ->join('orders as o', 'o.id', 'order_products.order_id')
                 ->join('products as p', 'p.id', 'order_products.product_id');

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\TimeDoctor\TimeDoctorActivity;
-use App\TimeDoctor\TimeDoctorActivityNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\TimeDoctor\TimeDoctorActivity;
+use App\TimeDoctor\TimeDoctorActivityNotification;
 
 class DailyTimeDoctorActivityLevel extends Command
 {

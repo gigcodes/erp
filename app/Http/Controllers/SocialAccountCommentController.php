@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Reply;
 use App\LogRequest;
+use App\ReplyCategory;
 use App\BusinessComment;
 use App\GoogleTranslate;
-use App\ReplyCategory;
 use App\SocialWebhookLog;
 use App\Social\SocialPost;
 use App\Social\SocialConfig;
@@ -45,21 +45,21 @@ class SocialAccountCommentController extends Controller
 
         $comments = BusinessComment::with('bussiness_post', 'bussiness_post.bussiness_social_configs', 'bussiness_post.bussiness_social_configs.bussiness_website')->where('is_parent', 0);
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $comments = $comments->where(function ($q) use ($search) {
                 $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
             });
         }
 
         // Adding filter condition for bussiness_post.bussiness_social_configs
-        if (!empty($social_config)) {
+        if (! empty($social_config)) {
             $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($social_config) {
                 // Add your filter conditions for bussiness_post.bussiness_social_configs here
                 $query->whereIn('social_configs.platform', $social_config);
             });
         }
 
-        if (!empty($store_website_id)) {
+        if (! empty($store_website_id)) {
             $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($store_website_id) {
                 // Add your filter conditions for bussiness_post.bussiness_social_configs here
                 $query->whereIn('social_configs.store_website_id', $store_website_id);

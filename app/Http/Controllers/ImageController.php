@@ -682,7 +682,6 @@ class ImageController extends Controller
 
             $response = Http::post($url, $postData);
 
-
             $responseData = $response->json();
 
             LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), ImageController::class, 'imageQueue');

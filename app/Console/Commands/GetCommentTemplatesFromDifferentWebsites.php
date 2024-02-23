@@ -37,6 +37,5 @@ class GetCommentTemplatesFromDifferentWebsites extends Command
      */
     public function handle()
     {
-
     }
 }

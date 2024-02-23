@@ -18,7 +18,6 @@ class BloggerPaymentCreated
      *
      * @return void
      */
-
     public $payment;
 
     public function __construct(public Blogger $blogger, BloggerPayment $blogger_payment, public $status)

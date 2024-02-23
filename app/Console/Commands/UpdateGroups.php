@@ -210,6 +210,7 @@ class UpdateGroups extends Command
                 }
             } else {
                 dump($w->id);
+
                 continue;
             }
         }

@@ -18,6 +18,7 @@ class Flow2ConditionCheckProductOnly implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
+
     protected $product_index;
 
     protected $no_of_product;

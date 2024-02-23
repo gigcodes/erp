@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateMonitorConfig extends Migration
 {
@@ -13,9 +13,8 @@ class CreateMonitorConfig extends Migration
      */
     public function up()
     {
-
         Schema::dropIfExists('monitor_config');
-        
+
         Schema::create('monitor_config', function (Blueprint $table) {
             $table->string('key', 255)->primary();
             $table->string('value', 255);
