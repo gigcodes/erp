@@ -64,7 +64,7 @@ class SocialAccountController extends Controller
                 'message' => 'Message sent successfully',
             ]);
 
-        } catch (\FbException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Unable to sent message',
             ]);
