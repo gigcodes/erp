@@ -61,8 +61,7 @@ class SyncInstagramPosts extends Command
                 foreach ($posts['posts']['media'] as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
                         'post_body' => $post['caption'] ?? '',
-                        'post_by' => $config->page_id,
-                        'ref_post_id' => $post['owner']['id'],
+                        'post_by' =>  $post['owner']['id'],
                         'posted_on' => Carbon::parse($post['timestamp']),
                         'status' => 1,
                         'permalink' => $post['permalink'],
