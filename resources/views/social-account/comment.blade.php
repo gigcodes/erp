@@ -199,7 +199,7 @@
                 }
                 appendData += `
                                 </td>
-                                <td style="white-space:nowrap">${element.user.name || ""}</td>
+                                <td style="white-space:nowrap">${element.user?.name || ""}</td>
                                 <td style="white-space:nowrap">${element.created_at}</td>
                             </tr> `;
                 $("#showReplyModal .modal-body .table-body").append(appendData);
