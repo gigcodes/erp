@@ -106,23 +106,16 @@ class SocialPostController extends Controller
         $post = SocialPost::where('id', $request['post_id'])->with('account')->first();
 
         try {
-            if ($post->ref_post_id) {
+            if ($post->ref_post_id && $post->account->platform === 'facebook') {
                 $fb = new FB($post->account->page_token);
                 $fb->deletePagePost($post->ref_post_id);
-                $post->delete();
-
-                return Response::json([
-                    'success' => true,
-                    'message' => 'Post deleted successfully',
-                ]);
-            } else {
-                $post->delete();
-
-                return Response::json([
-                    'success' => true,
-                    'message' => 'Post deleted successfully',
-                ]);
             }
+            $post->delete();
+
+            return Response::json([
+                'success' => true,
+                'message' => 'Post deleted successfully',
+            ]);
         } catch (\Exception $exception) {
             return Response::json([
                 'success' => true,
