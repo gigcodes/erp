@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Social;
 
+use App\Services\Facebook\FB;
 use Auth;
 use Crypt;
+use JanuSoftware\Facebook\Exception\SDKException;
 use Session;
 use Response;
 use App\Setting;
@@ -96,30 +98,31 @@ class SocialPostController extends Controller
         return view('social.posts.grid', compact('posts', 'websites', 'socialconfigs'));
     }
 
+    /**
+     * @throws SDKException
+     * @throws \FbException
+     */
     public function deletePost(Request $request)
     {
         $post = SocialPost::where('id', $request['post_id'])->with('account')->first();
 
-        if ($post->ref_post_id) {
-            $pageInfoParams = [
-                'endpoint_path' => $request['post_id'],
-                'fields' => 'message,id,created_time',
-                'access_token' => $post->account->page_token,
-                'request_type' => 'DELETE',
-            ];
-
-            $response = getFacebookResults($pageInfoParams);
-            if (isset($response['data']['success']) && $response['data']['success']) {
+        try {
+            if ($post->ref_post_id) {
+                $fb = new FB($post->account->page_token);
+                $fb->deletePagePost($post->ref_post_id);
                 $post->delete();
                 return Response::json([
                     'success' => true,
                     'message' => 'Post deleted successfully',
                 ]);
             } else {
-                return false;
+                $post->delete();
+                return Response::json([
+                    'success' => true,
+                    'message' => 'Post deleted successfully',
+                ]);
             }
-        } else {
-            $post->delete();
+        } catch (\Exception $exception) {
             return Response::json([
                 'success' => true,
                 'message' => 'Post deleted successfully',

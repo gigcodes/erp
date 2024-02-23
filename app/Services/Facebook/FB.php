@@ -239,7 +239,7 @@ class FB
      */
     public function deletePagePost(string $post_id): array
     {
-        if (empty($comment_id)) {
+        if (empty($post_id)) {
             $error = 'Facebook DELETE Post Message: Missing Post ID!';
 
             error_log($error);
@@ -247,7 +247,7 @@ class FB
             throw new FbException($error);
         }
 
-        $endpoint = '/' . $comment_id;
+        $endpoint = '/' . $post_id;
 
         $params = [];
 
