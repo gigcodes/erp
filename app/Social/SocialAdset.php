@@ -6,6 +6,7 @@ namespace App\Social;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use App\Models\SocialAdAccount;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,8 +14,24 @@ class SocialAdset extends Model
 {
     use Mediable;
 
+    protected $fillable = [
+        'config_id',
+        'ref_adset_id',
+        'name',
+        'campaign_id',
+        'destination_type',
+        'billing_event',
+        'start_time',
+        'end_time',
+        'daily_budget',
+        'bid_amount',
+        'status',
+        'live_status',
+        'created_at',
+    ];
+
     public function account()
     {
-        return $this->belongsTo(\App\Social\SocialConfig::class);
+        return $this->belongsTo(SocialAdAccount::class, 'config_id');
     }
 }

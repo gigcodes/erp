@@ -441,11 +441,11 @@ class FB
         return ['success' => true, 'campaigns' => $campaigns];
     }
 
-    public function createCampaign(string $ad_account_id, array $data): array
+    public function getAdsets(string $ad_account_id): array
     {
-        $endpoint = "/act_$ad_account_id/campaigns";
+        $campaigns = self::get("act_$ad_account_id/adsets?fields=bid_amount,name,campaign_id,objective,status,effective_status,created_time,lifetime_budget,billing_event,destination_type,start_time,end_time,daily_budget,id&limit=1000", true);
 
-        return self::post($data, $endpoint);
+        return ['success' => true, 'adsets' => $campaigns];
     }
 
     /**
@@ -460,6 +460,20 @@ class FB
         $ads = self::get("act_$ad_account_id/ads", true);
 
         return ['success' => true, 'ads' => $ads];
+    }
+
+    public function getCreatives(string|int $ad_account_id): array
+    {
+        $ads = self::get("act_$ad_account_id/adcreatives", true);
+
+        return ['success' => true, 'adcreatives' => $ads];
+    }
+
+    public function createCampaign(string $ad_account_id, array $data): array
+    {
+        $endpoint = "/act_$ad_account_id/campaigns";
+
+        return self::post($data, $endpoint);
     }
 
     /**
