@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Services\Facebook\FB;
 use Auth;
 use Crypt;
-use JanuSoftware\Facebook\Exception\SDKException;
 use Session;
 use Response;
 use App\Setting;
@@ -16,11 +14,13 @@ use Plank\Mediable\Media;
 use App\Social\SocialPost;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\Services\Facebook\FB;
 use App\Social\SocialPostLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Facebook\PostCreateRequest;
+use JanuSoftware\Facebook\Exception\SDKException;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SocialPostController extends Controller
@@ -67,7 +67,6 @@ class SocialPostController extends Controller
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
-    //@todo post approval need to be added
     public function approvepost(Request $request)
     {
     }
@@ -91,7 +90,7 @@ class SocialPostController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
-                'links' => (string)$posts->render(),
+                'links' => (string) $posts->render(),
             ], 200);
         }
 
@@ -111,12 +110,14 @@ class SocialPostController extends Controller
                 $fb = new FB($post->account->page_token);
                 $fb->deletePagePost($post->ref_post_id);
                 $post->delete();
+
                 return Response::json([
                     'success' => true,
                     'message' => 'Post deleted successfully',
                 ]);
             } else {
                 $post->delete();
+
                 return Response::json([
                     'success' => true,
                     'message' => 'Post deleted successfully',
@@ -225,16 +226,18 @@ class SocialPostController extends Controller
                     ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
                     ->toDisk('s3')->upload();
                 $post->attachMedia($media, config('constants.media_tags'));
-
                 $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to disk');
-
                 [$pageInfoParams, $response, $added_media] = $page_config->platform == 'facebook' ? $this->uploadMediaToFacebook($page_config, $media, $added_media, $post) : $this->uploadMediaToInstagram($page_config, $media, $added_media, $post);
             }
 
             $data['attached_media'] = $added_media;
+
+            $post->update(['media' => $added_media]);
         }
 
-        $response = $page_config->platform == 'facebook' ? $this->postToFacebook($page_config, $data) : $this->postToInstagram($page_config, $data);
+        $fb = new FB($page_config->page_token);
+
+        $response = $page_config->platform == 'facebook' ? $fb->addPagePost($page_config->page_id, $data) : $this->postToInstagram($page_config, $data);
 
         if (isset($response['data']['id'])) {
             $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Facebook post created');
@@ -348,19 +351,6 @@ class SocialPostController extends Controller
         $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to instagram');
 
         return [$pageInfoParams, $response, $added_media];
-    }
-
-    public function postToFacebook(SocialConfig $page_config, array $data): array
-    {
-        $pageInfoParams = [
-            'endpoint_path' => $page_config->page_id . '/feed',
-            'fields' => '',
-            'access_token' => $page_config->page_token,
-            'request_type' => 'POST',
-            'data' => $data,
-        ];
-
-        return getFacebookResults($pageInfoParams);
     }
 
     public function postToInstagram(SocialConfig $page_config, array $data)

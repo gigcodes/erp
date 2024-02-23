@@ -216,7 +216,7 @@ class FB
     public function deleteComment(string $comment_id): array
     {
         if (empty($comment_id)) {
-            $error = 'Instagram DELETE Comment Message: Missing Comment ID!';
+            $error = 'DELETE Comment Message: Missing Comment ID!';
 
             error_log($error);
 
@@ -252,6 +252,11 @@ class FB
         $params = [];
 
         return self::delete($params, $endpoint);
+    }
+
+    public function addPagePost(string $page_id, array $data)
+    {
+        return self::post($data, "/$page_id/feed");
     }
 
     /**
@@ -481,5 +486,38 @@ class FB
         $feed = self::get($account_id . '?fields=media{id,caption,like_count,comments_count,timestamp,media_product_type,media_type,owner,permalink,media_url,children{media_url}}&limit=1000000');
 
         return ['success' => true, 'posts' => $feed];
+    }
+
+    public function addPostComments(string $message, string $post_id): array
+    {
+        $endpoint = $post_id . '/comments';
+
+        // Check if we have recipient or content
+        if (empty($message) || empty($recipient_id)) {
+            $error = 'Facebook Comment Message: Missing message or post id!';
+
+            error_log($error);
+
+            throw new FbException($error);
+        }
+
+        $params = [
+            'message' => $message,
+        ];
+
+        return self::post($params, $endpoint);
+    }
+
+    public function getPostComments(string|int $post_id)
+    {
+        $endpoint = $post_id . '/comments?fields=from,message';
+
+        if (empty($message) || empty($recipient_id)) {
+            $error = 'Facebook Comment Message: Missing message or post id!';
+            error_log($error);
+            throw new FbException($error);
+        }
+
+        return self::get($endpoint);
     }
 }
