@@ -126,7 +126,7 @@
                     </td>
                     <td>
                         <button id="showReplyButton" class="btn btn-light" title="Show Reply"
-                                data-comment-id="{{ $value->comment_id }}"><i class="fa fa-eye" aria-hidden="true"></i>
+                                data-comment-id="{{ $value->id }}"><i class="fa fa-eye" aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>
@@ -200,7 +200,7 @@
                 appendData += `
                                 </td>
                                 <td style="white-space:nowrap">${element.user.name || ""}</td>
-                                <td style="white-space:nowrap">${element.time}</td>
+                                <td style="white-space:nowrap">${element.created_at}</td>
                             </tr> `;
                 $("#showReplyModal .modal-body .table-body").append(appendData);
 

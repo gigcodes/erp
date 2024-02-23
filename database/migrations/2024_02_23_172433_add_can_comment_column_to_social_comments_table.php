@@ -15,6 +15,7 @@ class AddCanCommentColumnToSocialCommentsTable extends Migration
     {
         Schema::table('social_comments', function (Blueprint $table) {
             $table->boolean('can_comment')->default(true);
+            $table->unsignedBigInteger('user_id')->nullable()->default(null)->change();
         });
     }
 

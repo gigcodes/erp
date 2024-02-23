@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialComments extends Model
@@ -22,4 +23,9 @@ class SocialComments extends Model
     protected $casts = [
         'can_comment' => 'boolean',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

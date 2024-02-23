@@ -145,8 +145,7 @@ class SocialAccountCommentController extends Controller
     public function replyComments(Request $request)
     {
         try {
-            $comments = BusinessComment::where('is_parent', 1)->where('parent_comment_id', $request->id)->latest()->get();
-
+            $comments = SocialComments::where('parent_id', $request->id)->with('user')->latest()->get();
             return response()->json(['comments' => $comments]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
