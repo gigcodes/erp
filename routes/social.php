@@ -111,7 +111,3 @@ Route::prefix('ad')->group(function () {
     Route::get('create', [SocialController::class, 'createAd'])->name('ad.create');
     Route::post('store', [SocialController::class, 'storeAd'])->name('ad.store');
 });
-
-Route::get('test',function (){
-
-});
