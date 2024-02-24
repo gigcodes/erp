@@ -34,4 +34,9 @@ class SocialAdset extends Model
     {
         return $this->belongsTo(SocialAdAccount::class, 'config_id');
     }
+
+    public function campaign()
+    {
+        return $this->belongsTo(SocialCampaign::class, 'campaign_id');
+    }
 }

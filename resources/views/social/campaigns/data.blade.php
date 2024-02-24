@@ -1,7 +1,7 @@
 @foreach ($campaigns as $campaign)
     <tr>
       <td>{{ \Carbon\Carbon::parse($campaign->created_at)->format('d-m-Y') }}</td>
-        <td>{{ isset($configs[$campaign->config_id])?$configs[$campaign->config_id]:'' }}</td>
+        <td>{{ $campaign->account->name }}</td>
         <td>@if(isset($campaign->account->storeWebsite)) {{ $campaign->account->storeWebsite->title }} @endif</td>
         <td>{{ $campaign->name }}</td>
 

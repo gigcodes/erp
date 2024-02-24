@@ -3,7 +3,7 @@
         <td>{{ \Carbon\Carbon::parse($adset->created_at)->format('d-m-Y') }}</td>
         <td>{{ $adset->account->name }}</td>
         <td>
-            {{--          {{ isset($campaingns[$adset->campaign_id])?$campaingns[$adset->campaign_id]:'' }}--}}
+            {{$adset->campaign->name}}
         </td>
         <td>@if(isset($adset->account->storeWebsite))
                 {{ $adset->account->storeWebsite->title }}

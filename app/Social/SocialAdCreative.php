@@ -24,6 +24,6 @@ class SocialAdCreative extends Model
 
     public function account()
     {
-        return $this->belongsTo(SocialAdAccount::class,'config_id');
+        return $this->belongsTo(SocialAdAccount::class, 'config_id');
     }
 }

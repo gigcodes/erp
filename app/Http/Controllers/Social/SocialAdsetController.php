@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Models\SocialAdAccount;
 use Crypt;
 use Session;
 use Response;
@@ -14,6 +13,8 @@ use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
 use App\Social\SocialPostLog;
+use App\Social\SocialCampaign;
+use App\Models\SocialAdAccount;
 use App\Http\Controllers\Controller;
 
 class SocialAdsetController extends Controller
@@ -35,14 +36,11 @@ class SocialAdsetController extends Controller
 
     public function index(Request $request)
     {
-
         $configs = SocialAdAccount::pluck('name', 'id');
-        $campaingns = \App\Social\SocialCampaign::pluck('name', 'id');
-
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            $adsets = SocialAdset::orderby('id', 'desc')->with('account.storeWebsite');
+            $adsets = SocialAdset::orderby('id', 'desc')->with('account.storeWebsite', 'campaign');
         } else {
-            $adsets = SocialAdset::latest()->with('account.storeWebsite');
+            $adsets = SocialAdset::latest()->with('account.storeWebsite', 'campaign');
         }
 
         if (! empty($request->date)) {
@@ -73,12 +71,12 @@ class SocialAdsetController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.adsets.data', compact('campaingns', 'adsets', 'configs'))->render(),
+                'tbody' => view('social.adsets.data', compact('adsets', 'configs'))->render(),
                 'links' => (string) $adsets->render(),
             ], 200);
         }
 
-        return view('social.adsets.index', compact('campaingns', 'adsets', 'configs'));
+        return view('social.adsets.index', compact( 'adsets', 'configs'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -103,7 +101,7 @@ class SocialAdsetController extends Controller
     public function create()
     {
         $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        $campaingns = \App\Social\SocialCampaign::where('ref_campaign_id', '!=', '')->get();
+        $campaingns = SocialCampaign::where('ref_campaign_id', '!=', '')->get();
 
         return view('social.adsets.create', compact('configs', 'campaingns'));
     }

@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <div class="row" id="common-page-layout">
-       
+
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  Ads ({{ $ads->total() }})<span class="count-text"></span></h2>
             <div class="pull-right mr-4">
@@ -34,10 +34,7 @@
                     <div class="form-group mr-2">
                         <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
                             @foreach($ads_data as $ads_config)
-                                @php
-                                    $config_name = App\Social\SocialConfig::where('id',$ads_config->config_id)->first();
-                                @endphp
-                                <option value="{{$ads_config->id}}" {{ isset($_GET['config_name']) && in_array($ads_config->id,$_GET['config_name']) ? 'selected' : '' }}>{{$ads_config->name}}</option>
+                                <option value="{{$ads_config->account->id}}" {{ isset($_GET['config_name']) && in_array($ads_config->account->id,$_GET['config_name']) ? 'selected' : '' }}>{{$ads_config->account->name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -52,7 +49,6 @@
                         <button type="submit" class="btn btn-image3 btn-sm text-dark">
                             <i class="fa fa-filter"></i>
                         </button>
-                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
                     </div>
                 </form>
             </div>
@@ -63,7 +59,7 @@
         <div class="row ml-4 mb-2">
             @include("social.header_menu")
         </div>
-            
+
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
                 <p>{{ $message }}</p>
@@ -91,7 +87,6 @@
                             <th style="width:7%"> Name</th>
                             <th style="width:7%">Config Name</th>
                             <th style="width:7%">Website</th>
-
                             <th style="width:7%">Adset Name</th>
                             <!-- <th style="width:10%">Image</th> -->
                             <th style="width:17%">Creation Name</th>
@@ -108,14 +103,14 @@
             </div>
         </div>
     </div>
-    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
               50% 50% no-repeat;display:none;">
     </div>
     @include("social.ads.history")
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">
-                    
+
             </div>
         </div>
     </div>
@@ -163,7 +158,7 @@
        });
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
-            
+
             var $action_url = "{{ route('social.ad.create') }}";
             jQuery.ajax({
 
@@ -211,7 +206,7 @@
                                 console.log("come toadsets adsets ");
                                 console.log(result.message.adsets.data);
                                 $.each(result.message.adsets.data,function(key,value){
-                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
                                 });
                             }
                             $('#adset_id').html(html);
@@ -220,11 +215,11 @@
                                 console.log("come toadsets adcreatives ");
                                 console.log(result.message.adcreatives.data);
                                 $.each(result.message.adcreatives.data,function(key,value){
-                                    c_html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                    c_html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
                                 });
                             }
                             $('#adcreative_id').html(c_html);
-                            
+
                         }else{
                             $("#loading-image").hide();
                             alert("token Expired");

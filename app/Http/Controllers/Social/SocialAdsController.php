@@ -12,6 +12,7 @@ use App\Social\SocialAd;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use App\Social\SocialPostLog;
+use App\Models\SocialAdAccount;
 use App\Http\Controllers\Controller;
 
 class SocialAdsController extends Controller
@@ -25,10 +26,6 @@ class SocialAdsController extends Controller
 
     private $user_access_token;
 
-    private $page_access_token;
-
-    private $page_id;
-
     private $ad_acc_id;
 
     public function index(Request $request)
@@ -36,13 +33,12 @@ class SocialAdsController extends Controller
         $ads_data = SocialAd::orderby('id', 'desc');
         $ads_data = $ads_data->get();
 
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
-        $adsets = \App\Social\SocialAdset::pluck('name', 'ref_adset_id')->where('ref_adset_id', '!=', '');
+        $configs = SocialAdAccount::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            $ads = SocialAd::orderby('id', 'desc');
+             $ads = SocialAd::orderby('id', 'desc')->with('account.storeWebsite', 'adset', 'creative');
         } else {
-            $ads = SocialAd::latest();
+            $ads = SocialAd::latest()->with('account.storeWebsite', 'adset', 'creative');
         }
 
         if (! empty($request->date)) {
@@ -63,16 +59,14 @@ class SocialAdsController extends Controller
 
         $ads = $ads->paginate(Setting::get('pagination'));
 
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
-
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('social.ads.data', compact('ads', 'configs', 'adsets', 'ads_data'))->render(),
+                'tbody' => view('social.ads.data', compact('ads', 'configs', 'ads_data'))->render(),
                 'links' => (string) $ads->render(),
-            ], 200);
+            ]);
         }
 
-        return view('social.ads.index', compact('ads', 'configs', 'adsets', 'ads_data'));
+        return view('social.ads.index', compact('ads', 'configs', 'ads_data'));
     }
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
@@ -96,7 +90,7 @@ class SocialAdsController extends Controller
      */
     public function create()
     {
-        $configs = \App\Social\SocialConfig::pluck('name', 'id');
+        $configs = SocialConfig::pluck('name', 'id');
 
         return view('social.ads.create', compact('configs'));
     }
@@ -294,7 +288,7 @@ class SocialAdsController extends Controller
 
     public function getpost(Request $request)
     {
-        $config = \App\Social\SocialConfig::find($request->id);
+        $config = SocialConfig::find($request->id);
         $postData = $this->getPostData($config);
 
         return response()->json($postData);

@@ -80,6 +80,7 @@ class SyncFacebookCampaign extends Command
                                 SocialAdCreative::updateOrCreate([
                                     'ref_adcreative_id' => $adcreative['id'],
                                 ], [
+                                    'name' => $adcreative['title'] ?? $adcreative['name'],
                                     'config_id' => $account->id,
                                     'object_story_title' => $adcreative['title'] ?? null,
                                     'object_story_id' => $adcreative['object_story_id'] ?? null,
