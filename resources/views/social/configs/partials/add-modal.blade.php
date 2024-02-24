@@ -41,14 +41,14 @@
                     </div>
                     <div class="form-group">
                         <label for="">Choose Ads Manager Account</label>
-                        <select class="form-control" name="ads_manager" id="adset_id">
+                        <select class="form-control" name="ad_account_id" id="adset_id">
                             <option value="">Select Ads Manager</option>
                             @foreach($ad_accounts as $ad_account)
                                 <option value="{{ $ad_account['id'] }}">{{ $ad_account['name'] }}</option>
                             @endforeach
                         </select>
-                        @if ($errors->has('adset_id'))
-                            <p class="text-danger">{{$errors->first('adset_id')}}</p>
+                        @if ($errors->has('ad_account_id'))
+                            <p class="text-danger">{{$errors->first('ad_account_id')}}</p>
                         @endif
                     </div>
 

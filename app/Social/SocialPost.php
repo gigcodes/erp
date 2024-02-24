@@ -8,6 +8,7 @@ namespace App\Social;
 
 use Plank\Mediable\Mediable;
 use App\Models\SocialComments;
+use App\Models\SocialAdAccount;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

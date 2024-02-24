@@ -31,6 +31,7 @@ class EditRequest extends FormRequest
             'page_id' => 'required',
             'page_token' => 'required',
             'webhook_token' => 'required',
+            'ad_account_id' => 'nullable|exists:social_ad_accounts,id',
         ];
     }
 }

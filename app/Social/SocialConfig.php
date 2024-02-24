@@ -2,6 +2,7 @@
 
 namespace App\Social;
 
+use App\Models\SocialAdAccount;
 use App\StoreWebsite;
 use App\SocialContact;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SocialConfig extends Model
 {
     protected $fillable = [
-        'store_website_id', 'page_language', 'platform', 'name', 'email', 'password', 'api_key', 'api_secret', 'token', 'status', 'page_id', 'page_token', 'account_id', 'webhook_token', 'ads_manager',
+        'store_website_id',
+        'page_language',
+        'platform',
+        'name',
+        'email',
+        'password',
+        'api_key',
+        'api_secret',
+        'token',
+        'status',
+        'page_id',
+        'page_token',
+        'account_id',
+        'webhook_token',
+        'ads_manager',
+        'ad_account_id',
     ];
 
     public function storeWebsite(): HasOne
@@ -46,5 +62,10 @@ class SocialConfig extends Model
     public function contacts(): HasMany
     {
         return $this->hasMany(SocialContact::class, 'social_config_id');
+    }
+
+    public function ad_account(): BelongsTo
+    {
+        return $this->belongsTo(SocialAdAccount::class, 'ad_account_id');
     }
 }

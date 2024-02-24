@@ -32,6 +32,7 @@ class StoreRequest extends FormRequest
             'account_id' => 'required',
             'page_token' => 'required',
             'webhook_token' => 'nullable',
+            'ad_account_id' => 'nullable|exists:social_ad_accounts,id',
         ];
     }
 }
