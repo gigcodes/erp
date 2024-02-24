@@ -93,21 +93,23 @@ class SyncFacebookCampaign extends Command
             }
 
             foreach ($results['campaigns'] as $campaign) {
-                foreach ($campaign['adsets'] as $adset) {
-                    if (isset($adset['ads'])) {
-                        foreach ($adset['ads'] as $ad) {
-                            $creative = SocialAdCreative::where('ref_adcreative_id', $ad['creative']['id'])->select('id')->first()->toArray();
-                            SocialAd::updateOrCreate(['ref_ads_id' => $ad['id']], [
-                                'adset_id' => $ads->id,
-                                'config_id' => $account->id,
-                                'name' => $ad['name'],
-                                'creative_id' => $creative['id'],
-                                'ad_set_name' => $adset['name'],
-                                'ad_creative_name' => $ad['creative']['name'],
-                                'status' => $ad['status'],
-                                'live_status' => $ad['effective_status'],
-                                'created_at' => Carbon::parse($ad['created_time']),
-                            ]);
+                if (isset($campaign['adsets'])) {
+                    foreach ($campaign['adsets'] as $adset) {
+                        if (isset($adset['ads'])) {
+                            foreach ($adset['ads'] as $ad) {
+                                $creative = SocialAdCreative::where('ref_adcreative_id', $ad['creative']['id'])->select('id')->first()->toArray();
+                                SocialAd::updateOrCreate(['ref_ads_id' => $ad['id']], [
+                                    'adset_id' => $ads->id,
+                                    'config_id' => $account->id,
+                                    'name' => $ad['name'],
+                                    'creative_id' => $creative['id'],
+                                    'ad_set_name' => $adset['name'],
+                                    'ad_creative_name' => $ad['creative']['name'],
+                                    'status' => $ad['status'],
+                                    'live_status' => $ad['effective_status'],
+                                    'created_at' => Carbon::parse($ad['created_time']),
+                                ]);
+                            }
                         }
                     }
                 }

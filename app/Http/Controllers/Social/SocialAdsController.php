@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Social;
 
+use App\Social\SocialAdCreative;
+use App\Social\SocialAdset;
 use Crypt;
 use Session;
 use Response;
@@ -36,24 +38,24 @@ class SocialAdsController extends Controller
         $configs = SocialAdAccount::pluck('name', 'id');
 
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-             $ads = SocialAd::orderby('id', 'desc')->with('account.storeWebsite', 'adset', 'creative');
+            $ads = SocialAd::orderby('id', 'desc')->with('account.storeWebsite', 'adset', 'creative');
         } else {
             $ads = SocialAd::latest()->with('account.storeWebsite', 'adset', 'creative');
         }
 
-        if (! empty($request->date)) {
+        if (!empty($request->date)) {
             $ads->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if (! empty($request->name)) {
+        if (!empty($request->name)) {
             $ads->where('name', 'LIKE', '%' . $request->name . '%');
         }
 
-        if (! empty($request->config_name)) {
+        if (!empty($request->config_name)) {
             $ads->whereIn('config_id', $request->config_name);
         }
 
-        if (! empty($request->adset_name)) {
+        if (!empty($request->adset_name)) {
             $ads->whereIn('ad_set_name', $request->adset_name);
         }
 
@@ -62,7 +64,7 @@ class SocialAdsController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.ads.data', compact('ads', 'configs', 'ads_data'))->render(),
-                'links' => (string) $ads->render(),
+                'links' => (string)$ads->render(),
             ]);
         }
 
@@ -86,11 +88,11 @@ class SocialAdsController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
      */
     public function create()
     {
-        $configs = SocialConfig::pluck('name', 'id');
+        $configs = SocialAdAccount::pluck('name', 'id');
 
         return view('social.ads.create', compact('configs'));
     }
@@ -216,20 +218,9 @@ class SocialAdsController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\SocialAd  $SocialAd
-     * @return \Illuminate\Http\Response
-     */
-    public function show(SocialAd $SocialAd)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SocialAd  $SocialAd
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -252,20 +243,9 @@ class SocialAdsController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\SocialAd  $SocialAd
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, SocialAd $SocialAd)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SocialAd  $SocialAd
+     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request)
@@ -288,42 +268,15 @@ class SocialAdsController extends Controller
 
     public function getpost(Request $request)
     {
-        $config = SocialConfig::find($request->id);
-        $postData = $this->getPostData($config);
+        $postData = SocialConfig::where('ad_account_id', $request->id)->with('posts')->first()->toArray();
 
-        return response()->json($postData);
+        return response()->json($postData['posts']);
     }
 
-    public function getPostData($config)
+    public function getAdsets(Request $request)
     {
-        $token = $config->token;
-        $this->fb = new Facebook([
-            'app_id' => $config->api_key,
-            'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v15.0',
-        ]);
-
-        $this->ad_acc_id = $config->ads_manager;
-
-        $url = "https://graph.facebook.com/v15.0/$this->ad_acc_id?fields=adsets{name,id},adcreatives{id,name}&limit=100&access_token=$token";
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $resp = json_decode($resp, true); //response decoded
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'getPostData');
-        if (isset($resp['error'])) {
-            return ['type' => 'error', 'message' => $resp['error']['message']];
-        } else {
-            return ['type' => 'success', 'message' => $resp];
-        }
+        $adsets = SocialAdset::where('config_id', $request->id)->get()->toArray();
+        $adCreatives = SocialAdCreative::where('config_id', $request->id)->get()->toArray();
+        return response()->json(['adsets' => $adsets, 'adcreatives' => $adCreatives]);
     }
 }

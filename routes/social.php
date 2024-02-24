@@ -84,9 +84,10 @@ Route::prefix('ads')->group(function () {
     Route::post('store', [SocialAdsController::class, 'store'])->name('ad.store');
     Route::post('edit', [SocialAdsController::class, 'edit'])->name('ad.edit');
     Route::post('delete', [SocialAdsController::class, 'destroy'])->name('ad.delete');
-    Route::get('create', [SocialAdsController::class, 'create'])->name('ad.create');
+    Route::get('create', [SocialAdsController::class, 'create'])->name('ads.create');
     Route::post('history', [SocialAdsController::class, 'history'])->name('ad.history');
     Route::get('getconfigPost', [SocialAdsController::class, 'getpost'])->name('ad.getpost');
+    Route::get('getAdsets', [SocialAdsController::class, 'getAdsets'])->name('ad.getAdsets');
 });
 
 Route::prefix('ad')->group(function () {
