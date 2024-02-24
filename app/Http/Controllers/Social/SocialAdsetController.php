@@ -13,17 +13,16 @@ use App\Social\SocialPostLog;
 use App\Social\SocialCampaign;
 use App\Models\SocialAdAccount;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\View;
 use JanuSoftware\Facebook\Exception\SDKException;
 
 class SocialAdsetController extends Controller
 {
-    /**2
+    /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse | View
      */
-    private $user_access_token;
-
     public function index(Request $request)
     {
         $configs = SocialAdAccount::pluck('name', 'id');
@@ -86,7 +85,7 @@ class SocialAdsetController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -147,48 +146,40 @@ class SocialAdsetController extends Controller
         $config = SocialAdAccount::find($adset->config_id);
         $page_id = $config->page_id;
         $fb = new FB($config->page_token);
-        $this->user_access_token = $config->token;
         $this->socialPostLog($config->id, $adset->id, $config->platform, 'message', 'get page access token');
 
-        if ($config->ad_account_id != '') {
-            try {
-                $data['access_token'] = $this->user_access_token;
-                $data['name'] = $request->input('name');
-                $data['campaign_id'] = $adset->campaign->ref_campaign_id;
-                $data['billing_event'] = $request->input('billing_event');
-                $data['bid_amount'] = 100;
+        try {
+            $data['name'] = $request->input('name');
+            $data['campaign_id'] = $adset->campaign->ref_campaign_id;
+            $data['billing_event'] = $request->input('billing_event');
+            $data['bid_amount'] = 100;
 
-                $data['OPTIMIZATION_GOAL'] = 'REACH';
-                $data['targeting'] = json_encode(['geo_locations' => ['countries' => ['US']]]);
-                if ($request->has('daily_budget')) {
-                    $data['daily_budget'] = (int) $request->input('daily_budget');
-                }
-                $data['bid_amount'] = $request->input('bid_amount');
-                $data['daily_budget'] = $request->input('daily_budget');
-                $data['status'] = $request->input('status');
-                $data['promoted_object'] = json_encode(['page_id' => $page_id]);
-
-                $response = $fb->createAdsets($config->ad_account_id, $data);
-
-                $this->socialPostLog($config->id, $adset->id, $config->platform, 'response->create adset', $response);
-                $adset->update([
-                    'live_status' => 'ACTIVE',
-                    'status' => 'ACTIVE',
-                ]);
-                Session::flash('message', 'adset created  successfully');
-
-                return redirect()->route('social.adset.index');
-            } catch (\Exception $e) {
-                $this->socialPostLog($config->id, $adset->id, $config->platform, 'error', $e);
-                Session::flash('message', 'Unable to create adset');
-
-                return redirect()->route('social.adset.index');
+            $data['OPTIMIZATION_GOAL'] = 'REACH';
+            $data['targeting'] = json_encode(['geo_locations' => ['countries' => ['US']]]);
+            if ($request->has('daily_budget')) {
+                $data['daily_budget'] = (int) $request->input('daily_budget');
             }
-        } else {
+            $data['bid_amount'] = $request->input('bid_amount');
+            $data['daily_budget'] = $request->input('daily_budget');
+            $data['status'] = $request->input('status');
+            $data['promoted_object'] = json_encode(['page_id' => $page_id]);
+
+            $response = $fb->createAdsets($config->ad_account_id, $data);
+
+            $this->socialPostLog($config->id, $adset->id, $config->platform, 'response->create adset', $response);
+            $adset->update([
+                'live_status' => 'ACTIVE',
+                'status' => 'ACTIVE',
+            ]);
+            Session::flash('message', 'adset created  successfully');
+
+            return redirect()->route('social.adset.index');
+        } catch (\Exception $e) {
             $adset->update([
                 'live_status' => 'ERROR',
             ]);
-            Session::flash('message', 'problem in getting ad account or token');
+            $this->socialPostLog($config->id, $adset->id, $config->platform, 'error', $e);
+            Session::flash('message', 'Unable to create adset');
 
             return redirect()->route('social.adset.index');
         }
@@ -222,8 +213,7 @@ class SocialAdsetController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SocialAdset  $SocialAdset
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request)
     {
