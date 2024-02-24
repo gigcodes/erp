@@ -479,6 +479,13 @@ class FB
         return ['success' => true, 'adcreatives' => $ads];
     }
 
+    public function createAdCreatives(string $ad_account_id, array $data): array
+    {
+        $endpoint = "/act_$ad_account_id/adcreatives";
+
+        return self::post($data, $endpoint);
+    }
+
     public function createCampaign(string $ad_account_id, array $data): array
     {
         $endpoint = "/act_$ad_account_id/campaigns";
