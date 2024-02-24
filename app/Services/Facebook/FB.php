@@ -451,6 +451,13 @@ class FB
         return ['success' => true, 'adsets' => $campaigns];
     }
 
+    public function createAdsets(string $ad_account_id, array $data): array
+    {
+        $endpoint = "/act_$ad_account_id/adsets";
+
+        return self::post($data, $endpoint);
+    }
+
     /**
      * Ads based on the ad account id API
      * FB get /act_{ad_account_id}/ads
