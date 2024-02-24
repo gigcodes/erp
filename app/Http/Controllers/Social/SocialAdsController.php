@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Social\SocialAdCreative;
-use App\Social\SocialAdset;
 use Crypt;
+use Illuminate\Http\RedirectResponse;
 use Session;
 use Response;
 use App\Setting;
-use App\LogRequest;
-use Facebook\Facebook;
 use App\Social\SocialAd;
+use Illuminate\View\View;
+use App\Social\SocialAdset;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\Services\Facebook\FB;
 use App\Social\SocialPostLog;
 use App\Models\SocialAdAccount;
+use App\Social\SocialAdCreative;
 use App\Http\Controllers\Controller;
+use JanuSoftware\Facebook\Exception\SDKException;
 
 class SocialAdsController extends Controller
 {
-    /**2
+    /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|View
      */
-    private $fb;
-
-    private $user_access_token;
-
-    private $ad_acc_id;
-
     public function index(Request $request)
     {
         $ads_data = SocialAd::orderby('id', 'desc');
@@ -43,19 +39,19 @@ class SocialAdsController extends Controller
             $ads = SocialAd::latest()->with('account.storeWebsite', 'adset', 'creative');
         }
 
-        if (!empty($request->date)) {
+        if (! empty($request->date)) {
             $ads->where('created_at', 'LIKE', '%' . $request->date . '%');
         }
 
-        if (!empty($request->name)) {
+        if (! empty($request->name)) {
             $ads->where('name', 'LIKE', '%' . $request->name . '%');
         }
 
-        if (!empty($request->config_name)) {
+        if (! empty($request->config_name)) {
             $ads->whereIn('config_id', $request->config_name);
         }
 
-        if (!empty($request->adset_name)) {
+        if (! empty($request->adset_name)) {
             $ads->whereIn('ad_set_name', $request->adset_name);
         }
 
@@ -64,7 +60,7 @@ class SocialAdsController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.ads.data', compact('ads', 'configs', 'ads_data'))->render(),
-                'links' => (string)$ads->render(),
+                'links' => (string) $ads->render(),
             ]);
         }
 
@@ -88,7 +84,7 @@ class SocialAdsController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -100,118 +96,44 @@ class SocialAdsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse
+     *
+     * @throws SDKException
      */
     public function store(Request $request)
     {
-        $post = new SocialAd;
-        $post->config_id = $request->config_id;
-        $post->name = $request->name;
-        $post->adset_id = $request->adset_id;
-        $post->creative_id = $request->adcreative_id;
-        $post->status = $request->status;
-        $post->ad_creative_name = $request->ad_creative_name;
-        $post->ad_set_name = $request->ad_set_name;
-        $post->save();
-
+        $ad = SocialAd::create([
+            'config_id' => $request->config_id,
+            'name' => $request->name,
+            'adset_id' => $request->adset_id,
+            'creative_id' => $request->adcreative_id,
+            'status' => $request->status,
+            'ad_creative_name' => $request->ad_creative_name,
+            'ad_set_name' => $request->ad_set_name,
+        ]);
         $data['name'] = $request->input('name');
         $data['adset_id'] = $request->input('adset_id');
         $data['status'] = $request->input('status');
         $data['creative'] = json_encode(['creative_id' => $request->input('adcreative_id')]);
 
-        $config = SocialConfig::find($post->config_id);
+        $config = SocialAdAccount::find($ad->config_id);
+        $fb = new FB($config->page_token);
+        $this->socialPostLog($config->id, $ad->id, $config->platform, 'message', 'get page access token');
+        try {
+            $fb->createAd($config->ad_account_id, $data);
+            $ad->update([
+                'live_status' => 'SUCCESS',
+            ]);
 
-        $this->fb = new Facebook([
-            'app_id' => $config->api_key,
-            'app_secret' => $config->api_secret,
-            'default_graph_version' => 'v15.0',
-        ]);
-        $this->user_access_token = $config->token;
-        $this->ad_acc_id = $config->ads_manager;
+            Session::flash('message', 'Campaign created  successfully');
 
-        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-
-        if ($this->ad_acc_id != '') {
-            if ($config->platform == 'facebook') {
-                try {
-                    $data['access_token'] = $this->user_access_token;
-                    // $url = 'https://graph.facebook.com/v15.0/act_723851186073937/ads';
-                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/ads';
-
-                    // Call to Graph api here
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_AUTOREFERER, true);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-
-                    $resp = curl_exec($curl);
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
-                    $resp = json_decode($resp); //response deocded
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    curl_close($curl);
-
-                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
-
-                    if (isset($resp->error->message)) {
-                        $post->live_status = 'error';
-                        $post->save();
-                        Session::flash('message', $resp->error->message);
-                    } else {
-                        $post->live_status = 'sucess';
-                        $post->save();
-                        Session::flash('message', 'Campaign created  successfully');
-                    }
-
-                    return redirect()->route('social.ad.index');
-                } catch (Exception $e) {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
-                    Session::flash('message', $e);
-
-                    return redirect()->route('social.ad.index');
-                }
-            } else {
-                try {
-                    $data['access_token'] = $this->user_access_token;
-                    $url = 'https://graph.facebook.com/v15.0/' . $this->ad_acc_id . '/ads';
-
-                    // Call to Graph api here
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_AUTOREFERER, true);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-
-                    $resp = curl_exec($curl);
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'response->create ad', $resp);
-                    $resp = json_decode($resp); //responsee deocded
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    curl_close($curl);
-                    LogRequest::log($startTime, $url, 'POST', json_encode($data), $resp, $httpcode, \App\Http\Controllers\SocialAdsController::class, 'store');
-
-                    if (isset($resp->error->message)) {
-                        Session::flash('message', $resp->error->message);
-                    } else {
-                        Session::flash('message', 'Campaign created  successfully');
-                    }
-
-                    return redirect()->route('social.ad.index');
-                } catch (Exception $e) {
-                    $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
-                    Session::flash('message', $e);
-
-                    return redirect()->route('social.ad.index');
-                }
-            }
-        } else {
-            Session::flash('message', 'problem in getting ad account or token');
+            return redirect()->route('social.ad.index');
+        } catch (\Exception $e) {
+            $ad->update([
+                'status' => 'ERROR',
+            ]);
+            $this->socialPostLog($config->id, $ad->id, $config->platform, 'error', $e);
+            Session::flash('message', $e);
 
             return redirect()->route('social.ad.index');
         }
@@ -220,7 +142,6 @@ class SocialAdsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -245,7 +166,6 @@ class SocialAdsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\SocialAd $SocialAd
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request)
@@ -277,6 +197,7 @@ class SocialAdsController extends Controller
     {
         $adsets = SocialAdset::where('config_id', $request->id)->get()->toArray();
         $adCreatives = SocialAdCreative::where('config_id', $request->id)->get()->toArray();
+
         return response()->json(['adsets' => $adsets, 'adcreatives' => $adCreatives]);
     }
 }
