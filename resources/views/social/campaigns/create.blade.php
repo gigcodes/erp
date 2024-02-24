@@ -1,6 +1,6 @@
     <form  id="create-form" action="{{ route('social.campaign.store') }}" method="post" enctype="multipart/form-data">
         @csrf
-       
+
         <div class="modal-header">
             <h4 class="modal-title">Create Campaign</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -39,9 +39,15 @@
                             <option value="OFFER_CLAIMS">OFFER CLAIMS</option>
                             <option value="PAGE_LIKES">PAGE LIKES</option>
                             <option value="POST_ENGAGEMENT">POST ENGAGEMENT</option>
-                            <option value="PRODUCT_CATALOG_SALES">PRODUCT CATALOG SALES</option> 
-                            <option value="REACH">REACH</option> 
-                            <option value="VIDEO_VIEWS">VIDEO VIEWS</option> 
+                            <option value="PRODUCT_CATALOG_SALES">PRODUCT CATALOG SALES</option>
+                            <option value="OUTCOME_APP_PROMOTION">OUTCOME APP PROMOTION</option>
+                            <option value="OUTCOME_AWARENESS">OUTCOME AWARENESS</option>
+                            <option value="OUTCOME_ENGAGEMENT">OUTCOME ENGAGEMENT</option>
+                            <option value="OUTCOME_LEADS">OUTCOME LEADS</option>
+                            <option value="OUTCOME_SALES">OUTCOME SALES</option>
+                            <option value="OUTCOME_TRAFFIC">OUTCOME TRAFFIC</option>
+                            <option value="REACH">REACH</option>
+                            <option value="VIDEO_VIEWS">VIDEO VIEWS</option>
                         </select>
 
                         @if ($errors->has('objective'))
@@ -67,7 +73,7 @@
                         <p class="text-danger">{{$errors->first('daily_budget')}}</p>
                         @endif
                     </div>
-                
+
                     <div class="form-group">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="status" id="inlineRadio1" value="ACTIVE">

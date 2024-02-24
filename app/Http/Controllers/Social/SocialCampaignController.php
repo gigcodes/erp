@@ -103,7 +103,7 @@ class SocialCampaignController extends Controller
      */
     public function store(Request $request)
     {
-        $post = SocialConfig::create([
+        $post = SocialCampaign::create([
             'config_id' => $request->config_id,
             'name' => $request->name,
             'objective_name' => $request->objective,
@@ -115,18 +115,17 @@ class SocialCampaignController extends Controller
         $data['name'] = $request->input('name');
         $data['objective'] = $request->input('objective');
         $data['status'] = $request->input('status');
-        $data['special_ad_categories '] = ['NONE'];
+        $data['special_ad_categories'] = json_encode([]);
 
         if ($request->has('buying_type')) {
             $data['buying_type'] = $request->input('buying_type');
         } else {
             $data['buying_type'] = 'AUCTION';
         }
-        $data['special_ad_categories'] = [];
-        $config = SocialAdAccount::find($post->config_id);
+        $config = SocialAdAccount::find($request->config_id);
 
         $fb = new FB($config->page_token);
-        $this->socialPostLog($config->id, $post->id, 'facebook', 'message', 'get page access token');
+        $this->socialPostLog($config->id, '', 'facebook', 'message', 'get page access token');
         try {
             $response = $fb->createCampaign($config->ad_account_id, $data);
             $post->live_status = 'sucess';
