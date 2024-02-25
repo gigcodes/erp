@@ -4936,6 +4936,7 @@ class DevelopmentController extends Controller
     public function getScrapperLogsByTaskId($id)
     {
         $data = \App\Models\ScrapperLogs::with('user')->where('task_id', $id)->get();
+
         return response()->json(['code' => 200, 'data' => $data]);
     }
 
