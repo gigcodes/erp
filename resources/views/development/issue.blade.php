@@ -316,6 +316,7 @@
     @include("development.actions-update-modal")
     @include("development.partials.time-history-modal")
     @include('global_componants.files_and_attachments.files_and_attachments', ['module' => 'development_list'])
+    @include("development.partials.show-scrapper-logs-modal")
 
 @endsection
 @section('scripts')
@@ -2104,6 +2105,37 @@
         });
         $("#timer_tracked_modal").modal("show");
       });
+
+      $(document).on("click", ".show-scrapper-logs", function () {
+        var id = $(this).data("id");
+        var url = "{{ route('development.get-scrapper-logs-by-task', ['id' => ':id']) }}";
+        url = url.replace(':id', id);
+
+        $.ajax({
+            method: "GET",
+            url: url,
+            dataType: "json",
+            success: function (response) {
+                if (response.code == 200) {
+                    $('#showScrapperLogsModal table tbody').html('');
+
+                    $.each(response.data, function(i, item) {
+                        $('#showScrapperLogsModal table tbody').append(
+                            `<tr>
+                                <td>${ moment(item['created_at']).format('DD-MM-YYYY HH:mm:ss') }</td>
+                                <td>${ item.log }</td>
+                                <td>${ item.user.name }</td>
+                            </tr>`
+                        );
+                    });
+
+                    $("#showScrapperLogsModal").modal("show");
+                } else {
+                    toastr["error"]('Something went wrong', "Message");
+                }
+            }
+        });
+    });
     </script>
 @endsection
 @push('scripts')

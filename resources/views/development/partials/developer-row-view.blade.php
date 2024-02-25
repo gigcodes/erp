@@ -525,6 +525,9 @@
                                 data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                         </button>
+
+                        @include('development.partials.show-scrapper-logs-btn')
+
                         <button style="padding-left: 0;padding-left:3px;" type="button"
                                 class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}"
                                 title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i
@@ -1011,6 +1014,9 @@
                             data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
+
+                    @include('development.partials.show-scrapper-logs-btn')
+
                     <button style="padding-left: 0;padding-left:3px;" type="button"
                             class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}"
                             title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i
@@ -1489,6 +1495,9 @@
                         data-assigned_to="{{$issue->assigned_to}}">
                     <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
+
+                @include('development.partials.show-scrapper-logs-btn')
+
                 <button style="padding-left: 0;padding-left:3px;" type="button"
                         class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}"
                         title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i

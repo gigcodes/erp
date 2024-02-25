@@ -4908,6 +4908,14 @@ class DevelopmentController extends Controller
             $column->added_by = auth()->user()->id;
             $column->save();
 
+            \App\Models\ScrapperLogs::create([
+                'scrapper_id' => $column->id,
+                'task_id' => $request->task_id,
+                'task_type' => $request->task_type,
+                'log' => 'Scrapper Added',
+                'created_by' => auth()->user()->id,
+            ]);
+
             return response()->json(
                 [
                     'code' => 200,
@@ -4923,6 +4931,12 @@ class DevelopmentController extends Controller
                 ]
             );
         }
+    }
+
+    public function getScrapperLogsByTaskId($id)
+    {
+        $data = \App\Models\ScrapperLogs::with('user')->where('task_id', $id)->get();
+        return response()->json(['code' => 200, 'data' => $data]);
     }
 
     public function taskScrapper($task_id)
