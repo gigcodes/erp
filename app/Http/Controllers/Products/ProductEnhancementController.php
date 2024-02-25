@@ -6,7 +6,6 @@ use File;
 use App\Product;
 use App\Helpers\QueryHelper;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\Http\Controllers\Controller;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
@@ -53,7 +52,7 @@ class ProductEnhancementController extends Controller
 
         // Loop over images to get image URLs
         foreach ($productImages as $image) {
-            $productImageUrls[] = CommonHelper::getMediaUrl($image);
+            $productImageUrls[] = getMediaUrl($image);
         }
 
         // Set status to being enhanced

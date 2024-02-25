@@ -95,7 +95,7 @@
 <div class="row">
   @foreach ($images as $image)
   <div class="col-md-3 col-xs-6 text-center mb-5">
-    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive grid-image" alt="" />
+    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}" class="img-responsive grid-image" alt="" />
     <input type="checkbox" class="form-control image-selection" value="{{ $image->id }}" style="display: none;">
     <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="/images/view.png" /></a>
 

@@ -36,7 +36,6 @@ use App\UserEvent\UserEvent;
 use App\WhatsAppGroupNumber;
 use Illuminate\Http\Request;
 use App\DeveloperTaskHistory;
-use App\Helpers\CommonHelper;
 use App\ChatMessagesQuickData;
 use App\Helpers\HubstaffTrait;
 use App\Helpers\MessageHelper;
@@ -3358,7 +3357,7 @@ class TaskModuleController extends Controller
                         'xpm',
                         'xwd',
                     ];
-                    $explodeImage = explode('.', CommonHelper::getMediaUrl($media));
+                    $explodeImage = explode('.', getMediaUrl($media));
                     $extension = end($explodeImage);
 
                     if (in_array($extension, $imageExtensions)) {
@@ -3377,7 +3376,7 @@ class TaskModuleController extends Controller
                     $records[] = [
                         'media_id' => $id,
                         'id' => $media->id,
-                        'url' => CommonHelper::getMediaUrl($media),
+                        'url' => getMediaUrl($media),
                         'task_id' => $task->id,
                         'isImage' => $isImage,
                         'userList' => $userList,
@@ -3412,7 +3411,7 @@ class TaskModuleController extends Controller
         $admin = Auth::user();
 
         $userid = Auth::id();
-        $msg = CommonHelper::getMediaUrl($media);
+        $msg = getMediaUrl($media);
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
                 $params = ChatMessage::create(
@@ -3425,7 +3424,7 @@ class TaskModuleController extends Controller
 
                         'erp_user' => $task->assign_to,
                         'contact_id' => $task->assign_to,
-                        'message' => CommonHelper::getMediaUrl($media),
+                        'message' => getMediaUrl($media),
 
                     ]
                 );
@@ -3439,7 +3438,7 @@ class TaskModuleController extends Controller
 
                         'erp_user' => $task->assign_to,
                         'contact_id' => $task->assign_to,
-                        'message' => CommonHelper::getMediaUrl($media),
+                        'message' => getMediaUrl($media),
 
                     ]
                 );
@@ -3454,7 +3453,7 @@ class TaskModuleController extends Controller
                         'issue_id' => $task->id,
                         'erp_user' => $task->assign_to,
                         'contact_id' => $task->assign_to,
-                        'message' => CommonHelper::getMediaUrl($media),
+                        'message' => getMediaUrl($media),
 
                     ]
                 );
@@ -3489,7 +3488,7 @@ class TaskModuleController extends Controller
             $task = Task::find($request->user_id);
             $task_id = $request->doc_id;
             $userid = Auth::id();
-            $msg = CommonHelper::getMediaUrl($media);
+            $msg = getMediaUrl($media);
             if ($user && $user->phone) {
                 $params = ChatMessage::create(
                     [
@@ -3499,7 +3498,7 @@ class TaskModuleController extends Controller
                         'task_id' => $task_id,
                         'erp_user' => $user->id,
                         'sent_to_user_id' => $userid,
-                        'message' => CommonHelper::getMediaUrl($media),
+                        'message' => getMediaUrl($media),
 
                     ]
                 );
@@ -3538,7 +3537,7 @@ class TaskModuleController extends Controller
         $params = Sop::create(
             [
                 'name' => $username->name,
-                'content' => CommonHelper::getMediaUrl($media),
+                'content' => getMediaUrl($media),
 
             ]
         );

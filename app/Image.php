@@ -26,7 +26,7 @@ class Image extends Model
     {
         $image_name = self::generateImageName($key);
         $imageFile = Input::file($key);
-        Storage::put(config('constants.default_uploads_dir') . $image_name, file_get_contents($imageFile->getRealPath()));
+        Storage::disk('s3')->put(config('constants.default_uploads_dir') . $image_name, file_get_contents($imageFile->getRealPath()));
 
         return $image_name;
     }
@@ -36,7 +36,7 @@ class Image extends Model
         $sourcePath = config('constants.default_uploads_dir') . $imageName;
         $destinationPath = config('constants.default_archive__dir') . $imageName;
 
-        Storage::move($sourcePath, $destinationPath);
+        Storage::disk('s3')->move($sourcePath, $destinationPath);
 
         return self::newImage($key); 
     }
@@ -46,7 +46,7 @@ class Image extends Model
         $sourcePath = config('constants.default_uploads_dir') . $imageName;
         $destinationPath = config('constants.default_trash__dir') . $imageName;
 
-        Storage::move($sourcePath, $destinationPath);
+        Storage::disk('s3')->move($sourcePath, $destinationPath);
     }
 
     public function schedule(): \Illuminate\Database\Eloquent\Relations\HasOne

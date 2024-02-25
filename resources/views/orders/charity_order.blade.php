@@ -273,7 +273,7 @@
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
-                                <a data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
+                                <a data-fancybox="gallery" href="{{ getMediaUrl($media) }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
                                 <a class="view-supplier-details" data-id="{{$order_product->id}}" href="javascript:;"><i class="fa fa-shopping-cart"></i></a>
                                 <br/>
                               <?php break; } ?>
@@ -283,7 +283,7 @@
                           <span class="td-full-container hidden">	                        
                             @if ($count >= 1)	   
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
-                              <a data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}">VIEW 
+                              <a data-fancybox="gallery" href="{{ getMediaUrl($media) }}">VIEW 
                                <?php break; } ?>
                               #{{$order_product->product->id}}</a>
                               @php $count++; @endphp	      

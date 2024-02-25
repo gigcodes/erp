@@ -73,9 +73,9 @@
                                                 @forelse ($sizeChart as $chartitem)
                                                     @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $size['brand_id'])
                                                         @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
-                                                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($chartitem->getMedia(config('constants.size_chart_media_tag'))->first()) }}" data-fancybox>
+                                                            <a href="{{ getMediaUrl($chartitem->getMedia(config('constants.size_chart_media_tag'))->first()) }}" data-fancybox>
                                                                 <span class="td-mini-container">
-                                                                    <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($chartitem->getMedia(config('constants.size_chart_media_tag'))->first()) }}" class="img-responsive thumbnail-200 mb-1">
+                                                                    <img src="{{ getMediaUrl($chartitem->getMedia(config('constants.size_chart_media_tag'))->first()) }}" class="img-responsive thumbnail-200 mb-1">
                                                                 </span>
                                                             </a>
                                                         @endif

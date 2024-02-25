@@ -161,7 +161,7 @@
 
                 {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
                 <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-              ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
+              ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
               : '' }}" class="img-responsive grid-image" alt="" />
                 
                 <div id="set{{ $product->id }}">

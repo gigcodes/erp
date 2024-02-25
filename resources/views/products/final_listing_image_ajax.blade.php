@@ -109,7 +109,7 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                                    <div class="carousel-inner maincarousel">
                                                                       <div class="item" style="display: block;"> 
                                                                         <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
-                                                                        <img src="<?php echo \App\Helpers\CommonHelper::getMediaUrl($media); ?>" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> 
+                                                                        <img src="<?php echo getMediaUrl($media); ?>" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> 
                                                                        </div>
                                                                    </div>
                                                              </div>
@@ -126,7 +126,7 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                                 
                                                                 <div class="col-md-4">
                                                                     @php $gridSrc = asset('images/'.$gridImage); @endphp
-                                                                    <a onclick="shortCrop('{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}','{{ $product->id }}','{{ $site->id }}','{{ $gridSrc }}')" 
+                                                                    <a onclick="shortCrop('{{ getMediaUrl($media) }}','{{ $product->id }}','{{ $site->id }}','{{ $gridSrc }}')" 
                                                                         class="btn btn-sm">
                                                                         <i class="fa fa-crop" aria-hidden="true"></i>
                                                                     </a>

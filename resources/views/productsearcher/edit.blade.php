@@ -128,7 +128,7 @@
                 ">
                     <p>
                      <?php $image = $productsearcher->getMedia(config('constants.media_tags'))->first() ?>
-                    <img src="{{ $image ? \App\Helpers\CommonHelper::getMediaUrl($image) : '' }}"
+                    <img src="{{ $image ? getMediaUrl($image) : '' }}"
                          class="img-responsive" style="max-width: 200px;"  alt="">
                     <input type="text" hidden name="oldImage" value="0">
                     </p>

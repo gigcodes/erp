@@ -82,14 +82,14 @@
                 </td>
                 <td>
                   @foreach ($view->products as $product)
-                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive" style="width: 50px;" alt="">
+                    <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive" style="width: 50px;" alt="">
                   @endforeach
                 </td>
                 <td>
                   @if ($view->hasMedia(config('constants.media_tags')))
                     @foreach ($view->getMedia(config('constants.media_tags')) as $image)
-                      <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank" class="d-inline-block">
-                        <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" style="width: 50px;" alt="">
+                      <a href="{{ getMediaUrl($image) }}" target="_blank" class="d-inline-block">
+                        <img src="{{ getMediaUrl($image) }}" class="img-responsive" style="width: 50px;" alt="">
                       </a>
                     @endforeach
                   @endif

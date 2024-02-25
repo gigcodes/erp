@@ -7,7 +7,6 @@ use Excel;
 use App\Setting;
 use App\ChatMessage;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use App\Exports\MessageCounterExport;
@@ -233,7 +232,7 @@ class MessageQueueController extends Controller
             $media = [];
             if ($images = $items->getMedia(config('constants.attach_image_tag'))) {
                 foreach ($images as $image) {
-                    $media[] = CommonHelper::getMediaUrl($image);
+                    $media[] = getMediaUrl($image);
                 }
             }
             $items->mediaList = $media;

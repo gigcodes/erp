@@ -11,7 +11,6 @@ use App\LogRequest;
 use GuzzleHttp\Client;
 use App\CropImageGetRequest;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use App\Models\DataTableColumn;
@@ -297,8 +296,8 @@ class CroppedImageReferenceController extends Controller
                 })
                 ->addColumn('original_image', function ($row) {
                     $original_image = '<div style="width: 100px;margin-top: 25px; display: inline-block;">';
-                    $src = $row->media ? CommonHelper::getMediaUrl($row->media) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
-                    $onclick_url = $row->media ? CommonHelper::getMediaUrl($row->media) : '';
+                    $src = $row->media ? getMediaUrl($row->media) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                    $onclick_url = $row->media ? getMediaUrl($row->media) : '';
                     $original_image .= '<img src="' . $src . '" alt="" height="100" width="100"  alt="" height="100" width="100" onclick="bigImg(`' . $onclick_url . '`)">';
                     $original_image .= '</div>';
 
@@ -314,8 +313,8 @@ class CroppedImageReferenceController extends Controller
                             $cropped_image .= '<td>';
                             $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
                             $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : 'N/A';
-                            $src = $images->newMedia ? CommonHelper::getMediaUrl($images->newMedia) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
-                            $onclick = $images->newMedia ? CommonHelper::getMediaUrl($images->newMedia) : '';
+                            $src = $images->newMedia ? getMediaUrl($images->newMedia) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                            $onclick = $images->newMedia ? getMediaUrl($images->newMedia) : '';
                             $cropped_image .= '<img src="' . $src . '" alt="" height="100" width="100" onclick="bigImg(`' . $onclick . '`)">';
                             $cropped_image .= '</div>';
                             $cropped_image .= '</td>';

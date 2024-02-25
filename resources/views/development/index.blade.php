@@ -333,7 +333,7 @@
                                     </script>
                                     <div>
                                         @foreach($task->getMedia(config('constants.media_tags')) as $media)
-                                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" target="_new">
+                                            <a href="{{ getMediaUrl($media) }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
                                         @endforeach
@@ -415,7 +415,7 @@
                                     {{ $task->task }}
                                     <div>
                                         @foreach($task->getMedia(config('constants.media_tags')) as $media)
-                                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" target="_new">
+                                            <a href="{{ getMediaUrl($media) }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
                                         @endforeach
@@ -486,7 +486,7 @@
                                     {{ $task->task }}
                                     <div>
                                         @foreach($task->getMedia(config('constants.media_tags')) as $media)
-                                            <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" target="_new">
+                                            <a href="{{ getMediaUrl($media) }}" target="_new">
                                                 <img style="width: 25px;" src="{{ asset('images/download.png') }}" alt="Download">
                                             </a>
                                         @endforeach

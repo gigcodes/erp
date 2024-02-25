@@ -5,7 +5,6 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Helpers\CommonHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class SuggestedProduct extends Model
@@ -152,7 +151,7 @@ class SuggestedProduct extends Model
                                     $data[] = [
                                         'id' => $image->id,
                                         'mediable_id' => $chat_message->id,
-                                        'url' => CommonHelper::getMediaUrl($image),
+                                        'url' => getMediaUrl($image),
                                     ];
 
                                     $count++;

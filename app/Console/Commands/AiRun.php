@@ -6,7 +6,6 @@ use App\Product;
 use Carbon\Carbon;
 use App\CronJobReport;
 use App\LogScraperVsAi;
-use App\Helpers\CommonHelper;
 use Illuminate\Console\Command;
 use seo2websites\GoogleVision\GoogleVisionHelper;
 
@@ -84,7 +83,7 @@ class AiRun extends Command
                 // Loop over media to get URLs
                 foreach ($arrMedia as $media) {
                     // wrong path assigned so now taken from direct
-                    $arrImages[] = CommonHelper::getMediaUrl($media); //'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
+                    $arrImages[] = getMediaUrl($media); //'https://erp.amourint.com/' . $media->disk . '/' . $media->filename . '.' . $media->extension;
                 }
 
                 // Skip to the next one if there are no images

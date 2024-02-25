@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\MessageQueueHistory;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Illuminate\Console\Command;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 
@@ -137,7 +136,7 @@ class SendQueuePendingChatMessagesGroup extends Command
                                                                         'number_to' => $value->customer->phone,
                                                                         'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
                                                                         'text' => ($k == 0) ? $value->message : '',
-                                                                        'image' => CommonHelper::getMediaUrl($image),
+                                                                        'image' => getMediaUrl($image),
                                                                         'priority' => self::BROADCAST_PRIORITY,
                                                                         'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                                     ]);

@@ -24,7 +24,7 @@
                 <td>
                     <a href="{{ route('products.show', $product->id) }}">
                         <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.attach_image_tag'))->first()
-                            ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.attach_image_tag'))->first())
+                            ? getMediaUrl($product->getMedia(config('constants.attach_image_tag'))->first())
                             : ''
                           }}" class="img-responsive grid-image" alt=""/>
                     </a>

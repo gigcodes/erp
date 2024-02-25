@@ -21,7 +21,7 @@
 
                                     if($post->hasMedia('instagram')){
                                         foreach ($post->getMedia('instagram') as $media) {
-                                            $image = \App\Helpers\CommonHelper::getMediaUrl( $media);
+                                            $image = getMediaUrl( $media);
 
                                             break;
                                         }
@@ -56,7 +56,7 @@
 
                                     if($post->hasMedia('instagram')){
                                         foreach ($post->getMedia('instagram') as $media) {
-                                            $image = \App\Helpers\CommonHelper::getMediaUrl($media);
+                                            $image = getMediaUrl($media);
                                             
                                             break;
                                         }
@@ -96,7 +96,7 @@
 
                                             if($post->hasMedia('instagram')){
                                                 foreach ($post->getMedia('instagram') as $media) {
-                                                    $image = \App\Helpers\CommonHelper::getMediaUrl($media);
+                                                    $image = getMediaUrl($media);
                                                     
                                                     break;
                                                 }

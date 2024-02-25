@@ -16,7 +16,6 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use App\ColorReference;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\SupplierBrandDiscount;
 use App\Models\DataTableColumn;
 use App\Imports\InventoryImport;
@@ -705,7 +704,7 @@ class ProductInventoryController extends Controller
                 $chat_message = \App\ChatMessage::create($params);
                 if ($product->hasMedia(config('constants.media_tags'))) {
                     foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, CommonHelper::getMediaUrl($image));
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, getMediaUrl($image));
                         $chat_message->attachMedia($image, config('constants.media_tags'));
                     }
                 }
@@ -737,7 +736,7 @@ class ProductInventoryController extends Controller
                     $chat_message = \App\ChatMessage::create($params);
                     if ($product->hasMedia(config('constants.media_tags'))) {
                         foreach ($product->getMedia(config('constants.media_tags')) as $image) {
-                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, CommonHelper::getMediaUrl($image));
+                            app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, null, getMediaUrl($image));
                             $chat_message->attachMedia($image, config('constants.media_tags'));
                         }
                     }
@@ -1203,7 +1202,7 @@ class ProductInventoryController extends Controller
             $medias = \App\Mediables::getMediasFromProductId($id);
             $medias = $product->getMedia(config('constants.attach_image_tag'));
             foreach ($medias as $media) {
-                $urls[] = CommonHelper::getMediaUrl($media);
+                $urls[] = getMediaUrl($media);
             }
         }
 

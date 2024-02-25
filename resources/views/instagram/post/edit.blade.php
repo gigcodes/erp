@@ -30,7 +30,7 @@
                         <div class="row gutters-sm dm-viewer-container">
                         @foreach($post->all_media as $media)
                             <div class="col-6 col-sm-4 mt-3">
-                                <img src="{{ \App\Helpers\CommonHelper::getMediaUrl(asset($media->getUrl('preview'))) }}" data-original="{{ asset(\App\Helpers\CommonHelper::getMediaUrl($media)) }}" alt="{{ $media->name }}" class="rounded">
+                                <img src="{{ getMediaUrl(asset($media->getUrl('preview'))) }}" data-original="{{ asset(getMediaUrl($media)) }}" alt="{{ $media->name }}" class="rounded">
                             </div>
                         @endforeach
                         </div>
@@ -126,7 +126,7 @@
                             </ol>
                             <div class="carousel-inner">
                                 @foreach($post->all_media as $media)
-                                <div class="carousel-item"><img src="{{ asset(\App\Helpers\CommonHelper::getMediaUrl($media)) }}" alt="" class="d-block w-100" data-holder-rendered="true"></div>
+                                <div class="carousel-item"><img src="{{ asset(getMediaUrl($media)) }}" alt="" class="d-block w-100" data-holder-rendered="true"></div>
                                 @endforeach
                             </div>
                         </div>

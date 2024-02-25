@@ -9,7 +9,6 @@ use App\Product;
 use App\Setting;
 use Plank\Mediable\Media;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -140,7 +139,7 @@ class SaleController extends Controller
             $data['img_url'] = '';
             $data['img_id'] = '';
         } else {
-            $data['img_url'] = CommonHelper::getMediaUrl($image);
+            $data['img_url'] = getMediaUrl($image);
             $data['img_id'] = $image->id;
         }
 

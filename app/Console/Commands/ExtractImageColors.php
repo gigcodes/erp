@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use ColorThief\ColorThief;
 use App\ColorNamesReference;
-use App\Helpers\CommonHelper;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
 use ourcodeworld\NameThatColor\ColorInterpreter as NameThatColor;
@@ -65,7 +64,7 @@ class ExtractImageColors extends Command
 
                     $image = $product->getMedia(config('constants.media_tags'))->first();
 
-                    $imageUrl = CommonHelper::getMediaUrl($image);
+                    $imageUrl = getMediaUrl($image);
 
                     try {
                         $rgb = ColorThief::getColor($imageUrl);

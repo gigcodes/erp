@@ -45,7 +45,7 @@
                 @foreach ($products as $product)
                     <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
                         <?php if($product->hasMedia(config('constants.media_tags'))) { ?>
-                            <a href="{{ route('products.show', $product->id) }}" target="_blank"><img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive grid-image" alt=""/></a>
+                            <a href="{{ route('products.show', $product->id) }}" target="_blank"><img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive grid-image" alt=""/></a>
                         <?php } ?>
                         <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
                         <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
@@ -59,7 +59,7 @@
                         <p>Price Special (INR) : {{ $product->price_special }}</p>
                         <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
                         <?php if($product->hasMedia(config('constants.media_tags'))) { ?>
-                            <input type="hidden" id="img{{ $product->id }}" value="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}">
+                            <input type="hidden" id="img{{ $product->id }}" value="{{ getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}">
                             @if($product->status_id == 31)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
                         <?php } ?>
                     </div>

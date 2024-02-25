@@ -20,7 +20,7 @@
                         @foreach($product->getMedia(config('constants.media_tags')) as $media)
                             @if(stripos(strtolower($media->filename), 'cropped') !== false)
                                 <div class="card" style="display: inline-block; background: #dddddd">
-                                    <img class="order-selector" src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" alt="" style="width:250px;" data-mediaId="{{$media->id}}">
+                                    <img class="order-selector" src="{{ getMediaUrl($media) }}" alt="" style="width:250px;" data-mediaId="{{$media->id}}">
                                     <input class="media_order" type="hidden" name="images[{{$media->id}}]" value="" id="order_{{$media->id}}">
                                     <span style="position: absolute; bottom: 10px; left: 10px; padding: 15px; font-size: 16px; font-weight: bold" class="label label-default sequence-tag" id="sequence_{{$media->id}}">-</span>
                                 </div>

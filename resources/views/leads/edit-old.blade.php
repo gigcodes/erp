@@ -147,7 +147,7 @@
                       @endif
                  ">
                    <p>
-                     <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" style="max-width: 200px;"  alt="">
+                     <img src="{{ getMediaUrl($image) }}" class="img-responsive" style="max-width: 200px;"  alt="">
                      <button class="btn btn-image removeOldImage" data-id="{{ $key }}" media-id="{{ $image->id }}"><img src="/images/delete.png" /></button>
 
                      <input type="text" hidden name="oldImage[{{ $key }}]" value="{{ $images ? '0' : '-1' }}">

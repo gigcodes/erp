@@ -15,7 +15,6 @@ use App\WebsiteProductCsv;
 use App\Jobs\PushToMagento;
 use App\ProductPushJourney;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
 use App\Models\DataTableColumn;
@@ -186,7 +185,7 @@ class LogListMagentoController extends Controller
         $total_count = $logListMagentos->total();
         foreach ($logListMagentos as $key => $item) {
             if ($item->hasMedia(config('constants.media_tags'))) {
-                $logListMagentos[$key]['image_url'] = CommonHelper::getMediaUrl($item->getMedia(config('constants.media_tags'))->first());
+                $logListMagentos[$key]['image_url'] = getMediaUrl($item->getMedia(config('constants.media_tags'))->first());
             } else {
                 $logListMagentos[$key]['image_url'] = '';
             }
@@ -348,7 +347,7 @@ class LogListMagentoController extends Controller
         $total_count = $logListMagentos->total();
         foreach ($logListMagentos as $key => $item) {
             if ($item->hasMedia(config('constants.media_tags'))) {
-                $logListMagentos[$key]['image_url'] = CommonHelper::getMediaUrl($item->getMedia(config('constants.media_tags'))->first());
+                $logListMagentos[$key]['image_url'] = getMediaUrl($item->getMedia(config('constants.media_tags'))->first());
             } else {
                 $logListMagentos[$key]['image_url'] = '';
             }
@@ -1135,7 +1134,7 @@ class LogListMagentoController extends Controller
                         $content = base64_decode($image);
                         $media = MediaUploader::fromString($content)->toDirectory('/store-website-product-screeenshot')->useFilename(uniqid(true))->upload();
                         $sws->attachMedia($media, config('constants.media_tags'));
-                        $sws->image_path = CommonHelper::getMediaUrl($media);
+                        $sws->image_path = getMediaUrl($media);
                         $sws->save();
                     }
                 }

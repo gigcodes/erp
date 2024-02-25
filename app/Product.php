@@ -7,7 +7,6 @@ namespace App;
  */
 use Validator;
 use Plank\Mediable\Mediable;
-use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\Helpers\ProductHelper;
 use Illuminate\Support\Facades\DB;
@@ -590,7 +589,7 @@ class Product extends Model
 
     public function getImageurlAttribute()
     {
-        return $this->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($this->getMedia(config('constants.media_tags'))->first()) : '';
+        return $this->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($this->getMedia(config('constants.media_tags'))->first()) : '';
     }
 
     public function notifications()

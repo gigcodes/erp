@@ -187,7 +187,7 @@
                 </button>
             <!-- @if($influencer->hasMedia('instagram-screenshot'))
                 @php
-                    $url = \App\Helpers\CommonHelper::getMediaUrl($influencer->getMedia('instagram-screenshot')->first());
+                    $url = getMediaUrl($influencer->getMedia('instagram-screenshot')->first());
                 @endphp
                         <a href="{{$url}}" target="_blank" class="btn btn-xs text-dark"
                 data-id="{{ $influencer->id }}">

@@ -13,7 +13,6 @@ use App\ProductTemplate;
 use Plank\Mediable\Media;
 use App\ProductTemplateLog;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ProductTemplatesController extends Controller
@@ -69,7 +68,7 @@ class ProductTemplatesController extends Controller
             if ($record->hasMedia('template-image')) {
                 $media = $record->getMedia('template-image')->first();
                 if (! empty($media)) {
-                    $record->image_url = CommonHelper::getMediaUrl($media);
+                    $record->image_url = getMediaUrl($media);
                 }
             }
         }
@@ -218,7 +217,7 @@ class ProductTemplatesController extends Controller
             if ($record->hasMedia('template-image-attach')) {
                 $images = [];
                 foreach ($record->getMedia('template-image-attach') as $i => $media) {
-                    $images[] = CommonHelper::getMediaUrl($media);
+                    $images[] = getMediaUrl($media);
                 }
                 $data['image'] = $images;
             }
@@ -332,7 +331,7 @@ class ProductTemplatesController extends Controller
                     foreach ($product->media as $k => $media) {
                         $html .= '<div class="col-sm-3" style="padding-bottom: 10px;">
                                     <div class="imagePreview">
-                                        <img src="' . CommonHelper::getMediaUrl($media) . '" width="100%" height="100%">
+                                        <img src="' . getMediaUrl($media) . '" width="100%" height="100%">
                                     </div>
                                     <label class="btn btn-primary">
                                         <input type="checkbox" name="product_media_list[]" value="' . $media->id . '" class="product_media_list"> Select
@@ -423,7 +422,7 @@ class ProductTemplatesController extends Controller
                         $StoreWebsite->attachMedia($media, ['website-image-attach']);
                     } catch (\Exception $e) {
                     }
-                    $imagesArray[] = CommonHelper::getMediaUrl($media);
+                    $imagesArray[] = getMediaUrl($media);
                 }
             }
 
@@ -433,7 +432,7 @@ class ProductTemplatesController extends Controller
 
                     $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
-                    $imagesArray[] = CommonHelper::getMediaUrl($media);
+                    $imagesArray[] = getMediaUrl($media);
 
                     $StoreWebsite->attachMedia($media, ['website-image-attach']);
                 }
@@ -499,7 +498,7 @@ class ProductTemplatesController extends Controller
                         if ($template->hasMedia('template-image-attach')) {
                             $images = [];
                             foreach ($template->getMedia('template-image-attach') as $i => $media) {
-                                $images[] = CommonHelper::getMediaUrl($media);
+                                $images[] = getMediaUrl($media);
                             }
                             $data['image'] = $images;
                         }

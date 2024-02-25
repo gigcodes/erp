@@ -138,7 +138,7 @@
       <input type="checkbox" class="checkbox_select" name="quick" value="{{ $product->id }}"/>
       {{-- <a href="{{ route('leads.show', $lead['id']) }}"> --}}
       <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
+                ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first())
                 : '' }}" class="img-responsive grid-image" alt="" />
       <div class="align" id="set{{ $product->id }}">       
       <p>Supplier : {{ $product->supplier }}</p>

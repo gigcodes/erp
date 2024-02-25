@@ -144,14 +144,14 @@
                                         @if ($product->hasMedia(config('constants.media_tags')))
                                             @foreach($product->getMedia(config('constants.media_tags')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
-                                                    <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                                    <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                                 @endif
                                             @endforeach
                                         @endif
                                     </div>
                                     <div class="col-md-4">
                                         @if ($product->hasMedia(config('constants.media_tags')))
-                                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
+                                            <img src="{{ getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}">
                                         @endif
                                     </div>
                                     <div class="col-md-3">

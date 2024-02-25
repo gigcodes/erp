@@ -298,7 +298,7 @@
                                                     @if ($order_product->product->hasMedia(config('constants.media_tags')))
                                                         <span class="td-mini-container">
                                                             <br/>
-                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}">View</a>
+                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}">View</a>
                                                         </span>
                                                     @endif
                                                 @endif
@@ -377,7 +377,7 @@
                                                         $productImages = $product->getMedia(config('constants.media_tags'));
                                                         foreach($productImages as $img){
                                                             $image['product_id'] = $product->id;
-                                                            $image['image_url'] = \App\Helpers\CommonHelper::getMediaUrl($img);
+                                                            $image['image_url'] = getMediaUrl($img);
                                                             $image_array[] = $image;
                                                         }
                                                     }
@@ -443,7 +443,7 @@
                                                     @if ($order_product->product->hasMedia(config('constants.media_tags')))
                                                         <span class="td-mini-container">
                                                             <br/>
-                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}">View</a>
+                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}">View</a>
                                                         </span>
                                                     @endif
                                                 @endif
@@ -499,7 +499,7 @@
                                                         $productImages = $product->getMedia(config('constants.media_tags'));
                                                         foreach($productImages as $img){
                                                             $image['product_id'] = $product->id;
-                                                            $image['image_url'] = \App\Helpers\CommonHelper::getMediaUrl($img);
+                                                            $image['image_url'] = getMediaUrl($img);
                                                             $image_array[] = $image;
                                                         }
                                                     }

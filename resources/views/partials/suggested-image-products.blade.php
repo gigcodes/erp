@@ -28,7 +28,7 @@
         if($imageDetails) {
             $imageDetails->directory .= '/thumbnail';
             $imageDetails->filename .= '_thumb';
-            $image = \App\Helpers\CommonHelper::getMediaUrl($imageDetails);
+            $image = getMediaUrl($imageDetails);
         }
         $image_key = $imageDetails->getKey();
         $selected_all = true;

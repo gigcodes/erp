@@ -532,7 +532,7 @@
                             <td>
                                 @if ($product->hasMedia(config('constants.media_tags')))
                                     @foreach ($product->getMedia(config('constants.media_tags')) as $image)
-                                        <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive m-1" width="50px" alt="">
+                                        <img src="{{ getMediaUrl($image) }}" class="img-responsive m-1" width="50px" alt="">
                                     @endforeach
 
                                     <br>
@@ -589,7 +589,7 @@
                                             <td>
                                                 @if ($product->hasMedia(config('constants.media_tags')))
                                                     @foreach ($product->getMedia(config('constants.media_tags')) as $image)
-                                                        <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive m-1" width="50px" alt="">
+                                                        <img src="{{ getMediaUrl($image) }}" class="img-responsive m-1" width="50px" alt="">
                                                     @endforeach
 
                                                     <br>

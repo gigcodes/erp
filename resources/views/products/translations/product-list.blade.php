@@ -170,7 +170,7 @@
                         <div class="thumbnail-pic">
                             <div class="thumbnail-edit"><a class="delete-thumbail-img" data-product-id="{{ $product->id }}" data-media-id="{{ $media->id }}" data-media-type="gallery" href="javascript:;"><i class="fa fa-trash fa-lg"></i></a></div>
                             <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
-                            <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" onclick="replaceThumbnail('{{ $product->id }}','{{ \App\Helpers\CommonHelper::getMediaUrl($media) }}','{{$gridImage}}')">
+                            <img style="display:block; width: 70px; height: 80px; margin-top: 5px;" src="{{ getMediaUrl($media) }}" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" onclick="replaceThumbnail('{{ $product->id }}','{{ getMediaUrl($media) }}','{{$gridImage}}')">
                         </div>
                     <?php } ?>
                     @endif
@@ -179,12 +179,12 @@
                 </div>
                 <div class="col-md-7" id="col-large-image{{ $product->id }}">
                     @if ($product->hasMedia(config('constants.media_gallery_tag')))
-                    <div onclick="bigImg('{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}'); background-size: 300px" id="image{{ $product->id }}">
+                    <div onclick="bigImg('{{ getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}'); background-size: 300px" id="image{{ $product->id }}">
                         <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
                     </div>
-                    <button onclick="cropImage('{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image
+                    <button onclick="cropImage('{{ getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image
                     </button>
-                    <button onclick="crop('{{ \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop
+                    <button onclick="crop('{{ getMediaUrl($product->getMedia(config('constants.media_gallery_tag'))->first()) }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop
                     </button>
 
                     @endif

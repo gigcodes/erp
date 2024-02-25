@@ -18,7 +18,7 @@
                     <td>
                         @if ($documents->getMedia(config('constants.media_tags'))->first())
                             @foreach ($documents->getMedia(config('constants.media_tags')) as $i => $file)
-                                <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($file) }}" target="_blank" class="d-inline-block">
+                                <a href="{{ getMediaUrl($file) }}" target="_blank" class="d-inline-block">
                                     {{ 'Document : ' . ($i + 1) }}
                                 </a>
                                 <br />

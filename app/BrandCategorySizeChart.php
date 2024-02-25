@@ -3,7 +3,6 @@
 namespace App;
 
 use Plank\Mediable\Mediable;
-use App\Helpers\CommonHelper;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -40,7 +39,7 @@ class BrandCategorySizeChart extends Model
                 if ($absPath) {
                     $img[] = $media->getAbsolutePath();
                 } else {
-                    $img[] = CommonHelper::getMediaUrl($media);
+                    $img[] = getMediaUrl($media);
                 }
             }
         }

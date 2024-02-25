@@ -13,8 +13,8 @@
 @if(sizeof($list->toArray()) > 0)
 <!-- <li>
         <div>
-            <input type="radio" name="image" value="{{ urldecode(\App\Helpers\CommonHelper::getMediaUrl($list)) }}">
-            <img src="{{ urldecode(\App\Helpers\CommonHelper::getMediaUrl($list))}}" alt="{{ $list->name }}">
+            <input type="radio" name="image" value="{{ urldecode(getMediaUrl($list)) }}">
+            <img src="{{ urldecode(getMediaUrl($list))}}" alt="{{ $list->name }}">
         </div>
 
         </li> -->
@@ -35,8 +35,8 @@
                 <div data-interval="false" id="carousel_{{ request('websiteId') }}" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner maincarousel">
                         <div class="item" style="display: block;"> 
-                        <img src="{{ urldecode(\App\Helpers\CommonHelper::getMediaUrl($list))}}" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;">    
-                        <input type="checkbox" name="image[]" value="{{ urldecode(\App\Helpers\CommonHelper::getMediaUrl($list)) }}">
+                        <img src="{{ urldecode(getMediaUrl($list))}}" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;">    
+                        <input type="checkbox" name="image[]" value="{{ urldecode(getMediaUrl($list)) }}">
                         </div>
                     </div>
                 </div>

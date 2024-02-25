@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
@@ -28,7 +27,7 @@ class MediaController extends Controller
         $allMedia = $request->user()->getMedia('instagram');
 
         foreach ($allMedia as $media) {
-            $item[] = ['id' => $media->id, 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size, 'thumb' => CommonHelper::getMediaUrl($media), 'original' => CommonHelper::getMediaUrl($media), 'sitename' => ''];
+            $item[] = ['id' => $media->id, 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size, 'thumb' => getMediaUrl($media), 'original' => getMediaUrl($media), 'sitename' => ''];
         }
 
         $websites = \App\StoreSocialContent::all();
@@ -37,7 +36,7 @@ class MediaController extends Controller
             $webMedia = $website->getMedia(config('constants.media_tags'));
 
             foreach ($webMedia as $media) {
-                $item[] = ['id' => $media->id, 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size, 'thumb' => CommonHelper::getMediaUrl($media), 'original' => CommonHelper::getMediaUrl($media), 'sitename' => $website->website->title];
+                $item[] = ['id' => $media->id, 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size, 'thumb' => getMediaUrl($media), 'original' => getMediaUrl($media), 'sitename' => $website->website->title];
             }
         }
 

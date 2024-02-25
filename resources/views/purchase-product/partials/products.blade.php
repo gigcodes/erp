@@ -38,7 +38,7 @@
               @if($product_data != null)
                 @if ($product_data->hasMedia(config('constants.media_tags')))
                   <span class="td-mini-container">
-                      <a data-fancybox="gallery" href="{{ \App\Helpers\CommonHelper::getMediaUrl($product_data->getMedia(config('constants.media_tags'))->first()) }}">View</a>
+                      <a data-fancybox="gallery" href="{{ getMediaUrl($product_data->getMedia(config('constants.media_tags'))->first()) }}">View</a>
                   </span>
                 @endif
               @endif

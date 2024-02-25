@@ -74,11 +74,11 @@
             <div>
                 @foreach($product->media()->get() as $image)
                     <?php
-                    //                        [$height, $width] = getimagesize(\App\Helpers\CommonHelper::getMediaUrl($image))
+                    //                        [$height, $width] = getimagesize(getMediaUrl($image))
                     ?>
                     @if (stripos($image->filename, 'cropped') !== false)
                         <div style="display: inline-block; border: 1px solid #ccc" class="mt-5">
-                            <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}'); background-size: 500px">
+                            <div style=" margin-bottom: 5px; width: 500px;height: 500px; background-image: url('{{ getMediaUrl($image) }}'); background-size: 500px">
                                 <img style="width: 500px;" src="{{ asset('images/'.$img) }}" alt="">
                             </div>
                         </div>
@@ -87,7 +87,7 @@
             </div>
             <div style="width: 650px; margin: 0 auto;" class="fotorama" data-nav="thumbs" data-allowfullscreen="true">
                 @foreach($product->media()->get() as $image)
-                    <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}"><img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}"></a>
+                    <a href="{{ getMediaUrl($image) }}"><img src="{{ getMediaUrl($image) }}"></a>
                 @endforeach
             </div>
         </div>

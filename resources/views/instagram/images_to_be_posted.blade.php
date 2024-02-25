@@ -41,7 +41,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-image">
-                        <img alt="Instagram Image" style="width: 100%;" src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}">
+                        <img alt="Instagram Image" style="width: 100%;" src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($image->getMedia(config('constants.media_tags'))->first()) : '') }}">
                     </div><!-- card image -->
 
                     <div class="card-content">

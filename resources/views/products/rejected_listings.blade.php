@@ -172,7 +172,7 @@
                             <td>{{ $product->listing_rejected_on }}</td>
                             <td>
                             <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">
-                                <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia('gallery')->first()) : '' }}" alt="Image">
+                                <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? getMediaUrl($product->getMedia('gallery')->first()) : '' }}" alt="Image">
                             </a>
                             <br>
                             <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
@@ -230,7 +230,7 @@
                     <tr class="rec_{{$product->id}}">
                         <td>
                             <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">
-                                <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia('gallery')->first()) : '' }}" alt="Image">
+                                <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? getMediaUrl($product->getMedia('gallery')->first()) : '' }}" alt="Image">
                             </a>
                             <br>
                             <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>

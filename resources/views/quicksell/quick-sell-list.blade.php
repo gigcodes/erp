@@ -100,10 +100,10 @@
                 @if ($images = $product->getMedia(config('constants.attach_image_tag')))
                 @foreach ($images as $i => $image)
                 @if($i == 0)
-                <img class="more-list-btn" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" width="20px">
-                @php $extraImages[] = \App\Helpers\CommonHelper::getMediaUrl($image) @endphp
+                <img class="more-list-btn" src="{{ getMediaUrl($image) }}" class="img-responsive" width="20px">
+                @php $extraImages[] = getMediaUrl($image) @endphp
                 @else
-                @php $extraImages[] = \App\Helpers\CommonHelper::getMediaUrl($image) @endphp
+                @php $extraImages[] = getMediaUrl($image) @endphp
                 @endif
                 @endforeach
                 @endif

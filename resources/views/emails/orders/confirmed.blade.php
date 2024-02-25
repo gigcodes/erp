@@ -28,7 +28,7 @@
       <tr>
         <td>
           @if ($order_product->product->hasMedia(config('constants.media_tags')))
-            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" style="width: 50px;" alt="">
+            <img src="{{ getMediaUrl($order_product->product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" style="width: 50px;" alt="">
           @endif
         </td>
         <td>{{ $order_product->product->name ?? 'No Product' }}</td>

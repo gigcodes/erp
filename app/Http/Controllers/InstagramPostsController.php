@@ -11,7 +11,6 @@ use App\InstagramPosts;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\SocialHelper;
 use App\Jobs\InstaSchedulePost;
 use Illuminate\Support\Facades\Log;
@@ -84,8 +83,8 @@ class InstagramPostsController extends Controller
                             'file_name' => $media->filename,
                             'mime_type' => $media->mime_type,
                             'size' => $media->size,
-                            'thumb' => CommonHelper::getMediaUrl($media),
-                            'original' => CommonHelper::getMediaUrl($media),
+                            'thumb' => getMediaUrl($media),
+                            'original' => getMediaUrl($media),
                         ];
                     }
                 }
@@ -96,7 +95,7 @@ class InstagramPostsController extends Controller
         if (isset($productArr) && count($productArr)) {
             foreach ($productArr as $product) {
                 foreach ($product->media as $media) {
-                    $imagesHtml .= '<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="' . $media->id . '" data-original="' . CommonHelper::getMediaUrl($media) . '" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="' . CommonHelper::getMediaUrl($media) . '" alt="' . $product->name . '" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                    $imagesHtml .= '<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="' . $media->id . '" data-original="' . getMediaUrl($media) . '" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="' . getMediaUrl($media) . '" alt="' . $product->name . '" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
                 }
             }
         }
@@ -105,7 +104,7 @@ class InstagramPostsController extends Controller
             foreach ($mediaIdsArr as $image) {
                 $media = Media::where('id', $image->media_id)->get();
                 if (! empty($media)) {
-                    $imagesHtml .= '<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="' . $media[0]->getkey() . '" data-original="' . CommonHelper::getMediaUrl($media[0]) . '" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="' . CommonHelper::getMediaUrl($media[0]) . '" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                    $imagesHtml .= '<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="' . $media[0]->getkey() . '" data-original="' . getMediaUrl($media[0]) . '" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="' . getMediaUrl($media[0]) . '" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
                 }
             }
         }

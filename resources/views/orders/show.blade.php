@@ -905,7 +905,7 @@
                       <td>
                         @if (isset($delivery_approval))
                           @foreach ($delivery_approval->getMedia(config('constants.media_tags')) as $image)
-                            <img width="150" src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" />
+                            <img width="150" src="{{ getMediaUrl($image) }}" />
                           @endforeach
                         @endif
                       </td>

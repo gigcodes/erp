@@ -58,8 +58,8 @@
                 @if ($issue->getMedia(config('constants.media_tags'))->first())
         <br>
                     @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
-        <a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank" class="d-inline-block">
-                            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" style="width: 50px" alt="">
+        <a href="{{ getMediaUrl($image) }}" target="_blank" class="d-inline-block">
+                            <img src="{{ getMediaUrl($image) }}" class="img-responsive" style="width: 50px" alt="">
                         </a>
 
 

@@ -16,7 +16,6 @@ use App\DeveloperTask;
 use App\SiteDevelopment;
 use App\StoreWebsiteImage;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\SiteDevelopmentCategory;
 use Illuminate\Routing\Controller;
 use App\SiteDevelopmentArtowrkHistory;
@@ -317,7 +316,7 @@ class SiteDevelopmentController extends Controller
         $admin = Auth::user();
 
         $userid = Auth::id();
-        $msg = CommonHelper::getMediaUrl($media);
+        $msg = getMediaUrl($media);
         if ($user && $user->phone) {
             if ($request->type == 'TASK') {
                 $params = \App\ChatMessage::create([
@@ -329,7 +328,7 @@ class SiteDevelopmentController extends Controller
 
                     'erp_user' => $task->assign_to,
                     'contact_id' => $task->assign_to,
-                    'message' => CommonHelper::getMediaUrl($media),
+                    'message' => getMediaUrl($media),
 
                 ]);
                 $params = \App\ChatMessage::create([
@@ -341,7 +340,7 @@ class SiteDevelopmentController extends Controller
 
                     'erp_user' => $task->assign_to,
                     'contact_id' => $task->assign_to,
-                    'message' => CommonHelper::getMediaUrl($media),
+                    'message' => getMediaUrl($media),
 
                 ]);
             } else {
@@ -356,7 +355,7 @@ class SiteDevelopmentController extends Controller
                     'contact_id' => $task->assign_to,
                     // 'approved' => '1',
                     // 'status' => '2',
-                    'message' => CommonHelper::getMediaUrl($media),
+                    'message' => getMediaUrl($media),
 
                 ]);
             }
@@ -576,7 +575,7 @@ class SiteDevelopmentController extends Controller
                         if ($task->hasMedia(config('constants.attach_image_tag'))) {
                             foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
                                 $imageExtensions = ['zip'];
-                                $explodeImage = explode('.', CommonHelper::getMediaUrl($media));
+                                $explodeImage = explode('.', getMediaUrl($media));
                                 $extension = end($explodeImage);
 
                                 if (in_array($extension, $imageExtensions)) {
@@ -827,7 +826,7 @@ class SiteDevelopmentController extends Controller
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
                         'id' => $media->id,
-                        'url' => CommonHelper::getMediaUrl($media),
+                        'url' => getMediaUrl($media),
                         'site_id' => $site->id,
                         'user_list' => $usrSelectBox,
                     ];
@@ -855,7 +854,7 @@ class SiteDevelopmentController extends Controller
             if ($task->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
                     $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief', 'jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
-                    $explodeImage = explode('.', CommonHelper::getMediaUrl($media));
+                    $explodeImage = explode('.', getMediaUrl($media));
                     $extension = end($explodeImage);
 
                     if (in_array($extension, $imageExtensions)) {
@@ -874,7 +873,7 @@ class SiteDevelopmentController extends Controller
                     $records[] = [
                         'media_id' => $id,
                         'id' => $media->id,
-                        'url' => CommonHelper::getMediaUrl($media),
+                        'url' => getMediaUrl($media),
                         'task_id' => $task->id,
                         'isImage' => $isImage,
                         'userList' => $userList,
@@ -916,7 +915,7 @@ class SiteDevelopmentController extends Controller
                         $user->phone,
                         null,
                         'Please find attached file',
-                        CommonHelper::getMediaUrl($media)
+                        getMediaUrl($media)
                     );
 
                     return response()->json(['code' => 200, 'message' => 'Document send succesfully']);
@@ -943,7 +942,7 @@ class SiteDevelopmentController extends Controller
         if ($username) {
             $params = \App\Sop::create([
                 'name' => $username->name,
-                'content' => CommonHelper::getMediaUrl($media),
+                'content' => getMediaUrl($media),
 
             ]);
 
@@ -1014,7 +1013,7 @@ class SiteDevelopmentController extends Controller
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
                         'id' => $media->id,
-                        'url' => CommonHelper::getMediaUrl($media),
+                        'url' => getMediaUrl($media),
                         'site_id' => $site->id,
                     ];
                 }

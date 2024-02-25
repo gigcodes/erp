@@ -27,7 +27,6 @@ use App\CustomerCharity;
 use App\SiteDevelopment;
 use App\StoreSocialContent;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -244,7 +243,7 @@ class ChatMessagesController extends Controller
                     if (in_array($request->object, ['supplier'])) {
                         $tempImage = [
                             'key' => $image->getKey(),
-                            'image' => CommonHelper::getMediaUrl($image),
+                            'image' => getMediaUrl($image),
                             'product_id' => '',
                             'special_price' => '',
                             'size' => '',
@@ -280,7 +279,7 @@ class ChatMessagesController extends Controller
                         // Get media URL
                         $media[] = [
                             'key' => $image->getKey(),
-                            'image' => CommonHelper::getMediaUrl($image),
+                            'image' => getMediaUrl($image),
                             'product_id' => $productId,
                         ];
                     }
@@ -334,7 +333,7 @@ class ChatMessagesController extends Controller
                             if (in_array($request->object, ['supplier'])) {
                                 $tempImage = [
                                     'key' => $image->getKey(),
-                                    'image' => CommonHelper::getMediaUrl($image),
+                                    'image' => getMediaUrl($image),
                                     'product_id' => '',
                                     'special_price' => '',
                                     'size' => '',
@@ -369,7 +368,7 @@ class ChatMessagesController extends Controller
                                 // Get media URL
                                 $parentMedia[] = [
                                     'key' => $image->getKey(),
-                                    'image' => CommonHelper::getMediaUrl($image),
+                                    'image' => getMediaUrl($image),
                                     'product_id' => $parentProductId,
                                 ];
                             }

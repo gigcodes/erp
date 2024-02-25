@@ -324,7 +324,7 @@
                     @if ($complaint->hasMedia(config('constants.media_tags')))
                       <ul>
                         @foreach ($complaint->getMedia(config('constants.media_tags')) as $image)
-                          <li><a href="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" target="_blank"><img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" /></a></li>
+                          <li><a href="{{ getMediaUrl($image) }}" target="_blank"><img src="{{ getMediaUrl($image) }}" class="img-responsive" /></a></li>
                         @endforeach
                       </ul>
                     @endif

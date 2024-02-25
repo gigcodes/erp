@@ -54,7 +54,7 @@
       <td>
         @if ($images = $product->getMedia(config('constants.media_tags')))
           @foreach ($images as $image)
-            <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($image) }}" class="img-responsive" width="50px">
+            <img src="{{ getMediaUrl($image) }}" class="img-responsive" width="50px">
           @endforeach
         @endif
       </td>

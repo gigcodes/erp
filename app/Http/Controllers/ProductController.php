@@ -50,7 +50,6 @@ use App\ProductSuggestedLog;
 use App\TranslationLanguage;
 use App\UserProductFeedback;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use App\Helpers\ProductHelper;
@@ -1934,7 +1933,7 @@ class ProductController extends Controller
                 $product->attachMedia($media, config('constants.media_tags'));
 
                 if ($key == 0) {
-                    $image_url = CommonHelper::getMediaUrl($media);
+                    $image_url = getMediaUrl($media);
                 }
             }
 
@@ -3050,7 +3049,7 @@ class ProductController extends Controller
             $product->attachMedia($media, config('constants.media_tags'));
         }
 
-        $product_image = $product->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
+        $product_image = $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
 
         if ($request->order_id) {
             $order_product = new OrderProduct;
@@ -5191,7 +5190,7 @@ class ProductController extends Controller
                     $media = Media::find($mediaid);
                     $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
-                    $imagesArray[] = CommonHelper::getMediaUrl($media);
+                    $imagesArray[] = getMediaUrl($media);
                 }
             }
 
@@ -5961,7 +5960,7 @@ class ProductController extends Controller
             $image = $product->getMedia(config('constants.attach_image_tag'))->first();
             $data = [
                 'title' => $product->name,
-                'url' => CommonHelper::getMediaUrl($image),
+                'url' => getMediaUrl($image),
                 'amount' => $product->price,
                 'description' => $product->short_description,
             ];

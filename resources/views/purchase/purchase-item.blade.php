@@ -74,7 +74,7 @@
                             @endphp
                             @if(!empty($special_product))
                                 @if ($special_product->hasMedia(config('constants.media_tags')))
-                                    <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" width="50px">
+                                    <img src="{{ getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" width="50px">
                                 @endif
                             @endif
                         </td>
@@ -128,7 +128,7 @@
                                 $special_product = \App\Product::find($product['id']);
                             @endphp
                             @if ($special_product->hasMedia(config('constants.media_tags')))
-                                <img src="{{ \App\Helpers\CommonHelper::getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" width="50px">
+                                <img src="{{ getMediaUrl($special_product->getMedia(config('constants.media_tags'))->first()) }}" class="img-responsive" width="50px">
                             @endif
                         </td>
                         <td>{{ $product['price'] }}</td>

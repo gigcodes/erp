@@ -17,7 +17,6 @@ use Plank\Mediable\Media;
 use App\Helpers\QueryHelper;
 use App\UserProductFeedback;
 use Illuminate\Http\Request;
-use App\Helpers\CommonHelper;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use Illuminate\Support\Facades\DB;
@@ -304,7 +303,7 @@ class ProductCropperController extends Controller
                 if (! $cropRefrence) {
                     continue;
                 }
-                $rec->file_url = CommonHelper::getMediaUrl($cropRefrence->media);
+                $rec->file_url = getMediaUrl($cropRefrence->media);
                 $rec->settings = ['size' => $size, 'padding' => $padding[$key] ?? 96, 'media_id' => $cropRefrence->original_media_id];
                 $rec->product_id = $id;
                 $rec->save();

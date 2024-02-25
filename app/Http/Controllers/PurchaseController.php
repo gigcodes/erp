@@ -35,7 +35,6 @@ use App\Mail\PurchaseEmail;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\CommunicationHistory;
-use App\Helpers\CommonHelper;
 use App\ReadOnly\SupplierList;
 use App\Exports\PurchasesExport;
 use App\ReadOnly\PurchaseStatus;
@@ -573,7 +572,7 @@ class PurchaseController extends Controller
             $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
             $new_products[$count]['brand_id'] = $product->brands ? $product->brands->id : '';
             $new_products[$count]['category'] = $product->category;
-            $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
+            $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
             $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
             $new_products[$count]['customer_id'] = ! empty($product->orderproducts->first()->order) ? (! empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
             $new_products[$count]['customers'] = $customers;
@@ -1740,7 +1739,7 @@ class PurchaseController extends Controller
 
             if (! empty($temp)) {
                 $orderProducts[$key]['product'] = $temp;
-                $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? CommonHelper::getMediaUrl($temp->getMedia(config('constants.media_tags'))->first()) : '';
+                $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($temp->getMedia(config('constants.media_tags'))->first()) : '';
             }
         }
 
@@ -2237,7 +2236,7 @@ class PurchaseController extends Controller
             $media = '';
             $product = Product::find($id);
             if ($product && $product->hasMedia(config('constants.media_tags'))) {
-                $media = CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first());
+                $media = getMediaUrl($product->getMedia(config('constants.media_tags'))->first());
             }
 
             $sku = isset($product->sku) ? $product->sku : '';

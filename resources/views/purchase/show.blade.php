@@ -249,7 +249,7 @@
       @foreach ($order->products as $product)
         <div class="col-md-6">
           <a href="{{ route('purchase.product.show', $product->id) }}" data-toggle='tooltip' data-html='true' data-placement='top' title="<strong>Price: </strong>{{ $product->price }}">
-            <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? \App\Helpers\CommonHelper::getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive" alt="">
+            <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '' }}" class="img-responsive" alt="">
           </a>
 
           <div class="form-group mt-3">
