@@ -565,7 +565,7 @@ class BrandController extends Controller
 
                 BrandLogo::create($params);
 
-                $file->storeAs('brand_logo', $fileName);
+                $file->storeAs('brand_logo', $fileName, 's3');
             }
 
             return response()->json(['code' => 200, 'msg' => 'files uploaded successfully', 'data' => $fileNameArray]);
