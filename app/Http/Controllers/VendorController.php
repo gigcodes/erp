@@ -1963,7 +1963,7 @@ class VendorController extends Controller
     {
         $vendor = Vendor::find($request->id);
 
-        if (isset($request->flowcharts) && !empty($request->flowcharts)) {
+        if (isset($request->flowcharts) && ! empty($request->flowcharts)) {
             $vendor->flowchart_date = Carbon::now();
             $vendor->fc_status = 1;
             $vendor->flowcharts = $request->flowcharts;
