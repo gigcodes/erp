@@ -1,6 +1,4 @@
 var modalContentQueue = [];
-var isShowEmailAlertModal = false;
-let email_data_alert = null;
 
 function processMinMax(module) {
     $modalCon = module.closest(".mymodal").attr("id");
@@ -29,24 +27,24 @@ function loadModal() {
         var textareaValue = firstEvent.email.message;
         myFrame.html(textareaValue);
         $("#emailAlert-modal-subject").html(firstEvent.email.subject);
+        $('#emailAlertModal').attr('data-shown', firstEvent.email.id);
         $('#emailAlertModal').modal('show');
         $('#emailAlertModal').css('display', 'block');
-        isShowEmailAlertModal = true;
-    } else {
-        isShowEmailAlertModal = false;
     }
 }
 
 if (config.pusher.key) {
+    let email_data_alert = null;
     window.Echo = new Echo({
         broadcaster: 'pusher',
         key: config.pusher.key,
         cluster: config.pusher.cluster,
-        forceTLS: true,
+        // forceTLS: true,
         wsHost: window.location.hostname,
         wsPort: 6001,
-        forceTLS: false,
+        forceTLS: true,
         disableStats: true,
+        encrypted: true,
     });
 
     window.Echo.private('emails')
@@ -59,11 +57,14 @@ if (config.pusher.key) {
 
     window.Echo.private('emails')
         .listenForWhisper('alert-modal-closed', (e) => {
-            if (isShowEmailAlertModal) {
+            if ($('#emailAlertModal').attr('data-shown') === e.id) {
                 $('#emailAlertModal').modal('hide');
                 $('.modal-backdrop').hide();
-                isShowEmailAlertModal = false;
             }
+            modalContentQueue = modalContentQueue.filter(function (item) {
+                return item.email.id !== parseInt(e.id);
+            });
+            loadModal();
         })
         .listenForWhisper('alert-modal-min_max', (e) => {
             if (e.id) {
@@ -72,20 +73,16 @@ if (config.pusher.key) {
             }
         });
 
-    $("#emailAlertModal").on("hidden.bs.modal", function (e) {
-        if (isShowEmailAlertModal) {
-            window.Echo.private('emails')
-                .whisper('alert-modal-closed', {});
-        }
-
-        modalContentQueue.shift()
-        loadModal();
-
+    $("#emailAlertModal").on("hide.bs.modal", function (e) {
+        var id = $('#emailAlertModal').attr('data-shown')
+        window.Echo.private('emails')
+            .whisper('alert-modal-closed', { id });
     });
 
     $("#emailAlertModal .btn").on("click", function (e) {
+        var id = $('#emailAlertModal').attr('data-shown')
         window.Echo.private('emails')
-            .whisper('alert-modal-closed', {});
+            .whisper('alert-modal-closed', { id });
     });
 
     $("#emailAlert-reply").on("click", function () {
