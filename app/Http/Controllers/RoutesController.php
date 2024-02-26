@@ -90,7 +90,7 @@ class RoutesController extends Controller
         }
 
         if ($request->post('type') == 'all') {
-            $result = Routes::update(['email_alert' => ($request->post('email_alert') == 'true') ? 1 : 0]);
+            $result = Routes::query()->update(['email_alert' => ($request->post('email_alert') == 'true') ? 1 : 0]);
         }
 
         return response()->json(['code' => 200, 'data' => $result, 'message' => 'Email alert updated successfully']);
