@@ -4739,6 +4739,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::get('routes/index', [RoutesController::class, 'index'])->name('routes.index');
     Route::get('routes/sync', [RoutesController::class, 'sync'])->name('routes.sync');
     Route::any('routes/update/{id}', [RoutesController::class, 'update'])->name('routes.update');
+    Route::post('routes/email-alert', [RoutesController::class, 'updateEmailAlert'])->name('routes.update.email-alert');
 
     // Reviews Module
     Route::post('review/createFromInstagramHashtag', [ReviewController::class, 'createFromInstagramHashtag']);

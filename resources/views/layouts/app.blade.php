@@ -1,6 +1,7 @@
 @php
     $currentRoutes = \Route::current();
     $metaData = '';
+    $isCurrentUriIsEnableForEmailAlert = checkCurrentUriIsEnableForEmailAlert($currentRoutes->uri);
 @endphp
         <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -4502,7 +4503,7 @@
     };
 </script>
 
-@if($isAdmin)
+@if($isAdmin && $isCurrentUriIsEnableForEmailAlert)
     <script src="{{asset("js/email-alert-echo.js?v=0.1")}}"></script>
 @endif
 

@@ -17,5 +17,5 @@ class Routes extends Model
      * @SWG\Property(property="page_title",type="string")
      * @SWG\Property(property="page_description",type="string")
      */
-    protected $fillable = ['url', 'page_title', 'page_description'];
+    protected $fillable = ['url', 'page_title', 'page_description', 'email_alert'];
 }

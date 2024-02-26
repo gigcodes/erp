@@ -1,6 +1,7 @@
 <?php
 
 use App\ErpLog;
+use Carbon\Carbon;
 
 function printStatusView()
 {
@@ -671,4 +672,19 @@ function insertGoogleAdsLog($input)
     }
 
     return true;
+}
+
+function getMediaUrl($media)
+{
+    if ($media->disk == 's3') {
+        return $media->getTemporaryUrl(Carbon::now()->addMinutes(config('constants.temporary_url_expiry_time')));
+    } else {
+        return $media->getUrl();
+    }
+}
+
+function checkCurrentUriIsEnableForEmailAlert($uri){
+    $route = \App\Routes::where('url', 'LIKE', $uri)->where('email_alert', 1)->first();
+
+    return $route !== null;
 }

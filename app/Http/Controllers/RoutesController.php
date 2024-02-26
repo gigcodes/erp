@@ -79,4 +79,20 @@ class RoutesController extends Controller
 
         return view('routes.update', compact('routes'));
     }
+
+    public function updateEmailAlert(Request $request){
+        $result = null;
+
+        if ($request->post('type') == 'single') {
+            $routes = Routes::find((int) $request->post('id'));
+            $routes->email_alert = ($request->post('email_alert') == 'true') ? 1 : 0;
+            $result = $routes->update();
+        }
+
+        if ($request->post('type') == 'all') {
+            $result = Routes::query()->update(['email_alert' => ($request->post('email_alert') == 'true') ? 1 : 0]);
+        }
+
+        return response()->json(['code' => 200, 'data' => $result, 'message' => 'Email alert updated successfully']);
+    }
 }
