@@ -349,3 +349,4 @@ Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
 Route::get('magento_modules/listing-careers', [MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
 
 Route::post('scrapper-category-map', [NodeScrapperCategoryMapController::class, 'store']);
+Route::post('get-scrapper-category-map', [NodeScrapperCategoryMapController::class, 'getRecord']);
