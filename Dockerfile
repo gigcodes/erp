@@ -5,7 +5,7 @@ RUN apt update \
             libicu-dev libonig-dev libpq-dev libxml2-dev libzip-dev postgresql-client vim-tiny zlib1g-dev libpng-dev \
         && docker-php-ext-install bz2 curl gmp intl iconv bcmath calendar \
             mbstring opcache pdo pdo_pgsql pgsql xml zip exif gd
-RUN apt-get install nodejs npm -y
+RUN apt update && apt-get install nodejs npm mariadb-client -y && apt-get install -y cron awscli
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
