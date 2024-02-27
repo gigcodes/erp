@@ -3199,49 +3199,49 @@
       var isLoading_main = false;
       $(document).ready(function() {
 
-        $(window).scroll(function() {
-          if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
-            loadMore();
-          }
-        });
+            $(window).scroll(function() {
+                if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
+                    loadMore();
+                }
+            });
 
-        function loadMore() {
-          if (isLoading_main)
-            return;
-          isLoading_main = true;
-          type = $("#tasktype").val();
-          var $loader = $('.infinite-scroll-products-loader');
-          main_page = main_page + 1;
-          $.ajax({
-            url: "/task?page=" + main_page,
-            type: 'GET',
-            data: $('.form-search-data').serialize(),
-            beforeSend: function() {
-              $loader.show();
-            },
-            success: function(data) {
-              $loader.hide();
-              if (type == "pending") {
-                $(".pending-row-render-view").append(data);
-              }
-              if (type == "statutory_not_completed") {
-                $(".statutory-row-render-view").append(data);
-              }
-              if (type == "completed") {
-                $(".completed-row-render-view").append(data);
-              }
-              if ('' === data.trim())
-                return;
+            function loadMore() {
+                if (isLoading_main)
+                    return;
+                isLoading_main = true;
+                type = $("#tasktype").val();
+                var $loader = $('.infinite-scroll-products-loader');
+                main_page = main_page + 1;
+                $.ajax({
+                    url: "/task?page=" + main_page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function(data) {
+                        $loader.hide();
+                        if (type == "pending") {
+                            $(".pending-row-render-view").append(data);
+                        }
+                        if (type == "statutory_not_completed") {
+                            $(".statutory-row-render-view").append(data);
+                        }
+                        if (type == "completed") {
+                            $(".completed-row-render-view").append(data);
+                        }
+                        if ('' === data.trim())
+                            return;
 
-              isLoading_main = false;
-            },
-            error: function() {
-              $loader.hide();
-              isLoading_main = false;
+                        isLoading_main = false;
+                    },
+                    error: function() {
+                        $loader.hide();
+                        isLoading_main = false;
+                    }
+                });
             }
-          });
-        }
-      });
+            });
 
 
       $(document).on("click", ".previewDoc", function() {
