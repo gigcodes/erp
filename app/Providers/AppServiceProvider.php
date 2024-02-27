@@ -59,11 +59,10 @@ class AppServiceProvider extends ServiceProvider
         CallBusyMessage::observe(CallBusyMessageObserver::class);
 
         Paginator::useBootstrap();
-
-        Facades\View::composer(['googledocs.index', 'development.flagtask', 'development.issue', 'task-module.show', 'task-module.*'], function (View $view) {
-            $googledocscategory = GoogleDocsCategory::get()->pluck('name', 'id')->toArray();
-            if (count($googledocscategory) > 0) {
-                $view->with('googleDocCategory', $googledocscategory);
+        $google_docs_category = GoogleDocsCategory::get()->pluck('name', 'id')->toArray();
+        Facades\View::composer(['googledocs.index', 'development.flagtask', 'development.issue', 'task-module.show', 'task-module.*'], function (View $view) use ($google_docs_category) {
+            if (count($google_docs_category) > 0) {
+                $view->with('googleDocCategory', $google_docs_category);
             } else {
                 $view->with('googleDocCategory', []);
             }
@@ -115,7 +114,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any applicxation services.
+     * Register any application services.
      *
      * @return void
      */
