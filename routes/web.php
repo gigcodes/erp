@@ -378,6 +378,7 @@ use App\Http\Controllers\UsersFeedbackHrTicketController;
 use App\Http\Controllers\GoogleCampaignLocationController;
 use App\Http\Controllers\NegativeCouponResponseController;
 use App\Http\Controllers\MagentoModuleApiHistoryController;
+use App\Http\Controllers\NodeScrapperCategoryMapController;
 use App\Http\Controllers\Pinterest\PinterestPinsController;
 use App\Http\Controllers\UnknownAttributeProductController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
@@ -488,34 +489,43 @@ Route::middleware('auth')->group(function () {
         Route::get('contentview/{id}', [BlogController::class, 'contentView'])->name('blog.contentView');
     });
 
-    Route::get('/zabbix/users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
-    Route::post('/zabbix/user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
-    Route::get('/zabbix/items/{hostId?}', [ItemController::class, 'index'])->name('zabbix.item.index');
-    Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
-    Route::post('/zabbix/user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
-    Route::get('/zabbix/triggers', [TriggerController::class, 'index'])->name('zabbix.trigger.index');
-    Route::get('/zabbix/host/detail', [ZabbixController::class, 'detail'])->name('zabbix.host.detail');
-    Route::delete('/zabbix/host/delete', [ZabbixController::class, 'delete'])->name('zabbix.host.delete');
-    Route::post('/zabbix/host/save', [ZabbixController::class, 'save'])->name('zabbix.host.save');
-    Route::post('/zabbix/triggers/save', [TriggerController::class, 'save'])->name('zabbix.trigger.save');
-    Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
-    Route::post('/zabbix/item/delete', [ItemController::class, 'delete'])->name('zabbix.item.delete');
-    Route::post('/zabbix/trigger/change_status', [TriggerController::class, 'changeStatus'])->name('zabbix.trigger.status');
-    Route::post('/zabbix/item/save', [ItemController::class, 'save'])->name('zabbix.item.save');
-    Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
-    Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
-    Route::get('discount-sale-price/type', [DiscountSalePriceController::class, 'type']);
-    Route::post('discount-sale-price/create', [DiscountSalePriceController::class, 'create']);
+    Route::prefix('zabbix')->group(function () {
+        Route::get('users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
+        Route::post('user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
+        Route::get('items/{hostId?}', [ItemController::class, 'index'])->name('zabbix.item.index');
+        Route::get('user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
+        Route::post('user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
+        Route::get('triggers', [TriggerController::class, 'index'])->name('zabbix.trigger.index');
+        Route::get('host/detail', [ZabbixController::class, 'detail'])->name('zabbix.host.detail');
+        Route::delete('host/delete', [ZabbixController::class, 'delete'])->name('zabbix.host.delete');
+        Route::post('host/save', [ZabbixController::class, 'save'])->name('zabbix.host.save');
+        Route::post('triggers/save', [TriggerController::class, 'save'])->name('zabbix.trigger.save');
+        Route::post('user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
+        Route::post('item/delete', [ItemController::class, 'delete'])->name('zabbix.item.delete');
+        Route::post('trigger/change_status', [TriggerController::class, 'changeStatus'])->name('zabbix.trigger.status');
+        Route::post('item/save', [ItemController::class, 'save'])->name('zabbix.item.save');
+    });
+
+    Route::prefix('discount-sale-price')->group(function () {
+        Route::get('/', [DiscountSalePriceController::class, 'index']);
+        Route::delete('{id}', [DiscountSalePriceController::class, 'delete']);
+        Route::get('type', [DiscountSalePriceController::class, 'type']);
+        Route::post('create', [DiscountSalePriceController::class, 'create']);
+    });
+
     Route::get('create-media-image', [CustomerController::class, 'testImage']);
     Route::get('generate-favicon', [HomeController::class, 'generateFavicon']);
     Route::get('logout-refresh', [HomeController::class, 'logoutRefresh'])->name('logout-refresh');
 
-    Route::get('/products/affiliate', [ProductController::class, 'affiliateProducts']);
-    Route::get('/products/change-category', [ProductController::class, 'changeCategory']);
-    Route::post('/products/published', [ProductController::class, 'published']);
-    Route::get('/products/pushproductlist', [ProductController::class, 'pushproductlist']);
-    Route::get('/products/delete-out-of-stock-products', [ProductController::class, 'deleteOutOfStockProducts']);
-    Route::get('/customers/accounts', [CustomerController::class, 'accounts']);
+    Route::prefix('products')->group(function () {
+        Route::get('affiliate', [ProductController::class, 'affiliateProducts']);
+        Route::get('change-category', [ProductController::class, 'changeCategory']);
+        Route::post('published', [ProductController::class, 'published']);
+        Route::get('pushproductlist', [ProductController::class, 'pushproductlist']);
+        Route::get('delete-out-of-stock-products', [ProductController::class, 'deleteOutOfStockProducts']);
+    });
+
+    Route::get('/customers/accounts', [CustomerController::class, 'accounts'])->name('customers.accounts');
     Route::post('/customer/update', [CustomerController::class, 'customerUpdate']);
     Route::get('/customer/update/history/{id}', [CustomerController::class, 'customerUpdateHistory']);
     Route::get('/customer/name', [CustomerController::class, 'customerName'])->name('customer.name.show');
@@ -532,6 +542,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/message', [MessageController::class, 'store'])->name('message.store');
     Route::post('/message/{message}', [MessageController::class, 'update'])->name('message.update');
     Route::post('/message/{id}/removeImage', [MessageController::class, 'removeImage'])->name('message.removeImage');
+
     Route::get('/chat/getnew', [ChatController::class, 'checkfornew'])->name('checkfornew');
     Route::get('/chat/updatenew', [ChatController::class, 'updatefornew'])->name('updatefornew');
 
@@ -545,32 +556,42 @@ Route::middleware('auth')->group(function () {
     Route::post('/show-magento-cron-data/statuscolor', [Cron\ShowMagentoCronDataController::class, 'statusColor'])->name('magento-cron-data.statuscolor');
     Route::post('/show-magento-cron-data/history', [Cron\ShowMagentoCronDataController::class, 'commandHistoryLog'])->name('magento-cron-commandHistoryLog');
 
-    Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
-    Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
-    Route::get('magento_modules/listing-careers', [MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
-    Route::post('magento_modules/listing-careers/filter', [MagentoCareersController::class, 'getCareerByFilter'])->name('magento_module_listing_careers_by_filter');
-    Route::post('magento_modules/listing-careers/getCareerRecord', [MagentoCareersController::class, 'getCareerRecord'])->name('fetchedCareerRecords');
-    Route::post('magento_modules/listing-careers/create_or_edit', [MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
-    Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
     Route::get('magento_modules_logs/{id}', [MagentoModuleController::class, 'magentoModuleListLogsDetails'])->name('magento_module_listing_logs_details');
-    Route::get('magento_modules/ajax-listing-logs', [MagentoModuleController::class, 'magentoModuleListLogsAjax'])->name('magento_modules.ajax-sync-logs');
-    Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
-    Route::get('magento_modules/get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
-    Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
-    Route::post('magento_modules/listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
-    Route::post('magento_modules/sync-modules', [MagentoModuleController::class, 'syncModules'])->name('magento_module.sync-modules');
-    Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
-    Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
-    Route::post('magento_modules/check-status', [MagentoModuleController::class, 'magentoModuleCheckStatus'])->name('magentoModuleCheckStatus');
-    Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
+
+    Route::prefix('magento_modules')->group(function () {
+        Route::post('verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
+        Route::get('listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+        Route::get('listing-careers', [MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
+        Route::post('listing-careers/filter', [MagentoCareersController::class, 'getCareerByFilter'])->name('magento_module_listing_careers_by_filter');
+        Route::post('listing-careers/getCareerRecord', [MagentoCareersController::class, 'getCareerRecord'])->name('fetchedCareerRecords');
+        Route::post('listing-careers/create_or_edit', [MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
+        Route::get('listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
+        Route::get('ajax-listing-logs', [MagentoModuleController::class, 'magentoModuleListLogsAjax'])->name('magento_modules.ajax-sync-logs');
+        Route::get('get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
+        Route::get('get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
+        Route::get('get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
+        Route::post('listingupdate-status', [MagentoModuleController::class, 'magentoModuleUpdateStatus'])->name('magentoModuleUpdateStatus');
+        Route::post('sync-modules', [MagentoModuleController::class, 'syncModules'])->name('magento_module.sync-modules');
+        Route::post('update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
+        Route::get('remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+        Route::post('check-status', [MagentoModuleController::class, 'magentoModuleCheckStatus'])->name('magentoModuleCheckStatus');
+        Route::post('remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
+        Route::get('m2-error-assignee-history', [MagentoModuleController::class, 'getM2ErrorAssigneeHistories'])->name('magento_module.m2-error-assignee-history');
+        Route::post('dependency', [MagentoModuleController::class, 'storedependency'])->name('magento_module_dependency.store');
+        Route::get('dependency/{id}', [MagentoModuleController::class, 'getDependencyRemarks'])->name('magento_module_dependency.remarks');
+        Route::get('module-edit/{id}', [MagentoModuleController::class, 'moduleEdit'])->name('magento_module.module-edit');
+        Route::post('index-post', [MagentoModuleController::class, 'indexPost'])->name('magento_module.index-post');
+        Route::post('store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
+        Route::post('store-m2-error-status', [MagentoModuleController::class, 'storeM2ErrorStatus'])->name('magento_modules.store-m2-error-status');
+        Route::post('M2remark', [MagentoModuleController::class, 'storeM2Remark'])->name('magento_module_m2_remark.store');
+        Route::post('unit-test-status', [MagentoModuleController::class, 'storeUnitTestStatus'])->name('magento_modules.store-unit-test-status');
+        Route::post('unit-testremark', [MagentoModuleController::class, 'storeUniTestRemark'])->name('magento_module_unit_test_remark.store');
+    });
+
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
-    Route::get('magento_modules/m2-error-assignee-history', [MagentoModuleController::class, 'getM2ErrorAssigneeHistories'])->name('magento_module.m2-error-assignee-history');
     Route::get('/reviewstandard', [MagentoModuleController::class, 'reviewStandardHistories'])->name('magento_module.review.standard.histories');
-    Route::post('magento_modules/dependency', [MagentoModuleController::class, 'storedependency'])->name('magento_module_dependency.store');
-    Route::get('magento_modules/dependency/{id}', [MagentoModuleController::class, 'getDependencyRemarks'])->name('magento_module_dependency.remarks');
-    Route::get('/magento_modules/module-edit/{id}', [MagentoModuleController::class, 'moduleEdit'])->name('magento_module.module-edit');
-    Route::post('magento_modules/index-post', [MagentoModuleController::class, 'indexPost'])->name('magento_module.index-post');
+
     Route::resource('magento_modules', MagentoModuleController::class);
     Route::get('/location', [MagentoModuleController::class, 'locationHistory'])->name('magento_module.location.history');
     Route::get('/description', [MagentoModuleController::class, 'descriptionHistory'])->name('magento_module.description.history');
@@ -578,8 +599,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('magento_module_locations', MagentoLocationController::class);
     Route::get('/return_type_error/status', [MagentoModuleReturnTypeErrorStatusController::class, 'returnTypeHistory'])->name('magento_module.return_type.history');
     Route::resource('magento_module_return_types', MagentoModuleReturnTypeErrorStatusController::class);
-    Route::post('magento_modules/store-verified-status', [MagentoModuleController::class, 'storeVerifiedStatus'])->name('magento_modules.store-verified-status');
-    Route::post('magento_modules/store-m2-error-status', [MagentoModuleController::class, 'storeM2ErrorStatus'])->name('magento_modules.store-m2-error-status');
     Route::resource('magento_module_categories', MagentoModuleCategoryController::class);
     Route::post('magento_module_api_histories', [MagentoModuleApiHistoryController::class, 'store'])->name('magento_module_api_histories.store');
     Route::get('magento_module_api_histories/{magento_module}', [MagentoModuleApiHistoryController::class, 'show'])->name('magento_module_api_histories.show');
@@ -591,9 +610,6 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_customized_histories/{magento_module}', [MagentoModuleCustomizedHistoryController::class, 'show'])->name('magento_module_customized_histories.show');
 
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
-    Route::post('magento_modules/M2remark', [MagentoModuleController::class, 'storeM2Remark'])->name('magento_module_m2_remark.store');
-    Route::post('magento_modules/unit-test-status', [MagentoModuleController::class, 'storeUnitTestStatus'])->name('magento_modules.store-unit-test-status');
-    Route::post('magento_modules/unit-testremark', [MagentoModuleController::class, 'storeUniTestRemark'])->name('magento_module_unit_test_remark.store');
     Route::get('magento_module/unit-test-user-history', [MagentoModuleController::class, 'getUnitTestUserHistories'])->name('magento_module.unit-test-user-history');
     Route::get('magento_module/unit-test-remark-history', [MagentoModuleController::class, 'getUnitTestRemarkHistories'])->name('magento_module.unit-test-remark-history');
     Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
@@ -614,37 +630,43 @@ Route::middleware('auth')->group(function () {
     Route::resource('zabbix-task', ZabbixTaskController::class);
 
     // Config Refactors
-    Route::get('config-refactor/remark/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getRemarks'])->name('config-refactor.get_remarks');
-    Route::get('config-refactor/status/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getStatuses'])->name('config-refactor.get_status_histories');
-    Route::get('config-refactor/user/{config_refactor}', [ConfigRefactorController::class, 'getUsers'])->name('config-refactor.get_users_histories');
-    Route::post('config-refactor/store-remark', [ConfigRefactorController::class, 'storeRemark'])->name('config-refactor.store.remark');
-    Route::post('config-refactor/change-status', [ConfigRefactorController::class, 'updateStatus'])->name('config-refactor.change.status');
-    Route::post('config-refactor/change-user', [ConfigRefactorController::class, 'updateUser'])->name('config-refactor.change.user');
-    Route::post('config-refactor/store-status', [ConfigRefactorController::class, 'storeStatus'])->name('config-refactor.store-status');
-    Route::post('config-refactor/duplicate-create', [ConfigRefactorController::class, 'duplicateCreate'])->name('config-refactor.duplicate-create');
+    Route::prefix('config-refactor')->group(function () {
+        Route::get('remark/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getRemarks'])->name('config-refactor.get_remarks');
+        Route::get('status/{config_refactor}/{column_name}', [ConfigRefactorController::class, 'getStatuses'])->name('config-refactor.get_status_histories');
+        Route::get('user/{config_refactor}', [ConfigRefactorController::class, 'getUsers'])->name('config-refactor.get_users_histories');
+        Route::post('store-remark', [ConfigRefactorController::class, 'storeRemark'])->name('config-refactor.store.remark');
+        Route::post('change-status', [ConfigRefactorController::class, 'updateStatus'])->name('config-refactor.change.status');
+        Route::post('change-user', [ConfigRefactorController::class, 'updateUser'])->name('config-refactor.change.user');
+        Route::post('store-status', [ConfigRefactorController::class, 'storeStatus'])->name('config-refactor.store-status');
+        Route::post('duplicate-create', [ConfigRefactorController::class, 'duplicateCreate'])->name('config-refactor.duplicate-create');
+    });
     Route::resource('config-refactor', ConfigRefactorController::class);
 
     Route::resource('project-theme', ProjectThemeController::class);
 
-    Route::get('theme-structure/{id?}', [ThemeStructureController::class, 'index'])->name('theme-structure.index');
-    Route::get('/theme-structure/reload-tree/{id}', [ThemeStructureController::class, 'reloadTree']);
-    Route::post('/theme-structure/delete-item', [ThemeStructureController::class, 'deleteItem'])->name('theme-structure.delete-item');
-    Route::post('/theme-structure', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
-    Route::post('/theme-structure/theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
+    Route::prefix('theme-structure')->group(function () {
+        Route::get('{id?}', [ThemeStructureController::class, 'index'])->name('theme-structure.index');
+        Route::get('reload-tree/{id}', [ThemeStructureController::class, 'reloadTree']);
+        Route::post('delete-item', [ThemeStructureController::class, 'deleteItem'])->name('theme-structure.delete-item');
+        Route::post('/', [ThemeStructureController::class, 'store'])->name('theme-structure.store');
+        Route::post('theme-file-store', [ThemeStructureController::class, 'themeFileStore'])->name('theme-structure.theme-file-store');
+    });
 
-    Route::get('project', [ProjectController::class, 'index'])->name('project.index');
-    Route::post('project', [ProjectController::class, 'store'])->name('project.store');
-    Route::post('project/serverenv-store', [ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
-    Route::post('project/project-type-store', [ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
-    Route::post('project/buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
-    Route::post('project/pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
-    Route::get('project/build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
-    Route::get('project/build-process-error-logs', [ProjectController::class, 'buildProcessErrorLogs'])->name('project.buildProcessErrorLogs');
-    Route::get('project/build-process-status-logs', [ProjectController::class, 'buildProcessStatusLogs'])->name('project.buildProcessStatusLogs');
-    Route::get('project/{id}', [ProjectController::class, 'edit'])->name('project.edit');
-    Route::post('project/{id}', [ProjectController::class, 'update'])->name('project.update');
-    Route::delete('project/{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
-    Route::post('project/multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
+    Route::prefix('project')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('project.index');
+        Route::post('/', [ProjectController::class, 'store'])->name('project.store');
+        Route::post('serverenv-store', [ProjectController::class, 'serverenvStore'])->name('project.serverenvStore');
+        Route::post('project-type-store', [ProjectController::class, 'projectTypeStore'])->name('project.projectTypeStore');
+        Route::post('buildProcess', [ProjectController::class, 'buildProcess'])->name('project.buildProcess');
+        Route::post('pullRequests-buildProcess', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
+        Route::get('build-process-logs/{id?}', [ProjectController::class, 'buildProcessLogs'])->name('project.buildProcessLogs');
+        Route::get('build-process-error-logs', [ProjectController::class, 'buildProcessErrorLogs'])->name('project.buildProcessErrorLogs');
+        Route::get('build-process-status-logs', [ProjectController::class, 'buildProcessStatusLogs'])->name('project.buildProcessStatusLogs');
+        Route::get('{id}', [ProjectController::class, 'edit'])->name('project.edit');
+        Route::post('{id}', [ProjectController::class, 'update'])->name('project.update');
+        Route::delete('{id}/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+        Route::post('multiple/buildProcess', [ProjectController::class, 'buildMultipleProcess'])->name('project.Multiple.buildProcess');
+    });
 
     Route::get('get-github-repos', [ProjectController::class, 'getGithubRepos'])->name('project.getGithubRepo');
     Route::get('getGithubBranches', [ProjectController::class, 'getGithubBranches'])->name('project.getGithubBranches');
@@ -843,9 +865,9 @@ Route::middleware('auth')->group(function () {
     Route::prefix('category-messages')->group(function () {
         Route::post('bulk-messages/addToDND', [BulkCustomerRepliesController::class, 'addToDND']);
         Route::post('bulk-messages/removeFromDND', [BulkCustomerRepliesController::class, 'removeFromDND']);
-        Route::post('bulk-messages/keyword', [BulkCustomerRepliesController::class, 'storeKeyword']);
+        Route::post('bulk-messages/keyword', [BulkCustomerRepliesController::class, 'storeKeyword'])->name('bulk-messages.store-keyword');
         Route::post('bulk-messages/keyword/update-whatsappno', [BulkCustomerRepliesController::class, 'updateWhatsappNo'])->name('bulk-messages.whatsapp-no');
-        Route::post('bulk-messages/send-message', [BulkCustomerRepliesController::class, 'sendMessagesByKeyword']);
+        Route::post('bulk-messages/send-message', [BulkCustomerRepliesController::class, 'sendMessagesByKeyword'])->name('bulk-messages.send-messages-by-keyword');
         Route::resource('bulk-messages', BulkCustomerRepliesController::class);
         Route::resource('keyword', KeywordToCategoryController::class);
         Route::resource('category', CustomerCategoryController::class);
@@ -877,7 +899,7 @@ Route::middleware('auth')->group(function () {
     Route::post('push/faq/all', [FaqPushController::class, 'pushFaqAll']);
     Route::post('push/faq/mulitiple', [FaqPushController::class, 'mulitiplepushFaq']);
 
-    Route::get('hubstaff/members', [HubstaffController::class, 'index']);
+    Route::get('hubstaff/members', [HubstaffController::class, 'index'])->name('hubstaff.members.index');
     Route::post('hubstaff/members/{id}/save-field', [HubstaffController::class, 'saveMemberField']);
     Route::post('hubstaff/refresh_users', [HubstaffController::class, 'refreshUsers']);
     Route::post('hubstaff/linkuser', [HubstaffController::class, 'linkUser']);
@@ -964,66 +986,62 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::get('postman', [PostmanRequestCreateController::class, 'index']);
-    Route::get('postman/search', [PostmanRequestCreateController::class, 'search']);
-    Route::post('/postman/create', [PostmanRequestCreateController::class, 'store']);
-    Route::post('/postman/edit', [PostmanRequestCreateController::class, 'edit']);
-    Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
-    Route::get('postman/addstorewebsiteurlinflutterpostman', [PostmanRequestCreateController::class, 'addStoreWebsiteUrlInFlutterPostman']);
-
-    Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
-    Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
-    Route::get('postman/collection', [PostmanRequestCreateController::class, 'collectionIndex']);
-
-    Route::get('postman/folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
-    Route::post('postman/folder/create', [PostmanRequestCreateController::class, 'folderStore']);
-    Route::post('postman/workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
-    Route::post('postman/collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
-    Route::post('/postman/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
-    Route::post('/postman/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
-    Route::post('/postman/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
-    Route::delete('postman/folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
-    Route::delete('postman/workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
-    Route::post('postman/history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
-    Route::post('postman/collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
-    Route::post('postman/collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
-    Route::post('postman/collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
-
-    Route::get('postman/call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
-    Route::get('postman/call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
-
-    Route::get('postman/create/collection', [PostmanRequestCreateController::class, 'createPostmanCollectionAPI']);
-    Route::get('postman/update/collection', [PostmanRequestCreateController::class, 'updatePostmanCollectionAPI']);
-    Route::get('postman/get/collection', [PostmanRequestCreateController::class, 'getPostmanCollectionAndCreateAPI']);
-
-    Route::get('postman/create/folder', [PostmanRequestCreateController::class, 'createPostmanFolder']);
-    Route::get('postman/create/request', [PostmanRequestCreateController::class, 'createPostmanRequestAPI']);
-    Route::post('postman/send/request', [PostmanRequestCreateController::class, 'sendPostmanRequestAPI']);
-
-    Route::post('postman/requested/history', [PostmanRequestCreateController::class, 'postmanRequestHistoryLog']);
-    Route::get('postman/request/history', [PostmanRequestCreateController::class, 'index_request_hisory']);
-    Route::post('postman/response/history', [PostmanRequestCreateController::class, 'postmanResponseHistoryLog']);
-    Route::get('postman/response/history', [PostmanRequestCreateController::class, 'index_response_hisory']);
-    Route::post('postman/add/json/version', [PostmanRequestCreateController::class, 'jsonVersion']);
-    Route::post('postman/removeuser/permission', [PostmanRequestCreateController::class, 'removeUserPermission']);
-    Route::post('postman/remark/history', [PostmanRequestCreateController::class, 'postmanRemarkHistoryLog']);
-    Route::post('postman/user/permission', [PostmanRequestCreateController::class, 'userPermission'])->name('postman.permission');
-
-    Route::post('postman/get/mul/request', [PostmanRequestCreateController::class, 'getMulRequest']);
-    Route::post('postman/get/error/history', [PostmanRequestCreateController::class, 'postmanErrorHistoryLog']);
-    Route::post('postman/edit/history/', [PostmanRequestCreateController::class, 'postmanEditHistoryLog']);
-    Route::post('postman/status/create', [PostmanRequestCreateController::class, 'postmanStatusCreate'])->name('postman.status.create');
-    Route::post('postman/update-status', [PostmanRequestCreateController::class, 'updateStatus'])->name('update-status');
-    Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
-    Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
-    Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
-
+    Route::group(['prefix' => 'postman'],function (){
+        Route::get('/', [PostmanRequestCreateController::class, 'index']);
+        Route::get('search', [PostmanRequestCreateController::class, 'search']);
+        Route::post('/create', [PostmanRequestCreateController::class, 'store']);
+        Route::post('/edit', [PostmanRequestCreateController::class, 'edit']);
+        Route::delete('delete', [PostmanRequestCreateController::class, 'destroy']);
+        Route::get('addstorewebsiteurlinflutterpostman', [PostmanRequestCreateController::class, 'addStoreWebsiteUrlInFlutterPostman']);
+        Route::get('folder', [PostmanRequestCreateController::class, 'folderindex']);
+        Route::get('workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
+        Route::get('collection', [PostmanRequestCreateController::class, 'collectionIndex']);
+        Route::get('folder/search', [PostmanRequestCreateController::class, 'folderSearch']);
+        Route::post('folder/create', [PostmanRequestCreateController::class, 'folderStore']);
+        Route::post('workspace/create', [PostmanRequestCreateController::class, 'workspaceStore']);
+        Route::post('collection/create', [PostmanRequestCreateController::class, 'collectionStore']);
+        Route::post('/folder/edit', [PostmanRequestCreateController::class, 'folderEdit']);
+        Route::post('/workspace/edit', [PostmanRequestCreateController::class, 'workspaceEdit']);
+        Route::post('/collection/edit', [PostmanRequestCreateController::class, 'collectionEdit']);
+        Route::delete('folder/delete', [PostmanRequestCreateController::class, 'folderDestroy']);
+        Route::delete('workspace/delete', [PostmanRequestCreateController::class, 'workspaceDestroy']);
+        Route::post('history', [PostmanRequestCreateController::class, 'postmanHistoryLog']);
+        Route::post('collection/folders', [PostmanRequestCreateController::class, 'getCollectionFolders']);
+        Route::post('collection/folder/upsert', [PostmanRequestCreateController::class, 'upsertCollectionFolder']);
+        Route::post('collection/folder/delete', [PostmanRequestCreateController::class, 'deleteCollectionFolder']);
+        Route::get('call/workspace', [PostmanRequestCreateController::class, 'getPostmanWorkSpaceAPI']);
+        Route::get('call/collection', [PostmanRequestCreateController::class, 'getAllPostmanCollectionApi']);
+        Route::get('create/collection', [PostmanRequestCreateController::class, 'createPostmanCollectionAPI']);
+        Route::get('update/collection', [PostmanRequestCreateController::class, 'updatePostmanCollectionAPI']);
+        Route::get('get/collection', [PostmanRequestCreateController::class, 'getPostmanCollectionAndCreateAPI']);
+        Route::get('create/folder', [PostmanRequestCreateController::class, 'createPostmanFolder']);
+        Route::get('create/request', [PostmanRequestCreateController::class, 'createPostmanRequestAPI']);
+        Route::post('send/request', [PostmanRequestCreateController::class, 'sendPostmanRequestAPI']);
+        Route::post('requested/history', [PostmanRequestCreateController::class, 'postmanRequestHistoryLog']);
+        Route::get('request/history', [PostmanRequestCreateController::class, 'index_request_hisory']);
+        Route::post('response/history', [PostmanRequestCreateController::class, 'postmanResponseHistoryLog']);
+        Route::get('response/history', [PostmanRequestCreateController::class, 'index_response_hisory']);
+        Route::post('add/json/version', [PostmanRequestCreateController::class, 'jsonVersion']);
+        Route::post('removeuser/permission', [PostmanRequestCreateController::class, 'removeUserPermission']);
+        Route::post('remark/history', [PostmanRequestCreateController::class, 'postmanRemarkHistoryLog']);
+        Route::post('user/permission', [PostmanRequestCreateController::class, 'userPermission'])->name('postman.permission');
+        Route::post('get/mul/request', [PostmanRequestCreateController::class, 'getMulRequest']);
+        Route::post('get/error/history', [PostmanRequestCreateController::class, 'postmanErrorHistoryLog']);
+        Route::post('edit/history/', [PostmanRequestCreateController::class, 'postmanEditHistoryLog']);
+        Route::post('status/create', [PostmanRequestCreateController::class, 'postmanStatusCreate'])->name('postman.status.create');
+        Route::post('update-status', [PostmanRequestCreateController::class, 'updateStatus'])->name('update-status');
+        Route::post('update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
+        Route::get('status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
+        Route::get('api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
+        Route::post('statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
+        Route::get('countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
+        Route::post('update-postman-field', [PostmanRequestCreateController::class, 'updatePostManField'])->name('postman.updateField');
+        Route::post('add-remark', [PostmanRequestCreateController::class, 'addRemark'])->name('postman.addRemark');
+        Route::get('responses/history/{id}', [PostmanRequestCreateController::class, 'responsesHistory'])->name('postman.responsesHistory');
+    });
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
-    Route::post('postman/statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
-    Route::get('postman/countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
-    Route::post('postman/update-postman-field', [PostmanRequestCreateController::class, 'updatePostManField'])->name('postman.updateField');
-    Route::post('postman/add-remark', [PostmanRequestCreateController::class, 'addRemark'])->name('postman.addRemark');
-    Route::get('postman/responses/history/{id}', [PostmanRequestCreateController::class, 'responsesHistory'])->name('postman.responsesHistory');
+
+
     Route::post('run-request-url', [PostmanRequestCreateController::class, 'postmanRunRequestUrl'])->name('postman.runrequesturl');
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
@@ -1033,22 +1051,25 @@ Route::middleware('auth')->group(function () {
     Route::get('appointment-request/record-appointment-request-ajax', [AppointmentRequestController::class, 'recordAppointmentRequestAjax'])->name('appointment-request.index_ajax');
     Route::get('appointment-request-remarks/{id}', [AppointmentRequestController::class, 'AppointmentRequestRemarks'])->name('appointment-request.remarks');
     Route::post('appointment-decline-remarks', [EventController::class, 'declineRemarks'])->name('appointment-request.declien.remarks');
-    Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
-    Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
-    Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
-    Route::post('script-documents/store', [ScriptDocumentsController::class, 'store'])->name('script-documents.store');
-    Route::get('script-documents/edit/{id}', [ScriptDocumentsController::class, 'edit'])->name('script-documents.edit');
-    Route::post('script-documents/update', [ScriptDocumentsController::class, 'update'])->name('script-documents.update');
-    Route::post('script-documents/upload-file', [ScriptDocumentsController::class, 'uploadFile'])->name('script-documents.upload-file');
-    Route::get('script-documents/files/record', [ScriptDocumentsController::class, 'getScriptDocumentFilesList'])->name('script-documents.files.record');
-    Route::get('script-documents/record-script-document-ajax', [ScriptDocumentsController::class, 'recordScriptDocumentAjax'])->name('script-documents.index_ajax');
-    Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
+
+    Route::group(['prefix' => 'script-documents'],function (){
+        Route::get('/', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
+        Route::get('records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
+        Route::get('create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
+        Route::post('store', [ScriptDocumentsController::class, 'store'])->name('script-documents.store');
+        Route::get('edit/{id}', [ScriptDocumentsController::class, 'edit'])->name('script-documents.edit');
+        Route::post('update', [ScriptDocumentsController::class, 'update'])->name('script-documents.update');
+        Route::post('upload-file', [ScriptDocumentsController::class, 'uploadFile'])->name('script-documents.upload-file');
+        Route::get('files/record', [ScriptDocumentsController::class, 'getScriptDocumentFilesList'])->name('script-documents.files.record');
+        Route::get('record-script-document-ajax', [ScriptDocumentsController::class, 'recordScriptDocumentAjax'])->name('script-documents.index_ajax');
+        Route::get('{id}/delete', [ScriptDocumentsController::class, 'destroy']);
+        Route::get('countdevtask/{id}', [ScriptDocumentsController::class, 'taskCount']);
+        Route::get('error-logs', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogs'])->name('script-documents.errorlogs');
+        Route::get('errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
+    });
     Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
     Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
     Route::get('script-documents-histroy-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentCommentHistory'])->name('script-documents.histroy_comment');
-    Route::get('script-documents/countdevtask/{id}', [ScriptDocumentsController::class, 'taskCount']);
-    Route::get('script-documents/error-logs', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogs'])->name('script-documents.errorlogs');
-    Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::post('bug-tracking-column-visbility', [BugTrackingController::class, 'columnVisbilityUpdate'])->name('bug-tracking.column.update');
@@ -1207,7 +1228,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('database')->group(function () {
         Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
         Route::get('/tables/{id}', [DatabaseTableController::class, 'index'])->name('database.tables');
-        Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList']);
+        Route::post('/tables/view-lists', [DatabaseTableController::class, 'viewList'])->name('database-tables.view-list');
         Route::get('/query-process-list', [DatabaseController::class, 'states'])->name('database.states');
         Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
         Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
@@ -1233,13 +1254,13 @@ Route::middleware('auth')->group(function () {
         Route::post('post/sendRequest', [InstagramPostsController::class, 'sendRequest']);
 
         Route::get('auto-comment-history', [UsersAutoCommentHistoriesController::class, 'index']);
-        Route::get('auto-comment-history/assign', [UsersAutoCommentHistoriesController::class, 'assignPosts']);
-        Route::get('auto-comment-history/send-posts', [UsersAutoCommentHistoriesController::class, 'sendMessagesToWhatsappToScrap']);
-        Route::get('auto-comment-history/verify', [UsersAutoCommentHistoriesController::class, 'verifyComment']);
-        Route::post('store', [InstagramController::class, 'store']);
-        Route::get('{id}/edit', [InstagramController::class, 'edit']);
-        Route::put('update/{id}', [InstagramController::class, 'update']);
-        Route::get('delete/{id}', [InstagramController::class, 'deleteAccount']);
+        Route::get('auto-comment-history/assign', [UsersAutoCommentHistoriesController::class, 'assignPosts'])->name('auto-comment-history.assign');
+        Route::get('auto-comment-history/send-posts', [UsersAutoCommentHistoriesController::class, 'sendMessagesToWhatsappToScrap'])->name('auto-comment-history.send-posts');
+        Route::get('auto-comment-history/verify', [UsersAutoCommentHistoriesController::class, 'verifyComment'])->name('auto-comment-history.verify');
+        Route::post('store', [InstagramController::class, 'store'])->name('instagram.store');
+        Route::get('{id}/edit', [InstagramController::class, 'edit'])->name('instagram.edit');
+        Route::put('update/{id}', [InstagramController::class, 'update'])->name('instagram.update');
+        Route::get('delete/{id}', [InstagramController::class, 'deleteAccount'])->name('instagram.delete-account');
         Route::resource('auto-comment-report', AutoCommentHistoryController::class);
         Route::resource('auto-comment-hashtags', AutoReplyHashtagsController::class);
         Route::get('flag/{id}', [HashtagController::class, 'flagMedia']);
@@ -1250,7 +1271,7 @@ Route::middleware('auth')->group(function () {
         Route::post('media/comment', [HashtagController::class, 'commentOnHashtag']);
         Route::get('test/{id}', [AccountController::class, 'test']);
         Route::get('start-growth/{id}', [AccountController::class, 'startAccountGrowth']);
-        Route::get('accounts', [InstagramController::class, 'accounts']);
+        Route::get('accounts', [InstagramController::class, 'accounts'])->name('instagram.accounts');
         Route::get('notification', [HashtagController::class, 'showNotification']);
         Route::get('hashtag/markPriority', [HashtagController::class, 'markPriority'])->name('hashtag.priority');
         Route::resource('influencer', InfluencersController::class);
@@ -1489,8 +1510,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('quick-reply', QuickReplyController::class);
 
     Route::resource('track', UserActionsController::class);
-    Route::get('competitor-page/hide/{id}', [CompetitorPageController::class, 'hideLead']);
-    Route::get('competitor-page/approve/{id}', [CompetitorPageController::class, 'approveLead']);
+    Route::get('competitor-page/hide/{id}', [CompetitorPageController::class, 'hideLead'])->name('competitor-page.hide-lead');
+    Route::get('competitor-page/approve/{id}', [CompetitorPageController::class, 'approveLead'])->name('competitor-page.approve-lead');
     Route::resource('competitor-page', CompetitorPageController::class);
     Route::resource('target-location', TargetLocationController::class);
 
@@ -1900,9 +1921,9 @@ Route::middleware('auth')->group(function () {
     Route::get('keywordassign/create', [KeywordassignController::class, 'create'])->name('keywordassign.create');
     Route::post('keywordassign/store', [KeywordassignController::class, 'store'])->name('keywordassign.store');
     Route::post('keywordassign/taskcategory', [KeywordassignController::class, 'taskcategory'])->name('keywordassign.taskcategory');
-    Route::get('keywordassign/{id}', [KeywordassignController::class, 'edit']);
-    Route::post('keywordassign/{id}/update', [KeywordassignController::class, 'update']);
-    Route::get('keywordassign/{id}/destroy', [KeywordassignController::class, 'destroy']);
+    Route::get('keywordassign/{id}', [KeywordassignController::class, 'edit'])->name('keywordassign.edit');
+    Route::post('keywordassign/{id}/update', [KeywordassignController::class, 'update'])->name('keywordassign.update');
+    Route::get('keywordassign/{id}/destroy', [KeywordassignController::class, 'destroy'])->name('keywordassign.destroy');
 
     Route::get('keywordreponse/logs', [KeywordassignController::class, 'keywordreponse_logs'])->name('keywordreponse.logs'); //Purpose : add route for Keyword logs - DEVTASK-4233
 
@@ -2330,59 +2351,83 @@ Route::middleware('auth')->group(function () {
     /**
      * Shipment module
      */
-    Route::post('shipment/send/email', [ShipmentController::class, 'sendEmail'])->name('shipment/send/email');
-    Route::get('shipment/view/sent/email', [ShipmentController::class, 'viewSentEmail'])->name('shipment/view/sent/email');
-    Route::get('shipment/waybill-track-histories', [ShipmentController::class, 'viewWaybillTrackHistory'])->name('shipment/waybill-track-histories');
-    Route::get('shipment/{id}/edit', [ShipmentController::class, 'editShipment'])->name('shipment.editShipment');
-    Route::post('shipment/{id}/save', [ShipmentController::class, 'saveShipment'])->name('shipment.saveShipment');
+    Route::prefix('shipment')->group(function () {
+        Route::post('send/email', [ShipmentController::class, 'sendEmail'])->name('shipment/send/email');
+        Route::get('view/sent/email', [ShipmentController::class, 'viewSentEmail'])->name('shipment/view/sent/email');
+        Route::get('waybill-track-histories', [ShipmentController::class, 'viewWaybillTrackHistory'])->name('shipment/waybill-track-histories');
+        Route::get('{id}/edit', [ShipmentController::class, 'editShipment'])->name('shipment.editShipment');
+        Route::post('{id}/save', [ShipmentController::class, 'saveShipment'])->name('shipment.saveShipment');
+        Route::get('customer-details/{id}', [ShipmentController::class, 'showCustomerDetails']);
+        Route::post('generate-shipment', [ShipmentController::class, 'generateShipment'])->name('shipment/generate');
+        Route::get('get-templates-by-name/{name}', [ShipmentController::class, 'getShipmentByName']);
+        Route::post('pickup-request', [ShipmentController::class, 'createPickupRequest'])->name('shipment/pickup-request');
+        Route::post('save-box-size', [ShipmentController::class, 'saveBoxSize'])->name('shipment.save-box-size');
+    });
     Route::resource('shipment', ShipmentController::class);
-    Route::get('shipment/customer-details/{id}', [ShipmentController::class, 'showCustomerDetails']);
-    Route::post('shipment/generate-shipment', [ShipmentController::class, 'generateShipment'])->name('shipment/generate');
-    Route::get('shipment/get-templates-by-name/{name}', [ShipmentController::class, 'getShipmentByName']);
-    Route::post('shipment/pickup-request', [ShipmentController::class, 'createPickupRequest'])->name('shipment/pickup-request');
-    Route::post('shipment/save-box-size', [ShipmentController::class, 'saveBoxSize'])->name('shipment.save-box-size');
-
     Route::get('shipments/payment_info', [ShipmentController::class, 'getPaymentInfo'])->name('shipment.get-payment-info');
     Route::post('shipments/payment_info', [ShipmentController::class, 'savePaymentInfo'])->name('shipment.save-payment-info');
 
     /**
      * Twilio account management
      */
-    Route::get('twilio/manage-twilio-account', [TwilioController::class, 'manageTwilioAccounts'])->name('twilio-manage-accounts');
-    Route::post('twilio/add-account', [TwilioController::class, 'addAccount'])->name('twilio-add-account');
-    Route::get('twilio/delete-account/{id}', [TwilioController::class, 'deleteAccount'])->name('twilio-delete-account');
-    Route::get('twilio/manage-numbers/{id}', [TwilioController::class, 'manageNumbers'])->name('twilio-manage-numbers');
-    Route::get('twilio/manage-all-numbers/{id?}', [TwilioController::class, 'manageAllNumbers'])->name('twilio.manage.all.numbers');
-    Route::get('twilio/manage-numbers-popup/{id?}', [TwilioController::class, 'manageNumbersPopup'])->name('twilio.manage.numbers.popup');
-    Route::post('twilio/add_user', [TwilioController::class, 'manageUsers'])->name('twilio.add_user');
-    Route::post('twilio/set_website_time', [TwilioController::class, 'setWebsiteTime'])->name('twilio.set_website_time');
-    Route::get('twilio/get_website_agent', [TwilioController::class, 'getWebsiteAgent'])->name('twilio.get_website_agent');
-    Route::post('twilio/set_twilio_key_option', [TwilioController::class, 'setTwilioKey'])->name('twilio.set_twilio_key_options');
-    Route::post('twilio/greeting_message', [TwilioController::class, 'saveTwilioGreetingMessage'])->name('twilio.set_twilio_greeting_message');
-    Route::get('twilio/get_website_wise_key_data', [TwilioController::class, 'getTwilioKeyData'])->name('twilio.get_website_wise_key_data');
-    Route::get('twilio/get_website_wise_key_data_options/{web_site_id?}', [TwilioController::class, 'getTwilioKeyDataOptions'])->name('twilio.get_website_wise_key_data_options');
-    Route::get('twilio/erp/logs', [TwilioController::class, 'twilioErpLogs'])->name('twilio.erp_logs');
-    Route::any('twilio/call/journey', [TwilioController::class, 'twilioCallJourney'])->name('twilio.call_journey');
-    Route::get('twilio/webhook-error/logs', [TwilioController::class, 'twilioWebhookErrorLogs'])->name('twilio.webhook.error.logs');
-    Route::get('twilio/account-logs', [TwilioController::class, 'twilioAccountLogs'])->name('twilio.account_logs');
-    Route::get('twilio/conditions', [TwilioController::class, 'getConditions'])->name('twilio.conditions');
-    Route::get('twilio/conditions/status/update', [TwilioController::class, 'updateConditionStatus'])->name('twilio.condition.update');
-    Route::post('twilio/save-message-tone', [TwilioController::class, 'saveMessageTone'])->name('twilio.save_tone');
-    Route::get('twilio/message-tones', [TwilioController::class, 'viewMessageTones'])->name('twilio.view_tone');
-    Route::get('twilio/reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
-    Route::get('twilio/block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
-    Route::get('twilio/delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
-    Route::post('twilio/status-colour-update', [TwilioController::class, 'StatusColourUpdate'])->name('twilio-status-colour-update');
+    Route::prefix('twilio')->group(function () {
+        Route::get('manage-twilio-account', [TwilioController::class, 'manageTwilioAccounts'])->name('twilio-manage-accounts');
+        Route::post('add-account', [TwilioController::class, 'addAccount'])->name('twilio-add-account');
+        Route::get('delete-account/{id}', [TwilioController::class, 'deleteAccount'])->name('twilio-delete-account');
+        Route::get('manage-numbers/{id}', [TwilioController::class, 'manageNumbers'])->name('twilio-manage-numbers');
+        Route::get('manage-all-numbers/{id?}', [TwilioController::class, 'manageAllNumbers'])->name('twilio.manage.all.numbers');
+        Route::get('manage-numbers-popup/{id?}', [TwilioController::class, 'manageNumbersPopup'])->name('twilio.manage.numbers.popup');
+        Route::post('add_user', [TwilioController::class, 'manageUsers'])->name('twilio.add_user');
+        Route::post('set_website_time', [TwilioController::class, 'setWebsiteTime'])->name('twilio.set_website_time');
+        Route::get('get_website_agent', [TwilioController::class, 'getWebsiteAgent'])->name('twilio.get_website_agent');
+        Route::post('set_twilio_key_option', [TwilioController::class, 'setTwilioKey'])->name('twilio.set_twilio_key_options');
+        Route::post('greeting_message', [TwilioController::class, 'saveTwilioGreetingMessage'])->name('twilio.set_twilio_greeting_message');
+        Route::get('get_website_wise_key_data', [TwilioController::class, 'getTwilioKeyData'])->name('twilio.get_website_wise_key_data');
+        Route::get('get_website_wise_key_data_options/{web_site_id?}', [TwilioController::class, 'getTwilioKeyDataOptions'])->name('twilio.get_website_wise_key_data_options');
+        Route::get('erp/logs', [TwilioController::class, 'twilioErpLogs'])->name('twilio.erp_logs');
+        Route::any('call/journey', [TwilioController::class, 'twilioCallJourney'])->name('twilio.call_journey');
+        Route::get('webhook-error/logs', [TwilioController::class, 'twilioWebhookErrorLogs'])->name('twilio.webhook.error.logs');
+        Route::get('account-logs', [TwilioController::class, 'twilioAccountLogs'])->name('twilio.account_logs');
+        Route::get('conditions', [TwilioController::class, 'getConditions'])->name('twilio.conditions');
+        Route::get('conditions/status/update', [TwilioController::class, 'updateConditionStatus'])->name('twilio.condition.update');
+        Route::post('save-message-tone', [TwilioController::class, 'saveMessageTone'])->name('twilio.save_tone');
+        Route::get('message-tones', [TwilioController::class, 'viewMessageTones'])->name('twilio.view_tone');
+        Route::get('reject-incoming-call', [TwilioController::class, 'rejectIncomingCall'])->name('twilio.reject_incoming_call');
+        Route::get('block-incoming-call', [TwilioController::class, 'blockIncomingCall'])->name('twilio.block_incoming_call');
+        Route::get('delivery-logs', [TwilioController::class, 'twilioDeliveryLogs'])->name('twilio.twilio_delivery_logs');
+        Route::post('status-colour-update', [TwilioController::class, 'StatusColourUpdate'])->name('twilio-status-colour-update');
+        Route::post('assign-number', [TwilioController::class, 'assignTwilioNumberToStoreWebsite'])->name('assign-number-to-store-website');
+        Route::post('call-forward', [TwilioController::class, 'twilioCallForward'])->name('manage-twilio-call-forward');
+        Route::post('get-workflow-list', [TwilioController::class, 'getWorkflowList'])->name('get-workflow-list');
+        Route::get('call-recordings/{account_id}', [TwilioController::class, 'CallRecordings'])->name('twilio-call-recording');
+        Route::get('call-management', [TwilioController::class, 'callManagement'])->name('twilio-call-management');
+        Route::get('speech-to-text-logs', [TwilioController::class, 'speechToTextLogs'])->name('twilio-speech-to-text-logs');
+        Route::get('call-blocks', [TwilioController::class, 'callBlocks'])->name('twilio.call.blocks');
+        Route::get('call-block-delete', [TwilioController::class, 'deleteCallBlocks'])->name('twilio.call.block.delete');
+        Route::get('call-statistic', [TwilioController::class, 'callStatistic'])->name('twilio.call.statistic');
+        Route::get('call-statistic-delete', [TwilioController::class, 'deleteCallStatistic'])->name('twilio.call.statistic.delete');
+        Route::get('incoming-calls/{number_sid}/{number}', [TwilioController::class, 'getIncomingList'])->name('twilio-incoming-calls');
+        Route::get('incoming-calls-recording/{call_sid}', [TwilioController::class, 'incomingCallRecording'])->name('twilio-incoming-call-recording');
+        Route::get('accept', [TwilioController::class, 'incomingCall'])->name('twilio-accept-call');
+    });
 
     /**
      * Watson account management
      */
-    Route::get('watson/accounts', [WatsonController::class, 'index'])->name('watson-accounts');
-    Route::post('watson/account', [WatsonController::class, 'store'])->name('watson-accounts.add');
-    Route::get('watson/account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
-    Route::post('watson/account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
-    Route::get('watson/delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
-    Route::post('watson/add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+    Route::prefix('watson')->group(function () {
+        Route::get('accounts', [WatsonController::class, 'index'])->name('watson-accounts');
+        Route::post('account', [WatsonController::class, 'store'])->name('watson-accounts.add');
+        Route::get('account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
+        Route::post('account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
+        Route::get('delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
+        Route::post('add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+        Route::get('accounts', [WatsonController::class, 'index'])->name('watson-accounts');
+        Route::post('account', [WatsonController::class, 'store'])->name('watson-accounts.add');
+        Route::get('account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
+        Route::post('account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
+        Route::get('delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
+        Route::post('add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+    });
 
     Route::get('get-twilio-numbers/{account_id}', [TwilioController::class, 'getTwilioActiveNumbers'])->name('twilio-get-numbers');
     Route::post('set-twilio-work-space', [TwilioController::class, 'setTwilioWorkSpace'])->name('twilio-work-space');
@@ -2391,10 +2436,6 @@ Route::middleware('auth')->group(function () {
     Route::post('create-twilio-priority', [TwilioController::class, 'createTwilioPriority'])->name('create.twilio.priority');
     Route::post('delete-twilio-worker', [TwilioController::class, 'deleteTwilioWorker'])->name('delete-twilio-worker');
     Route::post('delete-twilio-priority', [TwilioController::class, 'deleteTwilioPriority'])->name('delete.twilio.priority');
-    Route::post('twilio/assign-number', [TwilioController::class, 'assignTwilioNumberToStoreWebsite'])->name('assign-number-to-store-website');
-    Route::post('twilio/call-forward', [TwilioController::class, 'twilioCallForward'])->name('manage-twilio-call-forward');
-
-    Route::post('twilio/get-workflow-list', [TwilioController::class, 'getWorkflowList'])->name('get-workflow-list');
 
     Route::post('create-twilio-workflow', [TwilioController::class, 'createTwilioWorkflow'])->name('create-twilio-workflow');
     Route::delete('delete-twilio-workflow', [TwilioController::class, 'deleteTwilioWorkflow'])->name('delete-twilio-workflow');
@@ -2409,33 +2450,16 @@ Route::middleware('auth')->group(function () {
     Route::post('create-twilio-task-queue', [TwilioController::class, 'createTwilioTaskQueue'])->name('create-twilio-task-queue');
     Route::delete('delete-twilio-task-queue', [TwilioController::class, 'deleteTwilioTaskQueue'])->name('delete-twilio-task-queue');
 
-    Route::get('twilio/call-recordings/{account_id}', [TwilioController::class, 'CallRecordings'])->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', [TwilioController::class, 'downloadRecording'])->name('download-mp3');
 
-    Route::get('twilio/call-management', [TwilioController::class, 'callManagement'])->name('twilio-call-management');
-    Route::get('twilio/speech-to-text-logs', [TwilioController::class, 'speechToTextLogs'])->name('twilio-speech-to-text-logs');
-    Route::get('twilio/call-blocks', [TwilioController::class, 'callBlocks'])->name('twilio.call.blocks');
-    Route::get('twilio/call-block-delete', [TwilioController::class, 'deleteCallBlocks'])->name('twilio.call.block.delete');
-    Route::get('twilio/call-statistic', [TwilioController::class, 'callStatistic'])->name('twilio.call.statistic');
-    Route::get('twilio/call-statistic-delete', [TwilioController::class, 'deleteCallStatistic'])->name('twilio.call.statistic.delete');
-    Route::get('twilio/incoming-calls/{number_sid}/{number}', [TwilioController::class, 'getIncomingList'])->name('twilio-incoming-calls');
-    Route::get('twilio/incoming-calls-recording/{call_sid}', [TwilioController::class, 'incomingCallRecording'])->name('twilio-incoming-call-recording');
-
     //missing brands
-    Route::get('missing-brands', [MissingBrandController::class, 'index'])->name('missing-brands.index');
-    Route::post('missing-brands/store', [MissingBrandController::class, 'store'])->name('missing-brands.store');
-    Route::post('missing-brands/reference', [MissingBrandController::class, 'reference'])->name('missing-brands.reference');
-    Route::post('missing-brands/multi-reference', [MissingBrandController::class, 'multiReference'])->name('missing-brands.multi-reference');
-    Route::post('missing-brands/automatic-merge', [MissingBrandController::class, 'automaticMerge'])->name('missing-brands.automatic-merge');
-
-    Route::get('twilio/accept', [TwilioController::class, 'incomingCall'])->name('twilio-accept-call');
-
-    Route::get('watson/accounts', [WatsonController::class, 'index'])->name('watson-accounts');
-    Route::post('watson/account', [WatsonController::class, 'store'])->name('watson-accounts.add');
-    Route::get('watson/account/{id}', [WatsonController::class, 'show'])->name('watson-accounts.show');
-    Route::post('watson/account/{id}', [WatsonController::class, 'update'])->name('watson-accounts.update');
-    Route::get('watson/delete-account/{id}', [WatsonController::class, 'destroy'])->name('watson-accounts.delete');
-    Route::post('watson/add-intents/{id}', [WatsonController::class, 'addIntentsToWatson'])->name('watson-accounts.add-intents');
+    Route::group(['prefix' => 'missing-brands'], function () {
+        Route::get('/', [MissingBrandController::class, 'index'])->name('missing-brands.index');
+        Route::post('store', [MissingBrandController::class, 'store'])->name('missing-brands.store');
+        Route::post('reference', [MissingBrandController::class, 'reference'])->name('missing-brands.reference');
+        Route::post('multi-reference', [MissingBrandController::class, 'multiReference'])->name('missing-brands.multi-reference');
+        Route::post('automatic-merge', [MissingBrandController::class, 'automaticMerge'])->name('missing-brands.automatic-merge');
+    });
 
     Route::group(['prefix' => 'google-dialog'], function () {
         Route::get('/accounts', [GoogleDialogFlowController::class, 'index'])->name('google-chatbot-accounts');
@@ -2445,22 +2469,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/account/delete/{id}', [GoogleDialogFlowController::class, 'delete'])->name('google-chatbot-accounts.delete');
     });
 
-    //subcategory route
-
     Route::post('message-queue/approve/approved', [MessageQueueController::class, 'approved']);
     Route::get('message-queue/delete-chat', [MessageQueueController::class, 'deleteMessageQueue']);
-
     Route::get('message-counter', [MessageQueueController::class, 'message_counter'])->name('message.counter');
 
     //Charity Routes
-    Route::get('charity', [CharityController::class, 'index'])->name('charity');
-    Route::any('charity/update', [CharityController::class, 'update'])->name('charity.update');
-    Route::post('charity/store', [CharityController::class, 'store'])->name('charity.store');
-    Route::get('charity/charity-order/{charity_id}', [CharityController::class, 'charityOrder'])->name('charity.charity-order');
-    Route::post('charity/add-status', [CharityController::class, 'addStatus'])->name('charity.add-status');
-    Route::post('charity/update-charity-order-status', [CharityController::class, 'updateCharityOrderStatus'])->name('charity.update-charity-order-status');
-    Route::post('charity/create-history', [CharityController::class, 'createHistory'])->name('charity.create-history');
-    Route::get('charity/view-order-history/{order_id}', [CharityController::class, 'viewHistory'])->name('charity.view-order-history');
+    Route::group(['prefix' => 'charity'], function () {
+        Route::get('/', [CharityController::class, 'index'])->name('charity');
+        Route::any('update', [CharityController::class, 'update'])->name('charity.update');
+        Route::post('store', [CharityController::class, 'store'])->name('charity.store');
+        Route::get('charity-order/{charity_id}', [CharityController::class, 'charityOrder'])->name('charity.charity-order');
+        Route::post('add-status', [CharityController::class, 'addStatus'])->name('charity.add-status');
+        Route::post('update-charity-order-status', [CharityController::class, 'updateCharityOrderStatus'])->name('charity.update-charity-order-status');
+        Route::post('create-history', [CharityController::class, 'createHistory'])->name('charity.create-history');
+        Route::get('view-order-history/{order_id}', [CharityController::class, 'viewHistory'])->name('charity.view-order-history');
+    });
     Route::get('charity-search', [CharityController::class, 'charitySearch'])->name('charity-search');
     Route::get('charity-email', [CharityController::class, 'charityEmail'])->name('charity-email');
     Route::get('charity-phone-number', [CharityController::class, 'charityPhoneNumber'])->name('charity-phone-number');
@@ -2504,7 +2527,7 @@ Route::middleware('auth')->group(function () {
     //referfriend
     Route::prefix('referfriend')->group(function () {
         Route::get('/list', [ReferFriendController::class, 'index'])->name('referfriend.list');
-        Route::DELETE('/delete/{id?}', [ReferFriendController::class, 'destroy'])->name('referfriend.destroy');
+        Route::delete('/delete/{id?}', [ReferFriendController::class, 'destroy'])->name('referfriend.destroy');
         Route::get('/logAjax', [ReferFriendController::class, 'logAjax'])->name('referfriend.logAjax');
     });
 
@@ -2656,9 +2679,6 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'admin'], function () {
         Route::any('/erp-log', [ErpLogController::class, 'index'])->name('erp-log');
-    });
-
-    Route::group(['prefix' => 'admin'], function () {
         Route::any('/sentry-log', [SentryLogController::class, 'index'])->name('sentry-log');
         Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
         Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
@@ -2668,18 +2688,12 @@ Route::middleware('auth')->group(function () {
         Route::get('sentry-log/countdevtask/{id}', [SentryLogController::class, 'taskCount']);
         Route::post('sentry-log/updatestatus', [SentryLogController::class, 'updateStatus'])->name('sentry.updatestatus');
         Route::get('sentry-log/status/histories/{id}', [SentryLogController::class, 'sentryStatusHistories'])->name('sentry.status.histories');
-    });
-
-    Route::group(['prefix' => 'admin'], function () {
         Route::any('/database-log', [ScrapLogsController::class, 'databaseLog']);
         Route::get('/database-log/enable', [ScrapLogsController::class, 'enableMysqlAccess']);
         Route::get('/database-log/disable', [ScrapLogsController::class, 'disableMysqlAccess']);
         Route::get('/database-log/history', [ScrapLogsController::class, 'disableEnableHistory']);
         Route::get('/database-log/truncate', [ScrapLogsController::class, 'databaseTruncate']);
-    });
-
-    Route::group(['prefix' => 'admin'], function () {
-        Route::prefix('plan')->group(static function () {
+        Route::prefix('plan')->group(function () {
             Route::get('/', [PlanController::class, 'index'])->name('plan.index');
             Route::post('/create', [PlanController::class, 'store'])->name('plan.store');
             Route::get('/edit', [PlanController::class, 'edit'])->name('plan.edit');
@@ -2791,6 +2805,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('tasksubject/{id}', [TaskCategoriesController::class, 'destroy']);
     Route::resource('zabbix', ZabbixController::class)->except(['show']);
     Route::get('/search/hosts', [ZabbixController::class, 'autoSuggestHosts']);
+
     Route::resource('checklist', CheckListController::class);
     Route::get('checklist/view/{id}', [CheckListController::class, 'view'])->name('checklist.view');
     Route::post('checklist/subjects', [CheckListController::class, 'subjects'])->name('checklist.subjects');
@@ -2799,6 +2814,7 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', [CheckListController::class, 'checklistUpdate'])->name('checklist.update.c');
     Route::post('checklist/add-remark', [CheckListController::class, 'subjectRemarkCreate'])->name('checklist.add.remark');
     Route::post('checklist/list', [CheckListController::class, 'subjectRemarkList'])->name('checklist.remark.list');
+
     Route::resource('devoops', DevOppsController::class);
     Route::delete('devoopslist/{id}', [DevOppsController::class, 'delete']);
     Route::delete('devoopssublist/{id}', [DevOppsController::class, 'subdelete']);
@@ -3034,12 +3050,14 @@ Route::middleware('auth')->group(function () {
     Route::get('jenkins-build/insert-code-shortcut', [MonitorJenkinsBuildController::class, 'insertCodeShortcut'])->name('monitor-jenkins-insert-code-shortcut');
 
     /** Website Monitor */
-    Route::get('monitor-server/list', [MonitorServerController::class, 'list'])->name('monitor-server.list');
+    Route::group(['prefix' => 'monitor-server'], function () {
+        Route::get('list', [MonitorServerController::class, 'list'])->name('monitor-server.list');
+        Route::get('get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
+        Route::get('get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
+        Route::get('get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
+        Route::get('history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
+    });
     Route::resource('monitor-server', MonitorServerController::class);
-    Route::get('monitor-server/get-server-uptimes/{id}', [MonitorServerController::class, 'getServerUptimes'])->name('monitor-server.get-server-uptimes');
-    Route::get('monitor-server/get-server-users/{id}', [MonitorServerController::class, 'getServerUsers'])->name('monitor-server.get-server-users');
-    Route::get('monitor-server/get-server-history/{id}', [MonitorServerController::class, 'getServerHistory'])->name('monitor-server.get-server-history');
-    Route::get('monitor-server/history/truncate', [MonitorServerController::class, 'logHistoryTruncate'])->name('monitor-server.log.history.truncate');
 
     Route::get('deployement-version/list', [DeploymentVersionController::class, 'listDeploymentVersion'])->name('deployement-version.index');
     Route::get('deploye-version-jenkins', [DeploymentVersionController::class, 'deployVersion'])->name('deployement-version-jenkis');
@@ -3048,32 +3066,39 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/git-actions', [GitHubActionController::class, 'index'])->name('git-action-lists');
 
-    Route::get('/magento-problems', [MagentoProblemController::class, 'index'])->name('magento-problems-lists');
-    Route::post('magento-problems/status/create', [MagentoProblemController::class, 'magentoProblemStatusCreate'])->name('magento-problems.status.create');
-    Route::get('magento-problems/countdevtask/{id}', [MagentoProblemController::class, 'taskCount']);
-    Route::post('magento-problems/updatestatus', [MagentoProblemController::class, 'updateStatus'])->name('magento-problems.updatestatus');
-    Route::get('magento-problems/status/histories/{id}', [MagentoProblemController::class, 'magentoproblemsStatusHistories'])->name('magento-problems.status.histories');
-    Route::post('magento-problems/updateuser', [MagentoProblemController::class, 'updateUser'])->name('magento-problems.updateuser');
-    Route::get('magento-problems/user/histories/{id}', [MagentoProblemController::class, 'magentoproblemsUserHistories'])->name('magento-problems.user.histories');
+    Route::group(['prefix' => 'magento-problems'], function () {
+        Route::get('/', [MagentoProblemController::class, 'index'])->name('magento-problems-lists');
+        Route::post('status/create', [MagentoProblemController::class, 'magentoProblemStatusCreate'])->name('magento-problems.status.create');
+        Route::get('countdevtask/{id}', [MagentoProblemController::class, 'taskCount']);
+        Route::post('updatestatus', [MagentoProblemController::class, 'updateStatus'])->name('magento-problems.updatestatus');
+        Route::get('status/histories/{id}', [MagentoProblemController::class, 'magentoproblemsStatusHistories'])->name('magento-problems.status.histories');
+        Route::post('updateuser', [MagentoProblemController::class, 'updateUser'])->name('magento-problems.updateuser');
+        Route::get('user/histories/{id}', [MagentoProblemController::class, 'magentoproblemsUserHistories'])->name('magento-problems.user.histories');
+    });
+
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
     Route::post('monit-status/command/run', [MonitStatusController::class, 'runCommand'])->name('monit-status.command.run');
     Route::get('monit-api-histories/{id}', [MonitStatusController::class, 'monitApiHistory'])->name('monit-status.api.histories');
 
-    Route::get('indexerstate/list', [IndexerStateController::class, 'index'])->name('indexer-state.index');
-    Route::get('indexerstate/elastic_connection', [IndexerStateController::class, 'elasticConnect'])->name('indexer-state.elastic-conn');
-    Route::get('indexerstate/reindex', [IndexerStateController::class, 'reindex'])->name('indexer-state.reindex');
-    Route::post('indexerstate/save', [IndexerStateController::class, 'save'])->name('indexer-state.save');
-    Route::get('indexerstate/masterslave', [IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
-    Route::get('indexerstate/logs/{id?}', [IndexerStateController::class, 'logs'])->name('indexer-state.logs');
+    Route::group(['prefix' => 'indexerstate'], function () {
+        Route::get('list', [IndexerStateController::class, 'index'])->name('indexer-state.index');
+        Route::get('elastic_connection', [IndexerStateController::class, 'elasticConnect'])->name('indexer-state.elastic-conn');
+        Route::get('reindex', [IndexerStateController::class, 'reindex'])->name('indexer-state.reindex');
+        Route::post('save', [IndexerStateController::class, 'save'])->name('indexer-state.save');
+        Route::get('masterslave', [IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
+        Route::get('logs/{id?}', [IndexerStateController::class, 'logs'])->name('indexer-state.logs');
+    });
 
     //Import excel file for bank statement - S
-    Route::get('bank-statement/list', [BankStatementController::class, 'index'])->name('bank-statement.index');
-    Route::get('bank-statement/import-file', [BankStatementController::class, 'showImportForm'])->name('bank-statement.import');
-    Route::post('bank-statement/import-file/submit', [BankStatementController::class, 'import'])->name('bank-statement.import.submit');
-    Route::get('bank-statement/import-file/map/{id}/{heading_row_number?}', [BankStatementController::class, 'map'])->name('bank-statement.import.map');
-    Route::post('bank-statement/import-file/heading-row-number', [BankStatementController::class, 'heading_row_number_check'])->name('bank-statement.import.map.number.check');
-    Route::post('bank-statement/import-file/map/{id}/{heading_row_number?}', [BankStatementController::class, 'map_import'])->name('bank-statement.import.map.submit');
-    Route::get('bank-statement/import-file/mapped-data/{id}', [BankStatementController::class, 'mapped_data'])->name('bank-statement.import.mapped.data');
+    Route::group(['prefix' => 'bank-statement'], function () {
+        Route::get('list', [BankStatementController::class, 'index'])->name('bank-statement.index');
+        Route::get('import-file', [BankStatementController::class, 'showImportForm'])->name('bank-statement.import');
+        Route::post('import-file/submit', [BankStatementController::class, 'import'])->name('bank-statement.import.submit');
+        Route::get('import-file/map/{id}/{heading_row_number?}', [BankStatementController::class, 'map'])->name('bank-statement.import.map');
+        Route::post('import-file/heading-row-number', [BankStatementController::class, 'heading_row_number_check'])->name('bank-statement.import.map.number.check');
+        Route::post('import-file/map/{id}/{heading_row_number?}', [BankStatementController::class, 'map_import'])->name('bank-statement.import.map.submit');
+        Route::get('import-file/mapped-data/{id}', [BankStatementController::class, 'mapped_data'])->name('bank-statement.import.mapped.data');
+    });
 
     Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
     Route::resource('email-receiver-master', EmailReceiverMasterController::class);
@@ -3081,6 +3106,24 @@ Route::middleware('auth')->group(function () {
 
     //Mind Map
     Route::resource('mind-map', MindMapDiagramController::class);
+    //Node Scrapper Category Mapping
+    Route::resource('scrapper-category-map', NodeScrapperCategoryMapController::class);
+
+    Route::prefix('appconnect')->group(function () {
+        Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
+        Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+        Route::post('/column-visibility-update-app-sales', [AppConnectController::class, 'columnVisibilityUpdateAppSales'])->name('appconnect.app-sales.column.update');
+        Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
+        Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
+        Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
+        Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
+        Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
+        Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
+        Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
+        Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
+        Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
+        Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
+    });
 });
 
 Route::middleware(['auth', 'optimizeImages'])->group(function () {
@@ -3125,6 +3168,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::resource('color-reference', ColorReferenceController::class);
     Route::get('color-reference-group', [ColorReferenceController::class, 'groupColor']);
     Route::get('/color-reference/group/{name}/{threshold}', [ColorReferenceController::class, 'colorGroupBy']);
+
     Route::get('compositions/{id}/used-products', [CompositionsController::class, 'usedProducts'])->name('compositions.used-products');
     Route::get('compositions/affected-product', [CompositionsController::class, 'affectedProduct']);
     Route::post('compositions/update-composition', [CompositionsController::class, 'updateComposition']);
@@ -3316,6 +3360,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::resource('productsupervisor', ProductSupervisorController::class);
     Route::resource('productlister', ProductListerController::class);
     Route::resource('productapprover', ProductApproverController::class);
+
     Route::get('productinventory/product-images/{id}', [ProductInventoryController::class, 'getProductImages'])->name('productinventory.product-images');
     Route::get('productinventory/out-of-stock', [ProductInventoryController::class, 'getStockwithZeroQuantity'])->name('productinventory.out-of-stock');
     Route::get('productinventory/out-of-stock-product-log', [ProductInventoryController::class, 'outOfStockProductLog'])->name('productinventory.out-of-stock-product-log');
@@ -3495,7 +3540,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::resource('settings', SettingController::class);
 
     Route::get('conversion/rates', [ConversionRateController::class, 'index']);
-    Route::post('conversion/rate/update', [ConversionRateController::class, 'update']);
+    Route::post('conversion/rate/update', [ConversionRateController::class, 'update'])->name('conversion.rate.update');
 
     Route::get('category/child-categories', [CategoryController::class, 'childCategory'])->name('category.child-category');
     Route::get('category/edit-category', [CategoryController::class, 'childEditCategory'])->name('category.child-edit-category');
@@ -3505,7 +3550,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::get('category/references/used-products', [CategoryController::class, 'usedProducts']);
     Route::post('category/references/update-reference', [CategoryController::class, 'updateReference']);
     Route::get('category/references', [CategoryController::class, 'mapCategory'])->name('category.map-category');
-    Route::post('category/references', [CategoryController::class, 'saveReferences']);
+    Route::post('category/references', [CategoryController::class, 'saveReferences'])->name('category.save-references');
     Route::post('category/references/affected-product', [CategoryController::class, 'affectedProduct']);
     Route::post('category/references/affected-product-new', [CategoryController::class, 'affectedProductNew']);
     Route::post('category/references/update-category', [CategoryController::class, 'updateCategoryReference']);
@@ -3517,7 +3562,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
 
     //new category reference
     Route::get('category/new-references', [CategoryController::class, 'newCategoryReferenceIndex']);
-    Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference']);
+    Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference'])->name('category.new-references.save-category');
     Route::get('category/fix-autosuggested', [CategoryController::class, 'fixAutoSuggested'])->name('category.fix-autosuggested');
     Route::get('category/fix-autosuggested-string', [CategoryController::class, 'fixAutoSuggestedString'])->name('category.fix-autosuggested-via-str');
     Route::get('category/{id}/history', [CategoryController::class, 'history']);
@@ -3805,7 +3850,6 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
 
     Route::post('order/invoices/add-product', [OrderController::class, 'addProduct'])->name('order.view.invoice.add.product');
     Route::post('order/invoices/search-product', [OrderController::class, 'searchProduct'])->name('order.search.product');
-    //TODO web - added by jammer
     Route::get('order/download-invoice/{id}', [OrderController::class, 'downloadInvoice'])->name('order.download.invoice');
     Route::post('order/update-customer-address', [OrderController::class, 'updateCustomerInvoiceAddress'])->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', [OrderController::class, 'mailInvoice'])->name('order.mail.invoice');
@@ -3871,9 +3915,11 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::post('sendgrid/email/events/color', [EmailController::class, 'eventColor'])->name('email.event.color');
     Route::get('email/emaillog/{emailId}', [EmailController::class, 'getEmailLogs']);
     Route::post('email/filter-options', [EmailController::class, 'getEmailFilterOptions']);
-    Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings']);
+    Route::get('email/category/mappings', [EmailController::class, 'getCategoryMappings'])->name('email.category.mappings');
+
     Route::get('email/order_data/{email?}', [EmailController::class, 'index']); //Purpose : Add Route -  DEVTASK-18283
-    Route::post('email/platform-update', [EmailController::class, 'platformUpdate']);
+    Route::post('email/platform-update', [EmailController::class, 'platformUpdate'])->name('email.platform-update');
+
     Route::post('email/category', [EmailController::class, 'category']);
     Route::post('email/status', [EmailController::class, 'status']);
     Route::post('email/update_email', [EmailController::class, 'updateEmail']);
@@ -3899,7 +3945,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
 
     // Zoom Meetings
     Route::post('meeting/update-personal-meeting', [Meeting\ZoomMeetingController::class, 'updatePersonalMeeting'])->name('meetings.update.personal');
-    Route::post('meeting/create', [Meeting\ZoomMeetingController::class, 'createMeeting']);
+    Route::post('meeting/create', [Meeting\ZoomMeetingController::class, 'createMeeting'])->name('zoom-meeting.create-meeting');
     Route::get('meeting/allmeetings', [Meeting\ZoomMeetingController::class, 'getMeetings']);
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
     Route::get('meetings/show', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.show');
@@ -4260,7 +4306,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::get('customer/add-priority-range-points', [CustomerController::class, 'addCustomerPriorityRangePoints'])->name('customer.add.priority.range.points');
     Route::get('customer/delete-priority-range-points/{id?}', [CustomerController::class, 'deleteCustomerPriorityRangePoints'])->name('customer.delete.priority.range.points');
 
-    Route::get('customer/exportCommunication/{id}', [CustomerController::class, 'exportCommunication']);
+    Route::get('customer/exportCommunication/{id}', [CustomerController::class, 'exportCommunication'])->name('customer.export-communication');
     Route::get('customer/test', [CustomerController::class, 'customerstest']);
     Route::post('customer/reminder', [CustomerController::class, 'updateReminder']);
     Route::post('supplier/reminder', [SupplierController::class, 'updateReminder']);
@@ -4520,6 +4566,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::get('development/task/export-task', [DevelopmentController::class, 'exportTask']);
     Route::get('development/task/search/', [DevelopmentController::class, 'searchDevTask'])->name('devtask.module.search');
     Route::post('development/add/scrapper', [DevelopmentController::class, 'addScrapper'])->name('development.add-scrapper');
+    Route::get('development/task/{id}/scrapper-logs', [DevelopmentController::class, 'getScrapperLogsByTaskId'])->name('development.get-scrapper-logs-by-task');
     Route::get('development/countscrapper/{id}', [DevelopmentController::class, 'taskScrapper']);
     Route::post('development/updatescrapperdata', [DevelopmentController::class, 'UpdateScrapper'])->name('development.updatescrapperdata');
     Route::post('development/updatescrapperremarksdata', [DevelopmentController::class, 'UpdateScrapperRemarks'])->name('development.updatescrapperremarksdata');
@@ -4593,7 +4640,7 @@ Route::middleware(['auth', 'optimizeImages'])->group(function () {
     Route::get('development/issue//tester/assign', [DevelopmentController::class, 'assignTester']);
     Route::get('development/issue/time/meetings', [DevelopmentController::class, 'getMeetingTimings']);
     Route::get('development/issue/module/assign', [DevelopmentController::class, 'changeModule']);
-    Route::get('development/issue/user/resolve', [DevelopmentController::class, 'resolveIssue']);
+    Route::get('development/issue/user/resolve', [DevelopmentController::class, 'resolveIssue'])->name('development.issue.user.resolve');
     Route::get('development/issue/estimate_date/assign', [DevelopmentController::class, 'saveEstimateTime']);
     Route::get('development/date/history', [DevelopmentController::class, 'getDateHistory'])->name('development/date/history');
     Route::get('development/status/history', [DevelopmentController::class, 'getStatusHistory'])->name('development/status/history');
@@ -5573,23 +5620,6 @@ Route::get('task-summary', [TaskController::class, 'taskSummary'])->name('tasksS
 Route::post('task-list', [TaskController::class, 'taskList'])->name('tasksList');
 Route::get('users-list', [TaskController::class, 'usersList'])->name('usersList');
 Route::get('status-list', [TaskController::class, 'statusList'])->name('statusList');
-
-Route::prefix('appconnect')->middleware('auth')->group(function () {
-    Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
-    Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
-    Route::post('/column-visibility-update-app-sales', [AppConnectController::class, 'columnVisibilityUpdateAppSales'])->name('appconnect.app-sales.column.update');
-    // columnVisbilityUpdate
-    Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
-    Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
-    Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
-    Route::get('/payments', [AppConnectController::class, 'getPaymentReport'])->name('appconnect.app-pay');
-    Route::get('/usagefilter', [AppConnectController::class, 'getUsageReportfilter']);
-    Route::get('/salesfilter', [AppConnectController::class, 'getSalesReportfilter']);
-    Route::get('/subscriptionfilter', [AppConnectController::class, 'getSubscriptionReportfilter']);
-    Route::get('/adsfilter', [AppConnectController::class, 'getAdsReportfilter']);
-    Route::get('/ratingsfilter', [AppConnectController::class, 'getRatingsReportfilter']);
-    Route::get('/paymentsfilter', [AppConnectController::class, 'getPaymentReportfilter']);
-});
 
 Route::get('event-schedule/{userid}/{event_slug}', [CalendarController::class, 'showUserEvent'])->name('guest.schedule-event');
 Route::get('event-schedule-slot', [CalendarController::class, 'getEventScheduleSlots'])->name('guest.schedule-event-slot');
