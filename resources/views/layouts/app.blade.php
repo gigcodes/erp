@@ -4514,11 +4514,12 @@
                 broadcaster: 'pusher',
                 key: config.pusher.key,
                 cluster: config.pusher.cluster,
-                forceTLS: true,
                 wsHost: window.location.hostname,
-                wsPort: 6001,
-                disableStats: true,
+                wsPort: 80,
+                wssPort: 443,
+                forceTLS: true,
                 encrypted: true,
+                enabledTransports: ["ws", "wss"],
             });
         }
 
