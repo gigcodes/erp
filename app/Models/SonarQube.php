@@ -49,4 +49,9 @@ class SonarQube extends Model
     {
         return SonarQube::select('project')->where('project', '!=', '')->groupBy('project')->pluck('project', 'project');
     }
+
+    public static function getFilterStatus()
+    {
+        return SonarQube::select('status')->where('status', '!=', '')->groupBy('status')->pluck('status', 'status');
+    }
 }
