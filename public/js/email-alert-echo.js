@@ -42,12 +42,12 @@ if (config.pusher.key) {
         broadcaster: 'pusher',
         key: config.pusher.key,
         cluster: config.pusher.cluster,
-        // forceTLS: true,
         wsHost: window.location.hostname,
-        wsPort: 6001,
+        wsPort: 80,
+        wssPort: 443,
         forceTLS: true,
-        disableStats: true,
         encrypted: true,
+        enabledTransports: ["ws", "wss"],
     });
 
     window.Echo.private('emails')
