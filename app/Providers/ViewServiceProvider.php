@@ -54,7 +54,7 @@ class ViewServiceProvider extends ServiceProvider
                 $dbBackupList = DatabaseBackupMonitoring::where('is_resolved', 0)->count();
                 $permissionCount = PermissionRequest::count();
                 $description = ZoomMeetingParticipant::whereNull('description')->count();
-                $todoLists = TodoList::where('user_id', $auth_user->id)->where('status', 'Active')
+                $todoLists = TodoList::where('user_id', $auth_user['id'])->where('status', 'Active')
                     ->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
                 $statuses = TodoStatus::all();
                 $vendors = Vendor::all();
