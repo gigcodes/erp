@@ -975,6 +975,7 @@
                                                     class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('scrapper-category-map.index')}}">Node Category Maping</a>
                                                 <a class="dropdown-item"
                                                    href="{{ action('\App\Http\Controllers\CodeShortcutController@index') }}">
                                                     Node Code Shortcut</a>
