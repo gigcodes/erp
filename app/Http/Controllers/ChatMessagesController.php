@@ -620,6 +620,20 @@ class ChatMessagesController extends Controller
         } else {
             $keywords = [];
         }
+
+        $startTime = null;
+        $endTime = null;
+
+        if ($request->time_range != null) {
+            $time = explode(' - ', $request->time_range);
+            if (! empty($time[0])) {
+                $startTime = $time[0];
+            }
+            if (! empty($time[1])) {
+                $endTime = $time[1];
+            }
+        }
+
         $records = ChatMessage::with('user', 'vendor', 'customer')->where(function ($query) {
             $query->whereNotNull('vendor_id');
             $query->orWhereNotNull('user_id');
@@ -642,8 +656,12 @@ class ChatMessagesController extends Controller
             $records->where('customer_id', $request->customer_id);
         }
 
-        if (! empty($request->created_at)) {
-            $records->whereDate('created_at', date('Y-m-d', strtotime($request->created_at)));
+        if ($startTime != null) {
+            $records->where('created_at', '>=', date('Y-m-d H:i:s', strtotime($startTime)));
+        }
+
+        if ($endTime != null) {
+            $records->where('created_at', '<=', date('Y-m-d H:i:s', strtotime($endTime)));
         }
 
         $records = $records->latest()->paginate(20);

@@ -259,7 +259,7 @@ class GoogleSearchImageController extends Controller
                 if ($z) {
                     $file = asset($key);
                     $file_name = Str::random(10) . rand(1000, 9999) . Str::random(4) . '.jpg';
-                    $status = Storage::disk('uploads')->put('search_crop_images/' . $file_name, file_get_contents($file));
+                    $status = Storage::disk('s3')->put('search_crop_images/' . $file_name, file_get_contents($file));
 
                     $search_img = new GoogleSearchImage;
                     $search_img->user_id = \Auth::id();

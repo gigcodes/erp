@@ -11,7 +11,7 @@ style="padding: 0px 10px;">
                 </div>
             </div>
             @if ($list->getMedia)
-                @php 
+                @php
                     $product = \App\Product::find($list->product_id);
                     $imageDetails = $list->getMedia;
                     $pr = $list->getMedia;
@@ -20,7 +20,9 @@ style="padding: 0px 10px;">
 
                     $image = "";
                     if($imageDetails) {
-                      $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
+                      $imageDetails->directory .= '/thumbnail';
+                      $imageDetails->filename .= '_thumb';
+                      $image = $imageDetails->getUrl();
                     }
 
                     $im = [
@@ -102,12 +104,12 @@ style="padding: 0px 10px;">
                     </div>
                 </div>
                 @php
-                    $count++; 
+                    $count++;
                     if ($count == 6) {
                         echo '</div>';
                     }
                 @endphp
-                @if ($count == 6)   
+                @if ($count == 6)
                 <div class="row toggle-div-{{ $customer_id }}">
                     <div class="col-md-12">
                         <button type="button" class="btn btn-image sendImageMessage pull-right"
@@ -159,7 +161,7 @@ style="padding: 0px 10px;">
                 <div class="col-md-12">
                     <br>
                     <h5 class="product-attach-date" style="margin: 5px 0px;">{{ $list->date }}</h5>
-                    <hr style="margin: 5px 0px;"> 
+                    <hr style="margin: 5px 0px;">
                 </div>
             </div>
         @php
@@ -180,8 +182,9 @@ style="padding: 0px 10px;">
                         $selected_all = true;
                         $image = "";
                         if($imageDetails) {
-                          $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
-                        }
+                            $imageDetails->directory .= '/thumbnail';
+                            $imageDetails->filename .= '_thumb';
+                            $image = $imageDetails->getUrl();                        }
                         $im = [
                             'abs' => $imageDetails->getAbsolutePath(),
                             'url' => $image,
@@ -328,6 +331,6 @@ style="padding: 0px 10px;">
     @endif
 @endforeach
 
-                   
+
     <br>
 </div>

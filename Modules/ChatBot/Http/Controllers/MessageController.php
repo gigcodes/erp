@@ -431,10 +431,10 @@ class MessageController extends Controller
         if ($request->hasFile('audio_data')) {
             $audio_data = $request->file('audio_data');
             $fileOriginalName = $audio_data->getClientOriginalName();
-            $path = Storage::disk('uploads')->putFileAs('audio-message', $audio_data, $fileOriginalName);
-            $exists_file = Storage::disk('uploads')->exists($path);
+            $path = Storage::disk('s3')->putFileAs('audio-message', $audio_data, $fileOriginalName);
+            $exists_file = Storage::disk('s3')->exists($path);
             if ($exists_file) {
-                $path = Storage::disk('uploads')->url($path);
+                $path = Storage::disk('s3')->url($path);
 
                 return response()->json(['success' => true, 'message' => '', 'url' => $path]);
             } else {

@@ -495,7 +495,7 @@ class ImageController extends Controller
         $image = Images::find($id);
 
         if ($request->hasfile('image')) {
-            Storage::disk('uploads')->delete("social-media/$image->filename");
+            Storage::disk('s3')->delete("social-media/$image->filename");
 
             $filename = time() . '.' . $request->file('image')->getClientOriginalExtension();
             if (! is_dir(public_path('uploads/social-media/'))) {
@@ -634,7 +634,7 @@ class ImageController extends Controller
     {
         $image = Images::withTrashed()->find($id);
 
-        Storage::disk('uploads')->delete("social-media/$image->filename");
+        Storage::disk('s3')->delete("social-media/$image->filename");
 
         $image->tags()->detach();
         $image->detachMedia(config('constants.media_tags'));

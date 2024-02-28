@@ -76,7 +76,7 @@ public/download_asset/*
 /deployment_scripts_test
 
 # private files
-app/Console/Commands/DispatchJob.php 
+app/Console/Commands/DispatchJob.php
 .env.example
 .htaccess
 app/Http/Composers/GlobalComposer.php
@@ -105,3 +105,7 @@ public/queues.txt
 
 storage/websites/*
 storage/framework
+
+
+# SonarQube
+.scannerwork

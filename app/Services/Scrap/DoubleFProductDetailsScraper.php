@@ -228,7 +228,7 @@ class DoubleFProductDetailsScraper extends Scraper
             }
 
             $fileName = $prefix . '_' . md5(time()) . '.png';
-            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
+            Storage::disk('s3')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }

@@ -189,7 +189,7 @@ class ScrapController extends Controller
                 $imgData = file_get_contents($datum);
 
                 $fileName = md5(time() . microtime()) . '.png';
-                Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
+                Storage::disk('s3')->put('social-media/' . $fileName, $imgData);
                 $i = new Image();
                 $i->filename = $fileName;
                 if (! empty($product_id)) {

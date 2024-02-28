@@ -101,7 +101,7 @@
                     <span style="word-break:break-all;" class="show-full-phone-{{$vendor->id}} Website-task hidden" >{{$vendor->phone}}</span>
                     @if ($vendor->status == 1)
                       <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
-                      <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />  
+                      <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />
                     @else
                       <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
                       <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="true" />
@@ -123,10 +123,10 @@
         @if (!in_array('Communication', $dynamicColumnsToShowVendors))
             <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }} Communication-div">
                 <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
-                        
+
                     <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
-             
-               
+
+
                     <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
                     <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
 
@@ -144,7 +144,7 @@
                         ?>
                     </select>
                     <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
-                            
+
                 </div>
             </td>
         @endif
@@ -154,18 +154,18 @@
                 <div class="row">
                     <div class="col-md-11 form-inline cls_remove_rightpadding">
                         <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
-                            
+
                             <textarea rows="1" class="form-control mr-1" id="remarks_{{ $vendor->id }}" name="remarks" placeholder="Message"></textarea>
-                     
+
                             <button class="btn btn-sm btn-xs remarks-message mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
 
                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-remarks-history" title="Show Status History" data-id="{{$vendor->id}}">
                                 <i class="fa fa-info-circle i-vendor-remarks-history"></i>
                             </button>
-                            
+
                         </div>
                     </div>
-                </div>                
+                </div>
             </td>
         @endif
 
@@ -204,14 +204,14 @@
                 <div class="cls_action_btn">
                     @if($isAdmin)
                     <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/style="color: gray;"></a>
-                    
-                    @php 
+
+                    @php
                     $iconReminderColor = '';
                     if($vendor->frequency)
                     {
                         $iconReminderColor = 'red';
                     }
-                    
+
                     @endphp
                     <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
                      data-id="{{ $vendor->id }}"
@@ -221,7 +221,7 @@
                      data-reminder_last_reply="{{ $vendor->reminder_last_reply }}"
                      >
                         <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
-                        
+
                     </button>
                     @endif
                     <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
@@ -235,7 +235,7 @@
                     <span class="btn">
                         <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>
                     </span>
-                    
+
                     <!-- <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button> -->
                     <button type="button" class="btn send-email-common-btn" data-toemail="{{$vendor->email}}" data-object="vendor" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
                     <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor('{{ $vendor->id }}', '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
@@ -245,7 +245,7 @@
                     @endif
                     {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                     <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
-                    <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
+                    <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" data-flowcharts='{!! $vendor->flowcharts !!}' title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
                         <i class="fa fa-line-chart" aria-hidden="true"></i>
                     </a>
 
@@ -340,7 +340,7 @@
                 <span style="word-break:break-all;" class="show-full-phone-{{$vendor->id}} Website-task hidden" >{{$vendor->phone}}</span>
                 @if ($vendor->status == 1)
                   <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="On" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
-                  <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />  
+                  <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="false" />
                 @else
                   <button type="button" class="btn btn-xs vendor-update-status-icon" id="btn_vendorstatus_{{ $vendor->id }}" title="Off" data-id="{{ $vendor->id }}" id="do_not_disturb" style="margin-top: -2px;"><i class="fa fa-ban"></i></button>
                   <input type="hidden" name="hdn_vendorstatus" id="hdn_vendorstatus_{{ $vendor->id }}" value="true" />
@@ -356,10 +356,10 @@
 
         <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }} Communication-div">
             <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
-                        
+
                 <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
-         
-           
+
+
                 <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
                 <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
 
@@ -377,7 +377,7 @@
                     ?>
                 </select>
                 <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
-                        
+
             </div>
         </td>
 
@@ -385,18 +385,18 @@
             <div class="row">
                 <div class="col-md-11 form-inline cls_remove_rightpadding">
                     <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
-                        
+
                         <textarea rows="1" class="form-control mr-1" id="remarks_{{ $vendor->id }}" name="remarks" placeholder="Message"></textarea>
-                 
+
                         <button class="btn btn-sm btn-xs remarks-message mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
 
                         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-remarks-history" title="Show Status History" data-id="{{$vendor->id}}">
                             <i class="fa fa-info-circle i-vendor-remarks-history"></i>
                         </button>
-                        
+
                     </div>
                 </div>
-            </div>                
+            </div>
         </td>
 
         <td>{{ $vendor->type }}</td>
@@ -423,14 +423,14 @@
             <div class="cls_action_btn">
                 @if($isAdmin)
                 <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/style="color: gray;"></a>
-    			
-    			@php 
+
+    			@php
     			$iconReminderColor = '';
     			if($vendor->frequency)
     			{
     				$iconReminderColor = 'red';
     			}
-    			
+
     			@endphp
                 <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
                  data-id="{{ $vendor->id }}"
@@ -440,7 +440,7 @@
                  data-reminder_last_reply="{{ $vendor->reminder_last_reply }}"
                  >
                     <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
-    				
+
                 </button>
                 @endif
                 <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
@@ -454,7 +454,7 @@
                 <span class="btn">
                     <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>
                 </span>
-                
+
                 <!-- <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button> -->
                 <button type="button" class="btn send-email-common-btn" data-toemail="{{$vendor->email}}" data-object="vendor" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
                 <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor('{{ $vendor->id }}', '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
@@ -464,7 +464,7 @@
                 @endif
                 {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                 <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
-                <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
+                <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" data-flowcharts='{!! $vendor->flowcharts !!}' title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
                     <i class="fa fa-line-chart" aria-hidden="true"></i>
                 </a>
 
@@ -540,7 +540,7 @@
                             var checked = 'checked';
                         }
                         else {
-                            var checked = ''; 
+                            var checked = '';
                         }
                         $('#status_history_modal table tbody').append(
                             '<tr>\
@@ -580,35 +580,6 @@
         $('#remark_history_modal').modal('show');
     });
 
-    $(document).on('click', '.update-flowchart-date', function() {
-        var vendor_id = $(this).data('id');
-
-        var msg = "Are you sure you want to update flow chart status?";
-
-        if (confirm(msg)) {
-
-            $("#loading-image").show();
-            $.ajax({
-                url: "{{ route('vendors.flowchart')}}",
-                method: "POST",
-                data: {                    
-                    id: vendor_id,
-                },
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                success: function () {
-                    $("#loading-image").hide();
-                    toastr["success"]("Vendor flow-chart status has been updated!", "Message")
-                    window.location.reload();
-                },
-                error: function (error) {
-                    $("#loading-image").hide();
-                    toastr["error"](error.responseJSON.message);
-                }
-            });
-        } else {
-            return false;
-        }
-    });
 
     $(document).on('click', '.update-feeback-status', function() {
         var vendor_id = $(this).data('id');
@@ -621,7 +592,7 @@
             $.ajax({
                 url: "{{ route('vendors.feedbackstatus')}}",
                 method: "POST",
-                data: {                    
+                data: {
                     id: vendor_id,
                 },
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
@@ -639,7 +610,7 @@
             return false;
         }
     });
-    
+
     $(document).on('click', '.update-question-status', function() {
         var vendor_id = $(this).data('id');
 
@@ -651,7 +622,7 @@
             $.ajax({
                 url: "{{ route('vendors.questionansert')}}",
                 method: "POST",
-                data: {                    
+                data: {
                     id: vendor_id,
                 },
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
@@ -681,7 +652,7 @@
             $.ajax({
                 url: "{{ route('vendors.rquestionansert')}}",
                 method: "POST",
-                data: {                    
+                data: {
                     id: vendor_id,
                 },
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
@@ -727,7 +698,7 @@
     });
 
     $(document).on('click', '.get-email-list', function() {
-        var vendor_id = $(this).attr('data-id');        
+        var vendor_id = $(this).attr('data-id');
 
         if(vendor_id>0){
 
@@ -757,5 +728,66 @@
         } else {
             alert('Please select vendor.')
         }
+    });
+
+    $(document).on('change', '#selectAll', function(e){
+      if ($(this).prop('checked')) {
+        $('#flowChartSelect option').prop('selected', true);
+        $('#selectAllLabel').html('Unselect All');
+      }else{
+        $('#flowChartSelect option').prop('selected', false);
+        $('#selectAllLabel').html('Select All');
+      }
+    });
+    $(document).on('change', '#flowChartSelect', function(e){
+      if ($('#selectAll').prop('checked')) {
+        $('#selectAll').prop('checked', false);
+        $('#selectAllLabel').html('Select All');
+      }
+    });
+    $(document).on('click', '.update-flowchart-date', function(e) {
+      e.preventDefault();
+
+      $('#flowChartSelect option').prop('selected', false);
+      if ($(this).attr('data-flowcharts')) {
+        let selectedFlowcharts = JSON.parse($(this).attr('data-flowcharts'));
+
+        $('#flowChartSelect option').each(function () {
+          if ($.inArray(($(this).val()).toString(), selectedFlowcharts) !== -1) {
+            $(this).prop('selected', true);
+          }
+        });
+      }
+      $('#assignFlowchartVendorModal #flowChartFormVendorId').val($(this).data('id'));
+      $('#assignFlowchartVendorModal').modal('show');
+    });
+    $(document).on('click', '.update-flowchart-date-btn', function(e) {
+      e.preventDefault();
+      var flowcharts = $('#flowChartSelect').val();
+      var vendor_id = $('#assignFlowchartVendorModal #flowChartFormVendorId').val();
+      var msg = "Are you sure you want to update flow chart status?";
+      if (confirm(msg)) {
+        $("#loading-image").show();
+        $.ajax({
+          url: "{{ route('vendors.flowchart')}}",
+          method: "POST",
+          data: {
+            id: vendor_id,
+            flowcharts
+          },
+          headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+          success: function () {
+            $("#loading-image").hide();
+            toastr["success"]("Vendor flow-chart status has been updated!", "Message")
+            window.location.reload();
+          },
+          error: function (error) {
+            $("#loading-image").hide();
+            toastr["error"](error.responseJSON.message);
+          }
+        });
+      } else {
+        return false;
+      }
     });
 </script>

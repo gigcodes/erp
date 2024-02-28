@@ -246,7 +246,7 @@ class InstantMessagingController extends Controller
                                 $chatMessage = ChatMessage::create($params);
 
                                 // Upload media
-                                $media = MediaUploader::fromString($image)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/' . floor($chatMessage->id / config('constants.image_per_folder')))->upload();
+                                $media = MediaUploader::fromString($image)->useFilename(uniqid(true, true))->toDisk('s3')->toDirectory('chat-messages/' . floor($chatMessage->id / config('constants.image_per_folder')))->upload();
                                 $chatMessage->attachMedia($media, config('constants.media_tags'));
                             }
                         }

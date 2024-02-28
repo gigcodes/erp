@@ -75,7 +75,7 @@ class GenerateProductPricingJson extends Command
                 }
             }
 
-            if (! \Storage::disk('uploads')->put('pricing-' . date('Y-m-d') . '.json', json_encode($priceReturn))) {
+            if (! \Storage::disk('s3')->put('pricing-' . date('Y-m-d') . '.json', json_encode($priceReturn))) {
                 return false;
             }
 

@@ -7,7 +7,7 @@ return [
      * Should extend `Plank\Mediable\Media`
      */
     // 'model' => Plank\Mediable\Media::class,
-    'model' => App\Models\PlankMediaCustom::class, //Added this class to Override getUrl Method
+    'model' => Plank\Mediable\Media::class,
 
     /*
      * Filesystem disk to use if none is specified

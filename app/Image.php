@@ -41,7 +41,7 @@ class Image extends Model
 
     public static function trashImage($imageName)
     {
-        $path = Storage::disk('uploads')->getDriver()->getAdapter()->getPathPrefix();
+        $path = Storage::disk('s3')->getDriver()->getAdapter()->getPathPrefix();
         File::move($path . '/' . $imageName,
             $path . 'trash/' . $imageName
         );

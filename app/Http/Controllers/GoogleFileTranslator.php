@@ -74,7 +74,7 @@ class GoogleFileTranslator extends Controller
             $ext = $filename->getClientOriginalExtension();
             $filenameNew = null;
             $media = MediaUploader::fromSource($request->file('file'))
-                ->toDestination('uploads', 'google-file-translator')
+                ->toDestination('s3', 'google-file-translator')
                 ->upload();
 
             if (isset($media) && isset($media->filename) && isset($media->extension)) {

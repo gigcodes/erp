@@ -89,4 +89,7 @@ return [
         '404' => 'Something went wrong',
         '500' => 'Something went wrong',
     ],
+    [
+        'temporary_url_expiry_time' => 2,
+    ],
 ];

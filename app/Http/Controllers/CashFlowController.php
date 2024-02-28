@@ -151,7 +151,7 @@ class CashFlowController extends Controller
     {
         $file = File::find($id);
 
-        return Storage::disk('uploads')->download('files/' . $file->filename);
+        return Storage::disk('s3')->download('files/' . $file->filename);
     }
 
     /**
@@ -198,7 +198,7 @@ class CashFlowController extends Controller
 
         if ($cash_flow->files) {
             foreach ($cash_flow->files as $file) {
-                Storage::disk('uploads')->delete("files/$file->filename");
+                Storage::disk('s3')->delete("files/$file->filename");
                 $file->delete();
             }
         }

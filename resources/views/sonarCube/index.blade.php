@@ -16,12 +16,24 @@
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col-md-2">
+                                <label for="status">Status </label>
+                                <select class="form-control select2", multiple name="status[]" id="status">
+                                    @foreach($issuesFilterStatus as $k=>$v)
+                                        <option value="{{$k}}"
+                                                @if(is_array(request('status')) && in_array($k, request('status')))
+                                                    selected
+                                                @endif
+                                        >{{$v}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <label for="severity">Severity </label>
                                 <select class="form-control select2", multiple name="severity[]" id="severity">
                                     @foreach($issuesFilterSeverity as $k=>$v)
                                         <option value="{{$k}}"
                                         @if(is_array(request('severity')) && in_array($k, request('severity')))
-                                            selected	
+                                            selected
                                         @endif
                                         >{{$v}}</option>
                                     @endforeach
@@ -33,10 +45,10 @@
                                     @foreach($issuesFilterAuthor as $k=>$v)
                                         <option value="{{$k}}"
                                         @if(is_array(request('author')) && in_array($k, request('author')))
-                                            selected	
+                                            selected
                                         @endif
                                         >{{$v}}</option>
-                                    @endforeach                                   
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -45,17 +57,17 @@
                                     @foreach($issuesFilterProject as $k=>$v)
                                         <option value="{{$k}}"
                                         @if(is_array(request('project')) && in_array($k, request('project')))
-                                            selected	
+                                            selected
                                         @endif
                                         >{{$v}}</option>
-                                    @endforeach   
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                     <img src="/images/search.png" style="cursor: default;">
                                 </button>
-                                <a href="{{route('sonarqube.list.page')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+                                <a href="{{route('sonarqube.list.page')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>
                             </div>
                         </div>
                     </form>
@@ -139,10 +151,10 @@
                                     @else
                                         -
                                     @endif
-                                </td>   
+                                </td>
                                 <td>
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$issue["id"]}}')"><i class="fa fa-arrow-down"></i></button>
-                                </td>                             
+                                </td>
                             </tr>
 
                             <tr class='action-btn-tr-{{$issue["id"]}} d-none'>
@@ -177,7 +189,7 @@
                 <h4 class="modal-title">Create Project</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            
+
             <div class="modal-body">
                 <div class="form-group">
                     <strong>Project display name:</strong>
@@ -315,7 +327,7 @@
                     <!-- <div class="form-group">
                         <label for="">Websites</label>
                         <div class="form-group website-list row">
-                           
+
                         </div>
                     </div> -->
                 </div>
@@ -385,7 +397,7 @@
 
 
 <script type="text/javascript">
-    
+
 $('select.select2').select2();
 
 function Showactionbtn(id){
@@ -435,7 +447,7 @@ $(document).on('submit', '#sonar-project-create-form', function(e){
     }).fail(function(response) {
         toastr["error"]("something went wrong");
     });
-   
+
 });
 
 function listprojects() {
@@ -639,7 +651,7 @@ $(document).on('click', '.send-message', function() {
                 thiss.closest('tr').find('.quick-message-field').val('');
 
                 toastr["success"]("Message successfully send!", "Message")
-               
+
                 $(thiss).attr('disabled', false);
             }).fail(function(errObj) {
                 $(thiss).attr('disabled', false);

@@ -1077,7 +1077,7 @@ class WhatsAppController extends FindByNumberController
                         copy($text, $filePath);
 
                         // Upload media
-                        $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/' . $numberPath)->upload();
+                        $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))->toDisk('s3')->toDirectory('chat-messages/' . $numberPath)->upload();
 
                         // Delete the file
                         unlink($filePath);
@@ -1097,7 +1097,7 @@ class WhatsAppController extends FindByNumberController
                         // Copy URL to file path
                         copy($text, $filePath);
                         // Upload media
-                        $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/' . $numberPath)->upload();
+                        $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))->toDisk('s3')->toDirectory('chat-messages/' . $numberPath)->upload();
                         // Delete the file
                         unlink($filePath);
                         // Update media URL

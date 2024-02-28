@@ -292,9 +292,9 @@
             </ul>
         </span>
 
-        
 
-        
+
+
         @if (auth()->user()->isAdmin())
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
         <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
@@ -369,7 +369,7 @@
                                     <th width="4%">Model Type</th>
                                     <th width="3%">Mail Type</th>
                                     <th width="5%">Subject</th>
-                                    <th width="5%">Body</th>                                    
+                                    <th width="5%">Body</th>
                                     <th width="1%">Draft</th>
                                 </tr>
                             </thead>
@@ -488,6 +488,7 @@
 @include('vendors.partials.add-position')
 @include('github.include.organization-list')
 @include('vendors.partials.remark-history')
+@include('vendors.partials.assign-flowchart-vendor')
 
 <div id="reminderModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -998,7 +999,7 @@
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
         $('#vendor_type option[value="' + vendor.type + '"]').attr('selected', true);
         $('#vendor_currency option[value="' + vendor.currency + '"]').attr('selected', true);
-        
+
         $('#vendorEditModal #vendor_name').val(vendor.name);
         $('#vendorEditModal #vendor_address').val(vendor.address);
         $('#vendorEditModal #vendor_phone').val(vendor.phone);
@@ -2325,7 +2326,7 @@
             alert('Please enter title');
             return false;
         }
-        
+
         $.ajax({
             url: url,
             type: "post",

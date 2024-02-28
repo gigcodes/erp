@@ -208,6 +208,7 @@ class VendorController extends Controller
                 vendors.type,
                 vendors.framework,
                 vendors.fc_status,
+                vendors.flowcharts,
                 vendors.question_status,
                 vendors.rating_question_status,
                 vendors.flowchart_date,
@@ -1962,15 +1963,17 @@ class VendorController extends Controller
     {
         $vendor = Vendor::find($request->id);
 
-        if (empty($vendor->flowchart_date)) {
-            $data['flowchart_date'] = Carbon::now();
-            $data['fc_status'] = 1;
+        if (isset($request->flowcharts) && !empty($request->flowcharts)) {
+            $vendor->flowchart_date = Carbon::now();
+            $vendor->fc_status = 1;
+            $vendor->flowcharts = $request->flowcharts;
         } else {
-            $data['flowchart_date'] = null;
-            $data['fc_status'] = 0;
+            $vendor->flowchart_date = null;
+            $vendor->fc_status = 0;
+            $vendor->flowcharts = null;
         }
 
-        Vendor::find($request->id)->update($data);
+        $vendor->update();
 
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }

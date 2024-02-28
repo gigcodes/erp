@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 style="margin: 5px 0px;">{{$list->date}}</h5> 
+                <h5 style="margin: 5px 0px;">{{$list->date}}</h5>
                 <hr style="margin: 5px 0px;">
             </div>
         </div>
@@ -20,14 +20,15 @@
                 $product = \App\Product::find($pr->id);
                 $customer = \App\Customer::find($customer_id);
             @endphp
-         
+
         @if ($product->hasMedia(config('constants.attach_image_tag')))
         @php
         $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
         $image = "";
         if($imageDetails) {
-          $image = convertToThumbUrl($imageDetails->getUrl(),$imageDetails->extension);
-        }
+            $imageDetails->directory .= '/thumbnail';
+            $imageDetails->filename .= '_thumb';
+            $image = $imageDetails->getUrl();        }
         $image_key = $imageDetails->getKey();
         $selected_all = true;
         $im = [
@@ -69,7 +70,7 @@
                         <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="{{$customer->id}}" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
                         <a href="javascript:;" title="Resend" data-id="{{$pr->suggested_product_list_id}}" data-suggestedproductid="{{$suggested_products_id}}" data-customer="{{$customer->id}}" class="btn btn-sm resend-single-image" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
-                       
+
                         @php
                         $chat_message = \App\ChatMessage::find($pr->chat_message_id);
                         @endphp
@@ -102,7 +103,7 @@
                 <p>Id : {{ $product->id }}</p>
                 <p>Title : {{ $product->name }} </p>
             </a>
-            <p>Category : 
+            <p>Category :
                 <select class="form-control select-multiple-cat-list update-product" data-id={{ $product->id }}>
                     @foreach($categoryArray as $category)
                     <option value="{{ $category['id'] }}" @if($category['id'] == $product->category) selected @endif >{{ $category['value'] }}</option>

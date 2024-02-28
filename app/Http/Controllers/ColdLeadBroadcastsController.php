@@ -81,7 +81,7 @@ class ColdLeadBroadcastsController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $fileName = Storage::disk('uploads')->putFile('', $file);
+            $fileName = Storage::disk('s3')->putFile('', $file);
             $broadcast->image = $fileName;
             $broadcast->save();
         }

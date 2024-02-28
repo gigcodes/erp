@@ -149,7 +149,7 @@ class FacebookController extends Controller
                             if (! empty($postJson['Screenshot'])) {
                                 if (! $influencer->hasMedia('instagram-screenshot')) {
                                     $media = MediaUploader::fromString(base64_decode($postJson['Screenshot']))
-                                        ->toDisk('uploads')
+                                        ->toDisk('s3')
                                         ->toDirectory('social-media/instagram-screenshot/' . floor($influencer->id / 1000))
                                         ->useFilename($influencer->id)
                                         ->beforeSave(function (\Plank\Mediable\Media $model, $source) {
