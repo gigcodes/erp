@@ -1083,6 +1083,7 @@
                 })
                 .fail(function (jqXHR, ajaxOptions, thrownError) {
                     console.error(jqXHR);
+                    toastr['error']('Error! Please reload the page', 'error');
                 });
         });
 
@@ -1094,6 +1095,37 @@
         $(document).on("click", ".search-and-filter", function (e) {
           e.preventDefault();
           loadMoreProducts(true);
+        });
+
+        $(document).on("click", "#submitPidatatablecolumnvisibilityList", function (e) {
+          e.preventDefault();
+          let url = "{{ route('productinventory.column.update') }}";
+          var form = $(this).closest("form");
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: form.serialize(),
+            dataType: "json",
+            headers: {
+              'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function () {
+              $("#loading-image").show();
+            }
+          })
+            .done(function (data) {
+              $("#loading-image").hide();
+              if (data.code == 200) {
+                console.log(data);
+                if (data.message != "") {
+                  toastr['success'](data.message, 'success');
+                }
+              }
+            })
+            .fail(function (jqXHR, ajaxOptions, thrownError) {
+              $("#loading-image").hide();
+              console.error(jqXHR);
+            });
         });
 
     </script>

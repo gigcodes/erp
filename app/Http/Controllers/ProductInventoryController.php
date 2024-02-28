@@ -1032,22 +1032,26 @@ class ProductInventoryController extends Controller
     public function columnVisbilityUpdate(Request $request)
     {
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
+        $result = null;
 
         if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'inventory-list';
             $column->column_name = json_encode($request->column_pi);
-            $column->save();
+            $result = $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'inventory-list';
             $column->column_name = json_encode($request->column_pi);
             $column->user_id = auth()->user()->id;
-            $column->save();
+            $result = $column->save();
         }
 
-        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
-    }
+        if (request()->ajax()) {
+            return response()->json(['code' => 200, 'data' => $result, 'message' => 'Column Visibility Updated Successfully!']);
+        }
+
+        return redirect()->back()->with('success', 'Column Visibility Updated Successfully!');    }
 
     public function inventoryListNew(Request $request)
     {
