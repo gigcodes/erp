@@ -424,36 +424,36 @@
                             @endif
                         @endif
 
-                            @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
-                                <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img
-                                            src="{{asset('images/view.png')}}" /></a>
-                            @endif
+                        @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
+                            <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img
+                                        src="{{asset('images/view.png')}}" /></a>
+                        @endif
 
-                            @if ($task->is_flagged == 1)
-                                <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}">
-                                    <img
-                                            src="{{asset('images/flagged.png')}}" /></button>
-                            @else
-                                <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}">
-                                    <img
-                                            src="{{asset('images/unflagged.png')}}" /></button>
-                            @endif
-                            <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img
-                                        src="{{asset('/images/forward.png')}}"></button>
+                        @if ($task->is_flagged == 1)
+                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}">
+                                <img
+                                        src="{{asset('images/flagged.png')}}" /></button>
+                        @else
+                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}">
+                                <img
+                                        src="{{asset('images/unflagged.png')}}" /></button>
+                        @endif
+                        <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img
+                                    src="{{asset('/images/forward.png')}}"></button>
 
-                            <button class="btn btn-image mt-2 create-task-document" title="Create document"
-                                    data-id="{{$task->id}}">
-                                <i class="fa fa-file-text" aria-hidden="true"></i>
-                            </button>
-                            <button class="btn btn-image mt-2 show-created-task-document" title="Show created document"
-                                    data-id="{{$task->id}}">
-                                <i class="fa fa-list" aria-hidden="true"></i>
-                            </button>
+                        <button class="btn btn-image mt-2 create-task-document" title="Create document"
+                                data-id="{{$task->id}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-image mt-2 show-created-task-document" title="Show created document"
+                                data-id="{{$task->id}}">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+                        </button>
 
-                            <a title="Task Information: Update" class="btn btn-image mt-2" href="javascript:void(0);"
-                               onclick="funTaskInformationModal(this, '{{$task->id}}')">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </a>
+                        <a title="Task Information: Update" class="btn btn-image mt-2" href="javascript:void(0);"
+                           onclick="funTaskInformationModal(this, '{{$task->id}}')">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>
                     </div>
                 </td>
             </tr>
@@ -1189,14 +1189,6 @@
         </td>
 
         <td class="p-2">
-            <!-- <div class="dropdown dropleft">
-                <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Actions
-                </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
-                    <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
-                </div>
-            </div> -->
             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i
                         class="fa fa-arrow-down"></i></button>
         </td>
