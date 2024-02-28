@@ -40,7 +40,7 @@
 @endif
 <div class="col-lg-12 margin-tb">
     <form action="{{ url('productinventory/new-inventory-list') }}" method="GET" class="form-inline align-items-start">
-        
+
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
                 <input type='text' class="form-control" name="start_date" value="{{ request('start_date','') }}" placeholder="Start date" />
@@ -65,7 +65,7 @@
             name="brand_names[]" multiple>
             <option value="">Select a Brand</option>
 
-                @if ($selected_brand)        
+                @if ($selected_brand)
                     @foreach($selected_brand as $brand)
                                     <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
                     @endforeach
@@ -74,7 +74,7 @@
 
         </div>
         <div class="form-group mr-pd col-md-1">
-            <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
+            <button type="submit" class="btn btn-secondary search-and-filter"><i class="fa fa-filter"></i>Filter</button>
         </div>
     </form>
 </div>
@@ -178,20 +178,20 @@
                 <th>No of product in Stock</th>
                 <th>No of product Updated</th>
                 <th>No of pending Product</th>
-                
-                
+
+
             </tr>
         </thead>
         <tbody>
             <?php foreach($history as $h) { ?>
                 <tr>
-                    <td><?php echo $h['date'];?></td> 
-                    <td>{{ $h->total_product }}</td>  
-                    <td>{{ $h->in_stock }}</td>          
+                    <td><?php echo $h['date'];?></td>
+                    <td>{{ $h->total_product }}</td>
+                    <td>{{ $h->in_stock }}</td>
                     <td>{{ $h->updated_product }}</td>
                     <td>{{ $h->total_product-$h->updated_product }}</td>
                 </tr>
-             <?php } ?> 
+             <?php } ?>
                </tbody>
     </table>
                 </div>
@@ -232,7 +232,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form class="form" action="/productinventory/store-erp-size" method="post">
-                 {!! csrf_field() !!} 
+                 {!! csrf_field() !!}
                 <div class="modal-header">
                     <h4 class="modal-title">Add Size</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -251,7 +251,7 @@
 
 
 
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
 </div>
 
@@ -521,7 +521,7 @@ return;
         });
     });
 
-    function loadMoreProducts() {
+    function loadMoreProducts(firstPage = false) {
         if (isLoadingProducts) return;
 
         isLoadingProducts = true;
@@ -529,7 +529,12 @@ return;
         var loader = $('.infinite-scroll-products-loader');
 
         let url = "";
-        page++;
+          if(firstPage){
+            page = 1;
+            $('#inventory-data tbody').html('');
+          }else{
+            page++;
+          }
 
         @if(!empty(request()->input()))
         url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."&page=") }}' + page, "text/html");
@@ -592,7 +597,7 @@ return;
             url: "/productinventory/change-size-system",
             type: 'POST',
             data : {
-                product_ids : ids, 
+                product_ids : ids,
                 size_system : $(".change-selectable-size").val()
             },
             dataType:"json",
@@ -645,7 +650,7 @@ return;
             url: "/productinventory/change-product-status",
             type: 'POST',
             data : {
-                product_ids : ids, 
+                product_ids : ids,
                 product_status : $(".change-status").val()
             },
             dataType:"json",
@@ -673,11 +678,11 @@ return;
     });
 
     $(document).on("click",".add-size-btn",function() {
-    
+
         var sizeSystem = $(this).data("size-system");
         var sizes = $(this).data("sizes");
         var category_id = $(this).data("category-id");
-        //var allSizes = 
+        //var allSizes =
         var html = `<table class="table table-bordered" id="category-table">
                        <thead>
                           <tr>
@@ -699,7 +704,7 @@ return;
 
         html += `</tbody></table>`;
 
-        
+
         $("#add-size-btn-modal").find(".modal-body").html(html);
         $("#add-size-btn-modal").modal("show");
     });
@@ -759,8 +764,13 @@ return;
         });
     });
 
+    $(document).on("click", ".search-and-filter", function (e) {
+      e.preventDefault();
+      loadMoreProducts(true);
+    });
 
-   
+
+
 
 </script>
 @endsection

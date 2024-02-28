@@ -144,7 +144,7 @@
                         {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Size
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-secondary custom-button"><i class="fa fa-filter"></i></button>
+                        <button type="submit" class="btn btn-secondary custom-button search-and-filter"><i class="fa fa-filter"></i></button>
                     </div>
                 </div>
             </div>
@@ -805,7 +805,7 @@
             });
         });
 
-        function loadMoreProducts() {
+        function loadMoreProducts(firstPage = false) {
             if (isLoadingProducts) return;
 
             isLoadingProducts = true;
@@ -813,7 +813,12 @@
             var loader = $('.infinite-scroll-products-loader');
 
             let url = "";
+          if(firstPage){
+            page = 1;
+            $('#inventory-data tbody').html('');
+          }else{
             page++;
+          }
 
             @if(!empty(request()->input()))
                 url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."&page=") }}' + page, "text/html");
@@ -1085,6 +1090,11 @@
         function Showactionbtn(id) {
             $(".action-btn-tr-" + id).toggleClass('d-none')
         }
+
+        $(document).on("click", ".search-and-filter", function (e) {
+          e.preventDefault();
+          loadMoreProducts(true);
+        });
 
     </script>
 @endsection
