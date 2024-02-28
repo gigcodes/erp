@@ -460,14 +460,14 @@ Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildP
 
 Route::middleware('auth')->group(function () {
     Route::prefix('youtube')->group(function () {
-        Route::get('add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
+        Route::get('add-chanel', [YoutubeController::class, 'createChannel'])->name('add.chanel');
         Route::get('get-refresh-token', [YoutubeController::class, 'getRefreshToken'])->name('youtubeaccount.get-refresh-token');
         Route::post('refresh-token', [YoutubeController::class, 'refreshToken'])->name('youtubeaccount.refresh_token');
         Route::post('add-chanel/create', [YoutubeController::class, 'createChanel'])->name('youtubeaccount.createChanel');
         Route::get('edit/{id}', [YoutubeController::class, 'editChannel'])->name('youtubeaccount.editChannel');
         Route::get('video-upload/{id}', [YoutubeController::class, 'viewUploadVideo'])->name('youtubeaccount.viewUpload');
         Route::get('list-video/{id}', [YoutubeController::class, 'listVideo'])->name('youtubeaccount.listVideo');
-
+        Route::get('redirect/{id}', [YoutubeController::class, 'youtubeRedirect'])->name('youtubeaccount.redirect');
         Route::post('channel/update', [YoutubeController::class, 'updateChannel'])->name('youtubeaccount.updateChannel');
         Route::post('video/upload', [YoutubeController::class, 'uploadVideo'])->name('youtubeaccount.uploadVideo');
 
