@@ -25,7 +25,7 @@ class ScraperServerStatusHistory extends Model
     public static function runOnGiveTime($date, $time)
     {
         $start = $date . ' ' . $time . ':00:00';
-        $end = date('Y-m-d H:i:s', strtotime($date . ' ' . $time . ':00:00 +1 hour'));
+        $end   = date('Y-m-d H:i:s', strtotime($date . ' ' . $time . ':00:00 +1 hour'));
 
         return self::where('created_at', '>=', $start)->where('created_at', '<=', $end)->get();
     }

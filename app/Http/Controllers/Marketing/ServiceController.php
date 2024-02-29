@@ -23,7 +23,7 @@ class ServiceController extends Controller
         ]);
 
         $data = Service::create([
-            'name' => $request->name,
+            'name'        => $request->name,
             'description' => $request->text,
         ]);
 
@@ -45,7 +45,7 @@ class ServiceController extends Controller
     {
         $updated = Service::findOrFail($request->id);
 
-        $updated->name = $request->name;
+        $updated->name        = $request->name;
         $updated->description = $request->description;
 
         $updated->save();

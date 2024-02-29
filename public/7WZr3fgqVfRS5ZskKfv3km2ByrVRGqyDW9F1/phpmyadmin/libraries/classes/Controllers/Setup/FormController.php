@@ -16,7 +16,8 @@ use PhpMyAdmin\Config\Forms\Setup\SetupFormList;
 class FormController extends AbstractController
 {
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
+     *
      * @return string HTML
      */
     public function __invoke(array $params): string
@@ -38,9 +39,9 @@ class FormController extends AbstractController
 
         return $this->template->render('setup/form/index', [
             'formset' => $formset,
-            'pages' => $pages,
-            'name' => $form::getName(),
-            'page' => $page,
+            'pages'   => $pages,
+            'name'    => $form::getName(),
+            'page'    => $page,
         ]);
     }
 }

@@ -20,7 +20,10 @@ class Setting extends Model
     /**
      * Add a settings value
      *
-     * @param  string  $type
+     * @param string $type
+     * @param mixed  $key
+     * @param mixed  $val
+     *
      * @return bool
      */
     public static function add($key, $val, $type = 'string')
@@ -35,7 +38,9 @@ class Setting extends Model
     /**
      * Get a settings value
      *
-     * @param  null  $default
+     * @param null  $default
+     * @param mixed $key
+     *
      * @return bool|int|mixed
      */
     public static function get($key, $default = null)
@@ -52,7 +57,10 @@ class Setting extends Model
     /**
      * Set a value for setting
      *
-     * @param  string  $type
+     * @param string $type
+     * @param mixed  $key
+     * @param mixed  $val
+     *
      * @return bool
      */
     public static function set($key, $val, $type = 'string')
@@ -60,7 +68,7 @@ class Setting extends Model
         if ($setting = self::getAllSettings()->where('name', $key)->first()) {
             return $setting->update([
                 'name' => $key,
-                'val' => $val,
+                'val'  => $val,
                 'type' => $type,
             ]) ? $val : false;
         }
@@ -70,6 +78,8 @@ class Setting extends Model
 
     /**
      * Remove a setting
+     *
+     * @param mixed $key
      *
      * @return bool
      */
@@ -84,6 +94,9 @@ class Setting extends Model
 
     /**
      * caste value into respective type
+     *
+     * @param mixed $val
+     * @param mixed $castTo
      *
      * @return bool|int
      */

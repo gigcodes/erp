@@ -47,7 +47,8 @@ class GisPoint extends GisGeometry
     /**
      * Scales each row.
      *
-     * @param  string  $spatial spatial data of a row
+     * @param string $spatial spatial data of a row
+     *
      * @return array an array containing the min, max values for x and y coordinates
      */
     public function scaleRow($spatial)
@@ -61,10 +62,10 @@ class GisPoint extends GisGeometry
     /**
      * Adds to the PNG image object, the data related to a row in the GIS dataset.
      *
-     * @param  string  $spatial     GIS POLYGON object
-     * @param  string|null  $label       Label for the GIS POLYGON object
-     * @param  string  $point_color Color for the GIS POLYGON object
-     * @param  array  $scale_data  Array containing data related to scaling
+     * @param string      $spatial     GIS POLYGON object
+     * @param string|null $label       Label for the GIS POLYGON object
+     * @param string      $point_color Color for the GIS POLYGON object
+     * @param array       $scale_data  Array containing data related to scaling
      */
     public function prepareRowAsPng(
         $spatial,
@@ -75,15 +76,15 @@ class GisPoint extends GisGeometry
     ): ImageWrapper {
         // allocate colors
         $black = $image->colorAllocate(0, 0, 0);
-        $red = (int) hexdec(mb_substr($point_color, 1, 2));
+        $red   = (int) hexdec(mb_substr($point_color, 1, 2));
         $green = (int) hexdec(mb_substr($point_color, 3, 2));
-        $blue = (int) hexdec(mb_substr($point_color, 4, 2));
+        $blue  = (int) hexdec(mb_substr($point_color, 4, 2));
         $color = $image->colorAllocate($red, $green, $blue);
 
         $label = trim($label ?? '');
 
         // Trim to remove leading 'POINT(' and trailing ')'
-        $point = mb_substr($spatial, 6, -1);
+        $point      = mb_substr($spatial, 6, -1);
         $points_arr = $this->extractPoints($point, $scale_data);
 
         // draw a small circle to mark the point
@@ -115,11 +116,12 @@ class GisPoint extends GisGeometry
     /**
      * Adds to the TCPDF instance, the data related to a row in the GIS dataset.
      *
-     * @param  string  $spatial     GIS POINT object
-     * @param  string|null  $label       Label for the GIS POINT object
-     * @param  string  $point_color Color for the GIS POINT object
-     * @param  array  $scale_data  Array containing data related to scaling
-     * @param  TCPDF  $pdf         TCPDF instance
+     * @param string      $spatial     GIS POINT object
+     * @param string|null $label       Label for the GIS POINT object
+     * @param string      $point_color Color for the GIS POINT object
+     * @param array       $scale_data  Array containing data related to scaling
+     * @param TCPDF       $pdf         TCPDF instance
+     *
      * @return TCPDF the modified TCPDF instance
      */
     public function prepareRowAsPdf(
@@ -130,10 +132,10 @@ class GisPoint extends GisGeometry
         $pdf
     ) {
         // allocate colors
-        $red = hexdec(mb_substr($point_color, 1, 2));
+        $red   = hexdec(mb_substr($point_color, 1, 2));
         $green = hexdec(mb_substr($point_color, 3, 2));
-        $blue = hexdec(mb_substr($point_color, 4, 2));
-        $line = [
+        $blue  = hexdec(mb_substr($point_color, 4, 2));
+        $line  = [
             'width' => 1.25,
             'color' => [
                 $red,
@@ -145,7 +147,7 @@ class GisPoint extends GisGeometry
         $label = trim($label ?? '');
 
         // Trim to remove leading 'POINT(' and trailing ')'
-        $point = mb_substr($spatial, 6, -1);
+        $point      = mb_substr($spatial, 6, -1);
         $points_arr = $this->extractPoints($point, $scale_data);
 
         // draw a small circle to mark the point
@@ -165,25 +167,26 @@ class GisPoint extends GisGeometry
     /**
      * Prepares and returns the code related to a row in the GIS dataset as SVG.
      *
-     * @param  string  $spatial     GIS POINT object
-     * @param  string  $label       Label for the GIS POINT object
-     * @param  string  $point_color Color for the GIS POINT object
-     * @param  array  $scale_data  Array containing data related to scaling
+     * @param string $spatial     GIS POINT object
+     * @param string $label       Label for the GIS POINT object
+     * @param string $point_color Color for the GIS POINT object
+     * @param array  $scale_data  Array containing data related to scaling
+     *
      * @return string the code related to a row in the GIS dataset
      */
     public function prepareRowAsSvg($spatial, $label, $point_color, array $scale_data)
     {
         $point_options = [
-            'name' => $label,
-            'id' => $label . $this->getRandomId(),
-            'class' => 'point vector',
-            'fill' => 'white',
-            'stroke' => $point_color,
+            'name'         => $label,
+            'id'           => $label . $this->getRandomId(),
+            'class'        => 'point vector',
+            'fill'         => 'white',
+            'stroke'       => $point_color,
             'stroke-width' => 2,
         ];
 
         // Trim to remove leading 'POINT(' and trailing ')'
-        $point = mb_substr($spatial, 6, -1);
+        $point      = mb_substr($spatial, 6, -1);
         $points_arr = $this->extractPoints($point, $scale_data);
 
         $row = '';
@@ -204,11 +207,12 @@ class GisPoint extends GisGeometry
      * Prepares JavaScript related to a row in the GIS dataset
      * to visualize it with OpenLayers.
      *
-     * @param  string  $spatial     GIS POINT object
-     * @param  int  $srid        Spatial reference ID
-     * @param  string  $label       Label for the GIS POINT object
-     * @param  array  $point_color Color for the GIS POINT object
-     * @param  array  $scale_data  Array containing data related to scaling
+     * @param string $spatial     GIS POINT object
+     * @param int    $srid        Spatial reference ID
+     * @param string $label       Label for the GIS POINT object
+     * @param array  $point_color Color for the GIS POINT object
+     * @param array  $scale_data  Array containing data related to scaling
+     *
      * @return string JavaScript related to a row in the GIS dataset
      */
     public function prepareRowAsOl(
@@ -218,7 +222,7 @@ class GisPoint extends GisGeometry
         $point_color,
         array $scale_data
     ) {
-        $fill_style = ['color' => 'white'];
+        $fill_style   = ['color' => 'white'];
         $stroke_style = [
             'color' => $point_color,
             'width' => 2,
@@ -236,7 +240,7 @@ class GisPoint extends GisGeometry
 
         if (trim($label) !== '') {
             $text_style = [
-                'text' => trim($label),
+                'text'    => trim($label),
                 'offsetY' => -9,
             ];
             $result .= ',text: new ol.style.Text(' . json_encode($text_style) . ')';
@@ -251,7 +255,7 @@ class GisPoint extends GisGeometry
         $result .= $this->getBoundsForOl($srid, $scale_data);
 
         // Trim to remove leading 'POINT(' and trailing ')'
-        $point = mb_substr($spatial, 6, -1);
+        $point      = mb_substr($spatial, 6, -1);
         $points_arr = $this->extractPoints($point, null);
 
         if ($points_arr[0][0] != '' && $points_arr[0][1] != '') {
@@ -267,9 +271,10 @@ class GisPoint extends GisGeometry
     /**
      * Generate the WKT with the set of parameters passed by the GIS editor.
      *
-     * @param  array  $gis_data GIS data
-     * @param  int  $index    Index into the parameter object
-     * @param  string|null  $empty    Point does not adhere to this parameter
+     * @param array       $gis_data GIS data
+     * @param int         $index    Index into the parameter object
+     * @param string|null $empty    Point does not adhere to this parameter
+     *
      * @return string WKT with the set of parameters passed by the GIS editor
      */
     public function generateWkt(array $gis_data, $index, $empty = '')
@@ -287,7 +292,8 @@ class GisPoint extends GisGeometry
     /**
      * Generate the WKT for the data from ESRI shape files.
      *
-     * @param  array  $row_data GIS data
+     * @param array $row_data GIS data
+     *
      * @return string the WKT for the data from ESRI shape files
      */
     public function getShape(array $row_data)
@@ -299,25 +305,26 @@ class GisPoint extends GisGeometry
     /**
      * Generate parameters for the GIS data editor from the value of the GIS column.
      *
-     * @param  string  $value of the GIS column
-     * @param  int  $index of the geometry
+     * @param string $value of the GIS column
+     * @param int    $index of the geometry
+     *
      * @return array params for the GIS data editor from the value of the GIS column
      */
     public function generateParams($value, $index = -1)
     {
         $params = [];
         if ($index == -1) {
-            $index = 0;
-            $data = GisGeometry::generateParams($value);
+            $index          = 0;
+            $data           = GisGeometry::generateParams($value);
             $params['srid'] = $data['srid'];
-            $wkt = $data['wkt'];
+            $wkt            = $data['wkt'];
         } else {
             $params[$index]['gis_type'] = 'POINT';
-            $wkt = $value;
+            $wkt                        = $value;
         }
 
         // Trim to remove leading 'POINT(' and trailing ')'
-        $point = mb_substr($wkt, 6, -1);
+        $point      = mb_substr($wkt, 6, -1);
         $points_arr = $this->extractPoints($point, null);
 
         $params[$index]['POINT']['x'] = $points_arr[0][0];

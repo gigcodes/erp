@@ -15,7 +15,7 @@ use Modules\WebMessage\Http\Controllers\WebMessageController;
 */
 
 Route::group([
-    'prefix' => 'web-message',
+    'prefix'     => 'web-message',
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [WebMessageController::class, 'index']);

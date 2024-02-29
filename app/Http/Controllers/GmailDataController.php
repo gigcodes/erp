@@ -17,7 +17,7 @@ class GmailDataController extends Controller
             $data = GmailDataList::orderBy('created_at', 'desc')->groupBy('sender')->paginate(Setting::get('pagination'));
         }
         $senders = GmailDataList::select('sender')->groupBy('sender')->get();
-        $brands = Brand::get()->pluck('name')->toArray();
+        $brands  = Brand::get()->pluck('name')->toArray();
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -32,7 +32,7 @@ class GmailDataController extends Controller
 
     public function show($sender)
     {
-        $datas = GmailDataList::where('sender', 'LIKE', '%' . $sender . '%')->get();
+        $datas  = GmailDataList::where('sender', 'LIKE', '%' . $sender . '%')->get();
         $brands = Brand::get()->pluck('name')->toArray();
 
         return view('scrap.show-gmail', compact('brands', 'datas', 'sender'));

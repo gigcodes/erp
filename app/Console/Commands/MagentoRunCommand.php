@@ -44,7 +44,7 @@ class MagentoRunCommand extends Command
      */
     public function handle()
     {
-        $request = [];
+        $request   = [];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info('Start Rum Magento Command');
         try {
@@ -54,14 +54,14 @@ class MagentoRunCommand extends Command
             if ($magCom->website_ids == 'ERP') {
                 $job_id = '';
                 Log::info('Start Rum Magento Command for website_id: ERP');
-                $cmd = $magCom->command_type;
+                $cmd               = $magCom->command_type;
                 $assets_manager_id = $magCom->assets_manager_id;
-                $assetsmanager = AssetsManager::where('id', $assets_manager_id)->first();
+                $assetsmanager     = AssetsManager::where('id', $assets_manager_id)->first();
                 if ($assetsmanager && $assetsmanager->client_id != '') {
                     Log::info('client_id: ' . $assetsmanager->client_id);
                     $client_id = $assetsmanager->client_id;
-                    $url = getenv('MAGENTO_COMMAND_API_URL');
-                    $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                    $url       = getenv('MAGENTO_COMMAND_API_URL');
+                    $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
@@ -70,20 +70,20 @@ class MagentoRunCommand extends Command
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                         'command' => $magCom->command_type,
-                        'dir' => $magCom->working_directory,
+                        'dir'     => $magCom->working_directory,
                         'is_sudo' => true,
-                        'server' => $magCom->server_ip,
+                        'server'  => $magCom->server_ip,
                     ]));
 
                     $request = [
                         'command' => $magCom->command_type,
-                        'dir' => $magCom->working_directory,
+                        'dir'     => $magCom->working_directory,
                         'is_sudo' => true,
-                        'url' => $url,
-                        'server' => $magCom->server_ip,
+                        'url'     => $url,
+                        'server'  => $magCom->server_ip,
                     ];
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Basic ' . $key;
                     $headers[] = 'Content-Type: application/json';
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -94,14 +94,14 @@ class MagentoRunCommand extends Command
                         Log::info('API Error: ' . curl_error($ch));
                         MagentoCommandRunLog::create(
                             [
-                                'command_id' => $magCom->id,
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => 'ERP',
+                                'command_id'   => $magCom->id,
+                                'user_id'      => \Auth::user()->id ?? '',
+                                'website_ids'  => 'ERP',
                                 'command_name' => $magCom->command_type,
-                                'server_ip' => '',
+                                'server_ip'    => '',
                                 'command_type' => $magCom->command_type,
-                                'response' => curl_error($ch),
-                                'request' => json_encode($request), // Store the request as JSON
+                                'response'     => curl_error($ch),
+                                'request'      => json_encode($request), // Store the request as JSON
                             ]
                         );
                     }
@@ -110,8 +110,8 @@ class MagentoRunCommand extends Command
                     curl_close($ch);
 
                     LogRequest::log($startTime, $url, 'POST', json_encode(['command' => $magCom->command_type,
-                        'cwd' => $magCom->working_directory,
-                        'is_sudo' => true]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
+                        'cwd'                                                        => $magCom->working_directory,
+                        'is_sudo'                                                    => true]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
 
                     if (isset($response->errors)) {
                         foreach ($response->errors as $error) {
@@ -119,14 +119,14 @@ class MagentoRunCommand extends Command
                             Log::info('API Response Error: ' . $message);
                             MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => 'ERP',
+                                    'command_id'   => $magCom->id,
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => 'ERP',
                                     'command_name' => $magCom->command_type,
-                                    'server_ip' => '',
+                                    'server_ip'    => '',
                                     'command_type' => $magCom->command_type,
-                                    'response' => $message,
-                                    'request' => json_encode($request), // Store the request as JSON
+                                    'response'     => $message,
+                                    'request'      => json_encode($request), // Store the request as JSON
                                 ]
                             );
                         }
@@ -136,8 +136,8 @@ class MagentoRunCommand extends Command
                         $job_id = $response->data->jid;
                         Log::info('API Response job_id: ' . $job_id);
                         $client_id = $assetsmanager->client_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
@@ -145,18 +145,18 @@ class MagentoRunCommand extends Command
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $request = [
                             'command' => $magCom->command_type,
-                            'cwd' => $magCom->working_directory,
+                            'cwd'     => $magCom->working_directory,
                             'is_sudo' => true,
-                            'url' => $url,
+                            'url'     => $url,
                         ];
 
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
                         $response = json_decode($result);
@@ -182,33 +182,33 @@ class MagentoRunCommand extends Command
 
                     MagentoCommandRunLog::create(
                         [
-                            'command_id' => $magCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => 'ERP',
+                            'command_id'   => $magCom->id,
+                            'user_id'      => \Auth::user()->id ?? '',
+                            'website_ids'  => 'ERP',
                             'command_name' => $magCom->command_type,
-                            'server_ip' => '',
+                            'server_ip'    => '',
                             'command_type' => $magCom->command_type,
-                            'response' => $message,
-                            'job_id' => $job_id,
-                            'request' => json_encode($request), // Store the request as JSON
+                            'response'     => $message,
+                            'job_id'       => $job_id,
+                            'request'      => json_encode($request), // Store the request as JSON
                         ]
                     );
                 } else {
                     $request = [
-                        'command' => $magCom->command_type,
+                        'command'      => $magCom->command_type,
                         'command_type' => $magCom->command_type,
                     ];
 
                     MagentoCommandRunLog::create(
                         [
-                            'command_id' => $magCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => 'ERP',
+                            'command_id'   => $magCom->id,
+                            'user_id'      => \Auth::user()->id ?? '',
+                            'website_ids'  => 'ERP',
                             'command_name' => $magCom->command_type,
-                            'server_ip' => '',
+                            'server_ip'    => '',
                             'command_type' => $magCom->command_type,
-                            'response' => 'Assets Manager & Client id not found for this command!',
-                            'request' => json_encode($request), // Store the request as JSON
+                            'response'     => 'Assets Manager & Client id not found for this command!',
+                            'request'      => json_encode($request), // Store the request as JSON
                         ]
                     );
                 }
@@ -218,20 +218,20 @@ class MagentoRunCommand extends Command
 
                 if ($websites->isEmpty()) {
                     $request = [
-                        'command' => $magCom->command_type,
+                        'command'      => $magCom->command_type,
                         'command_type' => $magCom->command_type,
                     ];
 
                     MagentoCommandRunLog::create(
                         [
-                            'command_id' => $magCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => '',
+                            'command_id'   => $magCom->id,
+                            'user_id'      => \Auth::user()->id ?? '',
+                            'website_ids'  => '',
                             'command_name' => $magCom->command_type,
-                            'server_ip' => '',
+                            'server_ip'    => '',
                             'command_type' => $magCom->command_type,
-                            'response' => 'The command website is not found!',
-                            'request' => json_encode($request), // Store the request as JSON
+                            'response'     => 'The command website is not found!',
+                            'request'      => json_encode($request), // Store the request as JSON
                         ]
                     );
                 }
@@ -240,16 +240,16 @@ class MagentoRunCommand extends Command
                     if ($magCom->command_name != '' && $website->server_ip != '') {
                         Log::info('Command Name: ' . $magCom->command_name);
                         Log::info('website server_ip: ' . $website->server_ip);
-                        $job_id = '';
-                        $website_id = $website->id;
+                        $job_id        = '';
+                        $website_id    = $website->id;
                         $assetsmanager = AssetsManager::where('id', $website->assets_manager_id)->first();
 
                         if ($assetsmanager && $assetsmanager->client_id != '') {
                             Log::info('client_id: ' . $assetsmanager->client_id);
 
                             $client_id = $assetsmanager->client_id;
-                            $url = getenv('MAGENTO_COMMAND_API_URL');
-                            $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                            $url       = getenv('MAGENTO_COMMAND_API_URL');
+                            $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                             $ch = curl_init();
                             curl_setopt($ch, CURLOPT_URL, $url);
@@ -258,20 +258,20 @@ class MagentoRunCommand extends Command
                             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                                 'command' => $magCom->command_type,
-                                'dir' => $website->working_directory,
+                                'dir'     => $website->working_directory,
                                 'is_sudo' => true,
-                                'server' => $website->server_ip,
+                                'server'  => $website->server_ip,
                             ]));
 
                             $request = [
                                 'command' => $magCom->command_type,
-                                'dir' => $magCom->working_directory,
+                                'dir'     => $magCom->working_directory,
                                 'is_sudo' => true,
-                                'url' => $url,
-                                'server' => $website->server_ip,
+                                'url'     => $url,
+                                'server'  => $website->server_ip,
                             ];
 
-                            $headers = [];
+                            $headers   = [];
                             $headers[] = 'Authorization: Basic ' . $key;
                             $headers[] = 'Content-Type: application/json';
                             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -282,14 +282,14 @@ class MagentoRunCommand extends Command
                                 Log::info('API Error: ' . curl_error($ch));
                                 MagentoCommandRunLog::create(
                                     [
-                                        'command_id' => $magCom->id,
-                                        'user_id' => \Auth::user()->id ?? '',
-                                        'website_ids' => $website->id,
+                                        'command_id'   => $magCom->id,
+                                        'user_id'      => \Auth::user()->id ?? '',
+                                        'website_ids'  => $website->id,
                                         'command_name' => $magCom->command_type,
-                                        'server_ip' => $website->server_ip,
+                                        'server_ip'    => $website->server_ip,
                                         'command_type' => $magCom->command_type,
-                                        'response' => curl_error($ch),
-                                        'request' => json_encode($request), // Store the request as JSON
+                                        'response'     => curl_error($ch),
+                                        'request'      => json_encode($request), // Store the request as JSON
                                     ]
                                 );
                             }
@@ -298,8 +298,8 @@ class MagentoRunCommand extends Command
                             curl_close($ch);
 
                             LogRequest::log($startTime, $url, 'POST', json_encode(['command' => $magCom->command_type,
-                                'cwd' => $website->working_directory,
-                                'is_sudo' => true]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
+                                'cwd'                                                        => $website->working_directory,
+                                'is_sudo'                                                    => true]), json_decode($result), $httpcode, \App\Console\Commands\MagentoRunCommand::class, 'handle');
 
                             if (isset($response->errors)) {
                                 foreach ($response->errors as $error) {
@@ -307,14 +307,14 @@ class MagentoRunCommand extends Command
                                     Log::info('API Response Error: ' . $message);
                                     MagentoCommandRunLog::create(
                                         [
-                                            'command_id' => $magCom->id,
-                                            'user_id' => \Auth::user()->id ?? '',
-                                            'website_ids' => $website->id,
+                                            'command_id'   => $magCom->id,
+                                            'user_id'      => \Auth::user()->id ?? '',
+                                            'website_ids'  => $website->id,
                                             'command_name' => $magCom->command_type,
-                                            'server_ip' => $website->server_ip,
+                                            'server_ip'    => $website->server_ip,
                                             'command_type' => $magCom->command_type,
-                                            'response' => $message,
-                                            'request' => json_encode($request), // Store the request as JSON
+                                            'response'     => $message,
+                                            'request'      => json_encode($request), // Store the request as JSON
                                         ]
                                     );
                                 }
@@ -324,8 +324,8 @@ class MagentoRunCommand extends Command
                                 $job_id = $response->data->jid;
                                 Log::info('API Response job_id: ' . $job_id);
                                 $client_id = $assetsmanager->client_id;
-                                $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                                $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                                $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                                $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                                 $ch = curl_init();
                                 curl_setopt($ch, CURLOPT_URL, $url);
@@ -333,11 +333,11 @@ class MagentoRunCommand extends Command
                                 curl_setopt($ch, CURLOPT_POST, 0);
                                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                                $headers = [];
+                                $headers   = [];
                                 $headers[] = 'Authorization: Basic ' . $key;
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                                $result = curl_exec($ch);
+                                $result   = curl_exec($ch);
                                 $response = json_decode($result);
                                 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                                 curl_close($ch);
@@ -364,49 +364,49 @@ class MagentoRunCommand extends Command
 
                             $request = [
                                 'command' => $magCom->command_type,
-                                'cwd' => $magCom->working_directory,
+                                'cwd'     => $magCom->working_directory,
                                 'is_sudo' => true,
-                                'url' => $url,
+                                'url'     => $url,
                             ];
 
                             MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => $website->id,
+                                    'command_id'   => $magCom->id,
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => $website->id,
                                     'command_name' => $magCom->command_type,
-                                    'server_ip' => $website->server_ip,
+                                    'server_ip'    => $website->server_ip,
                                     'command_type' => $magCom->command_type,
-                                    'response' => $message,
-                                    'job_id' => $job_id,
-                                    'request' => json_encode($request), // Store the request as JSON
+                                    'response'     => $message,
+                                    'job_id'       => $job_id,
+                                    'request'      => json_encode($request), // Store the request as JSON
                                 ]
                             );
                         } else {
                             MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => '',
+                                    'command_id'   => $magCom->id,
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => '',
                                     'command_name' => $magCom->command_type,
-                                    'server_ip' => '',
+                                    'server_ip'    => '',
                                     'command_type' => $magCom->command_type,
-                                    'response' => "Assets Manager ID #{$website->assets_manager_id}  not exists in DB for server_ip {$website->server_ip} for website {$website->title} OR Client id is empty for this asset {$website->assets_manager_id} for this command!",
-                                    'request' => json_encode($request),
+                                    'response'     => "Assets Manager ID #{$website->assets_manager_id}  not exists in DB for server_ip {$website->server_ip} for website {$website->title} OR Client id is empty for this asset {$website->assets_manager_id} for this command!",
+                                    'request'      => json_encode($request),
                                 ]
                             );
                         }
                     } else {
                         $add = MagentoCommandRunLog::create(
                             [
-                                'command_id' => $magCom->id ?? '',
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => $website->id,
+                                'command_id'   => $magCom->id ?? '',
+                                'user_id'      => \Auth::user()->id ?? '',
+                                'website_ids'  => $website->id,
                                 'command_name' => $cmd ?? '',
-                                'server_ip' => $website->server_ip ?? '',
+                                'server_ip'    => $website->server_ip ?? '',
                                 'command_type' => $magCom->command_type ?? '',
-                                'response' => 'Server IP and Command not found',
-                                'request' => json_encode($request),
+                                'response'     => 'Server IP and Command not found',
+                                'request'      => json_encode($request),
                             ]);
                     }
                     Log::info('End Run Magento Command for website_id: ' . $website->id);
@@ -416,14 +416,14 @@ class MagentoRunCommand extends Command
             Log::info(' Rum Magento Command catch error: ' . $e->getMessage());
             MagentoDevScripUpdateLog::create(
                 [
-                    'command_id' => $magCom->id,
-                    'user_id' => \Auth::user()->id ?? '',
-                    'website_ids' => $magCom->website_ids,
+                    'command_id'   => $magCom->id,
+                    'user_id'      => \Auth::user()->id ?? '',
+                    'website_ids'  => $magCom->website_ids,
                     'command_name' => $magCom->command_type,
-                    'server_ip' => '',
+                    'server_ip'    => '',
                     'command_type' => $magCom->command_type,
-                    'response' => ' Error ' . $e->getMessage(),
-                    'request' => json_encode($request),
+                    'response'     => ' Error ' . $e->getMessage(),
+                    'request'      => json_encode($request),
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

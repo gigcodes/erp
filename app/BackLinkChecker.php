@@ -41,6 +41,6 @@ class BackLinkChecker extends Model
     /**
      * Protected Date
      *
-     * @var    array
+     * @var array
      */
 }

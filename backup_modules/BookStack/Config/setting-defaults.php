@@ -10,13 +10,13 @@
 
 return [
 
-    'app-name' => 'BookStack',
-    'app-logo' => '',
-    'app-name-header' => true,
-    'app-editor' => 'wysiwyg',
-    'app-color' => '#206ea7',
-    'app-color-light' => 'rgba(32,110,167,0.15)',
-    'app-custom-head' => false,
+    'app-name'             => 'BookStack',
+    'app-logo'             => '',
+    'app-name-header'      => true,
+    'app-editor'           => 'wysiwyg',
+    'app-color'            => '#206ea7',
+    'app-color-light'      => 'rgba(32,110,167,0.15)',
+    'app-custom-head'      => false,
     'registration-enabled' => false,
 
 ];

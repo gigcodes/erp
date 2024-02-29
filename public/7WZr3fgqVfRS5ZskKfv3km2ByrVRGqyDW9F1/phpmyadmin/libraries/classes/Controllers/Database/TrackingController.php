@@ -39,7 +39,7 @@ class TrackingController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->tracking = $tracking;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     public function __invoke(): void
@@ -103,12 +103,12 @@ class TrackingController extends AbstractController
                     )->getDisplay();
                 } elseif ($_POST['submit_mult'] === 'track') {
                     echo $this->template->render('create_tracking_version', [
-                        'route' => '/database/tracking',
-                        'url_params' => $urlParams,
-                        'last_version' => 0,
-                        'db' => $db,
-                        'selected' => $_POST['selected_tbl'],
-                        'type' => 'both',
+                        'route'              => '/database/tracking',
+                        'url_params'         => $urlParams,
+                        'last_version'       => 0,
+                        'db'                 => $db,
+                        'selected'           => $_POST['selected_tbl'],
+                        'type'               => 'both',
                         'default_statements' => $cfg['Server']['tracking_default_statements'],
                     ]);
 

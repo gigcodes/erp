@@ -33,7 +33,7 @@ class CreateMonitorUsers extends Migration
             $table->timestamps();
         });
 
-        $charset = config('database.connections.mysql.charset');
+        $charset   = config('database.connections.mysql.charset');
         $collation = config('database.connections.mysql.collation');
         DB::statement("ALTER TABLE `monitor_users` ENGINE = MyISAM AUTO_INCREMENT = 2 DEFAULT CHARSET = $charset COLLATE = $collation");
     }

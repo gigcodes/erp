@@ -13,12 +13,12 @@ use App\ReadOnlyBase;
 class LocationList extends ReadOnlyBase
 {
     protected $data = [
-        'Mulund' => 'Mulund',
+        'Mulund'     => 'Mulund',
         'Jogeshwari' => 'Jogeshwari',
-        'Malad' => 'Malad',
-        'Pune' => 'Pune',
-        'Dubai' => 'Dubai',
-        'Customs' => 'Customs',
-        'Mumbai' => 'Mumbai',
+        'Malad'      => 'Malad',
+        'Pune'       => 'Pune',
+        'Dubai'      => 'Dubai',
+        'Customs'    => 'Customs',
+        'Mumbai'     => 'Mumbai',
     ];
 }

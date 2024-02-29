@@ -79,7 +79,7 @@ class ColorReferenceController extends Controller
             if (! $color) {
                 continue;
             }
-            $c = ColorNamesReference::find($key);
+            $c           = ColorNamesReference::find($key);
             $c->erp_name = $color;
             $c->save();
         }
@@ -133,7 +133,7 @@ class ColorReferenceController extends Controller
 
         if ($q) {
             // check the type and then
-            $q = '"color":"' . $q . '"';
+            $q        = '"color":"' . $q . '"';
             $products = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
@@ -147,11 +147,11 @@ class ColorReferenceController extends Controller
     public function affectedProduct(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"color":"' . $from . '"';
+            $q     = '"color":"' . $from . '"';
             $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.color', '')
@@ -167,13 +167,13 @@ class ColorReferenceController extends Controller
     public function updateColorMultiple(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
         foreach ($from as $fromname) {
             $updateWithProduct = $request->with_product;
             if ($updateWithProduct == 'yes') {
                 \App\Jobs\UpdateProductColorFromErp::dispatch([
-                    'from' => $fromname,
-                    'to' => $to,
+                    'from'    => $fromname,
+                    'to'      => $to,
                     'user_id' => \Auth::user()->id,
                 ])->onQueue('supplier_products');
             }
@@ -191,13 +191,13 @@ class ColorReferenceController extends Controller
     public function updateColor(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         $updateWithProduct = $request->with_product;
         if ($updateWithProduct == 'yes') {
             \App\Jobs\UpdateProductColorFromErp::dispatch([
-                'from' => $from,
-                'to' => $to,
+                'from'    => $from,
+                'to'      => $to,
                 'user_id' => \Auth::user()->id,
             ])->onQueue('supplier_products');
         }

@@ -12,7 +12,7 @@ class Competitor extends Model
 
     public function competitorSemrushApis($domain, $db, $column = null)
     {
-        $key = config('env.SEMRUSH_API');
+        $key  = config('env.SEMRUSH_API');
         $apis = [
             'organic' => 'https://api.semrush.com/?type=domain_organic_organic&key=' . $key . '&display_limit=1&export_columns=Dn,Cr,Np,Or,Ot,Oc,Ad&domain=' . $domain . '&database=' . $db,
 

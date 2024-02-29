@@ -51,36 +51,36 @@ class CustomerDobAndAnniversryMail extends Command
             foreach ($customerBirtdays as $customer) {
                 try {
                     if ($customer->store_website_id) {
-                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id)->where('store_website_id', $customer->store_website_id)->first();
+                        $templateData      = MailinglistTemplate::where('category_id', $mailingListCategory->id)->where('store_website_id', $customer->store_website_id)->first();
                         $storeEmailAddress = EmailAddress::where('store_website_id', $customer->store_website_id)->first();
                     } else {
-                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id)->first();
+                        $templateData      = MailinglistTemplate::where('category_id', $mailingListCategory->id)->first();
                         $storeEmailAddress = EmailAddress::first();
                     }
                     if ($templateData && $storeEmailAddress && $customer->email) {
                         if ($templateData->static_template) {
                             $arrToReplace = ['{FIRST_NAME}'];
                             $valToReplace = [$customer->name];
-                            $bodyText = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
+                            $bodyText     = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
                         } else {
                             $bodyText = @(string) view($templateData->mail_tpl);
                         }
-                        $emailData['subject'] = $templateData->subject;
+                        $emailData['subject']  = $templateData->subject;
                         $emailData['template'] = $bodyText;
-                        $emailData['from'] = $storeEmailAddress->from_address;
-                        $emailClass = (new DobAndAnniversaryMail($emailData))->build();
+                        $emailData['from']     = $storeEmailAddress->from_address;
+                        $emailClass            = (new DobAndAnniversaryMail($emailData))->build();
 
                         $email = \App\Email::create([
-                            'model_id' => $customer->id,
-                            'model_type' => \App\Customer::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $customer->email,
-                            'subject' => $templateData->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'birthday-mail',
+                            'model_id'        => $customer->id,
+                            'model_type'      => \App\Customer::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $customer->email,
+                            'subject'         => $templateData->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'birthday-mail',
                             'additional_data' => $order->id,
-                            'status' => 'pre-send',
-                            'is_draft' => 1,
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -101,37 +101,37 @@ class CustomerDobAndAnniversryMail extends Command
             foreach ($customerAnniversaries as $customer) {
                 try {
                     if ($customer->store_website_id) {
-                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id)->where('store_website_id', $customer->store_website_id)->first();
+                        $templateData      = MailinglistTemplate::where('category_id', $mailingListCategory->id)->where('store_website_id', $customer->store_website_id)->first();
                         $storeEmailAddress = EmailAddress::where('store_website_id', $customer->store_website_id)->first();
                     } else {
-                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id)->first();
+                        $templateData      = MailinglistTemplate::where('category_id', $mailingListCategory->id)->first();
                         $storeEmailAddress = EmailAddress::first();
                     }
                     if ($templateData && $storeEmailAddress && $customer->email) {
                         if ($templateData->static_template) {
                             $arrToReplace = ['{FIRST_NAME}'];
                             $valToReplace = [$customer->name];
-                            $bodyText = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
+                            $bodyText     = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
                         } else {
                             $bodyText = @(string) view($templateData->mail_tpl);
                         }
-                        $emailData['subject'] = $templateData->subject;
+                        $emailData['subject']  = $templateData->subject;
                         $emailData['template'] = $bodyText;
-                        $emailData['from'] = $storeEmailAddress->from_address;
+                        $emailData['from']     = $storeEmailAddress->from_address;
 
                         $emailClass = (new DobAndAnniversaryMail($emailData))->build();
 
                         $email = \App\Email::create([
-                            'model_id' => $customer->id,
-                            'model_type' => \App\Customer::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $customer->email,
-                            'subject' => $templateData->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'wedding-anniversery-mail',
+                            'model_id'        => $customer->id,
+                            'model_type'      => \App\Customer::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $customer->email,
+                            'subject'         => $templateData->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'wedding-anniversery-mail',
                             'additional_data' => $order->id,
-                            'status' => 'pre-send',
-                            'is_draft' => 1,
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');

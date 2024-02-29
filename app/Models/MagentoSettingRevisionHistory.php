@@ -29,12 +29,12 @@ class MagentoSettingRevisionHistory extends Model
     const FAILED = 0;
 
     public static $active = [
-        self::ACTIVE => 'Active',
+        self::ACTIVE   => 'Active',
         self::INACTIVE => 'InActive',
     ];
 
     public static $status = [
         self::SUCCESSFUL => 'Successful',
-        self::FAILED => 'Failed',
+        self::FAILED     => 'Failed',
     ];
 }

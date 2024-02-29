@@ -45,8 +45,8 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
 
             dump('Start with Scraped Product with sku ' . $product->sku);
 
-            $categoryForScrapedProducts = '';
-            $colorForScrapedProducts = '';
+            $categoryForScrapedProducts    = '';
+            $colorForScrapedProducts       = '';
             $compositionForScrapedProducts = '';
 
             try {
@@ -93,8 +93,8 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
                 dump('Facing issue in composition');
             }
 
-            $product->categories = $categoryForScrapedProducts;
-            $product->color = $colorForScrapedProducts;
+            $product->categories  = $categoryForScrapedProducts;
+            $product->color       = $colorForScrapedProducts;
             $product->composition = $compositionForScrapedProducts;
             $product->save();
             dump('Details saved from properties to base field for id ' . $product->id);

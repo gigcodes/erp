@@ -17,7 +17,7 @@ class UicheckUserAccess extends Model
     {
         try {
             UicheckUserAccess::updateOrCreate([
-                'user_id' => $user_id,
+                'user_id'    => $user_id,
                 'uicheck_id' => $uicheck_id,
             ], []);
         } catch (\Exception $e) {

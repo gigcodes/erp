@@ -21,8 +21,8 @@ class LearningCategoryController extends Controller
 
     public function create()
     {
-        $data = [];
-        $data['title'] = '';
+        $data           = [];
+        $data['title']  = '';
         $data['modify'] = 0;
 
         return view('task-module.category.form', $data);
@@ -30,7 +30,7 @@ class LearningCategoryController extends Controller
 
     public function edit(LearningModule $learning_category)
     {
-        $data = $learning_category->toArray();
+        $data           = $learning_category->toArray();
         $data['modify'] = 1;
 
         return view('task-module.category.form', $data);
@@ -88,7 +88,7 @@ class LearningCategoryController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $learning_category = LearningModule::find($id);
+        $learning_category              = LearningModule::find($id);
         $learning_category->is_approved = 1;
         $learning_category->save();
 
@@ -108,7 +108,7 @@ class LearningCategoryController extends Controller
 
     public static function getAllLearningModule()
     {
-        $learning_category = LearningModule::all()->toArray();
+        $learning_category     = LearningModule::all()->toArray();
         $learning_category_new = [];
 
         foreach ($learning_category as $item) {

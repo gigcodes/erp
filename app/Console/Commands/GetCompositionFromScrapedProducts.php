@@ -43,7 +43,7 @@ class GetCompositionFromScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -57,7 +57,7 @@ class GetCompositionFromScrapedProducts extends Command
                     }
 
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $properties = $scrapedProduct->properties;
+                        $properties  = $scrapedProduct->properties;
                         $composition = $properties['material_used'] ?? null;
                         if ($composition !== 'null' && $composition !== null && $composition !== '') {
                             dump($composition);

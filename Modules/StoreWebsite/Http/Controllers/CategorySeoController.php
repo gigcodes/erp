@@ -22,21 +22,21 @@ class CategorySeoController extends Controller
      */
     public function index()
     {
-        $title = 'Category SEO | Store Website';
-        $languages = Language::pluck('name', 'id')->toArray();
-        $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
-        $categories = Category::all();
-        $categories_list = Category::pluck('title', 'id')->toArray();
-        $store_list = StoreWebsite::pluck('title', 'id')->toArray();
+        $title              = 'Category SEO | Store Website';
+        $languages          = Language::pluck('name', 'id')->toArray();
+        $storeWebsites      = StoreWebsite::all()->pluck('website', 'id');
+        $categories         = Category::all();
+        $categories_list    = Category::pluck('title', 'id')->toArray();
+        $store_list         = StoreWebsite::pluck('title', 'id')->toArray();
         $categroy_seos_list = StoreWebsiteCategorySeo::select('meta_title', 'id')->orderBy('id', 'desc')->get();
 
         return view('storewebsite::category-seo.index', [
-            'title' => $title,
-            'storeWebsites' => $storeWebsites,
-            'categories' => $categories,
-            'categories_list' => $categories_list,
-            'languages' => $languages,
-            'store_list' => $store_list,
+            'title'              => $title,
+            'storeWebsites'      => $storeWebsites,
+            'categories'         => $categories,
+            'categories_list'    => $categories_list,
+            'languages'          => $languages,
+            'store_list'         => $store_list,
             'categroy_seos_list' => $categroy_seos_list,
         ]);
     }
@@ -74,9 +74,9 @@ class CategorySeoController extends Controller
 
         $recItems = [];
         foreach ($items as $item) {
-            $attributes = $item->getAttributes();
+            $attributes                = $item->getAttributes();
             $attributes['store_small'] = strlen($attributes['name']) > 15 ? substr($attributes['name'], 0, 15) : $attributes['name'];
-            $attributes['category'] = $attributes['title'];
+            $attributes['category']    = $attributes['title'];
             if (! empty($attributes['sub_category'])) {
                 $attributes['category'] = $attributes['sub_category'] . ' > ' . $attributes['category'];
             }
@@ -87,7 +87,7 @@ class CategorySeoController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $recItems, 'total' => $storewebsite_category_seos->total(),
-            'pagination' => (string) $storewebsite_category_seos->links(),
+            'pagination'                => (string) $storewebsite_category_seos->links(),
         ]);
     }
 
@@ -109,20 +109,20 @@ class CategorySeoController extends Controller
     public function store(Request $request)
     {
         $post = $request->all();
-        $id = $request->get('id', 0);
+        $id   = $request->get('id', 0);
 
         $params = [
-            'meta_title' => 'required',
-            'category_id' => 'required',
+            'meta_title'       => 'required',
+            'category_id'      => 'required',
             'store_website_id' => 'required',
-            'language_id' => 'required',
+            'language_id'      => 'required',
         ];
 
         $validator = Validator::make($post, $params);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -150,7 +150,8 @@ class CategorySeoController extends Controller
     /**
      * Show the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return Response
      */
     public function show($id)
@@ -181,7 +182,8 @@ class CategorySeoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return Response
      */
     public function update(Request $request, $id)
@@ -192,7 +194,8 @@ class CategorySeoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return Response
      */
     public function destroy($id)
@@ -236,11 +239,11 @@ class CategorySeoController extends Controller
                             [$store_website_category_seo->meta_keyword]
                         );
 
-                        $newStoreCategorySeo->category_id = $store_website_category_seo->category_id;
-                        $newStoreCategorySeo->meta_title = $meta_title;
+                        $newStoreCategorySeo->category_id      = $store_website_category_seo->category_id;
+                        $newStoreCategorySeo->meta_title       = $meta_title;
                         $newStoreCategorySeo->meta_description = $meta_description;
-                        $newStoreCategorySeo->meta_keyword = $meta_keyword;
-                        $newStoreCategorySeo->language_id = $lang->id;
+                        $newStoreCategorySeo->meta_keyword     = $meta_keyword;
+                        $newStoreCategorySeo->language_id      = $lang->id;
                         $newStoreCategorySeo->save();
                     }
                 }
@@ -255,7 +258,7 @@ class CategorySeoController extends Controller
     public function push($id)
     {
         $SeoCategory = StoreWebsiteCategorySeo::where('id', $id)->first();
-        $stores = StoreWebsiteCategory::where('category_id', $SeoCategory->category_id)->pluck('store_website_id')->toArray();
+        $stores      = StoreWebsiteCategory::where('category_id', $SeoCategory->category_id)->pluck('store_website_id')->toArray();
         if ($SeoCategory) {
             \App\Jobs\PushCategorySeoToMagento::dispatch([$SeoCategory->category_id], array_unique($stores));
 
@@ -302,7 +305,7 @@ class CategorySeoController extends Controller
     public function copyTo(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'page' => 'required',
+            'page'    => 'required',
             'to_page' => 'different:page',
         ]);
 

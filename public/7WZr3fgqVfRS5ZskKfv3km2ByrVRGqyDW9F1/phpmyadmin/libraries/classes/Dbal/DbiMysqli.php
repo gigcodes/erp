@@ -40,9 +40,10 @@ class DbiMysqli implements DbiExtension
     /**
      * connects to the database server
      *
-     * @param  string  $user     mysql user name
-     * @param  string  $password mysql user password
-     * @param  array  $server   host/port/socket/persistent
+     * @param string $user     mysql user name
+     * @param string $password mysql user password
+     * @param array  $server   host/port/socket/persistent
+     *
      * @return mysqli|bool false on error or a mysqli object on success
      */
     public function connect($user, $password, array $server)
@@ -136,7 +137,7 @@ class DbiMysqli implements DbiExtension
              * - #9002 - SSL connection is required. Please specify SSL options and retry.
              */
             // phpcs:disable Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-            $error_number = $mysqli->connect_errno;
+            $error_number  = $mysqli->connect_errno;
             $error_message = $mysqli->connect_error;
             // phpcs:enable
             if (
@@ -179,8 +180,8 @@ class DbiMysqli implements DbiExtension
     /**
      * selects given database
      *
-     * @param  string|DatabaseName  $databaseName database name to select
-     * @param  mysqli  $link         the mysqli object
+     * @param string|DatabaseName $databaseName database name to select
+     * @param mysqli              $link         the mysqli object
      */
     public function selectDb($databaseName, $link): bool
     {
@@ -190,9 +191,10 @@ class DbiMysqli implements DbiExtension
     /**
      * runs a query and returns the result
      *
-     * @param  string  $query   query to execute
-     * @param  mysqli  $link    mysqli object
-     * @param  int  $options query options
+     * @param string $query   query to execute
+     * @param mysqli $link    mysqli object
+     * @param int    $options query options
+     *
      * @return MysqliResult|false
      */
     public function realQuery(string $query, $link, int $options)
@@ -213,8 +215,8 @@ class DbiMysqli implements DbiExtension
     /**
      * Run the multi query and output the results
      *
-     * @param  mysqli  $link  mysqli object
-     * @param  string  $query multi query statement to execute
+     * @param mysqli $link  mysqli object
+     * @param string $query multi query statement to execute
      */
     public function realMultiQuery($link, $query): bool
     {
@@ -224,7 +226,7 @@ class DbiMysqli implements DbiExtension
     /**
      * Check if there are any more query results from a multi query
      *
-     * @param  mysqli  $link the mysqli object
+     * @param mysqli $link the mysqli object
      */
     public function moreResults($link): bool
     {
@@ -234,7 +236,7 @@ class DbiMysqli implements DbiExtension
     /**
      * Prepare next result from multi_query
      *
-     * @param  mysqli  $link the mysqli object
+     * @param mysqli $link the mysqli object
      */
     public function nextResult($link): bool
     {
@@ -244,7 +246,8 @@ class DbiMysqli implements DbiExtension
     /**
      * Store the result returned from multi query
      *
-     * @param  mysqli  $link the mysqli object
+     * @param mysqli $link the mysqli object
+     *
      * @return MysqliResult|false false when empty results / result set when not empty
      */
     public function storeResult($link)
@@ -257,7 +260,8 @@ class DbiMysqli implements DbiExtension
     /**
      * Returns a string representing the type of connection used
      *
-     * @param  mysqli  $link mysql link
+     * @param mysqli $link mysql link
+     *
      * @return string type of connection used
      */
     public function getHostInfo($link)
@@ -269,7 +273,8 @@ class DbiMysqli implements DbiExtension
     /**
      * Returns the version of the MySQL protocol used
      *
-     * @param  mysqli  $link mysql link
+     * @param mysqli $link mysql link
+     *
      * @return string version of the MySQL protocol used
      */
     public function getProtoInfo($link)
@@ -291,17 +296,17 @@ class DbiMysqli implements DbiExtension
     /**
      * Returns last error message or an empty string if no errors occurred.
      *
-     * @param  mysqli|false|null  $link mysql link
+     * @param mysqli|false|null $link mysql link
      */
     public function getError($link): string
     {
         $GLOBALS['errno'] = 0;
 
         if ($link !== null && $link !== false) {
-            $error_number = $link->errno;
+            $error_number  = $link->errno;
             $error_message = $link->error;
         } else {
-            $error_number = mysqli_connect_errno();
+            $error_number  = mysqli_connect_errno();
             $error_message = (string) mysqli_connect_error();
         }
 
@@ -319,7 +324,8 @@ class DbiMysqli implements DbiExtension
     /**
      * returns the number of rows affected by last query
      *
-     * @param  mysqli  $link the mysqli object
+     * @param mysqli $link the mysqli object
+     *
      * @return int|string
      *
      * @psalm-return int|numeric-string
@@ -333,8 +339,9 @@ class DbiMysqli implements DbiExtension
     /**
      * returns properly escaped string for use in MySQL queries
      *
-     * @param  mysqli  $link   database link
-     * @param  string  $string string to be escaped
+     * @param mysqli $link   database link
+     * @param string $string string to be escaped
+     *
      * @return string a MySQL escaped string
      */
     public function escapeString($link, $string)
@@ -345,8 +352,9 @@ class DbiMysqli implements DbiExtension
     /**
      * Prepare an SQL statement for execution.
      *
-     * @param  mysqli  $link  database link
-     * @param  string  $query The query, as a string.
+     * @param mysqli $link  database link
+     * @param string $query The query, as a string.
+     *
      * @return mysqli_stmt|false A statement object or false.
      */
     public function prepare($link, string $query)

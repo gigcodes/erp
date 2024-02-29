@@ -48,10 +48,10 @@ class Uicheck extends Model
             $this->save();
             UicheckHistory::create([
                 'uichecks_id' => $this->id,
-                'type' => $type,
-                'old_val' => $oldValue,
-                'new_val' => $newValue,
-                'user_id' => \Auth::id(),
+                'type'        => $type,
+                'old_val'     => $oldValue,
+                'new_val'     => $newValue,
+                'user_id'     => \Auth::id(),
             ]);
         }
     }

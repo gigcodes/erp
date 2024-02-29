@@ -40,7 +40,7 @@ class Font
         ];
         //f
         $charLists[] = [
-            'chars' => ['f'],
+            'chars'    => ['f'],
             'modifier' => 0.27,
         ];
         //tI
@@ -53,12 +53,12 @@ class Font
         ];
         //r
         $charLists[] = [
-            'chars' => ['r'],
+            'chars'    => ['r'],
             'modifier' => 0.34,
         ];
         //1
         $charLists[] = [
-            'chars' => ['1'],
+            'chars'    => ['1'],
             'modifier' => 0.49,
         ];
         //cksvxyzJ
@@ -158,12 +158,12 @@ class Font
         ];
         //W
         $charLists[] = [
-            'chars' => ['W'],
+            'chars'    => ['W'],
             'modifier' => 0.95,
         ];
         //" "
         $charLists[] = [
-            'chars' => [' '],
+            'chars'    => [' '],
             'modifier' => 0.28,
         ];
 
@@ -176,10 +176,11 @@ class Font
      * The text element width is calculated depending on font name
      * and font size.
      *
-     * @param  string  $text      string of which the width will be calculated
-     * @param  string  $font      name of the font like Arial,sans-serif etc
-     * @param  int  $fontSize  size of font
-     * @param  array|null  $charLists list of characters and their width modifiers
+     * @param string     $text      string of which the width will be calculated
+     * @param string     $font      name of the font like Arial,sans-serif etc
+     * @param int        $fontSize  size of font
+     * @param array|null $charLists list of characters and their width modifiers
+     *
      * @return int width of the text
      */
     public function getStringWidth(
@@ -211,7 +212,7 @@ class Font
         $count += mb_strlen((string) preg_replace('/[a-z0-9]/i', '', $text)) * 0.3;
 
         $modifier = 1;
-        $font = mb_strtolower($font);
+        $font     = mb_strtolower($font);
         switch ($font) {
             /*
              * no modifier for arial and sans-serif

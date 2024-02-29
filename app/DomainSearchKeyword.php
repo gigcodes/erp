@@ -31,11 +31,11 @@ class DomainSearchKeyword extends Model
 
     public function domainKeywordSearchSemrushApis($domain, $db, $column = null)
     {
-        $key = config('env.SEMRUSH_API');
+        $key    = config('env.SEMRUSH_API');
         $domain = strtolower($domain);
-        $apis = [
+        $apis   = [
             'organic' => 'https://api.semrush.com/?type=domain_organic&key=' . $key . '&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
-            'paid' => 'https://api.semrush.com/?type=domain_adwords&key=' . $key . '&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=po_asc&database=' . $db,
+            'paid'    => 'https://api.semrush.com/?type=domain_adwords&key=' . $key . '&display_limit=1&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=po_asc&database=' . $db,
         ];
 
         if ($column == null) {

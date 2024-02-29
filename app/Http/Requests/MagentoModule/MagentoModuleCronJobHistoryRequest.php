@@ -25,7 +25,7 @@ class MagentoModuleCronJobHistoryRequest extends FormRequest
     {
         return [
             'magento_module_id' => 'required',
-            'cron_time' => 'required',
+            'cron_time'         => 'required',
         ];
     }
 

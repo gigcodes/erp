@@ -23,8 +23,8 @@ class ContactBlogger extends Mailable
 
     public function __construct(string $subject, string $message, string $from_email)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subject    = $subject;
+        $this->message    = $message;
         $this->from_email = $from_email;
     }
 

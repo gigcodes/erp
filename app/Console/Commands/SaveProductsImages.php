@@ -47,12 +47,12 @@ class SaveProductsImages extends Command
         ini_set('memory_limit', '256M');
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $products = Product::where('is_without_image', 1)->whereNotIn('supplier', ['MINETTI', 'Spinnaker 101'])->get();
-            $count = 0;
+            $products   = Product::where('is_without_image', 1)->whereNotIn('supplier', ['MINETTI', 'Spinnaker 101'])->get();
+            $count      = 0;
             $has_images = 0;
             foreach ($products as $key => $product) {
                 echo "$key - Found Product \n";
@@ -100,7 +100,7 @@ class SaveProductsImages extends Command
 
                                     $formatted_final = str_replace('//foto', '/foto', $formatted_final);
 
-                                    $exploded_url = explode('/', $formatted_final);
+                                    $exploded_url     = explode('/', $formatted_final);
                                     $corrected_pieces = [];
                                     foreach ($exploded_url as $key => $piece) {
                                         if ($key == 0) {
@@ -126,7 +126,7 @@ class SaveProductsImages extends Command
                                         'cookies' => $cookieJar,
                                     ];
 
-                                    $response = $guzzle->request('GET', $formatted_final, $params);
+                                    $response  = $guzzle->request('GET', $formatted_final, $params);
                                     $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                     file_put_contents($file_path, $response->getBody()->getContents());
@@ -149,7 +149,7 @@ class SaveProductsImages extends Command
                                             'cookies' => $cookieJar,
                                         ];
 
-                                        $response = $guzzle->request('GET', $formatted_final, $params);
+                                        $response  = $guzzle->request('GET', $formatted_final, $params);
                                         $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                         file_put_contents($file_path, $response->getBody()->getContents());
@@ -172,7 +172,7 @@ class SaveProductsImages extends Command
                                                 'cookies' => $cookieJar,
                                             ];
 
-                                            $response = $guzzle->request('GET', $formatted_final, $params);
+                                            $response  = $guzzle->request('GET', $formatted_final, $params);
                                             $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                             file_put_contents($file_path, $response->getBody()->getContents());

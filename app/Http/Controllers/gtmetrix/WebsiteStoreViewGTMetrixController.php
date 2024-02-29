@@ -57,10 +57,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $list = $query->orderBy('id', 'desc')->paginate(25);
         }
 
-        $cronStatus = Setting::where('name', 'gtmetrixCronStatus')->get()->first();
-        $cronTime = Setting::where('name', 'gtmetrixCronType')->get()->first();
+        $cronStatus    = Setting::where('name', 'gtmetrixCronStatus')->get()->first();
+        $cronTime      = Setting::where('name', 'gtmetrixCronType')->get()->first();
         $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')->get();
-        $StoreWebsite = StoreWebsite::get();
+        $StoreWebsite  = StoreWebsite::get();
         if ($request->ajax()) {
             return view('gtmetrix.index_ajax', compact('list', 'cronStatus', 'cronTime'));
         } else {
@@ -89,13 +89,13 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 foreach ($allRecords as $recordsData) {
                     if (in_array($recordsData['id'], $request->arrayList)) {
                         $gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
-                        $update = [
+                        $update   = [
                             'process' => 1,
                         ];
                         $gtmetrix->update($update);
                     } else {
                         $gtmetrix = StoreViewsGTMetrixUrl::where('id', $recordsData['id']);
-                        $update = [
+                        $update   = [
                             'process' => 0,
                         ];
                         $gtmetrix->update($update);
@@ -115,15 +115,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 }
             }
 
-            $date = Carbon::now();
-            $addwebsite['website_url'] = $request->website;
-            $addwebsite['process'] = $request->process_url;
+            $date                        = Carbon::now();
+            $addwebsite['website_url']   = $request->website;
+            $addwebsite['process']       = $request->process_url;
             $addwebsite['store_view_id'] = $request->store_view;
-            $addwebsite['account_id'] = '';
-            $addwebsite['created_at'] = $date;
-            $addwebsite['updated_at'] = $date;
-            $addwebsite['store_name'] = $storename;
-            $website_data = StoreViewsGTMetrixUrl::where('website_url', $request->website)->get();
+            $addwebsite['account_id']    = '';
+            $addwebsite['created_at']    = $date;
+            $addwebsite['updated_at']    = $date;
+            $addwebsite['store_name']    = $storename;
+            $website_data                = StoreViewsGTMetrixUrl::where('website_url', $request->website)->get();
 
             if ($website_data->isEmpty()) {
                 StoreViewsGTMetrixUrl::create($addwebsite);
@@ -183,12 +183,12 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
         if ($response) {
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Flag Successfully Updated.',
             ]);
         } else {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Something Went Wrong.',
             ]);
         }
@@ -204,7 +204,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if (empty($statusExit)) {
             $status_date['name'] = 'gtmetrixCronStatus';
             $status_date['type'] = 'string';
-            $status_date['val'] = $status;
+            $status_date['val']  = $status;
             Setting::create($status_date);
         } else {
             $statusExit->val = $status;
@@ -225,7 +225,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
         if (empty($type)) {
             $type['name'] = 'gtmetrixCronType';
             $type['type'] = 'string';
-            $type['val'] = $request->type;
+            $type['val']  = $request->type;
             Setting::create($type);
         } else {
             $type->val = $request->type;
@@ -241,8 +241,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
             'website' => 'required',
         ]);
         $data['store_view_id'] = $request->store_view;
-        $data['status'] = $request->status;
-        $data['website_url'] = $request->website;
+        $data['status']        = $request->status;
+        $data['website_url']   = $request->website;
 
         StoreViewsGTMetrix::create($data);
 
@@ -251,6 +251,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     /**
      * Show the store view history.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -266,7 +268,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function webHistory(Request $request)
     {
-        $id = $request->get('id');
+        $id    = $request->get('id');
         $title = 'History';
         if ($id) {
             $history = StoreViewsGTMetrix::where('website_url', $id)->whereNotNull('test_id')->orderBy('created_at', 'desc')->paginate(25);
@@ -278,38 +280,38 @@ class WebsiteStoreViewGTMetrixController extends Controller
     public function runErpEvent(Request $request)
     {
         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
-        $gtmatrix = StoreViewsGTMetrix::where('id', $request->id)->first();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $gtmatrix        = StoreViewsGTMetrix::where('id', $request->id)->first();
+        $startTime       = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($gtmatrix) {
             $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
-            $gt_metrix['website_url'] = $gtmatrix->website_url;
-            $new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
-            $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
-            $gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_url', $gt_metrix['website_url'])->first();
+            $gt_metrix['website_url']   = $gtmatrix->website_url;
+            $new_id                     = StoreViewsGTMetrix::create($gt_metrix)->id;
+            $gtmetrix                   = StoreViewsGTMetrix::where('id', $new_id)->first();
+            $gtmatrix                   = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_url', $gt_metrix['website_url'])->first();
             try {
                 if (! empty($gtmatrix->account_id)) {
                     $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->first();
 
                     $curl = curl_init();
-                    $url = 'https://gtmetrix.com/api/2.0/status';
+                    $url  = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_USERPWD        => $gtmatrixAccountData->account_id . ':' . '',
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 0,
                         CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
                     ]);
 
-                    $response = curl_exec($curl);
-                    $data = json_decode($response);
+                    $response   = curl_exec($curl);
+                    $data       = json_decode($response);
                     $parameters = [];
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $data, $httpcode, \App\Http\Controllers\WebsiteStoreViewGTMetrixController::class, 'runErpEvent');
 
                     curl_close($curl);
@@ -322,10 +324,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                         $client->setAPIKey($gtmatrixAccountData->account_id);
                         $client->getLocations();
                         $client->getBrowsers();
-                        $test = $client->startTest($gtmetrix->website_url);
+                        $test   = $client->startTest($gtmetrix->website_url);
                         $update = [
                             'test_id' => $test->getId(),
-                            'status' => 'queued',
+                            'status'  => 'queued',
                         ];
                         $gtmetrix->update($update);
                     }
@@ -334,23 +336,23 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                     foreach ($AccountData as $key => $value) {
                         $curl = curl_init();
-                        $url = 'https://gtmetrix.com/api/2.0/status';
+                        $url  = 'https://gtmetrix.com/api/2.0/status';
 
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => $url,
+                            CURLOPT_URL            => $url,
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $value['account_id'] . ':' . '',
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 0,
+                            CURLOPT_USERPWD        => $value['account_id'] . ':' . '',
+                            CURLOPT_ENCODING       => '',
+                            CURLOPT_MAXREDIRS      => 10,
+                            CURLOPT_TIMEOUT        => 0,
                             CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'GET',
+                            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST  => 'GET',
                         ]);
 
-                        $response = curl_exec($curl);
-                        $data = json_decode($response); //response decode
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $response   = curl_exec($curl);
+                        $data       = json_decode($response); //response decode
+                        $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                         $parameters = [];
 
                         curl_close($curl);
@@ -363,10 +365,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             $client->setAPIKey($value['account_id']);
                             $client->getLocations();
                             $client->getBrowsers();
-                            $test = $client->startTest($gtmetrix->website_url);
+                            $test   = $client->startTest($gtmetrix->website_url);
                             $update = [
-                                'test_id' => $test->getId(),
-                                'status' => 'queued',
+                                'test_id'    => $test->getId(),
+                                'status'     => 'queued',
                                 'account_id' => $value['account_id'],
                             ];
                             $gtmetrix->update($update);
@@ -397,22 +399,25 @@ class WebsiteStoreViewGTMetrixController extends Controller
     /**
      * Show the pagespeed or yslow stats.
      *
+     * @param mixed $type
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function getstats($type, $id)
     {
-        $Insightdata = [];
+        $Insightdata     = [];
         $InsightTypeData = [];
-        $data = [];
-        $typeData = [];
-        $resourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', $id)->orderBy('created_at', 'desc')->get();
+        $data            = [];
+        $typeData        = [];
+        $resourcedata    = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', $id)->orderBy('created_at', 'desc')->get();
         foreach ($resourcedata as $value) {
             if ($type == 'pagespeed' && $id) {
-                $title = 'PageSpeed';
+                $title            = 'PageSpeed';
                 $typeData['type'] = 'GT Metrix';
                 if (! empty($value['pagespeed_json'])) {
                     $pagespeeddata = strip_tags(file_get_contents(public_path() . $value['pagespeed_json']));
-                    $jsondata = json_decode($pagespeeddata, true);
+                    $jsondata      = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key => $pagespeed) {
                         $data[$key]['name'] = $pagespeed['name'];
                         if (isset($pagespeed['score'])) {
@@ -424,11 +429,11 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 }
             }
             if ($type == 'pagespeed' && $id) {
-                $title = 'PageSpeed';
+                $title                   = 'PageSpeed';
                 $InsightTypeData['type'] = 'PageSpeed Insight';
                 if (! empty($value['pagespeed_insight_json'])) {
                     $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $value['pagespeed_insight_json']));
-                    $jsondata = json_decode($pagespeedInsightdata, true);
+                    $jsondata             = json_decode($pagespeedInsightdata, true);
                     foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
                         $Insightdata[$key]['name'] = $pagespeed['id'];
                         if (isset($pagespeed['score'])) {
@@ -444,9 +449,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $title = 'YSlow';
                 if (! empty($value['yslow_json'])) {
                     $typeData['type'] = 'YSlow';
-                    $yslowdata = strip_tags(file_get_contents(public_path() . $value['yslow_json']));
-                    $jsondata = json_decode($yslowdata, true);
-                    $i = 0;
+                    $yslowdata        = strip_tags(file_get_contents(public_path() . $value['yslow_json']));
+                    $jsondata         = json_decode($yslowdata, true);
+                    $i                = 0;
                     foreach ($jsondata['g'] as $key => $yslow) {
                         $data[$i]['name'] = trans('lang.' . $key);
                         if (isset($yslow['score'])) {
@@ -465,16 +470,16 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function getstatsComparison($id)
     {
-        $page_data = [];
-        $yslow_data = [];
-        $PageResourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->where('pagespeed_json', '!=', null)->orderBy('created_at', 'desc')->limit(5)->get();
+        $page_data         = [];
+        $yslow_data        = [];
+        $PageResourcedata  = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->where('pagespeed_json', '!=', null)->orderBy('created_at', 'desc')->limit(5)->get();
         $YslowResourcedata = StoreViewsGTMetrix::select('pagespeed_json', 'yslow_json')->where('test_id', $id)->where('yslow_json', '!=', null)->orderBy('created_at', 'desc')->limit(5)->get();
 
         if ($PageResourcedata) {
             foreach ($PageResourcedata as $value) {
                 if (! empty($value['pagespeed_json'])) {
                     $pagespeeddata = strip_tags(file_get_contents(public_path() . $value['pagespeed_json']));
-                    $jsondata = json_decode($pagespeeddata, true);
+                    $jsondata      = json_decode($pagespeeddata, true);
                     foreach ($jsondata['rules'] as $key => $pagespeed) {
                         if (! isset($page_data[$pagespeed['name']])) {
                             $page_data[$pagespeed['name']] = [];
@@ -492,8 +497,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
             foreach ($PageResourcedata as $value) {
                 if (! empty($value['yslow_json'])) {
                     $yslowdata = strip_tags(file_get_contents(public_path() . $value['yslow_json']));
-                    $jsondata = json_decode($yslowdata, true);
-                    $i = 0;
+                    $jsondata  = json_decode($yslowdata, true);
+                    $i         = 0;
                     foreach ($jsondata['g'] as $key => $yslow) {
                         if (! isset($yslow_data[trans('lang.' . $key)])) {
                             $yslow_data[trans('lang.' . $key)] = [];
@@ -519,35 +524,35 @@ class WebsiteStoreViewGTMetrixController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         foreach ($request->arrayList as $key => $value) {
             $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
-            $gtmatrix = StoreViewsGTMetrix::where('id', $value)->first();
+            $gtmatrix        = StoreViewsGTMetrix::where('id', $value)->first();
 
             if ($gtmatrix) {
                 $gt_metrix['store_view_id'] = $gtmatrix->store_view_id;
-                $gt_metrix['website_url'] = $gtmatrix->website_url;
-                $new_id = StoreViewsGTMetrix::create($gt_metrix)->id;
-                $gtmetrix = StoreViewsGTMetrix::where('id', $new_id)->first();
-                $gtmatrix = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_url', $gt_metrix['website_url'])->first();
+                $gt_metrix['website_url']   = $gtmatrix->website_url;
+                $new_id                     = StoreViewsGTMetrix::create($gt_metrix)->id;
+                $gtmetrix                   = StoreViewsGTMetrix::where('id', $new_id)->first();
+                $gtmatrix                   = StoreViewsGTMetrix::where('store_view_id', $gt_metrix['store_view_id'])->where('website_url', $gt_metrix['website_url'])->first();
                 try {
                     if (! empty($gtmatrix->account_id)) {
                         $gtmatrixAccountData = StoreGTMetrixAccount::where('account_id', $gtmatrix->account_id)->where('status', 'active')->first();
 
                         $curl = curl_init();
-                        $url = 'https://gtmetrix.com/api/2.0/status';
+                        $url  = 'https://gtmetrix.com/api/2.0/status';
 
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => $url,
+                            CURLOPT_URL            => $url,
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_USERPWD => $gtmatrixAccountData->account_id . ':' . '',
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 0,
+                            CURLOPT_USERPWD        => $gtmatrixAccountData->account_id . ':' . '',
+                            CURLOPT_ENCODING       => '',
+                            CURLOPT_MAXREDIRS      => 10,
+                            CURLOPT_TIMEOUT        => 0,
                             CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'GET',
+                            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST  => 'GET',
                         ]);
 
-                        $response = curl_exec($curl);
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        $response   = curl_exec($curl);
+                        $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                         $parameters = [];
 
                         curl_close($curl);
@@ -561,10 +566,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                             $client->setAPIKey($gtmatrixAccountData->account_id);
                             $client->getLocations();
                             $client->getBrowsers();
-                            $test = $client->startTest($gtmetrix->website_url);
+                            $test   = $client->startTest($gtmetrix->website_url);
                             $update = [
                                 'test_id' => $test->getId(),
-                                'status' => 'queued',
+                                'status'  => 'queued',
                             ];
                             $gtmetrix->update($update);
                         }
@@ -573,21 +578,21 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                         foreach ($AccountData as $key => $value) {
                             $curl = curl_init();
-                            $url = 'https://gtmetrix.com/api/2.0/status';
+                            $url  = 'https://gtmetrix.com/api/2.0/status';
                             curl_setopt_array($curl, [
-                                CURLOPT_URL => 'https://gtmetrix.com/api/2.0/status',
+                                CURLOPT_URL            => 'https://gtmetrix.com/api/2.0/status',
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_USERPWD => $value['account_id'] . ':' . '',
-                                CURLOPT_ENCODING => '',
-                                CURLOPT_MAXREDIRS => 10,
-                                CURLOPT_TIMEOUT => 0,
+                                CURLOPT_USERPWD        => $value['account_id'] . ':' . '',
+                                CURLOPT_ENCODING       => '',
+                                CURLOPT_MAXREDIRS      => 10,
+                                CURLOPT_TIMEOUT        => 0,
                                 CURLOPT_FOLLOWLOCATION => true,
-                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                CURLOPT_CUSTOMREQUEST => 'GET',
+                                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                                CURLOPT_CUSTOMREQUEST  => 'GET',
                             ]);
 
-                            $response = curl_exec($curl);
-                            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                            $response   = curl_exec($curl);
+                            $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             $parameters = [];
 
                             curl_close($curl);
@@ -602,10 +607,10 @@ class WebsiteStoreViewGTMetrixController extends Controller
                                 $client->setAPIKey($value['account_id']);
                                 $client->getLocations();
                                 $client->getBrowsers();
-                                $test = $client->startTest($gtmetrix->website_url);
+                                $test   = $client->startTest($gtmetrix->website_url);
                                 $update = [
-                                    'test_id' => $test->getId(),
-                                    'status' => 'queued',
+                                    'test_id'    => $test->getId(),
+                                    'status'     => 'queued',
                                     'account_id' => $value['account_id'],
                                 ];
                                 $gtmetrix->update($update);
@@ -664,23 +669,23 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
     public function WebsiteWiseCategoriesReport(Request $request)
     {
-        $id = $request->id;
-        $Insightdata = [];
+        $id              = $request->id;
+        $Insightdata     = [];
         $InsightTypeData = [];
-        $pagespeedData = [];
-        $yslowData = [];
-        $report = '';
-        $data = [];
-        $g_typeData = [];
-        $y_typeData = [];
-        $resourcedata = StoreViewsGTMetrix::select('id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('id', $id)->orderBy('created_at', 'desc')->first();
-        $title = 'GTmetrix Report Data';
+        $pagespeedData   = [];
+        $yslowData       = [];
+        $report          = '';
+        $data            = [];
+        $g_typeData      = [];
+        $y_typeData      = [];
+        $resourcedata    = StoreViewsGTMetrix::select('id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('id', $id)->orderBy('created_at', 'desc')->first();
+        $title           = 'GTmetrix Report Data';
 
         if ($id) {
             $g_typeData['type'] = 'PageSpeed';
             if (! empty($resourcedata['pagespeed_json'])) {
                 $pagespeeddata = strip_tags(file_get_contents(public_path() . $resourcedata['pagespeed_json']));
-                $jsondata = json_decode($pagespeeddata, true);
+                $jsondata      = json_decode($pagespeeddata, true);
                 foreach ($jsondata['rules'] as $key => $pagespeed) {
                     $pagespeedData[$key]['name'] = $pagespeed['name'];
                     if (isset($pagespeed['score'])) {
@@ -701,7 +706,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $InsightTypeData['type'] = 'PageSpeed Insight';
             if (! empty($resourcedata['pagespeed_insight_json'])) {
                 $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $resourcedata['pagespeed_insight_json']));
-                $jsondata = json_decode($pagespeedInsightdata, true);
+                $jsondata             = json_decode($pagespeedInsightdata, true);
                 foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
                     $Insightdata[$key]['name'] = $pagespeed['id'];
                     if (array_key_exists('scoreDisplayMode', $pagespeed)) {
@@ -729,9 +734,9 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }
         if (! empty($resourcedata['yslow_json'])) {
             $y_typeData['type'] = 'YSlow';
-            $yslowdata = strip_tags(file_get_contents(public_path() . $resourcedata['yslow_json']));
-            $jsondata = json_decode($yslowdata, true);
-            $i = 0;
+            $yslowdata          = strip_tags(file_get_contents(public_path() . $resourcedata['yslow_json']));
+            $jsondata           = json_decode($yslowdata, true);
+            $i                  = 0;
             foreach ($jsondata['g'] as $key => $yslow) {
                 $yslowData[$i]['name'] = trans('lang.' . $key);
                 if (isset($yslow['score'])) {
@@ -761,18 +766,18 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
             $resourcedata = $resourcedata->orderBy('created_at', 'desc')->get();
 
-            $title = 'GTmetrix Website Report Data';
-            $iKey = '0';
-            $inc = 0;
-            $catName = [];
+            $title            = 'GTmetrix Website Report Data';
+            $iKey             = '0';
+            $inc              = 0;
+            $catName          = [];
             $pagespeedDatanew = [];
-            $catArr = [];
+            $catArr           = [];
             foreach ($resourcedata as $datar) {
                 $catScrore = [];
                 $catImpact = [];
                 if (! empty($datar['pagespeed_json']) && is_file(public_path() . $datar['pagespeed_json'])) {
                     $pagespeeddata1 = strip_tags(file_get_contents(public_path() . $datar['pagespeed_json']));
-                    $jsondata = json_decode($pagespeeddata1, true);
+                    $jsondata       = json_decode($pagespeeddata1, true);
                     if (is_array($jsondata) && ! empty($jsondata['rules'])) {
                         foreach ($jsondata['rules'] as $key => $pagespeed) {
                             $catName[] = $pagespeed['name'];
@@ -796,7 +801,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 if (! empty($datar['pagespeed_insight_json'])) {
                     if (is_file(public_path() . $datar['pagespeed_insight_json'])) {
                         $pagespeedInsightdata = strip_tags(file_get_contents(public_path() . $datar['pagespeed_insight_json']));
-                        $jsondata = json_decode($pagespeedInsightdata, true);
+                        $jsondata             = json_decode($pagespeedInsightdata, true);
                         if (is_array($jsondata) && ! empty($jsondata['lighthouseResult']['audits'])) {
                             foreach ($jsondata['lighthouseResult']['audits'] as $key => $pagespeed) {
                                 $inc++;
@@ -815,7 +820,7 @@ class WebsiteStoreViewGTMetrixController extends Controller
                     $y_typeData['type'] = 'YSlow';
                     if (is_file(public_path() . $datar['yslow_json'])) {
                         $yslowdata = strip_tags(file_get_contents(public_path() . $datar['yslow_json']));
-                        $jsondata = json_decode($yslowdata, true);
+                        $jsondata  = json_decode($yslowdata, true);
                         if (is_array($jsondata) && ! empty($jsondata['g'])) {
                             $i = 0;
                             foreach ($jsondata['g'] as $key => $yslow) {
@@ -834,14 +839,14 @@ class WebsiteStoreViewGTMetrixController extends Controller
 
                 $iKey++;
                 $pagespeedDatanew[] = ['website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => array_unique($catName)];
-                $catArr = array_unique($catName);
+                $catArr             = array_unique($catName);
             }
 
             $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'gtmetrixcategoryWeb')->first();
 
             $dynamicColumnsToShowgt = [];
             if (! empty($datatableModel->column_name)) {
-                $hideColumns = $datatableModel->column_name ?? '';
+                $hideColumns            = $datatableModel->column_name ?? '';
                 $dynamicColumnsToShowgt = json_decode($hideColumns, true);
             }
 
@@ -856,15 +861,15 @@ class WebsiteStoreViewGTMetrixController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'gtmetrixcategoryWeb')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'gtmetrixcategoryWeb';
-            $column->column_name = json_encode($request->column_gt);
+            $column->column_name  = json_encode($request->column_gt);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'gtmetrixcategoryWeb';
-            $column->column_name = json_encode($request->column_gt);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_gt);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 

@@ -41,7 +41,7 @@ final class DropFormController extends AbstractController
         $views = $this->dbi->getVirtualTables($db);
 
         $fullQueryViews = '';
-        $fullQuery = '';
+        $fullQuery      = '';
 
         foreach ($selected as $selectedValue) {
             $current = $selectedValue;
@@ -72,8 +72,8 @@ final class DropFormController extends AbstractController
         }
 
         $this->render('database/structure/drop_form', [
-            'url_params' => $urlParams,
-            'full_query' => $fullQuery,
+            'url_params'           => $urlParams,
+            'full_query'           => $fullQuery,
             'is_foreign_key_check' => ForeignKey::isCheckEnabled(),
         ]);
     }

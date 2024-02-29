@@ -68,7 +68,7 @@ class Service implements ServiceInterface
      */
     public function getMountedUrl()
     {
-        $url = $this->normalizeUrlEndBar($this->getUrl());
+        $url     = $this->normalizeUrlEndBar($this->getUrl());
         $version = $this->normalizeUrlEndBar($this->getVersion());
 
         return $url . $version;
@@ -115,6 +115,8 @@ class Service implements ServiceInterface
      *
      * If not end with '/', add then
      *
+     * @param mixed $string
+     *
      * @return string
      */
     protected function normalizeUrlEndBar($string)
@@ -131,7 +133,7 @@ class Service implements ServiceInterface
     }
 
     /**
-     * @param  string  $password
+     * @param string $password
      */
     public function setPassword($password)
     {
@@ -147,7 +149,7 @@ class Service implements ServiceInterface
     }
 
     /**
-     * @param  string  $username
+     * @param string $username
      */
     public function setUsername($username)
     {

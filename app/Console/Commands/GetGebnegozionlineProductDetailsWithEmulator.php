@@ -35,7 +35,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,8 +56,8 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     private function runFakeTraffic($url): void
     {
-        $url = explode('/category', $url);
-        $url = $url[0];
+        $url       = explode('/category', $url);
+        $url       = $url[0];
         $duskShell = new WebsiteEmulator();
         $this->setCountry('IT');
         $duskShell->prepare();
@@ -72,7 +72,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             return;
         }
 
-        $image = ScrapedProducts::where('sku', $content[1])->first();
+        $image        = ScrapedProducts::where('sku', $content[1])->first();
         $image->price = $content[0];
         $image->save();
         if (! $image) {
@@ -120,7 +120,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr = round($product->price_inr, -3);
+            $product->price_inr         = round($product->price_inr, -3);
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);

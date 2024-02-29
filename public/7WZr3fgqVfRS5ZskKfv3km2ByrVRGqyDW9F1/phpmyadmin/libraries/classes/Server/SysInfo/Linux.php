@@ -92,12 +92,12 @@ class Linux extends Base
         }
 
         $defaults = [
-            'MemTotal' => 0,
-            'MemFree' => 0,
-            'Cached' => 0,
-            'Buffers' => 0,
-            'SwapTotal' => 0,
-            'SwapFree' => 0,
+            'MemTotal'   => 0,
+            'MemFree'    => 0,
+            'Cached'     => 0,
+            'Buffers'    => 0,
+            'SwapTotal'  => 0,
+            'SwapFree'   => 0,
             'SwapCached' => 0,
         ];
 
@@ -107,7 +107,7 @@ class Linux extends Base
             $mem[$idx] = intval($value);
         }
 
-        $mem['MemUsed'] = $mem['MemTotal'] - $mem['MemFree'] - $mem['Cached'] - $mem['Buffers'];
+        $mem['MemUsed']  = $mem['MemTotal'] - $mem['MemFree'] - $mem['Cached'] - $mem['Buffers'];
         $mem['SwapUsed'] = $mem['SwapTotal'] - $mem['SwapFree'] - $mem['SwapCached'];
 
         return $mem;

@@ -112,13 +112,13 @@ class PageRepo extends EntityRepo
         if (setting('app-editor') !== 'markdown') {
             $revision->markdown = '';
         }
-        $revision->page_id = $page->id;
-        $revision->slug = $page->slug;
-        $revision->book_slug = $page->book->slug;
-        $revision->created_by = user()->id;
-        $revision->created_at = $page->updated_at;
-        $revision->type = 'version';
-        $revision->summary = $summary;
+        $revision->page_id         = $page->id;
+        $revision->slug            = $page->slug;
+        $revision->book_slug       = $page->book->slug;
+        $revision->created_by      = user()->id;
+        $revision->created_at      = $page->updated_at;
+        $revision->type            = 'version';
+        $revision->summary         = $summary;
         $revision->revision_number = $page->revision_count;
         $revision->save();
 
@@ -149,8 +149,8 @@ class PageRepo extends EntityRepo
         $doc = new DOMDocument();
         $doc->loadHTML(mb_convert_encoding($htmlText, 'HTML-ENTITIES', 'UTF-8'));
 
-        $container = $doc->documentElement;
-        $body = $container->childNodes->item(0);
+        $container  = $doc->documentElement;
+        $body       = $container->childNodes->item(0);
         $childNodes = $body->childNodes;
 
         // Set ids on top-level nodes
@@ -160,7 +160,7 @@ class PageRepo extends EntityRepo
         }
 
         // Ensure no duplicate ids within child items
-        $xPath = new DOMXPath($doc);
+        $xPath   = new DOMXPath($doc);
         $idElems = $xPath->query('//body//*//*[@id]');
         foreach ($idElems as $domElem) {
             $this->setUniqueId($domElem, $idMap);
@@ -179,7 +179,7 @@ class PageRepo extends EntityRepo
      * Set a unique id on the given DOMElement.
      * A map for existing ID's should be passed in to check for current existence.
      *
-     * @param  DOMElement  $element
+     * @param DOMElement $element
      */
     protected function setUniqueId($element, array &$idMap)
     {
@@ -199,7 +199,7 @@ class PageRepo extends EntityRepo
         // Uses the content as a basis to ensure output is the same every time
         // the same content is passed through.
         $contentId = 'bkmrk-' . mb_substr(strtolower(preg_replace('/\s+/', '-', trim($element->nodeValue))), 0, 20);
-        $newId = urlencode($contentId);
+        $newId     = urlencode($contentId);
         $loopIndex = 0;
 
         while (isset($idMap[$newId])) {
@@ -214,7 +214,7 @@ class PageRepo extends EntityRepo
     /**
      * Get the plain text version of a page's content.
      *
-     * @param  \BookStack\Entities\Page  $page
+     * @param \BookStack\Entities\Page $page
      */
     protected function pageToPlainText(Page $page): string
     {
@@ -232,11 +232,11 @@ class PageRepo extends EntityRepo
      */
     public function getDraftPage(Book $book, Chapter $chapter = null)
     {
-        $page = $this->entityProvider->page->newInstance();
-        $page->name = trans('bookstack::entities.pages_initial_name');
+        $page             = $this->entityProvider->page->newInstance();
+        $page->name       = trans('bookstack::entities.pages_initial_name');
         $page->created_by = user()->id;
         $page->updated_by = user()->id;
-        $page->draft = true;
+        $page->draft      = true;
 
         if ($chapter) {
             $page->chapter_id = $chapter->id;
@@ -274,12 +274,12 @@ class PageRepo extends EntityRepo
         if ($drafts->count() > 0) {
             $draft = $drafts->first();
         } else {
-            $draft = $this->entityProvider->pageRevision->newInstance();
-            $draft->page_id = $page->id;
-            $draft->slug = $page->slug;
-            $draft->book_slug = $page->book->slug;
+            $draft             = $this->entityProvider->pageRevision->newInstance();
+            $draft->page_id    = $page->id;
+            $draft->slug       = $page->slug;
+            $draft->book_slug  = $page->book->slug;
             $draft->created_by = $userId;
-            $draft->type = 'update_draft';
+            $draft->type       = 'update_draft';
         }
 
         $draft->fill($data);
@@ -313,10 +313,10 @@ class PageRepo extends EntityRepo
             $draftPage->template = ($input['template'] === 'true');
         }
 
-        $draftPage->slug = $this->findSuitableSlug('page', $draftPage->name, false, $draftPage->book->id);
-        $draftPage->html = $this->formatHtml($input['html']);
-        $draftPage->text = $this->pageToPlainText($draftPage);
-        $draftPage->draft = false;
+        $draftPage->slug           = $this->findSuitableSlug('page', $draftPage->name, false, $draftPage->book->id);
+        $draftPage->html           = $this->formatHtml($input['html']);
+        $draftPage->text           = $this->pageToPlainText($draftPage);
+        $draftPage->draft          = false;
         $draftPage->revision_count = 1;
 
         $draftPage->save();
@@ -367,7 +367,8 @@ class PageRepo extends EntityRepo
     /**
      * A query to check for active update drafts on a particular page.
      *
-     * @param  int  $minRange
+     * @param int $minRange
+     *
      * @return mixed
      */
     protected function activePageEditingQuery(Page $page, int $minRange = null)
@@ -391,7 +392,8 @@ class PageRepo extends EntityRepo
      * Passing in a minuted range will check for edits
      * within the last x minutes.
      *
-     * @param  int  $minRange
+     * @param int $minRange
+     *
      * @return bool
      */
     public function isPageEditingActive(Page $page, int $minRange = null)
@@ -404,7 +406,8 @@ class PageRepo extends EntityRepo
     /**
      * Get a notification message concerning the editing activity on a particular page.
      *
-     * @param  int  $minRange
+     * @param int $minRange
+     *
      * @return string
      */
     public function getPageEditingActiveMessage(Page $page, int $minRange = null)
@@ -430,7 +433,7 @@ class PageRepo extends EntityRepo
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
         $doc->loadHTML(mb_convert_encoding($pageContent, 'HTML-ENTITIES', 'UTF-8'));
-        $xPath = new DOMXPath($doc);
+        $xPath   = new DOMXPath($doc);
         $headers = $xPath->query('//h1|//h2|//h3|//h4|//h5|//h6');
 
         if (is_null($headers)) {
@@ -443,9 +446,9 @@ class PageRepo extends EntityRepo
 
             return [
                 'nodeName' => strtolower($header->nodeName),
-                'level' => intval(str_replace('h', '', $header->nodeName)),
-                'link' => '#' . $header->getAttribute('id'),
-                'text' => $text,
+                'level'    => intval(str_replace('h', '', $header->nodeName)),
+                'link'     => '#' . $header->getAttribute('id'),
+                'text'     => $text,
             ];
         })->filter(function ($header) {
             return mb_strlen($header['text']) > 0;
@@ -453,7 +456,7 @@ class PageRepo extends EntityRepo
 
         // Shift headers if only smaller headers have been used
         $levelChange = ($tree->pluck('level')->min() - 1);
-        $tree = $tree->map(function ($header) use ($levelChange) {
+        $tree        = $tree->map(function ($header) use ($levelChange) {
             $header['level'] -= ($levelChange);
 
             return $header;
@@ -475,8 +478,8 @@ class PageRepo extends EntityRepo
         $this->savePageRevision($page);
         $revision = $page->revisions()->where('id', '=', $revisionId)->first();
         $page->fill($revision->toArray());
-        $page->slug = $this->findSuitableSlug('page', $page->name, $page->id, $book->id);
-        $page->text = $this->pageToPlainText($page);
+        $page->slug       = $this->findSuitableSlug('page', $page->name, $page->id, $book->id);
+        $page->text       = $this->pageToPlainText($page);
         $page->updated_by = user()->id;
         $page->save();
         $this->searchService->indexEntity($page);
@@ -492,7 +495,7 @@ class PageRepo extends EntityRepo
      */
     public function changePageParent(Page $page, Entity $parent)
     {
-        $book = $parent->isA('book') ? $parent : $parent->book;
+        $book             = $parent->isA('book') ? $parent : $parent->book;
         $page->chapter_id = $parent->isA('chapter') ? $parent->id : 0;
         $page->save();
         if ($page->book->id !== $book->id) {
@@ -505,18 +508,19 @@ class PageRepo extends EntityRepo
     /**
      * Create a copy of a page in a new location with a new name.
      *
-     * @param  \BookStack\Entities\Page  $page
-     * @param  \BookStack\Entities\Entity  $newParent
+     * @param \BookStack\Entities\Page   $page
+     * @param \BookStack\Entities\Entity $newParent
+     *
      * @return \BookStack\Entities\Page
      *
      * @throws \Throwable
      */
     public function copyPage(Page $page, Entity $newParent, string $newName = '')
     {
-        $newBook = $newParent->isA('book') ? $newParent : $newParent->book;
+        $newBook    = $newParent->isA('book') ? $newParent : $newParent->book;
         $newChapter = $newParent->isA('chapter') ? $newParent : null;
-        $copyPage = $this->getDraftPage($newBook, $newChapter);
-        $pageData = $page->getAttributes();
+        $copyPage   = $this->getDraftPage($newBook, $newChapter);
+        $pageData   = $page->getAttributes();
 
         // Update name
         if (! empty($newName)) {

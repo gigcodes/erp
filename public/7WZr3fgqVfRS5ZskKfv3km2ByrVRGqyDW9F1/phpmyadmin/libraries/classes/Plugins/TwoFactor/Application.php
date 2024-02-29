@@ -32,7 +32,7 @@ class Application extends TwoFactorPlugin
     /**
      * Creates object
      *
-     * @param  TwoFactor  $twofactor TwoFactor instance
+     * @param TwoFactor $twofactor TwoFactor instance
      */
     public function __construct(TwoFactor $twofactor)
     {
@@ -87,7 +87,7 @@ class Application extends TwoFactorPlugin
      */
     public function setup()
     {
-        $secret = $this->twofactor->config['settings']['secret'];
+        $secret    = $this->twofactor->config['settings']['secret'];
         $inlineUrl = $this->google2fa->getQRCodeInline(
             'phpMyAdmin (' . $this->getAppId(false) . ')',
             $this->twofactor->user,
@@ -95,8 +95,8 @@ class Application extends TwoFactorPlugin
         );
 
         return $this->template->render('login/twofactor/application_configure', [
-            'image' => $inlineUrl,
-            'secret' => $secret,
+            'image'       => $inlineUrl,
+            'secret'      => $secret,
             'has_imagick' => extension_loaded('imagick'),
         ]);
     }

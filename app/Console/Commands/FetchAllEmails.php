@@ -48,7 +48,7 @@ class FetchAllEmails extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-            'signature' => $this->signature,
+            'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
@@ -66,6 +66,7 @@ class FetchAllEmails extends Command
      *
      * @param [type] $email
      * @param [type] $email_list
+     *
      * @return array(model_id,miodel_type)
      */
 }

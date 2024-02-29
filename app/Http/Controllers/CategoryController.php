@@ -99,8 +99,8 @@ class CategoryController extends Controller
 
     public function logCategory(Request $request)
     {
-        $result = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
-        $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
+        $result          = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
+        $logRequest      = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
         $logRequestCount = \App\LogRequest::where('api_name', 'catalogCategoryCreate')->count();
 
         return view('category.log', compact('logRequest', 'logRequestCount'));
@@ -118,8 +118,8 @@ class CategoryController extends Controller
     public function manageCategory11(Request $request)
     {
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories = Category::where('parent_id', '=', 0)->withCount('childs')->get();
-        $allCategories = Category::pluck('title', 'id')->all();
+        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
+        $allCategories     = Category::pluck('title', 'id')->all();
 
         $old = $request->old('parent_id');
 
@@ -142,11 +142,11 @@ class CategoryController extends Controller
     public function addCategory(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'magento_id' => 'required|numeric',
+            'title'       => 'required',
+            'magento_id'  => 'required|numeric',
             'show_all_id' => 'numeric|nullable',
         ]);
-        $input = $request->all();
+        $input              = $request->all();
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         Category::create($input);
@@ -158,7 +158,7 @@ class CategoryController extends Controller
 
     public function generateHashTagKeywords()
     {
-        $brandList = Brand::getAll();
+        $brandList       = Brand::getAll();
         $keywordVariants = KeywordSearchVariants::list();
 
         /* Initialize queue for add hashtags */
@@ -171,23 +171,23 @@ class CategoryController extends Controller
 
     public function edit(Category $category, Request $request)
     {
-        $data = [];
-        $data['id'] = $category->id;
-        $data['title'] = $category->title;
-        $data['magento_id'] = $category->magento_id;
-        $data['show_all_id'] = $category->show_all_id;
+        $data                        = [];
+        $data['id']                  = $category->id;
+        $data['title']               = $category->title;
+        $data['magento_id']          = $category->magento_id;
+        $data['show_all_id']         = $category->show_all_id;
         $data['category_segment_id'] = $category->category_segment_id;
-        $data['category_segments'] = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
+        $data['category_segments']   = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
 
         if ($request->method() === 'POST') {
             $this->validate($request, [
-                'title' => 'required',
-                'magento_id' => 'required|numeric',
+                'title'       => 'required',
+                'magento_id'  => 'required|numeric',
                 'show_all_id' => 'numeric|nullable',
             ]);
 
-            $category->title = $request->input('title');
-            $category->magento_id = $request->input('magento_id');
+            $category->title       = $request->input('title');
+            $category->magento_id  = $request->input('magento_id');
             $category->show_all_id = $request->input('show_all_id');
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
@@ -204,7 +204,7 @@ class CategoryController extends Controller
     public function remove(Request $request)
     {
         $category_instance = new Category();
-        $category = $category_instance->find($request->input('edit_cat'));
+        $category          = $category_instance->find($request->input('edit_cat'));
 
         if ($request->ajax()) {
             if (Category::isParent($category->id)) {
@@ -245,9 +245,9 @@ class CategoryController extends Controller
 
     public static function getCategoryTree($id)
     {
-        $category = new Category();
+        $category          = new Category();
         $category_instance = $category->find($id);
-        $categoryTree = [];
+        $categoryTree      = [];
 
         if ($category_instance == null) {
             return false;
@@ -259,8 +259,8 @@ class CategoryController extends Controller
 
         while ($parent_id != 0) {
             $category_instance = $category->find($parent_id);
-            $categoryTree[] = $category_instance->title;
-            $parent_id = $category_instance->parent_id;
+            $categoryTree[]    = $category_instance->title;
+            $parent_id         = $category_instance->parent_id;
         }
 
         return array_reverse($categoryTree);
@@ -332,16 +332,16 @@ class CategoryController extends Controller
 
     public static function getCategoryTreeMagentoIds($id)
     {
-        $category = new Category();
+        $category          = new Category();
         $category_instance = $category->find($id);
-        $categoryTree = [];
+        $categoryTree      = [];
 
         $categoryTree[] = $category_instance->magento_id;
-        $parent_id = $category_instance->parent_id;
+        $parent_id      = $category_instance->parent_id;
 
         while ($parent_id != 0) {
             $category_instance = $category->find($parent_id);
-            $categoryTree[] = $category_instance->magento_id;
+            $categoryTree[]    = $category_instance->magento_id;
 
             if (! empty($category_instance->show_all_id)) {
                 $categoryTree[] = $category_instance->show_all_id;
@@ -376,20 +376,20 @@ class CategoryController extends Controller
     public function saveReferences(Request $request)
     {
         $categories = $request->get('category');
-        $info = $request->get('info');
+        $info       = $request->get('info');
 
         if (! empty($info)) {
             foreach ($info as $catId => $reference) {
-                [$catId, $reference] = explode('#', $reference);
-                $catId = str_replace('cat_', '', $catId);
-                $category = Category::find($catId);
+                [$catId, $reference]  = explode('#', $reference);
+                $catId                = str_replace('cat_', '', $catId);
+                $category             = Category::find($catId);
                 $category->references = $reference;
                 $category->save();
             }
         } else {
             foreach ($categories as $catId => $reference) {
-                $catId = str_replace('cat_', '', $catId);
-                $category = Category::find($catId);
+                $catId                = str_replace('cat_', '', $catId);
+                $category             = Category::find($catId);
                 $category->references = implode(',', $reference);
                 $category->save();
             }
@@ -404,7 +404,7 @@ class CategoryController extends Controller
     {
         $oldCatId = $request->get('old_cat_id');
         $newcatId = $request->get('new_cat_id');
-        $catName = strtolower($request->get('cat_name'));
+        $catName  = strtolower($request->get('cat_name'));
 
         // assigned new category
         $newCategory = null;
@@ -431,9 +431,9 @@ class CategoryController extends Controller
             $newCategory = Category::find($newcatId);
 
             if ($newCategory) {
-                $newCatArr = explode(',', $newCategory->references);
-                $newCatArr = array_map('strtolower', $newCatArr);
-                $newCatArr[] = strtolower($catName);
+                $newCatArr               = explode(',', $newCategory->references);
+                $newCatArr               = array_map('strtolower', $newCatArr);
+                $newCatArr[]             = strtolower($catName);
                 $newCategory->references = implode(',', array_unique(array_filter($newCatArr)));
                 $newCategory->save();
 
@@ -465,7 +465,7 @@ class CategoryController extends Controller
 
     public function updateField(Request $request)
     {
-        $id = $request->get('id');
+        $id    = $request->get('id');
         $field = $request->get('_f');
         $value = $request->get('_v');
 
@@ -507,7 +507,7 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-            $q = str_replace('/', ',', $q);
+            $q        = str_replace('/', ',', $q);
             $products = \App\ScrapedProducts::where('categories', $q)->join('products as p', 'p.id', 'scraped_products.product_id')
                 ->where('p.stock', '>', 0)->groupBy('website')
                 ->select('scraped_products.*')
@@ -524,9 +524,9 @@ class CategoryController extends Controller
 
     public function affectedProduct(Request $request)
     {
-        $old = $request->old_cat_id;
+        $old  = $request->old_cat_id;
         $from = $request->cat_name;
-        $to = $request->new_cat_id;
+        $to   = $request->new_cat_id;
 
         if (! empty($from)) {
             // check the type and then
@@ -538,9 +538,9 @@ class CategoryController extends Controller
 
     public function affectedProductNew(Request $request)
     {
-        $old = $request->old_cat_id;
-        $from = $request->cat_name;
-        $to = $request->new_cat_id;
+        $old         = $request->old_cat_id;
+        $from        = $request->cat_name;
+        $to          = $request->new_cat_id;
         $wholeString = $request->wholeString;
 
         if (! empty($from)) {
@@ -557,12 +557,12 @@ class CategoryController extends Controller
     {
         return CategoryCancellationPolicyLog::create(
             [
-                'category_id' => $categoryId,
+                'category_id'      => $categoryId,
                 'change_parent_id' => $changeParentId,
-                'day_type' => $dayType,
-                'day_change' => $dayChange,
-                'day_old' => $dayOld,
-                'status' => '1',
+                'day_type'         => $dayType,
+                'day_change'       => $dayChange,
+                'day_old'          => $dayOld,
+                'status'           => '1',
             ]
         );
     }
@@ -635,31 +635,31 @@ class CategoryController extends Controller
 
         if ($request->with_product == 'yes') {
             \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                'from' => $scrappedCategory->cat_name,
-                'to' => $selectedCategory->id,
+                'from'    => $scrappedCategory->cat_name,
+                'to'      => $selectedCategory->id,
                 'user_id' => $loggedUser->id,
             ])->onQueue('supplier_products');
         }
 
         \App\UserUpdatedAttributeHistory::create([
-            'old_value' => $scrappedCategory->id,
-            'new_value' => $selectedCategory->id,
+            'old_value'      => $scrappedCategory->id,
+            'new_value'      => $selectedCategory->id,
             'attribute_name' => 'category',
-            'attribute_id' => $selectedCategory->id,
-            'user_id' => \Auth::user()->id,
+            'attribute_id'   => $selectedCategory->id,
+            'user_id'        => \Auth::user()->id,
         ]);
 
         \App\UserUpdatedAttributeHistory::create([
-            'old_value' => $scrappedCategory->id,
-            'new_value' => $selectedCategory->id,
+            'old_value'      => $scrappedCategory->id,
+            'new_value'      => $selectedCategory->id,
             'attribute_name' => 'scraped-category',
-            'attribute_id' => $scrappedCategory->id,
-            'user_id' => \Auth::user()->id,
+            'attribute_id'   => $scrappedCategory->id,
+            'user_id'        => \Auth::user()->id,
         ]);
 
         $scrappedCategory->update([
             'category_id' => $selectedCategory->id,
-            'is_skip' => 1,
+            'is_skip'     => 1,
         ]);
 
         return response()->json(['code' => 200, 'message' => 'Your request has been pushed successfully']);
@@ -675,35 +675,35 @@ class CategoryController extends Controller
             $scrappedCategory = json_decode($f);
 
             \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                'from' => $scrappedCategory->name,
-                'to' => $selectedCategory->id,
+                'from'    => $scrappedCategory->name,
+                'to'      => $selectedCategory->id,
                 'user_id' => $loggedUser->id,
             ])->onQueue('supplier_products');
 
             \App\UserUpdatedAttributeHistory::create([
-                'old_value' => $scrappedCategory->id,
-                'new_value' => $selectedCategory->id,
+                'old_value'      => $scrappedCategory->id,
+                'new_value'      => $selectedCategory->id,
                 'attribute_name' => 'category',
-                'attribute_id' => $selectedCategory->id,
-                'user_id' => $loggedUser->id,
+                'attribute_id'   => $selectedCategory->id,
+                'user_id'        => $loggedUser->id,
             ]);
 
             \App\UserUpdatedAttributeHistory::create([
-                'old_value' => $scrappedCategory->id,
-                'new_value' => $selectedCategory->id,
+                'old_value'      => $scrappedCategory->id,
+                'new_value'      => $selectedCategory->id,
                 'attribute_name' => 'scraped-category',
-                'attribute_id' => $scrappedCategory->id,
-                'user_id' => $loggedUser->id,
+                'attribute_id'   => $scrappedCategory->id,
+                'user_id'        => $loggedUser->id,
             ]);
 
             ScrappedCategoryMapping::where('id', $scrappedCategory->id)->update([
                 'category_id' => $selectedCategory->id,
-                'is_skip' => 1,
+                'is_skip'     => 1,
             ]);
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Your request has been pushed successfully',
         ]);
     }
@@ -718,10 +718,10 @@ class CategoryController extends Controller
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = [$category->title];
-            $childs = $category->childs;
+            $childs          = $category->childs;
             foreach ($childs as $child) {
                 $categoryArray[] = [$child->title];
-                $grandChilds = $child->childLevelSencond;
+                $grandChilds     = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = [$grandChild->title];
@@ -766,10 +766,10 @@ class CategoryController extends Controller
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
-            $childs = $category->childs;
+            $childs          = $category->childs;
             foreach ($childs as $child) {
                 $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
-                $grandChilds = $child->childLevelSencond;
+                $grandChilds     = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
@@ -785,7 +785,7 @@ class CategoryController extends Controller
 
     public function newCategoryReferenceIndex(Request $request)
     {
-        $users = [];
+        $users           = [];
         $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
@@ -805,10 +805,10 @@ class CategoryController extends Controller
         if ($request->user_id != null) {
             $matchedArray = \App\UserUpdatedAttributeHistory::where([
                 'attribute_name' => 'scraped-category',
-                'user_id' => $request->user_id,
+                'user_id'        => $request->user_id,
             ])->pluck('attribute_id');
             $scrapped_category_mapping = $scrapped_category_mapping->whereIn('scrapped_category_mappings.id', $matchedArray);
-            $users = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
+            $users                     = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
         }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
@@ -829,7 +829,7 @@ class CategoryController extends Controller
 
         foreach ($scrapped_category_mapping as $index => $category) {
             $scrapped_category_mapping[$index]->total_products = isset($mappedData[$category->id]) ? count($mappedData[$category->id]) : 0;
-            $scrapped_category_mapping[$index]->all_websites = isset($mappedData[$category->id]) ? implode('<br>', array_unique($mappedData[$category->id])) : '-';
+            $scrapped_category_mapping[$index]->all_websites   = isset($mappedData[$category->id]) ? implode('<br>', array_unique($mappedData[$category->id])) : '-';
         }
 
         $categoryAll = Category::with('childs.childLevelSencond')
@@ -840,10 +840,10 @@ class CategoryController extends Controller
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
-            $childs = $category->childs;
+            $childs          = $category->childs;
             foreach ($childs as $child) {
                 $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
-                $grandChilds = $child->childLevelSencond;
+                $grandChilds     = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
@@ -859,6 +859,11 @@ class CategoryController extends Controller
      * The attributes that are mass assignable.
      *
      * @var array
+     *
+     * @param mixed      $items
+     * @param mixed      $perPage
+     * @param null|mixed $page
+     * @param mixed      $options
      */
     public function paginate($items, $perPage = 20, $page = null, $options = [])
     {
@@ -873,7 +878,7 @@ class CategoryController extends Controller
 
     public function history(Request $request, $id)
     {
-        $type = $request->get('type', 'category');
+        $type    = $request->get('type', 'category');
         $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $id)->where('attribute_name', $type)->latest()->get();
 
         return view('compositions.partials.show-update-history', compact('records'));
@@ -881,7 +886,7 @@ class CategoryController extends Controller
 
     public function historyForScraper(Request $request, $id)
     {
-        $type = $request->get('type', 'category');
+        $type    = $request->get('type', 'category');
         $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $id)->where('attribute_name', $type)->latest()->get();
         dd($records);
 
@@ -890,7 +895,7 @@ class CategoryController extends Controller
 
     public function ScraperUserHistory(Request $request)
     {
-        $type = 'scraped-category';
+        $type    = 'scraped-category';
         $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $request->id)->where('attribute_name', $request->type)->latest()->get();
 
         return view('compositions.partials.show-update-history-scrapeed', compact('records'));
@@ -923,20 +928,20 @@ class CategoryController extends Controller
                 if (isset($request->show_auto_fix) && $request->show_auto_fix) {
                     $links[] = [
                         'from_id' => $category->id,
-                        'from' => $category->name,
-                        'to' => $category->category_id,
+                        'from'    => $category->name,
+                        'to'      => $category->category_id,
                     ];
                 } else {
                     $links[] = [
                         'from_id' => $category->id,
-                        'from' => $category->name,
-                        'to' => ($filter) ? $filter->id : null,
+                        'from'    => $category->name,
+                        'to'      => ($filter) ? $filter->id : null,
                     ];
                 }
             }
         }
         $is_auto_fix = ! empty($request->show_auto_fix) ? true : false;
-        $view = (string) view('category.partials.preview-categories', compact('links', 'is_auto_fix'));
+        $view        = (string) view('category.partials.preview-categories', compact('links', 'is_auto_fix'));
 
         return response()->json(['code' => 200, 'html' => $view]);
     }
@@ -953,7 +958,7 @@ class CategoryController extends Controller
         }
 
         $scrapped_category_mapping = $scrapped_category_mapping->get();
-        $links = [];
+        $links                     = [];
 
         if (! $scrapped_category_mapping->isEmpty()) {
             foreach ($scrapped_category_mapping as $k => $category) {
@@ -972,30 +977,30 @@ class CategoryController extends Controller
                     $selectedCategory = Category::find($selectedCategoryId);
 
                     \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                        'from' => $scrappedCategory->name,
-                        'to' => $selectedCategory->id,
+                        'from'    => $scrappedCategory->name,
+                        'to'      => $selectedCategory->id,
                         'user_id' => $loeggedUser->id,
                     ])->onQueue('supplier_products');
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $scrappedCategory->id,
-                        'new_value' => $selectedCategory->id,
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'category',
-                        'attribute_id' => $selectedCategory->id,
-                        'user_id' => $loeggedUser->id,
+                        'attribute_id'   => $selectedCategory->id,
+                        'user_id'        => $loeggedUser->id,
                     ]);
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $scrappedCategory->id,
-                        'new_value' => $selectedCategory->id,
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'scraped-category',
-                        'attribute_id' => $scrappedCategory->id,
-                        'user_id' => $loeggedUser->id,
+                        'attribute_id'   => $scrappedCategory->id,
+                        'user_id'        => $loeggedUser->id,
                     ]);
 
                     $isUpdtaed = $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
-                        'is_skip' => 1,
+                        'is_skip'     => 1,
                         'is_auto_fix' => 1,
                     ]);
                     if ($isUpdtaed) {
@@ -1024,30 +1029,30 @@ class CategoryController extends Controller
                     $selectedCategory = Category::find($selectedCategoryId);
 
                     \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                        'from' => $scrappedCategory->name,
-                        'to' => $selectedCategory->id,
+                        'from'    => $scrappedCategory->name,
+                        'to'      => $selectedCategory->id,
                         'user_id' => $loeggedUser->id,
                     ])->onQueue('supplier_products');
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $scrappedCategory->id,
-                        'new_value' => $selectedCategory->id,
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'category',
-                        'attribute_id' => $selectedCategory->id,
-                        'user_id' => $loeggedUser->id,
+                        'attribute_id'   => $selectedCategory->id,
+                        'user_id'        => $loeggedUser->id,
                     ]);
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $scrappedCategory->id,
-                        'new_value' => $selectedCategory->id,
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'scraped-category',
-                        'attribute_id' => $scrappedCategory->id,
-                        'user_id' => $loeggedUser->id,
+                        'attribute_id'   => $scrappedCategory->id,
+                        'user_id'        => $loeggedUser->id,
                     ]);
 
                     $scrappedCategory->update([
-                        'category_id' => $selectedCategory->id,
-                        'is_skip' => 0,
+                        'category_id'  => $selectedCategory->id,
+                        'is_skip'      => 0,
                         'is_auto_skip' => ! empty($request->is_auto_fix) ? 1 : 0,
                     ]);
                 } else {
@@ -1061,7 +1066,7 @@ class CategoryController extends Controller
 
     public function childCategory(Request $request)
     {
-        $cat = Category::with('childs')->find($request->subCat);
+        $cat    = Category::with('childs')->find($request->subCat);
         $childs = $cat->childs;
 
         if ($childs) {
@@ -1249,11 +1254,11 @@ class CategoryController extends Controller
         if ($categories) {
             foreach ($categories as $category) {
                 $data['child'][$category->id] = $category->toArray();
-                $insert_array = $category->toArray();
-                $insert_array['parent_id'] = $targetCategoryId;
-                $insert_array['magento_id'] = 0;
+                $insert_array                 = $category->toArray();
+                $insert_array['parent_id']    = $targetCategoryId;
+                $insert_array['magento_id']   = 0;
                 unset($insert_array['id']);
-                $pid = Category::insertGetId($insert_array);
+                $pid                                   = Category::insertGetId($insert_array);
                 $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid);
             }
         }
@@ -1265,20 +1270,23 @@ class CategoryController extends Controller
     /**
      * find child data from parent.
      *
+     * @param mixed $parentId
+     * @param mixed $pid
+     *
      * @return \Illuminate\Http\Response
      */
     public function getChildData($parentId, $pid)
     {
         $categories = Category::where('parent_id', $parentId)->orderBy('title')->get();
-        $data = [];
+        $data       = [];
         if ($categories) {
             foreach ($categories as $category) {
-                $data[$category->id] = $category->toArray();
-                $insert_array = $category->toArray();
-                $insert_array['parent_id'] = $pid;
+                $data[$category->id]        = $category->toArray();
+                $insert_array               = $category->toArray();
+                $insert_array['parent_id']  = $pid;
                 $insert_array['magento_id'] = 0;
                 unset($insert_array['id']);
-                $newpid = Category::insertGetId($insert_array);
+                $newpid                       = Category::insertGetId($insert_array);
                 $data[$category->id]['child'] = $this->getChildData($category->id, $newpid);
             }
         }

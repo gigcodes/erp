@@ -18,7 +18,7 @@ class StoreWebsiteTableProjectUpdateSeeder extends Seeder
         $websiteProjects = WebsiteStoreProject::all();
 
         foreach ($websiteProjects as $project) {
-            $projectName = $project->name;
+            $projectName   = $project->name;
             $projectPrefix = substr($projectName, 0, 3);
 
             // Find the corresponding websites by searching for the project name in store_websites

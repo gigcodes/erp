@@ -39,8 +39,8 @@ class SendMessagesFromLocalInstagram extends Command
      */
     public function handle()
     {
-        $ch = curl_init();
-        $username = Config('instagram.admin_account');
+        $ch        = curl_init();
+        $username  = Config('instagram.admin_account');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $url = 'https://erp.theluxuryunlimited.com/api/instagram/get-comments-list/' . $username;
@@ -52,7 +52,7 @@ class SendMessagesFromLocalInstagram extends Command
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', [], json_decode($output), $httpcode, \App\Console\Commands\SendMessagesFromLocalInstagram::class, 'handle');
 

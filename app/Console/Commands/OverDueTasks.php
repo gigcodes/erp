@@ -38,7 +38,7 @@ class OverDueTasks extends Command
      */
     public function handle()
     {
-        $now = \Carbon\Carbon::now();
+        $now   = \Carbon\Carbon::now();
         $tasks = \App\Task::where('is_completed', null)->where('due_date', '<', $now)->get();
         foreach ($tasks as $task) {
             if ($task->assign_to) {
@@ -49,7 +49,7 @@ class OverDueTasks extends Command
                     } else {
                         $message = $task->task_subject . '. ' . $task->task_details;
                     }
-                    $message = $message . ' This task is supposed to be completed on ' . $task->due_date;
+                    $message     = $message . ' This task is supposed to be completed on ' . $task->due_date;
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);

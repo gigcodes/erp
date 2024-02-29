@@ -14,6 +14,8 @@ class CreateKeywordScrapperQueue implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param publicarray $data
      */
     public function __construct(public array $data)
     {
@@ -27,27 +29,27 @@ class CreateKeywordScrapperQueue implements ShouldQueue
         try {
             self::putLog('Job start call google url to search link from erp start time : ' . date('Y-m-d H:i:s'));
 
-            $postData = [];
+            $postData         = [];
             $postData['data'] = $this->data['keyword'];
-            $postData = json_encode($postData);
+            $postData         = json_encode($postData);
 
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => env('NODE_SCRAPER_SERVER') . 'api/googleSearch',
+                CURLOPT_URL            => env('NODE_SCRAPER_SERVER') . 'api/googleSearch',
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 50,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
+                CURLOPT_ENCODING       => '',
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 50,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
+                CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json',
                 ],
                 CURLOPT_POSTFIELDS => $postData,
             ]);
             $response = curl_exec($curl);
-            $err = curl_error($curl);
+            $err      = curl_error($curl);
             curl_close($curl);
             \Log::info(json_encode($response));
             $result = null;

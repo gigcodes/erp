@@ -11,7 +11,6 @@ class WhatsAppGroup extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="task_id",type="integer")
      * @SWG\Property(property="group_id",type="integer")

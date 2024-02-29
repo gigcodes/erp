@@ -10,6 +10,10 @@ interface ClientInterface
     /**
      * Make a HTTP request
      *
+     * @param mixed $method
+     * @param mixed $uri
+     * @param mixed $options
+     *
      * @return Response
      */
     public function request($method, $uri, $options = []);

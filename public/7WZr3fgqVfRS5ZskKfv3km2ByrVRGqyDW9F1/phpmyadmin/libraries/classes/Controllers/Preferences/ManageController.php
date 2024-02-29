@@ -58,8 +58,8 @@ class ManageController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->userPreferences = $userPreferences;
-        $this->relation = $relation;
-        $this->config = $config;
+        $this->relation        = $relation;
+        $this->config          = $config;
     }
 
     public function __invoke(): void
@@ -132,7 +132,7 @@ class ManageController extends AbstractController
             $_SESSION['userprefs_autoload'] = true;
 
             $configuration = json_decode($json, true);
-            $return_url = $_POST['return_url'] ?? null;
+            $return_url    = $_POST['return_url'] ?? null;
             if (! is_array($configuration)) {
                 if (! isset($error)) {
                     $error = __('Could not import configuration');
@@ -141,13 +141,13 @@ class ManageController extends AbstractController
                 // sanitize input values: treat them as though
                 // they came from HTTP POST request
                 $form_display = new UserFormList($cf);
-                $new_config = $cf->getFlatDefaultConfig();
+                $new_config   = $cf->getFlatDefaultConfig();
                 if (! empty($_POST['import_merge'])) {
                     $new_config = array_merge($new_config, $cf->getConfigArray());
                 }
 
                 $new_config = array_merge($new_config, $configuration);
-                $_POST_bak = $_POST;
+                $_POST_bak  = $_POST;
                 foreach ($new_config as $k => $v) {
                     $_POST[str_replace('/', '-', (string) $k)] = $v;
                 }
@@ -155,7 +155,7 @@ class ManageController extends AbstractController
                 $cf->resetConfigData();
                 $all_ok = $form_display->process(true, false);
                 $all_ok = $all_ok && ! $form_display->hasErrors();
-                $_POST = $_POST_bak;
+                $_POST  = $_POST_bak;
 
                 if (! $all_ok && isset($_POST['fix_errors'])) {
                     $form_display->fixErrors();
@@ -167,23 +167,23 @@ class ManageController extends AbstractController
                     $relationParameters = $this->relation->getRelationParameters();
 
                     echo $this->template->render('preferences/header', [
-                        'route' => $route,
-                        'is_saved' => ! empty($_GET['saved']),
+                        'route'              => $route,
+                        'is_saved'           => ! empty($_GET['saved']),
                         'has_config_storage' => $relationParameters->userPreferencesFeature !== null,
                     ]);
 
                     echo $this->template->render('preferences/manage/error', [
-                        'form_errors' => $form_display->displayErrors(),
-                        'json' => $json,
+                        'form_errors'  => $form_display->displayErrors(),
+                        'json'         => $json,
                         'import_merge' => $_POST['import_merge'] ?? null,
-                        'return_url' => $return_url,
+                        'return_url'   => $return_url,
                     ]);
 
                     return;
                 }
 
                 // check for ThemeDefault
-                $params = [];
+                $params   = [];
                 $tmanager = ThemeManager::getInstance();
                 if (
                     isset($configuration['ThemeDefault'])
@@ -202,12 +202,12 @@ class ManageController extends AbstractController
                 $result = $this->userPreferences->save($cf->getConfigArray());
                 if ($result === true) {
                     if ($return_url) {
-                        $query = Util::splitURLQuery($return_url);
+                        $query      = Util::splitURLQuery($return_url);
                         $return_url = parse_url($return_url, PHP_URL_PATH);
 
                         foreach ($query as $q) {
                             $pos = mb_strpos($q, '=');
-                            $k = mb_substr($q, 0, (int) $pos);
+                            $k   = mb_substr($q, 0, (int) $pos);
                             if ($k === 'token') {
                                 continue;
                             }
@@ -248,8 +248,8 @@ class ManageController extends AbstractController
         $relationParameters = $this->relation->getRelationParameters();
 
         echo $this->template->render('preferences/header', [
-            'route' => $route,
-            'is_saved' => ! empty($_GET['saved']),
+            'route'              => $route,
+            'is_saved'           => ! empty($_GET['saved']),
             'has_config_storage' => $relationParameters->userPreferencesFeature !== null,
         ]);
 
@@ -262,8 +262,8 @@ class ManageController extends AbstractController
         }
 
         echo $this->template->render('preferences/manage/main', [
-            'error' => $error,
-            'max_upload_size' => $GLOBALS['config']->get('max_upload_size'),
+            'error'                              => $error,
+            'max_upload_size'                    => $GLOBALS['config']->get('max_upload_size'),
             'exists_setup_and_not_exists_config' => @file_exists(ROOT_PATH . 'setup/index.php')
                 && ! @file_exists(CONFIG_FILE),
         ]);

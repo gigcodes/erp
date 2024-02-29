@@ -102,7 +102,7 @@ class Index
     private $parser = null;
 
     /**
-     * @param  array  $params parameters
+     * @param array $params parameters
      */
     public function __construct(array $params = [])
     {
@@ -112,9 +112,10 @@ class Index
     /**
      * Creates(if not already created) and returns the corresponding Index object
      *
-     * @param  string  $schema     database name
-     * @param  string  $table      table name
-     * @param  string  $index_name index name
+     * @param string $schema     database name
+     * @param string $table      table name
+     * @param string $index_name index name
+     *
      * @return Index corresponding Index object
      */
     public static function singleton($schema, $table, $index_name = '')
@@ -136,9 +137,10 @@ class Index
     /**
      * returns an array with all indexes from the given table
      *
-     * @param  string  $table  table
-     * @param  string  $schema schema
-     * @return Index[]  array of indexes
+     * @param string $table  table
+     * @param string $schema schema
+     *
+     * @return Index[] array of indexes
      */
     public static function getFromTable($table, $schema)
     {
@@ -154,9 +156,10 @@ class Index
     /**
      * Returns an array with all indexes from the given table of the requested types
      *
-     * @param  string  $table   table
-     * @param  string  $schema  schema
-     * @param  int  $choices choices
+     * @param string $table   table
+     * @param string $schema  schema
+     * @param int    $choices choices
+     *
      * @return Index[] array of indexes
      */
     public static function getFromTableByChoice($table, $schema, $choices = 31)
@@ -192,8 +195,9 @@ class Index
     /**
      * return primary if set, false otherwise
      *
-     * @param  string  $table  table
-     * @param  string  $schema schema
+     * @param string $table  table
+     * @param string $schema schema
+     *
      * @return Index|false primary index or false if no one exists
      */
     public static function getPrimary($table, $schema)
@@ -210,8 +214,8 @@ class Index
     /**
      * Load index data for table
      *
-     * @param  string  $table  table
-     * @param  string  $schema schema
+     * @param string $table  table
+     * @param string $schema schema
      */
     private static function loadIndexes($table, $schema): bool
     {
@@ -224,9 +228,9 @@ class Index
         $_raw_indexes = $dbi->getTableIndexes($schema, $table);
         foreach ($_raw_indexes as $_each_index) {
             $_each_index['Schema'] = $schema;
-            $keyName = $_each_index['Key_name'];
+            $keyName               = $_each_index['Key_name'];
             if (! isset(self::$registry[$schema][$table][$keyName])) {
-                $key = new Index($_each_index);
+                $key                                       = new Index($_each_index);
                 self::$registry[$schema][$table][$keyName] = $key;
             } else {
                 $key = self::$registry[$schema][$table][$keyName];
@@ -241,7 +245,7 @@ class Index
     /**
      * Add column to index
      *
-     * @param  array  $params column params
+     * @param array $params column params
      */
     public function addColumn(array $params): void
     {
@@ -261,7 +265,7 @@ class Index
     /**
      * Adds a list of columns to the index
      *
-     * @param  array  $columns array containing details about the columns
+     * @param array $columns array containing details about the columns
      */
     public function addColumns(array $columns): void
     {
@@ -272,10 +276,10 @@ class Index
             // $columns[names][]
             // $columns[sub_parts][]
             foreach ($columns['names'] as $key => $name) {
-                $sub_part = $columns['sub_parts'][$key] ?? '';
+                $sub_part   = $columns['sub_parts'][$key] ?? '';
                 $_columns[] = [
                     'Column_name' => $name,
-                    'Sub_part' => $sub_part,
+                    'Sub_part'    => $sub_part,
                 ];
             }
         } else {
@@ -294,7 +298,7 @@ class Index
     /**
      * Returns true if $column indexed in this index
      *
-     * @param  string  $column the column
+     * @param string $column the column
      */
     public function hasColumn($column): bool
     {
@@ -304,7 +308,7 @@ class Index
     /**
      * Sets index details
      *
-     * @param  array  $params index details
+     * @param array $params index details
      */
     public function set(array $params): void
     {
@@ -350,10 +354,10 @@ class Index
             $this->choice = 'PRIMARY';
         } elseif ($this->type === 'FULLTEXT') {
             $this->choice = 'FULLTEXT';
-            $this->type = '';
+            $this->type   = '';
         } elseif ($this->type === 'SPATIAL') {
             $this->choice = 'SPATIAL';
-            $this->type = '';
+            $this->type   = '';
         } elseif ($this->nonUnique == '0') {
             $this->choice = 'UNIQUE';
         } else {
@@ -514,7 +518,8 @@ class Index
     /**
      * Returns whether the index is a 'Unique' index
      *
-     * @param  bool  $as_text whether to output should be in text
+     * @param bool $as_text whether to output should be in text
+     *
      * @return mixed whether the index is a 'Unique' index
      */
     public function isUnique($as_text = false)
@@ -547,7 +552,7 @@ class Index
     /**
      * Sets the name of the index
      *
-     * @param  string  $name index name
+     * @param string $name index name
      */
     public function setName($name): void
     {
@@ -572,7 +577,7 @@ class Index
     public function getCompareData()
     {
         $data = [
-            'Packed' => $this->packed,
+            'Packed'       => $this->packed,
             'Index_choice' => $this->choice,
         ];
 
@@ -586,9 +591,10 @@ class Index
     /**
      * Function to check over array of indexes and look for common problems
      *
-     * @param  string  $table  table name
-     * @param  string  $schema schema name
-     * @return string  Output HTML
+     * @param string $table  table name
+     * @param string $schema schema name
+     *
+     * @return string Output HTML
      */
     public static function findDuplicates($table, $schema)
     {

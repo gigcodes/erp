@@ -63,19 +63,19 @@ class FcmNotificationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'url' => 'required|exists:store_websites,website',
-            'sent_at' => 'required',
-            'body' => 'required|string',
+            'title'       => 'required',
+            'url'         => 'required|exists:store_websites,website',
+            'sent_at'     => 'required',
+            'body'        => 'required|string',
             'expired_day' => 'required|integer',
         ]);
-        $StoreWebsiteId = StoreWebsite::where('website', $request->input('url'))->first()->id;
-        $input = $request->all();
-        $input['sent_at'] = $request->sent_at;
+        $StoreWebsiteId            = StoreWebsite::where('website', $request->input('url'))->first()->id;
+        $input                     = $request->all();
+        $input['sent_at']          = $request->sent_at;
         $input['store_website_id'] = $StoreWebsiteId;
-        $input['created_by'] = Auth::id();
-        $input['status'] = 'Pending';
-        $insert = PushFcmNotification::create($input);
+        $input['created_by']       = Auth::id();
+        $input['status']           = 'Pending';
+        $insert                    = PushFcmNotification::create($input);
 
         return redirect()->route('pushfcmnotification.list')->with('success', 'Notification created successfully');
     }
@@ -83,7 +83,8 @@ class FcmNotificationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -94,7 +95,8 @@ class FcmNotificationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -108,23 +110,24 @@ class FcmNotificationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'url' => 'required|exists:store_websites,website',
-            'sent_at' => 'required',
-            'body' => 'required|string',
+            'title'       => 'required',
+            'url'         => 'required|exists:store_websites,website',
+            'sent_at'     => 'required',
+            'body'        => 'required|string',
             'expired_day' => 'required|integer',
         ]);
-        $StoreWebsiteId = StoreWebsite::where('website', $request->input('url'))->first()->id;
-        $input = $request->except(['_token']);
+        $StoreWebsiteId            = StoreWebsite::where('website', $request->input('url'))->first()->id;
+        $input                     = $request->except(['_token']);
         $input['store_website_id'] = $StoreWebsiteId;
-        $input['created_by'] = Auth::id();
-        $insert = PushFcmNotification::where('id', $request->id)->update($input);
+        $input['created_by']       = Auth::id();
+        $insert                    = PushFcmNotification::where('id', $request->id)->update($input);
 
         return redirect()->back()->with('success', 'Notification updated successfully');
     }
@@ -132,7 +135,8 @@ class FcmNotificationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

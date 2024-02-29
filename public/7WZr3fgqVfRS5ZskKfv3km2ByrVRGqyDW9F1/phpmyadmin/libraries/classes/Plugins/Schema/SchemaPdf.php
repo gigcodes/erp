@@ -95,8 +95,8 @@ class SchemaPdf extends SchemaPlugin
         );
         $leaf->setValues(
             [
-                '' => __('None'),
-                'name_asc' => __('Name (Ascending)'),
+                ''          => __('None'),
+                'name_asc'  => __('Name (Ascending)'),
                 'name_desc' => __('Name (Descending)'),
             ]
         );
@@ -114,7 +114,7 @@ class SchemaPdf extends SchemaPlugin
     /**
      * Exports the schema into PDF format.
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function exportSchema($db): bool
     {

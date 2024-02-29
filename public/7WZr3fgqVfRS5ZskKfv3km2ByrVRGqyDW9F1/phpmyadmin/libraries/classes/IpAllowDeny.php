@@ -32,8 +32,8 @@ class IpAllowDeny
     /**
      * Matches for IPv4 or IPv6 addresses
      *
-     * @param  string  $testRange string of IP range to match
-     * @param  string  $ipToTest  string of IP to test against range
+     * @param string $testRange string of IP range to match
+     * @param string $ipToTest  string of IP to test against range
      */
     public function ipMaskTest($testRange, $ipToTest): bool
     {
@@ -61,16 +61,16 @@ class IpAllowDeny
      * Does not match:
      * xxx.xxx.xxx.xx[yyy-zzz]  (range, partial octets not supported)
      *
-     * @param  string  $testRange string of IP range to match
-     * @param  string  $ipToTest  string of IP to test against range
+     * @param string $testRange string of IP range to match
+     * @param string $ipToTest  string of IP to test against range
      */
     public function ipv4MaskTest($testRange, $ipToTest): bool
     {
         $result = true;
-        $match = preg_match('|([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/([0-9]+)|', $testRange, $regs);
+        $match  = preg_match('|([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/([0-9]+)|', $testRange, $regs);
         if ($match) {
             // performs a mask match
-            $ipl = ip2long($ipToTest);
+            $ipl    = ip2long($ipToTest);
             $rangel = ip2long($regs[1] . '.' . $regs[2] . '.' . $regs[3] . '.' . $regs[4]);
 
             $maskl = 0;
@@ -88,7 +88,7 @@ class IpAllowDeny
 
         // range based
         $maskocts = explode('.', $testRange);
-        $ipocts = explode('.', $ipToTest);
+        $ipocts   = explode('.', $ipToTest);
 
         // perform a range match
         for ($i = 0; $i < 4; $i++) {
@@ -123,8 +123,8 @@ class IpAllowDeny
      * xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xx[yyy-zzz]
      * (range, partial octets not supported)
      *
-     * @param  string  $test_range string of IP range to match
-     * @param  string  $ip_to_test string of IP to test against range
+     * @param string $test_range string of IP range to match
+     * @param string $ip_to_test string of IP to test against range
      */
     public function ipv6MaskTest($test_range, $ip_to_test): bool
     {
@@ -134,8 +134,8 @@ class IpAllowDeny
         $test_range = mb_strtolower($test_range);
         $ip_to_test = mb_strtolower($ip_to_test);
 
-        $is_cidr = mb_strpos($test_range, '/') > -1;
-        $is_range = mb_strpos($test_range, '[') > -1;
+        $is_cidr   = mb_strpos($test_range, '/') > -1;
+        $is_range  = mb_strpos($test_range, '[') > -1;
         $is_single = ! $is_cidr && ! $is_range;
 
         $ip_hex = bin2hex((string) inet_pton($ip_to_test));
@@ -149,16 +149,16 @@ class IpAllowDeny
         if ($is_range) {
             // what range do we operate on?
             $range_match = [];
-            $match = preg_match('/\[([0-9a-f]+)\-([0-9a-f]+)\]/', $test_range, $range_match);
+            $match       = preg_match('/\[([0-9a-f]+)\-([0-9a-f]+)\]/', $test_range, $range_match);
             if ($match) {
                 $range_start = $range_match[1];
-                $range_end = $range_match[2];
+                $range_end   = $range_match[2];
 
                 // get the first and last allowed IPs
-                $first_ip = str_replace($range_match[0], $range_start, $test_range);
+                $first_ip  = str_replace($range_match[0], $range_start, $test_range);
                 $first_hex = bin2hex((string) inet_pton($first_ip));
-                $last_ip = str_replace($range_match[0], $range_end, $test_range);
-                $last_hex = bin2hex((string) inet_pton($last_ip));
+                $last_ip   = str_replace($range_match[0], $range_end, $test_range);
+                $last_hex  = bin2hex((string) inet_pton($last_ip));
 
                 // check if the IP to test is within the range
                 $result = ($ip_hex >= $first_hex && $ip_hex <= $last_hex);
@@ -234,7 +234,7 @@ class IpAllowDeny
      *
      * @see     Core::getIp()
      *
-     * @param  string  $type 'allow' | 'deny' type of rule to match
+     * @param string $type 'allow' | 'deny' type of rule to match
      */
     private function allowDeny($type): bool
     {
@@ -261,7 +261,7 @@ class IpAllowDeny
 
         // lookup table for some name shortcuts
         $shortcuts = [
-            'all' => '0.0.0.0/0',
+            'all'       => '0.0.0.0/0',
             'localhost' => '127.0.0.1/8',
         ];
 

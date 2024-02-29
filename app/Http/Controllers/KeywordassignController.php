@@ -33,7 +33,7 @@ class KeywordassignController extends Controller
     public function create()
     {
         $task_category = DB::table('task_categories')->select('*')->get();
-        $userslist = DB::table('users')->select('*')->get();
+        $userslist     = DB::table('users')->select('*')->get();
 
         return view('keywordassign.create', compact('task_category', 'userslist'));
     }
@@ -46,30 +46,30 @@ class KeywordassignController extends Controller
     public function store(Request $request)
     {
         $task = $this->validate(request(), [
-            'keyword' => 'required',
-            'task_category' => 'required',
+            'keyword'          => 'required',
+            'task_category'    => 'required',
             'task_description' => 'required',
-            'assign_to' => 'required',
+            'assign_to'        => 'required',
         ]);
         // Create the task
-        $exp_keyword = explode(',', $request->keyword);
+        $exp_keyword    = explode(',', $request->keyword);
         $new_keywordstr = '';
         for ($i = 0; $i < count($exp_keyword); $i++) {
             $new_keywordstr .= trim($exp_keyword[$i]) . ',';
         }
-        $keyword = trim($new_keywordstr, ',');
-        $task_category = $request->task_category;
+        $keyword          = trim($new_keywordstr, ',');
+        $task_category    = $request->task_category;
         $task_description = $request->task_description;
-        $assign_to = $request->assign_to;
-        $created_at = date('Y-m-d H:i:s');
-        $updated_at = date('Y-m-d H:i:s');
-        $insert_data = [
-            'keyword' => $keyword,
-            'task_category' => $task_category,
+        $assign_to        = $request->assign_to;
+        $created_at       = date('Y-m-d H:i:s');
+        $updated_at       = date('Y-m-d H:i:s');
+        $insert_data      = [
+            'keyword'          => $keyword,
+            'task_category'    => $task_category,
             'task_description' => $task_description,
-            'assign_to' => $assign_to,
-            'created_at' => $created_at,
-            'updated_at' => $updated_at,
+            'assign_to'        => $assign_to,
+            'created_at'       => $created_at,
+            'updated_at'       => $updated_at,
         ];
         DB::table('keywordassigns')->insert($insert_data);
 
@@ -80,7 +80,8 @@ class KeywordassignController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -91,7 +92,8 @@ class KeywordassignController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -99,7 +101,7 @@ class KeywordassignController extends Controller
         //
         $keywordassign = DB::table('keywordassigns')->select('*')->where('id', $id)->get();
         $task_category = DB::table('task_categories')->select('*')->get();
-        $userslist = DB::table('users')->select('*')->get();
+        $userslist     = DB::table('users')->select('*')->get();
 
         return view('keywordassign.edit', compact('keywordassign', 'task_category', 'userslist'));
     }
@@ -107,29 +109,30 @@ class KeywordassignController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $task = $this->validate(request(), [
-            'keyword' => 'required',
-            'task_category' => 'required',
+            'keyword'          => 'required',
+            'task_category'    => 'required',
             'task_description' => 'required',
-            'assign_to' => 'required',
+            'assign_to'        => 'required',
         ]);
         // Create the task
-        $keyword = $request->keyword;
-        $task_category = $request->task_category;
+        $keyword          = $request->keyword;
+        $task_category    = $request->task_category;
         $task_description = $request->task_description;
-        $assign_to = $request->assign_to;
-        $updated_at = date('Y-m-d H:i:s');
-        $insert_data = [
-            'keyword' => $keyword,
-            'task_category' => $task_category,
+        $assign_to        = $request->assign_to;
+        $updated_at       = date('Y-m-d H:i:s');
+        $insert_data      = [
+            'keyword'          => $keyword,
+            'task_category'    => $task_category,
             'task_description' => $task_description,
-            'assign_to' => $assign_to,
-            'updated_at' => $updated_at,
+            'assign_to'        => $assign_to,
+            'updated_at'       => $updated_at,
         ];
         $affected = DB::table('keywordassigns')
             ->where('id', $id)
@@ -142,7 +145,8 @@ class KeywordassignController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -156,9 +160,9 @@ class KeywordassignController extends Controller
     public function taskcategory(Request $request)
     {
         $task_category_name = $request->task_category_name;
-        $insert_data = [
+        $insert_data        = [
             'parent_id' => 0,
-            'title' => $task_category_name,
+            'title'     => $task_category_name,
         ];
         DB::table('task_categories')->insert($insert_data);
         $id = DB::getPdo()->lastInsertId();

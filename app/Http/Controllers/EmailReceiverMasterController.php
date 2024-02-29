@@ -35,14 +35,14 @@ class EmailReceiverMasterController extends Controller
      */
     public function store(StoreEmailReceiverMasterRequest $request)
     {
-        $check_mod = EmailReceiverMaster::where('module_name', $request->module_name)->first();
+        $check_mod      = EmailReceiverMaster::where('module_name', $request->module_name)->first();
         $update_request = UpdateEmailReceiverMasterRequest::create($request);
         if ($check_mod) {
             return $this->update($update_request, $check_mod);
         } else {
-            $emailReceiverMaster = new EmailReceiverMaster();
+            $emailReceiverMaster              = new EmailReceiverMaster();
             $emailReceiverMaster->module_name = $request->module_name;
-            $emailReceiverMaster->email = $request->receiver_email ? $request->receiver_email : '';
+            $emailReceiverMaster->email       = $request->receiver_email ? $request->receiver_email : '';
             if ($emailReceiverMaster->email) {
                 $emailReceiverMaster->configs = $request->configs;
             } else {

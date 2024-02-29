@@ -41,7 +41,8 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
@@ -58,7 +59,7 @@ class Handler extends ExceptionHandler
         // Which will include the basic message to point the user roughly to the cause.
         if ($this->isExceptionType($e, PrettyException::class) && ! config('app.debug')) {
             $message = $this->getOriginalMessage($e);
-            $code = ($e->getCode() === 0) ? 500 : $e->getCode();
+            $code    = ($e->getCode() === 0) ? 500 : $e->getCode();
 
             return response()->view('errors/' . $code, ['message' => $message], $code);
         }
@@ -73,6 +74,8 @@ class Handler extends ExceptionHandler
 
     /**
      * Check the exception chain to compare against the original exception type.
+     *
+     * @param mixed $type
      *
      * @return bool
      */
@@ -104,7 +107,8 @@ class Handler extends ExceptionHandler
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
@@ -119,7 +123,8 @@ class Handler extends ExceptionHandler
     /**
      * Convert a validation exception into a JSON response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     protected function invalidJson($request, ValidationException $exception)

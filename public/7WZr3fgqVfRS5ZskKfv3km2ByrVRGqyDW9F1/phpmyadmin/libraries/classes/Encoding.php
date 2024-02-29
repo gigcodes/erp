@@ -143,7 +143,7 @@ class Encoding
     /**
      * Setter for engine. Use with caution, mostly useful for testing.
      *
-     * @param  int  $engine Engine encoding
+     * @param int $engine Engine encoding
      */
     public static function setEngine(int $engine): void
     {
@@ -166,10 +166,11 @@ class Encoding
      * Converts encoding of text according to parameters with detected
      * conversion function.
      *
-     * @param  string  $src_charset  source charset
-     * @param  string  $dest_charset target charset
-     * @param  string  $what         what to convert
-     * @return string   converted text
+     * @param string $src_charset  source charset
+     * @param string $dest_charset target charset
+     * @param string $what         what to convert
+     *
+     * @return string converted text
      */
     public static function convertString(
         string $src_charset,
@@ -218,7 +219,7 @@ class Encoding
     /**
      * Setter for Kanji encodings. Use with caution, mostly useful for testing.
      *
-     * @param  string  $value Kanji encodings list
+     * @param string $value Kanji encodings list
      */
     public static function setKanjiEncodings(string $value): void
     {
@@ -243,10 +244,11 @@ class Encoding
     /**
      * Kanji string encoding convert
      *
-     * @param  string  $str  the string to convert
-     * @param  string  $enc  the destination encoding code
-     * @param  string  $kana set 'kana' convert to JIS-X208-kana
-     * @return string   the converted string
+     * @param string $str  the string to convert
+     * @param string $enc  the destination encoding code
+     * @param string $kana set 'kana' convert to JIS-X208-kana
+     *
+     * @return string the converted string
      */
     public static function kanjiStrConv(string $str, string $enc, string $kana): string
     {
@@ -261,7 +263,7 @@ class Encoding
 
         if ($kana === 'kana') {
             $dist = mb_convert_kana($str, 'KV', $string_encoding);
-            $str = $dist;
+            $str  = $dist;
         }
 
         if ($string_encoding != $enc && $enc != '') {
@@ -274,10 +276,11 @@ class Encoding
     /**
      * Kanji file encoding convert
      *
-     * @param  string  $file the name of the file to convert
-     * @param  string  $enc  the destination encoding code
-     * @param  string  $kana set 'kana' convert to JIS-X208-kana
-     * @return string   the name of the converted file
+     * @param string $file the name of the file to convert
+     * @param string $enc  the destination encoding code
+     * @param string $kana set 'kana' convert to JIS-X208-kana
+     *
+     * @return string the name of the converted file
      */
     public static function kanjiFileConv(string $file, string $enc, string $kana): string
     {
@@ -286,7 +289,7 @@ class Encoding
         }
 
         $tmpfname = (string) tempnam($GLOBALS['config']->getUploadTempDir(), $enc);
-        $fpd = fopen($tmpfname, 'wb');
+        $fpd      = fopen($tmpfname, 'wb');
         if ($fpd === false) {
             return $file;
         }

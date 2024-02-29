@@ -10,16 +10,16 @@ class QuickCustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $title = 'Quick Customer';
-        $nextActionArr = \DB::table('customer_next_actions')->get();
+        $title          = 'Quick Customer';
+        $nextActionArr  = \DB::table('customer_next_actions')->get();
         $nextActionList = \DB::table('customer_next_actions')->pluck('name', 'id')->toArray();
 
-        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
-        $groups = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $reply_categories    = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        $groups              = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
-        $brands = \App\Brand::all()->toArray();
-        $solo_numbers = (new SoloNumbers)->all();
-        $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $brands              = \App\Brand::all()->toArray();
+        $solo_numbers        = (new SoloNumbers)->all();
+        $storeWebsites       = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
 
         $request->merge(['do_not_disturb' => '0']);
 
@@ -28,7 +28,7 @@ class QuickCustomerController extends Controller
 
     public function records(Request $request)
     {
-        $type = $request->get('type', 'last_received');
+        $type              = $request->get('type', 'last_received');
         $chatMessagesWhere = 'WHERE status not in (7,8,9,10)';
 
         $customer = \App\Customer::query();
@@ -74,31 +74,31 @@ class QuickCustomerController extends Controller
 
         $items = [];
         foreach ($customer->items() as $item) {
-            $item->message = utf8_encode($item->message);
-            $item->name = utf8_encode($item->name);
-            $item->address = utf8_encode($item->address);
-            $item->city = utf8_encode($item->city);
-            $item->country = utf8_encode($item->country);
+            $item->message          = utf8_encode($item->message);
+            $item->name             = utf8_encode($item->name);
+            $item->address          = utf8_encode($item->address);
+            $item->city             = utf8_encode($item->city);
+            $item->country          = utf8_encode($item->country);
             $item->reminder_message = utf8_encode($item->reminder_message);
-            $item->message = utf8_encode($item->message);
-            $item['short_message'] = strlen($item->message) > 20 ? substr($item->message, 0, 20) : $item->message;
-            $item['short_name'] = strlen($item->name) > 10 ? substr($item->name, 0, 10) : $item->name;
-            $items[] = $item;
+            $item->message          = utf8_encode($item->message);
+            $item['short_message']  = strlen($item->message) > 20 ? substr($item->message, 0, 20) : $item->message;
+            $item['short_name']     = strlen($item->name) > 10 ? substr($item->name, 0, 10) : $item->name;
+            $items[]                = $item;
         }
 
-        $title = 'Quick Customer';
-        $nextActionArr = \DB::table('customer_next_actions')->get();
+        $title            = 'Quick Customer';
+        $nextActionArr    = \DB::table('customer_next_actions')->get();
         $reply_categories = \App\ReplyCategory::orderby('name')->get();
         if (isset($_GET['page'])) {
             unset($_GET['page']);
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => view('quick-customer.quicklist-html', compact('items', 'title', 'nextActionArr', 'reply_categories'))->render(),
-            'total' => $customer->total(),
+            'code'       => 200,
+            'data'       => view('quick-customer.quicklist-html', compact('items', 'title', 'nextActionArr', 'reply_categories'))->render(),
+            'total'      => $customer->total(),
             'pagination' => (string) $customer->appends($_GET)->links(),
-            'page' => $customer->currentPage(),
+            'page'       => $customer->currentPage(),
         ]);
     }
 

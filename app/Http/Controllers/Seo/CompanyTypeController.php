@@ -15,9 +15,9 @@ class CompanyTypeController extends Controller
 
             return datatables()->eloquent($types)
                 ->addColumn('actions', function ($val) {
-                    $editUrl = route('seo.company-type.edit', $val->id);
+                    $editUrl   = route('seo.company-type.edit', $val->id);
                     $deleteUrl = route('seo.company-type.destroy', $val->id);
-                    $actions = '';
+                    $actions   = '';
                     $actions .= "<a href='javascript:;' data-url='{$editUrl}' class='btn btn-secondary btn-sm typeEditBtn'>Edit</a>";
                     $actions .= "<a href='javascript:;' data-url='{$deleteUrl}' class='btn btn-secondary btn-sm ml-2 typeDeleteBtn'>Delete</a>";
 
@@ -32,25 +32,25 @@ class CompanyTypeController extends Controller
     public function create()
     {
         $data['submitUrl'] = route('seo.company-type.store');
-        $html = view('seo.company.ajax.typeForm', $data)->render();
+        $html              = view('seo.company.ajax.typeForm', $data)->render();
 
         return response()->json([
             'success' => true,
-            'title' => 'Add company type',
-            'data' => $html,
+            'title'   => 'Add company type',
+            'data'    => $html,
         ]);
     }
 
     public function edit(int $id)
     {
-        $data['submitUrl'] = route('seo.company-type.update', $id);
+        $data['submitUrl']  = route('seo.company-type.update', $id);
         $data['seoCompany'] = SeoCompanyType::find($id);
-        $html = view('seo.company.ajax.typeForm', $data)->render();
+        $html               = view('seo.company.ajax.typeForm', $data)->render();
 
         return response()->json([
             'success' => true,
-            'title' => 'Edit company type',
-            'data' => $html,
+            'title'   => 'Edit company type',
+            'data'    => $html,
         ]);
     }
 
@@ -64,13 +64,13 @@ class CompanyTypeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $seoCompany,
+                'data'    => $seoCompany,
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $seoCompany->first(),
+            'data'    => $seoCompany->first(),
         ]);
     }
 

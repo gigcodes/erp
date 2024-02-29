@@ -42,7 +42,7 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -52,7 +52,7 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
                 ->where('is_listing_rejected_automatically', 1)
                 ->chunk(1000, function ($products) {
                     foreach ($products as $product) {
-                        $product->is_listing_rejected = 0;
+                        $product->is_listing_rejected               = 0;
                         $product->is_listing_rejected_automatically = 0;
                         $product->save();
 

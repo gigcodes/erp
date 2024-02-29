@@ -16,7 +16,7 @@ class PaymentResponseController extends Controller
      */
     public function index()
     {
-        $title = 'Payment Responses';
+        $title    = 'Payment Responses';
         $websites = StoreWebsite::all();
 
         return view('storewebsite::payment-responses.index', compact(['title', 'websites']));
@@ -25,16 +25,17 @@ class PaymentResponseController extends Controller
     /**
      * Fetch records of the resource.
      *
-     * @param  \App\StoreWebsite  $url,$token
+     * @param \App\StoreWebsite $url,$token
+     *
      * @return \Illuminate\Http\Response
      */
     public function records(Request $request)
     {
-        $records = PaymentResponse::with('website')->orderBy('created_at', 'DESC');
-        $keyword = $request->input('amount');
+        $records    = PaymentResponse::with('website')->orderBy('created_at', 'DESC');
+        $keyword    = $request->input('amount');
         $website_id = $request->input('store_website_id');
-        $card_type = $request->input('card_type');
-        $date = $request->input('date');
+        $card_type  = $request->input('card_type');
+        $date       = $request->input('date');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('base_shipping_captured', 'LIKE', "%$keyword%")

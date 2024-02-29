@@ -31,7 +31,7 @@ final class IndexRenameController extends AbstractController
         Indexes $indexes
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
         $this->indexes = $indexes;
     }
 
@@ -43,7 +43,7 @@ final class IndexRenameController extends AbstractController
             Util::checkParameters(['db', 'table']);
 
             $urlParams = ['db' => $db, 'table' => $table];
-            $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+            $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
             $errorUrl .= Url::getCommon($urlParams, '&');
 
             DbTableExists::check();
@@ -72,14 +72,14 @@ final class IndexRenameController extends AbstractController
     /**
      * Display the rename form to rename an index
      *
-     * @param  Index  $index An Index instance.
+     * @param Index $index An Index instance.
      */
     private function displayRenameForm(Index $index): void
     {
         $this->dbi->selectDb($GLOBALS['db']);
 
         $formParams = [
-            'db' => $this->db,
+            'db'    => $this->db,
             'table' => $this->table,
         ];
 
@@ -92,7 +92,7 @@ final class IndexRenameController extends AbstractController
         $this->addScriptFiles(['indexes.js']);
 
         $this->render('table/index_rename_form', [
-            'index' => $index,
+            'index'       => $index,
             'form_params' => $formParams,
         ]);
     }

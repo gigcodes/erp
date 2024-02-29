@@ -48,14 +48,14 @@ class DeleteCategoriesWithNoProduct extends Command
             $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Category query finished.']);
             if ($unKnownCategory) {
-                $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
+                $unKnownCatArr   = array_unique(explode(',', $unKnownCategory->references));
                 $fixedCategories = array_unique(explode(',', $unKnownCategory->ignore_category));
                 $deltaCategories = $fixedCategories;
                 if (! empty($unKnownCatArr)) {
                     $storeUnUserCategory = [];
                     foreach ($unKnownCatArr as $key => $unKnownC) {
                         $this->info('Started for category :' . $unKnownC);
-                        $deltaCategories[] = $unKnownC;
+                        $deltaCategories[]                = $unKnownC;
                         $unKnownCategory->ignore_category = implode(',', array_filter($deltaCategories));
                         $unKnownCategory->save();
                         if (! in_array($unKnownC, $fixedCategories)) {

@@ -75,13 +75,13 @@ final class Collation
     private $padAttribute;
 
     /**
-     * @param  string  $name         Collation name
-     * @param  string  $charset      Related charset
-     * @param  int  $id           Collation ID
-     * @param  bool  $isDefault    Whether is the default
-     * @param  bool  $isCompiled   Whether the charset is compiled
-     * @param  int  $sortLength   Sort length
-     * @param  string  $padAttribute Pad attribute
+     * @param string $name         Collation name
+     * @param string $charset      Related charset
+     * @param int    $id           Collation ID
+     * @param bool   $isDefault    Whether is the default
+     * @param bool   $isCompiled   Whether the charset is compiled
+     * @param int    $sortLength   Sort length
+     * @param string $padAttribute Pad attribute
      */
     private function __construct(
         string $name,
@@ -92,18 +92,18 @@ final class Collation
         int $sortLength,
         string $padAttribute
     ) {
-        $this->name = $name;
-        $this->charset = $charset;
-        $this->id = $id;
-        $this->isDefault = $isDefault;
-        $this->isCompiled = $isCompiled;
-        $this->sortLength = $sortLength;
+        $this->name         = $name;
+        $this->charset      = $charset;
+        $this->id           = $id;
+        $this->isDefault    = $isDefault;
+        $this->isCompiled   = $isCompiled;
+        $this->sortLength   = $sortLength;
         $this->padAttribute = $padAttribute;
-        $this->description = $this->buildDescription();
+        $this->description  = $this->buildDescription();
     }
 
     /**
-     * @param  string[]  $state State obtained from the database server
+     * @param string[] $state State obtained from the database server
      */
     public static function fromServer(array $state): self
     {
@@ -167,11 +167,11 @@ final class Collation
     {
         $parts = explode('_', $this->getName());
 
-        $name = __('Unknown');
-        $variant = null;
+        $name     = __('Unknown');
+        $variant  = null;
         $suffixes = [];
-        $unicode = false;
-        $unknown = false;
+        $unicode  = false;
+        $unknown  = false;
 
         $level = 0;
         foreach ($parts as $part) {
@@ -188,7 +188,7 @@ final class Collation
                 /* Next will be variant unless changed later */
                 $level = 4;
                 /* Locale name or code */
-                $found = true;
+                $found                  = true;
                 [$name, $level, $found] = $this->getNameForLevel1($unicode, $unknown, $part, $name, $level, $found);
                 if ($found) {
                     continue;
@@ -228,7 +228,7 @@ final class Collation
                 /* Next will be suffix */
                 $level = 5;
                 /* Variant */
-                $found = true;
+                $found        = true;
                 $variantFound = $this->getVariant($part);
                 if ($variantFound === null) {
                     $found = false;
@@ -254,7 +254,8 @@ final class Collation
     }
 
     /**
-     * @param  string[]  $suffixes
+     * @param string[] $suffixes
+     * @param ?string  $variant
      */
     private function buildName(string $result, ?string $variant, array $suffixes): string
     {
@@ -290,7 +291,8 @@ final class Collation
     }
 
     /**
-     * @param  string[]  $suffixes
+     * @param string[] $suffixes
+     *
      * @return string[]
      */
     private function addSuffixes(array $suffixes, string $part): array
@@ -327,9 +329,11 @@ final class Collation
     }
 
     /**
-     * @return array<int, bool|string|null>
-     *
      * @psalm-return array{string, bool, bool, string|null}
+     *
+     * @param ?string $variant
+     *
+     * @return array<int, bool|string|null>
      */
     private function getNameForLevel0(
         bool $unicode,
@@ -351,7 +355,7 @@ final class Collation
             case 'utf16le':
             case 'utf16be':
             case 'utf32':
-                $name = _pgettext('Collation', 'Unicode');
+                $name    = _pgettext('Collation', 'Unicode');
                 $unicode = true;
                 break;
                 // West European charsets
@@ -384,7 +388,7 @@ final class Collation
                 $name = _pgettext('Collation', 'Traditional Chinese');
                 break;
             case 'gb18030':
-                $name = _pgettext('Collation', 'Chinese');
+                $name    = _pgettext('Collation', 'Chinese');
                 $unicode = true;
                 break;
                 // Japanese charsets
@@ -438,7 +442,7 @@ final class Collation
                 $name = _pgettext('Collation', 'Thai');
                 break;
             default:
-                $name = _pgettext('Collation', 'Unknown');
+                $name    = _pgettext('Collation', 'Unknown');
                 $unknown = true;
                 break;
         }

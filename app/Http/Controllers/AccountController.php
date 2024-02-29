@@ -13,7 +13,7 @@ class AccountController extends Controller
 
     public function show($id)
     {
-        $account = Account::findOrFail($id);
+        $account  = Account::findOrFail($id);
         $accounts = Account::where('platform', 'instagram')->get();
 
         return view('reviews.show', compact('account', 'accounts'));
@@ -23,19 +23,19 @@ class AccountController extends Controller
     {
         $this->validate($request, [
             'username' => 'required',
-            'message' => 'required',
+            'message'  => 'required',
         ]);
 
-        $account = Account::findOrFail($id);
+        $account   = Account::findOrFail($id);
         $last_name = $account->last_name;
-        $password = $account->password;
+        $password  = $account->password;
 
-        $apiUrl = "https://www.instagram.com/$request->username";
-        $guzzle = new Client();
-        $data = $guzzle->get($apiUrl);
+        $apiUrl  = "https://www.instagram.com/$request->username";
+        $guzzle  = new Client();
+        $data    = $guzzle->get($apiUrl);
         $content = $data->getBody()->getContents();
 
-        $c = new HtmlPageCrawler($content);
+        $c           = new HtmlPageCrawler($content);
         $firstScript = $c->filter('body script')->getInnerHtml();
 
         $firstScript = str_replace('window._sharedData = ', '', $firstScript);
@@ -151,17 +151,17 @@ class AccountController extends Controller
     {
         $this->validate($request, [
             'username' => 'required',
-            'name' => 'required',
+            'name'     => 'required',
             'password' => 'required',
         ]);
 
-        $account = new Account();
+        $account             = new Account();
         $account->first_name = $request->get('name');
-        $account->email = $request->get('email');
-        $account->last_name = $request->get('username');
-        $account->password = $request->get('password');
-        $account->gender = 'female';
-        $account->platform = 'instagram';
+        $account->email      = $request->get('email');
+        $account->last_name  = $request->get('username');
+        $account->password   = $request->get('password');
+        $account->gender     = 'female';
+        $account->platform   = 'instagram';
         $account->save();
 
         return response()->json([

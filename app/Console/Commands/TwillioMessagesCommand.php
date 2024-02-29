@@ -47,9 +47,9 @@ class TwillioMessagesCommand extends Command
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
-            $date = Carbon::now();
+            $date            = Carbon::now();
             $date_added_hour = Carbon::now()->addHours(1);
-            $services = SmsService::all();
+            $services        = SmsService::all();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Service query finished.']);
             foreach ($services as $service) {
                 if (strtolower($service['name']) == 'twilio') {
@@ -65,12 +65,12 @@ class TwillioMessagesCommand extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store website twilio number query finished.']);
 
                         if (isset($twilio_cred)) {
-                            $account_sid = $twilio_cred->a_sid;
-                            $auth_token = $twilio_cred->auth_token;
+                            $account_sid   = $twilio_cred->a_sid;
+                            $auth_token    = $twilio_cred->auth_token;
                             $twilio_number = $twilio_cred->phone_number;
                         } else {
-                            $account_sid = 'AC23d37fbaf2f8a851f850aa526464ee7d';
-                            $auth_token = '51e2bf471c33a48332ea365ae47a6517';
+                            $account_sid   = 'AC23d37fbaf2f8a851f850aa526464ee7d';
+                            $auth_token    = '51e2bf471c33a48332ea365ae47a6517';
                             $twilio_number = '+18318880662';
                         }
 
@@ -83,7 +83,7 @@ class TwillioMessagesCommand extends Command
                             foreach ($marketingMessageCustomers as $marketingMessageCustomer) {
                                 try {
                                     // Get APP_URL from env because in console Request is not available
-                                    $appUrl = config('env.CALL_BACK_URL');
+                                    $appUrl   = config('env.CALL_BACK_URL');
                                     $lastchar = $appUrl[-1];
 
                                     if (strcmp($lastchar, '/') !== 0) {
@@ -92,8 +92,8 @@ class TwillioMessagesCommand extends Command
 
                                     $client = new Client($account_sid, $auth_token);
                                     $client->messages->create('+' . $marketingMessageCustomer['phone'], [
-                                        'from' => $twilio_number,
-                                        'body' => $message['title'],
+                                        'from'           => $twilio_number,
+                                        'body'           => $message['title'],
                                         'statusCallback' => $appUrl . 'twilio/handleMessageDeliveryStatus/' . $marketingMessageCustomer['customer_id'] . '/' . $marketingMessageCustomer['id'],
                                     ]);
                                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Twillio message sended => ' . '+' . $marketingMessageCustomer['phone'] ?? '']);

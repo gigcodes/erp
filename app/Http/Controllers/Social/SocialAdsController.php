@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Social;
 
 use Crypt;
-use Illuminate\Http\RedirectResponse;
 use Session;
 use Response;
 use App\Setting;
@@ -17,6 +16,7 @@ use App\Social\SocialPostLog;
 use App\Models\SocialAdAccount;
 use App\Social\SocialAdCreative;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use JanuSoftware\Facebook\Exception\SDKException;
 
 class SocialAdsController extends Controller
@@ -69,13 +69,13 @@ class SocialAdsController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialAd';
+        $Log->modal           = 'SocialAd';
         $Log->save();
 
         return true;
@@ -103,21 +103,21 @@ class SocialAdsController extends Controller
     public function store(Request $request)
     {
         $ad = SocialAd::create([
-            'config_id' => $request->config_id,
-            'name' => $request->name,
-            'adset_id' => $request->adset_id,
-            'creative_id' => $request->adcreative_id,
-            'status' => $request->status,
+            'config_id'        => $request->config_id,
+            'name'             => $request->name,
+            'adset_id'         => $request->adset_id,
+            'creative_id'      => $request->adcreative_id,
+            'status'           => $request->status,
             'ad_creative_name' => $request->ad_creative_name,
-            'ad_set_name' => $request->ad_set_name,
+            'ad_set_name'      => $request->ad_set_name,
         ]);
-        $data['name'] = $request->input('name');
+        $data['name']     = $request->input('name');
         $data['adset_id'] = $request->input('adset_id');
-        $data['status'] = $request->input('status');
+        $data['status']   = $request->input('status');
         $data['creative'] = json_encode(['creative_id' => $request->input('adcreative_id')]);
 
         $config = SocialAdAccount::find($ad->config_id);
-        $fb = new FB($config->page_token);
+        $fb     = new FB($config->page_token);
         $this->socialPostLog($config->id, $ad->id, $config->platform, 'message', 'get page access token');
         try {
             $fb->createAd($config->ad_account_id, $data);
@@ -148,14 +148,14 @@ class SocialAdsController extends Controller
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'email'            => 'required',
+            'password'         => 'required',
+            'status'           => 'required',
         ]);
-        $config = SocialAd::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $config           = SocialAd::findorfail($request->id);
+        $data             = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
@@ -195,7 +195,7 @@ class SocialAdsController extends Controller
 
     public function getAdsets(Request $request)
     {
-        $adsets = SocialAdset::where('config_id', $request->id)->get()->toArray();
+        $adsets      = SocialAdset::where('config_id', $request->id)->get()->toArray();
         $adCreatives = SocialAdCreative::where('config_id', $request->id)->get()->toArray();
 
         return response()->json(['adsets' => $adsets, 'adcreatives' => $adCreatives]);

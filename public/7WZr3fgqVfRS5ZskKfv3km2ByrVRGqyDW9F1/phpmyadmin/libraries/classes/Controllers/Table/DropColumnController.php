@@ -36,8 +36,8 @@ final class DropColumnController extends AbstractController
         RelationCleanup $relationCleanup
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
-        $this->flash = $flash;
+        $this->dbi             = $dbi;
+        $this->flash           = $flash;
         $this->relationCleanup = $relationCleanup;
     }
 
@@ -54,7 +54,7 @@ final class DropColumnController extends AbstractController
 
         $selectedCount = count($selected);
         if (($_POST['mult_btn'] ?? '') === __('Yes')) {
-            $i = 1;
+            $i         = 1;
             $statement = 'ALTER TABLE ' . Util::backquote($this->table);
 
             foreach ($selected as $field) {

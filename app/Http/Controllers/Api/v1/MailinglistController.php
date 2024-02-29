@@ -16,6 +16,11 @@ class MailinglistController extends Controller
      * @create_customer
      *
      * @author Hitesh
+     *
+     * @param mixed      $email
+     * @param mixed      $store_website_id
+     * @param null|mixed $storeName
+     * @param null|mixed $language
      */
     public function create_customer($email, $store_website_id, $storeName = null, $language = null)
     {
@@ -29,9 +34,9 @@ class MailinglistController extends Controller
             }
         }
 
-        $customer->email = $email;
+        $customer->email            = $email;
         $customer->store_website_id = $store_website_id;
-        $customer->store_name = $storeName;
+        $customer->store_name       = $storeName;
         $customer->save();
 
         return $customer;
@@ -105,7 +110,7 @@ class MailinglistController extends Controller
         $language = explode('_', $request->lang_code);
         $language = end($language);
 
-        $languageId = Language::where('locale', $language)->pluck('id')->first();
+        $languageId  = Language::where('locale', $language)->pluck('id')->first();
         $mailinglist = Mailinglist::where('website_id', $store_website->id)
             ->where('language', $languageId)->get();
 
@@ -123,37 +128,41 @@ class MailinglistController extends Controller
     }
 
     /**
+     * @param mixed $id
+     * @param mixed $email
+     * @param mixed $send_in_blue_api
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function addToList($id, $email, $send_in_blue_api)
     {
-        $api_key = ($send_in_blue_api != '') ? $send_in_blue_api : config('env.SEND_IN_BLUE_API');
+        $api_key   = ($send_in_blue_api != '') ? $send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
-        $url = 'https://api.sendinblue.com/v3/contacts/';
-        $data = [
-            'email' => $email,
+        $curl      = curl_init();
+        $url       = 'https://api.sendinblue.com/v3/contacts/';
+        $data      = [
+            'email'   => $email,
             'listIds' => [intval($id)],
         ];
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 0,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => [
                 'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
         ]);
-        $response = curl_exec($curl);
-        $res = json_decode($response);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $response   = curl_exec($curl);
+        $res        = json_decode($response);
+        $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $parameters = [];
         curl_close($curl);
 
@@ -162,56 +171,56 @@ class MailinglistController extends Controller
         if (isset($res->message)) {
             if ($res->message == 'Contact already exist') {
                 $curl3 = curl_init();
-                $url = "https://api.sendinblue.com/v3/contacts/' . $email";
+                $url   = "https://api.sendinblue.com/v3/contacts/' . $email";
                 curl_setopt_array($curl3, [
-                    CURLOPT_URL => $url,
+                    CURLOPT_URL            => $url,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 0,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'DELETE',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'DELETE',
+                    CURLOPT_HTTPHEADER     => [
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
                 ]);
-                $respw = curl_exec($curl3);
-                $respw = json_decode($respw);
-                $httpcode = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
+                $respw      = curl_exec($curl3);
+                $respw      = json_decode($respw);
+                $httpcode   = curl_getinfo($curl3, CURLINFO_HTTP_CODE);
                 $parameters = [];
                 LogRequest::log($startTime, $url, 'DELETE', json_encode($parameters), $respw, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl3);
 
                 $curl2 = curl_init();
-                $url = 'https://api.sendinblue.com/v3/contacts';
+                $url   = 'https://api.sendinblue.com/v3/contacts';
                 curl_setopt_array($curl2, [
-                    CURLOPT_URL => $url,
+                    CURLOPT_URL            => $url,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 0,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => json_encode($data),
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'POST',
+                    CURLOPT_POSTFIELDS     => json_encode($data),
+                    CURLOPT_HTTPHEADER     => [
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
                 ]);
-                $resp = curl_exec($curl2);
-                $ress = json_decode($resp);
+                $resp       = curl_exec($curl2);
+                $ress       = json_decode($resp);
                 $parameters = [];
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $url, 'POST', json_encode($parameters), $ress, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
                 curl_close($curl2);
 
                 if (isset($ress->message)) {
                     return response()->json(['status' => 'error']);
                 }
-                $customer = Customer::where('email', $email)->first();
+                $customer    = Customer::where('email', $email)->first();
                 $mailinglist = Mailinglist::find($id);
                 \DB::table('list_contacts')->where('customer_id', $customer->id)->delete();
                 if (! empty($mailinglist)) {
@@ -221,7 +230,7 @@ class MailinglistController extends Controller
                 return response()->json(['status' => 'success']);
             }
         } else {
-            $customer = Customer::where('email', $email)->first();
+            $customer    = Customer::where('email', $email)->first();
             $mailinglist = Mailinglist::find($id);
             $mailinglist->listCustomers()->attach($customer->id);
 

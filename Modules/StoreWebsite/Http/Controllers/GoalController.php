@@ -14,6 +14,8 @@ class GoalController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param mixed $id
+     *
      * @return Response
      */
     public function index(Request $request, $id)
@@ -48,9 +50,9 @@ class GoalController extends Controller
         $records = $records->get();
 
         return response()->json([
-            'code' => 200,
+            'code'             => 200,
             'store_website_id' => $id,
-            'data' => $records,
+            'data'             => $records,
         ]);
     }
 
@@ -59,13 +61,13 @@ class GoalController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'goal' => 'required',
+            'goal'     => 'required',
             'solution' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -93,7 +95,9 @@ class GoalController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request        [description]
+     * @param mixed   $storeWebsiteId
+     * @param mixed   $goalId
      */
     public function edit(Request $request, $storeWebsiteId, $goalId)
     {
@@ -109,7 +113,9 @@ class GoalController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request        [description]
+     * @param mixed   $storeWebsiteId
+     * @param mixed   $goalId
      */
     public function delete(Request $request, $storeWebsiteId, $goalId)
     {
@@ -135,8 +141,8 @@ class GoalController extends Controller
 
     public function storeRemarks(Request $request, $storeWebsiteId, $goalId)
     {
-        $remark = new StoreWebsiteGoalRemark;
-        $remark->remark = $request->get('remark');
+        $remark                        = new StoreWebsiteGoalRemark;
+        $remark->remark                = $request->get('remark');
         $remark->store_website_goal_id = $goalId;
         $remark->save();
 

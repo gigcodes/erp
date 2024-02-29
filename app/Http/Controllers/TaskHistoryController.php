@@ -18,7 +18,7 @@ class TaskHistoryController extends Controller
     {
         $list = TaskHistoryForStartDate::with('updatedBy')->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -55,7 +55,7 @@ class TaskHistoryController extends Controller
     {
         $list = TaskDueDateHistoryLog::with(['users'])->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -92,7 +92,7 @@ class TaskHistoryController extends Controller
     {
         $list = TaskHistoryForCost::with('updatedBy')->where('task_id', request('id'))->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -125,7 +125,7 @@ class TaskHistoryController extends Controller
 
     public function approve()
     {
-        $id = request('radio_for_approve');
+        $id   = request('radio_for_approve');
         $type = request('type');
         if ($type == 'start_date') {
             TaskHistoryForStartDate::approved($id);
@@ -138,7 +138,7 @@ class TaskHistoryController extends Controller
 
     public function approveHistory()
     {
-        $type = request('type');
+        $type   = request('type');
         $taskId = request('id');
         if ($type == 'start_date') {
             $q = TaskHistoryForStartDateApprovals::from('task_history_for_start_date_approvals as t1');
@@ -168,7 +168,7 @@ class TaskHistoryController extends Controller
             $list = $q->get();
         }
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>

@@ -39,8 +39,8 @@ class AddGroupTheme extends Command
     public function handle()
     {
         $existing_themes_ids = [];
-        $all_themes_ids = [];
-        $websiteStoreView = WebsiteStoreView::whereNotNull('ref_theme_group_id')->update(['ref_theme_group_id' => null]);
+        $all_themes_ids      = [];
+        $websiteStoreView    = WebsiteStoreView::whereNotNull('ref_theme_group_id')->update(['ref_theme_group_id' => null]);
 
         // Part - 1
 
@@ -50,30 +50,30 @@ class AddGroupTheme extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
-            $response = json_decode($result['response']);
+            $response        = json_decode($result['response']);
             $existing_themes = ['General', 'Lussolicious', 'o-labels.com', 'Luxury Space', 'Italybrandoutlets', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau'];
-            $changed_themes = [];
+            $changed_themes  = [];
             foreach ($response as $g) {
                 dump($g->name);
                 $all_themes_ids[$g->name] = $g->id;
                 if (in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
-                    $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/update_group';
+                    $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/update_group';
                     $postData = [
-                        'id' => $g->id,
-                        'name' => 'theme_' . str_replace('theme_', '', $g->name),
-                        'language_code' => $g->language_code,
+                        'id'               => $g->id,
+                        'name'             => 'theme_' . str_replace('theme_', '', $g->name),
+                        'language_code'    => $g->language_code,
                         'agent_priorities' => $g->agent_priorities,
-                        'routing_status' => $g->routing_status,
+                        'routing_status'   => $g->routing_status,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     if (! isset($response->error)) {
-                        $changed_themes[] = 'theme_' . str_replace('theme_', '', $g->name);
+                        $changed_themes[]              = 'theme_' . str_replace('theme_', '', $g->name);
                         $existing_themes_ids[$g->name] = $g->id;
                     }
                 }
@@ -89,25 +89,25 @@ class AddGroupTheme extends Command
         // Part - 2
 
         $ref_themes = [
-            'General' => 0,
-            'Lussolicious' => 1,
-            'theme_VeraLusso' => 2,
-            'theme_AvoirChic' => 3,
-            'o-labels.com' => 4,
-            'theme_Sololuxury' => 5,
-            'theme_Suv&Nat' => 6,
+            'General'               => 0,
+            'Lussolicious'          => 1,
+            'theme_VeraLusso'       => 2,
+            'theme_AvoirChic'       => 3,
+            'o-labels.com'          => 4,
+            'theme_Sololuxury'      => 5,
+            'theme_Suv&Nat'         => 6,
             'theme_Brands & Labels' => 7,
-            'Luxury Space' => 8,
-            'theme_Shades Shop' => 9,
-            'theme_Upeau' => 10,
-            'theme_TheFitEdit' => 11,
-            'Italybrandoutlets' => 12,
+            'Luxury Space'          => 8,
+            'theme_Shades Shop'     => 9,
+            'theme_Upeau'           => 10,
+            'theme_TheFitEdit'      => 11,
+            'Italybrandoutlets'     => 12,
         ];
         foreach ($all_themes_ids as $key => $t) {
             if (in_array($key, array_keys($ref_themes))) {
                 dump($key . ' ref theme');
             } else {
-                $group_id = $t;
+                $group_id   = $t;
                 $theme_name = substr($key, 0, -3);
 
                 if ($theme_name == 'Vera Lusso' || $theme_name == 'VERA LUSSO') {
@@ -139,10 +139,10 @@ class AddGroupTheme extends Command
                 }
 
                 $ref_group_id = $ref_themes[$theme_name];
-                $postURL1 = 'https://api.livechatinc.com/v2/properties/group/' . $ref_group_id;
-                $result1 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
-                $postURL2 = 'https://api.livechatinc.com/v2/properties/group/' . $t;
-                $result2 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                $postURL1     = 'https://api.livechatinc.com/v2/properties/group/' . $ref_group_id;
+                $result1      = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
+                $postURL2     = 'https://api.livechatinc.com/v2/properties/group/' . $t;
+                $result2      = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
                 WebsiteStoreView::where('store_group_id', $t)->update(['ref_theme_group_id' => $ref_group_id]);
                 dump($key . ' ' . $t . ' ' . $theme_name . ' is updated ' . $ref_group_id);
             }

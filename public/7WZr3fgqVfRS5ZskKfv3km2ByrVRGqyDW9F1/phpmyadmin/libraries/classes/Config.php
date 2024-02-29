@@ -96,13 +96,13 @@ class Config
 
     /**
      * @var bool whether init is done or not
-     * set this to false to force some initial checks
-     * like checking for required functions
+     *           set this to false to force some initial checks
+     *           like checking for required functions
      */
     public $done = false;
 
     /**
-     * @param  string  $source source to read config from
+     * @param string $source source to read config from
      */
     public function __construct(?string $source = null)
     {
@@ -154,7 +154,7 @@ class Config
     /**
      * Sets the client platform based on user agent
      *
-     * @param  string  $user_agent the user agent
+     * @param string $user_agent the user agent
      */
     private function setClientPlatform(string $user_agent): void
     {
@@ -324,13 +324,13 @@ class Config
     public function loadDefaults(): void
     {
         $settings = new Settings([]);
-        $cfg = $settings->toArray();
+        $cfg      = $settings->toArray();
 
         // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
         $this->defaultServer = get_object_vars($settings->Servers[1]);
         unset($cfg['Servers']);
 
-        $this->default = $cfg;
+        $this->default  = $cfg;
         $this->settings = array_replace_recursive($this->settings, $cfg);
     }
 
@@ -338,7 +338,7 @@ class Config
      * loads configuration from $source, usually the config file
      * should be called on object creation
      *
-     * @param  string  $source config file
+     * @param string $source config file
      */
     public function load(?string $source = null): bool
     {
@@ -361,7 +361,7 @@ class Config
          * output.
          */
         $canUseErrorReporting = Util::isErrorReportingAvailable();
-        $oldErrorReporting = null;
+        $oldErrorReporting    = null;
         if ($canUseErrorReporting) {
             $oldErrorReporting = error_reporting(0);
         }
@@ -369,7 +369,7 @@ class Config
         ob_start();
         $isConfigLoading = true;
         /** @psalm-suppress UnresolvableInclude */
-        $eval_result = include $this->getSource();
+        $eval_result     = include $this->getSource();
         $isConfigLoading = false;
         ob_end_clean();
 
@@ -381,7 +381,7 @@ class Config
             $this->errorConfigFile = true;
         } else {
             $this->errorConfigFile = false;
-            $this->sourceMtime = (int) filemtime($this->getSource());
+            $this->sourceMtime     = (int) filemtime($this->getSource());
         }
 
         /**
@@ -443,12 +443,12 @@ class Config
                 ! isset($_SESSION['cache'][$cache_key]['userprefs'])
                 || $_SESSION['cache'][$cache_key]['config_mtime'] < $this->sourceMtime
             ) {
-                $userPreferences = new UserPreferences();
-                $prefs = $userPreferences->load();
-                $_SESSION['cache'][$cache_key]['userprefs'] = $userPreferences->apply($prefs['config_data']);
+                $userPreferences                                  = new UserPreferences();
+                $prefs                                            = $userPreferences->load();
+                $_SESSION['cache'][$cache_key]['userprefs']       = $userPreferences->apply($prefs['config_data']);
                 $_SESSION['cache'][$cache_key]['userprefs_mtime'] = $prefs['mtime'];
-                $_SESSION['cache'][$cache_key]['userprefs_type'] = $prefs['type'];
-                $_SESSION['cache'][$cache_key]['config_mtime'] = $this->sourceMtime;
+                $_SESSION['cache'][$cache_key]['userprefs_type']  = $prefs['type'];
+                $_SESSION['cache'][$cache_key]['config_mtime']    = $this->sourceMtime;
             }
         } elseif ($server == 0 || ! isset($_SESSION['cache'][$cache_key]['userprefs'])) {
             $this->set('user_preferences', false);
@@ -534,10 +534,11 @@ class Config
      * global config and added to a update queue, which is processed
      * by {@link loadUserPreferences()}
      *
-     * @param  string|null  $cookie_name   can be null
-     * @param  string  $cfg_path      configuration path
-     * @param  string  $new_cfg_value new value
-     * @param  string|null  $default_value default value
+     * @param string|null $cookie_name   can be null
+     * @param string      $cfg_path      configuration path
+     * @param string      $new_cfg_value new value
+     * @param string|null $default_value default value
+     *
      * @return true|Message
      */
     public function setUserValue(
@@ -547,7 +548,7 @@ class Config
         $default_value = null
     ) {
         $userPreferences = new UserPreferences();
-        $result = true;
+        $result          = true;
         // use permanent user preferences if possible
         $prefs_type = $this->get('user_preferences');
         if ($prefs_type) {
@@ -576,14 +577,15 @@ class Config
     /**
      * Reads value stored by {@link setUserValue()}
      *
-     * @param  string  $cookie_name cookie name
-     * @param  mixed  $cfg_value   config value
+     * @param string $cookie_name cookie name
+     * @param mixed  $cfg_value   config value
+     *
      * @return mixed
      */
     public function getUserValue(string $cookie_name, $cfg_value)
     {
         $cookie_exists = ! empty($this->getCookie($cookie_name));
-        $prefs_type = $this->get('user_preferences');
+        $prefs_type    = $this->get('user_preferences');
         if ($prefs_type === 'db') {
             // permanent user preferences value exists, remove cookie
             if ($cookie_exists) {
@@ -600,7 +602,7 @@ class Config
     /**
      * set source
      *
-     * @param  string  $source source
+     * @param string $source source
      */
     public function setSource(string $source): void
     {
@@ -628,7 +630,7 @@ class Config
             // might be bug #3059806 Supporting running from CIFS/Samba shares
 
             $contents = false;
-            $handle = @fopen($this->getSource(), 'r');
+            $handle   = @fopen($this->getSource(), 'r');
             if ($handle !== false) {
                 $contents = @fread($handle, 1); // reading 1 byte is enough to test
                 fclose($handle);
@@ -703,7 +705,8 @@ class Config
     /**
      * returns specific config setting
      *
-     * @param  string  $setting config setting
+     * @param string $setting config setting
+     *
      * @return mixed|null value
      */
     public function get(string $setting)
@@ -718,8 +721,8 @@ class Config
     /**
      * sets configuration variable
      *
-     * @param  string  $setting configuration option
-     * @param  mixed  $value   new value for configuration option
+     * @param string $setting configuration option
+     * @param mixed  $value   new value for configuration option
      */
     public function set(string $setting, $value): void
     {
@@ -728,13 +731,13 @@ class Config
         }
 
         $this->settings[$setting] = $value;
-        $this->setMtime = time();
+        $this->setMtime           = time();
     }
 
     /**
      * returns source for current config
      *
-     * @return string  config source
+     * @return string config source
      */
     public function getSource(): string
     {
@@ -776,7 +779,7 @@ class Config
             $fileSize = '5M';
         }
 
-        $size = Core::getRealSize($fileSize);
+        $size     = Core::getRealSize($fileSize);
         $postSize = ini_get('post_max_size');
 
         if ($postSize) {
@@ -881,7 +884,7 @@ class Config
     /**
      * removes cookie
      *
-     * @param  string  $cookieName name of cookie to remove
+     * @param string $cookieName name of cookie to remove
      */
     public function removeCookie(string $cookieName): bool
     {
@@ -909,11 +912,11 @@ class Config
      * sets cookie if value is different from current cookie value,
      * or removes if value is equal to default
      *
-     * @param  string  $cookie   name of cookie to remove
-     * @param  string  $value    new cookie value
-     * @param  string  $default  default value
-     * @param  int  $validity validity of cookie in seconds (default is one month)
-     * @param  bool  $httponly whether cookie is only for HTTP (and not for scripts)
+     * @param string $cookie   name of cookie to remove
+     * @param string $value    new cookie value
+     * @param string $default  default value
+     * @param int    $validity validity of cookie in seconds (default is one month)
+     * @param bool   $httponly whether cookie is only for HTTP (and not for scripts)
      */
     public function setCookie(
         string $cookie,
@@ -974,10 +977,10 @@ class Config
             }
 
             $optionalParams = [
-                'expires' => $validity,
-                'path' => $this->getRootPath(),
-                'domain' => '',
-                'secure' => $this->isHttps(),
+                'expires'  => $validity,
+                'path'     => $this->getRootPath(),
+                'domain'   => '',
+                'secure'   => $this->isHttps(),
                 'httponly' => $httponly,
                 'samesite' => $cookieSameSite,
             ];
@@ -992,7 +995,8 @@ class Config
     /**
      * get cookie
      *
-     * @param  string  $cookieName The name of the cookie to get
+     * @param string $cookieName The name of the cookie to get
+     *
      * @return mixed|null result of getCookie()
      */
     public function getCookie(string $cookieName)
@@ -1007,7 +1011,7 @@ class Config
     /**
      * Get the real cookie name
      *
-     * @param  string  $cookieName The name of the cookie
+     * @param string $cookieName The name of the cookie
      */
     public function getCookieName(string $cookieName): string
     {
@@ -1017,7 +1021,7 @@ class Config
     /**
      * isset cookie
      *
-     * @param  string  $cookieName The name of the cookie to check
+     * @param string $cookieName The name of the cookie to check
      */
     public function issetCookie(string $cookieName): bool
     {
@@ -1054,8 +1058,8 @@ class Config
     /**
      * Wrapper for footer/header rendering
      *
-     * @param  string  $filename File to check and render
-     * @param  string  $id       Div ID
+     * @param string $filename File to check and render
+     * @param string $id       Div ID
      */
     private static function renderCustom(string $filename, string $id): string
     {
@@ -1090,7 +1094,7 @@ class Config
     /**
      * Returns temporary dir path
      *
-     * @param  string  $name Directory name
+     * @param string $name Directory name
      *
      * @staticvar array<string,string|null> $temp_dir
      */
@@ -1157,7 +1161,7 @@ class Config
         if (! is_numeric($request)) {
             foreach ($this->settings['Servers'] as $i => $server) {
                 $verboseToLower = mb_strtolower($server['verbose']);
-                $serverToLower = mb_strtolower($request);
+                $serverToLower  = mb_strtolower($request);
                 if (
                     $server['host'] == $request
                     || $server['verbose'] == $request
@@ -1183,14 +1187,14 @@ class Config
          * and '$this->settings['ServerDefault'] = 0' is set.
          */
         if (is_numeric($request) && ! empty($request) && ! empty($this->settings['Servers'][$request])) {
-            $server = $request;
+            $server                   = $request;
             $this->settings['Server'] = $this->settings['Servers'][$server];
         } else {
             if (! empty($this->settings['Servers'][$this->settings['ServerDefault']])) {
-                $server = $this->settings['ServerDefault'];
+                $server                   = $this->settings['ServerDefault'];
                 $this->settings['Server'] = $this->settings['Servers'][$server];
             } else {
-                $server = 0;
+                $server                   = 0;
                 $this->settings['Server'] = [];
             }
         }
@@ -1243,24 +1247,25 @@ class Config
     /**
      * Return connection parameters for the database server
      *
-     * @param  int  $mode   Connection mode on of CONNECT_USER, CONNECT_CONTROL
+     * @param int        $mode   Connection mode on of CONNECT_USER, CONNECT_CONTROL
      *                           or CONNECT_AUXILIARY.
-     * @param  array|null  $server Server information like host/port/socket/persistent
+     * @param array|null $server Server information like host/port/socket/persistent
+     *
      * @return array user, host and server settings array
      */
     public static function getConnectionParams(int $mode, ?array $server = null): array
     {
         global $cfg;
 
-        $user = null;
+        $user     = null;
         $password = null;
 
         if ($mode == DatabaseInterface::CONNECT_USER) {
-            $user = $cfg['Server']['user'];
+            $user     = $cfg['Server']['user'];
             $password = $cfg['Server']['password'];
-            $server = $cfg['Server'];
+            $server   = $cfg['Server'];
         } elseif ($mode == DatabaseInterface::CONNECT_CONTROL) {
-            $user = $cfg['Server']['controluser'];
+            $user     = $cfg['Server']['controluser'];
             $password = $cfg['Server']['controlpass'];
 
             $server = [];

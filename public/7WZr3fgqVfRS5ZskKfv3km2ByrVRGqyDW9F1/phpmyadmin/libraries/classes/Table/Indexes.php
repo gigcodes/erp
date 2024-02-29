@@ -30,7 +30,7 @@ final class Indexes
     {
         $this->response = $response;
         $this->template = $template;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     /**
@@ -38,8 +38,8 @@ final class Indexes
      * run the query to build the new index
      * and moves back to /table/sql
      *
-     * @param  Index  $index      An Index instance.
-     * @param  bool  $renameMode Rename the Index mode
+     * @param Index $index      An Index instance.
+     * @param bool  $renameMode Rename the Index mode
      */
     public function doSaveData(Index $index, bool $renameMode, string $db, string $table): void
     {
@@ -89,17 +89,17 @@ final class Indexes
                     Generator::getMessage($message, $sql_query, 'success')
                 );
 
-                $indexes = Index::getFromTable($table, $db);
+                $indexes           = Index::getFromTable($table, $db);
                 $indexesDuplicates = Index::findDuplicates($table, $db);
 
                 $this->response->addJSON(
                     'index_table',
                     $this->template->render('indexes', [
                         'url_params' => [
-                            'db' => $db,
+                            'db'    => $db,
                             'table' => $table,
                         ],
-                        'indexes' => $indexes,
+                        'indexes'            => $indexes,
                         'indexes_duplicates' => $indexesDuplicates,
                     ])
                 );

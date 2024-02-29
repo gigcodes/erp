@@ -18,20 +18,20 @@ class KeywordToCategoryController extends Controller
         $keywords = KeywordToCategory::all();
 
         $orderStatuses = [
-            'Follow up for advance' => 'Follow up for advance',
-            'Proceed without Advance' => 'Proceed without Advance',
-            'Advance received' => 'Advance received',
-            'Cancel' => 'Cancel',
-            'Prepaid' => 'Prepaid',
+            'Follow up for advance'     => 'Follow up for advance',
+            'Proceed without Advance'   => 'Proceed without Advance',
+            'Advance received'          => 'Advance received',
+            'Cancel'                    => 'Cancel',
+            'Prepaid'                   => 'Prepaid',
             'Product Shiped form Italy' => 'Product Shiped form Italy',
-            'In Transist from Italy' => 'In Transist from Italy',
-            'Product shiped to Client' => 'Product shiped to Client',
-            'Delivered' => 'Delivered',
-            'Refund to be processed' => 'Refund to be processed',
-            'Refund Dispatched' => 'Refund Dispatched',
-            'Refund Credited' => 'Refund Credited',
-            'VIP' => 'VIP',
-            'HIGH PRIORITY' => 'HIGH PRIORITY',
+            'In Transist from Italy'    => 'In Transist from Italy',
+            'Product shiped to Client'  => 'Product shiped to Client',
+            'Delivered'                 => 'Delivered',
+            'Refund to be processed'    => 'Refund to be processed',
+            'Refund Dispatched'         => 'Refund Dispatched',
+            'Refund Credited'           => 'Refund Credited',
+            'VIP'                       => 'VIP',
+            'HIGH PRIORITY'             => 'HIGH PRIORITY',
         ];
 
         $leadStatuses = [
@@ -66,16 +66,16 @@ class KeywordToCategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'keyword' => 'required',
+            'keyword'  => 'required',
             'category' => 'required',
         ]);
 
         $catAndCatType = $this->getCategoryWIthData($request->get('category'));
 
-        $keyword = new KeywordToCategory();
+        $keyword                = new KeywordToCategory();
         $keyword->keyword_value = $request->get('keyword');
         $keyword->category_type = $catAndCatType[0];
-        $keyword->model_id = $catAndCatType[1];
+        $keyword->model_id      = $catAndCatType[1];
         $keyword->save();
 
         return redirect()->back()->with('message', 'Keyword added successfully!');
@@ -114,7 +114,9 @@ class KeywordToCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
+     * @param \App\KeywordToCategory $keywordToCategory
+     * @param mixed                  $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

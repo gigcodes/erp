@@ -18,9 +18,10 @@ class Generator
     /**
      * returns a segment of the SQL WHERE clause regarding table name and type
      *
-     * @param  array|string  $escapedTableOrTables table(s)
-     * @param  bool  $tblIsGroup           $table is a table group
-     * @param  string  $tableType            whether table or view
+     * @param array|string $escapedTableOrTables table(s)
+     * @param bool         $tblIsGroup           $table is a table group
+     * @param string       $tableType            whether table or view
+     *
      * @return string a segment of the WHERE clause
      */
     public static function getTableCondition(
@@ -62,8 +63,9 @@ class Generator
     /**
      * returns the beginning of the SQL statement to fetch the list of tables
      *
-     * @param  string[]  $thisDatabases databases to list
-     * @param  string  $sqlWhereTable additional condition
+     * @param string[] $thisDatabases databases to list
+     * @param string   $sqlWhereTable additional condition
+     *
      * @return string the SQL statement
      */
     public static function getSqlForTablesFull(array $thisDatabases, string $sqlWhereTable): string
@@ -99,9 +101,10 @@ class Generator
     /**
      * Returns SQL for fetching information on table indexes (SHOW INDEXES)
      *
-     * @param  string  $database name of database
-     * @param  string  $table    name of the table whose indexes are to be retrieved
-     * @param  string  $where    additional conditions for WHERE
+     * @param string $database name of database
+     * @param string $table    name of the table whose indexes are to be retrieved
+     * @param string $where    additional conditions for WHERE
+     *
      * @return string SQL for getting indexes
      */
     public static function getTableIndexesSql(
@@ -121,10 +124,10 @@ class Generator
     /**
      * Returns SQL query for fetching columns for a table
      *
-     * @param  string  $database      name of database
-     * @param  string  $table         name of table to retrieve columns from
-     * @param  string|null  $escapedColumn name of column, null to show all columns
-     * @param  bool  $full          whether to return full info or only column names
+     * @param string      $database      name of database
+     * @param string      $table         name of table to retrieve columns from
+     * @param string|null $escapedColumn name of column, null to show all columns
+     * @param bool        $full          whether to return full info or only column names
      */
     public static function getColumnsSql(
         string $database,
@@ -366,6 +369,8 @@ class Generator
 
     /**
      * Function to get sql query to re-order the table
+     *
+     * @param ?string $order
      */
     public static function getQueryForReorderingTable(
         string $table,
@@ -382,7 +387,7 @@ class Generator
     /**
      * Function to get sql query to partition the table
      *
-     * @param  string[]  $partitionNames
+     * @param string[] $partitionNames
      */
     public static function getQueryForPartitioningTable(
         string $table,

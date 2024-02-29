@@ -46,13 +46,13 @@ class SendTasksTimeReminder extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $messageApplicationId = 3;
-            $currenttime = date('Y-m-d H:m:s');
+            $currenttime          = date('Y-m-d H:m:s');
 
-            $q = TaskMessage::where('message_type', 'est_time_message')->orderBy('id', 'DESC')->first();
-            $est_time_msg = $q ? ($q->frequency != 0 ? $q->message : '') : '';
-            $q = TaskMessage::where('message_type', 'est_date_message')->orderBy('id', 'DESC')->first();
-            $est_date_msg = $q ? ($q->frequency != 0 ? $q->message : '') : '';
-            $q = TaskMessage::where('message_type', 'overdue_time_date_message')->orderBy('id', 'DESC')->first();
+            $q               = TaskMessage::where('message_type', 'est_time_message')->orderBy('id', 'DESC')->first();
+            $est_time_msg    = $q ? ($q->frequency != 0 ? $q->message : '') : '';
+            $q               = TaskMessage::where('message_type', 'est_date_message')->orderBy('id', 'DESC')->first();
+            $est_date_msg    = $q ? ($q->frequency != 0 ? $q->message : '') : '';
+            $q               = TaskMessage::where('message_type', 'overdue_time_date_message')->orderBy('id', 'DESC')->first();
             $overdue_message = $q ? ($q->frequency != 0 ? $q->message : '') : '';
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'TaskMessage model query was finished']);
@@ -75,14 +75,14 @@ class SendTasksTimeReminder extends Command
 
                 if (! $developertask->estimate_time && $est_time_msg) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'developer_task_id' => $developertask->id,
-                        'user_id' => $developertask->user_id,
-                        'message' => $messagePrefix . $est_time_msg,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'developer_task_id'      => $developertask->id,
+                        'user_id'                => $developertask->user_id,
+                        'message'                => $messagePrefix . $est_time_msg,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -90,14 +90,14 @@ class SendTasksTimeReminder extends Command
                     $this->logs('#1', $developertask->id, $messagePrefix . $est_time_msg, 'Created Estimate Time Message for developer task');
                 } elseif (! $developertask->estimate_date && $est_date_msg) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'developer_task_id' => $developertask->id,
-                        'user_id' => $developertask->user_id,
-                        'message' => $messagePrefix . $est_date_msg,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'developer_task_id'      => $developertask->id,
+                        'user_id'                => $developertask->user_id,
+                        'message'                => $messagePrefix . $est_date_msg,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -105,14 +105,14 @@ class SendTasksTimeReminder extends Command
                     $this->logs('#2', $developertask->id, $messagePrefix . $est_date_msg, 'Created Estimate Date Message for developer task');
                 } elseif ($developertask->estimate_date && strtotime($currenttime) > strtotime($developertask->estimate_date) && $overdue_message) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'developer_task_id' => $developertask->id,
-                        'user_id' => $developertask->user_id,
-                        'message' => $messagePrefix . $overdue_message,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'developer_task_id'      => $developertask->id,
+                        'user_id'                => $developertask->user_id,
+                        'message'                => $messagePrefix . $overdue_message,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -139,14 +139,14 @@ class SendTasksTimeReminder extends Command
 
                 if (! $task->approximate && $est_time_msg) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'task_id' => $task->id,
-                        'user_id' => $task->assign_to,
-                        'message' => $messagePrefix . $est_time_msg,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'task_id'                => $task->id,
+                        'user_id'                => $task->assign_to,
+                        'message'                => $messagePrefix . $est_time_msg,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -154,14 +154,14 @@ class SendTasksTimeReminder extends Command
                     $this->logs('#4', $task->id, $messagePrefix . $est_time_msg, 'Created Estimate Time message for task');
                 } elseif (! $task->start_date && $est_date_msg) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'task_id' => $task->id,
-                        'user_id' => $task->assign_to,
-                        'message' => $messagePrefix . $est_date_msg,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'task_id'                => $task->id,
+                        'user_id'                => $task->assign_to,
+                        'message'                => $messagePrefix . $est_date_msg,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -169,14 +169,14 @@ class SendTasksTimeReminder extends Command
                     $this->logs('#5', $task->id, $messagePrefix . $est_date_msg, 'Created Estimate date message for task');
                 } elseif ($task->approximate && strtotime($currenttime) > strtotime($task->approximate) && $overdue_message) {
                     $chatMessage = \App\ChatMessage::firstOrCreate([
-                        'task_id' => $task->id,
-                        'user_id' => $task->assign_to,
-                        'message' => $messagePrefix . $overdue_message,
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 1,
+                        'task_id'                => $task->id,
+                        'user_id'                => $task->assign_to,
+                        'message'                => $messagePrefix . $overdue_message,
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 1,
                         'message_application_id' => $messageApplicationId,
-                        'task_time_reminder' => 1,
+                        'task_time_reminder'     => 1,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'save chat mesage record with ID:' . $chatMessage->id]);
@@ -193,11 +193,11 @@ class SendTasksTimeReminder extends Command
 
     public function logs($log_case_id, $task_id, $message, $log_msg)
     {
-        $log = new LogChatMessage();
-        $log->log_case_id = $log_case_id;
-        $log->task_id = $task_id;
-        $log->message = $message;
-        $log->log_msg = $log_msg;
+        $log                     = new LogChatMessage();
+        $log->log_case_id        = $log_case_id;
+        $log->task_id            = $task_id;
+        $log->message            = $message;
+        $log->log_msg            = $log_msg;
         $log->task_time_reminder = 1;
         $log->save();
     }

@@ -44,33 +44,33 @@ class SendRecurringTasks extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now = Carbon::now();
-            $today_date = Carbon::now()->format('Y-m-d');
-            $today_time = Carbon::now()->format('H:i');
+            $now           = Carbon::now();
+            $today_date    = Carbon::now()->format('Y-m-d');
+            $today_time    = Carbon::now()->format('H:i');
             $today_weekday = strtoupper(Carbon::now()->format('l'));
-            $today_day = Carbon::now()->format('d');
-            $today_month = Carbon::now()->format('m');
+            $today_day     = Carbon::now()->format('d');
+            $today_month   = Carbon::now()->format('m');
 
             $tasks = Task::where('is_statutory', 1)->where('communication_status', 0)->whereNull('is_completed')->whereNotNull('recurring_type')->get();
 
             $params = [
-                'user_id' => 6,
-                'number' => null,
+                'user_id'  => 6,
+                'number'   => null,
                 'approved' => 0,
-                'status' => 1,
+                'status'   => 1,
             ];
 
             foreach ($tasks as $task) {
-                $selected_time = $task->sending_time ?? $task->created_at;
-                $sending_date = Carbon::parse($selected_time)->format('Y-m-d');
-                $sending_time = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
+                $selected_time   = $task->sending_time ?? $task->created_at;
+                $sending_date    = Carbon::parse($selected_time)->format('Y-m-d');
+                $sending_time    = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
                 $sending_weekday = strtoupper(Carbon::parse($selected_time)->format('l'));
-                $sending_day = Carbon::parse($selected_time)->format('d');
-                $sending_month = Carbon::parse($selected_time)->format('m');
+                $sending_day     = Carbon::parse($selected_time)->format('d');
+                $sending_month   = Carbon::parse($selected_time)->format('m');
 
                 $params['message'] = $task->task_subject . '. ' . $task->task_details;
                 $params['task_id'] = $task->id;
@@ -85,7 +85,7 @@ class SendRecurringTasks extends Command
                 switch ($task->recurring_type) {
                     case 'EveryHour':
                         $hourBefore = $task->updated_at->format('H');
-                        $hourNow = Carbon::now()->hour;
+                        $hourNow    = Carbon::now()->hour;
 
                         if ($hourBefore != $hourNow) {
                             $can_send_message = true;

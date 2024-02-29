@@ -12,8 +12,8 @@ class ApiResponseMessagesTranslationLog extends Model
     public function addToLog($api_response_message_id, $text, $type)
     {
         $this->api_response_message_id = $api_response_message_id;
-        $this->message = $text;
-        $this->type = $type;
+        $this->message                 = $text;
+        $this->type                    = $type;
         $this->save();
     }
 }

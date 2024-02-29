@@ -10,12 +10,12 @@ use App\Zabbix\Zabbix;
 class Item implements JsonSerializable
 {
     const TYPES = [
-        0 => 'Zabbix agent',
-        2 => 'Zabbix trapper',
-        3 => 'Simple check',
-        5 => 'Zabbix agent',
-        7 => 'Zabbix internal',
-        9 => 'Zabbix agent (active)',
+        0  => 'Zabbix agent',
+        2  => 'Zabbix trapper',
+        3  => 'Simple check',
+        5  => 'Zabbix agent',
+        7  => 'Zabbix internal',
+        9  => 'Zabbix agent (active)',
         10 => 'Web item',
         11 => 'External check',
         12 => 'IPMI agent',
@@ -98,6 +98,8 @@ class Item implements JsonSerializable
     }
 
     /**
+     * @param ?int $id
+     *
      * @return $this
      */
     public function setId(?int $id): self
@@ -146,7 +148,8 @@ class Item implements JsonSerializable
     }
 
     /**
-     * @param  int  $delay
+     * @param int $delay
+     *
      * @return $this
      */
     public function setDelay(string $delay): self
@@ -162,6 +165,8 @@ class Item implements JsonSerializable
     }
 
     /**
+     * @param ?int $valueType
+     *
      * @return $this
      */
     public function setValueType(?int $valueType): self
@@ -177,6 +182,8 @@ class Item implements JsonSerializable
     }
 
     /**
+     * @param ?int $interfaceId
+     *
      * @return $this
      */
     public function setInterfaceid(?int $interfaceId): self
@@ -192,6 +199,8 @@ class Item implements JsonSerializable
     }
 
     /**
+     * @param ?int $hostId
+     *
      * @return $this
      */
     public function setHostId(?int $hostId): self
@@ -223,6 +232,8 @@ class Item implements JsonSerializable
 
     /**
      * @param $type
+     * @param mixed $units
+     *
      * @return $this
      */
     public function setUnits($units): self
@@ -254,26 +265,26 @@ class Item implements JsonSerializable
     {
         if (! $this->getId()) {
             $this->zabbix->saveItem([
-                'name' => $this->getName(),
-                'key_' => $this->getKey(),
-                'hostid' => $this->getHostId(),
-                'type' => $this->getType(),
-                'value_type' => $this->getValueType(),
+                'name'        => $this->getName(),
+                'key_'        => $this->getKey(),
+                'hostid'      => $this->getHostId(),
+                'type'        => $this->getType(),
+                'value_type'  => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
-                'delay' => $this->getDelay(),
-                'units' => $this->getUnits(),
+                'delay'       => $this->getDelay(),
+                'units'       => $this->getUnits(),
                 'templateids' => $this->getTemplateId(),
             ]);
         } else {
             $this->zabbix->updateItem([
-                'name' => $this->getName(),
-                'key_' => $this->getKey(),
-                'hostid' => $this->getHostId(),
-                'type' => $this->getType(),
-                'value_type' => $this->getValueType(),
+                'name'        => $this->getName(),
+                'key_'        => $this->getKey(),
+                'hostid'      => $this->getHostId(),
+                'type'        => $this->getType(),
+                'value_type'  => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
-                'delay' => $this->getDelay(),
-                'units' => $this->getUnits(),
+                'delay'       => $this->getDelay(),
+                'units'       => $this->getUnits(),
                 'templateids' => $this->getTemplateId(),
             ]);
         }
@@ -319,16 +330,16 @@ class Item implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'key' => $this->getKey(),
-            'type' => $this->getType(),
-            'value_type' => $this->getValueType(),
+            'id'          => $this->getId(),
+            'name'        => $this->getName(),
+            'key'         => $this->getKey(),
+            'type'        => $this->getType(),
+            'value_type'  => $this->getValueType(),
             'intarfaceid' => $this->getInterfaceid(),
-            'delay' => $this->getDelay(),
-            'host_id' => $this->getHostId(),
-            'units' => $this->getUnits(),
-            'templateid' => $this->getTemplateId(),
+            'delay'       => $this->getDelay(),
+            'host_id'     => $this->getHostId(),
+            'units'       => $this->getUnits(),
+            'templateid'  => $this->getTemplateId(),
         ];
     }
 }

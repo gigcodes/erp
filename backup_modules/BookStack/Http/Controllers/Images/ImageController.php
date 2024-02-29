@@ -23,8 +23,8 @@ class ImageController extends Controller
      */
     public function __construct(Image $image, File $file, ImageRepo $imageRepo)
     {
-        $this->image = $image;
-        $this->file = $file;
+        $this->image     = $image;
+        $this->file      = $file;
         $this->imageRepo = $imageRepo;
         parent::__construct();
     }
@@ -47,7 +47,8 @@ class ImageController extends Controller
     /**
      * Update image details
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws ImageUploadException
@@ -71,7 +72,9 @@ class ImageController extends Controller
     /**
      * Show the usage of an image on pages.
      *
-     * @param  \BookStack\Entities\Repos\EntityRepo  $entityRepo
+     * @param \BookStack\Entities\Repos\EntityRepo $entityRepo
+     * @param mixed                                $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function usage(EntityRepo $entityRepo, $id)
@@ -86,7 +89,8 @@ class ImageController extends Controller
     /**
      * Deletes an image and all thumbnail/image files
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws \Exception

@@ -23,8 +23,8 @@ class EmailLeadImport implements ToModel, ShouldQueue, WithChunkReading, WithVal
 
             if (! $count->count()) {
                 return new EmailLead([
-                    'email' => $row[0],
-                    'source' => $row[1],
+                    'email'      => $row[0],
+                    'source'     => $row[1],
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
             }

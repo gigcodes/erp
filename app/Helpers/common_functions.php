@@ -24,6 +24,13 @@ function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = n
 
 /**
  * Create image and text
+ *
+ * @param mixed $path
+ * @param mixed $uploadPath
+ * @param mixed $text
+ * @param mixed $color
+ * @param mixed $fontSize
+ * @param mixed $needAbs
  */
 function createProductTextImage($path, $uploadPath = '', $text = '', $color = '545b62', $fontSize = '40', $needAbs = true)
 {
@@ -73,6 +80,10 @@ function previous_sibling(array $elements, $previous_sibling = 0, &$branch = [])
 
 /**
  * return all types of short message with postfix
+ *
+ * @param mixed $message
+ * @param mixed $size
+ * @param mixed $postfix
  */
 function show_short_message($message, $size = 50, $postfix = '...')
 {
@@ -97,6 +108,9 @@ function attach_customer_key()
 
 /**
  *  get scraper last log file name
+ *
+ * @param mixed $screaperName
+ * @param mixed $serverId
  */
 function get_server_last_log_file($screaperName = '', $serverId = '')
 {
@@ -156,7 +170,7 @@ if (! function_exists('getInstanceNo')) {
 
         if (! empty($nos)) {
             foreach ($nos as $key => $no) {
-                $n = ($key == 0) ? $no['number'] : $key;
+                $n        = ($key == 0) ? $no['number'] : $key;
                 $list[$n] = $n;
             }
         }
@@ -167,6 +181,9 @@ if (! function_exists('getInstanceNo')) {
 
 /**
  * Check if the date is valid
+ *
+ * @param mixed $date
+ * @param mixed $format
  */
 function validateDate($date, $format = 'Y-m-d')
 {
@@ -181,34 +198,36 @@ function validateDate($date, $format = 'Y-m-d')
 function drop_down_frequency()
 {
     return [
-        '0' => 'Disabled',
-        '1' => 'Just Once',
-        '5' => 'Every 5 Minutes',
-        '10' => 'Every 10 Minutes',
-        '15' => 'Every 15 Minutes',
-        '20' => 'Every 20 Minutes',
-        '25' => 'Every 25 Minutes',
-        '30' => 'Every 30 Minutes',
-        '35' => 'Every 35 Minutes',
-        '40' => 'Every 40 Minutes',
-        '45' => 'Every 45 Minutes',
-        '50' => 'Every 50 Minutes',
-        '55' => 'Every 55 Minutes',
-        '60' => 'Every Hour',
-        '360' => 'Every 6 hr',
+        '0'    => 'Disabled',
+        '1'    => 'Just Once',
+        '5'    => 'Every 5 Minutes',
+        '10'   => 'Every 10 Minutes',
+        '15'   => 'Every 15 Minutes',
+        '20'   => 'Every 20 Minutes',
+        '25'   => 'Every 25 Minutes',
+        '30'   => 'Every 30 Minutes',
+        '35'   => 'Every 35 Minutes',
+        '40'   => 'Every 40 Minutes',
+        '45'   => 'Every 45 Minutes',
+        '50'   => 'Every 50 Minutes',
+        '55'   => 'Every 55 Minutes',
+        '60'   => 'Every Hour',
+        '360'  => 'Every 6 hr',
         '1440' => 'Every 24 hr',
     ];
 }
 
 /**
  * format the duration in Hour:minute:seconds format
+ *
+ * @param mixed $seconds_time
  */
 function formatDuration($seconds_time)
 {
     if ($seconds_time < 24 * 60 * 60) {
         return gmdate('H:i:s', $seconds_time);
     } else {
-        $hours = floor($seconds_time / 3600);
+        $hours   = floor($seconds_time / 3600);
         $minutes = floor(($seconds_time - $hours * 3600) / 60);
         $seconds = floor($seconds_time - ($hours * 3600) - ($minutes * 60));
 
@@ -290,7 +309,7 @@ function replaceSpaceWithDash($string)
 function storeERPLog($erpData)
 {
     if (! empty($erpData)) {
-        $erpData['request'] = json_encode($erpData['request']);
+        $erpData['request']  = json_encode($erpData['request']);
         $erpData['response'] = json_encode($erpData['response']);
         ErpLog::create($erpData);
     }
@@ -313,7 +332,7 @@ function string_convert($msg2)
 
 function convertToThumbUrl($url, $extension)
 {
-    $arr = explode('/', $url);
+    $arr                  = explode('/', $url);
     $arr[count($arr) - 1] = 'thumbnail/' . $arr[count($arr) - 1];
 
     $converted_str = implode('/', $arr);
@@ -327,26 +346,26 @@ function resizeCropImage($max_width, $max_height, $source_file, $dst_dir = null,
         $dst_dir = $source_file;
     }
     $imgsize = getimagesize($source_file);
-    $width = $imgsize[0];
-    $height = $imgsize[1];
-    $mime = $imgsize['mime'];
+    $width   = $imgsize[0];
+    $height  = $imgsize[1];
+    $mime    = $imgsize['mime'];
 
     switch ($mime) {
         case 'image/gif':
             $image_create = 'imagecreatefromgif';
-            $image = 'imagegif';
+            $image        = 'imagegif';
             break;
 
         case 'image/png':
             $image_create = 'imagecreatefrompng';
-            $image = 'imagepng';
-            $quality = 7;
+            $image        = 'imagepng';
+            $quality      = 7;
             break;
 
         case 'image/jpeg':
             $image_create = 'imagecreatefromjpeg';
-            $image = 'imagejpeg';
-            $quality = 80;
+            $image        = 'imagejpeg';
+            $quality      = 80;
             break;
 
         default:
@@ -360,7 +379,7 @@ function resizeCropImage($max_width, $max_height, $source_file, $dst_dir = null,
     imagealphablending($dst_img, false);
     imagesavealpha($dst_img, true);
 
-    $width_new = $height * $max_width / $max_height;
+    $width_new  = $height * $max_width / $max_height;
     $height_new = $width * $max_height / $max_width;
     //if the new width is greater than the actual width of the image, then the height is too large and the rest cut off, or vice versa
     if ($width_new > $width) {
@@ -371,7 +390,7 @@ function resizeCropImage($max_width, $max_height, $source_file, $dst_dir = null,
     // return true;
     } else {
         //cut point by width
-        $w_point = (($width - $width_new) / 2);
+        $w_point            = (($width - $width_new) / 2);
         $imagecopyresampled = imagecopyresampled($dst_img, $src_img, 0, 0, $w_point, 0, $max_width, $max_height, $width_new, $height);
         // return true;
     }
@@ -419,7 +438,7 @@ function dateRangeArr($stDate, $enDate)
     while ($stDate <= $enDate) {
         $data[] = [
             'date' => $stDate,
-            'day' => strtolower(date('l', strtotime($stDate))),
+            'day'  => strtolower(date('l', strtotime($stDate))),
         ];
         $stDate = date('Y-m-d', strtotime($stDate . '+1 day'));
     }
@@ -464,8 +483,8 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
     if ($lunchTime && ($stTime <= $lunchTime && $lunchTime <= $enTime)) {
         $stTime1 = $stTime;
         $enTime1 = date('Y-m-d H:i:00', strtotime($lunchTime));
-        $slots = array_merge_recursive($slots, hourlySlots($stTime1, $enTime1));
-        $stTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
+        $slots   = array_merge_recursive($slots, hourlySlots($stTime1, $enTime1));
+        $stTime  = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
 
         $temp = hourlySlots($lunchTime, $stTime);
         foreach ($temp as $key => $value) {
@@ -481,10 +500,10 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
             if ($enSlot > $enTime) {
                 $enSlot = $enTime;
             }
-            $diff = strtotime($enSlot) - strtotime($stSlot);
+            $diff    = strtotime($enSlot) - strtotime($stSlot);
             $slots[] = [
-                'st' => $stSlot,
-                'en' => $enSlot,
+                'st'   => $stSlot,
+                'en'   => $enSlot,
                 'mins' => round($diff / 60),
                 'type' => 'AVL',
             ];
@@ -500,12 +519,12 @@ function getHourlySlots($stTime, $enTime)
 {
     $return = [];
     if (date('Y-m-d', strtotime($stTime)) != date('Y-m-d', strtotime($enTime))) {
-        $st1 = $stTime;
-        $en1 = date('Y-m-d 23:59:59', strtotime($stTime));
+        $st1    = $stTime;
+        $en1    = date('Y-m-d 23:59:59', strtotime($stTime));
         $return = array_merge_recursive($return, getHourlySlots($st1, $en1));
 
-        $st1 = date('Y-m-d 00:00:00', strtotime($enTime));
-        $en1 = $enTime;
+        $st1    = date('Y-m-d 00:00:00', strtotime($enTime));
+        $en1    = $enTime;
         $return = array_merge_recursive($return, getHourlySlots($st1, $en1));
     } else {
         while ($stTime < $enTime) {
@@ -514,10 +533,10 @@ function getHourlySlots($stTime, $enTime)
             if ($enSlot > $enTime) {
                 $enSlot = $enTime;
             }
-            $enSlot = date('Y-m-d H:i:00', strtotime($enSlot . ' -1 minute'));
+            $enSlot   = date('Y-m-d H:i:00', strtotime($enSlot . ' -1 minute'));
             $return[] = [
-                'st' => $stSlot,
-                'en' => $enSlot,
+                'st'   => $stSlot,
+                'en'   => $enSlot,
                 'mins' => round((strtotime($enSlot) - strtotime($stSlot)) / 60),
             ];
             $stTime = date('Y-m-d H:i:00', strtotime($stTime . ' +1 hour'));
@@ -546,7 +565,7 @@ function makeDropdown($options = [], $selected = [], $keyValue = 1)
                 $return[] = '</optgroup>';
             } else {
                 $value = $keyValue ? $k : $v;
-                $sel = '';
+                $sel   = '';
                 if (is_array($selected)) {
                     if (in_array($value, $selected)) {
                         $sel = 'selected';
@@ -591,7 +610,7 @@ function dailyHours($type = null)
 {
     $data = [];
     for ($i = 0; $i < 24; $i++) {
-        $temp = pad0($i) . ':00:00';
+        $temp        = pad0($i) . ':00:00';
         $data[$temp] = $temp;
     }
 
@@ -650,14 +669,14 @@ function readFolders($data)
 
 function getCommunicationData($sdc, $sw)
 {
-    $site_dev = \App\SiteDevelopment::where(['site_development_category_id' => $sdc->id, 'website_id' => $sw->id])->orderBy('id', 'DESC')->get()->pluck('id');
-    $query = \App\DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_dev)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-    $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-    $taskStatistics = $query->orderBy('developer_tasks.id', 'DESC')->get();
-    $query1 = \App\Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_dev)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-    $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+    $site_dev            = \App\SiteDevelopment::where(['site_development_category_id' => $sdc->id, 'website_id' => $sw->id])->orderBy('id', 'DESC')->get()->pluck('id');
+    $query               = \App\DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->whereIn('site_developement_id', $site_dev)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+    $query               = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+    $taskStatistics      = $query->orderBy('developer_tasks.id', 'DESC')->get();
+    $query1              = \App\Task::join('users', 'users.id', 'tasks.assign_to')->whereIn('site_developement_id', $site_dev)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+    $query1              = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
     $othertaskStatistics = $query1->orderBy('tasks.id', 'DESC')->get();
-    $merged = $othertaskStatistics->merge($taskStatistics);
+    $merged              = $othertaskStatistics->merge($taskStatistics);
 
     return $merged;
 }
@@ -665,7 +684,7 @@ function getCommunicationData($sdc, $sw)
 function insertGoogleAdsLog($input)
 {
     if (is_array($input)) {
-        $input['user_id'] = auth()->id();
+        $input['user_id']         = auth()->id();
         $input['user_ip_address'] = request()->ip();
 
         \App\Models\GoogleAdsLog::create($input);
@@ -683,7 +702,8 @@ function getMediaUrl($media)
     }
 }
 
-function checkCurrentUriIsEnableForEmailAlert($uri){
+function checkCurrentUriIsEnableForEmailAlert($uri)
+{
     $route = \App\Routes::where('url', 'LIKE', $uri)->where('email_alert', 1)->first();
 
     return $route !== null;

@@ -44,11 +44,11 @@ class CategoryMergeWithProduct extends Command
         foreach ($categories as $category) {
             if ($category->references) {
                 try {
-                    $word = $category->title;
-                    $word = preg_replace('/\s+/', '', $word);
-                    $word = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $word);
+                    $word           = $category->title;
+                    $word           = preg_replace('/\s+/', '', $word);
+                    $word           = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $word);
                     $referenceArray = explode(',', $category->references);
-                    $matches = [];
+                    $matches        = [];
                     foreach ($referenceArray as $input) {
                         if (! empty($input)) {
                             $input = preg_replace('/\s+/', '', $input);

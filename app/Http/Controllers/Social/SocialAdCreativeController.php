@@ -63,13 +63,13 @@ class SocialAdCreativeController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialAdCreative';
+        $Log->modal           = 'SocialAdCreative';
         $Log->save();
 
         return true;
@@ -82,7 +82,7 @@ class SocialAdCreativeController extends Controller
      */
     public function create()
     {
-        $configs = SocialAdAccount::pluck('name', 'id');
+        $configs    = SocialAdAccount::pluck('name', 'id');
         $campaingns = SocialCampaign::whereNotNull('ref_campaign_id')->get();
 
         return view('social.adcreatives.create', compact('configs', 'campaingns'));
@@ -103,18 +103,18 @@ class SocialAdCreativeController extends Controller
     public function store(Request $request)
     {
         $ad_creative = SocialAdCreative::create([
-            'config_id' => $request->config_id,
+            'config_id'          => $request->config_id,
             'object_story_title' => $request->object_story_title,
-            'object_story_id' => $request->object_story_id,
-            'name' => $request->name,
+            'object_story_id'    => $request->object_story_id,
+            'name'               => $request->name,
 
         ]);
 
-        $data['name'] = $request->input('name');
+        $data['name']            = $request->input('name');
         $data['object_story_id'] = $request->input('object_story_id');
 
         $config = SocialAdAccount::find($ad_creative->config_id);
-        $fb = new FB($config->page_token);
+        $fb     = new FB($config->page_token);
 
         $this->socialPostLog($config->id, $ad_creative->id, $config->platform, 'message', 'get page access token');
 
@@ -140,21 +140,22 @@ class SocialAdCreativeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SocialAdCreative  $SocialAdCreative
+     * @param \App\SocialAdCreative $SocialAdCreative
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'email'            => 'required',
+            'password'         => 'required',
+            'status'           => 'required',
         ]);
-        $config = SocialAdCreative::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $config           = SocialAdCreative::findorfail($request->id);
+        $data             = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();

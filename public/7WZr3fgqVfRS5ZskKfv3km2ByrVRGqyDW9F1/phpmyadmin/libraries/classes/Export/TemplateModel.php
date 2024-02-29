@@ -80,11 +80,11 @@ final class TemplateModel
         }
 
         return Template::fromArray([
-            'id' => (int) $data['id'],
-            'username' => $data['username'],
+            'id'         => (int) $data['id'],
+            'username'   => $data['username'],
             'exportType' => $data['export_type'],
-            'name' => $data['template_name'],
-            'data' => $data['template_data'],
+            'name'       => $data['template_name'],
+            'data'       => $data['template_data'],
         ]);
     }
 
@@ -126,11 +126,11 @@ final class TemplateModel
         $templates = [];
         while ($row = $result->fetchAssoc()) {
             $templates[] = Template::fromArray([
-                'id' => (int) $row['id'],
-                'username' => $row['username'],
+                'id'         => (int) $row['id'],
+                'username'   => $row['username'],
                 'exportType' => $row['export_type'],
-                'name' => $row['template_name'],
-                'data' => $row['template_data'],
+                'name'       => $row['template_name'],
+                'data'       => $row['template_data'],
             ]);
         }
 

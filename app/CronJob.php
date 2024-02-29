@@ -32,9 +32,9 @@ class CronJob extends Model
         $cron = self::where('signature', $signature)->first();
 
         if (! $cron) {
-            $cron = new self;
+            $cron            = new self;
             $cron->signature = $signature;
-            $cron->schedule = 'N/A';
+            $cron->schedule  = 'N/A';
         }
         $cron->last_status = 'error';
         $cron->error_count += 1;
@@ -49,23 +49,23 @@ class CronJob extends Model
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                'priority' => self::CRON_ISSUE_PRIORITY,
-                'issue' => $error,
-                'status' => self::CRON_ISSUE_STATUS,
-                'module' => self::CRON_ISSUE_MODULE_NAME,
-                'subject' => $issueName,
+                'priority'    => self::CRON_ISSUE_PRIORITY,
+                'issue'       => $error,
+                'status'      => self::CRON_ISSUE_STATUS,
+                'module'      => self::CRON_ISSUE_MODULE_NAME,
+                'subject'     => $issueName,
                 'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
             ]);
             app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
 
-            $cronJobErroLog = new CronJobErroLog();
+            $cronJobErroLog            = new CronJobErroLog();
             $cronJobErroLog->signature = $signature;
-            $cronJobErroLog->priority = self::CRON_ISSUE_PRIORITY;
-            $cronJobErroLog->error = $error;
+            $cronJobErroLog->priority  = self::CRON_ISSUE_PRIORITY;
+            $cronJobErroLog->error     = $error;
             $cronJobErroLog->error_count += 1;
-            $cronJobErroLog->status = self::CRON_ISSUE_STATUS;
-            $cronJobErroLog->module = self::CRON_ISSUE_MODULE_NAME;
-            $cronJobErroLog->subject = $issueName;
+            $cronJobErroLog->status      = self::CRON_ISSUE_STATUS;
+            $cronJobErroLog->module      = self::CRON_ISSUE_MODULE_NAME;
+            $cronJobErroLog->subject     = $issueName;
             $cronJobErroLog->assigned_to = \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO);
             $cronJobErroLog->save();
         }

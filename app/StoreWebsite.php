@@ -15,7 +15,6 @@ class StoreWebsite extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="remote_software",type="string")
@@ -122,16 +121,16 @@ class StoreWebsite extends Model
     ];
 
     const DB_CONNECTION = [
-        'mysql' => 'Erp',
+        'mysql'          => 'Erp',
         'brandsandlabel' => 'Brands and label',
-        'avoirchic' => 'Avoirchic',
-        'olabels' => 'O-labels',
-        'sololuxury' => 'Sololuxury',
-        'suvandnet' => 'Suv and net',
-        'thefitedit' => 'The fitedit',
-        'theshadesshop' => 'The shades shop',
-        'veralusso' => 'Veralusso',
-        'upeau' => 'Upeau',
+        'avoirchic'      => 'Avoirchic',
+        'olabels'        => 'O-labels',
+        'sololuxury'     => 'Sololuxury',
+        'suvandnet'      => 'Suv and net',
+        'thefitedit'     => 'The fitedit',
+        'theshadesshop'  => 'The shades shop',
+        'veralusso'      => 'Veralusso',
+        'upeau'          => 'Upeau',
     ];
 
     // Append attributes
@@ -147,7 +146,7 @@ class StoreWebsite extends Model
      */
     public function getWebsiteUrlAttribute()
     {
-        $url = $this->website;
+        $url    = $this->website;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
             return $urlStr = 'https://' . ltrim($url, '/');

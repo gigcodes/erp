@@ -18,7 +18,7 @@ class DailyCashFlowController extends Controller
      */
     public function index(Request $request)
     {
-        $short_fall = 0;
+        $short_fall  = 0;
         $filter_date = $request->date ?? Carbon::now()->format('Y-m-d');
 
         $cash_flows = DailyCashFlow::where(function ($query) use ($filter_date) {
@@ -39,10 +39,10 @@ class DailyCashFlowController extends Controller
             $short_fall += $cash_flow->received - $cash_flow->expected;
         }
 
-        $sold_price = 0;
+        $sold_price     = 0;
         $purchase_price = 0;
-        $balance = 0;
-        $vouchers = 0;
+        $balance        = 0;
+        $vouchers       = 0;
 
         foreach ($orders as $order) {
             if ($order->order_product) {
@@ -67,10 +67,10 @@ class DailyCashFlowController extends Controller
         $short_fall += $sold_price - $purchase_price - $balance - $vouchers;
 
         return view('dailycashflows.index', [
-            'cash_flows' => $cash_flows,
-            'purchases' => $purchases,
-            'orders' => $orders,
-            'short_fall' => $short_fall,
+            'cash_flows'  => $cash_flows,
+            'purchases'   => $purchases,
+            'orders'      => $orders,
+            'short_fall'  => $short_fall,
             'filter_date' => $filter_date,
         ]);
     }
@@ -94,10 +94,10 @@ class DailyCashFlowController extends Controller
     {
         $this->validate($request, [
             'received_from' => 'sometimes|nullable|string',
-            'paid_to' => 'sometimes|nullable|string',
-            'date' => 'required',
-            'expected' => 'required_without:received|nullable|numeric',
-            'received' => 'required_without:expected|nullable|numeric',
+            'paid_to'       => 'sometimes|nullable|string',
+            'date'          => 'required',
+            'expected'      => 'required_without:received|nullable|numeric',
+            'received'      => 'required_without:expected|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -110,7 +110,8 @@ class DailyCashFlowController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -121,7 +122,8 @@ class DailyCashFlowController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -132,17 +134,18 @@ class DailyCashFlowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
             'received_from' => 'sometimes|nullable|string',
-            'paid_to' => 'sometimes|nullable|string',
-            'date' => 'required',
-            'expected' => 'required_without:received|nullable|numeric',
-            'received' => 'required_without:expected|nullable|numeric',
+            'paid_to'       => 'sometimes|nullable|string',
+            'date'          => 'required',
+            'expected'      => 'required_without:received|nullable|numeric',
+            'received'      => 'required_without:expected|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -155,7 +158,8 @@ class DailyCashFlowController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

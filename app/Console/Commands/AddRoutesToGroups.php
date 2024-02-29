@@ -47,15 +47,15 @@ class AddRoutesToGroups extends Command
             $postData = [
                 'id' => $r->route_id,
             ];
-            $postData = json_encode($postData, true);
-            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $postData       = json_encode($postData, true);
+            $result         = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             $existing_route = DB::table('group_routes')->where('route_id', $r->route_id)->delete();
             dump([$result, $existing_route]);
         }
         dump('routes deleted');
         // Part-2 Create routes and update langauages to group
         $existing_themes_ids = [];
-        $all_themes_ids = [];
+        $all_themes_ids      = [];
 
         // Part - 1
 
@@ -65,14 +65,14 @@ class AddRoutesToGroups extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
-            $response = json_decode($result['response']);
+            $response        = json_decode($result['response']);
             $existing_themes = ['General', 'Lussolicious', 'o-labels.com', 'Luxury Space', 'Italybrandoutlets', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau'];
-            $changed_themes = [];
+            $changed_themes  = [];
             foreach ($response as $g) {
                 $all_themes_ids[$g->name] = $g->id;
                 if (! in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
@@ -114,12 +114,12 @@ class AddRoutesToGroups extends Command
                     }
                     dump($web_name);
                     // Update language to group
-                    $postURL = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
+                    $postURL  = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
                         'language' => $lang_code,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang updated.');
@@ -127,12 +127,12 @@ class AddRoutesToGroups extends Command
                         dump([$g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang error.', $response]);
                     }
                     //Create route fo group
-                    $postURL = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
+                    $postURL                = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
                     $domain_values['value'] = $web_name;
-                    $url_values['value'] = '-' . $data[1];
-                    $postData = [
+                    $url_values['value']    = '-' . $data[1];
+                    $postData               = [
                         'description' => $g->name,
-                        'access' => [
+                        'access'      => [
                             'groups' => [$g->id],
                         ],
                         'conditions' => [
@@ -146,7 +146,7 @@ class AddRoutesToGroups extends Command
                         'next_id' => '310b71d0e6c6dd5809f8535a6f055b17',
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
                     dump($response);
                     if (! isset($response->error)) {
@@ -154,11 +154,11 @@ class AddRoutesToGroups extends Command
                         DB::table('group_routes')->updateOrInsert([
                             'group_id' => $g->id,
                         ], [
-                            'group_id' => $g->id,
-                            'route_id' => $response->id,
+                            'group_id'   => $g->id,
+                            'route_id'   => $response->id,
                             'route_name' => $g->name,
-                            'domain' => $domain_values['value'],
-                            'url' => $url_values['value'],
+                            'domain'     => $domain_values['value'],
+                            'url'        => $url_values['value'],
                         ]);
                     }
                 } else {

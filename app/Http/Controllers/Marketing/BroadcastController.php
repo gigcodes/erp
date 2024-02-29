@@ -21,6 +21,7 @@ class BroadcastController extends Controller
      * Getting BroadCast Page with Ajax Search.
      *
      * @param \App\Customer  id , term , date , number , broadcast , manual , remark , name
+     *
      * @return \Illuminate\Http\View And Ajax
      */
     public function index(Request $request)
@@ -233,12 +234,12 @@ class BroadcastController extends Controller
             }
 
             if (request('phone_customrange') != null) {
-                $range = explode(' - ', request('phone_customrange'));
+                $range     = explode(' - ', request('phone_customrange'));
                 $startDate = $range[0];
-                $endDate = end($range);
+                $endDate   = end($range);
             } else {
                 $startDate = '';
-                $endDate = '';
+                $endDate   = '';
             }
 
             $numbers = $query->get();
@@ -250,24 +251,24 @@ class BroadcastController extends Controller
                 ], 200);
             }
         } else {
-            $numbers = WhatsappConfig::get();
-            $date = '';
+            $numbers   = WhatsappConfig::get();
+            $date      = '';
             $startDate = '';
-            $endDate = '';
+            $endDate   = '';
         }
 
         if (isset($request->total)) {
-            $total = $request->total;
+            $total       = $request->total;
             $customrange = $request->customrange;
         } else {
-            $total = '';
+            $total       = '';
             $customrange = '';
         }
 
-        $customerBroadcastSend = Customer::whereNotNull('broadcast_number')->count();
+        $customerBroadcastSend    = Customer::whereNotNull('broadcast_number')->count();
         $customerBroadcastPending = Customer::whereNull('broadcast_number')->count();
-        $countDNDCustomers = Customer::where('do_not_disturb', '1')->count();
-        $totalCustomers = Customer::count();
+        $countDNDCustomers        = Customer::where('do_not_disturb', '1')->count();
+        $totalCustomers           = Customer::count();
 
         $apiKeys = ApiKey::all();
         if ($request->ajax()) {
@@ -279,18 +280,18 @@ class BroadcastController extends Controller
         }
 
         return view('marketing.broadcasts.index', [
-            'customers' => $customers,
-            'apiKeys' => $apiKeys,
-            'numbers' => $numbers,
-            'customerBroadcastSend' => $customerBroadcastSend,
+            'customers'                => $customers,
+            'apiKeys'                  => $apiKeys,
+            'numbers'                  => $numbers,
+            'customerBroadcastSend'    => $customerBroadcastSend,
             'customerBroadcastPending' => $customerBroadcastPending,
-            'countDNDCustomers' => $countDNDCustomers,
-            'totalCustomers' => $totalCustomers,
-            'date' => $date,
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'total' => $total,
-            'customrange' => $customrange,
+            'countDNDCustomers'        => $countDNDCustomers,
+            'totalCustomers'           => $totalCustomers,
+            'date'                     => $date,
+            'startDate'                => $startDate,
+            'endDate'                  => $endDate,
+            'total'                    => $total,
+            'customrange'              => $customrange,
         ]);
     }
 
@@ -298,12 +299,13 @@ class BroadcastController extends Controller
      * Update Customer TO DND .
      *
      * @param \App\Customer  id is $request->id
+     *
      * @return \Illuminate\Http\Response
      */
     public function addToDND(Request $request)
     {
-        $id = $request->id;
-        $customer = Customer::findOrFail($id);
+        $id                       = $request->id;
+        $customer                 = Customer::findOrFail($id);
         $customer->do_not_disturb = $request->type;
         $customer->update();
         \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
@@ -317,6 +319,7 @@ class BroadcastController extends Controller
      * Getting Remark From CustomerMarketingPlatform table.
      *
      * @param \App\CustomerMarketingPlatform  customer_id = $request->id
+     *
      * @return \Illuminate\Http\Response
      */
     public function getBroadCastRemark(Request $request)
@@ -332,17 +335,18 @@ class BroadcastController extends Controller
      * Adding Remark to CustomerMarketingPlatform table.
      *
      * @param \App\CustomerMarketingPlatform  id and remark
+     *
      * @return \Illuminate\Http\Response
      */
     public function addRemark(Request $request)
     {
         $remark = $request->input('remark');
-        $id = $request->input('id');
+        $id     = $request->input('id');
         CustomerMarketingPlatform::create([
-            'customer_id' => $id,
-            'remark' => $remark,
+            'customer_id'           => $id,
+            'remark'                => $remark,
             'marketing_platform_id' => '1',
-            'user_name' => Auth::user()->name,
+            'user_name'             => Auth::user()->name,
         ]);
 
         return response()->json(['remark' => $remark], 200);
@@ -351,14 +355,15 @@ class BroadcastController extends Controller
     /**
      * Adding Customer to CustomerMarketingPlatform table.
      *
-     * @param  \App\Customer  $request ->id
+     * @param \App\Customer $request ->id
+     *
      * @return \Illuminate\Http\Response
      */
     public function addManual(Request $request)
     {
         // Set customer ID and try to find customer
         $customerId = $request->id;
-        $customer = Customer::findOrFail($customerId);
+        $customer   = Customer::findOrFail($customerId);
 
         // Do we have a customer?
         if ($customer != null && $request->type == 1) {
@@ -410,10 +415,10 @@ class BroadcastController extends Controller
         $remark = CustomerMarketingPlatform::where('customer_id', $customerId)->whereNull('remark')->first();
         if ($remark == null) {
             CustomerMarketingPlatform::create([
-                'customer_id' => $customerId,
+                'customer_id'           => $customerId,
                 'marketing_platform_id' => '1', // WhatsApp
-                'active' => 1,
-                'user_name' => Auth::user()->name,
+                'active'                => 1,
+                'user_name'             => Auth::user()->name,
             ]);
         } else {
             $customer->broadcast_number = '';
@@ -430,16 +435,17 @@ class BroadcastController extends Controller
     /**
      * Update the customer number.
      *
-     * @param  \App\Customer  $request ->id
+     * @param \App\Customer $request ->id
+     *
      * @return \Illuminate\Http\Response
      */
     public function updateWhatsAppNumber(Request $request)
     {
         //Updating Customer WhatsAppNumber
-        $id = $request->id;
+        $id     = $request->id;
         $number = $request->number;
 
-        $customer = Customer::findOrFail($id);
+        $customer                   = Customer::findOrFail($id);
         $customer->broadcast_number = $number;
         $customer->update();
 
@@ -457,14 +463,14 @@ class BroadcastController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $messageArray,
+            'data'   => $messageArray,
         ]);
     }
 
     public function getCustomerBroadcastList(Request $request)
     {
-        $id = $request->id;
-        $customer = Customer::findOrFail($id);
+        $id         = $request->id;
+        $customer   = Customer::findOrFail($id);
         $broadcasts = $customer->broadcastAll;
 
         foreach ($broadcasts as $broadcast) {
@@ -473,7 +479,7 @@ class BroadcastController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $broadcastArray,
+            'data'   => $broadcastArray,
         ]);
     }
 
@@ -517,7 +523,7 @@ class BroadcastController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $count,
+            'data'   => $count,
         ]);
     }
 

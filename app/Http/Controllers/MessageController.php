@@ -48,14 +48,14 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         $message = $this->validate($request, [
-            'body' => 'required',
-            'moduleid' => 'required',
+            'body'       => 'required',
+            'moduleid'   => 'required',
             'moduletype' => 'required',
-            'status' => 'required',
+            'status'     => 'required',
         ]);
 
-        $data = $request->except('_token');
-        $id = $request->get('moduleid');
+        $data       = $request->except('_token');
+        $id         = $request->get('moduleid');
         $moduletype = $request->get('moduletype');
 
         if ($moduletype == 'leads') {
@@ -71,7 +71,7 @@ class MessageController extends Controller
                 $data['customer_id'] = $order->customer->id;
             }
         } elseif ($moduletype == 'customer') {
-            $customer = Customer::find($id);
+            $customer            = Customer::find($id);
             $data['customer_id'] = $customer->id;
         }
 
@@ -98,8 +98,8 @@ class MessageController extends Controller
 
         if ($request->screenshot_path != '') {
             $image_path = public_path() . '/uploads/temp_screenshot.png';
-            $img = substr($request->screenshot_path, strpos($request->screenshot_path, ',') + 1);
-            $img = Image::make(base64_decode($img))->encode('png')->save($image_path);
+            $img        = substr($request->screenshot_path, strpos($request->screenshot_path, ',') + 1);
+            $img        = Image::make(base64_decode($img))->encode('png')->save($image_path);
 
             $media = MediaUploader::fromSource($image_path)
                 ->toDirectory('message/' . floor($message->id / config('constants.image_per_folder')))
@@ -123,7 +123,8 @@ class MessageController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -150,7 +151,8 @@ class MessageController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -161,13 +163,14 @@ class MessageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         if ($request->type == 'message') {
-            $message = Message::find($id);
+            $message       = Message::find($id);
             $message->body = $request->get('body');
             $message->save();
         } elseif ($request->type == 'whatsapp') {
@@ -195,19 +198,19 @@ class MessageController extends Controller
 
     public function updatestatus(Request $request)
     {
-        $message = Message::find($request->get('id'));
+        $message         = Message::find($request->get('id'));
         $message->status = $request->get('status');
-        $moduleid = $request->get('moduleid');
-        $moduletype = $request->get('moduletype');
+        $moduleid        = $request->get('moduleid');
+        $moduletype      = $request->get('moduletype');
         $message->save();
     }
 
     public function loadmore(Request $request)
     {
-        $moduleid = $request->get('moduleid');
+        $moduleid   = $request->get('moduleid');
         $moduletype = $request->get('moduletype');
-        $messageid = $request->get('messageid');
-        $messages = Message::all()->where('id', '<', $messageid)->where('moduleid', '=', $moduleid)->where('moduletype', '=', $moduletype)->sortByDesc('created_at')->take(10)->toArray();
+        $messageid  = $request->get('messageid');
+        $messages   = Message::all()->where('id', '<', $messageid)->where('moduleid', '=', $moduleid)->where('moduletype', '=', $moduletype)->sortByDesc('created_at')->take(10)->toArray();
 
         return view('leads.bubbles', compact(['messages', 'moduletype']));
     }
@@ -215,7 +218,8 @@ class MessageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

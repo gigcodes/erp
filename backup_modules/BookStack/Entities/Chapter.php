@@ -31,7 +31,8 @@ class Chapter extends Entity
     /**
      * Get the pages that this chapter contains.
      *
-     * @param  string  $dir
+     * @param string $dir
+     *
      * @return mixed
      */
     public function pages($dir = 'ASC')
@@ -42,7 +43,8 @@ class Chapter extends Entity
     /**
      * Get the url of this chapter.
      *
-     * @param  string|bool  $path
+     * @param string|bool $path
+     *
      * @return string
      */
     public function getUrl($path = false)

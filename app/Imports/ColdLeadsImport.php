@@ -15,20 +15,20 @@ class ColdLeadsImport implements ToCollection, WithHeadingRow
     public function collection(Collection $collection)
     {
         foreach ($collection as $lead) {
-            $name = $lead['name'];
+            $name    = $lead['name'];
             $contact = (int) $lead['contact_no'];
-            $city = $lead['cities'];
+            $city    = $lead['cities'];
 
-            $coldLead = new ColdLeads();
-            $coldLead->name = $name;
-            $coldLead->username = $contact;
-            $coldLead->platform = 'whatsapp';
+            $coldLead              = new ColdLeads();
+            $coldLead->name        = $name;
+            $coldLead->username    = $contact;
+            $coldLead->platform    = 'whatsapp';
             $coldLead->platform_id = $contact;
-            $coldLead->rating = 10;
-            $coldLead->bio = 'Imported from excel sheet';
-            $coldLead->because_of = 'Excel Import';
-            $coldLead->country = 'India';
-            $coldLead->address = $city;
+            $coldLead->rating      = 10;
+            $coldLead->bio         = 'Imported from excel sheet';
+            $coldLead->because_of  = 'Excel Import';
+            $coldLead->country     = 'India';
+            $coldLead->address     = $city;
             $coldLead->is_imported = 1;
             $coldLead->save();
 

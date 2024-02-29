@@ -45,7 +45,8 @@ class ShopifyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -56,7 +57,8 @@ class ShopifyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -67,7 +69,8 @@ class ShopifyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -78,7 +81,8 @@ class ShopifyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -122,7 +126,7 @@ class ShopifyController extends Controller
         // https://shopify.dev/tutorials/manage-webhooks#verifying-webhooks
         // Get the secret key from store_websites
         $shopify_secret = StoreWebsite::find($store_id)->api_token;
-        $hmac_header = $request->header('x-shopify-hmac-sha256');
+        $hmac_header    = $request->header('x-shopify-hmac-sha256');
 
         if (! ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
             // Log into general log channel
@@ -174,7 +178,7 @@ class ShopifyController extends Controller
         // https://shopify.dev/tutorials/manage-webhooks#verifying-webhooks
         // Get the secret key from store_websites
         $shopify_secret = StoreWebsite::find($store_id)->api_token;
-        $hmac_header = $request->header('x-shopify-hmac-sha256');
+        $hmac_header    = $request->header('x-shopify-hmac-sha256');
 
         if (! ShopifyHelper::validateShopifyWebhook($request->getContent(), $shopify_secret, $hmac_header)) {
             \Log::channel('customer')->debug('Customer webhook failed ');

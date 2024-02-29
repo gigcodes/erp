@@ -16,7 +16,7 @@ class PleskController extends Controller
     public function index()
     {
         $pleskHelper = new PleskHelper;
-        $domains = $pleskHelper->getDomains();
+        $domains     = $pleskHelper->getDomains();
         if ($domains) {
             return view('plesk.index', compact('domains'));
         }
@@ -26,6 +26,8 @@ class PleskController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -38,27 +40,27 @@ class PleskController extends Controller
 
     public function submitMail($id, Request $request)
     {
-        $pleskHelper = new PleskHelper;
+        $pleskHelper   = new PleskHelper;
         $validatedData = $request->validate([
-            'name' => 'required',
+            'name'     => 'required',
             'password' => 'required|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*?_~:,()\[\]{}]).+$/',
         ]);
         try {
-            $response = $pleskHelper->createMail($request->name, $id, $request->mailbox, $request->password);
-            $address = new EmailAddress;
-            $address->from_name = $request->name;
+            $response              = $pleskHelper->createMail($request->name, $id, $request->mailbox, $request->password);
+            $address               = new EmailAddress;
+            $address->from_name    = $request->name;
             $address->from_address = $request->name . '@' . $request->site_name;
-            $address->driver = 'imap';
-            $address->host = $request->site_name;
-            $address->port = '993';
-            $address->encryption = 'ssl';
-            $address->username = $request->name . '@' . $request->site_name;
-            $address->password = $request->password;
+            $address->driver       = 'imap';
+            $address->host         = $request->site_name;
+            $address->port         = '993';
+            $address->encryption   = 'ssl';
+            $address->username     = $request->name . '@' . $request->site_name;
+            $address->password     = $request->password;
             $address->save();
-            $msg = 'Successfully created';
+            $msg  = 'Successfully created';
             $type = 'success';
         } catch (\Exception $e) {
-            $msg = $e->getMessage();
+            $msg  = $e->getMessage();
             $type = 'warning';
         }
 
@@ -70,10 +72,10 @@ class PleskController extends Controller
         $pleskHelper = new PleskHelper;
         try {
             $mailAccount = $pleskHelper->getMailAccounts($id);
-            $msg = 'Successful';
-            $type = 'success';
+            $msg         = 'Successful';
+            $type        = 'success';
         } catch (\Exception $e) {
-            $msg = $e->getMessage();
+            $msg  = $e->getMessage();
             $type = 'warning';
         }
         $site_name = $request->name;
@@ -88,7 +90,7 @@ class PleskController extends Controller
             $pleskHelper->deleteMailAccount($id, $request->name);
             $username = $request->name . '@' . $request->site_name;
             EmailAddress::where('username', $username)->delete();
-            $msg = 'Successful';
+            $msg  = 'Successful';
             $type = 'success';
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -109,10 +111,10 @@ class PleskController extends Controller
             $pleskHelper->changePassword($request->hidden_site_id, $request->hidden_mail_name, $request->password);
             $username = $request->hidden_mail_name . '@' . $request->hidden_domain_name;
             EmailAddress::where('username', $username)->update(['password' => $request->password]);
-            $msg = 'Successful';
+            $msg  = 'Successful';
             $type = 'success';
         } catch (\Exception $e) {
-            $msg = $e->getMessage();
+            $msg  = $e->getMessage();
             $type = 'warning';
         }
 
@@ -132,13 +134,14 @@ class PleskController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         $pleskHelper = new PleskHelper;
-        $domain = $pleskHelper->viewDomain($id);
+        $domain      = $pleskHelper->viewDomain($id);
         if ($domain) {
             return view('plesk.show', compact('domain'));
         }
@@ -149,7 +152,8 @@ class PleskController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -160,7 +164,8 @@ class PleskController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -171,7 +176,8 @@ class PleskController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

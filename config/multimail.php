@@ -10,8 +10,8 @@ return [
     |
     */
     'use_default_mail_facade_in_tests' => true,
-    'config_class' => true,
-    'mail_settings_class' => \App\Library\CustomMail::class,
+    'config_class'                     => true,
+    'mail_settings_class'              => \App\Library\CustomMail::class,
     /*'emails'  => [
         'office@example.com' => [
             'pass'          => env('MAIL_PASSWORD'),

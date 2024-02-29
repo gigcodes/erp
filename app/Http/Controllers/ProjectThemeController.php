@@ -44,29 +44,29 @@ class ProjectThemeController extends Controller
         $this->validate(
             $request, [
                 'project_id' => 'required',
-                'name' => 'required',
+                'name'       => 'required',
             ]
         );
 
         $data = $request->except('_token');
 
         // Save
-        $projectTheme = new ProjectTheme();
+        $projectTheme             = new ProjectTheme();
         $projectTheme->project_id = $data['project_id'];
-        $projectTheme->name = $data['name'];
+        $projectTheme->name       = $data['name'];
         $projectTheme->save();
 
-        $themeStructure = new ThemeStructure();
+        $themeStructure           = new ThemeStructure();
         $themeStructure->theme_id = $projectTheme->id;
-        $themeStructure->name = $projectTheme->name;
-        $themeStructure->is_file = 0;
-        $themeStructure->is_root = 1;
+        $themeStructure->name     = $projectTheme->name;
+        $themeStructure->is_file  = 0;
+        $themeStructure->is_root  = 1;
         $themeStructure->save();
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Project theme created successfully!',
             ]
         );
@@ -89,7 +89,7 @@ class ProjectThemeController extends Controller
         $this->validate(
             $request, [
                 'project_id' => 'required',
-                'name' => 'required',
+                'name'       => 'required',
             ]
         );
 
@@ -99,7 +99,7 @@ class ProjectThemeController extends Controller
 
         // Save
         $projectTheme->project_id = $data['project_id'];
-        $projectTheme->name = $data['name'];
+        $projectTheme->name       = $data['name'];
         $projectTheme->save();
 
         $themeStructure = ThemeStructure::where('theme_id', $id)->where('is_root', 1)->first();
@@ -111,8 +111,8 @@ class ProjectThemeController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Project theme updated successfully!',
             ]
         );

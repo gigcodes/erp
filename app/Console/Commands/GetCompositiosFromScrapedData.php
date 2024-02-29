@@ -38,16 +38,16 @@ class GetCompositiosFromScrapedData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             Product::where('composition', '')->orWhereNull('composition')->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     $scrapedProducts = $product->many_scraped_products;
-                    $found = false;
+                    $found           = false;
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $property = $scrapedProduct->properties;
+                        $property    = $scrapedProduct->properties;
                         $composition = $property['composition'] ?? '';
                         if ($composition) {
                             dump($composition);
@@ -99,7 +99,7 @@ class GetCompositiosFromScrapedData extends Command
 
     private function getCompositionValuesFromRawData($scrapedProduct)
     {
-        $properties = json_encode($scrapedProduct->properties);
+        $properties  = json_encode($scrapedProduct->properties);
         $description = $scrapedProduct->description;
 
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $properties, $extractedData);

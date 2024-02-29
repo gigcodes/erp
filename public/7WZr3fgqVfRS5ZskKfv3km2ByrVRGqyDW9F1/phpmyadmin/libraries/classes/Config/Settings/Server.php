@@ -514,73 +514,73 @@ final class Server
     public $hide_connection_errors;
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     public function __construct(array $server = [])
     {
-        $this->host = $this->setHost($server);
-        $this->port = $this->setPort($server);
-        $this->socket = $this->setSocket($server);
-        $this->ssl = $this->setSsl($server);
-        $this->ssl_key = $this->setSslKey($server);
-        $this->ssl_cert = $this->setSslCert($server);
-        $this->ssl_ca = $this->setSslCa($server);
-        $this->ssl_ca_path = $this->setSslCaPath($server);
-        $this->ssl_ciphers = $this->setSslCiphers($server);
-        $this->ssl_verify = $this->setSslVerify($server);
-        $this->compress = $this->setCompress($server);
-        $this->controlhost = $this->setControlhost($server);
-        $this->controlport = $this->setControlport($server);
-        $this->controluser = $this->setControluser($server);
-        $this->controlpass = $this->setControlpass($server);
-        $this->auth_type = $this->setAuthType($server);
-        $this->auth_http_realm = $this->setAuthHttpRealm($server);
-        $this->user = $this->setUser($server);
-        $this->password = $this->setPassword($server);
-        $this->SignonSession = $this->setSignonSession($server);
-        $this->SignonCookieParams = $this->setSignonCookieParams($server);
-        $this->SignonScript = $this->setSignonScript($server);
-        $this->SignonURL = $this->setSignonUrl($server);
-        $this->LogoutURL = $this->setLogoutUrl($server);
-        $this->only_db = $this->setOnlyDb($server);
-        $this->hide_db = $this->setHideDb($server);
-        $this->verbose = $this->setVerbose($server);
-        $this->pmadb = $this->setPmadb($server);
-        $this->bookmarktable = $this->setBookmarktable($server);
-        $this->relation = $this->setRelation($server);
-        $this->table_info = $this->setTableInfo($server);
-        $this->table_coords = $this->setTableCoords($server);
-        $this->pdf_pages = $this->setPdfPages($server);
-        $this->column_info = $this->setColumnInfo($server);
-        $this->history = $this->setHistory($server);
-        $this->recent = $this->setRecent($server);
-        $this->favorite = $this->setFavorite($server);
-        $this->table_uiprefs = $this->setTableUiprefs($server);
-        $this->tracking = $this->setTracking($server);
-        $this->userconfig = $this->setUserconfig($server);
-        $this->users = $this->setUsers($server);
-        $this->usergroups = $this->setUsergroups($server);
-        $this->navigationhiding = $this->setNavigationhiding($server);
-        $this->savedsearches = $this->setSavedsearches($server);
-        $this->central_columns = $this->setCentralColumns($server);
-        $this->designer_settings = $this->setDesignerSettings($server);
-        $this->export_templates = $this->setExportTemplates($server);
-        $this->MaxTableUiprefs = $this->setMaxTableUiprefs($server);
-        $this->SessionTimeZone = $this->setSessionTimeZone($server);
-        $this->AllowRoot = $this->setAllowRoot($server);
-        $this->AllowNoPassword = $this->setAllowNoPassword($server);
-        $this->AllowDeny = $this->setAllowDeny($server);
-        $this->DisableIS = $this->setDisableIs($server);
+        $this->host                         = $this->setHost($server);
+        $this->port                         = $this->setPort($server);
+        $this->socket                       = $this->setSocket($server);
+        $this->ssl                          = $this->setSsl($server);
+        $this->ssl_key                      = $this->setSslKey($server);
+        $this->ssl_cert                     = $this->setSslCert($server);
+        $this->ssl_ca                       = $this->setSslCa($server);
+        $this->ssl_ca_path                  = $this->setSslCaPath($server);
+        $this->ssl_ciphers                  = $this->setSslCiphers($server);
+        $this->ssl_verify                   = $this->setSslVerify($server);
+        $this->compress                     = $this->setCompress($server);
+        $this->controlhost                  = $this->setControlhost($server);
+        $this->controlport                  = $this->setControlport($server);
+        $this->controluser                  = $this->setControluser($server);
+        $this->controlpass                  = $this->setControlpass($server);
+        $this->auth_type                    = $this->setAuthType($server);
+        $this->auth_http_realm              = $this->setAuthHttpRealm($server);
+        $this->user                         = $this->setUser($server);
+        $this->password                     = $this->setPassword($server);
+        $this->SignonSession                = $this->setSignonSession($server);
+        $this->SignonCookieParams           = $this->setSignonCookieParams($server);
+        $this->SignonScript                 = $this->setSignonScript($server);
+        $this->SignonURL                    = $this->setSignonUrl($server);
+        $this->LogoutURL                    = $this->setLogoutUrl($server);
+        $this->only_db                      = $this->setOnlyDb($server);
+        $this->hide_db                      = $this->setHideDb($server);
+        $this->verbose                      = $this->setVerbose($server);
+        $this->pmadb                        = $this->setPmadb($server);
+        $this->bookmarktable                = $this->setBookmarktable($server);
+        $this->relation                     = $this->setRelation($server);
+        $this->table_info                   = $this->setTableInfo($server);
+        $this->table_coords                 = $this->setTableCoords($server);
+        $this->pdf_pages                    = $this->setPdfPages($server);
+        $this->column_info                  = $this->setColumnInfo($server);
+        $this->history                      = $this->setHistory($server);
+        $this->recent                       = $this->setRecent($server);
+        $this->favorite                     = $this->setFavorite($server);
+        $this->table_uiprefs                = $this->setTableUiprefs($server);
+        $this->tracking                     = $this->setTracking($server);
+        $this->userconfig                   = $this->setUserconfig($server);
+        $this->users                        = $this->setUsers($server);
+        $this->usergroups                   = $this->setUsergroups($server);
+        $this->navigationhiding             = $this->setNavigationhiding($server);
+        $this->savedsearches                = $this->setSavedsearches($server);
+        $this->central_columns              = $this->setCentralColumns($server);
+        $this->designer_settings            = $this->setDesignerSettings($server);
+        $this->export_templates             = $this->setExportTemplates($server);
+        $this->MaxTableUiprefs              = $this->setMaxTableUiprefs($server);
+        $this->SessionTimeZone              = $this->setSessionTimeZone($server);
+        $this->AllowRoot                    = $this->setAllowRoot($server);
+        $this->AllowNoPassword              = $this->setAllowNoPassword($server);
+        $this->AllowDeny                    = $this->setAllowDeny($server);
+        $this->DisableIS                    = $this->setDisableIs($server);
         $this->tracking_version_auto_create = $this->setTrackingVersionAutoCreate($server);
-        $this->tracking_default_statements = $this->setTrackingDefaultStatements($server);
-        $this->tracking_add_drop_view = $this->setTrackingAddDropView($server);
-        $this->tracking_add_drop_table = $this->setTrackingAddDropTable($server);
-        $this->tracking_add_drop_database = $this->setTrackingAddDropDatabase($server);
-        $this->hide_connection_errors = $this->setHideConnectionErrors($server);
+        $this->tracking_default_statements  = $this->setTrackingDefaultStatements($server);
+        $this->tracking_add_drop_view       = $this->setTrackingAddDropView($server);
+        $this->tracking_add_drop_table      = $this->setTrackingAddDropTable($server);
+        $this->tracking_add_drop_database   = $this->setTrackingAddDropDatabase($server);
+        $this->hide_connection_errors       = $this->setHideConnectionErrors($server);
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setHost(array $server): string
     {
@@ -592,7 +592,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setPort(array $server): string
     {
@@ -604,7 +604,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSocket(array $server): string
     {
@@ -616,7 +616,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSsl(array $server): bool
     {
@@ -628,7 +628,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslKey(array $server): ?string
     {
@@ -640,7 +640,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslCert(array $server): ?string
     {
@@ -652,7 +652,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslCa(array $server): ?string
     {
@@ -664,7 +664,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslCaPath(array $server): ?string
     {
@@ -676,7 +676,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslCiphers(array $server): ?string
     {
@@ -688,7 +688,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSslVerify(array $server): bool
     {
@@ -700,7 +700,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setCompress(array $server): bool
     {
@@ -712,7 +712,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setControlhost(array $server): string
     {
@@ -724,7 +724,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setControlport(array $server): string
     {
@@ -736,7 +736,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setControluser(array $server): string
     {
@@ -748,7 +748,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setControlpass(array $server): string
     {
@@ -760,7 +760,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      *
      * @psalm-return 'config'|'http'|'signon'|'cookie'
      */
@@ -774,7 +774,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setAuthHttpRealm(array $server): string
     {
@@ -786,7 +786,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setUser(array $server): string
     {
@@ -798,7 +798,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setPassword(array $server): string
     {
@@ -810,7 +810,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSignonSession(array $server): string
     {
@@ -822,7 +822,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return array<string, int|string|bool>
      *
      * @psalm-return array{
@@ -868,7 +869,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSignonScript(array $server): string
     {
@@ -880,7 +881,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSignonUrl(array $server): string
     {
@@ -892,7 +893,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setLogoutUrl(array $server): string
     {
@@ -904,7 +905,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return string|string[]
      */
     private function setOnlyDb(array $server)
@@ -926,7 +928,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setHideDb(array $server): string
     {
@@ -938,7 +940,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setVerbose(array $server): string
     {
@@ -950,7 +952,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setPmadb(array $server): string
     {
@@ -962,7 +964,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setBookmarktable(array $server)
@@ -975,7 +978,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setRelation(array $server)
@@ -988,7 +992,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setTableInfo(array $server)
@@ -1001,7 +1006,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setTableCoords(array $server)
@@ -1014,7 +1020,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setPdfPages(array $server)
@@ -1027,7 +1034,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setColumnInfo(array $server)
@@ -1040,7 +1048,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setHistory(array $server)
@@ -1053,7 +1062,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setRecent(array $server)
@@ -1066,7 +1076,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setFavorite(array $server)
@@ -1079,7 +1090,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setTableUiprefs(array $server)
@@ -1092,7 +1104,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setTracking(array $server)
@@ -1105,7 +1118,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setUserconfig(array $server)
@@ -1118,7 +1132,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setUsers(array $server)
@@ -1131,7 +1146,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setUsergroups(array $server)
@@ -1144,7 +1160,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setNavigationhiding(array $server)
@@ -1159,7 +1176,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setSavedsearches(array $server)
@@ -1172,7 +1190,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setCentralColumns(array $server)
@@ -1185,7 +1204,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setDesignerSettings(array $server)
@@ -1200,7 +1220,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return false|string
      */
     private function setExportTemplates(array $server)
@@ -1215,7 +1236,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      *
      * @psalm-return positive-int
      */
@@ -1232,7 +1253,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setSessionTimeZone(array $server): string
     {
@@ -1244,7 +1265,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setAllowRoot(array $server): bool
     {
@@ -1256,7 +1277,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setAllowNoPassword(array $server): bool
     {
@@ -1268,7 +1289,8 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
+     *
      * @return array<string, string|string[]>
      *
      * @psalm-return array{order: ''|'deny,allow'|'allow,deny'|'explicit', rules: string[]}
@@ -1296,7 +1318,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setDisableIs(array $server): bool
     {
@@ -1308,7 +1330,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setTrackingVersionAutoCreate(array $server): bool
     {
@@ -1320,7 +1342,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setTrackingDefaultStatements(array $server): string
     {
@@ -1333,7 +1355,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setTrackingAddDropView(array $server): bool
     {
@@ -1345,7 +1367,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setTrackingAddDropTable(array $server): bool
     {
@@ -1357,7 +1379,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setTrackingAddDropDatabase(array $server): bool
     {
@@ -1369,7 +1391,7 @@ final class Server
     }
 
     /**
-     * @param  array<int|string, mixed>  $server
+     * @param array<int|string, mixed> $server
      */
     private function setHideConnectionErrors(array $server): bool
     {

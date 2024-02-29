@@ -50,7 +50,7 @@ class StatusController
             usleep(300000);
 
             $maximumTime = ini_get('max_execution_time');
-            $timestamp = time();
+            $timestamp   = time();
             // wait until message is available
             while (($_SESSION['Import_message']['message'] ?? null) == null) {
                 // close session before sleeping

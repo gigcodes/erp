@@ -255,13 +255,13 @@ class ProductHelper extends Model
     public static function getEuSize($product, $sizes, $scraperSizeSystem = null)
     {
         $category = $product->categories;
-        $ids = [];
+        $ids      = [];
         if ($category) {
             $ids[] = $product->category;
             if ($category && $category->parent) {
                 $parentModel = $category->parent;
                 if ($parentModel) {
-                    $ids[] = $parentModel->id;
+                    $ids[]            = $parentModel->id;
                     $grandParentModel = $parentModel->parent;
                     if ($grandParentModel) {
                         $ids[] = $grandParentModel->id;
@@ -775,16 +775,18 @@ class ProductHelper extends Model
      * get product images by helper class
      * $params = []
      *
+     * @param mixed $params
+     *
      * @return []
      */
     public static function getImagesByProduct($params = [])
     {
-        $brand = ! empty($params['brand']) ? $params['brand'] : null;
-        $category = ! empty($params['category']) ? $params['category'] : null;
-        $numberOfProduts = ! empty($params['number_of_products']) ? $params['number_of_products'] : 10;
+        $brand             = ! empty($params['brand']) ? $params['brand'] : null;
+        $category          = ! empty($params['category']) ? $params['category'] : null;
+        $numberOfProduts   = ! empty($params['number_of_products']) ? $params['number_of_products'] : 10;
         $quick_sell_groups = ! empty($params['quick_sell_groups']) ? $params['quick_sell_groups'] : [];
-        $product_ids = ! empty($params['product_ids']) ? explode(',', $params['product_ids']) : [];
-        $skus = ! empty($params['skus']) ? explode(',', $params['skus']) : [];
+        $product_ids       = ! empty($params['product_ids']) ? explode(',', $params['product_ids']) : [];
+        $skus              = ! empty($params['skus']) ? explode(',', $params['skus']) : [];
 
         $product = new Product;
         $toBeRun = false;
@@ -815,9 +817,9 @@ class ProductHelper extends Model
 
         // search by quicksell groups
         if (! empty($quick_sell_groups)) {
-            $toBeRun = true;
+            $toBeRun           = true;
             $quick_sell_groups = rtrim(ltrim($quick_sell_groups, ','), ',');
-            $product = $product->whereRaw('(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . $quick_sell_groups . ') ))');
+            $product           = $product->whereRaw('(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . $quick_sell_groups . ') ))');
         }
 
         // check able to run queue ?
@@ -854,7 +856,7 @@ class ProductHelper extends Model
         $storeWebsiteBrands = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->get();
 
         $storeCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get();
-        $websiteArray = [];
+        $websiteArray    = [];
         foreach ($storeCategories as $storeCategory) {
             $storeBrands = $storeWebsiteBrands->where('store_website_id', $storeCategory->store_website_id);
 
@@ -887,7 +889,7 @@ class ProductHelper extends Model
         $category = $product->category;
 
         $storeWebsiteIdOfCategories = StoreWebsiteCategory::where('category_id', $category)->where('remote_id', '>', 0)->get()->pluck('store_website_id');
-        $websiteArray = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeWebsiteIdOfCategories)->get()->pluck('store_website_id')->toArray();
+        $websiteArray               = StoreWebsiteBrand::where('brand_id', $brand)->where('magento_value', '>', 0)->whereIn('store_website_id', $storeWebsiteIdOfCategories)->get()->pluck('store_website_id')->toArray();
 
         //Exception for o-labels
         if ($product->landingPageProduct) {
@@ -914,7 +916,7 @@ class ProductHelper extends Model
         $finalResult = $store_websites_of_null_tags->merge($store_websites_of_not_null_tags);
 
         if ($singleStore) {
-            $singleResult = [];
+            $singleResult   = [];
             $singleResult[] = $finalResult[0];
 
             return $singleResult;
@@ -949,13 +951,13 @@ class ProductHelper extends Model
     public static function getCategoryEuSize($product)
     {
         $category = $product->categories;
-        $ids = [];
+        $ids      = [];
         if ($category) {
             $ids[] = $product->category;
             if ($category && $category->parent) {
                 $parentModel = $category->parent;
                 if ($parentModel) {
-                    $ids[] = $parentModel->id;
+                    $ids[]            = $parentModel->id;
                     $grandParentModel = $parentModel->parent;
                     if ($grandParentModel) {
                         $ids[] = $grandParentModel->id;

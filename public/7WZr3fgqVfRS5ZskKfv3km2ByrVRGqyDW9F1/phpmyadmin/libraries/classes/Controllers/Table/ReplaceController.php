@@ -61,10 +61,10 @@ final class ReplaceController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->insertEdit = $insertEdit;
+        $this->insertEdit      = $insertEdit;
         $this->transformations = $transformations;
-        $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->relation        = $relation;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -136,8 +136,8 @@ final class ReplaceController extends AbstractController
             $is_insertignore,
         ] = $this->insertEdit->getParamsForUpdateOrInsert();
 
-        $query = [];
-        $value_sets = [];
+        $query         = [];
+        $value_sets    = [];
         $func_no_param = [
             'CONNECTION_ID',
             'CURRENT_USER',
@@ -213,9 +213,9 @@ final class ReplaceController extends AbstractController
             $mime_map = [];
         }
 
-        $query_fields = [];
-        $insert_errors = [];
-        $row_skipped = false;
+        $query_fields   = [];
+        $insert_errors  = [];
+        $row_skipped    = false;
         $unsaved_values = [];
         foreach ($loop_array as $rownumber => $where_clause) {
             // skip fields to be ignored
@@ -227,16 +227,16 @@ final class ReplaceController extends AbstractController
             $query_values = [];
 
             // Map multi-edit keys to single-level arrays, dependent on how we got the fields
-            $multi_edit_columns = $_POST['fields']['multi_edit'][$rownumber] ?? [];
-            $multi_edit_columns_name = $_POST['fields_name']['multi_edit'][$rownumber] ?? [];
-            $multi_edit_columns_prev = $_POST['fields_prev']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_funcs = $_POST['funcs']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_salt = $_POST['salt']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_columns_type = $_POST['fields_type']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_columns_null = $_POST['fields_null']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_columns           = $_POST['fields']['multi_edit'][$rownumber] ?? [];
+            $multi_edit_columns_name      = $_POST['fields_name']['multi_edit'][$rownumber] ?? [];
+            $multi_edit_columns_prev      = $_POST['fields_prev']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_funcs             = $_POST['funcs']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_salt              = $_POST['salt']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_columns_type      = $_POST['fields_type']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_columns_null      = $_POST['fields_null']['multi_edit'][$rownumber] ?? null;
             $multi_edit_columns_null_prev = $_POST['fields_null_prev']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_auto_increment = $_POST['auto_increment']['multi_edit'][$rownumber] ?? null;
-            $multi_edit_virtual = $_POST['virtual']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_auto_increment    = $_POST['auto_increment']['multi_edit'][$rownumber] ?? null;
+            $multi_edit_virtual           = $_POST['virtual']['multi_edit'][$rownumber] ?? null;
 
             // When a select field is nullified, it's not present in $_POST
             // so initialize it; this way, the foreach($multi_edit_columns) will process it
@@ -273,7 +273,7 @@ final class ReplaceController extends AbstractController
                         $classname = $this->transformations->getClassName($filename);
                         if (class_exists($classname)) {
                             /** @var IOTransformationsPlugin $transformation_plugin */
-                            $transformation_plugin = new $classname();
+                            $transformation_plugin  = new $classname();
                             $transformation_options = $this->transformations->getOptions(
                                 $mime_map[$column_name]['input_transformation_options']
                             );
@@ -287,8 +287,8 @@ final class ReplaceController extends AbstractController
                                 method_exists($transformation_plugin, 'isSuccess')
                                 && ! $transformation_plugin->isSuccess()
                             ) {
-                                $insert_fail = true;
-                                $row_skipped = true;
+                                $insert_fail     = true;
+                                $row_skipped     = true;
                                 $insert_errors[] = sprintf(
                                     __('Row: %1$s, Column: %2$s, Error: %3$s'),
                                     $rownumber,
@@ -377,7 +377,7 @@ final class ReplaceController extends AbstractController
             } else {
                 // build update query
                 $clauseIsUnique = $_POST['clause_is_unique'] ?? ''; // Should contain 0 or 1
-                $query[] = 'UPDATE ' . Util::backquote($table)
+                $query[]        = 'UPDATE ' . Util::backquote($table)
                     . ' SET ' . implode(', ', $query_values)
                     . ' WHERE ' . $where_clause
                     . ($clauseIsUnique ? '' : ' LIMIT 1');
@@ -478,7 +478,7 @@ final class ReplaceController extends AbstractController
         ] = $this->insertEdit->executeSqlQuery($urlParams, $query);
 
         if ($is_insert && (count($value_sets) > 0 || $row_skipped)) {
-            $message = Message::getMessageForInsertedRows($total_affected_rows);
+            $message        = Message::getMessageForInsertedRows($total_affected_rows);
             $unsaved_values = array_values($unsaved_values);
         } else {
             $message = Message::getMessageForAffectedRows($total_affected_rows);
@@ -534,7 +534,7 @@ final class ReplaceController extends AbstractController
                 foreach ($relation_fields as $cell_index => $curr_rel_field) {
                     foreach ($curr_rel_field as $relation_field => $relation_field_value) {
                         $where_comparison = "='" . $relation_field_value . "'";
-                        $dispval = $this->insertEdit->getDisplayValueForForeignTableColumn(
+                        $dispval          = $this->insertEdit->getDisplayValueForForeignTableColumn(
                             $where_comparison,
                             $map,
                             $relation_field
@@ -566,7 +566,7 @@ final class ReplaceController extends AbstractController
                 foreach ($mime_map as $transformation) {
                     $column_name = $transformation['column_name'];
                     foreach ($transformation_types as $type) {
-                        $file = Core::securePath($transformation[$type]);
+                        $file       = Core::securePath($transformation[$type]);
                         $extra_data = $this->insertEdit->transformEditedValues(
                             $db,
                             $table,
@@ -593,7 +593,7 @@ final class ReplaceController extends AbstractController
             );
 
             /**Get the total row count of the table*/
-            $_table = new Table($_POST['table'], $_POST['db']);
+            $_table                  = new Table($_POST['table'], $_POST['db']);
             $extra_data['row_count'] = $_table->countRecords();
 
             $extra_data['sql_query'] = Generator::getMessage($message, $GLOBALS['display_query']);
@@ -606,7 +606,7 @@ final class ReplaceController extends AbstractController
         }
 
         if (! empty($return_to_sql_query)) {
-            $disp_query = $GLOBALS['sql_query'];
+            $disp_query   = $GLOBALS['sql_query'];
             $disp_message = $message;
             unset($message);
             $GLOBALS['sql_query'] = $return_to_sql_query;

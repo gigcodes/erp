@@ -40,7 +40,7 @@ class ProductApproverController extends Controller
 
         if ($result) {
             $product->isFinal = 1;
-            $product->stage = $stage->get('Approver');
+            $product->stage   = $stage->get('Approver');
             $product->save();
 
             NotificaitonContoller::store('has Final Approved', ['Inventory'], $product->id);
@@ -59,19 +59,19 @@ class ProductApproverController extends Controller
     public function magentoSoapUpdateStatus($product)
     {
         $options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
 
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $proxy     = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-        $errors = 0;
+        $errors    = 0;
 
         if ($product->references) {
             $reference_array = [];
             $reference_color = '';
-            $reference_sku = '';
+            $reference_sku   = '';
 
             foreach ($product->references as $reference) {
                 if ($reference->size != '') {
@@ -79,7 +79,7 @@ class ProductApproverController extends Controller
                 }
 
                 $reference_color = $reference->color;
-                $reference_sku = $reference->sku;
+                $reference_sku   = $reference->sku;
             }
 
             $reference_final_sku = $reference_sku . $reference_color;
@@ -120,7 +120,7 @@ class ProductApproverController extends Controller
         if ($errors == 0) {
             $product->is_uploaded_date = Carbon::now();
 
-            $product->isFinal = 1;
+            $product->isFinal  = 1;
             $product->isListed = 1;
 
             $product->save();
@@ -132,19 +132,19 @@ class ProductApproverController extends Controller
     public function magentoSoapUnlistProduct($product)
     {
         $options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
 
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $proxy     = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-        $errors = 0;
+        $errors    = 0;
 
         if ($product->references) {
             $reference_array = [];
             $reference_color = '';
-            $reference_sku = '';
+            $reference_sku   = '';
 
             foreach ($product->references as $reference) {
                 if ($reference->size != '') {
@@ -152,7 +152,7 @@ class ProductApproverController extends Controller
                 }
 
                 $reference_color = $reference->color;
-                $reference_sku = $reference->sku;
+                $reference_sku   = $reference->sku;
             }
 
             $reference_final_sku = $reference_sku . $reference_color;
@@ -193,7 +193,7 @@ class ProductApproverController extends Controller
         if ($errors == 0) {
             $product->is_uploaded_date = Carbon::now();
 
-            $product->isFinal = 0;
+            $product->isFinal  = 0;
             $product->isListed = 0;
 
             $product->save();

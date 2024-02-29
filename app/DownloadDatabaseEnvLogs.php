@@ -29,11 +29,11 @@ class DownloadDatabaseEnvLogs extends Model
     public function saveLog($store_website_id, $user_id, $type, $cmd, $output = [], $return_var = null)
     {
         $this->store_website_id = $store_website_id;
-        $this->user_id = $user_id;
-        $this->type = $type;
-        $this->cmd = $cmd;
-        $this->output = $output;
-        $this->return_var = $return_var;
+        $this->user_id          = $user_id;
+        $this->type             = $type;
+        $this->cmd              = $cmd;
+        $this->output           = $output;
+        $this->return_var       = $return_var;
         $this->save();
 
         return $this; // Return the saved model instance

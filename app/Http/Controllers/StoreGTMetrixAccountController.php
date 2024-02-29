@@ -32,8 +32,8 @@ class StoreGTMetrixAccountController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required',
-            'password' => 'required',
+            'email'      => 'required',
+            'password'   => 'required',
             'account_id' => 'required',
         ]);
 
@@ -53,6 +53,8 @@ class StoreGTMetrixAccountController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     *
+     * @param mixed $id
      */
     public function edit($id)
     {
@@ -67,16 +69,16 @@ class StoreGTMetrixAccountController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required',
-            'password' => 'required',
+            'email'      => 'required',
+            'password'   => 'required',
             'account_id' => 'required',
         ]);
-        $id = $request->input('id');
-        $input['email'] = $request->input('email');
-        $input['password'] = $request->input('password');
+        $id                  = $request->input('id');
+        $input['email']      = $request->input('email');
+        $input['password']   = $request->input('password');
         $input['account_id'] = $request->input('account_id');
-        $input['status'] = $request->input('status');
-        $insert = StoreGTMetrixAccount::where('id', $id)->update($input);
+        $input['status']     = $request->input('status');
+        $insert              = StoreGTMetrixAccount::where('id', $id)->update($input);
 
         return redirect()->route('GtMetrixAccount.index')
             ->with('success', 'GtMetrixAccount updated successfully');
@@ -84,6 +86,8 @@ class StoreGTMetrixAccountController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param mixed $id
      */
     public function destroy($id)
     {

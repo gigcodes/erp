@@ -28,6 +28,6 @@ class ConfigRefactorSection extends Model
 
     public static $types = [
         self::NONDEFAULT => 'Non Default',
-        self::DEFAULT => 'Default',
+        self::DEFAULT    => 'Default',
     ];
 }

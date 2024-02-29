@@ -34,7 +34,7 @@ class ScrapedProducts extends Model
      * @SWG\Property(property="composition",type="string")
      */
     protected $casts = [
-        'images' => 'array',
+        'images'     => 'array',
         'properties' => 'array',
     ];
 
@@ -104,18 +104,18 @@ class ScrapedProducts extends Model
                     $scrapedProduct = ScrapedProducts::whereIn('sku', [$json->sku, $ourSku])->where('website', $json->website)->first();
 
                     // Get brand name
-                    $brand = Brand::find($json->brand_id);
+                    $brand     = Brand::find($json->brand_id);
                     $brandName = $brand->name;
 
                     // Existing product
                     if ($scrapedProduct) {
                         // Update scraped product
-                        $scrapedProduct->is_excel = $isExcel;
-                        $scrapedProduct->properties = $json->properties;
-                        $scrapedProduct->original_sku = $json->sku;
-                        $scrapedProduct->is_sale = $json->is_sale;
-                        $scrapedProduct->properties = $json->properties;
-                        $scrapedProduct->description = $json->description;
+                        $scrapedProduct->is_excel          = $isExcel;
+                        $scrapedProduct->properties        = $json->properties;
+                        $scrapedProduct->original_sku      = $json->sku;
+                        $scrapedProduct->is_sale           = $json->is_sale;
+                        $scrapedProduct->properties        = $json->properties;
+                        $scrapedProduct->description       = $json->description;
                         $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                         $scrapedProduct->save();
 
@@ -130,23 +130,23 @@ class ScrapedProducts extends Model
                         }
                     } else {
                         // Add new scraped product
-                        $scrapedProduct = new ScrapedProducts();
-                        $scrapedProduct->brand_id = $json->brand_id;
-                        $scrapedProduct->sku = $ourSku;
-                        $scrapedProduct->original_sku = $json->sku;
-                        $scrapedProduct->website = $json->website;
-                        $scrapedProduct->title = $json->title;
-                        $scrapedProduct->description = $json->description;
-                        $scrapedProduct->images = $json->images;
-                        $scrapedProduct->price = (strlen($json->price) > 0 ? $json->price : 0);
+                        $scrapedProduct                    = new ScrapedProducts();
+                        $scrapedProduct->brand_id          = $json->brand_id;
+                        $scrapedProduct->sku               = $ourSku;
+                        $scrapedProduct->original_sku      = $json->sku;
+                        $scrapedProduct->website           = $json->website;
+                        $scrapedProduct->title             = $json->title;
+                        $scrapedProduct->description       = $json->description;
+                        $scrapedProduct->images            = $json->images;
+                        $scrapedProduct->price             = (strlen($json->price) > 0 ? $json->price : 0);
                         $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                         if ($json->sku != 'N/A') {
                             $scrapedProduct->has_sku = 1;
                         }
                         $scrapedProduct->is_price_updated = 1;
-                        $scrapedProduct->url = $json->url;
-                        $scrapedProduct->is_sale = $json->is_sale;
-                        $scrapedProduct->properties = $json->properties;
+                        $scrapedProduct->url              = $json->url;
+                        $scrapedProduct->is_sale          = $json->is_sale;
+                        $scrapedProduct->properties       = $json->properties;
                         $scrapedProduct->save();
 
                         // Create the product

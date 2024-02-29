@@ -18,7 +18,7 @@ class EntityContextManager
      */
     public function __construct(Store $session, EntityRepo $entityRepo)
     {
-        $this->session = $session;
+        $this->session    = $session;
         $this->entityRepo = $entityRepo;
     }
 

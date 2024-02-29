@@ -27,14 +27,15 @@ class Flow2ConditionCheckAll implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  null  $log
-     * @param  null  $mode
+     * @param null      $log
+     * @param null      $mode
+     * @param protected $details
      */
     public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null, protected $details = [])
     {
         // Set product and website
-        $this->_product = $product;
-        $this->_website = $website;
+        $this->_product      = $product;
+        $this->_website      = $website;
         $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index'] : 0;
         $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product'] : 0;
     }
@@ -60,7 +61,7 @@ class Flow2ConditionCheckAll implements ShouldQueue
         $error_msg = 'Flow2ConditionCheckAll failed for ' . $product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
-            $this->log->message = $error_msg;
+            $this->log->message     = $error_msg;
             $this->log->save();
         }
         ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id);

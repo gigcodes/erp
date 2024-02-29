@@ -15,8 +15,9 @@ final class Gis
     /**
      * Converts GIS data to Well Known Text format
      *
-     * @param  string  $data        GIS data
-     * @param  bool  $includeSRID Add SRID to the WKT
+     * @param string $data        GIS data
+     * @param bool   $includeSRID Add SRID to the WKT
+     *
      * @return string GIS data in Well Know Text format
      */
     public static function convertToWellKnownText($data, $includeSRID = false): string
@@ -24,14 +25,14 @@ final class Gis
         global $dbi;
 
         // Convert to WKT format
-        $hex = bin2hex($data);
-        $spatialAsText = 'ASTEXT';
-        $spatialSrid = 'SRID';
-        $axisOrder = '';
+        $hex             = bin2hex($data);
+        $spatialAsText   = 'ASTEXT';
+        $spatialSrid     = 'SRID';
+        $axisOrder       = '';
         $mysqlVersionInt = $dbi->getVersion();
         if ($mysqlVersionInt >= 50600) {
             $spatialAsText = 'ST_ASTEXT';
-            $spatialSrid = 'ST_SRID';
+            $spatialSrid   = 'ST_SRID';
         }
 
         if ($mysqlVersionInt >= 80001 && ! $dbi->isMariaDb()) {
@@ -44,7 +45,7 @@ final class Gis
         }
 
         $wktresult = $dbi->tryQuery($wktsql);
-        $wktarr = [];
+        $wktarr    = [];
         if ($wktresult) {
             $wktarr = $wktresult->fetchRow();
         }
@@ -52,7 +53,7 @@ final class Gis
         $wktval = $wktarr[0] ?? '';
 
         if ($includeSRID) {
-            $srid = $wktarr[1] ?? null;
+            $srid   = $wktarr[1] ?? null;
             $wktval = "'" . $wktval . "'," . $srid;
         }
 
@@ -62,7 +63,8 @@ final class Gis
     /**
      * Return GIS data types
      *
-     * @param  bool  $upperCase whether to return values in upper case
+     * @param bool $upperCase whether to return values in upper case
+     *
      * @return string[] GIS data types
      */
     public static function getDataTypes($upperCase = false): array
@@ -87,15 +89,16 @@ final class Gis
     /**
      * Generates GIS data based on the string passed.
      *
-     * @param  string  $gisString    GIS string
-     * @param  int  $mysqlVersion The mysql version as int
+     * @param string $gisString    GIS string
+     * @param int    $mysqlVersion The mysql version as int
+     *
      * @return string GIS data enclosed in 'ST_GeomFromText' or 'GeomFromText' function
      */
     public static function createData($gisString, $mysqlVersion)
     {
         $geomFromText = $mysqlVersion >= 50600 ? 'ST_GeomFromText' : 'GeomFromText';
-        $gisString = trim($gisString);
-        $geomTypes = '(POINT|MULTIPOINT|LINESTRING|MULTILINESTRING|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)';
+        $gisString    = trim($gisString);
+        $geomTypes    = '(POINT|MULTIPOINT|LINESTRING|MULTILINESTRING|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)';
         if (preg_match("/^'" . $geomTypes . "\(.*\)',[0-9]*$/i", $gisString)) {
             return $geomFromText . '(' . $gisString . ')';
         }
@@ -111,12 +114,13 @@ final class Gis
      * Returns the names and details of the functions
      * that can be applied on geometry data types.
      *
-     * @param  string  $geomType if provided the output is limited to the functions
-     *                          that are applicable to the provided geometry type.
-     * @param  bool  $binary   if set to false functions that take two geometries
+     * @param string $geomType if provided the output is limited to the functions
+     *                         that are applicable to the provided geometry type.
+     * @param bool   $binary   if set to false functions that take two geometries
      *                         as arguments will not be included.
-     * @param  bool  $display  if set to true separators will be added to the
+     * @param bool   $display  if set to true separators will be added to the
      *                         output array.
+     *
      * @return array<int|string,array<string,int|string>> names and details of the functions that can be applied on
      *                                                    geometry data types.
      */
@@ -135,27 +139,27 @@ final class Gis
         // Unary functions common to all geometry types
         $funcs['Dimension'] = [
             'params' => 1,
-            'type' => 'int',
+            'type'   => 'int',
         ];
         $funcs['Envelope'] = [
             'params' => 1,
-            'type' => 'Polygon',
+            'type'   => 'Polygon',
         ];
         $funcs['GeometryType'] = [
             'params' => 1,
-            'type' => 'text',
+            'type'   => 'text',
         ];
         $funcs['SRID'] = [
             'params' => 1,
-            'type' => 'int',
+            'type'   => 'int',
         ];
         $funcs['IsEmpty'] = [
             'params' => 1,
-            'type' => 'int',
+            'type'   => 'int',
         ];
         $funcs['IsSimple'] = [
             'params' => 1,
-            'type' => 'int',
+            'type'   => 'int',
         ];
 
         $geomType = mb_strtolower(trim((string) $geomType));
@@ -167,70 +171,70 @@ final class Gis
         if ($geomType === 'point') {
             $funcs['X'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
             $funcs['Y'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
         } elseif ($geomType === 'linestring') {
             $funcs['EndPoint'] = [
                 'params' => 1,
-                'type' => 'point',
+                'type'   => 'point',
             ];
             $funcs['GLength'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
             $funcs['NumPoints'] = [
                 'params' => 1,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['StartPoint'] = [
                 'params' => 1,
-                'type' => 'point',
+                'type'   => 'point',
             ];
             $funcs['IsRing'] = [
                 'params' => 1,
-                'type' => 'int',
+                'type'   => 'int',
             ];
         } elseif ($geomType === 'multilinestring') {
             $funcs['GLength'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
             $funcs['IsClosed'] = [
                 'params' => 1,
-                'type' => 'int',
+                'type'   => 'int',
             ];
         } elseif ($geomType === 'polygon') {
             $funcs['Area'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
             $funcs['ExteriorRing'] = [
                 'params' => 1,
-                'type' => 'linestring',
+                'type'   => 'linestring',
             ];
             $funcs['NumInteriorRings'] = [
                 'params' => 1,
-                'type' => 'int',
+                'type'   => 'int',
             ];
         } elseif ($geomType === 'multipolygon') {
             $funcs['Area'] = [
                 'params' => 1,
-                'type' => 'float',
+                'type'   => 'float',
             ];
             $funcs['Centroid'] = [
                 'params' => 1,
-                'type' => 'point',
+                'type'   => 'point',
             ];
         // Not yet implemented in MySQL
         //$funcs['PointOnSurface'] = array('params' => 1, 'type' => 'point');
         } elseif ($geomType === 'geometrycollection') {
             $funcs['NumGeometries'] = [
                 'params' => 1,
-                'type' => 'int',
+                'type'   => 'int',
             ];
         }
 
@@ -250,35 +254,35 @@ final class Gis
 
             $funcs[$spatialPrefix . 'Crosses'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Contains'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Disjoint'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Equals'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Intersects'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Overlaps'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Touches'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs[$spatialPrefix . 'Within'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
 
             if ($display) {
@@ -288,31 +292,31 @@ final class Gis
             // Minimum bounding rectangle functions
             $funcs['MBRContains'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBRDisjoint'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBREquals'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBRIntersects'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBROverlaps'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBRTouches'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
             $funcs['MBRWithin'] = [
                 'params' => 2,
-                'type' => 'int',
+                'type'   => 'int',
             ];
         }
 

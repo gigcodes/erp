@@ -38,16 +38,16 @@ class TableStatsSvg extends TableStats
      * @see TableStatsSvg::setWidthTable
      * @see TableStatsSvg::setHeightTable
      *
-     * @param  Svg  $diagram         The current SVG image document
-     * @param  string  $db              The database name
-     * @param  string  $tableName       The table name
-     * @param  string  $font            Font face
-     * @param  int  $fontSize        The font size
-     * @param  int  $pageNumber      Page number
-     * @param  int  $same_wide_width The max. width among tables
-     * @param  bool  $showKeys        Whether to display keys or not
-     * @param  bool  $tableDimension  Whether to display table position or not
-     * @param  bool  $offline         Whether the coordinates are sent
+     * @param Svg    $diagram         The current SVG image document
+     * @param string $db              The database name
+     * @param string $tableName       The table name
+     * @param string $font            Font face
+     * @param int    $fontSize        The font size
+     * @param int    $pageNumber      Page number
+     * @param int    $same_wide_width The max. width among tables
+     * @param bool   $showKeys        Whether to display keys or not
+     * @param bool   $tableDimension  Whether to display table position or not
+     * @param bool   $offline         Whether the coordinates are sent
      */
     public function __construct(
         $diagram,
@@ -92,8 +92,8 @@ class TableStatsSvg extends TableStats
      *
      * @see    PMA_SVG
      *
-     * @param  string  $font     The font size
-     * @param  int  $fontSize The font size
+     * @param string $font     The font size
+     * @param int    $fontSize The font size
      */
     private function setWidthTable($font, $fontSize): void
     {
@@ -118,12 +118,12 @@ class TableStatsSvg extends TableStats
     /**
      * Sets the height of the table
      *
-     * @param  int  $fontSize font size
+     * @param int $fontSize font size
      */
     private function setHeightTable($fontSize): void
     {
         $this->heightCell = $fontSize + 4;
-        $this->height = (count($this->fields) + 1) * $this->heightCell;
+        $this->height     = (count($this->fields) + 1) * $this->heightCell;
     }
 
     /**
@@ -131,7 +131,7 @@ class TableStatsSvg extends TableStats
      *
      * @see Svg::printElement
      *
-     * @param  bool  $showColor Whether to display color
+     * @param bool $showColor Whether to display color
      */
     public function tableDraw($showColor): void
     {

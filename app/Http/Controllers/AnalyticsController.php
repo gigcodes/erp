@@ -18,7 +18,7 @@ class AnalyticsController extends Controller
 {
     public function showData(Request $request)
     {
-        $website_list = StoreWebsiteAnalytic::all()->toArray();
+        $website_list          = StoreWebsiteAnalytic::all()->toArray();
         $google_analytics_data = GoogleAnalyticData::leftJoin('store_website_analytics', 'google_analytic_datas.website_analytics_id', '=', 'store_website_analytics.id')
             ->select('google_analytic_datas.*', 'store_website_analytics.website');
         /** Filter */
@@ -44,9 +44,9 @@ class AnalyticsController extends Controller
 
         $google_analytics_data = $google_analytics_data->orderBy('google_analytic_datas.created_at', 'DESC')->paginate(Setting::get('pagination'));
 
-        $browsers = GoogleAnalyticData::select('browser')->distinct()->pluck('browser', 'browser')->toArray();
-        $os = GoogleAnalyticData::select('os')->distinct()->pluck('os', 'os')->toArray();
-        $countries = GoogleAnalyticData::select('country')->distinct()->pluck('country', 'country')->toArray();
+        $browsers   = GoogleAnalyticData::select('browser')->distinct()->pluck('browser', 'browser')->toArray();
+        $os         = GoogleAnalyticData::select('os')->distinct()->pluck('os', 'os')->toArray();
+        $countries  = GoogleAnalyticData::select('country')->distinct()->pluck('country', 'country')->toArray();
         $user_types = GoogleAnalyticData::select('user_type')->distinct()->pluck('user_type', 'user_type')->toArray();
 
         return View('analytics.index-new', compact('website_list', 'google_analytics_data', 'browsers', 'os', 'countries', 'user_types'));
@@ -55,25 +55,25 @@ class AnalyticsController extends Controller
     public function analyticsDataSummary(Request $request)
     {
         $brands = [
-            'balenciaga' => 'Balenciaga',
-            'gucci' => 'Gucci',
-            'jimmy-choo' => 'Jimmy Choo',
-            'saint-laurent' => 'Saint Laurent',
-            'givenchy' => 'Givenchy',
+            'balenciaga'     => 'Balenciaga',
+            'gucci'          => 'Gucci',
+            'jimmy-choo'     => 'Jimmy Choo',
+            'saint-laurent'  => 'Saint Laurent',
+            'givenchy'       => 'Givenchy',
             'christian-dior' => 'Christian Dior',
-            'prada' => 'Prada',
-            'dolce-gabbana' => 'Dolce Gabbana',
-            'fendi' => 'Fendi',
+            'prada'          => 'Prada',
+            'dolce-gabbana'  => 'Dolce Gabbana',
+            'fendi'          => 'Fendi',
             'bottega-veneta' => 'Bottega Vneta',
-            'burberry' => 'Burberry',
+            'burberry'       => 'Burberry',
         ];
         $genders = [
-            'mens' => 'Mens',
+            'mens'  => 'Mens',
             'women' => 'Womens',
         ];
         if (! empty($_GET['location'])) {
             $location = $_GET['location'];
-            $data = AnalyticsSummary::where('country', 'like', '%' . $location . '%')->get()->toArray();
+            $data     = AnalyticsSummary::where('country', 'like', '%' . $location . '%')->get()->toArray();
         } elseif (! empty($_GET['brand'])) {
             $data = AnalyticsSummary::where('brand_name', $request['brand'])->get()->toArray();
         } elseif (! empty($_GET['gender'])) {
@@ -87,7 +87,7 @@ class AnalyticsController extends Controller
 
     public function displayLinksToPostData()
     {
-        $data = LinksToPost::orderBy('id', 'desc')->paginate(15);
+        $data     = LinksToPost::orderBy('id', 'desc')->paginate(15);
         $category = ArticleCategory::all();
 
         return View('analytics.linkstopost', compact('data', 'category'));
@@ -95,7 +95,7 @@ class AnalyticsController extends Controller
 
     public function updateCategoryPost(Request $request)
     {
-        $post = LinksToPost::findorfail($request->link_id);
+        $post              = LinksToPost::findorfail($request->link_id);
         $post->category_id = $request->id;
         $post->save();
 
@@ -107,7 +107,7 @@ class AnalyticsController extends Controller
 
     public function addArticleCategory(Request $request)
     {
-        $category = new ArticleCategory;
+        $category       = new ArticleCategory;
         $category->name = $request->name;
         $category->save();
 
@@ -139,43 +139,43 @@ class AnalyticsController extends Controller
         foreach ($data as $value) {
             $ERPlogArray = [
                 'model_id' => $value['id'],
-                'url' => 'https://www.googleapis.com/auth/analytics.readonly',
-                'model' => StoreWebsiteAnalytic::class,
-                'type' => 'success',
-                'request' => $value,
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => StoreWebsiteAnalytic::class,
+                'type'     => 'success',
+                'request'  => $value,
             ];
 
             try {
-                $response = getReport($analytics, $value);
+                $response   = getReport($analytics, $value);
                 $resultData = printResults($response);
 
                 if (! empty($resultData)) {
                     foreach ($resultData as $new_item) {
                         $analyticsDataArr = [
-                            'operatingSystem' => $new_item['operatingSystem'],
-                            'user_type' => $new_item['user_type'],
-                            'time' => $new_item['time'],
-                            'page_path' => $value['website'] . $new_item['page_path'],
-                            'country' => $new_item['country'],
-                            'city' => $new_item['city'],
-                            'social_network' => $new_item['social_network'],
-                            'date' => $new_item['date'],
-                            'device_info' => $new_item['device_info'],
-                            'sessions' => $new_item['sessions'],
-                            'pageviews' => $new_item['pageviews'],
-                            'bounceRate' => $new_item['bounceRate'],
+                            'operatingSystem'    => $new_item['operatingSystem'],
+                            'user_type'          => $new_item['user_type'],
+                            'time'               => $new_item['time'],
+                            'page_path'          => $value['website'] . $new_item['page_path'],
+                            'country'            => $new_item['country'],
+                            'city'               => $new_item['city'],
+                            'social_network'     => $new_item['social_network'],
+                            'date'               => $new_item['date'],
+                            'device_info'        => $new_item['device_info'],
+                            'sessions'           => $new_item['sessions'],
+                            'pageviews'          => $new_item['pageviews'],
+                            'bounceRate'         => $new_item['bounceRate'],
                             'avgSessionDuration' => $new_item['avgSessionDuration'],
-                            'timeOnPage' => $new_item['timeOnPage'],
+                            'timeOnPage'         => $new_item['timeOnPage'],
 
                         ];
                         Analytics::insert($analyticsDataArr);
                     }
                 }
 
-                $ERPlogArray['request'] = $value;
+                $ERPlogArray['request']  = $value;
                 $ERPlogArray['response'] = $resultData;
             } catch (\Exception  $e) {
-                $ERPlogArray['type'] = 'error';
+                $ERPlogArray['type']     = 'error';
                 $ERPlogArray['response'] = $e->getMessage();
             }
             storeERPLog($ERPlogArray);
@@ -200,10 +200,10 @@ class AnalyticsController extends Controller
         foreach ($data as $value) {
             $ERPlogArray = [
                 'model_id' => $value['id'],
-                'url' => 'https://www.googleapis.com/auth/analytics.readonly',
-                'model' => StoreWebsiteAnalytic::class,
-                'type' => 'success',
-                'request' => $value,
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => StoreWebsiteAnalytic::class,
+                'type'     => 'success',
+                'request'  => $value,
             ];
 
             try {
@@ -217,31 +217,31 @@ class AnalyticsController extends Controller
                     $resultPageTrackingData = printGoogleAnalyticResults($resultData, $value['id']);
 
                     $history = [
-                        'website' => $value['website'],
-                        'account_id' => $value['id'],
-                        'title' => 'success',
+                        'website'     => $value['website'],
+                        'account_id'  => $value['id'],
+                        'title'       => 'success',
                         'description' => 'Data fetched successfully',
-                        'created_at' => now(),
+                        'created_at'  => now(),
                     ];
                     GoogleAnalyticsHistories::insert($history);
                 } else {
                     $history = [
-                        'website' => $value['website'],
-                        'account_id' => $value['id'],
-                        'title' => 'error',
+                        'website'     => $value['website'],
+                        'account_id'  => $value['id'],
+                        'title'       => 'error',
                         'description' => 'Please add auth json file and view id',
-                        'created_at' => now(),
+                        'created_at'  => now(),
                     ];
                     GoogleAnalyticsHistories::insert($history);
                 }
             } catch (\Exception  $e) {
                 dump($e->getMessage());
                 $history = [
-                    'website' => $value['website'],
-                    'account_id' => $value['id'],
-                    'title' => 'error',
+                    'website'     => $value['website'],
+                    'account_id'  => $value['id'],
+                    'title'       => 'error',
                     'description' => $e->getMessage(),
-                    'created_at' => now(),
+                    'created_at'  => now(),
                 ];
                 GoogleAnalyticsHistories::insert($history);
                 \Log::error('google-analytics :: ' . $e->getMessage());

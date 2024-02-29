@@ -38,21 +38,21 @@ class MessageQueueHistoryController extends Controller
 
         foreach ($records as $row) {
             $recorsArray[] = [
-                'id' => $row->id,
-                'number' => $row->number,
+                'id'      => $row->id,
+                'number'  => $row->number,
                 'counter' => $row->counter,
-                'type' => $row->type,
+                'type'    => $row->type,
                 'user_id' => $row->user_id ?? '-',
-                'time' => Carbon::parse($row->time)->format('d-m-y H:i:s'),
+                'time'    => Carbon::parse($row->time)->format('d-m-y H:i:s'),
             ];
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $recorsArray,
+            'code'       => 200,
+            'data'       => $recorsArray,
             'pagination' => (string) $records->links(),
-            'total' => $records->total(),
-            'page' => $records->currentPage(),
+            'total'      => $records->total(),
+            'page'       => $records->currentPage(),
         ]);
     }
 }

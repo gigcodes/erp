@@ -20,7 +20,7 @@ class WebsiteEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-            'ip' => '123.136.62.162',
+            'ip'   => '123.136.62.162',
             'port' => '8080',
         ];
     }
@@ -30,7 +30,7 @@ class WebsiteEmulator
     public function emulate($command, $url, $commands = null): ?array
     {
         $this->data = ['', ''];
-        $self = $this;
+        $self       = $this;
         try {
             $this->manager->browse($command, function ($browser) use ($url, $self) {
                 try {
@@ -50,7 +50,7 @@ class WebsiteEmulator
                             ->getAttribute('innerHTML');
                     }
 
-                    $sku = str_replace(' ', '', $sku);
+                    $sku   = str_replace(' ', '', $sku);
                     $price = str_replace('&nbsp;', '', $price);
 
                     $self->data = [$price, $sku];

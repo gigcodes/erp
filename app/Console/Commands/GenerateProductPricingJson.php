@@ -43,7 +43,7 @@ class GenerateProductPricingJson extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report was added.']);
@@ -65,9 +65,9 @@ class GenerateProductPricingJson extends Command
                         foreach ($countryGroups as $cg) {
                             $price = $product->getPrice($website->id, $cg->id);
                             foreach ($cg->groupItems as $item) {
-                                $priceReturn[$website->website][$product->sku][$item->country_code]['price'] = $price;
-                                $dutyPrice = $product->getDuty($item->country_code);
-                                $priceReturn[$website->website][$product->sku][$item->country_code]['price']['duty'] = $dutyPrice;
+                                $priceReturn[$website->website][$product->sku][$item->country_code]['price']          = $price;
+                                $dutyPrice                                                                            = $product->getDuty($item->country_code);
+                                $priceReturn[$website->website][$product->sku][$item->country_code]['price']['duty']  = $dutyPrice;
                                 $priceReturn[$website->website][$product->sku][$item->country_code]['price']['total'] = (float) $price['total'] + $dutyPrice;
                             }
                         }

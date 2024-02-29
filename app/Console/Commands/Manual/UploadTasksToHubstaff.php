@@ -40,7 +40,7 @@ class UploadTasksToHubstaff extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN       = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -52,7 +52,7 @@ class UploadTasksToHubstaff extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $this->uploadNormalTasks();
@@ -140,7 +140,7 @@ class UploadTasksToHubstaff extends Command
     {
         $tokens = $this->getTokens();
 
-        $url = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
+        $url        = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
             $response = $httpClient->post(
@@ -148,11 +148,11 @@ class UploadTasksToHubstaff extends Command
                 [
                     RequestOptions::HEADERS => [
                         'Authorization' => 'Bearer ' . $tokens->access_token,
-                        'Content-Type' => 'application/json',
+                        'Content-Type'  => 'application/json',
                     ],
 
                     RequestOptions::BODY => json_encode([
-                        'summary' => substr($task->summary, 0, 200),
+                        'summary'     => substr($task->summary, 0, 200),
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
                     ]),
                 ]
@@ -203,7 +203,7 @@ class UploadTasksToHubstaff extends Command
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
+                        'grant_type'    => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
                 ]
@@ -212,7 +212,7 @@ class UploadTasksToHubstaff extends Command
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token' => $responseJson->access_token,
+                'access_token'  => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
             ];
 

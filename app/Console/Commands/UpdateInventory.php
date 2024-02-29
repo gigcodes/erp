@@ -45,7 +45,7 @@ class UpdateInventory extends Command
         try {
             \Log::info('Update Inventory TRY');
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             \Log::info('Products Begin: ');
@@ -64,8 +64,8 @@ class UpdateInventory extends Command
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier model query finished.']);
 
-            $skuProductArr = [];
-            $skusArr = $products->pluck('sku')->toArray();
+            $skuProductArr    = [];
+            $skusArr          = $products->pluck('sku')->toArray();
             $selectedProducts = \App\Product::select('id', 'isUploaded', 'color', 'sku')
                 ->whereIn('sku', $skusArr)
                 ->get();
@@ -76,7 +76,7 @@ class UpdateInventory extends Command
                 $skuProductArr[$selected_prod_value->sku] = [
                     'product_id' => $selected_prod_value->id,
                     'isUploaded' => $selected_prod_value->isUploaded,
-                    'color' => $selected_prod_value->color,
+                    'color'      => $selected_prod_value->color,
                 ];
             }
             if (! empty($products)) {
@@ -85,11 +85,11 @@ class UpdateInventory extends Command
                 \Log::info('Update Inventory Products Found');
                 $sproductIdArr = [];
                 $statusHistory = [];
-                $needToCheck = [];
+                $needToCheck   = [];
                 $productIdsArr = [];
-                $hasInventory = false;
-                $productId = null;
-                $today = date('Y-m-d');
+                $hasInventory  = false;
+                $productId     = null;
+                $today         = date('Y-m-d');
                 foreach ($products as $sku => $records) {
                     \Log::info('Checking :' . json_encode($records));
                     $sku = $records['sku'];
@@ -97,20 +97,20 @@ class UpdateInventory extends Command
                     if (isset($skuProductArr[$sku]) && $skuProductArr[$sku]['isUploaded'] == 1) {
                         $records['product_id'] = $skuProductArr[$sku]['product_id'];
                         $records['isUploaded'] = $skuProductArr[$sku]['isUploaded'];
-                        $records['color'] = $skuProductArr[$sku]['color'];
+                        $records['color']      = $skuProductArr[$sku]['color'];
                         \Log::info('**Product Found**');
                         array_push($sproductIdArr, $records['sproduct_id']);
                         $inventoryLifeTime = isset($records['inventory_lifetime']) && is_numeric($records['inventory_lifetime'])
                             ? $records['inventory_lifetime']
                             : 0;
                         if (isset($records['product_id']) && isset($records['supplier_id'])) {
-                            $history = \App\InventoryStatusHistory::where('date', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->first();
-                            $lasthistory = \App\InventoryStatusHistory::where('date', '<', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->orderBy('created_at', 'desc')->first();
+                            $history       = \App\InventoryStatusHistory::where('date', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->first();
+                            $lasthistory   = \App\InventoryStatusHistory::where('date', '<', $today)->where('product_id', $records['product_id'])->where('supplier_id', $records['supplier_id'])->orderBy('created_at', 'desc')->first();
                             $prev_in_stock = 0;
-                            $new_in_stock = 1;
+                            $new_in_stock  = 1;
                             if ($lasthistory) {
                                 $prev_in_stock = $lasthistory->in_stock;
-                                $new_in_stock = $lasthistory->in_stock + 1;
+                                $new_in_stock  = $lasthistory->in_stock + 1;
                             }
                             if ($history) {
                                 $history->update(['in_stock' => $new_in_stock, 'prev_in_stock' => $prev_in_stock]);
@@ -119,12 +119,12 @@ class UpdateInventory extends Command
                                 \Log::info('StatusHistory updated for product: ' . $records['product_id']);
                             } else {
                                 $statusHistory[] = [
-                                    'product_id' => $records['product_id'],
-                                    'supplier_id' => $records['supplier_id'],
-                                    'date' => $today,
-                                    'in_stock' => $new_in_stock,
+                                    'product_id'    => $records['product_id'],
+                                    'supplier_id'   => $records['supplier_id'],
+                                    'date'          => $today,
+                                    'in_stock'      => $new_in_stock,
                                     'prev_in_stock' => $prev_in_stock,
-                                    'created_at' => date('Y-m-d H:i:s'),
+                                    'created_at'    => date('Y-m-d H:i:s'),
                                 ];
                                 \Log::info('StatusHistory push data');
                             }

@@ -19,9 +19,9 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
-        $filter_platform = $request->platform ?? '';
+        $filter_platform    = $request->platform ?? '';
         $filter_posted_date = $request->posted_date ?? '';
-        $users_array = Helpers::getUserArray(User::all());
+        $users_array        = Helpers::getUserArray(User::all());
 
         if ($request->platform != null) {
             $complaints = Complaint::where('platform', $request->platform);
@@ -39,17 +39,17 @@ class ComplaintController extends Controller
             $complaints = (new Complaint)->newQuery();
         }
 
-        $complaints = $complaints->where('thread_type', 'complaint')->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
-        $customers = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
+        $complaints     = $complaints->where('thread_type', 'complaint')->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
+        $customers      = Customer::select(['id', 'name', 'email', 'instahandler', 'phone'])->get();
         $accounts_array = Account::select(['id', 'first_name', 'last_name', 'email'])->get();
 
         return view('complaints.index', [
-            'complaints' => $complaints,
-            'filter_platform' => $filter_platform,
+            'complaints'         => $complaints,
+            'filter_platform'    => $filter_platform,
             'filter_posted_date' => $filter_posted_date,
-            'users_array' => $users_array,
-            'customers' => $customers,
-            'accounts_array' => $accounts_array,
+            'users_array'        => $users_array,
+            'customers'          => $customers,
+            'accounts_array'     => $accounts_array,
         ]);
     }
 
@@ -71,17 +71,17 @@ class ComplaintController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'customer_id' => 'sometimes|nullable|integer',
-            'platform' => 'sometimes|nullable|string',
-            'complaint' => 'required|string|min:3',
-            'thread.*' => 'sometimes|nullable|string',
-            'account_id.*' => 'sometimes|nullable|numeric',
-            'link' => 'sometimes|nullable|url',
-            'where' => 'sometimes|nullable|string',
-            'username' => 'sometimes|nullable|string',
-            'name' => 'sometimes|nullable|string',
+            'customer_id'    => 'sometimes|nullable|integer',
+            'platform'       => 'sometimes|nullable|string',
+            'complaint'      => 'required|string|min:3',
+            'thread.*'       => 'sometimes|nullable|string',
+            'account_id.*'   => 'sometimes|nullable|numeric',
+            'link'           => 'sometimes|nullable|url',
+            'where'          => 'sometimes|nullable|string',
+            'username'       => 'sometimes|nullable|string',
+            'name'           => 'sometimes|nullable|string',
             'plan_of_action' => 'sometimes|nullable|string',
-            'date' => 'required|date',
+            'date'           => 'required|date',
         ]);
 
         $data = $request->except('_token');
@@ -92,8 +92,8 @@ class ComplaintController extends Controller
             foreach ($request->thread as $key => $thread) {
                 ComplaintThread::create([
                     'complaint_id' => $complaint->id,
-                    'account_id' => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
-                    'thread' => $thread,
+                    'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
+                    'thread'       => $thread,
                 ]);
             }
         }
@@ -111,7 +111,8 @@ class ComplaintController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -122,7 +123,8 @@ class ComplaintController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -133,23 +135,24 @@ class ComplaintController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'customer_id' => 'sometimes|nullable|integer',
-            'platform' => 'sometimes|nullable|string',
-            'complaint' => 'required|string|min:3',
-            'thread.*' => 'sometimes|nullable|string',
-            'account_id.*' => 'sometimes|nullable|numeric',
-            'link' => 'sometimes|nullable|url',
-            'where' => 'sometimes|nullable|string',
-            'username' => 'sometimes|nullable|string',
-            'name' => 'sometimes|nullable|string',
+            'customer_id'    => 'sometimes|nullable|integer',
+            'platform'       => 'sometimes|nullable|string',
+            'complaint'      => 'required|string|min:3',
+            'thread.*'       => 'sometimes|nullable|string',
+            'account_id.*'   => 'sometimes|nullable|numeric',
+            'link'           => 'sometimes|nullable|url',
+            'where'          => 'sometimes|nullable|string',
+            'username'       => 'sometimes|nullable|string',
+            'name'           => 'sometimes|nullable|string',
             'plan_of_action' => 'sometimes|nullable|string',
-            'date' => 'required|date',
+            'date'           => 'required|date',
         ]);
 
         $data = $request->except('_token');
@@ -163,8 +166,8 @@ class ComplaintController extends Controller
             foreach ($request->thread as $key => $thread) {
                 ComplaintThread::create([
                     'complaint_id' => $complaint->id,
-                    'account_id' => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
-                    'thread' => $thread,
+                    'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
+                    'thread'       => $thread,
                 ]);
             }
         }
@@ -184,11 +187,11 @@ class ComplaintController extends Controller
         $complaint = Complaint::find($id);
 
         StatusChange::create([
-            'model_id' => $complaint->id,
-            'model_type' => Complaint::class,
-            'user_id' => Auth::id(),
+            'model_id'    => $complaint->id,
+            'model_type'  => Complaint::class,
+            'user_id'     => Auth::id(),
             'from_status' => $complaint->status,
-            'to_status' => $request->status,
+            'to_status'   => $request->status,
         ]);
 
         $complaint->status = $request->status;
@@ -200,7 +203,8 @@ class ComplaintController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

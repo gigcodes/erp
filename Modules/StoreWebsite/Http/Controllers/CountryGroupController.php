@@ -50,13 +50,13 @@ class CountryGroupController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'name' => 'required',
+            'name'           => 'required',
             'country_code.*' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -80,8 +80,8 @@ class CountryGroupController extends Controller
 
         if ($records->save()) {
             foreach ($request->country_code as $code) {
-                $ci = new CountryGroupItem;
-                $ci->country_code = $code;
+                $ci                   = new CountryGroupItem;
+                $ci->country_code     = $code;
                 $ci->country_group_id = $records->id;
                 $ci->save();
             }
@@ -103,7 +103,8 @@ class CountryGroupController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -114,7 +115,8 @@ class CountryGroupController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -132,7 +134,8 @@ class CountryGroupController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -143,7 +146,8 @@ class CountryGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -154,7 +158,8 @@ class CountryGroupController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {

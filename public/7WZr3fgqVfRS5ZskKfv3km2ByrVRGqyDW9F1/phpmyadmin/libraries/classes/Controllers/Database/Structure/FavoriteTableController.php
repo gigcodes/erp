@@ -34,8 +34,8 @@ final class FavoriteTableController extends AbstractController
         global $cfg, $db, $errorUrl;
 
         $parameters = [
-            'favorite_table' => $_REQUEST['favorite_table'] ?? null,
-            'favoriteTables' => $_REQUEST['favoriteTables'] ?? null,
+            'favorite_table'       => $_REQUEST['favorite_table'] ?? null,
+            'favoriteTables'       => $_REQUEST['favoriteTables'] ?? null,
             'sync_favorite_tables' => $_REQUEST['sync_favorite_tables'] ?? null,
         ];
 
@@ -72,8 +72,8 @@ final class FavoriteTableController extends AbstractController
             return;
         }
 
-        $changes = true;
-        $favoriteTable = $parameters['favorite_table'] ?? '';
+        $changes         = true;
+        $favoriteTable   = $parameters['favorite_table'] ?? '';
         $alreadyFavorite = $this->checkFavoriteTable($favoriteTable);
 
         if (isset($_REQUEST['remove_favorite'])) {
@@ -97,7 +97,7 @@ final class FavoriteTableController extends AbstractController
 
         $favoriteTables[$user] = $favoriteInstance->getTables();
 
-        $json = [];
+        $json            = [];
         $json['changes'] = $changes;
         if (! $changes) {
             $json['message'] = $this->template->render('components/error_message', [
@@ -110,20 +110,20 @@ final class FavoriteTableController extends AbstractController
 
         // Check if current table is already in favorite list.
         $favoriteParams = [
-            'db' => $this->db,
-            'ajax_request' => true,
-            'favorite_table' => $favoriteTable,
+            'db'                                                => $this->db,
+            'ajax_request'                                      => true,
+            'favorite_table'                                    => $favoriteTable,
             ($alreadyFavorite ? 'remove' : 'add') . '_favorite' => true,
         ];
 
-        $json['user'] = $user;
+        $json['user']           = $user;
         $json['favoriteTables'] = json_encode($favoriteTables);
-        $json['list'] = $favoriteInstance->getHtmlList();
-        $json['anchor'] = $this->template->render('database/structure/favorite_anchor', [
-            'table_name_hash' => md5($favoriteTable),
+        $json['list']           = $favoriteInstance->getHtmlList();
+        $json['anchor']         = $this->template->render('database/structure/favorite_anchor', [
+            'table_name_hash'    => md5($favoriteTable),
             'db_table_name_hash' => md5($this->db . '.' . $favoriteTable),
-            'fav_params' => $favoriteParams,
-            'already_favorite' => $alreadyFavorite,
+            'fav_params'         => $favoriteParams,
+            'already_favorite'   => $alreadyFavorite,
         ]);
 
         $this->response->addJSON($json);
@@ -132,9 +132,9 @@ final class FavoriteTableController extends AbstractController
     /**
      * Synchronize favorite tables
      *
-     * @param  RecentFavoriteTable  $favoriteInstance Instance of this class
-     * @param  string  $user             The user hash
-     * @param  array  $favoriteTables   Existing favorites
+     * @param RecentFavoriteTable $favoriteInstance Instance of this class
+     * @param string              $user             The user hash
+     * @param array               $favoriteTables   Existing favorites
      */
     private function synchronizeFavoriteTables(
         RecentFavoriteTable $favoriteInstance,
@@ -156,14 +156,14 @@ final class FavoriteTableController extends AbstractController
 
         return [
             'favoriteTables' => json_encode($favoriteTables),
-            'list' => $favoriteInstance->getHtmlList(),
+            'list'           => $favoriteInstance->getHtmlList(),
         ];
     }
 
     /**
      * Function to check if a table is already in favorite list.
      *
-     * @param  string  $currentTable current table
+     * @param string $currentTable current table
      */
     private function checkFavoriteTable(string $currentTable): bool
     {

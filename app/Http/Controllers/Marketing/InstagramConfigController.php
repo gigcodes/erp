@@ -73,7 +73,7 @@ class InstagramConfigController extends Controller
 
         return view('marketing.instagram-configs.index', [
             'instagramConfigs' => $instagramConfigs,
-            'competitors' => $competitors,
+            'competitors'      => $competitors,
         ]);
     }
 
@@ -95,18 +95,18 @@ class InstagramConfigController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'number' => 'required|max:13|unique:whatsapp_configs,number',
-            'provider' => 'required',
+            'number'           => 'required|max:13|unique:whatsapp_configs,number',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'password' => 'required|min:6|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'password'         => 'required|min:6|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
 
-        $data = $request->except('_token');
-        $data['password'] = Crypt::encrypt($request->password);
+        $data                        = $request->except('_token');
+        $data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
 
         InstagramConfig::create($data);
@@ -117,7 +117,8 @@ class InstagramConfigController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramConfig  $InstagramConfig
+     * @param \App\InstagramConfig $InstagramConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(InstagramConfig $InstagramConfig)
@@ -128,24 +129,25 @@ class InstagramConfigController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramConfig  $InstagramConfig
+     * @param \App\InstagramConfig $InstagramConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         $this->validate($request, [
-            'number' => 'required|max:13',
-            'provider' => 'required',
+            'number'           => 'required|max:13',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'password' => 'required|min:6|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'password'         => 'required|min:6|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
-        $config = InstagramConfig::findorfail($request->id);
-        $data = $request->except('_token', 'id');
-        $data['password'] = Crypt::encrypt($request->password);
+        $config                      = InstagramConfig::findorfail($request->id);
+        $data                        = $request->except('_token', 'id');
+        $data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $config->update($data);
 
@@ -155,7 +157,8 @@ class InstagramConfigController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\InstagramConfig  $InstagramConfig
+     * @param \App\InstagramConfig $InstagramConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, InstagramConfig $InstagramConfig)
@@ -166,7 +169,8 @@ class InstagramConfigController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramConfig  $InstagramConfig
+     * @param \App\InstagramConfig $InstagramConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -183,14 +187,16 @@ class InstagramConfigController extends Controller
     /**
      * Show history page
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function history($id, Request $request)
     {
-        $term = $request->term;
-        $date = $request->date;
-        $config = InstagramConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = InstagramConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
 
         if ($config->provider === 'py-whatsapp') {
@@ -214,14 +220,16 @@ class InstagramConfigController extends Controller
     /**
      * Show queue page
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function queue($id, Request $request)
     {
-        $term = $request->term;
-        $date = $request->date;
-        $config = InstagramConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = InstagramConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
         if ($config->provider === 'py-whatsapp') {
             $data = ImQueue::whereNull('sent_at')->with('marketingMessageTypes')->where('number_from', $config->number)->orderBy('created_at', 'desc');
@@ -276,7 +284,7 @@ class InstagramConfigController extends Controller
     {
         $keyword = InstagramKeyword::where('keyword', $request->keyword);
         if ($keyword->count() == 0) {
-            $keyword = new InstagramKeyword;
+            $keyword          = new InstagramKeyword;
             $keyword->keyword = $request->keyword;
             $keyword->save();
         }

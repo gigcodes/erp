@@ -35,11 +35,11 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
      */
     public function array(): array
     {
-        $new_customers = [];
-        $total_amount = 0;
+        $new_customers     = [];
+        $total_amount      = 0;
         $total_amount_paid = 0;
-        $total_balance = 0;
-        $index = 0;
+        $total_balance     = 0;
+        $index             = 0;
 
         foreach ($this->user as $key => $user) {
             foreach ($user as $kk => $val) {
@@ -49,14 +49,14 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
                 $total_amount_paid += $val['amount_paid'] ?? 0;
                 $total_balance += $val['balance'] ?? 0;
 
-                $new_customers[$index]['date'] = $val['date'] ?? null;
-                $new_customers[$index]['details'] = $val['details'] ?? null;
-                $new_customers[$index]['category'] = $val['category'] ?? null;
-                $new_customers[$index]['time_spent'] = $val['time_spent'] ?? null;
-                $new_customers[$index]['amount'] = $val['amount'] ?? 0;
-                $new_customers[$index]['currency'] = $val['currency'] ?? null;
+                $new_customers[$index]['date']        = $val['date'] ?? null;
+                $new_customers[$index]['details']     = $val['details'] ?? null;
+                $new_customers[$index]['category']    = $val['category'] ?? null;
+                $new_customers[$index]['time_spent']  = $val['time_spent'] ?? null;
+                $new_customers[$index]['amount']      = $val['amount'] ?? 0;
+                $new_customers[$index]['currency']    = $val['currency'] ?? null;
                 $new_customers[$index]['amount_paid'] = $val['amount_paid'] ?? 0;
-                $new_customers[$index]['balance'] = $val['balance'] ?? 0;
+                $new_customers[$index]['balance']     = $val['balance'] ?? 0;
             }
         }
         array_push($new_customers, ['Total ', null, null, null, $total_amount, null, $total_amount_paid, $total_balance]); //Purpose : Comment code - DEVATSK-4300

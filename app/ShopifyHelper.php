@@ -27,7 +27,7 @@ class ShopifyHelper
         }
 
         $landingpageProduct = new LandingPageProduct;
-        $productData = $landingpageProduct->getShopifyPushData($product, $website);
+        $productData        = $landingpageProduct->getShopifyPushData($product, $website);
         echo '<pre>';
         print_r($productData);
         echo '</pre>';
@@ -54,11 +54,11 @@ class ShopifyHelper
         if (! empty($response->product)) {
             $storeWebsiteProduct = \App\StoreWebsiteProduct::updateOrCreate([
                 'store_website_id' => $website->id,
-                'product_id' => $product->id,
+                'product_id'       => $product->id,
             ], [
                 'store_website_id' => $website->id,
-                'product_id' => $product->id,
-                'platform_id' => $response->product->id,
+                'product_id'       => $product->id,
+                'platform_id'      => $response->product->id,
             ]);
             LogListMagento::log($product->id, 'success ' . $product->id, 'info', $website->id, 'success');
         } else {
@@ -104,12 +104,13 @@ class ShopifyHelper
      *
      * @param [type] $store_id
      * @param [type] $order
+     *
      * @return void
      */
     public static function syncShopifyOrders($store_id, $order)
     {
         //Checking in order table
-        $shopify_order_id = $order['id'];
+        $shopify_order_id  = $order['id'];
         $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $shopify_order_id)->where('website_id', $store_id)->first();
 
         //Checking in Website Order Table
@@ -121,9 +122,9 @@ class ShopifyHelper
 
         // Check for customer details out of order
         $firstName = isset($order['customer']) ? (isset($order['customer']['first_name']) ? $order['customer']['first_name'] : 'N/A') : 'N/A';
-        $lastName = isset($order['customer']) ? (isset($order['customer']['last_name']) ? $order['customer']['last_name'] : 'N/A') : 'N/A';
+        $lastName  = isset($order['customer']) ? (isset($order['customer']['last_name']) ? $order['customer']['last_name'] : 'N/A') : 'N/A';
 
-        $full_name = $firstName . ' ' . $lastName;
+        $full_name      = $firstName . ' ' . $lastName;
         $customer_phone = isset($order['customer']) ? (isset($order['customer']['phone']) ? $order['customer']['phone'] : '') : '';
 
         $customer = Customer::where('email', $store_customer['email'])->where('store_website_id', $store_id)->first();
@@ -133,18 +134,18 @@ class ShopifyHelper
             $customer = new Customer;
         }
 
-        $customer->name = $full_name;
-        $customer->email = $order['customer']['email'];
-        $customer->address = $order['billing_address']['address1'];
-        $customer->city = $order['billing_address']['city'];
-        $customer->country = $order['billing_address']['country'];
-        $customer->pincode = $order['billing_address']['zip'];
-        $customer->phone = $order['billing_address']['phone'];
+        $customer->name             = $full_name;
+        $customer->email            = $order['customer']['email'];
+        $customer->address          = $order['billing_address']['address1'];
+        $customer->city             = $order['billing_address']['city'];
+        $customer->country          = $order['billing_address']['country'];
+        $customer->pincode          = $order['billing_address']['zip'];
+        $customer->phone            = $order['billing_address']['phone'];
         $customer->store_website_id = $store_id;
         $customer->save();
 
-        $customer_id = $customer->id;
-        $order_status = '';
+        $customer_id    = $customer->id;
+        $order_status   = '';
         $payment_method = '';
 
         // For shopify payment method will always by shopify_payments
@@ -159,35 +160,35 @@ class ShopifyHelper
 
         $id = \DB::table('orders')->insertGetId(
             [
-                'customer_id' => $customer_id,
-                'order_id' => $order['id'],
-                'order_type' => 'online',
-                'order_status' => $order_status,
+                'customer_id'     => $customer_id,
+                'order_id'        => $order['id'],
+                'order_type'      => 'online',
+                'order_status'    => $order_status,
                 'order_status_id' => $order_status,
-                'payment_mode' => $payment_method,
-                'order_date' => $order['created_at'],
-                'client_name' => $full_name,
-                'city' => $order['billing_address']['city'],
-                'advance_detail' => 0,
-                'contact_detail' => $order['billing_address']['phone'],
-                'balance_amount' => $balance_amount,
-                'created_at' => $order['created_at'],
-                'updated_at' => $order['created_at'],
+                'payment_mode'    => $payment_method,
+                'order_date'      => $order['created_at'],
+                'client_name'     => $full_name,
+                'city'            => $order['billing_address']['city'],
+                'advance_detail'  => 0,
+                'contact_detail'  => $order['billing_address']['phone'],
+                'balance_amount'  => $balance_amount,
+                'created_at'      => $order['created_at'],
+                'updated_at'      => $order['created_at'],
             ]);
 
         //create entry in table cash_flows
         \DB::table('cash_flows')->insert(
             [
-                'cash_flow_able_id' => $customer_id,
-                'description' => 'Order recieved full pre payment for orderid ' . $order['id'],
-                'date' => date('Y-m-d'),
-                'amount' => $balance_amount,
-                'type' => 'received',
+                'cash_flow_able_id'   => $customer_id,
+                'description'         => 'Order recieved full pre payment for orderid ' . $order['id'],
+                'date'                => date('Y-m-d'),
+                'amount'              => $balance_amount,
+                'type'                => 'received',
                 'cash_flow_able_type' => \App\Order::class,
-                'status' => $order_status,
-                'order_status' => $order_status,
-                'expected' => $balance_amount,
-                'actual' => $balance_amount,
+                'status'              => $order_status,
+                'order_status'        => $order_status,
+                'expected'            => $balance_amount,
+                'actual'              => $balance_amount,
             ]
         );
 
@@ -202,15 +203,15 @@ class ShopifyHelper
                 // Store products per order
                 DB::table('order_products')->insert(
                     [
-                        'order_id' => $id,
-                        'product_id' => ! empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
-                        'sku' => $skuAndColor['sku'],
+                        'order_id'      => $id,
+                        'product_id'    => ! empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
+                        'sku'           => $skuAndColor['sku'],
                         'product_price' => round($item['price']),
-                        'qty' => round($item['quantity']),
-                        'size' => $size,
-                        'color' => $skuAndColor['color'],
-                        'created_at' => $order['created_at'],
-                        'updated_at' => $order['created_at'],
+                        'qty'           => round($item['quantity']),
+                        'size'          => $size,
+                        'color'         => $skuAndColor['color'],
+                        'created_at'    => $order['created_at'],
+                        'updated_at'    => $order['created_at'],
                     ]
                 );
             }
@@ -219,10 +220,10 @@ class ShopifyHelper
 
         //Store Order Id Website ID and Shopify ID
 
-        $websiteOrder = new StoreWebsiteOrder();
-        $websiteOrder->website_id = $store_id;
-        $websiteOrder->status_id = $order_status;
-        $websiteOrder->order_id = $orderSaved->id;
+        $websiteOrder                    = new StoreWebsiteOrder();
+        $websiteOrder->website_id        = $store_id;
+        $websiteOrder->status_id         = $order_status;
+        $websiteOrder->order_id          = $orderSaved->id;
         $websiteOrder->platform_order_id = $shopify_order_id;
         $websiteOrder->save();
 
@@ -237,21 +238,23 @@ class ShopifyHelper
      *
      * @param [type] $store_id
      * @param [type] $customer
+     * @param mixed $store_customer
+     *
      * @return void
      */
     public static function syncShopifyCustomers($store_id, $store_customer)
     {
         // Extract customer details from the payload
         $firstName = isset($store_customer) ? (isset($store_customer['first_name']) ? $store_customer['first_name'] : 'N/A') : 'N/A';
-        $lastName = isset($store_customer) ? (isset($store_customer['last_name']) ? $store_customer['last_name'] : 'N/A') : 'N/A';
+        $lastName  = isset($store_customer) ? (isset($store_customer['last_name']) ? $store_customer['last_name'] : 'N/A') : 'N/A';
 
-        $full_name = $firstName . ' ' . $lastName;
-        $customer_phone = isset($store_customer) ? (isset($store_customer['phone']) ? $store_customer['phone'] : '') : '';
+        $full_name        = $firstName . ' ' . $lastName;
+        $customer_phone   = isset($store_customer) ? (isset($store_customer['phone']) ? $store_customer['phone'] : '') : '';
         $customer_address = isset($store_customer['addresses']['address1']) ? (isset($store_customer['addresses']['address1']) ? $store_customer['phone'] : '') : '';
-        $customer_city = isset($store_customer['address1']) ? (isset($store_customer['address1']['city']) ? $store_customer['address1']['city'] : '') : '';
+        $customer_city    = isset($store_customer['address1']) ? (isset($store_customer['address1']['city']) ? $store_customer['address1']['city'] : '') : '';
         $customer_country = isset($store_customer['address1']) ? (isset($store_customer['address1']['country']) ? $store_customer['address1']['country'] : '') : '';
-        $customer_zip = isset($store_customer['address1']) ? (isset($store_customer['address1']['zip']) ? $store_customer['address1']['zip'] : '') : '';
-        $customer_phone = isset($store_customer) ? (isset($store_customer['phone']) ? $store_customer['phone'] : '') : '';
+        $customer_zip     = isset($store_customer['address1']) ? (isset($store_customer['address1']['zip']) ? $store_customer['address1']['zip'] : '') : '';
+        $customer_phone   = isset($store_customer) ? (isset($store_customer['phone']) ? $store_customer['phone'] : '') : '';
 
         $customer = Customer::where('email', $store_customer['email'])->where('store_website_id', $store_id)->first();
 
@@ -260,13 +263,13 @@ class ShopifyHelper
             $customer = new Customer;
         }
 
-        $customer->name = $full_name;
-        $customer->email = $store_customer['email'];
-        $customer->address = $customer_address;
-        $customer->city = $customer_city;
-        $customer->country = $customer_country;
-        $customer->pincode = $customer_zip;
-        $customer->phone = $customer_phone;
+        $customer->name             = $full_name;
+        $customer->email            = $store_customer['email'];
+        $customer->address          = $customer_address;
+        $customer->city             = $customer_city;
+        $customer->country          = $customer_country;
+        $customer->pincode          = $customer_zip;
+        $customer->phone            = $customer_phone;
         $customer->store_website_id = $store_id;
         $customer->save();
 

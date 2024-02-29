@@ -31,6 +31,11 @@ class TwilioSmsJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed       $receiverNumber
+     * @param public      $message
+     * @param public      $store_website_id
+     * @param null|public $orderId
+     *
      * @return void
      */
     public function __construct($receiverNumber, public $message, public $store_website_id, public $orderId = null)
@@ -44,12 +49,12 @@ class TwilioSmsJob implements ShouldQueue
             ->first();
 
         if (isset($twilio_cred)) {
-            $this->account_sid = $twilio_cred->a_sid;
-            $this->auth_token = $twilio_cred->auth_token;
+            $this->account_sid   = $twilio_cred->a_sid;
+            $this->auth_token    = $twilio_cred->auth_token;
             $this->twilio_number = $twilio_cred->phone_number;
         } else {
-            $this->account_sid = 'AC23d37fbaf2f8a851f850aa526464ee7d';
-            $this->auth_token = '51e2bf471c33a48332ea365ae47a6517';
+            $this->account_sid   = 'AC23d37fbaf2f8a851f850aa526464ee7d';
+            $this->auth_token    = '51e2bf471c33a48332ea365ae47a6517';
             $this->twilio_number = '+18318880662';
         }
 
@@ -70,18 +75,18 @@ class TwilioSmsJob implements ShouldQueue
                 'from' => $this->twilio_number,
                 'body' => $this->message,
             ]);
-            $phone = str_replace('+', '', $this->receiverNumber);
+            $phone  = str_replace('+', '', $this->receiverNumber);
             $custId = Customer::where('phone', 'like', '%' . $phone . '%')->pluck('id')->first();
-            $chat = [
+            $chat   = [
                 'message_application_id' => 3,
-                'message' => $this->message,
-                'number' => $this->receiverNumber,
-                'send_by' => $this->twilio_number,
-                'user_id' => \Auth::id(),
-                'approved' => 1,
-                'is_delivered' => 1,
-                'customer_id' => $custId,
-                'order_id' => $this->orderId,
+                'message'                => $this->message,
+                'number'                 => $this->receiverNumber,
+                'send_by'                => $this->twilio_number,
+                'user_id'                => \Auth::id(),
+                'approved'               => 1,
+                'is_delivered'           => 1,
+                'customer_id'            => $custId,
+                'order_id'               => $this->orderId,
             ];
             ChatMessage::create($chat);
         } catch (Exception $e) {

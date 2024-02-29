@@ -46,23 +46,23 @@ class getLiveChatIncTickets extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
             $curl = curl_init();
-            $url = 'https://api.livechatinc.com/v2/tickets';
+            $url  = 'https://api.livechatinc.com/v2/tickets';
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
+                CURLOPT_URL            => $url,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
+                CURLOPT_ENCODING       => '',
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 0,
                 CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-                CURLOPT_HTTPHEADER => [
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => 'GET',
+                CURLOPT_HTTPHEADER     => [
                     'Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn',
                 ],
             ]);
@@ -79,19 +79,19 @@ class getLiveChatIncTickets extends Command
 
             if (isset($result) && count($result) > 0) {
                 foreach ($result as $row) {
-                    $event = (isset($row['events'][0])) ? $row['events'][0] : [];
+                    $event  = (isset($row['events'][0])) ? $row['events'][0] : [];
                     $author = (isset($event['author'])) ? $event['author'] : [];
 
                     $email = (isset($author['id'])) ? $author['id'] : '';
-                    $name = (isset($author['name'])) ? $author['name'] : '';
+                    $name  = (isset($author['name'])) ? $author['name'] : '';
 
                     $customer = \App\Customer::where('email', $email)->first();
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer query finished.']);
                     if (isset($customer->id) && ($customer->id) > 0) {
                         $customer_id = $customer->id;
                     } else {
-                        $customer = new \App\Customer;
-                        $customer->name = $name;
+                        $customer        = new \App\Customer;
+                        $customer->name  = $name;
                         $customer->email = $email;
                         $customer->save();
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Customer saved.']);
@@ -99,28 +99,28 @@ class getLiveChatIncTickets extends Command
                     }
 
                     $ticket_id = (isset($row['id'])) ? $row['id'] : '';
-                    $subject = (isset($row['subject'])) ? $row['subject'] : '';
-                    $message = (isset($event['message'])) ? $event['message'] : '';
-                    $date = (isset($event['date'])) ? $event['date'] : date();
+                    $subject   = (isset($row['subject'])) ? $row['subject'] : '';
+                    $message   = (isset($event['message'])) ? $event['message'] : '';
+                    $date      = (isset($event['date'])) ? $event['date'] : date();
 
                     $status = \App\TicketStatuses::where('name', $row['status'])->first();
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket status query finished.']);
                     if (! $status) {
-                        $status = new \App\TicketStatuses;
+                        $status       = new \App\TicketStatuses;
                         $status->name = $row['status'];
                         $status->save();
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Ticket status was added.']);
                     }
 
                     $Tickets_data = [
-                        'ticket_id' => $ticket_id,
-                        'subject' => $subject,
-                        'message' => $message,
-                        'date' => $date,
+                        'ticket_id'   => $ticket_id,
+                        'subject'     => $subject,
+                        'message'     => $message,
+                        'date'        => $date,
                         'customer_id' => $customer_id,
-                        'name' => $name,
-                        'email' => $email,
-                        'status_id' => $status->id,
+                        'name'        => $name,
+                        'email'       => $email,
+                        'status_id'   => $status->id,
                     ];
 
                     $ticketObj = \App\Tickets::where('ticket_id', $ticket_id)->first();
@@ -133,16 +133,16 @@ class getLiveChatIncTickets extends Command
 
                         if ($ticketObj) {
                             $email = \App\Email::create([
-                                'model_id' => $customer_id,
-                                'model_type' => \App\Customer::class,
-                                'from' => $emailClass->fromMailer,
-                                'to' => $email,
-                                'subject' => $emailClass->subject,
-                                'message' => $emailClass->render(),
-                                'template' => 'Ticket ACK',
+                                'model_id'        => $customer_id,
+                                'model_type'      => \App\Customer::class,
+                                'from'            => $emailClass->fromMailer,
+                                'to'              => $email,
+                                'subject'         => $emailClass->subject,
+                                'message'         => $emailClass->render(),
+                                'template'        => 'Ticket ACK',
                                 'additional_data' => '',
-                                'status' => 'pre-send',
-                                'is_draft' => 1,
+                                'status'          => 'pre-send',
+                                'is_draft'        => 1,
                             ]);
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email was created.']);
                             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');

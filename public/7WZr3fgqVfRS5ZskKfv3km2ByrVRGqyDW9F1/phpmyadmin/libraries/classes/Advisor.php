@@ -47,12 +47,12 @@ class Advisor
     private $expression;
 
     /**
-     * @param  DatabaseInterface  $dbi        DatabaseInterface object
-     * @param  ExpressionLanguage  $expression ExpressionLanguage object
+     * @param DatabaseInterface  $dbi        DatabaseInterface object
+     * @param ExpressionLanguage $expression ExpressionLanguage object
      */
     public function __construct(DatabaseInterface $dbi, ExpressionLanguage $expression)
     {
-        $this->dbi = $dbi;
+        $this->dbi        = $dbi;
         $this->expression = $expression;
         /*
          * Register functions for ExpressionLanguage, we intentionally
@@ -63,8 +63,8 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  float  $num
+             * @param array $arguments
+             * @param float $num
              */
             static function ($arguments, $num) {
                 return round($num);
@@ -75,10 +75,10 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  string  $string
-             * @param  int  $start
-             * @param  int  $length
+             * @param array  $arguments
+             * @param string $string
+             * @param int    $start
+             * @param int    $length
              */
             static function ($arguments, $string, $start, $length) {
                 return substr($string, $start, $length);
@@ -89,9 +89,9 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  string  $pattern
-             * @param  string  $subject
+             * @param array  $arguments
+             * @param string $pattern
+             * @param string $subject
              */
             static function ($arguments, $pattern, $subject) {
                 return preg_match($pattern, $subject);
@@ -102,9 +102,9 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  float  $num
-             * @param  int  $precision
+             * @param array $arguments
+             * @param float $num
+             * @param int   $precision
              */
             static function ($arguments, $num, $precision) {
                 return self::byTime($num, $precision);
@@ -115,8 +115,8 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  string  $seconds
+             * @param array  $arguments
+             * @param string $seconds
              */
             static function ($arguments, $seconds) {
                 return Util::timespanFormat((int) $seconds);
@@ -127,10 +127,10 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  int  $value
-             * @param  int  $limes
-             * @param  int  $comma
+             * @param array $arguments
+             * @param int   $value
+             * @param int   $limes
+             * @param int   $comma
              */
             static function ($arguments, $value, $limes = 6, $comma = 0) {
                 return implode(' ', (array) Util::formatByteDown($value, $limes, $comma));
@@ -141,8 +141,8 @@ class Advisor
             static function (): void {
             },
             /**
-             * @param  array  $arguments
-             * @param  int  $value
+             * @param array $arguments
+             * @param int   $value
              */
             function ($arguments, $value) {
                 if (! isset($this->runResult['fired'])) {
@@ -162,25 +162,25 @@ class Advisor
         /* Some global variables for advisor */
         $this->globals = [
             'PMA_MYSQL_INT_VERSION' => $this->dbi->getVersion(),
-            'IS_MARIADB' => $this->dbi->isMariaDB(),
+            'IS_MARIADB'            => $this->dbi->isMariaDB(),
         ];
     }
 
     private function setVariables(): void
     {
-        $globalStatus = $this->dbi->fetchResult('SHOW GLOBAL STATUS', 0, 1);
+        $globalStatus    = $this->dbi->fetchResult('SHOW GLOBAL STATUS', 0, 1);
         $globalVariables = $this->dbi->fetchResult('SHOW GLOBAL VARIABLES', 0, 1);
 
-        $sysInfo = SysInfo::get();
-        $memory = $sysInfo->memory();
+        $sysInfo      = SysInfo::get();
+        $memory       = $sysInfo->memory();
         $systemMemory = ['system_memory' => $memory['MemTotal'] ?? 0];
 
         $this->variables = array_merge($globalStatus, $globalVariables, $systemMemory);
     }
 
     /**
-     * @param  string|int  $variable Variable to set
-     * @param  mixed  $value    Value to set
+     * @param string|int $variable Variable to set
+     * @param mixed      $value    Value to set
      */
     public function setVariable($variable, $value): void
     {
@@ -189,7 +189,7 @@ class Advisor
 
     private function setRules(): void
     {
-        $isMariaDB = str_contains($this->variables['version'], 'MariaDB');
+        $isMariaDB    = str_contains($this->variables['version'], 'MariaDB');
         $genericRules = include ROOT_PATH . self::GENERIC_RULES_FILE;
 
         if (! $isMariaDB && $this->globals['PMA_MYSQL_INT_VERSION'] >= 80003) {
@@ -198,7 +198,7 @@ class Advisor
             return;
         }
 
-        $extraRules = include ROOT_PATH . self::BEFORE_MYSQL80003_RULES_FILE;
+        $extraRules  = include ROOT_PATH . self::BEFORE_MYSQL80003_RULES_FILE;
         $this->rules = array_merge($genericRules, $extraRules);
     }
 
@@ -219,8 +219,8 @@ class Advisor
     /**
      * Stores current error in run results.
      *
-     * @param  string  $description description of an error.
-     * @param  Throwable  $exception   exception raised
+     * @param string    $description description of an error.
+     * @param Throwable $exception   exception raised
      */
     private function storeError(string $description, Throwable $exception): void
     {
@@ -236,15 +236,15 @@ class Advisor
     private function runRules(): void
     {
         $this->runResult = [
-            'fired' => [],
-            'notfired' => [],
+            'fired'     => [],
+            'notfired'  => [],
             'unchecked' => [],
-            'errors' => [],
+            'errors'    => [],
         ];
 
         foreach ($this->rules as $rule) {
             $this->variables['value'] = 0;
-            $precondition = true;
+            $precondition             = true;
 
             if (isset($rule['precondition'])) {
                 try {
@@ -305,8 +305,8 @@ class Advisor
     /**
      * Adds a rule to the result list
      *
-     * @param  string  $type type of rule
-     * @param  array  $rule rule itself
+     * @param string $type type of rule
+     * @param array  $rule rule itself
      */
     public function addRule(string $type, array $rule): void
     {
@@ -363,7 +363,8 @@ class Advisor
     /**
      * Callback for wrapping links with Core::linkURL
      *
-     * @param  array  $matches List of matched elements form preg_replace_callback
+     * @param array $matches List of matched elements form preg_replace_callback
+     *
      * @return string Replacement value
      */
     private function replaceLinkURL(array $matches): string
@@ -374,7 +375,8 @@ class Advisor
     /**
      * Callback for wrapping variable edit links
      *
-     * @param  array  $matches List of matched elements form preg_replace_callback
+     * @param array $matches List of matched elements form preg_replace_callback
+     *
      * @return string Replacement value
      */
     private function replaceVariable(array $matches): string
@@ -396,8 +398,9 @@ class Advisor
     /**
      * Formats interval like 10 per hour
      *
-     * @param  float  $num       number to format
-     * @param  int  $precision required precision
+     * @param float $num       number to format
+     * @param int   $precision required precision
+     *
      * @return string formatted string
      */
     public static function byTime(float $num, int $precision): string

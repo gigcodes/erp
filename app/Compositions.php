@@ -11,7 +11,6 @@ class Compositions extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="replace_with",type="string")
@@ -47,7 +46,7 @@ class Compositions extends Model
 
                 foreach ($parts as $p) {
                     if (strtolower($p) == strtolower($c->name) && ! empty($c->replace_with)) {
-                        $name = str_replace($p, $c->replace_with, $name);
+                        $name               = str_replace($p, $c->replace_with, $name);
                         $isReplacementFound = true;
                     }
                 }
@@ -67,7 +66,7 @@ class Compositions extends Model
             $compositionModel = self::where('name', $name)->first();
             if (! $compositionModel) {
                 self::create([
-                    'name' => $name,
+                    'name'         => $name,
                     'replace_with' => '',
                 ]);
             }

@@ -17,9 +17,9 @@ class PreAccountController extends Controller
      */
     public function index()
     {
-        $accounts = PreAccount::all();
+        $accounts  = PreAccount::all();
         $firstName = PeopleNames::inRandomOrder()->take(10)->get();
-        $lastName = PeopleNames::inRandomOrder()->take(10)->get()->toArray();
+        $lastName  = PeopleNames::inRandomOrder()->take(10)->get()->toArray();
         $countries = TargetLocation::all();
 
         return view('pre.accounts', compact('accounts', 'firstName', 'lastName', 'countries'));
@@ -43,7 +43,7 @@ class PreAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required|array',
+            'email'    => 'required|array',
             'password' => 'required|array',
         ]);
 
@@ -53,29 +53,29 @@ class PreAccountController extends Controller
             if (! $email) {
                 continue;
             }
-            $account = new PreAccount();
+            $account             = new PreAccount();
             $account->first_name = $request->get('first_name')[$key];
-            $account->last_name = $request->get('last_name')[$key];
-            $account->email = $email;
-            $account->password = $request->get('password')[$key];
-            $account->instagram = 0;
-            $account->facebook = 0;
-            $account->pinterest = 0;
-            $account->twitter = 0;
+            $account->last_name  = $request->get('last_name')[$key];
+            $account->email      = $email;
+            $account->password   = $request->get('password')[$key];
+            $account->instagram  = 0;
+            $account->facebook   = 0;
+            $account->pinterest  = 0;
+            $account->twitter    = 0;
             $account->save();
 
-            $a = new Account();
-            $a->email = $account->email;
+            $a             = new Account();
+            $a->email      = $account->email;
             $a->first_name = $account->first_name . ' ' . $account->last_name;
-            $a->platform = 'instagram';
-            $a->dob = date('Y-m-d');
+            $a->platform   = 'instagram';
+            $a->dob        = date('Y-m-d');
             $a->save();
 
-            $a = new Account();
-            $a->email = $account->email;
+            $a             = new Account();
+            $a->email      = $account->email;
             $a->first_name = $account->first_name . ' ' . $account->last_name;
-            $a->platform = 'pinterest';
-            $a->dob = date('Y-m-d');
+            $a->platform   = 'pinterest';
+            $a->dob        = date('Y-m-d');
             $a->save();
         }
 
@@ -115,7 +115,9 @@ class PreAccountController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\PreAccount  $preAccount
+     * @param \App\PreAccount $preAccount
+     * @param mixed           $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

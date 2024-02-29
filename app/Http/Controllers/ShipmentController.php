@@ -64,23 +64,23 @@ class ShipmentController extends Controller
         )->with('order', 'order.customer', 'customer', 'waybill_track_histories');
 
         $waybills_array = $waybills->paginate(20);
-        $customers = Customer::all();
+        $customers      = Customer::all();
 
         $fromdatadefault = [
-            'street' => config('dhl.shipper.street'),
-            'city' => config('dhl.shipper.city'),
-            'postal_code' => config('dhl.shipper.postal_code'),
+            'street'       => config('dhl.shipper.street'),
+            'city'         => config('dhl.shipper.city'),
+            'postal_code'  => config('dhl.shipper.postal_code'),
             'country_code' => config('dhl.shipper.country_code'),
-            'person_name' => config('dhl.shipper.person_name'),
+            'person_name'  => config('dhl.shipper.person_name'),
             'company_name' => config('dhl.shipper.company_name'),
-            'phone' => config('dhl.shipper.phone'),
+            'phone'        => config('dhl.shipper.phone'),
         ];
 
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
 
         return view('shipment.index', ['waybills_array' => $waybills_array,
-            'customers' => $customers, 'template_names' => $mailinglist_templates,
-            'countries' => config('countries'), 'fromdatadefault' => $fromdatadefault,
+            'customers'                                 => $customers, 'template_names' => $mailinglist_templates,
+            'countries'                                 => config('countries'), 'fromdatadefault' => $fromdatadefault,
         ]);
     }
 
@@ -92,9 +92,9 @@ class ShipmentController extends Controller
         $validator = Validator::make($request->all(), [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
-            'to.*' => 'required|email',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'to.*'    => 'required|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +104,7 @@ class ShipmentController extends Controller
         }
 
         $fromEmail = 'buying@amourint.com';
-        $fromName = 'buying';
+        $fromName  = 'buying';
 
         $file_paths = [];
 
@@ -119,7 +119,7 @@ class ShipmentController extends Controller
             }
         }
 
-        $cc = $bcc = [];
+        $cc     = $bcc = [];
         $emails = $request->to;
 
         if ($request->has('cc')) {
@@ -144,17 +144,17 @@ class ShipmentController extends Controller
         $mail->send(new ShipmentEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]));
 
         $params = [
-            'model_id' => $request->order_id,
-            'model_type' => Order::class,
-            'from' => $fromEmail,
-            'to' => implode(',', $request->to),
-            'seen' => 1,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'template' => $request->template,
+            'model_id'        => $request->order_id,
+            'model_type'      => Order::class,
+            'from'            => $fromEmail,
+            'to'              => implode(',', $request->to),
+            'seen'            => 1,
+            'subject'         => $request->subject,
+            'message'         => $request->message,
+            'template'        => $request->template,
             'additional_data' => json_encode(['attachment' => $file_paths]),
-            'cc' => ($cc) ? implode(',', $cc) : null,
-            'bcc' => ($bcc) ? implode(',', $bcc) : null,
+            'cc'              => ($cc) ? implode(',', $cc) : null,
+            'bcc'             => ($bcc) ? implode(',', $bcc) : null,
         ];
 
         $this->emails::create($params);
@@ -186,75 +186,75 @@ class ShipmentController extends Controller
 
     public function generateShipment(Request $request)
     {
-        $inputs = $request->all();
+        $inputs    = $request->all();
         $validator = Validator::make($inputs, [
-            'from_customer_id' => 'required',
-            'from_customer_city' => 'required|string',
-            'from_customer_country' => 'required|string',
-            'from_customer_phone' => 'required|numeric',
+            'from_customer_id'       => 'required',
+            'from_customer_city'     => 'required|string',
+            'from_customer_country'  => 'required|string',
+            'from_customer_phone'    => 'required|numeric',
             'from_customer_address1' => 'required|string|min:1|max:40',
-            'customer_id' => 'required',
-            'customer_city' => 'required|string',
-            'customer_country' => 'required|string',
-            'customer_phone' => 'required|numeric',
-            'customer_address1' => 'required|string|min:1|max:40',
-            'actual_weight' => 'required|numeric',
-            'box_length' => 'required|numeric',
-            'box_width' => 'required|numeric',
-            'box_height' => 'required|numeric',
-            'amount' => 'required|numeric',
-            'currency' => 'required',
-            'pickup_time' => 'required',
-            'service_type' => 'required',
+            'customer_id'            => 'required',
+            'customer_city'          => 'required|string',
+            'customer_country'       => 'required|string',
+            'customer_phone'         => 'required|numeric',
+            'customer_address1'      => 'required|string|min:1|max:40',
+            'actual_weight'          => 'required|numeric',
+            'box_length'             => 'required|numeric',
+            'box_width'              => 'required|numeric',
+            'box_height'             => 'required|numeric',
+            'amount'                 => 'required|numeric',
+            'currency'               => 'required',
+            'pickup_time'            => 'required',
+            'service_type'           => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ]);
         }
 
         try {
             //get customer details
             if ($request->from_customer_id > 0) {
-                $from_customer = Customer::where('id', $request->from_customer_id)->first();
-                $from_customer_id = $request->from_customer_id;
+                $from_customer      = Customer::where('id', $request->from_customer_id)->first();
+                $from_customer_id   = $request->from_customer_id;
                 $from_customer_name = $from_customer->name;
             } else {
-                $from_customer_id = null;
+                $from_customer_id   = null;
                 $from_customer_name = $request->from_customer_id;
             }
 
             $rateReq = new CreateShipmentRequest('soap');
 
             $rateReq->setShipper([
-                'street' => $request->from_customer_address1,
-                'city' => $request->from_customer_city,
-                'postal_code' => $request->from_customer_pincode,
+                'street'       => $request->from_customer_address1,
+                'city'         => $request->from_customer_city,
+                'postal_code'  => $request->from_customer_pincode,
                 'country_code' => $request->from_customer_country,
-                'person_name' => $from_customer_name,
+                'person_name'  => $from_customer_name,
                 'company_name' => $request->company_name,
-                'phone' => $request->from_customer_phone,
+                'phone'        => $request->from_customer_phone,
             ]);
 
             if ($request->customer_id > 0) {
-                $customer = Customer::where('id', $request->customer_id)->first();
-                $customer_id = $request->customer_id;
+                $customer      = Customer::where('id', $request->customer_id)->first();
+                $customer_id   = $request->customer_id;
                 $customer_name = $customer->name;
             } else {
-                $customer_id = null;
+                $customer_id   = null;
                 $customer_name = $request->customer_id;
             }
 
             $rateReq->setRecipient([
-                'street' => $request->customer_address1,
-                'city' => $request->customer_city,
-                'postal_code' => $request->customer_pincode,
+                'street'       => $request->customer_address1,
+                'city'         => $request->customer_city,
+                'postal_code'  => $request->customer_pincode,
                 'country_code' => $request->customer_country,
-                'person_name' => $customer_name,
+                'person_name'  => $customer_name,
                 'company_name' => $customer_name,
-                'phone' => $request->customer_phone,
-                'email' => $request->get('customer_email'),
+                'phone'        => $request->customer_phone,
+                'email'        => $request->get('customer_email'),
             ]);
 
             $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)) . ' GMT+05:30');
@@ -269,9 +269,9 @@ class ShipmentController extends Controller
                 [
                     'weight' => (float) $request->actual_weight,
                     'length' => $request->box_length,
-                    'width' => $request->box_width,
+                    'width'  => $request->box_width,
                     'height' => $request->box_height,
-                    'note' => 'N/A',
+                    'note'   => 'N/A',
                 ],
             ]);
 
@@ -285,39 +285,39 @@ class ShipmentController extends Controller
                 if (! empty($receipt['label_format'])) {
                     if (strtolower($receipt['label_format']) == 'pdf') {
                         Storage::disk('files')->put('waybills/' . $receipt['tracking_number'] . '_package_slip.pdf', $bin = base64_decode($receipt['label_image'], true));
-                        $waybill = new Waybill;
-                        $waybill->order_id = null;
-                        $waybill->customer_id = $request->customer_id;
-                        $waybill->awb = $receipt['tracking_number'];
-                        $waybill->box_width = $request->box_width;
-                        $waybill->box_height = $request->box_height;
-                        $waybill->box_length = $request->box_length;
-                        $waybill->actual_weight = (float) $request->get('actual_weight');
-                        $volume_weight = $request->box_width * $request->box_height * $request->box_length / 5000;
-                        $waybill->volume_weight = (float) $volume_weight;
+                        $waybill                   = new Waybill;
+                        $waybill->order_id         = null;
+                        $waybill->customer_id      = $request->customer_id;
+                        $waybill->awb              = $receipt['tracking_number'];
+                        $waybill->box_width        = $request->box_width;
+                        $waybill->box_height       = $request->box_height;
+                        $waybill->box_length       = $request->box_length;
+                        $waybill->actual_weight    = (float) $request->get('actual_weight');
+                        $volume_weight             = $request->box_width * $request->box_height * $request->box_length / 5000;
+                        $waybill->volume_weight    = (float) $volume_weight;
                         $waybill->cost_of_shipment = $request->amount . ' ' . $request->currency;
-                        $waybill->duty_cost = null; //TODO after discussing
-                        $waybill->package_slip = $receipt['tracking_number'] . '_package_slip.pdf';
-                        $waybill->pickup_date = $request->pickup_time;
+                        $waybill->duty_cost        = null; //TODO after discussing
+                        $waybill->package_slip     = $receipt['tracking_number'] . '_package_slip.pdf';
+                        $waybill->pickup_date      = $request->pickup_time;
                         //newly added
-                        $waybill->from_customer_id = $from_customer_id;
-                        $waybill->from_customer_name = $from_customer_name;
-                        $waybill->from_city = $request->from_customer_city;
-                        $waybill->from_country_code = $request->from_customer_country;
-                        $waybill->from_customer_phone = $request->from_customer_phone;
+                        $waybill->from_customer_id        = $from_customer_id;
+                        $waybill->from_customer_name      = $from_customer_name;
+                        $waybill->from_city               = $request->from_customer_city;
+                        $waybill->from_country_code       = $request->from_customer_country;
+                        $waybill->from_customer_phone     = $request->from_customer_phone;
                         $waybill->from_customer_address_1 = $request->from_customer_address1;
                         $waybill->from_customer_address_2 = $request->from_customer_address2;
-                        $waybill->from_customer_pincode = $request->from_customer_pincode;
-                        $waybill->from_company_name = $request->from_company_name;
-                        $waybill->to_customer_id = $customer_id;
-                        $waybill->to_customer_name = $customer_name;
-                        $waybill->to_city = $request->customer_city;
-                        $waybill->to_country_code = $request->customer_country;
-                        $waybill->to_customer_phone = $request->customer_phone;
-                        $waybill->to_customer_address_1 = $request->customer_address1;
-                        $waybill->to_customer_address_2 = $request->customer_address2;
-                        $waybill->to_customer_pincode = $request->customer_pincode;
-                        $waybill->to_company_name = $request->company_name;
+                        $waybill->from_customer_pincode   = $request->from_customer_pincode;
+                        $waybill->from_company_name       = $request->from_company_name;
+                        $waybill->to_customer_id          = $customer_id;
+                        $waybill->to_customer_name        = $customer_name;
+                        $waybill->to_city                 = $request->customer_city;
+                        $waybill->to_country_code         = $request->customer_country;
+                        $waybill->to_customer_phone       = $request->customer_phone;
+                        $waybill->to_customer_address_1   = $request->customer_address1;
+                        $waybill->to_customer_address_2   = $request->customer_address2;
+                        $waybill->to_customer_pincode     = $request->customer_pincode;
+                        $waybill->to_company_name         = $request->company_name;
                         $waybill->save();
                     }
                 }
@@ -327,13 +327,13 @@ class ShipmentController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'success' => false,
+                    'success'      => false,
                     'globalErrors' => $response->getErrorMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success'      => false,
                 'globalErrors' => $e->getMessage(),
             ]);
         }
@@ -361,26 +361,26 @@ class ShipmentController extends Controller
             $waybill = Waybill::where(['id' => $request->waybill_id])->with('order', 'order.customer')->first();
             $rateReq = new CreatePickupRequest('soap');
             $rateReq->setShipper([
-                'street' => config('dhl.shipper.street'),
-                'city' => config('dhl.shipper.city'),
-                'postal_code' => config('dhl.shipper.postal_code'),
+                'street'       => config('dhl.shipper.street'),
+                'city'         => config('dhl.shipper.city'),
+                'postal_code'  => config('dhl.shipper.postal_code'),
                 'country_code' => config('dhl.shipper.country_code'),
-                'person_name' => config('dhl.shipper.person_name'),
+                'person_name'  => config('dhl.shipper.person_name'),
                 'company_name' => 'Solo Luxury',
-                'phone' => config('dhl.shipper.phone'),
-                'email' => config('dhl.shipper.email'),
-                'mobile' => config('dhl.shipper.mobile'),
+                'phone'        => config('dhl.shipper.phone'),
+                'email'        => config('dhl.shipper.email'),
+                'mobile'       => config('dhl.shipper.mobile'),
             ]);
             $rateReq->setRecipient([
-                'street' => $waybill->order->customer->address,
-                'city' => $waybill->order->customer->city,
-                'postal_code' => $waybill->order->customer->pincode,
+                'street'       => $waybill->order->customer->address,
+                'city'         => $waybill->order->customer->city,
+                'postal_code'  => $waybill->order->customer->pincode,
                 'country_code' => $waybill->order->customer->country,
-                'person_name' => $waybill->order->customer->name,
+                'person_name'  => $waybill->order->customer->name,
                 'company_name' => $waybill->order->customer->name,
-                'phone' => $waybill->order->customer->phone,
-                'email' => $waybill->order->customer->email,
-                'mobile' => $waybill->order->customer->phone,
+                'phone'        => $waybill->order->customer->phone,
+                'email'        => $waybill->order->customer->email,
+                'mobile'       => $waybill->order->customer->phone,
             ]);
 
             $rateReq->setPickupTimestamp(gmdate("Y-m-d\TH:i:s", strtotime($request->pickup_time)) . ' GMT+05:30');
@@ -391,9 +391,9 @@ class ShipmentController extends Controller
                 [
                     'weight' => (float) $waybill->actual_weight,
                     'length' => $waybill->box_length,
-                    'width' => $waybill->box_width,
+                    'width'  => $waybill->box_width,
                     'height' => $waybill->box_height,
-                    'note' => 'N/A',
+                    'note'   => 'N/A',
                 ],
             ]);
 
@@ -412,13 +412,13 @@ class ShipmentController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'success' => false,
+                    'success'      => false,
                     'globalErrors' => $response->getErrorMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success'      => false,
                 'globalErrors' => $e->getMessage(),
             ]);
         }
@@ -437,12 +437,12 @@ class ShipmentController extends Controller
             }
 
             return response()->json(['code' => 200, 'data' => [
-                'box_length' => $waybill->box_length,
-                'box_width' => $waybill->box_width,
-                'box_height' => $waybill->box_height,
+                'box_length'    => $waybill->box_length,
+                'box_width'     => $waybill->box_width,
+                'box_height'    => $waybill->box_height,
                 'actual_weight' => $waybill->actual_weight,
                 'volume_weight' => $waybill->volume_weight,
-                'id' => $waybill->id,
+                'id'            => $waybill->id,
             ], 'message' => 'Request update successfully']);
         }
 
@@ -499,21 +499,21 @@ class ShipmentController extends Controller
                 ->where('waybills.id', $request->waybill_id)->groupBy('waybills.id')->first();
 
             if ($wayBill) {
-                $wayBill->paid_date = now();
+                $wayBill->paid_date    = now();
                 $wayBill->payment_mode = $request->payment_mode;
                 $wayBill->save();
 
                 $cash_flow = new CashFlow();
                 $cash_flow->fill([
-                    'user_id' => auth()->user()->id,
-                    'amount' => $wayBill->cost_of_shipment,
-                    'actual' => $wayBill->cost_of_shipment,
-                    'date' => $wayBill->paid_date,
-                    'type' => 'paid',
-                    'description' => 'Waybill invoice details',
-                    'cash_flow_able_id' => $wayBill->invoice_id,
+                    'user_id'             => auth()->user()->id,
+                    'amount'              => $wayBill->cost_of_shipment,
+                    'actual'              => $wayBill->cost_of_shipment,
+                    'date'                => $wayBill->paid_date,
+                    'type'                => 'paid',
+                    'description'         => 'Waybill invoice details',
+                    'cash_flow_able_id'   => $wayBill->invoice_id,
                     'cash_flow_able_type' => \App\Waybillinvoice::class,
-                    'updated_by' => auth()->user()->id,
+                    'updated_by'          => auth()->user()->id,
                 ])->save();
                 Mail::to('billing-query.ae@dhl.com')->send(new InvoicePaymentMail($wayBill));
             }

@@ -22,7 +22,7 @@ class TeamFactory extends Factory
         $task_ids = Task::all()->pluck('id');
         $user_ids = User::all()->pluck('id');
         $team_ids = Team::all()->pluck('id');
-        $user_id = $this->faker->randomElement($user_ids);
+        $user_id  = $this->faker->randomElement($user_ids);
 
         DB::table('team_user')->insert([
             'user_id' => $user_id,
@@ -30,8 +30,8 @@ class TeamFactory extends Factory
         ]);
 
         return [
-            'name' => $this->faker->word(),
-            'user_id' => $user_id,
+            'name'       => $this->faker->word(),
+            'user_id'    => $user_id,
             'created_at' => $created_at,
             'updated_at' => $created_at,
         ];

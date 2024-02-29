@@ -49,7 +49,7 @@ final class RelationController extends AbstractController
     ) {
         parent::__construct($response, $template, $db, $table);
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     /**
@@ -60,13 +60,13 @@ final class RelationController extends AbstractController
         global $route;
 
         $options = [
-            'CASCADE' => 'CASCADE',
-            'SET_NULL' => 'SET NULL',
+            'CASCADE'   => 'CASCADE',
+            'SET_NULL'  => 'SET NULL',
             'NO_ACTION' => 'NO ACTION',
-            'RESTRICT' => 'RESTRICT',
+            'RESTRICT'  => 'RESTRICT',
         ];
 
-        $table = $this->dbi->getTable($this->db, $this->table);
+        $table         = $this->dbi->getTable($this->db, $this->table);
         $storageEngine = mb_strtoupper((string) $table->getStatusInfo('Engine'));
 
         $relationParameters = $this->relation->getRelationParameters();
@@ -129,15 +129,15 @@ final class RelationController extends AbstractController
         // in mysqli
         $columns = $this->dbi->getColumns($this->db, $this->table);
 
-        $column_array = [];
+        $column_array      = [];
         $column_hash_array = [];
-        $column_array[''] = '';
+        $column_array['']  = '';
         foreach ($columns as $column) {
             if (strtoupper($storageEngine) !== 'INNODB' && empty($column['Key'])) {
                 continue;
             }
 
-            $column_array[$column['Field']] = $column['Field'];
+            $column_array[$column['Field']]      = $column['Field'];
             $column_hash_array[$column['Field']] = md5($column['Field']);
         }
 
@@ -149,23 +149,23 @@ final class RelationController extends AbstractController
         $engine = $this->dbi->getTable($this->db, $this->table)->getStorageEngine();
         $this->render('table/relation/common_form', [
             'is_foreign_key_supported' => ForeignKey::isSupported($engine),
-            'db' => $this->db,
-            'table' => $this->table,
-            'relation_parameters' => $relationParameters,
-            'tbl_storage_engine' => $storageEngine,
-            'existrel' => $relations,
-            'existrel_foreign' => array_key_exists('foreign_keys_data', $relationsForeign)
+            'db'                       => $this->db,
+            'table'                    => $this->table,
+            'relation_parameters'      => $relationParameters,
+            'tbl_storage_engine'       => $storageEngine,
+            'existrel'                 => $relations,
+            'existrel_foreign'         => array_key_exists('foreign_keys_data', $relationsForeign)
                 ? $relationsForeign['foreign_keys_data']
                 : [],
-            'options_array' => $options,
-            'column_array' => $column_array,
-            'column_hash_array' => $column_hash_array,
-            'save_row' => array_values($columns),
-            'url_params' => $GLOBALS['urlParams'],
-            'databases' => $GLOBALS['dblist']->databases,
-            'dbi' => $this->dbi,
+            'options_array'         => $options,
+            'column_array'          => $column_array,
+            'column_hash_array'     => $column_hash_array,
+            'save_row'              => array_values($columns),
+            'url_params'            => $GLOBALS['urlParams'],
+            'databases'             => $GLOBALS['dblist']->databases,
+            'dbi'                   => $this->dbi,
             'default_sliders_state' => $GLOBALS['cfg']['InitialSlidersState'],
-            'route' => $route,
+            'route'                 => $route,
         ]);
     }
 
@@ -188,15 +188,15 @@ final class RelationController extends AbstractController
     /**
      * Update for FK
      *
-     * @param  Table  $table            Table
-     * @param  array  $options          Options
-     * @param  array  $relationsForeign External relations
+     * @param Table $table            Table
+     * @param array $options          Options
+     * @param array $relationsForeign External relations
      */
     private function updateForForeignKeys(Table $table, array $options, array $relationsForeign): void
     {
         $multi_edit_columns_name = $_POST['foreign_key_fields_name'] ?? null;
-        $preview_sql_data = '';
-        $seen_error = false;
+        $preview_sql_data        = '';
+        $seen_error              = false;
 
         // (for now, one index name only; we keep the definitions if the
         // foreign db is not the same)
@@ -247,7 +247,7 @@ final class RelationController extends AbstractController
     /**
      * Update for internal relation
      *
-     * @param  array  $relations Relations
+     * @param array $relations Relations
      */
     private function updateForInternalRelation(
         Table $table,
@@ -284,7 +284,7 @@ final class RelationController extends AbstractController
     public function getDropdownValueForTable(): void
     {
         $foreignTable = $_POST['foreignTable'];
-        $table_obj = $this->dbi->getTable($_POST['foreignDb'], $foreignTable);
+        $table_obj    = $this->dbi->getTable($_POST['foreignDb'], $foreignTable);
         // Since views do not have keys defined on them provide the full list of
         // columns
         if ($table_obj->isView()) {
@@ -311,11 +311,11 @@ final class RelationController extends AbstractController
     /**
      * Send database selection values for dropdown
      *
-     * @param  string  $storageEngine Storage engine.
+     * @param string $storageEngine Storage engine.
      */
     public function getDropdownValueForDatabase(string $storageEngine): void
     {
-        $tables = [];
+        $tables  = [];
         $foreign = isset($_POST['foreign']) && $_POST['foreign'] === 'true';
 
         if ($foreign) {
@@ -334,7 +334,7 @@ final class RelationController extends AbstractController
             $query = 'SHOW TABLES FROM '
                 . Util::backquote($_POST['foreignDb']);
             $tables_rs = $this->dbi->query($query);
-            $tables = $tables_rs->fetchAllColumn();
+            $tables    = $tables_rs->fetchAllColumn();
         }
 
         if ($GLOBALS['cfg']['NaturalOrder']) {

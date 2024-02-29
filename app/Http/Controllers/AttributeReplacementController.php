@@ -39,15 +39,15 @@ class AttributeReplacementController extends Controller
     {
         $this->validate($request, [
             'field_identifier' => 'required',
-            'first_term' => 'required',
+            'first_term'       => 'required',
         ]);
 
-        $r = new AttributeReplacement();
+        $r                   = new AttributeReplacement();
         $r->action_to_peform = 'REPLACE';
         $r->field_identifier = $request->get('field_identifier');
-        $r->first_term = $request->get('first_term');
+        $r->first_term       = $request->get('first_term');
         $r->replacement_term = $request->get('replacement_term');
-        $r->remarks = $request->get('remarks');
+        $r->remarks          = $request->get('remarks');
         $r->save();
 
         return redirect()->back()->with('message', 'Added successfully!');
@@ -56,7 +56,9 @@ class AttributeReplacementController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\AttributeReplacement  $attributeReplacement
+     * @param \App\AttributeReplacement $attributeReplacement
+     * @param mixed                     $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id, Request $request)

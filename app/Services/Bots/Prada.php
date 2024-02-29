@@ -23,7 +23,7 @@ class Prada extends Scraper
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-            'ip' => '123.136.62.162',
+            'ip'   => '123.136.62.162',
             'port' => '8080',
         ];
     }
@@ -33,7 +33,7 @@ class Prada extends Scraper
     public function emulate($command, $url, $commands = null)
     {
         $this->data = ['', ''];
-        $self = $this;
+        $self       = $this;
 
         $content = $this->getContent('https://erp.theluxuryunlimited.com/api/add-product-images', 'POST');
 
@@ -51,19 +51,19 @@ class Prada extends Scraper
 
             $trimmedSkus = [];
 
-            $first = substr($skux, 0, 6);
+            $first  = substr($skux, 0, 6);
             $second = substr($skux, 6, 3);
-            $third = substr($skux, 13, 5);
-            $forth = substr($skux, 9, 1);
-            $fifth = substr($skux, 10, 3);
+            $third  = substr($skux, 13, 5);
+            $forth  = substr($skux, 9, 1);
+            $fifth  = substr($skux, 10, 3);
 
             $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
-            $first = substr($skux, 0, 6);
+            $first  = substr($skux, 0, 6);
             $second = substr($skux, 10, 3);
-            $third = substr($skux, 13, 5);
-            $forth = substr($skux, 6, 1);
-            $fifth = substr($skux, 7, 3);
+            $third  = substr($skux, 13, 5);
+            $forth  = substr($skux, 6, 1);
+            $fifth  = substr($skux, 7, 3);
 
             $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
@@ -74,28 +74,28 @@ class Prada extends Scraper
                         try {
                             $browser->visit($defaultUrl);
                             $html = $browser->element('#application')->getAttribute('innerHTML');
-                            $c = new HtmlPageCrawler($html);
+                            $c    = new HtmlPageCrawler($html);
                             $link = $c->filter('.slider .component-productBoxSliderSlide a');
                             if (count($link)) {
                                 $url = 'https://www.prada.com' . $link->getAttribute('href');
 
                                 $browser->visit($url);
-                                $data = $browser->element('#application')->getAttribute('innerHTML');
-                                $c = new HtmlPageCrawler($data);
-                                $images = $c->filter('.component-productImageGrid img')->getIterator();
-                                $mainImage = $c->filter('.product-detail-images img')->getAttribute('src');
+                                $data         = $browser->element('#application')->getAttribute('innerHTML');
+                                $c            = new HtmlPageCrawler($data);
+                                $images       = $c->filter('.component-productImageGrid img')->getIterator();
+                                $mainImage    = $c->filter('.product-detail-images img')->getAttribute('src');
                                 $imagesTosave = [];
                                 foreach ($images as $image) {
                                     $imagesTosave[] = str_replace('580x580', '1280x1280', $image->getAttribute('src'));
                                 }
                                 $imagesTosave[] = $mainImage;
 
-                                $client = new Client();
+                                $client   = new Client();
                                 $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/save-product-images', [
                                     'form_params' => [
-                                        'id' => $sku->id,
+                                        'id'      => $sku->id,
                                         'website' => 'prada',
-                                        'images' => $imagesTosave,
+                                        'images'  => $imagesTosave,
                                     ],
                                     'headers' => [
                                         'Accept' => 'application/json',

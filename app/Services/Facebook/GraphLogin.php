@@ -75,7 +75,7 @@ class GraphLogin
             return false;
         }
 
-        $oAuth2Client = $this->fb->getOAuth2Client();
+        $oAuth2Client  = $this->fb->getOAuth2Client();
         $tokenMetadata = $oAuth2Client->debugToken($accessToken);
         $tokenMetadata->validateAppId($_ENV['FACEBOOK_APP_ID']);
         $tokenMetadata->validateExpiration();

@@ -19,11 +19,11 @@ class ColorController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'Colors | Store Website';
+        $title        = 'Colors | Store Website';
         $store_colors = new StoreWebsiteColor();
 
         if ($request->get('push') == 1) {
-            $website = \App\StoreWebsite::where('website_source', 'magento')->where('id', $request->get('store_website_id'))->where('api_token', '!=', '')->get();
+            $website    = \App\StoreWebsite::where('website_source', 'magento')->where('id', $request->get('store_website_id'))->where('api_token', '!=', '')->get();
             $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
             if (! $colorsData->isEmpty()) {
                 foreach ($colorsData as $cd) {
@@ -33,10 +33,10 @@ class ColorController extends Controller
                             $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($cd->erp_name, $web);
                             if (! empty($id)) {
                                 \App\StoreWebsiteColor::where('erp_color', $cd->erp_name)->where('store_website_id', $web->id)->delete();
-                                $swc = new \App\StoreWebsiteColor;
-                                $swc->erp_color = $cd->erp_name;
+                                $swc                   = new \App\StoreWebsiteColor;
+                                $swc->erp_color        = $cd->erp_name;
                                 $swc->store_website_id = $web->id;
-                                $swc->platform_id = $id;
+                                $swc->platform_id      = $id;
                                 $swc->save();
                             }
                         }
@@ -67,10 +67,10 @@ class ColorController extends Controller
         $store_colors = $store_colors->get();
 
         return view('storewebsite::color.index', [
-            'erp_colors' => (new Colors())->all(),
+            'erp_colors'     => (new Colors())->all(),
             'store_websites' => StoreWebsite::pluck('title', 'id')->toArray(),
-            'store_colors' => $store_colors,
-            'title' => $title,
+            'store_colors'   => $store_colors,
+            'title'          => $title,
             'reqsstorecolor' => $reqsstorecolor,
             'reqStorecolour' => $reqStorecolour,
         ]);
@@ -94,20 +94,20 @@ class ColorController extends Controller
     {
         $this->validate($request, [
             'store_website_id' => 'required|integer',
-            'store_color' => 'required|string|max:255',
-            'erp_color' => 'required|string|max:255',
+            'store_color'      => 'required|string|max:255',
+            'erp_color'        => 'required|string|max:255',
         ]);
 
-        $data = $request->except('_token');
+        $data           = $request->except('_token');
         $storeWebsiteId = $request->get('store_website_id');
-        $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
-        $dataArray = [];
+        $websites       = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
+        $dataArray      = [];
         foreach ($websites as $key => $website) {
             $data['store_website_id'] = $request->get('store_website_id');
-            $data['store_color'] = $request->get('store_color');
-            $data['erp_color'] = $request->get('erp_color');
+            $data['store_color']      = $request->get('store_color');
+            $data['erp_color']        = $request->get('erp_color');
             $data['store_website_id'] = $website->id;
-            $dataArray[] = $data;
+            $dataArray[]              = $data;
         }
         StoreWebsiteColor::insert($dataArray);
 
@@ -117,7 +117,8 @@ class ColorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -127,7 +128,8 @@ class ColorController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -138,15 +140,16 @@ class ColorController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
             'store_website_id' => 'required|integer',
-            'store_color' => 'required|string|max:255',
-            'erp_color' => 'required|string|max:255',
+            'store_color'      => 'required|string|max:255',
+            'erp_color'        => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
@@ -159,7 +162,8 @@ class ColorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -184,7 +188,7 @@ class ColorController extends Controller
                 $website = \App\StoreWebsite::find($color->store_website_id);
                 if ($website) {
                     $colorName = ! empty($color->store_color) ? $color->store_color : $color->erp_color;
-                    $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($colorName, $website);
+                    $id        = \seo2websites\MagentoHelper\MagentoHelper::addColor($colorName, $website);
                     if (! empty($id)) {
                         $color->platform_id = $id;
                         $color->save();
@@ -200,7 +204,7 @@ class ColorController extends Controller
 
     public function colorReference()
     {
-        $colors = ColorReference::select('original_color')->get();
+        $colors     = ColorReference::select('original_color')->get();
         $colorArray = [];
         foreach ($colors as $color) {
             $colorArray[] = $color->original_color;

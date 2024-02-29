@@ -11,9 +11,9 @@ class TestController extends Controller
     {
         $order = \App\Order::find(57);
 
-        $html = \DB::table('email_templates')->where('id', 1)->first();
+        $html     = \DB::table('email_templates')->where('id', 1)->first();
         $htmlData = $html->html;
-        $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
+        $re       = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
         preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
         if (count($matches) != 0) {
             foreach ($matches as $index => $match) {
@@ -38,8 +38,8 @@ class TestController extends Controller
             $matches = $matches[0];
             foreach ($matches as $match) {
                 $matchString = str_replace(['{{', '}}'], '', $match);
-                $value = Arr::get($order, trim($matchString));
-                $htmlData = str_replace($match, $value, $htmlData);
+                $value       = Arr::get($order, trim($matchString));
+                $htmlData    = str_replace($match, $value, $htmlData);
             }
         }
 
@@ -50,11 +50,11 @@ class TestController extends Controller
     {
         $config = [
             'keyFilePath' => '/Users/satyamtripathi/Work/sololux-erp/public/big.json',
-            'projectId' => 'brandsandlabels',
+            'projectId'   => 'brandsandlabels',
         ];
 
-        $bigQuery = new BigQueryClient($config);
-        $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "2022-06-03"';
+        $bigQuery       = new BigQueryClient($config);
+        $query          = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "2022-06-03"';
         $queryJobConfig = $bigQuery->query($query)
             ->parameters([]);
         $queryResults = $bigQuery->runQuery($queryJobConfig);

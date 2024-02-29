@@ -49,24 +49,24 @@ class MergeIntentEntity extends Command
             foreach ($chatbot_questions as $question) {
                 if (! $question->keyword_or_question) {
                     $question->keyword_or_question = 'intent';
-                    $question->erp_or_watson = 'watson';
+                    $question->erp_or_watson       = 'watson';
                     $question->save();
                 }
             }
             $keywords = ChatbotKeyword::all();
             foreach ($keywords as $keyword) {
-                $question = new ChatbotQuestion;
-                $question->value = $keyword->keyword;
-                $question->workspace_id = $keyword->workspace_id;
+                $question                      = new ChatbotQuestion;
+                $question->value               = $keyword->keyword;
+                $question->workspace_id        = $keyword->workspace_id;
                 $question->keyword_or_question = 'entity';
-                $question->erp_or_watson = 'watson';
+                $question->erp_or_watson       = 'watson';
                 $question->save();
                 $keywordVlaues = ChatbotKeywordValue::where('chatbot_keyword_id', $keyword->id)->get();
                 foreach ($keywordVlaues as $value) {
-                    $example = new ChatbotQuestionExample;
-                    $example->question = $value->value;
+                    $example                      = new ChatbotQuestionExample;
+                    $example->question            = $value->value;
                     $example->chatbot_question_id = $question->id;
-                    $example->types = $value->types;
+                    $example->types               = $value->types;
                     $example->save();
                     $types = ChatbotKeywordValueTypes::where('chatbot_keyword_value_id', $value->id)->get();
                     foreach ($types as $type) {

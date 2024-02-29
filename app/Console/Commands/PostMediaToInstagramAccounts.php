@@ -41,7 +41,7 @@ class PostMediaToInstagramAccounts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -57,11 +57,11 @@ class PostMediaToInstagramAccounts extends Command
 
                 for ($i = 1; $i < 10; $i++) {
                     echo "FOR $account \n";
-                    $filename = __DIR__ . '/images/' . $i . '.jpeg';
-                    $source = imagecreatefromjpeg($filename);
+                    $filename         = __DIR__ . '/images/' . $i . '.jpeg';
+                    $source           = imagecreatefromjpeg($filename);
                     [$width, $height] = getimagesize($filename);
 
-                    $newwidth = 800;
+                    $newwidth  = 800;
                     $newheight = 800;
 
                     $destination = imagecreatetruecolor($newwidth, $newheight);

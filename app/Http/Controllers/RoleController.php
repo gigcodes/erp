@@ -30,7 +30,7 @@ class RoleController extends Controller
             $query = $query->whereIn('id', $request->term);
         }
 
-        $roles = $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
+        $roles      = $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
         $permission = Permission::get();
         if ($request->ajax()) {
             return response()->json([
@@ -63,10 +63,10 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+            'name'       => 'required|unique:roles,name',
             'permission' => 'required',
         ]);
-        $role = new Role();
+        $role       = new Role();
         $role->name = $request->name;
         $role->save();
         $role_id = $role->id;
@@ -80,15 +80,16 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $role = Role::find($id);
+        $role            = Role::find($id);
         $rolePermissions = $role->permissions;
-        $data = [
-            'role' => $role,
+        $data            = [
+            'role'            => $role,
             'rolePermissions' => $rolePermissions,
         ];
 
@@ -98,19 +99,20 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $role = Role::find($id);
-        $permission = Permission::get();
+        $role            = Role::find($id);
+        $permission      = Permission::get();
         $rolePermissions = $role->permissions;
 
         $data = [
-            'role' => $role,
+            'role'            => $role,
             'rolePermissions' => $rolePermissions,
-            'permission' => $permission,
+            'permission'      => $permission,
         ];
 
         return $data;
@@ -119,17 +121,18 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'role_name' => 'required',
+            'role_name'   => 'required',
             'permission1' => 'required',
         ]);
 
-        $role = Role::find($id);
+        $role       = Role::find($id);
         $role->name = $request->input('role_name');
         $role->save();
 
@@ -142,7 +145,8 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

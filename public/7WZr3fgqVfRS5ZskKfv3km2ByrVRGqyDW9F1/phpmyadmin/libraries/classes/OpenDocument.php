@@ -27,16 +27,17 @@ EOT;
     /**
      * Minimalistic creator of OASIS OpenDocument
      *
-     * @param  string  $mime desired MIME type
-     * @param  string  $data document content
-     * @return string  OASIS OpenDocument data
+     * @param string $mime desired MIME type
+     * @param string $data document content
+     *
+     * @return string OASIS OpenDocument data
      */
     public static function create($mime, $data)
     {
         // Use the same date method as other PHP libs
         // https://github.com/PHPOffice/PhpSpreadsheet/blob/1.22.0/src/PhpSpreadsheet/Writer/Ods/Meta.php#L49
         $dateTimeCreation = (new DateTime())->format(DATE_W3C);
-        $data = [
+        $data             = [
             $mime,
             $data,
             '<?xml version="1.0" encoding="UTF-8"?' . '>'

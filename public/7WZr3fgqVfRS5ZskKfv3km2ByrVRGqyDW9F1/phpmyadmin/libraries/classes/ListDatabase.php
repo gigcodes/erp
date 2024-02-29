@@ -56,7 +56,8 @@ class ListDatabase extends ListAbstract
     /**
      * retrieves database list from server
      *
-     * @param  string  $like_db_name usually a db_name containing wildcards
+     * @param string $like_db_name usually a db_name containing wildcards
+     *
      * @return array
      */
     protected function retrieve($like_db_name = null)
@@ -64,7 +65,7 @@ class ListDatabase extends ListAbstract
         global $dbi;
 
         $database_list = [];
-        $command = '';
+        $command       = '';
         if (! $GLOBALS['cfg']['Server']['DisableIS']) {
             $command .= 'SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`';
             if ($like_db_name !== null) {

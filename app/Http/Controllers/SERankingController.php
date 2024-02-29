@@ -19,21 +19,23 @@ class SERankingController extends Controller
 
     /**
      * Get Results
+     *
+     * @param mixed $url
      */
     public function getResults($url)
     {
         $context = stream_context_create([
             'http' => [
-                'method' => 'GET',
+                'method'        => 'GET',
                 'ignore_errors' => true,
-                'header' => [
+                'header'        => [
                     "Authorization: Token $this->apiKey",
                     'Content-Type: application/json; charset=utf-8',
                 ],
             ],
         ]);
         $httpStatus = null;
-        $results = file_get_contents('https://api4.seranking.com/' . $url, 0, $context);
+        $results    = file_get_contents('https://api4.seranking.com/' . $url, 0, $context);
         if (isset($http_response_header)) {
             preg_match('`HTTP/[0-9\.]+\s+([0-9]+)`', $http_response_header[0], $matches);
             $httpStatus = $matches[1];
@@ -68,7 +70,7 @@ class SERankingController extends Controller
     {
         $site_id = 1083512;
         if (! empty($_GET['keyword'])) {
-            $keyword = $_GET['keyword'];
+            $keyword  = $_GET['keyword'];
             $keywords = SERanking::where('name', 'like', '%' . $keyword . '%')->get();
         } else {
             $keywords = $this->getResults('sites/' . $site_id . '/keywords');
@@ -77,10 +79,10 @@ class SERankingController extends Controller
         foreach ($keywords as $key => $new_item) {
             DB::table('s_e_rankings')->insert(
                 [
-                    'id' => $new_item->id,
-                    'name' => $new_item->name,
-                    'group_id' => $new_item->group_id,
-                    'link' => $new_item->link,
+                    'id'               => $new_item->id,
+                    'name'             => $new_item->name,
+                    'group_id'         => $new_item->group_id,
+                    'link'             => $new_item->link,
                     'first_check_date' => $new_item->first_check_date,
                 ]
             );
@@ -95,12 +97,14 @@ class SERankingController extends Controller
 
     /**
      * Get Competitors
+     *
+     * @param mixed $id
      */
     public function getCompetitors($id = '')
     {
-        $site_id = 1083512;
+        $site_id           = 1083512;
         $keywords_pos_data = [];
-        $competitors = $this->getResults('competitors/site/' . $site_id);
+        $competitors       = $this->getResults('competitors/site/' . $site_id);
         if (! empty($id)) {
             $keywords_pos_data = $this->getResults('competitors/' . $id . '/positions');
 
@@ -121,7 +125,7 @@ class SERankingController extends Controller
      */
     public function getAnalytics()
     {
-        $site_id = 1083512;
+        $site_id   = 1083512;
         $analytics = $this->getResults('analytics/' . $site_id . '/potential');
 
         return View(
@@ -135,7 +139,7 @@ class SERankingController extends Controller
      */
     public function getBacklinks()
     {
-        $site_id = 1083512;
+        $site_id   = 1083512;
         $backlinks = $this->getResults('backlinks/' . $site_id . '/stat');
 
         return View(
@@ -163,7 +167,7 @@ class SERankingController extends Controller
     public function getSiteAudit()
     {
         $site_id = 1083512;
-        $audit = $this->getResults('audit/' . $site_id . '/report');
+        $audit   = $this->getResults('audit/' . $site_id . '/report');
 
         return View(
             'se-ranking.audit',

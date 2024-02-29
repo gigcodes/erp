@@ -26,17 +26,17 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     public function doesProductExist($product)
     {
-        $url = $product->url;
+        $url     = $product->url;
         $content = $this->getContent($url);
         if ($content === '') {
             return false;
         }
 
-        $c = new HtmlPageCrawler($content);
+        $c     = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
 
         if ($title !== '' && strlen($title) > 2) {
-            $props = $product->properties;
+            $props               = $product->properties;
             $props['sizes_prop'] = $this->getSizes($c);
             $product->properties = $props;
             $product->save();
@@ -67,13 +67,13 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
         foreach ($products as $product) {
             if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
-                $old_product->sku = str_replace(' ', '', $product->sku);
-                $old_product->brand = $product->brand_id;
-                $old_product->supplier = 'Wise Boutique';
-                $old_product->name = $product->title;
+                $old_product->sku               = str_replace(' ', '', $product->sku);
+                $old_product->brand             = $product->brand_id;
+                $old_product->supplier          = 'Wise Boutique';
+                $old_product->name              = $product->title;
                 $old_product->short_description = $product->description;
-                $old_product->supplier_link = $product->url;
-                $old_product->stage = 3;
+                $old_product->supplier_link     = $product->url;
+                $old_product->stage             = 3;
 
                 $properties_array = $product->properties ?? [];
 
@@ -90,7 +90,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                         if (strpos($property, 'Width:') !== false) {
                             preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-                            $old_product->lmeasurement = (int) $match[1];
+                            $old_product->lmeasurement          = (int) $match[1];
                             $old_product->measurement_size_type = 'measurement';
                         }
 
@@ -109,7 +109,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 }
 
                 if (array_key_exists('category', $properties_array)) {
-                    $categories = Category::all();
+                    $categories  = Category::all();
                     $category_id = 1;
 
                     foreach ($properties_array['category'] as $cat) {
@@ -129,7 +129,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
                 $brand = Brand::find($product->brand_id);
 
-                $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
+                $price              = (int) preg_replace('/[\&euro;.]/', '', $product->price);
                 $old_product->price = $price;
 
                 if (! empty($brand->euro_to_inr)) {
@@ -138,7 +138,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                     $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
                 }
 
-                $old_product->price_inr = round($old_product->price_inr, -3);
+                $old_product->price_inr     = round($old_product->price_inr, -3);
                 $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
 
                 $old_product->price_special = round($old_product->price_special, -3);
@@ -148,21 +148,21 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $old_product->detachMediaTags(config('constants.media_tags'));
 
                 foreach ($product->images as $image_name) {
-                    $path = public_path('uploads') . '/social-media/' . $image_name;
+                    $path  = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
                         ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
                         ->upload();
                     $old_product->attachMedia($media, config('constants.media_tags'));
                 }
             } else {
-                $new_product = new Product;
-                $new_product->sku = str_replace(' ', '', $product->sku);
-                $new_product->brand = $product->brand_id;
-                $new_product->supplier = 'Wise Boutique';
-                $new_product->name = $product->title;
+                $new_product                    = new Product;
+                $new_product->sku               = str_replace(' ', '', $product->sku);
+                $new_product->brand             = $product->brand_id;
+                $new_product->supplier          = 'Wise Boutique';
+                $new_product->name              = $product->title;
                 $new_product->short_description = $product->description;
-                $new_product->supplier_link = $product->url;
-                $new_product->stage = 3;
+                $new_product->supplier_link     = $product->url;
+                $new_product->stage             = 3;
 
                 $properties_array = $product->properties ?? [];
 
@@ -179,7 +179,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                         if (strpos($property, 'Width:') !== false) {
                             preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-                            $new_product->lmeasurement = (int) $match[1];
+                            $new_product->lmeasurement          = (int) $match[1];
                             $new_product->measurement_size_type = 'measurement';
                         }
 
@@ -198,7 +198,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 }
 
                 if (array_key_exists('category', $properties_array)) {
-                    $categories = Category::all();
+                    $categories  = Category::all();
                     $category_id = 1;
 
                     foreach ($properties_array['category'] as $cat) {
@@ -218,7 +218,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
                 $brand = Brand::find($product->brand_id);
 
-                $price = (int) preg_replace('/[\&euro;.]/', '', $product->price);
+                $price              = (int) preg_replace('/[\&euro;.]/', '', $product->price);
                 $new_product->price = $price;
 
                 if (! empty($brand->euro_to_inr)) {
@@ -227,7 +227,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                     $new_product->price_inr = Setting::get('euro_to_inr') * $new_product->price;
                 }
 
-                $new_product->price_inr = round($new_product->price_inr, -3);
+                $new_product->price_inr     = round($new_product->price_inr, -3);
                 $new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
 
                 $new_product->price_special = round($new_product->price_special, -3);
@@ -235,7 +235,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $new_product->save();
 
                 foreach ($product->images as $image_name) {
-                    $path = public_path('uploads') . '/social-media/' . $image_name;
+                    $path  = public_path('uploads') . '/social-media/' . $image_name;
                     $media = MediaUploader::fromSource($path)
                         ->toDirectory('product/' . floor($old_product->id / config('constants.image_per_folder')))
                         ->upload();
@@ -254,14 +254,14 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             return;
         }
 
-        $c = new HtmlPageCrawler($content);
-        $title = $this->getTitle($c);
-        $brand = $this->getDesignerName($c);
-        $price = $this->getPrice($c);
-        $sku = $this->getSku($c);
-        $images = $this->getImages($c);
+        $c           = new HtmlPageCrawler($content);
+        $title       = $this->getTitle($c);
+        $brand       = $this->getDesignerName($c);
+        $price       = $this->getPrice($c);
+        $sku         = $this->getSku($c);
+        $images      = $this->getImages($c);
         $description = $this->getDescription($c);
-        $properties = $this->getProperties($c);
+        $properties  = $this->getProperties($c);
 
         if (! $images || ! $title) {
             $scrapEntry->delete();
@@ -285,40 +285,40 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $sku = str_replace(' ', '', $sku);
         $sku = str_replace('/', '', $sku);
 
-        $image->brand_id = $brandId;
-        $image->sku = $sku;
-        $image->website = 'Wiseboutique';
-        $image->title = $title;
+        $image->brand_id    = $brandId;
+        $image->sku         = $sku;
+        $image->website     = 'Wiseboutique';
+        $image->title       = $title;
         $image->description = $description;
-        $image->images = $images;
-        $image->price = $price;
+        $image->images      = $images;
+        $image->price       = $price;
         if ($sku != 'N/A') {
             $image->has_sku = 1;
         }
         $image->is_price_updated = 1;
-        $image->url = $scrapEntry->url;
-        $image->properties = $properties;
+        $image->url              = $scrapEntry->url;
+        $image->properties       = $properties;
         $image->save();
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
 
         $data['sku'] = str_replace(' ', '', $image->sku);
-        $validator = Validator::make($data, [
+        $validator   = Validator::make($data, [
             'sku' => 'unique:products,sku',
         ]);
 
         if ($validator->fails()) {
         } else {
-            $product = new Product;
-            $product->sku = str_replace(' ', '', $image->sku);
-            $product->brand = $image->brand_id;
-            $product->supplier = 'Wise Boutique';
-            $product->name = $image->title;
+            $product                    = new Product;
+            $product->sku               = str_replace(' ', '', $image->sku);
+            $product->brand             = $image->brand_id;
+            $product->supplier          = 'Wise Boutique';
+            $product->name              = $image->title;
             $product->short_description = $image->description;
-            $product->supplier_link = $image->url;
-            $product->stage = 3;
-            $product->is_scraped = 1;
+            $product->supplier_link     = $image->url;
+            $product->stage             = 3;
+            $product->is_scraped        = 1;
 
             $properties_array = $image->properties ?? [];
 
@@ -335,7 +335,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                     if (strpos($property, 'Width:') !== false) {
                         preg_match_all('/Width: ([\d]+)/', $property, $match);
 
-                        $product->lmeasurement = (int) $match[1];
+                        $product->lmeasurement          = (int) $match[1];
                         $product->measurement_size_type = 'measurement';
                     }
 
@@ -354,7 +354,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             }
 
             if (array_key_exists('category', $properties_array)) {
-                $categories = Category::all();
+                $categories  = Category::all();
                 $category_id = 1;
 
                 foreach ($properties_array['category'] as $cat) {
@@ -374,7 +374,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
             $brand = Brand::find($image->brand_id);
 
-            $price = (int) preg_replace('/[\&euro;.]/', '', $image->price);
+            $price          = (int) preg_replace('/[\&euro;.]/', '', $image->price);
             $product->price = $price;
 
             if (! empty($brand->euro_to_inr)) {
@@ -383,7 +383,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr = round($product->price_inr, -3);
+            $product->price_inr     = round($product->price_inr, -3);
             $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_special = round($product->price_special, -3);
@@ -391,7 +391,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
             $product->save();
 
             foreach ($images as $image_name) {
-                $path = public_path('uploads') . '/social-media/' . $image_name;
+                $path  = public_path('uploads') . '/social-media/' . $image_name;
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                     ->upload();
@@ -450,7 +450,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     private function getImages(HtmlPageCrawler $c)
     {
-        $images = $c->filter('.dettagli a')->getIterator();
+        $images  = $c->filter('.dettagli a')->getIterator();
         $content = [];
 
         foreach ($images as $image) {
@@ -462,7 +462,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     private function getSizes(HtmlPageCrawler $c)
     {
-        $sizes = $c->filter('div.taglia')->getIterator();
+        $sizes   = $c->filter('div.taglia')->getIterator();
         $content = [];
 
         foreach ($sizes as $size) {
@@ -499,7 +499,7 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
         $images = [];
         foreach ($data as $key => $datum) {
             try {
-                $datum = $this->getImageUrl($datum);
+                $datum   = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
@@ -516,12 +516,12 @@ class WiseBoutiqueProductDetailsScraper extends Scraper
 
     private function getProperties(HtmlPageCrawler $c)
     {
-        $sizes = $this->getSizes($c);
+        $sizes            = $this->getSizes($c);
         $propertiesValues = $c->filter('div.dettagliinterno div.clear .col9')->getIterator();
-        $propertiesData = ['size' => $sizes];
+        $propertiesData   = ['size' => $sizes];
 
         foreach ($propertiesValues as $key => $property) {
-            $value = preg_replace('/\s\s+/', '\n', $property->textContent);
+            $value            = preg_replace('/\s\s+/', '\n', $property->textContent);
             $propertiesData[] = $value;
         }
 

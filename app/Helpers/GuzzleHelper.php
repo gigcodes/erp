@@ -16,7 +16,7 @@ class GuzzleHelper
                 $url,
                 [
                     RequestOptions::HEADERS => $headers,
-                    RequestOptions::BODY => json_encode($body),
+                    RequestOptions::BODY    => json_encode($body),
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
@@ -56,7 +56,7 @@ class GuzzleHelper
                 $url,
                 [
                     RequestOptions::HEADERS => $headers,
-                    RequestOptions::BODY => json_encode($body),
+                    RequestOptions::BODY    => json_encode($body),
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());

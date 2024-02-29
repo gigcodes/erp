@@ -36,7 +36,7 @@ final class ChecksumController extends AbstractController
         Config $config
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->model = $model;
+        $this->model  = $model;
         $this->config = $config;
     }
 
@@ -56,7 +56,7 @@ final class ChecksumController extends AbstractController
         }
 
         try {
-            $database = DatabaseName::fromValue($request->getParam('db'));
+            $database       = DatabaseName::fromValue($request->getParam('db'));
             $selectedTables = [];
             foreach ($selectedTablesParam as $table) {
                 $selectedTables[] = TableName::fromValue($table);
@@ -85,8 +85,8 @@ final class ChecksumController extends AbstractController
         );
 
         $this->render('table/maintenance/checksum', [
-            'message' => $message,
-            'rows' => $rows,
+            'message'  => $message,
+            'rows'     => $rows,
             'warnings' => $warnings,
         ]);
     }

@@ -23,14 +23,14 @@ class Partition extends SubPartition
     /**
      * Loads data from the fetched row from information_schema.PARTITIONS
      *
-     * @param  array  $row fetched row
+     * @param array $row fetched row
      */
     protected function loadData(array $row): void
     {
-        $this->name = $row['PARTITION_NAME'];
-        $this->ordinal = $row['PARTITION_ORDINAL_POSITION'];
-        $this->method = $row['PARTITION_METHOD'];
-        $this->expression = $row['PARTITION_EXPRESSION'];
+        $this->name        = $row['PARTITION_NAME'];
+        $this->ordinal     = $row['PARTITION_ORDINAL_POSITION'];
+        $this->method      = $row['PARTITION_METHOD'];
+        $this->expression  = $row['PARTITION_EXPRESSION'];
         $this->description = $row['PARTITION_DESCRIPTION'];
         // no sub partitions, load all data to this object
         if (! empty($row['SUBPARTITION_NAME'])) {
@@ -53,7 +53,7 @@ class Partition extends SubPartition
     /**
      * Add a sub partition
      *
-     * @param  SubPartition  $partition Sub partition
+     * @param SubPartition $partition Sub partition
      */
     public function addSubPartition(SubPartition $partition): void
     {
@@ -138,8 +138,9 @@ class Partition extends SubPartition
     /**
      * Returns array of partitions for a specific db/table
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
+     * @param string $db    database name
+     * @param string $table table name
+     *
      * @return Partition[]
      */
     public static function getPartitions($db, $table)
@@ -159,7 +160,7 @@ class Partition extends SubPartition
                     if (isset($partitionMap[$row['PARTITION_NAME']])) {
                         $partition = $partitionMap[$row['PARTITION_NAME']];
                     } else {
-                        $partition = new Partition($row);
+                        $partition                            = new Partition($row);
                         $partitionMap[$row['PARTITION_NAME']] = $partition;
                     }
 
@@ -168,7 +169,7 @@ class Partition extends SubPartition
                     }
 
                     $parentPartition = $partition;
-                    $partition = new SubPartition($row);
+                    $partition       = new SubPartition($row);
                     $parentPartition->addSubPartition($partition);
                 }
 
@@ -184,9 +185,10 @@ class Partition extends SubPartition
     /**
      * returns array of partition names for a specific db/table
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
-     * @return array   of partition names
+     * @param string $db    database name
+     * @param string $table table name
+     *
+     * @return array of partition names
      */
     public static function getPartitionNames($db, $table)
     {
@@ -206,8 +208,9 @@ class Partition extends SubPartition
     /**
      * returns the partition method used by the table.
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
+     * @param string $db    database name
+     * @param string $table table name
+     *
      * @return string|null partition method
      */
     public static function getPartitionMethod($db, $table)
@@ -242,7 +245,7 @@ class Partition extends SubPartition
         global $dbi;
 
         static $have_partitioning = false;
-        static $already_checked = false;
+        static $already_checked   = false;
 
         if (! $already_checked) {
             if ($dbi->getVersion() < 50600) {

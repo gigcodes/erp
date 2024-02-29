@@ -48,13 +48,13 @@ class RefreshTimeDoctorUsers extends Command
      */
     public function handle()
     {
-        $time_doctor_account = TimeDoctorAccount::find($this->argument('id'));
-        $this->TIME_DOCTOR_USER_ID = $time_doctor_account->id;
+        $time_doctor_account          = TimeDoctorAccount::find($this->argument('id'));
+        $this->TIME_DOCTOR_USER_ID    = $time_doctor_account->id;
         $this->TIME_DOCTOR_AUTH_TOKEN = $time_doctor_account->auth_token;
         $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $this->refreshUserList();
@@ -90,10 +90,10 @@ class RefreshTimeDoctorUsers extends Command
                         if (! empty($member->email)) {
                             $userExist = \App\User::where('email', $member->email)->first();
                             TimeDoctorMember::create([
-                                'time_doctor_user_id' => $member->id,
-                                'email' => $member->email,
+                                'time_doctor_user_id'    => $member->id,
+                                'email'                  => $member->email,
                                 'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
-                                'user_id' => ($userExist) ? $userExist->id : null,
+                                'user_id'                => ($userExist) ? $userExist->id : null,
                             ]);
                         }
                     } else {
@@ -112,15 +112,15 @@ class RefreshTimeDoctorUsers extends Command
 
             if ($e instanceof \GuzzleHttp\Exception\RequestException) {
                 // Capture the URI, request, and response
-                $uri = $e->getRequest()->getUri();
-                $requestContent = $e->getRequest()->getBody()->getContents();
+                $uri             = $e->getRequest()->getUri();
+                $requestContent  = $e->getRequest()->getBody()->getContents();
                 $responseContent = $e->getResponse()->getBody()->getContents();
 
                 TimeDoctorLog::create([
-                    'url' => $uri->__toString(),
-                    'payload' => $requestContent,
-                    'response' => $responseContent,
-                    'user_id' => \Auth::user()->id,
+                    'url'           => $uri->__toString(),
+                    'payload'       => $requestContent,
+                    'response'      => $responseContent,
+                    'user_id'       => \Auth::user()->id,
                     'response_code' => $responseCode,
                 ]);
             }

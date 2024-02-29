@@ -43,11 +43,11 @@ class ChannelDataSync extends Command
         foreach ($youtubeChannels as $channelTable) {
             $accessToken = Helper::getAccessTokenFromRefreshToken($channelTable->oauth2_refresh_token, $channelTable->id);
             if ($accessToken) {
-                $getChannelData = Helper::getChanelData($accessToken, $channelTable->id);
+                $getChannelData                = Helper::getChanelData($accessToken, $channelTable->id);
                 $channelTable->subscribe_count = ! empty($getChannelData['statistics']['subscriberCount']) ? $getChannelData['statistics']['subscriberCount'] : null;
-                $channelTable->video_count = ! empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount'] : null;
-                $channelTable->chanelId = ! empty($getChannelData['id']) ? $getChannelData['id'] : null;
-                $channelTable->chanel_name = ! empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title'] : null;
+                $channelTable->video_count     = ! empty($getChannelData['statistics']['videoCount']) ? $getChannelData['statistics']['videoCount'] : null;
+                $channelTable->chanelId        = ! empty($getChannelData['id']) ? $getChannelData['id'] : null;
+                $channelTable->chanel_name     = ! empty($getChannelData['snippet']['title']) ? $getChannelData['snippet']['title'] : null;
                 $channelTable->save();
                 Helper::getVideoAndInsertDB($channelTable->id, $accessToken, $channelTable->chanelId);
             }

@@ -31,6 +31,9 @@ class InstantMessagingController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $client
+     * @param mixed $numberFrom
      */
     /**
      * Send Message Queue Result For API Call
@@ -74,10 +77,10 @@ class InstantMessagingController extends Controller
         //Check if send time and end time is not equal to 0 or null
         if ($whatsappConfig->send_start != '' || $whatsappConfig->send_end != '') {
             $send_start = $whatsappConfig->send_start;
-            $send_end = $whatsappConfig->send_end;
+            $send_end   = $whatsappConfig->send_end;
         } else {
             $send_start = 4;
-            $send_end = 19;
+            $send_end   = 19;
         }
 
         // Only send at certain times
@@ -106,12 +109,12 @@ class InstantMessagingController extends Controller
 
             return json_encode($message, 400);
         } elseif ($queue == null && $numberFrom == '971504752911') {
-            $queue = new \stdClass();
-            $queue->id = rand(1000000, 9999999);
+            $queue            = new \stdClass();
+            $queue->id        = rand(1000000, 9999999);
             $queue->number_to = '31629987287';
-            $queue->text = 'This is a random message id ' . rand(1000000, 9999999);
-            $queue->image = null;
-            $queue->filename = null;
+            $queue->text      = 'This is a random message id ' . rand(1000000, 9999999);
+            $queue->image     = null;
+            $queue->filename  = null;
         }
 
         // Set output
@@ -176,11 +179,11 @@ class InstantMessagingController extends Controller
 
                     // Add to chat_messages if we have a customer
                     $params = [
-                        'unique_id' => $receivedJson->id,
-                        'message' => $imQueue->text,
-                        'customer_id' => $customer != null ? $customer->id : null,
-                        'approved' => 1,
-                        'status' => 8,
+                        'unique_id'    => $receivedJson->id,
+                        'message'      => $imQueue->text,
+                        'customer_id'  => $customer != null ? $customer->id : null,
+                        'approved'     => 1,
+                        'status'       => 8,
                         'is_delivered' => $receivedJson->sent == true ? 1 : 0,
                     ];
 
@@ -216,30 +219,30 @@ class InstantMessagingController extends Controller
                             if ($message->Images == '') {
                                 // Add to chat_messages if we have a customer
                                 $params = [
-                                    'unique_id' => $detials->chatId,
-                                    'message' => $message->text,
+                                    'unique_id'   => $detials->chatId,
+                                    'message'     => $message->text,
                                     'customer_id' => $customer != null ? $customer->id : null,
-                                    'approved' => 1,
-                                    'status' => 3,
+                                    'approved'    => 1,
+                                    'status'      => 3,
                                 ];
 
                                 // Create chat message
                                 $chatMessage = ChatMessage::create($params);
                             } else {
                                 //Getting Image IN BASE64 Encoded
-                                $image = $message->Images;
-                                $image = str_replace('data:image/png;base64,', '', $image);
-                                $image = str_replace(' ', '+', $image);
+                                $image     = $message->Images;
+                                $image     = str_replace('data:image/png;base64,', '', $image);
+                                $image     = str_replace(' ', '+', $image);
                                 $imageName = Str::random(10) . '.' . 'png';
                                 //Image
                                 $image = base64_decode($image);
 
                                 $params = [
-                                    'unique_id' => $detials->chatId,
-                                    'message' => '',
+                                    'unique_id'   => $detials->chatId,
+                                    'message'     => '',
                                     'customer_id' => $customer != null ? $customer->id : null,
-                                    'approved' => 1,
-                                    'status' => 3,
+                                    'approved'    => 1,
+                                    'status'      => 3,
                                 ];
 
                                 // Create chat message
@@ -278,6 +281,9 @@ class InstantMessagingController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $client
+     * @param mixed $numberFrom
      */
     public function updatePhoneStatus($client, $numberFrom, Request $request)
     {

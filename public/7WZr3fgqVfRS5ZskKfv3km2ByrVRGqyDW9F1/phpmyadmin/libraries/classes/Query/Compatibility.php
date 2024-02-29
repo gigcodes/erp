@@ -30,25 +30,25 @@ class Compatibility
             }
 
             // Compatibility with INFORMATION_SCHEMA output
-            $eachTables[$table_name]['TABLE_SCHEMA'] = $eachDatabase;
-            $eachTables[$table_name]['TABLE_NAME'] = &$eachTables[$table_name]['Name'];
-            $eachTables[$table_name]['ENGINE'] = &$eachTables[$table_name]['Engine'];
-            $eachTables[$table_name]['VERSION'] = &$eachTables[$table_name]['Version'];
-            $eachTables[$table_name]['ROW_FORMAT'] = &$eachTables[$table_name]['Row_format'];
-            $eachTables[$table_name]['TABLE_ROWS'] = &$eachTables[$table_name]['Rows'];
-            $eachTables[$table_name]['AVG_ROW_LENGTH'] = &$eachTables[$table_name]['Avg_row_length'];
-            $eachTables[$table_name]['DATA_LENGTH'] = &$eachTables[$table_name]['Data_length'];
+            $eachTables[$table_name]['TABLE_SCHEMA']    = $eachDatabase;
+            $eachTables[$table_name]['TABLE_NAME']      = &$eachTables[$table_name]['Name'];
+            $eachTables[$table_name]['ENGINE']          = &$eachTables[$table_name]['Engine'];
+            $eachTables[$table_name]['VERSION']         = &$eachTables[$table_name]['Version'];
+            $eachTables[$table_name]['ROW_FORMAT']      = &$eachTables[$table_name]['Row_format'];
+            $eachTables[$table_name]['TABLE_ROWS']      = &$eachTables[$table_name]['Rows'];
+            $eachTables[$table_name]['AVG_ROW_LENGTH']  = &$eachTables[$table_name]['Avg_row_length'];
+            $eachTables[$table_name]['DATA_LENGTH']     = &$eachTables[$table_name]['Data_length'];
             $eachTables[$table_name]['MAX_DATA_LENGTH'] = &$eachTables[$table_name]['Max_data_length'];
-            $eachTables[$table_name]['INDEX_LENGTH'] = &$eachTables[$table_name]['Index_length'];
-            $eachTables[$table_name]['DATA_FREE'] = &$eachTables[$table_name]['Data_free'];
-            $eachTables[$table_name]['AUTO_INCREMENT'] = &$eachTables[$table_name]['Auto_increment'];
-            $eachTables[$table_name]['CREATE_TIME'] = &$eachTables[$table_name]['Create_time'];
-            $eachTables[$table_name]['UPDATE_TIME'] = &$eachTables[$table_name]['Update_time'];
-            $eachTables[$table_name]['CHECK_TIME'] = &$eachTables[$table_name]['Check_time'];
+            $eachTables[$table_name]['INDEX_LENGTH']    = &$eachTables[$table_name]['Index_length'];
+            $eachTables[$table_name]['DATA_FREE']       = &$eachTables[$table_name]['Data_free'];
+            $eachTables[$table_name]['AUTO_INCREMENT']  = &$eachTables[$table_name]['Auto_increment'];
+            $eachTables[$table_name]['CREATE_TIME']     = &$eachTables[$table_name]['Create_time'];
+            $eachTables[$table_name]['UPDATE_TIME']     = &$eachTables[$table_name]['Update_time'];
+            $eachTables[$table_name]['CHECK_TIME']      = &$eachTables[$table_name]['Check_time'];
             $eachTables[$table_name]['TABLE_COLLATION'] = &$eachTables[$table_name]['Collation'];
-            $eachTables[$table_name]['CHECKSUM'] = &$eachTables[$table_name]['Checksum'];
-            $eachTables[$table_name]['CREATE_OPTIONS'] = &$eachTables[$table_name]['Create_options'];
-            $eachTables[$table_name]['TABLE_COMMENT'] = &$eachTables[$table_name]['Comment'];
+            $eachTables[$table_name]['CHECKSUM']        = &$eachTables[$table_name]['Checksum'];
+            $eachTables[$table_name]['CREATE_OPTIONS']  = &$eachTables[$table_name]['Create_options'];
+            $eachTables[$table_name]['TABLE_COMMENT']   = &$eachTables[$table_name]['Comment'];
 
             if (
                 strtoupper($eachTables[$table_name]['Comment'] ?? '') === 'VIEW'
@@ -74,25 +74,25 @@ class Compatibility
         $ordinal_position = 1;
         foreach ($columns as $column_name => $_) {
             // Compatibility with INFORMATION_SCHEMA output
-            $columns[$column_name]['COLUMN_NAME'] = &$columns[$column_name]['Field'];
-            $columns[$column_name]['COLUMN_TYPE'] = &$columns[$column_name]['Type'];
+            $columns[$column_name]['COLUMN_NAME']    = &$columns[$column_name]['Field'];
+            $columns[$column_name]['COLUMN_TYPE']    = &$columns[$column_name]['Type'];
             $columns[$column_name]['COLLATION_NAME'] = &$columns[$column_name]['Collation'];
-            $columns[$column_name]['IS_NULLABLE'] = &$columns[$column_name]['Null'];
-            $columns[$column_name]['COLUMN_KEY'] = &$columns[$column_name]['Key'];
+            $columns[$column_name]['IS_NULLABLE']    = &$columns[$column_name]['Null'];
+            $columns[$column_name]['COLUMN_KEY']     = &$columns[$column_name]['Key'];
             $columns[$column_name]['COLUMN_DEFAULT'] = &$columns[$column_name]['Default'];
-            $columns[$column_name]['EXTRA'] = &$columns[$column_name]['Extra'];
-            $columns[$column_name]['PRIVILEGES'] = &$columns[$column_name]['Privileges'];
+            $columns[$column_name]['EXTRA']          = &$columns[$column_name]['Extra'];
+            $columns[$column_name]['PRIVILEGES']     = &$columns[$column_name]['Privileges'];
             $columns[$column_name]['COLUMN_COMMENT'] = &$columns[$column_name]['Comment'];
 
-            $columns[$column_name]['TABLE_CATALOG'] = null;
-            $columns[$column_name]['TABLE_SCHEMA'] = $database;
-            $columns[$column_name]['TABLE_NAME'] = $table;
+            $columns[$column_name]['TABLE_CATALOG']    = null;
+            $columns[$column_name]['TABLE_SCHEMA']     = $database;
+            $columns[$column_name]['TABLE_NAME']       = $table;
             $columns[$column_name]['ORDINAL_POSITION'] = $ordinal_position;
-            $colType = $columns[$column_name]['COLUMN_TYPE'];
-            $colType = is_string($colType) ? $colType : '';
-            $colTypePosComa = strpos($colType, '(');
-            $colTypePosComa = $colTypePosComa !== false ? $colTypePosComa : strlen($colType);
-            $columns[$column_name]['DATA_TYPE'] = substr($colType, 0, $colTypePosComa);
+            $colType                                   = $columns[$column_name]['COLUMN_TYPE'];
+            $colType                                   = is_string($colType) ? $colType : '';
+            $colTypePosComa                            = strpos($colType, '(');
+            $colTypePosComa                            = $colTypePosComa !== false ? $colTypePosComa : strlen($colType);
+            $columns[$column_name]['DATA_TYPE']        = substr($colType, 0, $colTypePosComa);
             /**
              * @todo guess CHARACTER_MAXIMUM_LENGTH from COLUMN_TYPE
              */
@@ -101,12 +101,12 @@ class Compatibility
              * @todo guess CHARACTER_OCTET_LENGTH from CHARACTER_MAXIMUM_LENGTH
              */
             $columns[$column_name]['CHARACTER_OCTET_LENGTH'] = null;
-            $columns[$column_name]['NUMERIC_PRECISION'] = null;
-            $columns[$column_name]['NUMERIC_SCALE'] = null;
-            $colCollation = $columns[$column_name]['COLLATION_NAME'];
-            $colCollation = is_string($colCollation) ? $colCollation : '';
-            $colCollationPosUnderscore = strpos($colCollation, '_');
-            $colCollationPosUnderscore = $colCollationPosUnderscore !== false
+            $columns[$column_name]['NUMERIC_PRECISION']      = null;
+            $columns[$column_name]['NUMERIC_SCALE']          = null;
+            $colCollation                                    = $columns[$column_name]['COLLATION_NAME'];
+            $colCollation                                    = is_string($colCollation) ? $colCollation : '';
+            $colCollationPosUnderscore                       = strpos($colCollation, '_');
+            $colCollationPosUnderscore                       = $colCollationPosUnderscore !== false
                 ? $colCollationPosUnderscore
                 : strlen($colCollation);
             $columns[$column_name]['CHARACTER_SET_NAME'] = substr($colCollation, 0, $colCollationPosUnderscore);
@@ -149,7 +149,7 @@ class Compatibility
     {
         // MySQL made restrictions on the integer types' length from versions >= 8.0.18
         // See: https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
-        $serverType = Util::getServerType();
+        $serverType    = Util::getServerType();
         $serverVersion = $dbi->getVersion();
 
         return $serverType === 'MySQL' && $serverVersion >= 80018;
@@ -176,7 +176,7 @@ class Compatibility
         // MySQL Removed the Integer types' length from versions >= 8.0.18
         // except TINYINT(1).
         // See: https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
-        $integerTypes = ['SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT'];
+        $integerTypes         = ['SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT'];
         $typeLengthNotAllowed = in_array($type, $integerTypes) || $type === 'TINYINT' && $length !== '1';
 
         return ! (self::isIntegersLengthRestricted($dbi) && $typeLengthNotAllowed);

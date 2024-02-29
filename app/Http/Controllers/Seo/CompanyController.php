@@ -32,11 +32,11 @@ class CompanyController extends Controller
             return $this->tableData();
         }
 
-        $data['websites'] = StoreWebsite::select('id', 'website')->get();
-        $data['users'] = User::select('id', 'name')->get();
+        $data['websites']     = StoreWebsite::select('id', 'website')->get();
+        $data['users']        = User::select('id', 'name')->get();
         $data['companyTypes'] = SeoCompanyType::all();
-        $data['moduleName'] = $this->moduleName;
-        $data['statusList'] = SeoCompanyStatus::all();
+        $data['moduleName']   = $this->moduleName;
+        $data['statusList']   = SeoCompanyStatus::all();
 
         $data['totalSeoCompanies'] = SeoCompany::count();
 
@@ -44,7 +44,7 @@ class CompanyController extends Controller
 
         $data['dynamicColumnsToShowsc'] = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns                    = $datatableModel->column_name ?? '';
             $data['dynamicColumnsToShowsc'] = json_decode($hideColumns, true);
         }
 
@@ -56,15 +56,15 @@ class CompanyController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'seo-company')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'seo-company';
-            $column->column_name = json_encode($request->column_sc);
+            $column->column_name  = json_encode($request->column_sc);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'seo-company';
-            $column->column_name = json_encode($request->column_sc);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_sc);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -74,9 +74,9 @@ class CompanyController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $SeoCompanyStatus = SeoCompanyStatus::find($key);
+            $SeoCompanyStatus               = SeoCompanyStatus::find($key);
             $SeoCompanyStatus->status_color = $value;
             $SeoCompanyStatus->save();
         }
@@ -86,16 +86,16 @@ class CompanyController extends Controller
 
     public function create()
     {
-        $data['companyTypes'] = SeoCompanyType::all();
-        $data['webistes'] = StoreWebsite::all();
+        $data['companyTypes']   = SeoCompanyType::all();
+        $data['webistes']       = StoreWebsite::all();
         $data['emailAddresses'] = EmailAddress::select('id', 'username', 'password')->get();
-        $data['moduleName'] = $this->moduleName;
-        $html = view("{$this->view}/ajax/create", $data)->render();
+        $data['moduleName']     = $this->moduleName;
+        $html                   = view("{$this->view}/ajax/create", $data)->render();
 
         return response()->json([
             'success' => true,
-            'title' => 'Add SEO Company',
-            'data' => $html,
+            'title'   => 'Add SEO Company',
+            'data'    => $html,
         ]);
     }
 
@@ -103,15 +103,15 @@ class CompanyController extends Controller
     {
         DB::beginTransaction();
         $seoCompany = SeoCompany::create([
-            'user_id' => auth()->id(),
-            'company_type_id' => $request->type_id,
-            'website_id' => $request->website_id,
-            'da' => $request->da,
-            'pa' => $request->pa,
-            'ss' => $request->ss,
+            'user_id'          => auth()->id(),
+            'company_type_id'  => $request->type_id,
+            'website_id'       => $request->website_id,
+            'da'               => $request->da,
+            'pa'               => $request->pa,
+            'ss'               => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link,
-            'status' => $request->status,
+            'live_link'        => $request->live_link,
+            'status'           => $request->status,
         ]);
         $this->addHistory($seoCompany);
         DB::commit();
@@ -123,17 +123,17 @@ class CompanyController extends Controller
 
     public function edit(Request $request, int $id)
     {
-        $data['companyTypes'] = SeoCompanyType::all();
-        $data['webistes'] = StoreWebsite::all();
+        $data['companyTypes']   = SeoCompanyType::all();
+        $data['webistes']       = StoreWebsite::all();
         $data['emailAddresses'] = EmailAddress::select('id', 'username', 'password')->get();
-        $data['moduleName'] = $this->moduleName;
-        $data['seoCompany'] = SeoCompany::findOrFail($id);
-        $html = view("{$this->view}/ajax/edit", $data)->render();
+        $data['moduleName']     = $this->moduleName;
+        $data['seoCompany']     = SeoCompany::findOrFail($id);
+        $html                   = view("{$this->view}/ajax/edit", $data)->render();
 
         return response()->json([
             'success' => true,
-            'title' => 'Edit SEO Company',
-            'data' => $html,
+            'title'   => 'Edit SEO Company',
+            'data'    => $html,
         ]);
     }
 
@@ -142,14 +142,14 @@ class CompanyController extends Controller
         DB::beginTransaction();
         $seoCompany = SeoCompany::findOrFail($id);
         $seoCompany->update([
-            'company_type_id' => $request->type_id,
-            'website_id' => $request->website_id,
-            'da' => $request->da,
-            'pa' => $request->pa,
-            'ss' => $request->ss,
+            'company_type_id'  => $request->type_id,
+            'website_id'       => $request->website_id,
+            'da'               => $request->da,
+            'pa'               => $request->pa,
+            'ss'               => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link,
-            'status' => $request->status,
+            'live_link'        => $request->live_link,
+            'status'           => $request->status,
         ]);
         $this->addHistory($seoCompany);
         DB::commit();
@@ -166,7 +166,7 @@ class CompanyController extends Controller
         $seoCompanies = SeoCompany::with(['website:id,website', 'user:id,name']);
 
         if (! empty($request->search['value'])) {
-            $searchVal = $request->search['value'];
+            $searchVal    = $request->search['value'];
             $seoCompanies = $seoCompanies->where(function ($query) use ($searchVal) {
                 $query->where('da', 'LIKE', "%$searchVal%")
                     ->orWhere('pa', 'LIKE', "%$searchVal%")
@@ -234,7 +234,7 @@ class CompanyController extends Controller
 
     private function historyTable()
     {
-        $request = request();
+        $request      = request();
         $seoCompanies = SeoCompanyHistroy::with(['website:id,website', 'user:id,name'])->where('seo_company_id', $request->companyId);
 
         return datatables()->eloquent($seoCompanies)
@@ -270,16 +270,16 @@ class CompanyController extends Controller
     {
         $request = request();
         SeoCompanyHistroy::create([
-            'seo_company_id' => $seoCompany->id,
-            'user_id' => auth()->id(),
-            'company_type_id' => $request->type_id,
-            'website_id' => $request->website_id,
-            'da' => $request->da,
-            'pa' => $request->pa,
-            'ss' => $request->ss,
+            'seo_company_id'   => $seoCompany->id,
+            'user_id'          => auth()->id(),
+            'company_type_id'  => $request->type_id,
+            'website_id'       => $request->website_id,
+            'da'               => $request->da,
+            'pa'               => $request->pa,
+            'ss'               => $request->ss,
             'email_address_id' => $request->email_address_id,
-            'live_link' => $request->live_link,
-            'status' => $request->status,
+            'live_link'        => $request->live_link,
+            'status'           => $request->status,
         ]);
 
         return true;

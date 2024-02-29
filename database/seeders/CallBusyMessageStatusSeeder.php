@@ -19,7 +19,7 @@ class CallBusyMessageStatusSeeder extends Seeder
         foreach ($statuses as $key => $status) {
             CallBusyMessageStatus::create([
                 'label' => $key,
-                'name' => $status,
+                'name'  => $status,
             ]);
         }
     }

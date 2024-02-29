@@ -39,11 +39,11 @@ class ScrapLogs extends Command
      */
     public function handle()
     {
-        $file_list = [];
-        $searchVal = '';
-        $dateVal = '';
-        $file_list = [];
-        $files = \File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
+        $file_list     = [];
+        $searchVal     = '';
+        $dateVal       = '';
+        $file_list     = [];
+        $files         = \File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
         $yesterdayDate = date('j', strtotime('-1 days'));
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
@@ -63,7 +63,7 @@ class ScrapLogs extends Command
 
                 $search_scraper = substr($file_path_info['filename'], 0, -3);
                 $search_scraper = str_replace('-', '_', $search_scraper);
-                $scrapers_info = DB::table('scrapers')
+                $scrapers_info  = DB::table('scrapers')
                     ->select('id')
                     ->where('scraper_name', 'like', $search_scraper)
                     ->get();
@@ -80,12 +80,12 @@ class ScrapLogs extends Command
 
                 if (isset($scrap_logs_info) && count($scrap_logs_info) == 0) {
                     $file_list_data = [
-                        'scraper_id' => $scrapers_id,
-                        'folder_name' => $val->getRelativepath(),
-                        'file_name' => $val->getFilename(),
+                        'scraper_id'   => $scrapers_id,
+                        'folder_name'  => $val->getRelativepath(),
+                        'file_name'    => $val->getFilename(),
                         'log_messages' => $log_msg,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'created_at'   => date('Y-m-d H:i:s'),
+                        'updated_at'   => date('Y-m-d H:i:s'),
                     ];
                     DB::table('scrap_logs')->insert($file_list_data);
                 }

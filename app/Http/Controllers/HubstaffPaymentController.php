@@ -59,14 +59,14 @@ class HubstaffPaymentController extends Controller
 
         $validator = Validator::make($post, [
             'billing_start' => 'required',
-            'billing_end' => 'required',
-            'hrs' => 'required',
-            'rate' => 'required',
+            'billing_end'   => 'required',
+            'hrs'           => 'required',
+            'rate'          => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -109,9 +109,9 @@ class HubstaffPaymentController extends Controller
     {
         $this->validate($request, [
             'billing_start' => 'required',
-            'billing_end' => 'required',
-            'hrs' => 'required',
-            'rate' => 'required',
+            'billing_end'   => 'required',
+            'hrs'           => 'required',
+            'rate'          => 'required',
         ]);
 
         $data = $request->except('_token');
@@ -124,7 +124,8 @@ class HubstaffPaymentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -135,7 +136,8 @@ class HubstaffPaymentController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -151,7 +153,8 @@ class HubstaffPaymentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -162,7 +165,8 @@ class HubstaffPaymentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -173,7 +177,8 @@ class HubstaffPaymentController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {

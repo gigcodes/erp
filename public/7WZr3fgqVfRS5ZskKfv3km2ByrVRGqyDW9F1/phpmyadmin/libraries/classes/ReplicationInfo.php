@@ -149,7 +149,7 @@ final class ReplicationInfo
             return;
         }
 
-        $this->primaryInfo['Do_DB'] = self::fill($this->primaryStatus, 'Binlog_Do_DB');
+        $this->primaryInfo['Do_DB']     = self::fill($this->primaryStatus, 'Binlog_Do_DB');
         $this->primaryInfo['Ignore_DB'] = self::fill($this->primaryStatus, 'Binlog_Ignore_DB');
     }
 
@@ -170,11 +170,11 @@ final class ReplicationInfo
             return;
         }
 
-        $this->replicaInfo['Do_DB'] = self::fill($this->replicaStatus, 'Replicate_Do_DB');
-        $this->replicaInfo['Ignore_DB'] = self::fill($this->replicaStatus, 'Replicate_Ignore_DB');
-        $this->replicaInfo['Do_Table'] = self::fill($this->replicaStatus, 'Replicate_Do_Table');
-        $this->replicaInfo['Ignore_Table'] = self::fill($this->replicaStatus, 'Replicate_Ignore_Table');
-        $this->replicaInfo['Wild_Do_Table'] = self::fill($this->replicaStatus, 'Replicate_Wild_Do_Table');
+        $this->replicaInfo['Do_DB']             = self::fill($this->replicaStatus, 'Replicate_Do_DB');
+        $this->replicaInfo['Ignore_DB']         = self::fill($this->replicaStatus, 'Replicate_Ignore_DB');
+        $this->replicaInfo['Do_Table']          = self::fill($this->replicaStatus, 'Replicate_Do_Table');
+        $this->replicaInfo['Ignore_Table']      = self::fill($this->replicaStatus, 'Replicate_Ignore_Table');
+        $this->replicaInfo['Wild_Do_Table']     = self::fill($this->replicaStatus, 'Replicate_Wild_Do_Table');
         $this->replicaInfo['Wild_Ignore_Table'] = self::fill($this->replicaStatus, 'Replicate_Wild_Ignore_Table');
     }
 

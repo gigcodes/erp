@@ -43,13 +43,13 @@ class FixWiseSkus extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $products = ScrapedProducts::where('website', 'Wiseboutique')->get();
             foreach ($products as $product) {
-                $sku = $product->sku;
+                $sku  = $product->sku;
                 $sku2 = str_replace(' ', '', $sku);
                 $sku2 = str_replace('/', '', $sku2);
 

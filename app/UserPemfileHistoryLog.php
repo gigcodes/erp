@@ -29,9 +29,9 @@ class UserPemfileHistoryLog extends Model
     public function saveLog($user_pemfile_history_id, $cmd, $output = [], $return_var = null)
     {
         $this->user_pemfile_history_id = $user_pemfile_history_id;
-        $this->cmd = $cmd;
-        $this->output = $output;
-        $this->return_var = $return_var;
+        $this->cmd                     = $cmd;
+        $this->output                  = $output;
+        $this->return_var              = $return_var;
         $this->save();
     }
 

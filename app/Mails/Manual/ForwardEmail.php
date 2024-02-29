@@ -17,12 +17,15 @@ class ForwardEmail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $forwardEmail
+     * @param mixed $message
+     *
      * @return void
      */
     public function __construct($forwardEmail, $message)
     {
         $this->forwardEmail = $forwardEmail;
-        $this->message = $message;
+        $this->message      = $message;
     }
 
     /**
@@ -32,9 +35,9 @@ class ForwardEmail extends Mailable
      */
     public function build()
     {
-        $replyPrefix = 'Re: ';
+        $replyPrefix   = 'Re: ';
         $forwardPrefix = 'Fwd: ';
-        $subject = $this->forwardEmail->subject;
+        $subject       = $this->forwardEmail->subject;
 
         if (substr($subject, 0, 4) === $replyPrefix) {
             $subject = substr($subject, 4);
@@ -51,10 +54,10 @@ class ForwardEmail extends Mailable
         $timeCreated = $this->forwardEmail->created_at->format('H:i');
 
         return $this->view('emails.forward-email', [
-            'msg' => $this->message,
+            'msg'          => $this->message,
             'forwardEmail' => $this->forwardEmail,
-            'dateCreated' => $dateCreated,
-            'timeCreated' => $timeCreated,
+            'dateCreated'  => $dateCreated,
+            'timeCreated'  => $timeCreated,
         ]);
     }
 }

@@ -37,9 +37,9 @@ class ContentManagementController extends Controller
     {
         $title = 'List | Content Management';
 
-        $websites = StoreWebsite::whereNull('deleted_at');
+        $websites                 = StoreWebsite::whereNull('deleted_at');
         $content_management_email = ContentManageentEmail::first();
-        $keyword = request('keyword');
+        $keyword                  = request('keyword');
         if (! empty($keyword)) {
             $websites = $websites->where(function ($q) use ($keyword) {
                 $q->where('website', 'LIKE', "%$keyword%")
@@ -62,7 +62,7 @@ class ContentManagementController extends Controller
     public function getAttachImages(Request $request)
     {
         $website = StoreWebsite::where('id', $request->websiteId)->first();
-        $media = $website->getMedia('website-image-attach');
+        $media   = $website->getMedia('website-image-attach');
 
         return view('content-management.attach-images', compact('media'));
     }
@@ -70,7 +70,7 @@ class ContentManagementController extends Controller
     public function downloadAttachImages(Request $request)
     {
         $content = file_get_contents($request->image_url);
-        $random = bin2hex(random_bytes(20)) . '.png';
+        $random  = bin2hex(random_bytes(20)) . '.png';
 
         $path = Storage::put('uploads/gmail_media/' . $random, $content);
 
@@ -80,7 +80,7 @@ class ContentManagementController extends Controller
     public function pagePost(Request $request)
     {
         $imageUrl = $request['imageurl'];
-        $query = SocialConfig::where('store_website_id', $request['websiteId'])->get();
+        $query    = SocialConfig::where('store_website_id', $request['websiteId'])->get();
 
         return view('content-management.select-page', compact('query', 'imageUrl'));
     }
@@ -95,26 +95,26 @@ class ContentManagementController extends Controller
     public function postSocialAccount(Request $request)
     {
         if (isset($request['store_website_id'])) {
-            $post = new SocialPost;
+            $post            = new SocialPost;
             $post->config_id = $request['store_website_id'];
-            $post->caption = $request['message'];
+            $post->caption   = $request['message'];
             $post->post_body = '';
-            $post->post_by = Auth::user()->id;
+            $post->post_by   = Auth::user()->id;
             $post->save();
 
             $config = SocialConfig::find($request['store_website_id']);
 
             $message = $request['message'];
             try {
-                $access_token = $config->page_token;
-                $page_id = $config->page_id;
-                $source = $request['imageurl'];
+                $access_token     = $config->page_token;
+                $page_id          = $config->page_id;
+                $source           = $request['imageurl'];
                 $image_upload_url = 'https://graph.facebook.com/' . $page_id . '/photos';
 
                 $fbImage = [
                     'access_token' => $access_token,
-                    'url' => $source,
-                    'caption' => $message,
+                    'url'          => $source,
+                    'caption'      => $message,
                 ];
 
                 $response = SocialHelper::curlPostRequest($image_upload_url, $fbImage);
@@ -124,7 +124,7 @@ class ContentManagementController extends Controller
                     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
                 } else {
                     $post->posted_on = $request->input('date');
-                    $post->status = 1;
+                    $post->status    = 1;
                     if (isset($response->post_id)) {
                         $post->ref_post_id = $response->post_id;
                     }
@@ -142,13 +142,13 @@ class ContentManagementController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialPost';
+        $Log->modal           = 'SocialPost';
         $Log->save();
 
         return true;
@@ -158,13 +158,13 @@ class ContentManagementController extends Controller
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'url' => 'required',
-            'username' => 'required',
-            'password' => 'required',
+            'platform'         => 'required',
+            'url'              => 'required',
+            'username'         => 'required',
+            'password'         => 'required',
         ]);
 
-        $input = $request->except('_token');
+        $input             = $request->except('_token');
         $input['password'] = Crypt::encrypt(request('password'));
         StoreSocialAccount::create($input);
 
@@ -174,7 +174,7 @@ class ContentManagementController extends Controller
     public function manageContent($id, Request $request)
     {
         //Getting Website Details
-        $website = StoreWebsite::find($id);
+        $website    = StoreWebsite::find($id);
         $categories = StoreSocialContentCategory::orderBy('id', 'desc');
 
         if ($request->k != null) {
@@ -207,7 +207,7 @@ class ContentManagementController extends Controller
     public function getTaskList($id, Request $request)
     {
         $contentManagemment = StoreSocialContent::where('store_social_content_category_id', $request->category_id)->where('store_website_id', $id)->first();
-        $taskLists = [];
+        $taskLists          = [];
         if ($contentManagemment) {
             if ($contentManagemment->creator_id) {
                 $taskLists = Task::where('assign_to', $contentManagemment->creator_id)->where('is_completed', null)->orderBy('id', 'desc')->get();
@@ -232,10 +232,10 @@ class ContentManagementController extends Controller
     public function saveContent(Request $request)
     {
         $social_content = StoreSocialContent::where('store_social_content_category_id', $request->category)->where('store_website_id', $request->websiteId)->first();
-        $msg = null;
-        $type = null;
+        $msg            = null;
+        $type           = null;
         if (! $social_content) {
-            $social_content = new StoreSocialContent;
+            $social_content                                 = new StoreSocialContent;
             $social_content->store_social_content_status_id = 0;
         }
         if ($request->type == 'status') {
@@ -257,8 +257,8 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Request date changed from ' . $oldValue . ' to ' . $newValue;
-            $type = 'request_date';
+            $msg                          = 'Request date changed from ' . $oldValue . ' to ' . $newValue;
+            $type                         = 'request_date';
             $social_content->request_date = $request->request_date;
         }
         if ($request->type == 'due_date') {
@@ -268,8 +268,8 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Due date changed from ' . $oldValue . ' to ' . $newValue;
-            $type = 'due_date';
+            $msg                      = 'Due date changed from ' . $oldValue . ' to ' . $newValue;
+            $type                     = 'due_date';
             $social_content->due_date = $request->due_date;
         }
         if ($request->type == 'publish_date') {
@@ -279,21 +279,21 @@ class ContentManagementController extends Controller
             } else {
                 $oldValue = '';
             }
-            $msg = 'Publish date changed from ' . $oldValue . ' to ' . $newValue;
-            $type = 'publish_date';
+            $msg                          = 'Publish date changed from ' . $oldValue . ' to ' . $newValue;
+            $type                         = 'publish_date';
             $social_content->publish_date = $request->publish_date;
         }
 
         $social_content->store_social_content_category_id = $request->category;
-        $social_content->store_website_id = $request->websiteId;
+        $social_content->store_website_id                 = $request->websiteId;
         $social_content->save();
 
         if ($msg) {
-            $h = new StoreSocialContentHistory;
-            $h->type = $type;
+            $h                          = new StoreSocialContentHistory;
+            $h->type                    = $type;
             $h->store_social_content_id = $social_content->id;
-            $h->message = $msg;
-            $h->username = Auth::user()->name;
+            $h->message                 = $msg;
+            $h->username                = Auth::user()->name;
             $h->save();
         }
 
@@ -334,7 +334,7 @@ class ContentManagementController extends Controller
         $file->store($path . $name);
 
         return response()->json([
-            'name' => $name,
+            'name'          => $name,
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
@@ -353,15 +353,15 @@ class ContentManagementController extends Controller
             }
 
             if (! $site || $request->id == null) {
-                $site = new StoreSocialContent;
-                $site->store_social_content_status_id = 0;
-                $site->store_website_id = $request->store_website_id;
+                $site                                   = new StoreSocialContent;
+                $site->store_social_content_status_id   = 0;
+                $site->store_website_id                 = $request->store_website_id;
                 $site->store_social_content_category_id = $request->store_social_content_category_id;
                 $site->save();
             }
             $count = 0;
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/' . $file);
+                $path  = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
                     ->upload();
@@ -370,11 +370,11 @@ class ContentManagementController extends Controller
             }
             $task = Task::find($request->task_id);
             if ($task && $task->is_milestone) {
-                $content_milestone = new StoreSocialContentMilestone;
-                $content_milestone->task_id = $request->task_id;
-                $content_milestone->ono_of_content = $count;
+                $content_milestone                          = new StoreSocialContentMilestone;
+                $content_milestone->task_id                 = $request->task_id;
+                $content_milestone->ono_of_content          = $count;
                 $content_milestone->store_social_content_id = $site->id;
-                $content_milestone->status = 0;
+                $content_milestone->status                  = 0;
                 $content_milestone->save();
             }
 
@@ -409,7 +409,7 @@ class ContentManagementController extends Controller
         if ($site) {
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
-                    $reviews = StoreSocialContentReview::where('file_id', $media->id)->get();
+                    $reviews     = StoreSocialContentReview::where('file_id', $media->id)->get();
                     $fullReviews = '';
                     if (count($reviews) > 0) {
                         foreach ($reviews as $r) {
@@ -417,10 +417,10 @@ class ContentManagementController extends Controller
                         }
                     }
                     $records[] = [
-                        'id' => $media->id,
-                        'url' => getMediaUrl($media),
-                        'site_id' => $site->id,
-                        'user_list' => $usrSelectBox,
+                        'id'          => $media->id,
+                        'url'         => getMediaUrl($media),
+                        'site_id'     => $site->id,
+                        'user_list'   => $usrSelectBox,
                         'fullReviews' => $fullReviews,
                     ];
                 }
@@ -432,9 +432,9 @@ class ContentManagementController extends Controller
 
     public function saveReviews(Request $request)
     {
-        $review = new StoreSocialContentReview;
-        $review->file_id = $request->id;
-        $review->review = $request->message;
+        $review            = new StoreSocialContentReview;
+        $review->file_id   = $request->id;
+        $review->review    = $request->message;
         $review->review_by = Auth::user()->name;
         $review->save();
 
@@ -459,7 +459,7 @@ class ContentManagementController extends Controller
     {
         if ($request->id != null && $request->site_id != null && $request->user_id != null) {
             $media = \Plank\Mediable\Media::find($request->id);
-            $user = \App\User::find($request->user_id);
+            $user  = \App\User::find($request->user_id);
             if ($user) {
                 if ($media) {
                     \App\ChatMessage::sendWithChatApi(
@@ -493,9 +493,9 @@ class ContentManagementController extends Controller
     public function saveRemarks(Request $request, $id)
     {
         \App\StoreSocialContentRemark::create([
-            'remarks' => $request->remark,
+            'remarks'                 => $request->remark,
             'store_social_content_id' => $id,
-            'user_id' => \Auth::user()->id,
+            'user_id'                 => \Auth::user()->id,
         ]);
 
         $response = \App\StoreSocialContentRemark::join('users as u', 'u.id', 'store_social_content_remarks.user_id')
@@ -530,7 +530,8 @@ class ContentManagementController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -541,7 +542,8 @@ class ContentManagementController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -552,7 +554,8 @@ class ContentManagementController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -563,7 +566,8 @@ class ContentManagementController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -574,7 +578,7 @@ class ContentManagementController extends Controller
     public function previewImage($id)
     {
         $contents = StoreSocialContent::where('store_website_id', $id)->get();
-        $records = [];
+        $records  = [];
         foreach ($contents as $site) {
             if ($site) {
                 $userList = [];
@@ -591,9 +595,9 @@ class ContentManagementController extends Controller
                 if ($site->hasMedia(config('constants.media_tags'))) {
                     foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                         $records[] = [
-                            'id' => $media->id,
-                            'url' => getMediaUrl($media),
-                            'site_id' => $site->id,
+                            'id'        => $media->id,
+                            'url'       => getMediaUrl($media),
+                            'site_id'   => $site->id,
                             'user_list' => $userList,
                         ];
                     }
@@ -607,7 +611,7 @@ class ContentManagementController extends Controller
 
     public function previewCategoryImage($id)
     {
-        $site = StoreSocialContent::find($id);
+        $site    = StoreSocialContent::find($id);
         $records = [];
         if ($site) {
             $userList = [];
@@ -624,9 +628,9 @@ class ContentManagementController extends Controller
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
-                        'id' => $media->id,
-                        'url' => getMediaUrl($media),
-                        'site_id' => $site->id,
+                        'id'        => $media->id,
+                        'url'       => getMediaUrl($media),
+                        'site_id'   => $site->id,
                         'user_list' => $userList,
                     ];
                 }
@@ -639,7 +643,7 @@ class ContentManagementController extends Controller
 
     public function getTaskMilestones($id)
     {
-        $site = StoreSocialContent::find($id);
+        $site           = StoreSocialContent::find($id);
         $taskMilestones = null;
         if ($site) {
             $taskMilestones = StoreSocialContentMilestone::where('store_social_content_id', $id)->get();
@@ -682,17 +686,17 @@ class ContentManagementController extends Controller
             ], 500);
         }
         if ($countMilestone) {
-            $newCompleted = $task->milestone_completed + 1;
-            $individualPrice = $task->cost / $task->no_of_milestone;
+            $newCompleted              = $task->milestone_completed + 1;
+            $individualPrice           = $task->cost / $task->no_of_milestone;
             $task->milestone_completed = $newCompleted;
             $task->save();
-            $payment_receipt = new PaymentReceipt;
-            $payment_receipt->date = date('Y-m-d');
+            $payment_receipt                 = new PaymentReceipt;
+            $payment_receipt->date           = date('Y-m-d');
             $payment_receipt->worked_minutes = $task->approximate;
             $payment_receipt->rate_estimated = $individualPrice;
-            $payment_receipt->status = 'Pending';
-            $payment_receipt->task_id = $task->id;
-            $payment_receipt->user_id = $task->assign_to;
+            $payment_receipt->status         = 'Pending';
+            $payment_receipt->task_id        = $task->id;
+            $payment_receipt->user_id        = $task->assign_to;
             $payment_receipt->save();
         }
 
@@ -703,13 +707,13 @@ class ContentManagementController extends Controller
 
     public function viewAllContents(Request $request)
     {
-        $contents = StoreSocialContent::query();
-        $users = Helpers::getUserArray(User::all());
-        $records = [];
+        $contents           = StoreSocialContent::query();
+        $users              = Helpers::getUserArray(User::all());
+        $records            = [];
         $selected_publisher = $request->publisher_id;
-        $selected_creator = $request->creator_id;
-        $selected_website = $request->store_website_id;
-        $selected_category = $request->store_social_content_category_id;
+        $selected_creator   = $request->creator_id;
+        $selected_website   = $request->store_website_id;
+        $selected_category  = $request->store_social_content_category_id;
 
         if ($selected_publisher) {
             $contents = $contents->where('publisher_id', $selected_publisher);
@@ -728,10 +732,10 @@ class ContentManagementController extends Controller
             if ($site) {
                 if ($site->hasMedia(config('constants.media_tags'))) {
                     foreach ($site->getMedia(config('constants.media_tags')) as $media) {
-                        $siteName = null;
-                        $creator = null;
+                        $siteName  = null;
+                        $creator   = null;
                         $publisher = null;
-                        $category = null;
+                        $category  = null;
                         if ($site->publisher_id) {
                             $publisher = $site->publisher->name;
                         }
@@ -750,22 +754,22 @@ class ContentManagementController extends Controller
                         }
 
                         $records[] = [
-                            'id' => $media->id,
-                            'url' => getMediaUrl($media),
-                            'site_id' => $site->id,
-                            'siteName' => $siteName,
-                            'creator' => $creator,
-                            'publisher' => $publisher,
+                            'id'               => $media->id,
+                            'url'              => getMediaUrl($media),
+                            'site_id'          => $site->id,
+                            'siteName'         => $siteName,
+                            'creator'          => $creator,
+                            'publisher'        => $publisher,
                             'store_website_id' => $site->store_website_id,
-                            'category' => $category,
-                            'extension' => strtolower($media->extension),
+                            'category'         => $category,
+                            'extension'        => strtolower($media->extension),
                         ];
                     }
                 }
             }
         }
         $store_websites = StoreWebsite::pluck('title', 'id');
-        $categories = StoreSocialContentCategory::pluck('title', 'id');
+        $categories     = StoreSocialContentCategory::pluck('title', 'id');
 
         return view('content-management.all-contents', compact('records', 'users', 'selected_publisher', 'selected_creator', 'store_websites', 'selected_website', 'categories', 'selected_category'));
     }
@@ -779,7 +783,7 @@ class ContentManagementController extends Controller
 
             return response()->json(['status' => true, 'message' => 'Email Updated successfully']);
         }
-        $email = new ContentManageentEmail;
+        $email        = new ContentManageentEmail;
         $email->email = $request->email;
         $email->save();
 

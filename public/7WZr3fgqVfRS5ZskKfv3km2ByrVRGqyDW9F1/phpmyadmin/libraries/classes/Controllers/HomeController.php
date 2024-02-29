@@ -54,9 +54,9 @@ class HomeController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template);
-        $this->config = $config;
+        $this->config       = $config;
         $this->themeManager = $themeManager;
-        $this->dbi = $dbi;
+        $this->dbi          = $dbi;
     }
 
     public function __invoke(): void
@@ -72,10 +72,10 @@ class HomeController extends AbstractController
         // This is for $cfg['ShowDatabasesNavigationAsTree'] = false;
         // See: https://github.com/phpmyadmin/phpmyadmin/issues/16520
         // The DB is defined here and sent to the JS front-end to refresh the DB tree
-        $db = $_POST['db'] ?? '';
-        $table = '';
+        $db         = $_POST['db'] ?? '';
+        $table      = '';
         $show_query = '1';
-        $errorUrl = Url::getFromRoute('/');
+        $errorUrl   = Url::getFromRoute('/');
 
         if ($server > 0 && $this->dbi->isSuperUser()) {
             $this->dbi->selectDb('mysql');
@@ -113,23 +113,23 @@ class HomeController extends AbstractController
                 $checkUserPrivileges = new CheckUserPrivileges($this->dbi);
                 $checkUserPrivileges->getPrivileges();
 
-                $charsets = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
-                $collations = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
+                $charsets     = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
+                $collations   = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
                 $charsetsList = [];
                 foreach ($charsets as $charset) {
                     $collationsList = [];
                     foreach ($collations[$charset->getName()] as $collation) {
                         $collationsList[] = [
-                            'name' => $collation->getName(),
+                            'name'        => $collation->getName(),
                             'description' => $collation->getDescription(),
                             'is_selected' => $collation_connection === $collation->getName(),
                         ];
                     }
 
                     $charsetsList[] = [
-                        'name' => $charset->getName(),
+                        'name'        => $charset->getName(),
                         'description' => $charset->getDescription(),
-                        'collations' => $collationsList,
+                        'collations'  => $collationsList,
                     ];
                 }
             }
@@ -158,15 +158,15 @@ class HomeController extends AbstractController
                 $hostInfo .= ')';
             }
 
-            $serverCharset = Charsets::getServerCharset($this->dbi, $cfg['Server']['DisableIS']);
+            $serverCharset  = Charsets::getServerCharset($this->dbi, $cfg['Server']['DisableIS']);
             $databaseServer = [
-                'host' => $hostInfo,
-                'type' => Util::getServerType(),
+                'host'       => $hostInfo,
+                'type'       => Util::getServerType(),
                 'connection' => Generator::getServerSSL(),
-                'version' => $this->dbi->getVersionString() . ' - ' . $this->dbi->getVersionComment(),
-                'protocol' => $this->dbi->getProtoInfo(),
-                'user' => $this->dbi->fetchValue('SELECT USER();'),
-                'charset' => $serverCharset->getDescription() . ' (' . $serverCharset->getName() . ')',
+                'version'    => $this->dbi->getVersionString() . ' - ' . $this->dbi->getVersionComment(),
+                'protocol'   => $this->dbi->getProtoInfo(),
+                'user'       => $this->dbi->fetchValue('SELECT USER();'),
+                'charset'    => $serverCharset->getDescription() . ' (' . $serverCharset->getName() . ')',
             ];
         }
 
@@ -180,9 +180,9 @@ class HomeController extends AbstractController
                     $clientVersion = 'libmysql - ' . $clientVersion;
                 }
 
-                $webServer['database'] = $clientVersion;
+                $webServer['database']       = $clientVersion;
                 $webServer['php_extensions'] = Util::listPHPExtensions();
-                $webServer['php_version'] = PHP_VERSION;
+                $webServer['php_version']    = PHP_VERSION;
             }
         }
 
@@ -220,29 +220,29 @@ class HomeController extends AbstractController
         $git = new Git($this->config->get('ShowGitRevision') ?? true);
 
         $this->render('home/index', [
-            'db' => $db,
-            'table' => $table,
-            'message' => $displayMessage ?? '',
-            'partial_logout' => $partialLogout ?? '',
-            'is_git_revision' => $git->isGitRevision(),
-            'server' => $server,
-            'sync_favorite_tables' => $syncFavoriteTables,
-            'has_server' => $hasServer,
-            'is_demo' => $cfg['DBG']['demo'],
-            'has_server_selection' => $hasServerSelection ?? false,
-            'server_selection' => $serverSelection ?? '',
+            'db'                       => $db,
+            'table'                    => $table,
+            'message'                  => $displayMessage ?? '',
+            'partial_logout'           => $partialLogout ?? '',
+            'is_git_revision'          => $git->isGitRevision(),
+            'server'                   => $server,
+            'sync_favorite_tables'     => $syncFavoriteTables,
+            'has_server'               => $hasServer,
+            'is_demo'                  => $cfg['DBG']['demo'],
+            'has_server_selection'     => $hasServerSelection ?? false,
+            'server_selection'         => $serverSelection ?? '',
             'has_change_password_link' => $cfg['Server']['auth_type'] !== 'config' && $cfg['ShowChgPassword'],
-            'charsets' => $charsetsList ?? [],
-            'available_languages' => $availableLanguages,
-            'database_server' => $databaseServer,
-            'web_server' => $webServer,
-            'show_php_info' => $cfg['ShowPhpInfo'],
-            'is_version_checked' => $cfg['VersionCheck'],
-            'phpmyadmin_version' => Version::VERSION,
+            'charsets'                 => $charsetsList ?? [],
+            'available_languages'      => $availableLanguages,
+            'database_server'          => $databaseServer,
+            'web_server'               => $webServer,
+            'show_php_info'            => $cfg['ShowPhpInfo'],
+            'is_version_checked'       => $cfg['VersionCheck'],
+            'phpmyadmin_version'       => Version::VERSION,
             'phpmyadmin_major_version' => Version::SERIES,
-            'config_storage_message' => $configStorageMessage ?? '',
-            'has_theme_manager' => $cfg['ThemeManager'],
-            'themes' => $this->themeManager->getThemesArray(),
+            'config_storage_message'   => $configStorageMessage ?? '',
+            'has_theme_manager'        => $cfg['ThemeManager'],
+            'themes'                   => $this->themeManager->getThemesArray(),
         ]);
     }
 

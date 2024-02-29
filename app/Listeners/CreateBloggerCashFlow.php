@@ -19,15 +19,16 @@ class CreateBloggerCashFlow
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
+     *
      * @return void
      */
     public function handle(BloggerPaymentCreated $event)
     {
-        $blogger = $event->blogger;
-        $payment = $event->payment;
-        $status = $event->status;
-        $user_id = auth()->id();
+        $blogger   = $event->blogger;
+        $payment   = $event->payment;
+        $status    = $event->status;
+        $user_id   = auth()->id();
         $cash_flow = $blogger->cashFlows()->where('order_status', 'payment_id:' . $payment->id)->first();
         if (! $cash_flow) {
             $cash_flow = $blogger->cashFlows()->create([
@@ -35,15 +36,15 @@ class CreateBloggerCashFlow
             ]);
         }
         $cash_flow->fill([
-            'date' => $payment->paid_date ?: $payment->payment_date,
-            'expected' => $payment->payable_amount,
-            'actual' => $payment->paid_amount,
-            'type' => 'paid',
-            'currency' => $payment->currency,
-            'status' => $status,
+            'date'         => $payment->paid_date ?: $payment->payment_date,
+            'expected'     => $payment->payable_amount,
+            'actual'       => $payment->paid_amount,
+            'type'         => 'paid',
+            'currency'     => $payment->currency,
+            'status'       => $status,
             'order_status' => 'payment_id:' . $payment->id, //to know which of the payment's record while updating later
-            'updated_by' => $user_id,
-            'description' => 'Blogger Payment ' . ($status ? 'Paid' : 'Due'),
+            'updated_by'   => $user_id,
+            'description'  => 'Blogger Payment ' . ($status ? 'Paid' : 'Due'),
         ])->save();
     }
 }

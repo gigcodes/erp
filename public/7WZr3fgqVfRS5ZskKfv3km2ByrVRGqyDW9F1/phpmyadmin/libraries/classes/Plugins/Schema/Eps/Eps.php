@@ -44,7 +44,7 @@ class Eps
     /**
      * Set document title
      *
-     * @param  string  $value sets the title text
+     * @param string $value sets the title text
      */
     public function setTitle($value): void
     {
@@ -54,7 +54,7 @@ class Eps
     /**
      * Set document author
      *
-     * @param  string  $value sets the author
+     * @param string $value sets the author
      */
     public function setAuthor($value): void
     {
@@ -64,7 +64,7 @@ class Eps
     /**
      * Set document creation date
      *
-     * @param  string  $value sets the date
+     * @param string $value sets the date
      */
     public function setDate($value): void
     {
@@ -74,7 +74,7 @@ class Eps
     /**
      * Set document orientation
      *
-     * @param  string  $orientation sets the orientation
+     * @param string $orientation sets the orientation
      */
     public function setOrientation($orientation): void
     {
@@ -97,12 +97,12 @@ class Eps
      *
      * font can be set whenever needed in EPS
      *
-     * @param  string  $value sets the font name e.g Arial
-     * @param  int  $size  sets the size of the font e.g 10
+     * @param string $value sets the font name e.g Arial
+     * @param int    $size  sets the size of the font e.g 10
      */
     public function setFont(string $value, int $size): void
     {
-        $this->font = $value;
+        $this->font     = $value;
         $this->fontSize = $size;
         $this->stringCommands .= '/' . $value . " findfont   % Get the basic font\n";
         $this->stringCommands .= ''
@@ -136,15 +136,15 @@ class Eps
      * drawing the lines from x,y source to x,y destination and set the
      * width of the line. lines helps in showing relationships of tables
      *
-     * @param  int  $x_from    The x_from attribute defines the start
+     * @param int $x_from    The x_from attribute defines the start
      *                       left position of the element
-     * @param  int  $y_from    The y_from attribute defines the start
+     * @param int $y_from    The y_from attribute defines the start
      *                       right position of the element
-     * @param  int  $x_to      The x_to attribute defines the end
+     * @param int $x_to      The x_to attribute defines the end
      *                       left position of the element
-     * @param  int  $y_to      The y_to attribute defines the end
+     * @param int $y_to      The y_to attribute defines the end
      *                       right position of the element
-     * @param  int  $lineWidth Sets the width of the line e.g 2
+     * @param int $lineWidth Sets the width of the line e.g 2
      */
     public function line(
         $x_from = 0,
@@ -165,15 +165,15 @@ class Eps
      * drawing the rectangle from x,y source to x,y destination and set the
      * width of the line. rectangles drawn around the text shown of fields
      *
-     * @param  int  $x_from    The x_from attribute defines the start
+     * @param int $x_from    The x_from attribute defines the start
      *                       left position of the element
-     * @param  int  $y_from    The y_from attribute defines the start
+     * @param int $y_from    The y_from attribute defines the start
      *                       right position of the element
-     * @param  int  $x_to      The x_to attribute defines the end
+     * @param int $x_to      The x_to attribute defines the end
      *                       left position of the element
-     * @param  int  $y_to      The y_to attribute defines the end
+     * @param int $y_to      The y_to attribute defines the end
      *                       right position of the element
-     * @param  int  $lineWidth Sets the width of the line e.g 2
+     * @param int $lineWidth Sets the width of the line e.g 2
      */
     public function rect($x_from, $y_from, $x_to, $y_to, $lineWidth): void
     {
@@ -194,8 +194,8 @@ class Eps
      * them as x and y coordinates to which to move. The coordinates
      * specified become the current point.
      *
-     * @param  int  $x The x attribute defines the left position of the element
-     * @param  int  $y The y attribute defines the right position of the element
+     * @param int $x The x attribute defines the left position of the element
+     * @param int $y The y attribute defines the right position of the element
      */
     public function moveTo($x, $y): void
     {
@@ -205,7 +205,7 @@ class Eps
     /**
      * Output/Display the text
      *
-     * @param  string  $text The string to be displayed
+     * @param string $text The string to be displayed
      */
     public function show($text): void
     {
@@ -215,9 +215,9 @@ class Eps
     /**
      * Output the text at specified co-ordinates
      *
-     * @param  string  $text String to be displayed
-     * @param  int  $x    X attribute defines the left position of the element
-     * @param  int  $y    Y attribute defines the right position of the element
+     * @param string $text String to be displayed
+     * @param int    $x    X attribute defines the left position of the element
+     * @param int    $y    Y attribute defines the right position of the element
      */
     public function showXY($text, $x, $y): void
     {
@@ -236,7 +236,7 @@ class Eps
     /**
      * Output EPS Document for download
      *
-     * @param  string  $fileName name of the eps document
+     * @param string $fileName name of the eps document
      */
     public function showOutput($fileName): void
     {

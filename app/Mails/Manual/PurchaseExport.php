@@ -25,9 +25,9 @@ class PurchaseExport extends Mailable
 
     public function __construct(string $path, string $subject, string $message)
     {
-        $this->path = $path;
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->path       = $path;
+        $this->subject    = $subject;
+        $this->message    = $message;
         $this->fromMailer = \App\Helpers::getFromEmail();
     }
 

@@ -20,12 +20,12 @@ class PermissionsRepo
     /**
      * PermissionsRepo constructor.
      *
-     * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
+     * @param \BookStack\Auth\Permissions\PermissionService $permissionService
      */
     public function __construct(RolePermission $permission, Role $role, Permissions\PermissionService $permissionService)
     {
-        $this->permission = $permission;
-        $this->role = $role;
+        $this->permission        = $permission;
+        $this->role              = $role;
         $this->permissionService = $permissionService;
     }
 
@@ -52,6 +52,8 @@ class PermissionsRepo
     /**
      * Get a role via its ID.
      *
+     * @param mixed $id
+     *
      * @return mixed
      */
     public function getRoleById($id)
@@ -62,12 +64,13 @@ class PermissionsRepo
     /**
      * Save a new role into the system.
      *
-     * @param  array  $roleData
+     * @param array $roleData
+     *
      * @return Role
      */
     public function saveNewRole($roleData)
     {
-        $role = $this->role->newInstance($roleData);
+        $role       = $this->role->newInstance($roleData);
         $role->name = str_replace(' ', '-', strtolower($roleData['display_name']));
         // Prevent duplicate names
         while ($this->role->where('name', '=', $role->name)->count() > 0) {
@@ -86,6 +89,9 @@ class PermissionsRepo
      * Updates an existing role.
      * Ensure Admin role always have core permissions.
      *
+     *
+     * @param mixed $roleId
+     * @param mixed $roleData
      *
      * @throws PermissionsException
      */
@@ -114,11 +120,11 @@ class PermissionsRepo
     /**
      * Assign an list of permission names to an role.
      *
-     * @param  array  $permissionNameArray
+     * @param array $permissionNameArray
      */
     public function assignRolePermissions(Role $role, $permissionNameArray = [])
     {
-        $permissions = [];
+        $permissions         = [];
         $permissionNameArray = array_values($permissionNameArray);
         if ($permissionNameArray && count($permissionNameArray) > 0) {
             $permissions = $this->permission->whereIn('name', $permissionNameArray)->pluck('id')->toArray();
@@ -132,6 +138,9 @@ class PermissionsRepo
      * If an migration Role ID is specified the users assign to the current role
      * will be added to the role of the specified id.
      *
+     *
+     * @param mixed $roleId
+     * @param mixed $migrateRoleId
      *
      * @throws PermissionsException
      */

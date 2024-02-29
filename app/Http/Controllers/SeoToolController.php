@@ -26,25 +26,25 @@ class SeoToolController extends Controller
 {
     public function index()
     {
-        $websites = StoreWebsite::pluck('website', 'id')->toArray();
+        $websites   = StoreWebsite::pluck('website', 'id')->toArray();
         $siteAudits = $domainOverview = $backlinkreports = [];
         foreach ($websites as $websiteId => $website) {
             $siteAuditDetail = SiteAudit::where(['store_website_id' => $websiteId])->orderBy('id', 'desc')->first();
             if ($siteAuditDetail != null) {
-                $siteAudits[$websiteId]['errors'] = $siteAuditDetail['errors'];
-                $siteAudits[$websiteId]['warnings'] = $siteAuditDetail['warnings'];
+                $siteAudits[$websiteId]['errors']        = $siteAuditDetail['errors'];
+                $siteAudits[$websiteId]['warnings']      = $siteAuditDetail['warnings'];
                 $siteAudits[$websiteId]['pages_crawled'] = $siteAuditDetail['pages_crawled'];
             }
             $overview = DomainOverview::where(['store_website_id' => $websiteId, 'tool_id' => 1])->orderBy('id', 'desc')->first();
             if ($overview != null) {
                 $domainOverview[$websiteId]['organic_keywords'] = $this->restyle_text($overview['organic_keywords']);
-                $domainOverview[$websiteId]['organic_traffic'] = $this->restyle_text($overview['organic_traffic']);
-                $domainOverview[$websiteId]['organic_cost'] = $this->restyle_text($overview['organic_cost']);
+                $domainOverview[$websiteId]['organic_traffic']  = $this->restyle_text($overview['organic_traffic']);
+                $domainOverview[$websiteId]['organic_cost']     = $this->restyle_text($overview['organic_cost']);
             }
             $backlinkreport = BacklinkOverview::where(['store_website_id' => $websiteId, 'tool_id' => 1])->orderBy('id', 'desc')->first();
             if ($backlinkreport != null) {
-                $backlinkreports[$websiteId]['ascore'] = $this->restyle_text($backlinkreport['ascore']);
-                $backlinkreports[$websiteId]['follows_num'] = $this->restyle_text($backlinkreport['follows_num']);
+                $backlinkreports[$websiteId]['ascore']        = $this->restyle_text($backlinkreport['ascore']);
+                $backlinkreports[$websiteId]['follows_num']   = $this->restyle_text($backlinkreport['follows_num']);
                 $backlinkreports[$websiteId]['nofollows_num'] = $this->restyle_text($backlinkreport['nofollows_num']);
             }
         }
@@ -64,25 +64,25 @@ class SeoToolController extends Controller
             if ($request->search_website != '') {
                 $search_website = ['website', 'LIKE', '%' . $request->search_website . '%'];
             }
-            $websites = StoreWebsite::where([['id', '!=', ''], $search_website])->pluck('website', 'id');
+            $websites   = StoreWebsite::where([['id', '!=', ''], $search_website])->pluck('website', 'id');
             $siteAudits = $domainOverview = $backlinkreports = [];
             foreach ($websites as $websiteId => $website) {
                 $siteAuditDetail = SiteAudit::where(['store_website_id' => $websiteId])->orderBy('id', 'desc')->first();
                 if ($siteAuditDetail != null) {
-                    $siteAudits[$websiteId]['errors'] = $siteAuditDetail['errors'];
-                    $siteAudits[$websiteId]['warnings'] = $siteAuditDetail['warnings'];
+                    $siteAudits[$websiteId]['errors']        = $siteAuditDetail['errors'];
+                    $siteAudits[$websiteId]['warnings']      = $siteAuditDetail['warnings'];
                     $siteAudits[$websiteId]['pages_crawled'] = $siteAuditDetail['pages_crawled'];
                 }
                 $overview = DomainOverview::where(['store_website_id' => $websiteId, 'tool_id' => 1])->orderBy('id', 'desc')->first();
                 if ($overview != null) {
                     $domainOverview[$websiteId]['organic_keywords'] = $this->restyle_text($overview['organic_keywords']);
-                    $domainOverview[$websiteId]['organic_traffic'] = $this->restyle_text($overview['organic_traffic']);
-                    $domainOverview[$websiteId]['organic_cost'] = $this->restyle_text($overview['organic_cost']);
+                    $domainOverview[$websiteId]['organic_traffic']  = $this->restyle_text($overview['organic_traffic']);
+                    $domainOverview[$websiteId]['organic_cost']     = $this->restyle_text($overview['organic_cost']);
                 }
                 $backlinkreport = BacklinkOverview::where(['store_website_id' => $websiteId, 'tool_id' => 1])->orderBy('id', 'desc')->first();
                 if ($backlinkreport != null) {
-                    $backlinkreports[$websiteId]['ascore'] = $this->restyle_text($backlinkreport['ascore']);
-                    $backlinkreports[$websiteId]['follows_num'] = $this->restyle_text($backlinkreport['follows_num']);
+                    $backlinkreports[$websiteId]['ascore']        = $this->restyle_text($backlinkreport['ascore']);
+                    $backlinkreports[$websiteId]['follows_num']   = $this->restyle_text($backlinkreport['follows_num']);
                     $backlinkreports[$websiteId]['nofollows_num'] = $this->restyle_text($backlinkreport['nofollows_num']);
                 }
             }
@@ -97,7 +97,7 @@ class SeoToolController extends Controller
 
     public function restyle_text($input)
     {
-        $input = number_format($input);
+        $input       = number_format($input);
         $input_count = substr_count($input, ',');
         if ($input_count != '0') {
             if ($input_count == '1') {
@@ -119,14 +119,14 @@ class SeoToolController extends Controller
         //fetch domain reports
         $storeWebsites = StoreWebsite::select('id', 'website')->get();
         foreach ($storeWebsites as $storeWebsite) {
-            $inputs['website'] = $storeWebsite['website'];
+            $inputs['website']   = $storeWebsite['website'];
             $inputs['websiteId'] = $websiteId = $storeWebsite['id'];
-            $database = 'us';
+            $database            = 'us';
             if (isset($_GET['database'])) {
                 $database = $_GET['database'];
             }
             $toolId = 1;
-            $now = Carbon::now()->format('Y-m-d');
+            $now    = Carbon::now()->format('Y-m-d');
 
             $semrushOrganicSearchKeywordsResponse = $semrushPaidSearchKeywordsResponse = $semrushBacklinkOverviewResponse = $semrushBacklinkAnchorResponse = $semrushBacklinkDomainResponse = $semrushCompetitorResponse = [];
             //Semrush Domain apis start
@@ -137,16 +137,16 @@ class SeoToolController extends Controller
                     $semrushDomainResponse = $this->semrushCurlRequests('domain_search_keywords', $column, $api, 1);
                     foreach (json_decode($semrushDomainResponse, true) as $value) { //dd($value);
                         if ($column == 'organic') {
-                            $url = $value['url'];
+                            $url     = $value['url'];
                             $traffic = $value['traffic_cost_'];
                         } else {
-                            $url = $value['visible_url'];
+                            $url     = $value['visible_url'];
                             $traffic = $value['traffic_cost'];
                         }
                         $dataToInsert = ['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database, 'subtype' => $column, 'database' => $database,
-                            'keyword' => $value['keyword'], 'position' => $value['position'], 'previous_position' => $value['previous_position'],
-                            'position_difference' => $value['position_difference'], 'search_volume' => $value['search_volume'], 'cpc' => $value['cpc'], 'url' => $url, 'traffic_percentage' => $value['traffic_'], 'traffic_cost' => $traffic,
-                            'competition' => $value['competition'], 'number_of_results' => $value['number_of_results'], 'trends' => $value['trends'], ];
+                            'keyword'                       => $value['keyword'], 'position' => $value['position'], 'previous_position' => $value['previous_position'],
+                            'position_difference'           => $value['position_difference'], 'search_volume' => $value['search_volume'], 'cpc' => $value['cpc'], 'url' => $url, 'traffic_percentage' => $value['traffic_'], 'traffic_cost' => $traffic,
+                            'competition'                   => $value['competition'], 'number_of_results' => $value['number_of_results'], 'trends' => $value['trends'], ];
                         DomainSearchKeyword::create($dataToInsert);
                     }
                 }
@@ -154,7 +154,7 @@ class SeoToolController extends Controller
 
             //Semrush Domain Overview apis start
             $semrushDomainReportApi = (new DomainOverview)->domainOverviewSemrushApis($inputs['website'], $database, 'overview_all');
-            $domainOverviewData = DomainOverview::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $domainOverviewData     = DomainOverview::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($domainOverviewData == null) {
                 $semrushDomainOverviewResponse = $this->semrushCurlRequests('domain_overview', 'overview_all', $semrushDomainReportApi, $keyValuePair = 1);
                 foreach (json_decode($semrushDomainOverviewResponse, true) as $value) {
@@ -165,7 +165,7 @@ class SeoToolController extends Controller
 
             //Semrush Backlink apis Start
             $semrushBacklinkOverviewReportApi = (new BacklinkOverview)->backlinkoverviewSemrushApis($inputs['website'], $database);
-            $backlinkOverviewData = BacklinkOverview::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $backlinkOverviewData             = BacklinkOverview::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($backlinkOverviewData == null) {
                 $semrushBacklinkOverviewResponse = $this->semrushCurlRequests('backlink_overview', 'overview', $semrushBacklinkOverviewReportApi, 1);
                 if ($semrushBacklinkOverviewResponse != '') {
@@ -178,7 +178,7 @@ class SeoToolController extends Controller
 
             //Semrush Backlink Anchor Api Start
             $semrushBacklinkAnchorReportApi = (new BacklinkAnchors)->backlinkanchorsSemrushApis($inputs['website'], $database);
-            $backlinkAnchorData = BacklinkAnchors::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $backlinkAnchorData             = BacklinkAnchors::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($backlinkAnchorData == null) {
                 $semrushBacklinkAnchorResponse = $this->semrushCurlRequests('back_link_anchors', 'anchor', $semrushBacklinkAnchorReportApi, 1);
                 if ($semrushBacklinkAnchorResponse != '') {
@@ -225,13 +225,13 @@ class SeoToolController extends Controller
 
             //Semrush OrganicPage Api Start
             $semrushOrganicPageApi = (new DomainOrganicPage)->organicPageSemrushApi($inputs['website'], $database);
-            $organicPageData = DomainOrganicPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $organicPageData       = DomainOrganicPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($organicPageData == null) {
                 $semrushOrganicPageResponse = $this->semrushCurlRequests('organic_page', 'organic_page', $semrushOrganicPageApi, 1);
                 if ($semrushOrganicPageResponse != '') {
                     foreach (json_decode($semrushOrganicPageResponse, true) as $value) {
                         $dataToInsert = ['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId,
-                            'database' => $database, 'url' => $value['url'], 'number_of_keywords' => $value['number_of_keywords'], 'traffic' => $value['traffic'], 'traffic_percentage' => $value['traffic_'], ];
+                            'database'                      => $database, 'url' => $value['url'], 'number_of_keywords' => $value['number_of_keywords'], 'traffic' => $value['traffic'], 'traffic_percentage' => $value['traffic_'], ];
                         DomainOrganicPage::create($dataToInsert);
                     }
                 }
@@ -239,28 +239,28 @@ class SeoToolController extends Controller
 
             //Semrush Indexed Page Api Start
             $semrushIndexedPageApi = (new BacklinkIndexedPage)->indexedPageSemrushApi($inputs['website'], $database, 'indexed_page');
-            $indexedPageData = BacklinkIndexedPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $indexedPageData       = BacklinkIndexedPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($indexedPageData == null) {
                 $semrushIndexedPageResponse = $this->semrushCurlRequests('indexed_page', 'indexed_page', $semrushIndexedPageApi, 1);
                 foreach (json_decode($semrushIndexedPageResponse, true) as $value) {
                     $dataToInsert = ['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId,
-                        'database' => $database, 'source_url' => $value['source_url'], 'source_title' => $value['source_title'],
-                        'response_code' => $value['response_code'], 'backlinks_num' => $value['backlinks_num'],
-                        'domains_num' => $value['domains_num'], 'last_seen' => $value['last_seen'], 'external_num' => $value['external_num'], 'internal_num' => $value['internal_num'], ];
+                        'database'                      => $database, 'source_url' => $value['source_url'], 'source_title' => $value['source_title'],
+                        'response_code'                 => $value['response_code'], 'backlinks_num' => $value['backlinks_num'],
+                        'domains_num'                   => $value['domains_num'], 'last_seen' => $value['last_seen'], 'external_num' => $value['external_num'], 'internal_num' => $value['internal_num'], ];
                     BacklinkIndexedPage::create($dataToInsert);
                 }
             }
             //Semrush Landing Page Api Start
             $semrushLandingPageApi = (new DomainLandingPage)->landingPageSemrushApi($inputs['website'], $database, 'landing_page');
-            $LandingPageData = DomainLandingPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
+            $LandingPageData       = DomainLandingPage::where(['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId, 'database' => $database])->where('created_at', 'like', '%' . $now . '%')->first();
             if ($LandingPageData == null) {
                 $semrushLandingPageResponse = $this->semrushCurlRequests('landing_page', 'landing_page', $semrushLandingPageApi, 1);
                 if ($semrushLandingPageResponse != '') {
                     foreach (json_decode($semrushLandingPageResponse, true) as $value) {
                         $dataToInsert = ['store_website_id' => $inputs['websiteId'], 'tool_id' => $toolId,
-                            'database' => $database, 'target_url' => $value['target_url'], 'first_seen' => $value['first_seen'],
-                            'last_seen' => $value['last_seen'], 'times_seen' => $value['times_seen'],
-                            'ads_count' => $value['ads_count'], ];
+                            'database'                      => $database, 'target_url' => $value['target_url'], 'first_seen' => $value['first_seen'],
+                            'last_seen'                     => $value['last_seen'], 'times_seen' => $value['times_seen'],
+                            'ads_count'                     => $value['ads_count'], ];
                         DomainLandingPage::create($dataToInsert);
                     }
                 }
@@ -273,23 +273,23 @@ class SeoToolController extends Controller
             if ($projectId != null) {
                 $auditLaunchApi = (new SiteAudit)->semrushApis('site_audit');
 
-                $auditInfoApi = (new SiteAudit)->semrushApis('site_audit_info');
+                $auditInfoApi      = (new SiteAudit)->semrushApis('site_audit_info');
                 $auditInfoResponse = (new SiteAudit)->semrushApiResponses('site_audit_info');
 
-                $siteIssuesApi = (new SiteAudit)->semrushApis('site_issues');
+                $siteIssuesApi      = (new SiteAudit)->semrushApis('site_issues');
                 $siteIssuesResponse = (new SiteAudit)->semrushApiResponses('site_issues');
 
-                $data = json_decode($auditInfoResponse, true);
+                $data      = json_decode($auditInfoResponse, true);
                 $siteAudit = SiteAudit::where('store_website_id', $websiteId)->where('created_at', 'like', '%' . $now . '%')->first();
                 if ($siteAudit == null) {
                     $data = ['project_id' => $projectId, 'store_website_id' => $websiteId] + $data;
                     unset($data['id']);
-                    $data['defects'] = json_encode($data['defects']);
-                    $data['depths'] = json_encode($data['depths']);
-                    $data['markups'] = json_encode($data['markups']);
-                    $data['depths'] = json_encode($data['depths']);
-                    $data['mask_allow'] = json_encode($data['mask_allow']);
-                    $data['mask_disallow'] = json_encode($data['mask_disallow']);
+                    $data['defects']           = json_encode($data['defects']);
+                    $data['depths']            = json_encode($data['depths']);
+                    $data['markups']           = json_encode($data['markups']);
+                    $data['depths']            = json_encode($data['depths']);
+                    $data['mask_allow']        = json_encode($data['mask_allow']);
+                    $data['mask_disallow']     = json_encode($data['mask_disallow']);
                     $data['removedParameters'] = json_encode($data['removedParameters']);
                     if ($data['excluded_checks'] == null) {
                         $data['excluded_checks'] = 0;
@@ -298,9 +298,9 @@ class SeoToolController extends Controller
                 }
                 $siteAuditIssues = json_decode($siteIssuesResponse, true);
                 foreach ($siteAuditIssues['issues'] as $siteAuditIssuesData) { //dd($siteAuditIssuesData);
-                    $dataToSave = ['project_id' => $projectId, 'store_website_id' => $websiteId];
-                    $dataToSave['title'] = $siteAuditIssuesData['title'];
-                    $dataToSave['desc'] = $siteAuditIssuesData['desc'];
+                    $dataToSave               = ['project_id' => $projectId, 'store_website_id' => $websiteId];
+                    $dataToSave['title']      = $siteAuditIssuesData['title'];
+                    $dataToSave['desc']       = $siteAuditIssuesData['desc'];
                     $dataToSave['title_page'] = $siteAuditIssuesData['title_page'];
                     SiteIssue::create($dataToSave);
                 }
@@ -335,16 +335,16 @@ class SeoToolController extends Controller
                 }
             } else {
                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                $curl = curl_init();
+                $curl      = curl_init();
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $api,
+                    CURLOPT_URL            => $api,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 0,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'GET',
                 ]);
                 $response = curl_exec($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -366,15 +366,15 @@ class SeoToolController extends Controller
     public function parseSemrushResponse($response, $heading = 0)
     {
         $response1 = explode("\n", $response);
-        $final = [];
+        $final     = [];
         foreach ($response1 as $key => $new) {
             if ($heading == 0) {
                 if ($key > 0) {
-                    $new = explode(';', $new);
+                    $new     = explode(';', $new);
                     $final[] = $new;
                 }
             } else {
-                $new = explode(';', $new);
+                $new     = explode(';', $new);
                 $final[] = $new;
             }
         }
@@ -385,20 +385,20 @@ class SeoToolController extends Controller
     public function parseSemrushResponseKeyValue($response)
     {
         $response1 = explode("\n", $response);
-        $final = [];
+        $final     = [];
         foreach ($response1 as $new) {
-            $new = explode(';', $new);
+            $new     = explode(';', $new);
             $final[] = $new;
         }
         $arrayToBeUsed = [];
-        $heading = $final[0];
+        $heading       = $final[0];
         unset($final[0]);
         $i = 0;
         foreach ($final as $keydata) {
             if (count($keydata) > 1) {
                 foreach ($keydata as $key => $value) {
-                    $headingKey = str_replace(' ', '_', $heading[$key]);
-                    $headingKey = strtolower(preg_replace('/[^A-Za-z0-9\_]/', '', $headingKey));
+                    $headingKey                     = str_replace(' ', '_', $heading[$key]);
+                    $headingKey                     = strtolower(preg_replace('/[^A-Za-z0-9\_]/', '', $headingKey));
                     $arrayToBeUsed[$i][$headingKey] = $value;
                 }
             }
@@ -456,9 +456,9 @@ class SeoToolController extends Controller
 
     public function projectList()
     {
-        $projectListApi = (new SiteAudit)->semrushApis('project_list');
+        $projectListApi    = (new SiteAudit)->semrushApis('project_list');
         $auditInfoResponse = (new SiteAudit)->semrushApiResponses('project_list');
-        $project = json_decode($auditInfoResponse, true);
+        $project           = json_decode($auditInfoResponse, true);
 
         return view('seo-tools.projects', compact('project'));
     }

@@ -25,8 +25,8 @@ class AffiliateMarketingController extends Controller
      */
     public function providerAccounts(Request $request)
     {
-        $providers = AffiliateProviders::where('status', 1)->get();
-        $storeWebsites = StoreWebsite::get();
+        $providers        = AffiliateProviders::where('status', 1)->get();
+        $storeWebsites    = StoreWebsite::get();
         $providerAccounts = AffiliateProviderAccounts::where(function ($query) use ($request) {
             if ($request->has('status') && $request->status) {
                 $query->where('status', $request->status == 'active');
@@ -56,10 +56,10 @@ class AffiliateMarketingController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'store_website_id' => 'required',
+                'store_website_id'       => 'required',
                 'affiliates_provider_id' => 'required',
-                'api_key' => 'required',
-                'status' => 'required|in:true,false',
+                'api_key'                => 'required',
+                'status'                 => 'required|in:true,false',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('affiliate-marketing.providerAccounts')
@@ -68,10 +68,10 @@ class AffiliateMarketingController extends Controller
                     ->withInput();
             }
             AffiliateProviderAccounts::create([
-                'api_key' => $request->api_key,
-                'store_website_id' => $request->store_website_id,
+                'api_key'                => $request->api_key,
+                'store_website_id'       => $request->store_website_id,
                 'affiliates_provider_id' => $request->affiliates_provider_id,
-                'status' => $request->status == 'true',
+                'status'                 => $request->status == 'true',
             ]);
 
             return Redirect::route('affiliate-marketing.providerAccounts')
@@ -84,6 +84,8 @@ class AffiliateMarketingController extends Controller
 
     /**
      * Updates the providers account into database.
+     *
+     * @param mixed $id
      */
     public function updateProviderAccounts(Request $request, $id): RedirectResponse
     {
@@ -94,10 +96,10 @@ class AffiliateMarketingController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'store_website_id' => 'required',
+                'store_website_id'       => 'required',
                 'affiliates_provider_id' => 'required',
-                'api_key' => 'required',
-                'status' => 'required|in:true,false',
+                'api_key'                => 'required',
+                'status'                 => 'required|in:true,false',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('affiliate-marketing.providerAccounts')
@@ -106,9 +108,9 @@ class AffiliateMarketingController extends Controller
                     ->withInput();
             }
             $provider->affiliates_provider_id = $request->affiliates_provider_id;
-            $provider->store_website_id = $request->store_website_id;
-            $provider->api_key = $request->api_key;
-            $provider->status = $request->status == 'true';
+            $provider->store_website_id       = $request->store_website_id;
+            $provider->api_key                = $request->api_key;
+            $provider->status                 = $request->status == 'true';
             $provider->save();
 
             return Redirect::route('affiliate-marketing.providerAccounts')
@@ -121,6 +123,8 @@ class AffiliateMarketingController extends Controller
 
     /**
      * Get the provider account by id
+     *
+     * @param mixed $id
      */
     public function getProviderAccount(Request $request, $id): JsonResponse
     {

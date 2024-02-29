@@ -62,7 +62,7 @@ abstract class OptionsPropertyOneItem extends OptionsPropertyItem
     /**
      * Sets the force parameter
      *
-     * @param  bool|string  $force force parameter
+     * @param bool|string $force force parameter
      */
     public function setForce($force): void
     {
@@ -82,7 +82,7 @@ abstract class OptionsPropertyOneItem extends OptionsPropertyItem
     /**
      * Sets the values
      *
-     * @param  array  $values values
+     * @param array $values values
      */
     public function setValues(array $values): void
     {
@@ -102,7 +102,7 @@ abstract class OptionsPropertyOneItem extends OptionsPropertyItem
     /**
      * Sets the doc
      *
-     * @param  string|array  $doc MySQL documentation pointer
+     * @param string|array $doc MySQL documentation pointer
      */
     public function setDoc($doc): void
     {
@@ -122,7 +122,7 @@ abstract class OptionsPropertyOneItem extends OptionsPropertyItem
     /**
      * Sets the length
      *
-     * @param  int  $len length
+     * @param int $len length
      */
     public function setLen($len): void
     {
@@ -142,7 +142,7 @@ abstract class OptionsPropertyOneItem extends OptionsPropertyItem
     /**
      * Sets the size
      *
-     * @param  int  $size size
+     * @param int $size size
      */
     public function setSize($size): void
     {

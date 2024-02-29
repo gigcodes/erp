@@ -171,7 +171,7 @@ class CroppedImageReferenceController extends Controller
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
-            $endDate = trim(end($dateArray));
+            $endDate   = trim(end($dateArray));
             if ($startDate == '1995/12/25') {
                 $totalCounts = CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subHour())->count();
             } elseif ($startDate == $endDate) {
@@ -296,8 +296,8 @@ class CroppedImageReferenceController extends Controller
                 })
                 ->addColumn('original_image', function ($row) {
                     $original_image = '<div style="width: 100px;margin-top: 25px; display: inline-block;">';
-                    $src = $row->media ? getMediaUrl($row->media) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
-                    $onclick_url = $row->media ? getMediaUrl($row->media) : '';
+                    $src            = $row->media ? getMediaUrl($row->media) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                    $onclick_url    = $row->media ? getMediaUrl($row->media) : '';
                     $original_image .= '<img src="' . $src . '" alt="" height="100" width="100"  alt="" height="100" width="100" onclick="bigImg(`' . $onclick_url . '`)">';
                     $original_image .= '</div>';
 
@@ -313,7 +313,7 @@ class CroppedImageReferenceController extends Controller
                             $cropped_image .= '<td>';
                             $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
                             $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : 'N/A';
-                            $src = $images->newMedia ? getMediaUrl($images->newMedia) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
+                            $src     = $images->newMedia ? getMediaUrl($images->newMedia) : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
                             $onclick = $images->newMedia ? getMediaUrl($images->newMedia) : '';
                             $cropped_image .= '<img src="' . $src . '" alt="" height="100" width="100" onclick="bigImg(`' . $onclick . '`)">';
                             $cropped_image .= '</div>';
@@ -346,7 +346,7 @@ class CroppedImageReferenceController extends Controller
                                 <option value="Image incorrect">Image incorrect</option>
                         </select>';
 
-                    $response = $row->httpRequestData ? $row->httpRequestData->response : 'N/A';
+                    $response    = $row->httpRequestData ? $row->httpRequestData->response : 'N/A';
                     $requestData = $row->httpRequestData ? $row->httpRequestData->requestData : 'N/A';
 
                     $actionBtn .= '<button 
@@ -389,7 +389,7 @@ class CroppedImageReferenceController extends Controller
 
         $dynamicColumnsToShowCrop = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns              = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowCrop = json_decode($hideColumns, true);
         }
 
@@ -402,7 +402,7 @@ class CroppedImageReferenceController extends Controller
         if (request('customer_range') != null) {
             $dateArray = explode('-', request('customer_range'));
             $startDate = trim($dateArray[0]);
-            $endDate = trim(end($dateArray));
+            $endDate   = trim(end($dateArray));
             if ($startDate == '1995/12/25') {
                 $totalCounts = CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subHour())->count();
             } elseif ($startDate == $endDate) {
@@ -424,7 +424,7 @@ class CroppedImageReferenceController extends Controller
     public function rejectCropImage(Request $request)
     {
         $reference = CroppedImageReference::find($request->id);
-        $product = Product::find($reference->product_id);
+        $product   = Product::find($reference->product_id);
         dd($product);
     }
 
@@ -469,7 +469,7 @@ class CroppedImageReferenceController extends Controller
 
         foreach ($data as $value) {
             $result[] = [
-                'id' => $value['id'],
+                'id'   => $value['id'],
                 'text' => $nbsp . $value['title'],
             ];
             if (! empty($value['child'])) {
@@ -489,18 +489,18 @@ class CroppedImageReferenceController extends Controller
 
     public function loginstance(Request $request)
     {
-        $url = 'https://173.212.203.50:100/get-logs';
-        $date = $request->date;
-        $id = $request->id;
+        $url       = 'https://173.212.203.50:100/get-logs';
+        $date      = $request->date;
+        $id        = $request->id;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $data = ['instance_id' => $id, 'date' => $date];
-        $data = json_encode($data);
-        $ch = curl_init($url);
+        $data      = ['instance_id' => $id, 'date' => $date];
+        $data      = json_encode($data);
+        $ch        = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $result = curl_exec($ch);
+        $result   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($data), $result, $httpcode, \App\Console\Commands\CroppedImageReferenceController::class, 'loginstance');
         echo $result;
@@ -528,7 +528,7 @@ class CroppedImageReferenceController extends Controller
     {
         $instance = \App\CroppingInstance::find($request->id);
         if ($instance) {
-            $client = new Client();
+            $client   = new Client();
             $response = $client->request('POST', config('constants.py_crop_script') . '/start', [
                 'form_params' => [
                     'instanceId' => $instance->instance_id,
@@ -545,7 +545,7 @@ class CroppedImageReferenceController extends Controller
     {
         $instance = \App\CroppingInstance::find($request->id);
         if ($instance) {
-            $client = new Client();
+            $client   = new Client();
             $response = $client->request('POST', config('constants.py_crop_script') . '/stop', [
                 'form_params' => [
                     'instanceId' => $instance->instance_id,
@@ -563,15 +563,15 @@ class CroppedImageReferenceController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'crop-references-grid')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'crop-references-grid';
-            $column->column_name = json_encode($request->column_crop);
+            $column->column_name  = json_encode($request->column_crop);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'crop-references-grid';
-            $column->column_name = json_encode($request->column_crop);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_crop);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 

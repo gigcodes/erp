@@ -25,8 +25,8 @@ class CustomerEmail extends Mailable
 
     public function __construct(string $subject, string $message, string $fromStoreEmail)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subject   = $subject;
+        $this->message   = $message;
         $this->fromEmail = $fromStoreEmail;
     }
 

@@ -48,9 +48,9 @@ class Plugins
     /**
      * Instantiates the specified plugin type for a certain format
      *
-     * @param  string  $type   the type of the plugin (import, export, etc)
-     * @param  string  $format the format of the plugin (sql, xml, et )
-     * @param  array|string|null  $param  parameter to plugin by which they can decide whether they can work
+     * @param string            $type   the type of the plugin (import, export, etc)
+     * @param string            $format the format of the plugin (sql, xml, et )
+     * @param array|string|null $param  parameter to plugin by which they can decide whether they can work
      *
      * @psalm-param array{export_type: string, single_table: bool}|string|null $param
      *
@@ -61,9 +61,9 @@ class Plugins
         global $plugin_param;
 
         $plugin_param = $param;
-        $pluginType = mb_strtoupper($type[0]) . mb_strtolower(mb_substr($type, 1));
+        $pluginType   = mb_strtoupper($type[0]) . mb_strtolower(mb_substr($type, 1));
         $pluginFormat = mb_strtoupper($format[0]) . mb_strtolower(mb_substr($format, 1));
-        $class = sprintf('PhpMyAdmin\\Plugins\\%s\\%s%s', $pluginType, $pluginType, $pluginFormat);
+        $class        = sprintf('PhpMyAdmin\\Plugins\\%s\\%s%s', $pluginType, $pluginType, $pluginFormat);
         if (! class_exists($class)) {
             return null;
         }
@@ -72,7 +72,8 @@ class Plugins
     }
 
     /**
-     * @param  string  $type server|database|table|raw
+     * @param string $type server|database|table|raw
+     *
      * @return ExportPlugin[]
      */
     public static function getExport(string $type, bool $singleTable): array
@@ -85,7 +86,8 @@ class Plugins
     }
 
     /**
-     * @param  string  $type server|database|table
+     * @param string $type server|database|table
+     *
      * @return ImportPlugin[]
      */
     public static function getImport(string $type): array
@@ -108,7 +110,8 @@ class Plugins
     /**
      * Reads all plugin information
      *
-     * @param  string  $type the type of the plugin (import, export, etc)
+     * @param string $type the type of the plugin (import, export, etc)
+     *
      * @return array list of plugin instances
      */
     private static function getPlugins(string $type): array
@@ -154,8 +157,9 @@ class Plugins
     /**
      * Returns locale string for $name or $name if no locale is found
      *
-     * @param  string|null  $name for local string
-     * @return string  locale string for $name
+     * @param string|null $name for local string
+     *
+     * @return string locale string for $name
      */
     public static function getString($name)
     {
@@ -166,13 +170,13 @@ class Plugins
      * Returns html input tag option 'checked' if plugin $opt
      * should be set by config or request
      *
-     * @param  string  $section name of config section in
+     * @param string $section name of config section in
      *                        $GLOBALS['cfg'][$section] for plugin
-     * @param  string  $opt     name of option
+     * @param string $opt     name of option
      *
      * @psalm-param 'Export'|'Import'|'Schema' $section
      *
-     * @return string  html input tag option 'checked'
+     * @return string html input tag option 'checked'
      */
     public static function checkboxCheck($section, $opt)
     {
@@ -192,13 +196,13 @@ class Plugins
     /**
      * Returns default value for option $opt
      *
-     * @param  string  $section name of config section in
+     * @param string $section name of config section in
      *                        $GLOBALS['cfg'][$section] for plugin
-     * @param  string  $opt     name of option
+     * @param string $opt     name of option
      *
      * @psalm-param 'Export'|'Import'|'Schema' $section
      *
-     * @return string  default value for option $opt
+     * @return string default value for option $opt
      */
     public static function getDefault($section, $opt)
     {
@@ -234,7 +238,8 @@ class Plugins
     }
 
     /**
-     * @param  ExportPlugin[]|ImportPlugin[]|SchemaPlugin[]  $list
+     * @param ExportPlugin[]|ImportPlugin[]|SchemaPlugin[] $list
+     *
      * @return array<int, array<string, bool|string>>
      *
      * @psalm-return list<array{name: non-empty-lowercase-string, text: string, is_selected: bool, force_file: bool}>
@@ -245,11 +250,11 @@ class Plugins
         foreach ($list as $plugin) {
             $pluginName = $plugin->getName();
             $properties = $plugin->getProperties();
-            $return[] = [
-                'name' => $pluginName,
-                'text' => self::getString($properties->getText()),
+            $return[]   = [
+                'name'        => $pluginName,
+                'text'        => self::getString($properties->getText()),
                 'is_selected' => $pluginName === $default,
-                'force_file' => $properties->getForceFile(),
+                'force_file'  => $properties->getForceFile(),
             ];
         }
 
@@ -259,14 +264,14 @@ class Plugins
     /**
      * Returns single option in a list element
      *
-     * @param  string  $section       name of config section in $GLOBALS['cfg'][$section] for plugin
-     * @param  string  $plugin_name   unique plugin name
-     * @param  OptionsPropertyItem  $propertyGroup options property main group instance
-     * @param  bool  $is_subgroup   if this group is a subgroup
+     * @param string              $section       name of config section in $GLOBALS['cfg'][$section] for plugin
+     * @param string              $plugin_name   unique plugin name
+     * @param OptionsPropertyItem $propertyGroup options property main group instance
+     * @param bool                $is_subgroup   if this group is a subgroup
      *
      * @psalm-param 'Export'|'Import'|'Schema' $section
      *
-     * @return string  table row with option
+     * @return string table row with option
      */
     public static function getOneOption(
         $section,
@@ -377,10 +382,10 @@ class Plugins
     /**
      * Get HTML for properties items
      *
-     * @param  string  $section      name of config section in
+     * @param string              $section      name of config section in
      *                                          $GLOBALS['cfg'][$section] for plugin
-     * @param  string  $plugin_name  unique plugin name
-     * @param  OptionsPropertyItem  $propertyItem Property item
+     * @param string              $plugin_name  unique plugin name
+     * @param OptionsPropertyItem $propertyItem Property item
      *
      * @psalm-param 'Export'|'Import'|'Schema' $section
      *
@@ -391,7 +396,7 @@ class Plugins
         $plugin_name,
         $propertyItem
     ) {
-        $ret = '';
+        $ret            = '';
         $property_class = get_class($propertyItem);
         switch ($property_class) {
             case BoolPropertyItem::class:
@@ -548,12 +553,12 @@ class Plugins
     /**
      * Returns html div with editable options for plugin
      *
-     * @param  string  $section name of config section in $GLOBALS['cfg'][$section]
-     * @param  ExportPlugin[]|ImportPlugin[]|SchemaPlugin[]  $list    array with plugin instances
+     * @param string                                       $section name of config section in $GLOBALS['cfg'][$section]
+     * @param ExportPlugin[]|ImportPlugin[]|SchemaPlugin[] $list    array with plugin instances
      *
      * @psalm-param 'Export'|'Import'|'Schema' $section
      *
-     * @return string  html fieldset with plugin options
+     * @return string html fieldset with plugin options
      */
     public static function getOptions($section, array $list)
     {
@@ -561,10 +566,10 @@ class Plugins
         // Options for plugins that support them
         foreach ($list as $plugin) {
             $properties = $plugin->getProperties();
-            $text = null;
-            $options = null;
+            $text       = null;
+            $options    = null;
             if ($properties != null) {
-                $text = $properties->getText();
+                $text    = $properties->getText();
                 $options = $properties->getOptions();
             }
 

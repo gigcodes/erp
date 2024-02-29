@@ -7,17 +7,17 @@ if (count($argv) < 2) {
 $store_website_id = $argv[1];
 
 // Remote Database Connection
-$remoteHost = $argv[2];
-$remoteUsername = 'tempuser';
-$remotePassword = 'GouTysKhsFhsfrF784';
-$remoteDatabase = $argv[3];
-$website_store_id = '0';
+$remoteHost            = $argv[2];
+$remoteUsername        = 'tempuser';
+$remotePassword        = 'GouTysKhsFhsfrF784';
+$remoteDatabase        = $argv[3];
+$website_store_id      = '0';
 $website_store_view_id = '0';
 
 $remoteDb = new PDO("mysql:host=$remoteHost;dbname=$remoteDatabase;charset=utf8mb4", $remoteUsername, $remotePassword);
 
 // Local Database Connection
-$localHost = '81.0.247.216';
+$localHost     = '81.0.247.216';
 $localUsername = 'erplive';
 $localPassword = 'UhgjT68FgrhjOOo';
 $localDatabase = 'erp_live';
@@ -27,7 +27,7 @@ $localDb = new PDO("mysql:host=$localHost;dbname=$localDatabase;charset=utf8mb4"
 try {
     // Select records from the remote MySQL database
     $query = 'SELECT config_id, scope, scope_id, path, value FROM core_config_data';
-    $stmt = $remoteDb->query($query);
+    $stmt  = $remoteDb->query($query);
 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         // Define the INSERT query for the local database
@@ -59,6 +59,6 @@ try {
 
 // Close the database connections
 $remoteDb = null;
-$localDb = null;
+$localDb  = null;
 ?>
 

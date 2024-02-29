@@ -113,7 +113,7 @@ class IndexerState extends Model
 
     public function addLog(string $log): self
     {
-        $logs = $this->getLogs();
+        $logs   = $this->getLogs();
         $logs[] = $log . ' ' . date('Y-m-d H:i:s');
 
         $this->setLogs($logs);
@@ -124,7 +124,7 @@ class IndexerState extends Model
 
     public function setProcessId(?int $pId)
     {
-        $settings = $this->getSettings() ?? [];
+        $settings              = $this->getSettings() ?? [];
         $settings['processId'] = $pId;
         $this->setSettings($settings);
         parent::save();
@@ -133,7 +133,7 @@ class IndexerState extends Model
     public function getProcessId(): ?int
     {
         $settings = $this->getSettings() ?? [];
-        $pId = $settings['processId'] ?? null;
+        $pId      = $settings['processId'] ?? null;
 
         return $pId ?: (int) $pId;
     }
@@ -160,7 +160,7 @@ class IndexerState extends Model
 
     public function addId($id): self
     {
-        $ids = $this->getIds();
+        $ids   = $this->getIds();
         $ids[] = $id;
 
         $this->setIds($ids);

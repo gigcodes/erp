@@ -14,7 +14,7 @@ class AlterTableBugTrackersChangeWebsite extends Migration
     public function up()
     {
         Schema::table('bug_trackers', function (Blueprint $table) {
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $sm           = Schema::getConnection()->getDoctrineSchemaManager();
             $indexesFound = $sm->listTableIndexes('bug_trackers');
             if (array_key_exists('website', $indexesFound)) {
                 $table->dropIndex('website');

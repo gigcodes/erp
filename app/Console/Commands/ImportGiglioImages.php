@@ -44,7 +44,7 @@ class ImportGiglioImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,7 +56,7 @@ class ImportGiglioImages extends Command
 
             $params = [];
 
-            $products = Product::where('id', 2754)->get();
+            $products          = Product::where('id', 2754)->get();
             $params['cookies'] = $cookieJar;
 
             $response = $guzzle->request('GET', 'https://img.giglio.com/images/prodZoom/A66167.001_1.jpg', $params);

@@ -20,10 +20,10 @@ class TmpTaskController extends Controller
         if (! $leads->isEmpty()) {
             foreach ($leads as $lead) {
                 try {
-                    $jsonBrand = json_decode($lead->multi_brand, true);
+                    $jsonBrand    = json_decode($lead->multi_brand, true);
                     $jsonCategory = json_decode($lead->multi_category, true);
 
-                    $jsonBrand = ! empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : [];
+                    $jsonBrand    = ! empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : [];
                     $jsonCategory = ! empty($jsonCategory) ? (is_array($jsonCategory) ? array_filter($jsonCategory) : [$jsonCategory]) : [];
 
                     if ($lead->selected_product) {
@@ -55,9 +55,9 @@ class TmpTaskController extends Controller
                     }
 
                     $erpLead = \App\ErpLeads::where([
-                        'brand_id' => isset($jsonBrand[0]) ? $jsonBrand[0] : '',
-                        'category_id' => isset($jsonCategory[0]) ? $jsonCategory[0] : '',
-                        'customer_id' => $lead->customer_id,
+                        'brand_id'      => isset($jsonBrand[0]) ? $jsonBrand[0] : '',
+                        'category_id'   => isset($jsonCategory[0]) ? $jsonCategory[0] : '',
+                        'customer_id'   => $lead->customer_id,
                         'brand_segment' => $brandSegment,
                     ])->first();
 
@@ -65,20 +65,20 @@ class TmpTaskController extends Controller
                         $erpLead = new \App\ErpLeads;
                     }
 
-                    $erpLead->lead_status_id = $lead->status;
-                    $erpLead->customer_id = $lead->customer_id;
-                    $erpLead->product_id = ! empty($product) ? $product->id : null;
-                    $erpLead->brand_id = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
-                    $erpLead->brand_segment = $brandSegment;
+                    $erpLead->lead_status_id   = $lead->status;
+                    $erpLead->customer_id      = $lead->customer_id;
+                    $erpLead->product_id       = ! empty($product) ? $product->id : null;
+                    $erpLead->brand_id         = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
+                    $erpLead->brand_segment    = $brandSegment;
                     $erpLead->store_website_id = 15;
-                    $erpLead->category_id = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
-                    $erpLead->color = null;
-                    $erpLead->size = $lead->size;
-                    $erpLead->min_price = 0.00;
-                    $erpLead->max_price = 0.00;
-                    $erpLead->type = 'import-leads';
-                    $erpLead->created_at = $lead->created_at;
-                    $erpLead->updated_at = $lead->updated_at;
+                    $erpLead->category_id      = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
+                    $erpLead->color            = null;
+                    $erpLead->size             = $lead->size;
+                    $erpLead->min_price        = 0.00;
+                    $erpLead->max_price        = 0.00;
+                    $erpLead->type             = 'import-leads';
+                    $erpLead->created_at       = $lead->created_at;
+                    $erpLead->updated_at       = $lead->updated_at;
                     $erpLead->save();
 
                     $mediaArr = $lead->getMedia(config('constants.media_tags'));
@@ -105,16 +105,16 @@ class TmpTaskController extends Controller
 
         try {
             $email = \App\Email::create([
-                'model_id' => $orderSaved->id,
-                'model_type' => \App\Order::class,
-                'from' => 'customercare@sololuxury.co.in',
-                'to' => 'webreak.pravin@gmail.com',
-                'subject' => 'TEST',
-                'message' => 'Hello world',
-                'template' => 'order-confirmation',
+                'model_id'        => $orderSaved->id,
+                'model_type'      => \App\Order::class,
+                'from'            => 'customercare@sololuxury.co.in',
+                'to'              => 'webreak.pravin@gmail.com',
+                'subject'         => 'TEST',
+                'message'         => 'Hello world',
+                'template'        => 'order-confirmation',
                 'additional_data' => $orderSaved->id,
-                'status' => 'pre-send',
-                'is_draft' => 1,
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -125,10 +125,10 @@ class TmpTaskController extends Controller
 
         exit;
 
-        $cnt = 'IN';
-        $website = \App\StoreWebsite::find($request->get('store_website_id'));
-        $product = \App\Product::find($request->get('product_id'));
-        $dutyPrice = $product->getDuty($cnt);
+        $cnt           = 'IN';
+        $website       = \App\StoreWebsite::find($request->get('store_website_id'));
+        $product       = \App\Product::find($request->get('product_id'));
+        $dutyPrice     = $product->getDuty($cnt);
         $discountPrice = $product->getPrice($website, $cnt, null, true, $dutyPrice);
 
         \Log::info(print_r($discountPrice, true));
@@ -146,11 +146,11 @@ class TmpTaskController extends Controller
         $order = \App\Order::latest()->first();
 
         if ($order) {
-            $customer = $order->customer;
+            $customer   = $order->customer;
             $orderItems = $order->order_product;
 
-            $data['order'] = $order;
-            $data['customer'] = $customer;
+            $data['order']      = $order;
+            $data['customer']   = $customer;
             $data['orderItems'] = $orderItems;
 
             Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
@@ -159,7 +159,7 @@ class TmpTaskController extends Controller
 
     public function dhl(Request $request)
     {
-        $rate = new GetRateRequest('soap');
+        $rate   = new GetRateRequest('soap');
         $result = $rate->call();
     }
 
@@ -241,7 +241,7 @@ class TmpTaskController extends Controller
 
     public function deleteChatMessages()
     {
-        $limit = request('limit', 10000);
+        $limit        = request('limit', 10000);
         $chatMessages = \App\ChatMessage::where('group_ids', '>', 0)->orderBy('created_at', 'asc')->limit($limit)->get();
         if (! $chatMessages->isEmpty()) {
             foreach ($chatMessages as $chatM) {
@@ -262,7 +262,7 @@ class TmpTaskController extends Controller
 
     public function deleteProductImages()
     {
-        $limit = request('limit', 10000);
+        $limit    = request('limit', 10000);
         $products = \App\Product::leftJoin('order_products as op', 'op.product_id', 'products.id')->where('stock', '<=', 0)
             ->where('supplier', '!=', 'in-stock')
             ->where('has_mediables', 1)

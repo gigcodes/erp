@@ -31,7 +31,7 @@ final class AddIndexController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -48,9 +48,9 @@ final class AddIndexController extends AbstractController
             return;
         }
 
-        $i = 1;
+        $i             = 1;
         $selectedCount = count($selected);
-        $sql_query = 'ALTER TABLE ' . Util::backquote($table) . ' ADD INDEX(';
+        $sql_query     = 'ALTER TABLE ' . Util::backquote($table) . ' ADD INDEX(';
 
         foreach ($selected as $field) {
             $sql_query .= Util::backquote($field);

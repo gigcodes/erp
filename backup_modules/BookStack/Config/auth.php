@@ -18,7 +18,7 @@ return [
     // This option controls the default authentication "guard" and password
     // reset options for your application.
     'defaults' => [
-        'guard' => 'web',
+        'guard'     => 'web',
         'passwords' => 'users',
     ],
 
@@ -29,12 +29,12 @@ return [
     // Supported: "session", "token"
     'guards' => [
         'web' => [
-            'driver' => 'session',
+            'driver'   => 'session',
             'provider' => 'users',
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver'   => 'token',
             'provider' => 'users',
         ],
     ],
@@ -47,7 +47,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => env('AUTH_METHOD', 'standard') === 'standard' ? 'eloquent' : env('AUTH_METHOD'),
-            'model' => \BookStack\Auth\User::class,
+            'model'  => \BookStack\Auth\User::class,
         ],
 
         // 'users' => [
@@ -63,9 +63,9 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'email' => 'emails.password',
-            'table' => 'password_resets',
-            'expire' => 60,
+            'email'    => 'emails.password',
+            'table'    => 'password_resets',
+            'expire'   => 60,
         ],
     ],
 

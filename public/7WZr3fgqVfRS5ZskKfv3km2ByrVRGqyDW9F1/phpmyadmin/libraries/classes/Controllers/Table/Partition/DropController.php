@@ -40,7 +40,7 @@ final class DropController extends AbstractController
         try {
             Assert::stringNotEmpty($partitionName);
             $database = DatabaseName::fromValue($request->getParam('db'));
-            $table = TableName::fromValue($request->getParam('table'));
+            $table    = TableName::fromValue($request->getParam('table'));
         } catch (InvalidArgumentException $exception) {
             $message = Message::error($exception->getMessage());
             $this->response->addHTML($message->getDisplay());
@@ -66,7 +66,7 @@ final class DropController extends AbstractController
 
         $this->render('table/partition/drop', [
             'partition_name' => $partitionName,
-            'message' => $message,
+            'message'        => $message,
         ]);
     }
 }

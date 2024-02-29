@@ -38,13 +38,15 @@ class EmailController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param null|mixed $email
+     *
      * @return \Illuminate\Http\Response
      */
     //Purpose : Add Email Parameter - DEVTASK-18283
     public function index(Request $request, $email = null)
     {
-        $user = Auth::user();
-        $admin = $user->isAdmin();
+        $user      = Auth::user();
+        $admin     = $user->isAdmin();
         $usernames = [];
         if (! $admin) {
             $emaildetails = \App\EmailAssign::select('id', 'email_address_id')
@@ -61,20 +63,20 @@ class EmailController extends Controller
         $seen = '0';
         $from = ''; //Purpose : Add var -  DEVTASK-18283
 
-        $term = $request->term ?? '';
-        $sender = $request->sender ?? '';
-        $receiver = $request->receiver ?? '';
-        $status = $request->status ?? '';
-        $category = $request->category ?? '';
-        $mailbox = $request->mail_box ?? '';
+        $term             = $request->term ?? '';
+        $sender           = $request->sender ?? '';
+        $receiver         = $request->receiver ?? '';
+        $status           = $request->status ?? '';
+        $category         = $request->category ?? '';
+        $mailbox          = $request->mail_box ?? '';
         $email_model_type = $request->email_model_type ?? '';
 
-        $date = $request->date ?? '';
-        $type = $request->type ?? $type;
-        $seen = $request->seen ?? $seen;
-        $query = (new Email())->newQuery();
+        $date        = $request->date ?? '';
+        $type        = $request->type ?? $type;
+        $seen        = $request->seen ?? $seen;
+        $query       = (new Email())->newQuery();
         $trash_query = false;
-        $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
+        $query       = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
             ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
             ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
             ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id');
@@ -95,16 +97,16 @@ class EmailController extends Controller
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
             $receiver = $email;
-            $from = 'order_data';
-            $seen = 'both';
-            $type = 'outgoing';
+            $from     = 'order_data';
+            $seen     = 'both';
+            $type     = 'outgoing';
         }
         //END - DEVTASK-18283
 
         // If type is bin, check for status only
         if ($type == 'bin') {
             $trash_query = true;
-            $query = $query->where('emails.status', 'bin');
+            $query       = $query->where('emails.status', 'bin');
         } elseif ($type == 'draft') {
             $query = $query->where('is_draft', 1)->where('emails.status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
@@ -116,7 +118,7 @@ class EmailController extends Controller
         }
         if ($email_model_type) {
             $model_type = explode(',', $email_model_type);
-            $query = $query->where(function ($query) use ($model_type) {
+            $query      = $query->where(function ($query) use ($model_type) {
                 $query->whereIn('model_type', $model_type);
             });
         }
@@ -136,25 +138,25 @@ class EmailController extends Controller
         if (! $term) {
             if ($sender) {
                 $sender = explode(',', $request->sender);
-                $query = $query->where(function ($query) use ($sender) {
+                $query  = $query->where(function ($query) use ($sender) {
                     $query->whereIn('emails.from', $sender);
                 });
             }
             if ($receiver) {
                 $receiver = explode(',', $request->receiver);
-                $query = $query->where(function ($query) use ($receiver) {
+                $query    = $query->where(function ($query) use ($receiver) {
                     $query->whereIn('emails.to', $receiver);
                 });
             }
             if ($status) {
                 $status = explode(',', $request->status);
-                $query = $query->where(function ($query) use ($status) {
+                $query  = $query->where(function ($query) use ($status) {
                     $query->whereIn('emails.status', $status);
                 });
             }
             if ($category) {
                 $category = explode(',', $request->category);
-                $query = $query->where(function ($query) use ($category) {
+                $query    = $query->where(function ($query) use ($category) {
                     $query->whereIn('email_category_id', $category);
                 });
             }
@@ -162,7 +164,7 @@ class EmailController extends Controller
 
         if (! empty($mailbox)) {
             $mailbox = explode(',', $request->mail_box);
-            $query = $query->where(function ($query) use ($mailbox) {
+            $query   = $query->where(function ($query) use ($mailbox) {
                 $query->orWhere('to', $mailbox);
             });
         }
@@ -204,7 +206,7 @@ class EmailController extends Controller
                     }
                 });
 
-                $query = $query->orderByDesc('emails.id');
+                $query  = $query->orderByDesc('emails.id');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             } else {
                 $emails = (new Email())->newQuery();
@@ -229,9 +231,9 @@ class EmailController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string) $emails->links(),
-                'count' => $emails->total(),
+                'tbody'  => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links'  => (string) $emails->links(),
+                'count'  => $emails->total(),
                 'emails' => $emails,
             ], 200);
         }
@@ -243,7 +245,7 @@ class EmailController extends Controller
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
         $digita_platfirms = DigitalMarketingPlatform::all();
 
-        $totalEmail = Email::count();
+        $totalEmail  = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
         $datatableModel = DataTableColumn::select('column_name')
@@ -251,24 +253,24 @@ class EmailController extends Controller
             ->where('section_name', 'emails')->first();
         $dynamicColumnsToShowb = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
         }
 
         return view('emails.index',
             [
-                'emails' => $emails,
-                'type' => 'email',
-                'search_suggestions' => $search_suggestions,
-                'email_status' => $email_status,
-                'email_categories' => $email_categories,
-                'emailModelTypes' => $emailModelTypes,
-                'reports' => $reports,
-                'digita_platfirms' => $digita_platfirms,
-                'receiver' => $receiver,
-                'from' => $from,
-                'totalEmail' => $totalEmail,
-                'modelColors' => $modelColors,
+                'emails'                => $emails,
+                'type'                  => 'email',
+                'search_suggestions'    => $search_suggestions,
+                'email_status'          => $email_status,
+                'email_categories'      => $email_categories,
+                'emailModelTypes'       => $emailModelTypes,
+                'reports'               => $reports,
+                'digita_platfirms'      => $digita_platfirms,
+                'receiver'              => $receiver,
+                'from'                  => $from,
+                'totalEmail'            => $totalEmail,
+                'modelColors'           => $modelColors,
                 'dynamicColumnsToShowb' => $dynamicColumnsToShowb,
             ])->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -278,15 +280,15 @@ class EmailController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'emails')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'emails';
-            $column->column_name = json_encode($request->column_data);
+            $column->column_name  = json_encode($request->column_data);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'emails';
-            $column->column_name = json_encode($request->column_data);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_data);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -329,7 +331,8 @@ class EmailController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -340,7 +343,8 @@ class EmailController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -351,7 +355,8 @@ class EmailController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -362,18 +367,19 @@ class EmailController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $email = Email::find($id);
-        $status = 'bin';
+        $email   = Email::find($id);
+        $status  = 'bin';
         $message = 'Email has been trashed';
 
         // If status is already trashed, move to inbox
         if ($email->status == 'bin') {
-            $status = '';
+            $status  = '';
             $message = 'Email has been sent to inbox';
         }
 
@@ -385,17 +391,17 @@ class EmailController extends Controller
 
     public function resendMail($id, Request $request)
     {
-        $email = Email::find($id);
+        $email      = Email::find($id);
         $attachment = [];
-        $cm = new ClientManager();
-        $imap = $cm->make([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+        $cm         = new ClientManager();
+        $imap       = $cm->make([
+            'host'          => env('IMAP_HOST_PURCHASE'),
+            'port'          => env('IMAP_PORT_PURCHASE'),
+            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            'username'      => env('IMAP_USERNAME_PURCHASE'),
+            'password'      => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -417,23 +423,23 @@ class EmailController extends Controller
         ];
 
         $emailsLog = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'type' => $email->type,
-            'from' => $email->from,
-            'to' => $email->to,
-            'subject' => $email->subject,
-            'message' => $email->message,
-            'template' => 'resend-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'type'             => $email->type,
+            'from'             => $email->from,
+            'to'               => $email->to,
+            'subject'          => $email->subject,
+            'message'          => $email->message,
+            'template'         => 'resend-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email resend initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
         if ($type == 'approve') {
@@ -447,17 +453,18 @@ class EmailController extends Controller
      * Provide view for email reply modal
      *
      * @param [type] $id
+     *
      * @return view
      */
     public function replyMail($id)
     {
-        $email = Email::find($id);
+        $email           = Email::find($id);
         $replyCategories = DB::table('reply_categories')->orderBy('name', 'asc')->get();
-        $storeWebsites = \App\StoreWebsite::get();
+        $storeWebsites   = \App\StoreWebsite::get();
 
         $parentCategory = ReplyCategory::where('parent_id', 0)->get();
         $allSubCategory = ReplyCategory::where('parent_id', '!=', 0)->get();
-        $category = $subCategory = [];
+        $category       = $subCategory = [];
         foreach ($allSubCategory as $key => $value) {
             $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
             if ($categoryList->parent_id == 0) {
@@ -476,6 +483,7 @@ class EmailController extends Controller
      * Provide view for email reply all modal
      *
      * @param [type] $id
+     *
      * @return view
      */
     public function replyAllMail($id)
@@ -489,6 +497,7 @@ class EmailController extends Controller
      * Provide view for email forward modal
      *
      * @param [type] $id
+     *
      * @return void
      */
     public function forwardMail($id)
@@ -507,21 +516,21 @@ class EmailController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'receiver_email' => 'required',
-            'subject' => 'required',
-            'message' => 'required',
+            'subject'        => 'required',
+            'message'        => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
         }
 
-        $email = Email::find($request->reply_email_id);
+        $email       = Email::find($request->reply_email_id);
         $replyPrefix = 'Re: ';
-        $subject = substr($request->subject, 0, 4) === $replyPrefix
+        $subject     = substr($request->subject, 0, 4) === $replyPrefix
             ? $request->subject
             : $replyPrefix . $request->subject;
-        $dateCreated = $email->created_at->format('D, d M Y');
-        $timeCreated = $email->created_at->format('H:i');
+        $dateCreated       = $email->created_at->format('D, d M Y');
+        $timeCreated       = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
 
         $message_to_store = $originalEmailInfo . '<br/>' . $request->message;
@@ -530,23 +539,23 @@ class EmailController extends Controller
         }
 
         $emailsLog = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'from' => $email->from,
-            'to' => $request->receiver_email,
-            'subject' => $subject,
-            'message' => $message_to_store,
-            'template' => 'reply-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => $email->from,
+            'to'               => $request->receiver_email,
+            'subject'          => $subject,
+            'message'          => $message_to_store,
+            'template'         => 'reply-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email reply initiated',
-            'to' => $request->receiver_email,
+            'to'        => $request->receiver_email,
         ]);
         \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue('send_email');
 
@@ -562,52 +571,52 @@ class EmailController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'receiver_email' => 'required',
-            'subject' => 'required',
-            'message' => 'required',
+            'subject'        => 'required',
+            'message'        => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
         }
 
-        $email = Email::find($request->reply_email_id);
+        $email       = Email::find($request->reply_email_id);
         $replyPrefix = 'Re: ';
-        $subject = substr($request->subject, 0, 4) === $replyPrefix
+        $subject     = substr($request->subject, 0, 4) === $replyPrefix
             ? $request->subject
             : $replyPrefix . $request->subject;
-        $dateCreated = $email->created_at->format('D, d M Y');
-        $timeCreated = $email->created_at->format('H:i');
+        $dateCreated       = $email->created_at->format('D, d M Y');
+        $timeCreated       = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->to}> wrote:";
-        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+        $message_to_store  = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
 
         $emailAddress = $email->to;
         $emailPattern = '/<([^>]+)>/';
-        $matches = [];
+        $matches      = [];
         if (preg_match($emailPattern, $emailAddress, $matches)) {
             $extractedEmail = $matches[1];
-            $emailFrom = $extractedEmail;
+            $emailFrom      = $extractedEmail;
         } else {
             $emailFrom = $email->from;
         }
 
         $emailsLog = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'from' => $email->to,
-            'to' => $email->from,
-            'subject' => $subject,
-            'message' => $message_to_store,
-            'template' => 'reply-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => $email->to,
+            'to'               => $email->from,
+            'subject'          => $subject,
+            'message'          => $message_to_store,
+            'template'         => 'reply-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email reply initiated',
-            'to' => $email->from,
+            'to'        => $email->from,
         ]);
         \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue('send_email');
 
@@ -634,23 +643,23 @@ class EmailController extends Controller
         $emailClass = (new ForwardEmail($email, $email->message))->build();
 
         $email = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'from' => @$emailClass->from[0]['address'],
-            'to' => $request->email,
-            'subject' => $emailClass->subject,
-            'message' => $emailClass->render(),
-            'template' => 'forward-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => @$emailClass->from[0]['address'],
+            'to'               => $request->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'forward-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email forward initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -669,15 +678,15 @@ class EmailController extends Controller
 
     public function addRemark(Request $request)
     {
-        $remark = $request->input('remark');
-        $email_id = $request->input('id');
+        $remark     = $request->input('remark');
+        $email_id   = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
+        $update_at  = date('Y-m-d H:i:s');
 
         if (! empty($remark)) {
             $remark_entry = EmailRemark::create([
-                'email_id' => $email_id,
-                'remarks' => $remark,
+                'email_id'  => $email_id,
+                'remarks'   => $remark,
                 'user_name' => Auth::user()->name,
             ]);
         }
@@ -687,7 +696,7 @@ class EmailController extends Controller
 
     public function markAsRead($id)
     {
-        $email = Email::find($id);
+        $email       = Email::find($id);
         $email->seen = 1;
         $email->update();
 
@@ -697,7 +706,7 @@ class EmailController extends Controller
     public function getAllEmails()
     {
         $available_models = ['supplier' => \App\Supplier::class, 'vendor' => \App\Vendor::class,
-            'customer' => \App\Customer::class, 'users' => \App\User::class, ];
+            'customer'                  => \App\Customer::class, 'users' => \App\User::class, ];
         $email_list = [];
         foreach ($available_models as $key => $value) {
             $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
@@ -719,7 +728,7 @@ class EmailController extends Controller
     public function status(Request $request)
     {
         $email_id = $request->input('status');
-        $values = ['email_status' => $request->input('email_status'), 'type' => $request->type];
+        $values   = ['email_status' => $request->input('email_status'), 'type' => $request->type];
         DB::table('email_status')->insert($values);
 
         session()->flash('success', 'Status added successfully');
@@ -731,10 +740,10 @@ class EmailController extends Controller
     {
         $email_id = $request->input('email_id');
         $category = $request->input('category');
-        $status = $request->input('status');
+        $status   = $request->input('status');
 
-        $email = Email::find($email_id);
-        $email->status = $status;
+        $email                    = Email::find($email_id);
+        $email->status            = $status;
         $email->email_category_id = $category;
 
         $email->update();
@@ -746,7 +755,7 @@ class EmailController extends Controller
 
     public function getFileStatus(Request $request)
     {
-        $id = $request->id;
+        $id    = $request->id;
         $email = Email::find($id);
 
         if (isset($email->email_excel_importer)) {
@@ -761,14 +770,14 @@ class EmailController extends Controller
             }
 
             return response()->json([
-                'status' => true,
+                'status'      => true,
                 'mail_status' => $status,
-                'message' => 'Data found',
+                'message'     => 'Data found',
             ], 200);
         }
 
         return response()->json([
-            'status' => false,
+            'status'  => false,
             'message' => 'Data not found',
         ], 200);
     }
@@ -793,11 +802,11 @@ class EmailController extends Controller
                         //check if wetransfer already exist
                         $checkIfExist = Wetransfer::where('url', $matchLink)->where('supplier', $request->supplier)->first();
                         if (! $checkIfExist) {
-                            $wetransfer = new Wetransfer();
-                            $wetransfer->type = 'excel';
-                            $wetransfer->url = $matchLink;
+                            $wetransfer               = new Wetransfer();
+                            $wetransfer->type         = 'excel';
+                            $wetransfer->url          = $matchLink;
                             $wetransfer->is_processed = 1;
-                            $wetransfer->supplier = $request->supplier;
+                            $wetransfer->supplier     = $request->supplier;
                             $wetransfer->save();
 
                             Email::where('id', $id)->update(['email_excel_importer' => 3]);
@@ -819,12 +828,12 @@ class EmailController extends Controller
         $attachments = $email->additional_data;
         if ($attachments) {
             $attachJson = json_decode($attachments);
-            $attachs = $attachJson->attachment;
+            $attachs    = $attachJson->attachment;
 
             //getting all attachments
             //check if extension is .xls or xlsx
             foreach ($attachs as $attach) {
-                $attach = str_replace('email-attachments/', '', $attach);
+                $attach    = str_replace('email-attachments/', '', $attach);
                 $extension = last(explode('.', $attach));
                 if ($extension == 'xlsx' || $extension == 'xls') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -833,9 +842,9 @@ class EmailController extends Controller
                     }
                 } elseif ($extension == 'zip') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                        $excel = $request->supplier;
+                        $excel             = $request->supplier;
                         $attachments_array = [];
-                        $attachments = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
+                        $attachments       = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
                     }
                 }
             }
@@ -847,7 +856,7 @@ class EmailController extends Controller
     public static function downloadFromURL($url, $supplier)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime          = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (strpos($url, 'https://we.tl/') !== false) {
             $ch = curl_init($url);
@@ -880,26 +889,26 @@ class EmailController extends Controller
 
         if (count($dataArray) == 2) {
             $securityhash = $dataArray[1];
-            $transferId = $dataArray[0];
+            $transferId   = $dataArray[0];
         } elseif (count($dataArray) == 3) {
             $securityhash = $dataArray[2];
-            $recieptId = $dataArray[1];
-            $transferId = $dataArray[0];
+            $recieptId    = $dataArray[1];
+            $transferId   = $dataArray[0];
         } else {
             exit('Something is wrong with url');
         }
 
         //making post request to get the url
-        $data = [];
-        $data['intent'] = 'entire_transfer';
+        $data                  = [];
+        $data['intent']        = 'entire_transfer';
         $data['security_hash'] = $securityhash;
 
         $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
-        $cookie = 'cookie.txt';
-        $url = 'https://wetransfer.com/';
+        $cookie    = 'cookie.txt';
+        $url       = 'https://wetransfer.com/';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $ch        = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_COOKIESESSION, true);
@@ -935,8 +944,8 @@ class EmailController extends Controller
         $real = curl_exec($ch);
 
         $urlResponse = json_decode($real); //response decode
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $parameters = [];
+        $httpcode    = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $parameters  = [];
         LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $urlResponse, $httpcode, \App\Http\Controllers\EmailController::class, 'downloadFromURL');
 
         if (isset($urlResponse->direct_link)) {
@@ -970,8 +979,8 @@ class EmailController extends Controller
 
     public function bluckAction(Request $request)
     {
-        $ids = $request->ids;
-        $status = $request->status;
+        $ids         = $request->ids;
+        $status      = $request->status;
         $action_type = $request->action_type;
 
         if ($action_type == 'delete') {
@@ -992,19 +1001,19 @@ class EmailController extends Controller
         $emailStatusHistory = EmailStatusChangeHistory::where('email_id', $request->email_id)->orderBy('id', 'desc')->first();
 
         $old_status_id = '';
-        $old_user_id = '';
+        $old_user_id   = '';
 
         if (! empty($emailStatusHistory)) {
             $old_status_id = $emailStatusHistory->status_id;
-            $old_user_id = $emailStatusHistory->user_id;
+            $old_user_id   = $emailStatusHistory->user_id;
         }
 
         EmailStatusChangeHistory::create([
-            'status_id' => $request->status_id,
-            'user_id' => \Auth::id(),
+            'status_id'     => $request->status_id,
+            'user_id'       => \Auth::id(),
             'old_status_id' => $old_status_id,
-            'old_user_id' => $old_user_id,
-            'email_id' => $request->email_id,
+            'old_user_id'   => $old_user_id,
+            'email_id'      => $request->email_id,
         ]);
 
         session()->flash('success', 'Status has been updated successfully');
@@ -1015,23 +1024,23 @@ class EmailController extends Controller
     public function syncroniseEmail()
     {
         $report = CronJobReport::create([
-            'signature' => 'fetch:all_emails',
+            'signature'  => 'fetch:all_emails',
             'start_time' => \Carbon\Carbon::now(),
         ]);
         $failedEmailAddresses = [];
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+        $emailAddresses       = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
-                $cm = new ClientManager();
+                $cm   = new ClientManager();
                 $imap = $cm->make([
-                    'host' => $emailAddress->host,
-                    'port' => 993,
-                    'encryption' => 'ssl',
+                    'host'          => $emailAddress->host,
+                    'port'          => 993,
+                    'encryption'    => 'ssl',
                     'validate_cert' => false,
-                    'username' => $emailAddress->username,
-                    'password' => $emailAddress->password,
-                    'protocol' => 'imap',
+                    'username'      => $emailAddress->username,
+                    'password'      => $emailAddress->password,
+                    'protocol'      => 'imap',
                 ]);
 
                 $imap->connect();
@@ -1039,13 +1048,13 @@ class EmailController extends Controller
                 $types = [
                     'inbox' => [
                         'inbox_name' => 'INBOX',
-                        'direction' => 'from',
-                        'type' => 'incoming',
+                        'direction'  => 'from',
+                        'type'       => 'incoming',
                     ],
                     'sent' => [
                         'inbox_name' => 'INBOX.Sent',
-                        'direction' => 'to',
-                        'type' => 'outgoing',
+                        'direction'  => 'to',
+                        'type'       => 'outgoing',
                     ],
                 ];
 
@@ -1096,8 +1105,8 @@ class EmailController extends Controller
                             \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
                             $attachments_array = [];
-                            $attachments = $email->getAttachments();
-                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments       = $email->getAttachments();
+                            $fromThis          = $email->getFrom()[0]->mail;
                             $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
@@ -1117,7 +1126,7 @@ class EmailController extends Controller
                             });
 
                             $from = $email->getFrom()[0]->mail;
-                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            $to   = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                             // Model is sender if its incoming else its receiver if outgoing
                             if ($type['type'] == 'incoming') {
@@ -1134,54 +1143,54 @@ class EmailController extends Controller
                             if (isset($subject[1]) && ! empty($subject[1])) {
                                 $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
                                 if ($findTicket) {
-                                    $model_id = $findTicket->id;
+                                    $model_id   = $findTicket->id;
                                     $model_type = \App\Tickets::class;
                                 }
                             }
 
                             $params = [
-                                'model_id' => $model_id,
-                                'model_type' => $model_type,
-                                'origin_id' => $origin_id,
-                                'reference_id' => $reference_id,
-                                'type' => $type['type'],
-                                'seen' => count($email->getFlags()) > 0 ? $email->getFlags()['seen'] : 0,
-                                'from' => $email->getFrom()[0]->mail,
-                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                'subject' => $email->getSubject(),
-                                'message' => $content,
-                                'template' => 'customer-simple',
+                                'model_id'        => $model_id,
+                                'model_type'      => $model_type,
+                                'origin_id'       => $origin_id,
+                                'reference_id'    => $reference_id,
+                                'type'            => $type['type'],
+                                'seen'            => count($email->getFlags()) > 0 ? $email->getFlags()['seen'] : 0,
+                                'from'            => $email->getFrom()[0]->mail,
+                                'to'              => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject'         => $email->getSubject(),
+                                'message'         => $content,
+                                'template'        => 'customer-simple',
                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                'created_at' => $email->getDate(),
+                                'created_at'      => $email->getDate(),
                             ];
 
                             $emailData = Email::create($params);
 
                             if ($type['type'] == 'incoming') {
-                                $message = trim($content);
-                                $reply = (new EmailParser())->parse($message);
+                                $message  = trim($content);
+                                $reply    = (new EmailParser())->parse($message);
                                 $fragment = current($reply->getFragments());
                                 if ($reply) {
                                     $customer = \App\Customer::where('email', $from)->first();
                                     if (! empty($customer)) {
                                         // store the main message
                                         $params = [
-                                            'number' => $customer->phone,
-                                            'message' => $fragment->getContent(),
-                                            'media_url' => null,
-                                            'approved' => 0,
-                                            'status' => 0,
-                                            'contact_id' => null,
-                                            'erp_user' => null,
+                                            'number'      => $customer->phone,
+                                            'message'     => $fragment->getContent(),
+                                            'media_url'   => null,
+                                            'approved'    => 0,
+                                            'status'      => 0,
+                                            'contact_id'  => null,
+                                            'erp_user'    => null,
                                             'supplier_id' => null,
-                                            'task_id' => null,
+                                            'task_id'     => null,
                                             'dubizzle_id' => null,
-                                            'vendor_id' => null,
+                                            'vendor_id'   => null,
                                             'customer_id' => $customer->id,
-                                            'is_email' => 1,
-                                            'from_email' => $email->getFrom()[0]->mail,
-                                            'to_email' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                            'email_id' => $emailData->id,
+                                            'is_email'    => 1,
+                                            'from_email'  => $email->getFrom()[0]->mail,
+                                            'to_email'    => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                            'email_id'    => $emailData->id,
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
@@ -1208,12 +1217,12 @@ class EmailController extends Controller
                                                     } else {
                                                         $emaildetails = [];
 
-                                                        $emaildetails['id'] = $lastInsertedEmail->id;
-                                                        $emaildetails['to'] = $customer->email;
+                                                        $emaildetails['id']      = $lastInsertedEmail->id;
+                                                        $emaildetails['to']      = $customer->email;
                                                         $emaildetails['subject'] = $lastInsertedEmail->subject;
                                                         $emaildetails['message'] = $reply->suggested_reply;
-                                                        $from_address = '';
-                                                        $from_address = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                                                        $from_address            = '';
+                                                        $from_address            = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
                                                         if (empty($from_address)) {
                                                             $from_address = config('env.MAIL_FROM_ADDRESS');
                                                         }
@@ -1222,37 +1231,37 @@ class EmailController extends Controller
                                                         \App\Jobs\SendEmail::dispatch($lastInsertedEmail, $emaildetails)->onQueue('send_email');
 
                                                         $createEmail = \App\Email::create([
-                                                            'model_id' => $model_id,
-                                                            'model_type' => $model_type,
-                                                            'from' => $emaildetails['from'],
-                                                            'to' => $emaildetails['to'],
-                                                            'subject' => $emaildetails['subject'],
-                                                            'message' => $reply->suggested_reply,
-                                                            'template' => 'customer-simple',
-                                                            'additional_data' => $model_id,
-                                                            'status' => 'send',
+                                                            'model_id'         => $model_id,
+                                                            'model_type'       => $model_type,
+                                                            'from'             => $emaildetails['from'],
+                                                            'to'               => $emaildetails['to'],
+                                                            'subject'          => $emaildetails['subject'],
+                                                            'message'          => $reply->suggested_reply,
+                                                            'template'         => 'customer-simple',
+                                                            'additional_data'  => $model_id,
+                                                            'status'           => 'send',
                                                             'store_website_id' => null,
-                                                            'is_draft' => 0,
-                                                            'type' => 'outgoing',
+                                                            'is_draft'         => 0,
+                                                            'type'             => 'outgoing',
                                                         ]);
 
                                                         $chatMessage = [
-                                                            'number' => $customer->phone,
-                                                            'message' => $reply->suggested_reply,
-                                                            'media_url' => null,
-                                                            'approved' => 0,
-                                                            'status' => 0,
-                                                            'contact_id' => null,
-                                                            'erp_user' => null,
+                                                            'number'      => $customer->phone,
+                                                            'message'     => $reply->suggested_reply,
+                                                            'media_url'   => null,
+                                                            'approved'    => 0,
+                                                            'status'      => 0,
+                                                            'contact_id'  => null,
+                                                            'erp_user'    => null,
                                                             'supplier_id' => null,
-                                                            'task_id' => null,
+                                                            'task_id'     => null,
                                                             'dubizzle_id' => null,
-                                                            'vendor_id' => null,
+                                                            'vendor_id'   => null,
                                                             'customer_id' => $customer->id,
-                                                            'is_email' => 1,
-                                                            'from_email' => $emaildetails['from'],
-                                                            'to_email' => $emaildetails['to'],
-                                                            'email_id' => $createEmail->id,
+                                                            'is_email'    => 1,
+                                                            'from_email'  => $emaildetails['from'],
+                                                            'to_email'    => $emaildetails['to'],
+                                                            'email_id'    => $createEmail->id,
                                                         ];
                                                         \App\ChatMessage::create($chatMessage);
                                                     }
@@ -1268,7 +1277,7 @@ class EmailController extends Controller
 
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
-                    'is_success' => 1,
+                    'is_success'       => 1,
                 ];
 
                 EmailRunHistories::create($historyParam);
@@ -1277,15 +1286,15 @@ class EmailController extends Controller
                 $exceptionMessage = $e->getMessage();
 
                 if ($e->getPrevious() !== null) {
-                    $previousMessage = $e->getPrevious()->getMessage();
+                    $previousMessage  = $e->getPrevious()->getMessage();
                     $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
                 }
 
                 \Log::channel('customer')->info($exceptionMessage);
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
-                    'is_success' => 0,
-                    'message' => $exceptionMessage,
+                    'is_success'       => 0,
+                    'message'          => $exceptionMessage,
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
@@ -1305,14 +1314,14 @@ class EmailController extends Controller
 
     public function getModel($email, $email_list)
     {
-        $model_id = null;
+        $model_id   = null;
         $model_type = null;
 
         // Traverse all models
         foreach ($email_list as $key => $value) {
             // If email exists in the DB
             if (isset($value[$email])) {
-                $model_id = $value[$email];
+                $model_id   = $value[$email];
                 $model_type = $key;
                 break;
             }
@@ -1325,48 +1334,48 @@ class EmailController extends Controller
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
-        $skiprowupto = 1; //skip first line
-        $rowincrement = 1;
+        $skiprowupto           = 1; //skip first line
+        $rowincrement          = 1;
         $attachedFileDataArray = [];
         while (($data = fgetcsv($file, 4000, ',')) !== false) {
             if ($rowincrement > $skiprowupto) {
                 if (isset($data[0]) && ! empty($data[0])) {
                     try {
-                        $due_date = date('Y-m-d', strtotime($data[9]));
+                        $due_date              = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = [
-                            'line_type' => $data[0],
-                            'billing_source' => $data[1],
-                            'original_invoice_number' => $data[2],
-                            'invoice_number' => $data[3],
-                            'invoice_identifier' => $data[5],
-                            'invoice_currency' => $data[69],
-                            'invoice_amount' => $data[70],
-                            'invoice_type' => $data[6],
-                            'invoice_date' => $data[7],
-                            'payment_terms' => $data[8],
-                            'due_date' => $due_date,
-                            'billing_account' => $data[11],
-                            'billing_account_name' => $data[12],
+                            'line_type'                       => $data[0],
+                            'billing_source'                  => $data[1],
+                            'original_invoice_number'         => $data[2],
+                            'invoice_number'                  => $data[3],
+                            'invoice_identifier'              => $data[5],
+                            'invoice_currency'                => $data[69],
+                            'invoice_amount'                  => $data[70],
+                            'invoice_type'                    => $data[6],
+                            'invoice_date'                    => $data[7],
+                            'payment_terms'                   => $data[8],
+                            'due_date'                        => $due_date,
+                            'billing_account'                 => $data[11],
+                            'billing_account_name'            => $data[12],
                             'billing_account_name_additional' => $data[13],
-                            'billing_address_1' => $data[14],
-                            'billing_postcode' => $data[17],
-                            'billing_city' => $data[18],
-                            'billing_state_province' => $data[19],
-                            'billing_country_code' => $data[20],
-                            'billing_contact' => $data[21],
-                            'shipment_number' => $data[23],
-                            'shipment_date' => $data[24],
-                            'product' => $data[30],
-                            'product_name' => $data[31],
-                            'pieces' => $data[32],
-                            'origin' => $data[33],
-                            'orig_name' => $data[34],
-                            'orig_country_code' => $data[35],
-                            'orig_country_name' => $data[36],
-                            'senders_name' => $data[37],
-                            'senders_city' => $data[42],
-                            'created_at' => \Carbon\Carbon::now(),
-                            'updated_at' => \Carbon\Carbon::now(),
+                            'billing_address_1'               => $data[14],
+                            'billing_postcode'                => $data[17],
+                            'billing_city'                    => $data[18],
+                            'billing_state_province'          => $data[19],
+                            'billing_country_code'            => $data[20],
+                            'billing_contact'                 => $data[21],
+                            'shipment_number'                 => $data[23],
+                            'shipment_date'                   => $data[24],
+                            'product'                         => $data[30],
+                            'product_name'                    => $data[31],
+                            'pieces'                          => $data[32],
+                            'origin'                          => $data[33],
+                            'orig_name'                       => $data[34],
+                            'orig_country_code'               => $data[35],
+                            'orig_country_name'               => $data[36],
+                            'senders_name'                    => $data[37],
+                            'senders_city'                    => $data[42],
+                            'created_at'                      => \Carbon\Carbon::now(),
+                            'updated_at'                      => \Carbon\Carbon::now(),
                         ];
                         if (! empty($attachedFileDataArray)) {
                             $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
@@ -1374,41 +1383,41 @@ class EmailController extends Controller
                             // check that way bill exist not then create
                             $wayBill = \App\Waybill::where('awb', $attachresponse->shipment_number)->first();
                             if (! $wayBill) {
-                                $wayBill = new \App\Waybill;
+                                $wayBill      = new \App\Waybill;
                                 $wayBill->awb = $attachresponse->shipment_number;
 
-                                $wayBill->from_customer_name = $data[45];
-                                $wayBill->from_city = $data[42];
-                                $wayBill->from_country_code = $data[44];
+                                $wayBill->from_customer_name      = $data[45];
+                                $wayBill->from_city               = $data[42];
+                                $wayBill->from_country_code       = $data[44];
                                 $wayBill->from_customer_address_1 = $data[38];
                                 $wayBill->from_customer_address_2 = $data[39];
-                                $wayBill->from_customer_pincode = $data[41];
-                                $wayBill->from_company_name = $data[39];
+                                $wayBill->from_customer_pincode   = $data[41];
+                                $wayBill->from_company_name       = $data[39];
 
-                                $wayBill->to_customer_name = $data[50];
-                                $wayBill->to_city = $data[55];
-                                $wayBill->to_country_code = $data[57];
-                                $wayBill->to_customer_phone = '';
+                                $wayBill->to_customer_name      = $data[50];
+                                $wayBill->to_city               = $data[55];
+                                $wayBill->to_country_code       = $data[57];
+                                $wayBill->to_customer_phone     = '';
                                 $wayBill->to_customer_address_1 = $data[51];
                                 $wayBill->to_customer_address_2 = $data[52];
-                                $wayBill->to_customer_pincode = $data[54];
-                                $wayBill->to_company_name = '';
+                                $wayBill->to_customer_pincode   = $data[54];
+                                $wayBill->to_company_name       = '';
 
                                 $wayBill->actual_weight = $data[68];
                                 $wayBill->volume_weight = $data[66];
 
                                 $wayBill->cost_of_shipment = $data[70];
-                                $wayBill->package_slip = $attachresponse->shipment_number;
-                                $wayBill->pickup_date = date('Y-m-d', strtotime($data[24]));
+                                $wayBill->package_slip     = $attachresponse->shipment_number;
+                                $wayBill->pickup_date      = date('Y-m-d', strtotime($data[24]));
                                 $wayBill->save();
                             }
 
                             $cash_flow = new CashFlow();
                             $cash_flow->fill([
-                                'date' => $attachresponse->due_date ? $attachresponse->due_date : null,
-                                'type' => 'pending',
-                                'description' => 'Waybill invoice details',
-                                'cash_flow_able_id' => $attachresponse->id,
+                                'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
+                                'type'                => 'pending',
+                                'description'         => 'Waybill invoice details',
+                                'cash_flow_able_id'   => $attachresponse->id,
                                 'cash_flow_able_type' => \App\Waybillinvoice::class,
                             ])->save();
                         }
@@ -1424,8 +1433,8 @@ class EmailController extends Controller
 
     public function getEmailEvents($emailId)
     {
-        $exist = Email::where('id', $emailId)->first(); //$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
-        $events = [];
+        $exist     = Email::where('id', $emailId)->first(); //$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
+        $events    = [];
         $eventData = '';
         if ($exist != null) {
             $events = \App\SendgridEvent::where('email_id', $emailId)->select('timestamp', 'event')->orderBy('id', 'desc')->get();
@@ -1486,6 +1495,8 @@ class EmailController extends Controller
 
     /**
      * Get Email Logs
+     *
+     * @param mixed $emailid
      */
     public function getEmailLogs($emailid)
     {
@@ -1523,19 +1534,19 @@ class EmailController extends Controller
         $emailCategoryHistory = EmailCategoryHistory::where('email_id', $request->email_id)->orderBy('id', 'desc')->first();
 
         $old_category_id = '';
-        $old_user_id = '';
+        $old_user_id     = '';
 
         if (! empty($emailCategoryHistory)) {
             $old_category_id = $emailCategoryHistory->category_id;
-            $old_user_id = $emailCategoryHistory->user_id;
+            $old_user_id     = $emailCategoryHistory->user_id;
         }
 
         EmailCategoryHistory::create([
-            'category_id' => $request->category_id,
-            'user_id' => \Auth::id(),
+            'category_id'     => $request->category_id,
+            'user_id'         => \Auth::id(),
             'old_category_id' => $old_category_id,
-            'old_user_id' => $old_user_id,
-            'email_id' => $request->email_id,
+            'old_user_id'     => $old_user_id,
+            'email_id'        => $request->email_id,
         ]);
 
         session()->flash('success', 'Status has been updated successfully');
@@ -1557,7 +1568,7 @@ class EmailController extends Controller
      */
     public function viewEmailFrame(Request $request)
     {
-        $id = $request->id;
+        $id        = $request->id;
         $emailData = Email::find($id);
         if ($emailData->seen == 1) {
             $emailData->seen = 0;
@@ -1571,8 +1582,8 @@ class EmailController extends Controller
 
     public function getEmailFilterOptions(Request $request)
     {
-        $user = Auth::user();
-        $admin = $user->isAdmin();
+        $user      = Auth::user();
+        $admin     = $user->isAdmin();
         $usernames = [];
         if (! $admin) {
             $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
@@ -1623,9 +1634,9 @@ class EmailController extends Controller
         $mailboxDropdown = $mailboxDropdown->toArray();
 
         $response = [
-            'senderDropdown' => $senderDropdown,
+            'senderDropdown'   => $senderDropdown,
             'receiverDropdown' => $receiverDropdown,
-            'mailboxDropdown' => $mailboxDropdown,
+            'mailboxDropdown'  => $mailboxDropdown,
         ];
 
         return $response;
@@ -1659,14 +1670,14 @@ class EmailController extends Controller
 
     public function getCategoryMappings(Request $request)
     {
-        $term = $request->term ?? '';
-        $sender = $request->sender ?? '';
-        $receiver = $request->receiver ?? '';
-        $status = $request->status ?? '';
-        $category = $request->category ?? '';
-        $mailbox = $request->mail_box ?? '';
+        $term             = $request->term ?? '';
+        $sender           = $request->sender ?? '';
+        $receiver         = $request->receiver ?? '';
+        $status           = $request->status ?? '';
+        $category         = $request->category ?? '';
+        $mailbox          = $request->mail_box ?? '';
         $email_model_type = $request->email_model_type ?? '';
-        $email_box_id = $request->email_box_id ?? '';
+        $email_box_id     = $request->email_box_id ?? '';
 
         //where('type', 'incoming')
         $userEmails = Email::where('email_category_id', '>', 0)
@@ -1683,21 +1694,21 @@ class EmailController extends Controller
         }
 
         if ($sender) {
-            $sender = explode(',', $request->sender);
+            $sender     = explode(',', $request->sender);
             $userEmails = $userEmails->where(function ($userEmails) use ($sender) {
                 $userEmails->whereIn('from', $sender);
             });
         }
 
         if ($receiver) {
-            $receiver = explode(',', $request->receiver);
+            $receiver   = explode(',', $request->receiver);
             $userEmails = $userEmails->where(function ($userEmails) use ($receiver) {
                 $userEmails->whereIn('to', $receiver);
             });
         }
 
         if ($category) {
-            $category = explode(',', $request->category);
+            $category   = explode(',', $request->category);
             $userEmails = $userEmails->where(function ($userEmails) use ($category) {
                 $userEmails->whereIn('email_category_id', $category);
             });
@@ -1727,28 +1738,28 @@ class EmailController extends Controller
     public function assignModel(Request $request)
     {
         $model_type = '';
-        $model = '';
+        $model      = '';
         if ($request->model_name == 'customer') {
             $model_type = "\App\Customer";
-            $model = new \App\Customer;
+            $model      = new \App\Customer;
             $model_name = 'Customer';
         } elseif ($request->model_name == 'vendor') {
             $model_type = "\App\Vendor";
-            $model = new \App\Vendor;
+            $model      = new \App\Vendor;
             $model_name = 'Vendor';
         } elseif ($request->model_name == 'supplier') {
             $model_type = "\App\Supplier";
-            $model = new \App\Supplier;
+            $model      = new \App\Supplier;
             $model_name = 'Supplier';
         } else {
             $model_type = "\App\User";
-            $model = new \App\User;
+            $model      = new \App\User;
             $model_name = 'User';
         }
 
-        $email = Email::where('id', $request->email_id)->first();
+        $email                   = Email::where('id', $request->email_id)->first();
         $email->is_unknow_module = 0;
-        $email->model_type = $model_name;
+        $email->model_type       = $model_name;
         $email->save();
 
         \Log::info('Assign Model to email : ' . $model_name);
@@ -1762,7 +1773,7 @@ class EmailController extends Controller
                 ]);
             } else {
                 $model::create([
-                    'name' => explode('@', $email->from)[0],
+                    'name'  => explode('@', $email->from)[0],
                     'email' => $email->from,
                 ]);
             }
@@ -1774,7 +1785,7 @@ class EmailController extends Controller
     public function updateModelColor(Request $request)
     {
         foreach ($request->color_name as $key => $value) {
-            $model = ModelColor::where('id', $key)->first();
+            $model             = ModelColor::where('id', $key)->first();
             $model->color_code = $value;
             $model->save();
         }
@@ -1785,14 +1796,14 @@ class EmailController extends Controller
     public function getModelNames(Request $request)
     {
         $modelColors = ModelColor::where('model_name', 'like', '%' . $request->model_name . '%')->get();
-        $returnHTML = view('emails.modelTable')->with('modelColors', $modelColors)->render();
+        $returnHTML  = view('emails.modelTable')->with('modelColors', $modelColors)->render();
 
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
     }
 
     public function getEmailCategoryChangeLogs(Request $request)
     {
-        $emailId = $request->email_id;
+        $emailId         = $request->email_id;
         $emailCagoryLogs = EmailCategoryHistory::with(['category', 'oldCategory', 'updatedByUser', 'user'])->where('email_id', $emailId)->get();
 
         $returnHTML = view('emails.categoryChangeLogs')->with('data', $emailCagoryLogs)->render();
@@ -1802,7 +1813,7 @@ class EmailController extends Controller
 
     public function getEmailStatusChangeLogs(Request $request)
     {
-        $emailId = $request->email_id;
+        $emailId         = $request->email_id;
         $emailCagoryLogs = EmailStatusChangeHistory::with(['status', 'oldstatus', 'updatedByUser', 'user'])->where('email_id', $emailId)->get();
 
         $returnHTML = view('emails.statusChangeLogs')->with('data', $emailCagoryLogs)->render();
@@ -1812,7 +1823,7 @@ class EmailController extends Controller
 
     public function getReplyListByCategory(Request $request)
     {
-        $replies = Reply::where('category_id', $request->category_id)->get();
+        $replies    = Reply::where('category_id', $request->category_id)->get();
         $returnHTML = view('emails.replyList')->with('data', $replies)->render();
 
         return response()->json(['html' => $returnHTML, 'type' => 'success'], 200);
@@ -1820,9 +1831,9 @@ class EmailController extends Controller
 
     public function getReplyListFromQuickReply(Request $request)
     {
-        $storeWebsite = $request->get('storeWebsiteId');
-        $parent_category = $request->get('parentCategoryId');
-        $category_ids = $request->get('categoryId');
+        $storeWebsite     = $request->get('storeWebsiteId');
+        $parent_category  = $request->get('parentCategoryId');
+        $category_ids     = $request->get('categoryId');
         $sub_category_ids = $request->get('subCategoryId');
 
         $categoryChildNode = [];
@@ -1830,7 +1841,7 @@ class EmailController extends Controller
         if ($parent_category) {
             $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->where('id', $parent_category)->where('parent_id', '=', 0)->first();
             if ($parentNode) {
-                $subCatChild = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
+                $subCatChild       = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
                 $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
             }
         }
@@ -1878,9 +1889,9 @@ class EmailController extends Controller
     public function eventColor(Request $request)
     {
         $eventColors = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($eventColors['color_name'] as $key => $value) {
-            $sendgridEventColor = SendgridEventColor::find($key);
+            $sendgridEventColor        = SendgridEventColor::find($key);
             $sendgridEventColor->color = $value;
             $sendgridEventColor->save();
         }
@@ -1890,7 +1901,7 @@ class EmailController extends Controller
 
     public function updateEmailRead(Request $request)
     {
-        $email = Email::findOrFail($request->get('id'));
+        $email       = Email::findOrFail($request->get('id'));
         $email->seen = 1;
         $email->update();
 
@@ -1899,14 +1910,14 @@ class EmailController extends Controller
 
     public function quickEmailList(Request $request)
     {
-        $emails = new Email();
+        $emails           = new Email();
         $email_categories = EmailCategory::get();
 
-        $senderEmailIds = Email::select('from')->groupBy('from')->get();
+        $senderEmailIds   = Email::select('from')->groupBy('from')->get();
         $receiverEmailIds = Email::select('to')->groupBy('to')->get();
-        $modelsTypes = Email::select('model_type')->groupBy('model_type')->get();
-        $mailTypes = Email::select('type')->groupBy('type')->get();
-        $emailStatuses = Email::select('status')->groupBy('status')->get();
+        $modelsTypes      = Email::select('model_type')->groupBy('model_type')->get();
+        $mailTypes        = Email::select('type')->groupBy('type')->get();
+        $emailStatuses    = Email::select('status')->groupBy('status')->get();
 
         //Get All Status
         $email_status = EmailStatus::all();
@@ -1948,7 +1959,7 @@ class EmailController extends Controller
 
     public function getEmailreplies(Request $request)
     {
-        $id = $request->id;
+        $id           = $request->id;
         $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
 
         return json_encode($emailReplies);

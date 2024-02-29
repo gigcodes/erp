@@ -50,14 +50,14 @@ class ScrapStatisticsController extends Controller
     public function index(Request $request)
     {
         // Set dates
-        $endDate = date('Y-m-d H:i:s');
-        $keyWord = $request->get('term', '');
-        $madeby = $request->get('scraper_made_by', 0);
+        $endDate    = date('Y-m-d H:i:s');
+        $keyWord    = $request->get('term', '');
+        $madeby     = $request->get('scraper_made_by', 0);
         $scrapeType = $request->get('scraper_type', 0);
 
         $timeDropDown = self::get_times();
 
-        $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+        $serverIds             = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
         $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw('id in (
             SELECT MAX(id)
             FROM scraper_server_status_histories
@@ -143,7 +143,7 @@ class ScrapStatisticsController extends Controller
         }
         // Get scrape data
         $yesterdayDate = date('Y-m-d', strtotime('-1 day'));
-        $sql = '
+        $sql           = '
             SELECT
                 s.id,
                 s.supplier,
@@ -215,7 +215,7 @@ class ScrapStatisticsController extends Controller
 
         $lastRunAt = \DB::table('scraped_products')->groupBy('website')->select([\DB::raw('MAX(last_inventory_at) as last_run_at'), 'website'])->pluck('last_run_at', 'website')->toArray();
 
-        $users = \App\User::all()->pluck('name', 'id')->toArray();
+        $users       = \App\User::all()->pluck('name', 'id')->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
 
@@ -223,7 +223,7 @@ class ScrapStatisticsController extends Controller
 
         $dynamicColumnsToShows = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShows = json_decode($hideColumns, true);
         }
 
@@ -233,8 +233,8 @@ class ScrapStatisticsController extends Controller
     public function ssstatusCreate(Request $request)
     {
         try {
-            $status = new ScrapStatisticsStaus();
-            $status->status = $request->status_name;
+            $status               = new ScrapStatisticsStaus();
+            $status->status       = $request->status_name;
             $status->status_value = $request->status_name;
             $status->save();
 
@@ -251,15 +251,15 @@ class ScrapStatisticsController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'scrap-statistics')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'scrap-statistics';
-            $column->column_name = json_encode($request->column_s);
+            $column->column_name  = json_encode($request->column_s);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'scrap-statistics';
-            $column->column_name = json_encode($request->column_s);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_s);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -283,18 +283,18 @@ class ScrapStatisticsController extends Controller
      */
     public function quickView(Request $request)
     {
-        $endDate = date('Y-m-d H:i:s');
-        $keyWord = $request->get('term', '');
-        $column = request('column');
-        $orderby = request('order_by', 'desc');
-        $madeby = $request->get('scraper_made_by', 0);
+        $endDate    = date('Y-m-d H:i:s');
+        $keyWord    = $request->get('term', '');
+        $column     = request('column');
+        $orderby    = request('order_by', 'desc');
+        $madeby     = $request->get('scraper_made_by', 0);
         $scrapeType = $request->get('scraper_type', 0);
 
         $timeDropDown = self::get_times();
 
         $developerTasks = \App\DeveloperTask::where('scraper_id', $request->id)->latest()->get();
 
-        $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+        $serverIds             = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
         $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw('id in (
             SELECT MAX(id)
             FROM scraper_server_status_histories
@@ -358,7 +358,7 @@ class ScrapStatisticsController extends Controller
 
         // Get scrape data
         $yesterdayDate = date('Y-m-d', strtotime('-1 day'));
-        $sql = '
+        $sql           = '
             SELECT
                 s.id,
                 s.supplier,
@@ -427,7 +427,7 @@ class ScrapStatisticsController extends Controller
 
         $lastRunAt = \DB::table('scraped_products')->groupBy('website')->select([\DB::raw('MAX(last_inventory_at) as last_run_at'), 'website'])->pluck('last_run_at', 'website')->toArray();
 
-        $users = \App\User::all()->pluck('name', 'id')->toArray();
+        $users       = \App\User::all()->pluck('name', 'id')->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
         try {
@@ -446,14 +446,14 @@ class ScrapStatisticsController extends Controller
     {
         $this->validate($request, [
             'supplier' => 'required',
-            'type' => 'required',
-            'url' => 'required',
+            'type'     => 'required',
+            'url'      => 'required',
         ]);
 
-        $stat = new ScrapStatistics();
-        $stat->supplier = $request->get('supplier');
-        $stat->type = $request->get('type');
-        $stat->url = $request->get('url');
+        $stat              = new ScrapStatistics();
+        $stat->supplier    = $request->get('supplier');
+        $stat->type        = $request->get('type');
+        $stat->url         = $request->get('url');
         $stat->description = $request->get('description');
         $stat->save();
 
@@ -505,7 +505,7 @@ class ScrapStatisticsController extends Controller
     public function assetManager()
     {
         $start = Carbon::now()->format('Y-m-d 00:00:00');
-        $end = Carbon::now()->format('Y-m-d 23:59:00');
+        $end   = Carbon::now()->format('Y-m-d 23:59:00');
 
         return view('scrap.asset-manager');
     }
@@ -544,20 +544,20 @@ class ScrapStatisticsController extends Controller
 
     public function addRemark(Request $request)
     {
-        $remark = $request->input('remark');
-        $name = $request->input('id');
+        $remark     = $request->input('remark');
+        $name       = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
-        $last_rec = ''; //Purpose : Last Record - DEVTASK-4219
+        $update_at  = date('Y-m-d H:i:s');
+        $last_rec   = ''; //Purpose : Last Record - DEVTASK-4219
 
         if (! empty($remark)) {
             $remark_entry = ScrapRemark::create([
                 'scraper_name' => $name,
-                'remark' => $remark,
-                'user_name' => Auth::user()->name,
+                'remark'       => $remark,
+                'user_name'    => Auth::user()->name,
             ]);
 
-            $needToSend = request()->get('need_to_send', false);
+            $needToSend      = request()->get('need_to_send', false);
             $includeAssignTo = request()->get('inlcude_made_by', false);
 
             if ($needToSend == 1) {
@@ -584,11 +584,11 @@ class ScrapStatisticsController extends Controller
 
     public function updateField(Request $request)
     {
-        $fieldName = request()->get('field');
+        $fieldName  = request()->get('field');
         $fieldValue = request()->get('field_value');
-        $search = request()->get('search');
-        $remark = request()->get('remark');
-        $suplier = \App\Scraper::where('supplier_id', $search)->first();
+        $search     = request()->get('search');
+        $remark     = request()->get('remark');
+        $suplier    = \App\Scraper::where('supplier_id', $search)->first();
 
         if (! $suplier) {
             $suplier = \App\Scraper::find($search);
@@ -626,20 +626,20 @@ class ScrapStatisticsController extends Controller
 
             $remark_entry = ScrapRemark::create([
                 'scraper_name' => $suplier->scraper_name,
-                'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                'user_name' => Auth::user()->name,
-                'scrap_field' => $fieldName,
-                'old_value' => $oldValue,
-                'new_value' => $newValue,
-                'scrap_id' => $suplier->id,
+                'remark'       => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                'user_name'    => Auth::user()->name,
+                'scrap_field'  => $fieldName,
+                'old_value'    => $oldValue,
+                'new_value'    => $newValue,
+                'scrap_id'     => $suplier->id,
             ]);
 
             if (! empty($remark)) {
                 $remark_entry = ScrapRemark::create([
                     'scraper_name' => $suplier->scraper_name,
-                    'remark' => $remark,
-                    'user_name' => Auth::user()->name,
-                    'scrap_id' => $suplier->id,
+                    'remark'       => $remark,
+                    'user_name'    => Auth::user()->name,
+                    'scrap_id'     => $suplier->id,
                 ]);
             }
         }
@@ -649,13 +649,13 @@ class ScrapStatisticsController extends Controller
 
     public function multipleUpdateField(Request $request)
     {
-        $fieldName = 'full_scrape';
+        $fieldName  = 'full_scrape';
         $fieldValue = 1;
 
         if (! empty($request->ids)) {
             foreach ($request->ids as $key => $value) {
-                $search = $value;
-                $remark = request()->get('remark');
+                $search  = $value;
+                $remark  = request()->get('remark');
                 $suplier = \App\Scraper::where('supplier_id', $search)->first();
 
                 if (! $suplier) {
@@ -694,20 +694,20 @@ class ScrapStatisticsController extends Controller
 
                     $remark_entry = ScrapRemark::create([
                         'scraper_name' => $suplier->scraper_name,
-                        'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                        'user_name' => Auth::user()->name,
-                        'scrap_field' => $fieldName,
-                        'old_value' => $oldValue,
-                        'new_value' => $newValue,
-                        'scrap_id' => $suplier->id,
+                        'remark'       => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                        'user_name'    => Auth::user()->name,
+                        'scrap_field'  => $fieldName,
+                        'old_value'    => $oldValue,
+                        'new_value'    => $newValue,
+                        'scrap_id'     => $suplier->id,
                     ]);
 
                     if (! empty($remark)) {
                         $remark_entry = ScrapRemark::create([
                             'scraper_name' => $suplier->scraper_name,
-                            'remark' => $remark,
-                            'user_name' => Auth::user()->name,
-                            'scrap_id' => $suplier->id,
+                            'remark'       => $remark,
+                            'user_name'    => Auth::user()->name,
+                            'scrap_id'     => $suplier->id,
                         ]);
                     }
                 }
@@ -719,9 +719,9 @@ class ScrapStatisticsController extends Controller
 
     public function updateScrapperField(Request $request)
     {
-        $fieldName = request()->get('field');
+        $fieldName  = request()->get('field');
         $fieldValue = request()->get('field_value');
-        $search = request()->get('search');
+        $search     = request()->get('search');
 
         $suplier = \App\Scraper::find($search);
 
@@ -760,13 +760,13 @@ class ScrapStatisticsController extends Controller
             }
 
             $remark_entry = ScrapRemark::create([
-                'scrap_id' => $suplier->id,
+                'scrap_id'     => $suplier->id,
                 'scraper_name' => $suplier->scraper_name,
-                'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                'user_name' => Auth::user()->name,
-                'scrap_field' => $fieldName,
-                'old_value' => $oldValue,
-                'new_value' => $newValue,
+                'remark'       => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                'user_name'    => Auth::user()->name,
+                'scrap_field'  => $fieldName,
+                'old_value'    => $oldValue,
+                'new_value'    => $newValue,
             ]);
         }
 
@@ -775,7 +775,7 @@ class ScrapStatisticsController extends Controller
 
     public function updatePriority(Request $request)
     {
-        $ids = $request->get('ids');
+        $ids  = $request->get('ids');
         $prio = count($ids);
 
         if (! empty($ids)) {
@@ -819,12 +819,12 @@ class ScrapStatisticsController extends Controller
         $output = [];
 
         $current = strtotime('00:00');
-        $end = strtotime('23:59');
+        $end     = strtotime('23:59');
 
         while ($current <= $end) {
-            $time = date('G', $current);
+            $time          = date('G', $current);
             $output[$time] = date('h.i A', $current);
-            $current = strtotime($interval, $current);
+            $current       = strtotime($interval, $current);
         }
 
         return $output;
@@ -869,15 +869,15 @@ class ScrapStatisticsController extends Controller
         try {
             $this->validate($request, [
                 'scraper_name' => 'required',
-                'remark' => 'required',
+                'remark'       => 'required',
             ]);
             $remark = $request->remark;
 
             if (! empty($remark)) {
                 $note = ScrapRemark::create([
                     'scraper_name' => $request->scraper_name,
-                    'remark' => $request->remark,
-                    'user_name' => Auth::user()->name,
+                    'remark'       => $request->remark,
+                    'user_name'    => Auth::user()->name,
                 ]);
 
                 if ($request->hasfile('image')) {
@@ -901,7 +901,7 @@ class ScrapStatisticsController extends Controller
     {
         try {
             $scrappers = Scraper::query();
-            $scrap = $scrappers->where('inventory_lifetime', '!=', 0)->where('server_id', '!=', '');
+            $scrap     = $scrappers->where('inventory_lifetime', '!=', 0)->where('server_id', '!=', '');
 
             if ($request->type) {
                 if ($request->type == 'server_id_filter') {
@@ -986,8 +986,8 @@ class ScrapStatisticsController extends Controller
             mkdir($storagelocation, 0777, true);
         }
         $filename = 'Scraper_Position_History.txt';
-        $file = $storagelocation . '/' . $filename;
-        $txt = fopen($file, 'w') or exit('Unable to open file!');
+        $file     = $storagelocation . '/' . $filename;
+        $txt      = fopen($file, 'w') or exit('Unable to open file!');
         fwrite($txt, $chatFileData);
         fclose($txt);
         if ($chatFileData == '') {
@@ -1036,7 +1036,7 @@ class ScrapStatisticsController extends Controller
 
     public function addReply(Request $request)
     {
-        $reply = $request->get('reply');
+        $reply     = $request->get('reply');
         $autoReply = [];
         // add reply from here
         if (! empty($reply)) {
@@ -1080,21 +1080,21 @@ class ScrapStatisticsController extends Controller
         if ($scraper) {
             foreach ($scraper as $_brand) {
                 $requestData->request->add([
-                    'priority' => 1,
-                    'issue' => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
-                    'status' => 'In Progress',
-                    'module' => 'Scraper',
-                    'subject' => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
-                    'assigned_to' => $request->get('assigned_to'),
-                    'scraper_id' => $_brand->id,
+                    'priority'     => 1,
+                    'issue'        => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
+                    'status'       => 'In Progress',
+                    'module'       => 'Scraper',
+                    'subject'      => 'EXTERNAL SCRAPPER ' . $_brand->scraper_name,
+                    'assigned_to'  => $request->get('assigned_to'),
+                    'scraper_id'   => $_brand->id,
                     'task_type_id' => 1,
                 ]);
 
                 if (isset($request->type) && $request->type == 'brand') {
                     $requestData->request->add([
-                        'brand_id' => $_brand->id,
+                        'brand_id'   => $_brand->id,
                         'scraper_id' => '',
-                        'subject' => 'EXTERNAL SCRAPPER ' . $_brand->name,
+                        'subject'    => 'EXTERNAL SCRAPPER ' . $_brand->name,
                     ]);
                 }
 
@@ -1118,21 +1118,21 @@ class ScrapStatisticsController extends Controller
 
         if ($scraper) {
             $requestData->request->add([
-                'priority' => 1,
-                'issue' => $request->task_description,
-                'status' => 'In Progress',
-                'module' => 'Scraper',
-                'subject' => $scraper->scraper_name . ' - ' . $request->task_subject,
-                'assigned_to' => $request->get('assigned_to'),
-                'scraper_id' => $id,
+                'priority'     => 1,
+                'issue'        => $request->task_description,
+                'status'       => 'In Progress',
+                'module'       => 'Scraper',
+                'subject'      => $scraper->scraper_name . ' - ' . $request->task_subject,
+                'assigned_to'  => $request->get('assigned_to'),
+                'scraper_id'   => $id,
                 'task_type_id' => 1,
             ]);
 
             if (isset($request->type) && $request->type == 'brand') {
                 $requestData->request->add([
-                    'brand_id' => $id,
+                    'brand_id'   => $id,
                     'scraper_id' => '',
-                    'subject' => 'EXTERNAL SCRAPPER ' . $scraper->name . ' - ' . $request->task_subject,
+                    'subject'    => 'EXTERNAL SCRAPPER ' . $scraper->name . ' - ' . $request->task_subject,
                 ]);
             }
 
@@ -1163,7 +1163,7 @@ class ScrapStatisticsController extends Controller
 
     public function positionAll()
     {
-        $histories = \App\ScraperPositionHistory::whereDate('created_at', now()->subDays(7)->format('Y-m-d'))->latest()->get();
+        $histories    = \App\ScraperPositionHistory::whereDate('created_at', now()->subDays(7)->format('Y-m-d'))->latest()->get();
         $chatFileData = '';
         $chatFileData .= html_entity_decode('Scraper Position History', ENT_QUOTES, 'UTF-8');
         $chatFileData .= "\n" . "\n";
@@ -1184,8 +1184,8 @@ class ScrapStatisticsController extends Controller
             mkdir($storagelocation, 0777, true);
         }
         $filename = 'Scraper_Position_History.txt';
-        $file = $storagelocation . '/' . $filename;
-        $txt = fopen($file, 'w') or exit('Unable to open file!');
+        $file     = $storagelocation . '/' . $filename;
+        $txt      = fopen($file, 'w') or exit('Unable to open file!');
         fwrite($txt, $chatFileData);
         fclose($txt);
         if ($chatFileData == '') {
@@ -1266,19 +1266,19 @@ class ScrapStatisticsController extends Controller
 
         $totalServers = \App\ScraperServerStatusHistory::groupBy('server_id')->pluck('server_id')->toArray();
 
-        $timeSlots = [];
+        $timeSlots        = [];
         $listOfServerUsed = [];
         for ($i = 0; $i < 24; $i++) {
-            $tms = strlen($i) > 1 ? $i : '0' . $i;
+            $tms               = strlen($i) > 1 ? $i : '0' . $i;
             $timeSlots["$tms"] = $tms;
             // check the scrapper which run on current time
             $scrapers = \App\ScraperServerStatusHistory::runOnGiveTime($requestedDate, $tms);
             if (! $scrapers->isEmpty()) {
                 foreach ($scrapers as $s) {
                     $listOfServerUsed["$tms"][$s->server_id][] = [
-                        'scraper_name' => $s->scraper_name,
+                        'scraper_name'  => $s->scraper_name,
                         'memory_string' => 'T: ' . $s->total_memory . ' U:' . $s->used_memory . ' P:' . $s->in_percentage,
-                        'pid' => $s->pid,
+                        'pid'           => $s->pid,
                     ];
                 }
             }
@@ -1289,14 +1289,14 @@ class ScrapStatisticsController extends Controller
 
     public function endJob(Request $request)
     {
-        $pid = $request->get('pid');
+        $pid    = $request->get('pid');
         $server = $request->get('server_id');
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/scraper-kill.sh ' . $server . ' ' . $pid . ' 2>&1';
 
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result      = exec($cmd, $allOutput);
 
         \Log::info(print_r($result, true));
 
@@ -1310,14 +1310,14 @@ class ScrapStatisticsController extends Controller
 
         $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('started_at', 'DESC')->get()->unique('scraper_id');
         foreach ($scraper_process as $key => $sp) {
-            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
-            $from = \Carbon\Carbon::now();
+            $to            = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+            $from          = \Carbon\Carbon::now();
             $diff_in_hours = $to->diffInMinutes($from);
             if ($diff_in_hours > 1440) {
                 array_push($scraper_proc, $sp);
             }
         }
-        $users = User::pluck('name', 'id')->toArray();
+        $users    = User::pluck('name', 'id')->toArray();
         $scrapers = Scraper::leftJoin('users', 'users.id', '=', 'scrapers.assigned_to')->whereNotIn('id', $scraper_process->pluck('scraper_id'))->select('scrapers.*', 'users.email as assignedTo')->get();
 
         return view('scrap.scraper-process-list', compact('scraper_process', 'scrapers', 'users'));
@@ -1327,7 +1327,7 @@ class ScrapStatisticsController extends Controller
 
     public function assignScrapperIssue(Request $request)
     {
-        $assigendTo = $request->assigned_to;
+        $assigendTo      = $request->assigned_to;
         $scrapperDetails = Scraper::where('id', $request->scrapper_id)->first();
         if ($assigendTo != null and $scrapperDetails != null) {
             $hasAssignedIssue = DeveloperTask::where('scraper_id', $scrapperDetails->scrapper_id)->where('assigned_to', $assigendTo)
@@ -1336,11 +1336,11 @@ class ScrapStatisticsController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
-                    'priority' => 1,
-                    'issue' => "Scraper didn't Run In Last 24 Hr",
-                    'status' => 'Planned',
-                    'module' => 'Scraper',
-                    'subject' => $scrapperDetails->scraper_name,
+                    'priority'    => 1,
+                    'issue'       => "Scraper didn't Run In Last 24 Hr",
+                    'status'      => 'Planned',
+                    'module'      => 'Scraper',
+                    'subject'     => $scrapperDetails->scraper_name,
                     'assigned_to' => $assigendTo,
                 ]);
                 app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, $assigendTo);

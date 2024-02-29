@@ -20,9 +20,9 @@ class GithubOrganizationTableSeeder extends Seeder
     public function run()
     {
         $organizationObj = [
-            'name' => 'MMMagento',
+            'name'     => 'MMMagento',
             'username' => 'MioModaMagento',
-            'token' => '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',
+            'token'    => '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',
         ];
 
         $organization = GithubOrganization::updateOrCreate(

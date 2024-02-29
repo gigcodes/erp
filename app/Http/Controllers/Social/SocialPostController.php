@@ -52,15 +52,15 @@ class SocialPostController extends Controller
 
     public function translationapproval(Request $request)
     {
-        $posts = SocialPost::find($request['post_id']);
-        $config = SocialConfig::find($posts['config_id']);
-        $data = [];
+        $posts           = SocialPost::find($request['post_id']);
+        $config          = SocialConfig::find($posts['config_id']);
+        $data            = [];
         $data['post_id'] = $request['post_id'];
         $data['caption'] = $posts['caption'];
         $data['hashtag'] = $posts['hashtag'];
 
-        $googleTranslate = new GoogleTranslate();
-        $target = $config->page_language ? $config->page_language : 'en';
+        $googleTranslate       = new GoogleTranslate();
+        $target                = $config->page_language ? $config->page_language : 'en';
         $data['caption_trans'] = $googleTranslate->translate($target, $posts['caption']);
         $data['hashtag_trans'] = $googleTranslate->translate($target, $posts['hashtag']);
 
@@ -85,7 +85,7 @@ class SocialPostController extends Controller
 
         $posts = $posts->orderby('social_posts.id', 'desc')->paginate(Setting::get('pagination'));
 
-        $websites = StoreWebsite::select('id', 'title')->get();
+        $websites      = StoreWebsite::select('id', 'title')->get();
         $socialconfigs = SocialConfig::get();
 
         if ($request->ajax()) {
@@ -127,13 +127,13 @@ class SocialPostController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialPost';
+        $Log->modal           = 'SocialPost';
         $Log->save();
 
         return true;
@@ -159,7 +159,7 @@ class SocialPostController extends Controller
             $config = SocialConfig::find($id);
 
             $website = StoreWebsite::where('id', $config->store_website_id)->first();
-            $media = $website->getMedia('website-image-attach');
+            $media   = $website->getMedia('website-image-attach');
         } catch (\Exception $e) {
             Session::flash('message', $e);
 
@@ -176,16 +176,16 @@ class SocialPostController extends Controller
      */
     public function store(PostCreateRequest $request)
     {
-        $added_media = [];
-        $page_config = SocialConfig::where('id', $request->config_id)->first();
+        $added_media   = [];
+        $page_config   = SocialConfig::where('id', $request->config_id)->first();
         $hashtagsOfUse = '';
         if ($request->has('hashtags')) {
-            $hashtags = explode('#', $request->input('hashtags'));
+            $hashtags      = explode('#', $request->input('hashtags'));
             $finalHashtags = [];
             foreach ($hashtags as $key => $hashtagi) {
                 if ($hashtagi) {
-                    $googleTranslate = new GoogleTranslate();
-                    $target = $page_config->page_language ? $page_config->page_language : 'en';
+                    $googleTranslate     = new GoogleTranslate();
+                    $target              = $page_config->page_language ? $page_config->page_language : 'en';
                     $translationHashtags = $googleTranslate->translate($target, $hashtagi);
                     $finalHashtags[$key] = $translationHashtags;
                 }
@@ -195,19 +195,19 @@ class SocialPostController extends Controller
 
         $data['message'] = $request->get('message') . ' ' . $hashtagsOfUse;
         if ($request->has('date') && $request->get('date') != null) {
-            $data['published'] = false;
+            $data['published']              = false;
             $data['scheduled_publish_time'] = Carbon::parse($request->get('data'))->getTimestamp();
         }
 
         $post = SocialPost::create([
-            'config_id' => $request->config_id,
-            'caption' => $request->message,
-            'post_body' => $request->message,
-            'post_by' => Auth::user()->id,
-            'posted_on' => $request->has('date') ? Carbon::parse($request->get('data')) : Carbon::now(),
-            'hashtag' => $request->hashtags,
+            'config_id'   => $request->config_id,
+            'caption'     => $request->message,
+            'post_body'   => $request->message,
+            'post_by'     => Auth::user()->id,
+            'posted_on'   => $request->has('date') ? Carbon::parse($request->get('data')) : Carbon::now(),
+            'hashtag'     => $request->hashtags,
             'post_medium' => 'erp',
-            'status' => 2,
+            'status'      => 2,
         ]);
 
         $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Post created in in the database');
@@ -236,7 +236,7 @@ class SocialPostController extends Controller
         if (isset($response['data']['id'])) {
             $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Facebook post created');
             $post->ref_post_id = $response['data']['id'];
-            $post->status = 1;
+            $post->status      = 1;
             $post->save();
             $this->socialPostLog($post->config_id, $post->id, $page_config->platform, 'fb_post', $request->message);
             Session::flash('message', 'Post created successfully');
@@ -261,14 +261,14 @@ class SocialPostController extends Controller
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'email'            => 'required',
+            'password'         => 'required',
+            'status'           => 'required',
         ]);
-        $config = SocialPost::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $config           = SocialPost::findorfail($request->id);
+        $data             = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
@@ -308,16 +308,16 @@ class SocialPostController extends Controller
     {
         $pageInfoParams = [
             'endpoint_path' => $page_config->page_id . '/photos',
-            'fields' => '',
-            'access_token' => $page_config->page_token,
-            'request_type' => 'POST',
-            'data' => [
-                'url' => $media->getUrl(),
+            'fields'        => '',
+            'access_token'  => $page_config->page_token,
+            'request_type'  => 'POST',
+            'data'          => [
+                'url'       => $media->getUrl(),
                 'published' => false,
             ],
         ];
 
-        $response = getFacebookResults($pageInfoParams);
+        $response      = getFacebookResults($pageInfoParams);
         $added_media[] = ['media_fbid' => $response['data']['id']];
 
         $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to facebook');
@@ -329,17 +329,17 @@ class SocialPostController extends Controller
     {
         $pageInfoParams = [
             'endpoint_path' => $page_config->page_id . '/media',
-            'fields' => '',
-            'access_token' => $page_config->page_token,
-            'request_type' => 'POST',
-            'data' => [
-                'image_url' => $media->getUrl(),
+            'fields'        => '',
+            'access_token'  => $page_config->page_token,
+            'request_type'  => 'POST',
+            'data'          => [
+                'image_url'        => $media->getUrl(),
                 'is_carousel_item' => true,
-                'caption' => $post->message,
+                'caption'          => $post->message,
             ],
         ];
 
-        $response = getFacebookResults($pageInfoParams);
+        $response      = getFacebookResults($pageInfoParams);
         $added_media[] = $response['data']['id'];
 
         $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to instagram');
@@ -352,35 +352,35 @@ class SocialPostController extends Controller
         if (count($data['attached_media']) > 1) {
             $pageInfoParams = [
                 'endpoint_path' => $page_config->page_id . '/media',
-                'fields' => '',
-                'access_token' => $page_config->page_token,
-                'request_type' => 'POST',
-                'data' => [
+                'fields'        => '',
+                'access_token'  => $page_config->page_token,
+                'request_type'  => 'POST',
+                'data'          => [
                     'media_type' => 'CAROUSEL',
-                    'caption' => $data['message'],
-                    'children' => $data['attached_media'],
+                    'caption'    => $data['message'],
+                    'children'   => $data['attached_media'],
                 ],
             ];
             $container = getFacebookResults($pageInfoParams);
 
             $containerParams = [
                 'endpoint_path' => $page_config->page_id . '/media_publish',
-                'fields' => '',
-                'access_token' => $page_config->page_token,
-                'request_type' => 'POST',
-                'data' => [
+                'fields'        => '',
+                'access_token'  => $page_config->page_token,
+                'request_type'  => 'POST',
+                'data'          => [
                     'creation_id' => $container['data']['id'],
                 ],
             ];
         } else {
             $containerParams = [
                 'endpoint_path' => $page_config->page_id . '/media_publish',
-                'fields' => '',
-                'access_token' => $page_config->page_token,
-                'request_type' => 'POST',
-                'data' => [
+                'fields'        => '',
+                'access_token'  => $page_config->page_token,
+                'request_type'  => 'POST',
+                'data'          => [
                     'creation_id' => $data['attached_media'][0],
-                    'caption' => $data['message'],
+                    'caption'     => $data['message'],
                 ],
             ];
         }

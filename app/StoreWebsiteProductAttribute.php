@@ -11,7 +11,6 @@ class StoreWebsiteProductAttribute extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="price",type="float")
      * @SWG\Property(property="discount",type="float")

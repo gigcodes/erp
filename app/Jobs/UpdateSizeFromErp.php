@@ -27,12 +27,14 @@ class UpdateSizeFromErp implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param public $params
+     *
      * @return void
      */
     public function __construct(public $params)
     {
-        $this->from = $params['from'];
-        $this->to = $params['to'];
+        $this->from    = $params['from'];
+        $this->to      = $params['to'];
         $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
     }
 

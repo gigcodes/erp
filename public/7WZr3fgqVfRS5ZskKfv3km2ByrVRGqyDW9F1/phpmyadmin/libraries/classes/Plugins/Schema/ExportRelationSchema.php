@@ -56,14 +56,14 @@ class ExportRelationSchema
     protected $relation;
 
     /**
-     * @param  string  $db      database name
-     * @param  Pdf\Pdf|Svg\Svg|Eps\Eps|Dia\Dia|null  $diagram schema diagram
+     * @param string                               $db      database name
+     * @param Pdf\Pdf|Svg\Svg|Eps\Eps|Dia\Dia|null $diagram schema diagram
      */
     public function __construct($db, $diagram)
     {
         global $dbi;
 
-        $this->db = $db;
+        $this->db      = $db;
         $this->diagram = $diagram;
         $this->setPageNumber((int) $_REQUEST['page_number']);
         $this->setOffline(isset($_REQUEST['offline_export']));
@@ -73,7 +73,7 @@ class ExportRelationSchema
     /**
      * Set Page Number
      *
-     * @param  int  $value Page Number of the document to be created
+     * @param int $value Page Number of the document to be created
      */
     public function setPageNumber(int $value): void
     {
@@ -93,7 +93,7 @@ class ExportRelationSchema
     /**
      * Sets showColor
      *
-     * @param  bool  $value whether to show colors
+     * @param bool $value whether to show colors
      */
     public function setShowColor(bool $value): void
     {
@@ -111,7 +111,7 @@ class ExportRelationSchema
     /**
      * Set Table Dimension
      *
-     * @param  bool  $value show table co-ordinates or not
+     * @param bool $value show table co-ordinates or not
      */
     public function setTableDimension(bool $value): void
     {
@@ -129,7 +129,7 @@ class ExportRelationSchema
     /**
      * Set same width of All Tables
      *
-     * @param  bool  $value set same width of all tables or not
+     * @param bool $value set same width of all tables or not
      */
     public function setAllTablesSameWidth(bool $value): void
     {
@@ -147,7 +147,7 @@ class ExportRelationSchema
     /**
      * Set Show only keys
      *
-     * @param  bool  $value show only keys or not
+     * @param bool $value show only keys or not
      */
     public function setShowKeys(bool $value): void
     {
@@ -165,7 +165,7 @@ class ExportRelationSchema
     /**
      * Set Orientation
      *
-     * @param  string  $value Orientation will be portrait or landscape
+     * @param string $value Orientation will be portrait or landscape
      */
     public function setOrientation(string $value): void
     {
@@ -185,7 +185,7 @@ class ExportRelationSchema
     /**
      * Set type of paper
      *
-     * @param  string  $value paper type can be A4 etc
+     * @param string $value paper type can be A4 etc
      */
     public function setPaper(string $value): void
     {
@@ -205,7 +205,7 @@ class ExportRelationSchema
     /**
      * Set whether the document is generated from client side DB
      *
-     * @param  bool  $value offline or not
+     * @param bool $value offline or not
      */
     public function setOffline(bool $value): void
     {
@@ -240,7 +240,8 @@ class ExportRelationSchema
     /**
      * Returns the file name
      *
-     * @param  string  $extension file extension
+     * @param string $extension file extension
+     *
      * @return string file name
      */
     protected function getFileName($extension): string
@@ -256,9 +257,9 @@ class ExportRelationSchema
                 . Util::backquote($pdfFeature->database) . '.'
                 . Util::backquote($pdfFeature->pdfPages)
                 . ' WHERE page_nr = ' . $this->pageNumber;
-            $_name_rs = $dbi->queryAsControlUser($_name_sql);
+            $_name_rs  = $dbi->queryAsControlUser($_name_sql);
             $_name_row = $_name_rs->fetchRow();
-            $filename = $_name_row[0] . $extension;
+            $filename  = $_name_row[0] . $extension;
         }
 
         return $filename;
@@ -267,9 +268,9 @@ class ExportRelationSchema
     /**
      * Displays an error message
      *
-     * @param  int  $pageNumber    ID of the chosen page
-     * @param  string  $type          Schema Type
-     * @param  string  $error_message The error message
+     * @param int    $pageNumber    ID of the chosen page
+     * @param string $type          Schema Type
+     * @param string $error_message The error message
      */
     public static function dieSchema($pageNumber, $type = '', $error_message = ''): void
     {
@@ -283,9 +284,9 @@ class ExportRelationSchema
         echo '</p>' , "\n";
         echo '<a href="';
         echo Url::getFromRoute('/database/designer', [
-            'db' => $GLOBALS['db'],
+            'db'     => $GLOBALS['db'],
             'server' => $GLOBALS['server'],
-            'page' => $pageNumber,
+            'page'   => $pageNumber,
         ]);
         echo '">' . __('Back') . '</a>';
         echo "\n";

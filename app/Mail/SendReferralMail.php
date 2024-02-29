@@ -34,18 +34,20 @@ class SendReferralMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
-        $this->subject = 'Refer A friend - Luxury Erp';
-        $this->fromMailer = 'customercare@sololuxury.co.in';
-        $this->referlink = isset($data['referlink']) ? $data['referlink'] : '';
-        $this->referrer_email = isset($data['referrer_email']) ? $data['referrer_email'] : '';
-        $this->referee_coupon = isset($data['referee_coupon']) ? $data['referee_coupon'] : '';
+        $this->subject          = 'Refer A friend - Luxury Erp';
+        $this->fromMailer       = 'customercare@sololuxury.co.in';
+        $this->referlink        = isset($data['referlink']) ? $data['referlink'] : '';
+        $this->referrer_email   = isset($data['referrer_email']) ? $data['referrer_email'] : '';
+        $this->referee_coupon   = isset($data['referee_coupon']) ? $data['referee_coupon'] : '';
         $this->store_website_id = isset($data['store_website_id']) ? $data['store_website_id'] : '';
-        $this->title = ! empty($data['title']) ? $data['title'] : '';
-        $this->website = ! empty($data['website']) ? $data['website'] : '';
+        $this->title            = ! empty($data['title']) ? $data['title'] : '';
+        $this->website          = ! empty($data['website']) ? $data['website'] : '';
 
         $this->Controller = new Controller();
     }
@@ -69,10 +71,10 @@ class SendReferralMail extends Mailable
             }
         }
 
-        $data['title'] = $this->title;
-        $data['referlink'] = $this->referlink;
+        $data['title']          = $this->title;
+        $data['referlink']      = $this->referlink;
         $data['referee_coupon'] = $this->referee_coupon;
-        $data['website'] = $this->website;
+        $data['website']        = $this->website;
 
         $template = \App\MailinglistTemplate::getReferAFirendTemplate($this->store_website_id);
         if ($template) {

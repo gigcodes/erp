@@ -20,7 +20,7 @@ class NewsletterController extends Controller
 
     public function index(Request $request)
     {
-        $title = 'Newsletter';
+        $title          = 'Newsletter';
         $store_websites = null;
 
         return view('newsletter.index', compact(['title', 'store_websites']));
@@ -28,7 +28,7 @@ class NewsletterController extends Controller
 
     public function reviewTranslate(Request $request, $language = '')
     {
-        $title = 'Newsletter - Review Translate:' . $language;
+        $title         = 'Newsletter - Review Translate:' . $language;
         $languagesList = Language::pluck('name', 'name')->toArray();
         if (! empty($languagesList) && $language == '') {
             $first = reset($languagesList);
@@ -36,7 +36,7 @@ class NewsletterController extends Controller
             return redirect()->route('newsletters.review.translate', ['language' => $first]);
         }
 
-        $languages = Language::pluck('locale', 'code')->toArray();
+        $languages     = Language::pluck('locale', 'code')->toArray();
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
 
         return view('newsletter.review-translate', compact(['title', 'storeWebsites', 'languagesList']));
@@ -90,16 +90,16 @@ class NewsletterController extends Controller
                         $media = $nwP->product->getMedia(config('constants.attach_image_tag'))->first();
                         if ($media) {
                             $images[] = [
-                                'url' => getMediaUrl($media),
-                                'id' => $nwP->id,
+                                'url'        => getMediaUrl($media),
+                                'id'         => $nwP->id,
                                 'product_id' => $nwP->product->id,
                             ];
                         }
                     }
                 }
             }
-            $rec->product_images = $images;
-            $rec->store_websiteName = ($rec->storeWebsite) ? $rec->storeWebsite->website : '';
+            $rec->product_images            = $images;
+            $rec->store_websiteName         = ($rec->storeWebsite) ? $rec->storeWebsite->website : '';
             $rec->mailinglist_template_name = ($rec->mailinglistTemplate) ? $rec->mailinglistTemplate->name : '';
             if ($request->language != null) {
                 $rec->original_newsletter = \App\Newsletter::where('id', $rec->translated_from)->first();
@@ -112,11 +112,11 @@ class NewsletterController extends Controller
 
     public function save(Request $request)
     {
-        $params = $request->all();
+        $params     = $request->all();
         $productIds = json_decode($request->get('images'), true);
 
         $errorMessage = [];
-        $needToSave = [];
+        $needToSave   = [];
 
         if (! empty($productIds)) {
             foreach ($productIds as $productId) {
@@ -130,14 +130,14 @@ class NewsletterController extends Controller
         }
 
         if (count($needToSave) > 0) {
-            $newsletter = new Newsletter;
-            $newsletter->subject = 'DRAFT';
-            $newsletter->language = 'English';
+            $newsletter             = new Newsletter;
+            $newsletter->subject    = 'DRAFT';
+            $newsletter->language   = 'English';
             $newsletter->updated_by = auth()->user()->id;
             if ($newsletter->save()) {
                 foreach ($needToSave as $ns) {
-                    $nProduct = new NewsletterProduct;
-                    $nProduct->product_id = $ns;
+                    $nProduct                = new NewsletterProduct;
+                    $nProduct->product_id    = $ns;
                     $nProduct->newsletter_id = $newsletter->id;
                     $nProduct->save();
                 }
@@ -161,7 +161,7 @@ class NewsletterController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -188,7 +188,8 @@ class NewsletterController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -206,7 +207,8 @@ class NewsletterController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -289,15 +291,15 @@ class NewsletterController extends Controller
                             $l->locale,
                             [$newsletter->subject]
                         );
-                        $newNewsletter->subject = ! empty($subject) ? $subject : $newsletter->subject;
-                        $newNewsletter->language = $l->name;
-                        $newNewsletter->translated_from = $newsletter->id;
-                        $newNewsletter->store_website_id = $newsletter->store_website_id;
-                        $newNewsletter->sent_at = $newsletter->sent_at;
-                        $newNewsletter->sent_on = $newsletter->sent_on;
-                        $newNewsletter->mail_list_id = $newsletter->mail_list_id;
-                        $newNewsletter->mail_list_temp_id = $newsletter->mail_list_temp_id;
-                        $newNewsletter->updated_by = auth()->user()->id;
+                        $newNewsletter->subject                = ! empty($subject) ? $subject : $newsletter->subject;
+                        $newNewsletter->language               = $l->name;
+                        $newNewsletter->translated_from        = $newsletter->id;
+                        $newNewsletter->store_website_id       = $newsletter->store_website_id;
+                        $newNewsletter->sent_at                = $newsletter->sent_at;
+                        $newNewsletter->sent_on                = $newsletter->sent_on;
+                        $newNewsletter->mail_list_id           = $newsletter->mail_list_id;
+                        $newNewsletter->mail_list_temp_id      = $newsletter->mail_list_temp_id;
+                        $newNewsletter->updated_by             = auth()->user()->id;
                         $newNewsletter->is_flagged_translation = 1;
                         $newNewsletter->save();
                         activity()->causedBy(auth()->user())->performedOn($newsletter)->log('newsletter ' . $newsletter->id . ' translated to ' . $l->name);

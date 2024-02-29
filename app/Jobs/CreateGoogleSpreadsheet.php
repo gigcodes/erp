@@ -18,6 +18,9 @@ class CreateGoogleSpreadsheet
     /**
      * Create a new job instance.
      *
+     * @param privateGoogleDoc $googleDoc
+     * @param null|private     $permissionForAll
+     *
      * @return void
      */
     public function __construct(private GoogleDoc $googleDoc, private $permissionForAll = null)
@@ -37,7 +40,7 @@ class CreateGoogleSpreadsheet
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
         try {
-            $createFile = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write);
+            $createFile    = $this->createDriveFile(env('GOOGLE_SHARED_FOLDER'), $this->googleDoc->read, $this->googleDoc->write);
             $spreadsheetId = $createFile->id;
 
             $this->googleDoc->docId = $spreadsheetId;
@@ -55,7 +58,7 @@ class CreateGoogleSpreadsheet
             $client = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
-            $driveService = new Drive($client);
+            $driveService      = new Drive($client);
             $emptyFileMetadata = new DriveFile();
             // Retrieve the existing parents to remove
             $file = $driveService->files->get($fileId, ['fields' => 'parents']);
@@ -64,9 +67,9 @@ class CreateGoogleSpreadsheet
 
             // Move the file to the new folder
             $file = $driveService->files->update($fileId, $emptyFileMetadata, [
-                'addParents' => $folderId,
+                'addParents'    => $folderId,
                 'removeParents' => $previousParents,
-                'fields' => 'id, parents', ]);
+                'fields'        => 'id, parents', ]);
 
             return $file->parents;
         } catch (Exception $e) {
@@ -82,8 +85,8 @@ class CreateGoogleSpreadsheet
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
             $fileMetadata = new Drive\DriveFile([
-                'name' => $this->googleDoc->name,
-                'parents' => [$folderId],
+                'name'     => $this->googleDoc->name,
+                'parents'  => [$folderId],
                 'mimeType' => 'application/vnd.google-apps.spreadsheet',
             ]);
 
@@ -93,7 +96,7 @@ class CreateGoogleSpreadsheet
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
             if ($this->permissionForAll == 'anyone') {
-                $batch = $driveService->createBatch();
+                $batch          = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
                     'role' => 'reader',
@@ -102,7 +105,7 @@ class CreateGoogleSpreadsheet
                 $batch->add($request, 'full-access');
                 $results = $batch->execute();
 
-                $batch = $driveService->createBatch();
+                $batch          = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
                     'role' => 'writer',
@@ -111,13 +114,13 @@ class CreateGoogleSpreadsheet
                 $batch->add($request, 'full-access');
                 $results = $batch->execute();
             } else {
-                $batch = $driveService->createBatch();
+                $batch              = $driveService->createBatch();
                 $googleDocUsersRead = explode(',', $googleDocUsersRead);
 
                 foreach ($googleDocUsersRead as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'reader',
+                        'type'         => 'user',
+                        'role'         => 'reader',
                         'emailAddress' => $email,
                     ]);
 
@@ -127,13 +130,13 @@ class CreateGoogleSpreadsheet
                 }
                 $results = $batch->execute();
 
-                $batch = $driveService->createBatch();
+                $batch               = $driveService->createBatch();
                 $googleDocUsersWrite = explode(',', $googleDocUsersWrite);
 
                 foreach ($googleDocUsersWrite as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'writer',
+                        'type'         => 'user',
+                        'role'         => 'writer',
                         'emailAddress' => $email,
                     ]);
 

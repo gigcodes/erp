@@ -50,13 +50,13 @@ class scrapperPhyhon extends Controller
             $Websites = $Websites->join('website_store_views', 'website_store_views.website_store_id', '=', 'website_stores.id')
                 ->where('website_store_views.code', $image->website_id)->where('websites.store_website_id', $image->store_website)->first();
             if ($Websites) {
-                $image->lang = $Websites->lang;
-                $image->store_name = $Websites->store_name;
-                $image->website_stores_id = $Websites->website_stores_id;
+                $image->lang                   = $Websites->lang;
+                $image->store_name             = $Websites->store_name;
+                $image->website_stores_id      = $Websites->website_stores_id;
                 $image->website_store_views_id = $Websites->website_store_views_id;
-                $image->website_table_id = $Websites->website_table_id;
+                $image->website_table_id       = $Websites->website_table_id;
                 $image->website_stores_default = $Websites->website_stores_default;
-                $image->website_stores_flag = $Websites->website_stores_flag;
+                $image->website_stores_flag    = $Websites->website_stores_flag;
             }
 
             $desktop = scraperImags::selectRaw('count(id) as desktop')->where('website_id', $image->website_id)
@@ -72,21 +72,21 @@ class scrapperPhyhon extends Controller
                 ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $image->desktop = isset($desktop->desktop) ? $desktop->desktop : 0;
-            $image->mobile = isset($mobile->mobile) ? $mobile->mobile : 0;
-            $image->tablet = isset($tablet->tablet) ? $tablet->tablet : 0;
+            $image->mobile  = isset($mobile->mobile) ? $mobile->mobile : 0;
+            $image->tablet  = isset($tablet->tablet) ? $tablet->tablet : 0;
         }
 
         $query = $request->search;
 
         $allWebsites = Website::pluck('name', 'id');
 
-        $storewebsite = \App\StoreWebsite::pluck('title', 'id');
+        $storewebsite     = \App\StoreWebsite::pluck('title', 'id');
         $storewebsiteUrls = \App\StoreWebsite::pluck('website', 'id');
 
         $current_date = Carbon::now()->format('Y-m-d');
 
         $startDate = $current_date;
-        $endDate = $current_date;
+        $endDate   = $current_date;
 
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
@@ -95,16 +95,16 @@ class scrapperPhyhon extends Controller
     {
         $store_id = $request->id;
 
-        $oldDate = null;
-        $count = 0;
-        $images = [];
+        $oldDate    = null;
+        $count      = 0;
+        $images     = [];
         $website_id = 0;
 
         $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
-        $webStore = \App\WebsiteStore::where('id', $store_id)->first();
+        $webStore   = \App\WebsiteStore::where('id', $store_id)->first();
 
         if ($webStore) {
-            $list = Website::where('id', $webStore->website_id)->first();
+            $list       = Website::where('id', $webStore->website_id)->first();
             $website_id = $list->id;
 
             $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
@@ -149,7 +149,7 @@ class scrapperPhyhon extends Controller
         $allLanguages = Website::orderBy('name', 'ASC')->get();
 
         $startDate = $request->startDate;
-        $endDate = $request->endDate;
+        $endDate   = $request->endDate;
         if ($request->ajax()) {
             $this->listImagesApprove($request);
             $view_path = 'scrapper-phyhon.list-image-products_ajax';
@@ -157,13 +157,13 @@ class scrapperPhyhon extends Controller
             $view_path = 'scrapper-phyhon.list-image-products';
         }
 
-        $bugStatuses = BugStatus::get();
-        $bugEnvironments = BugEnvironment::get();
-        $bugSeveritys = BugSeverity::get();
-        $bugTypes = BugType::get();
-        $users = User::get();
+        $bugStatuses      = BugStatus::get();
+        $bugEnvironments  = BugEnvironment::get();
+        $bugSeveritys     = BugSeverity::get();
+        $bugTypes         = BugType::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->get();
+        $filterWebsites   = StoreWebsite::orderBy('website')->get();
 
         return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'bugStatuses', 'filterCategories', 'users', 'filterWebsites'));
     }
@@ -174,15 +174,15 @@ class scrapperPhyhon extends Controller
 
         $requestData->page = ($requestData->page - 1);
 
-        $oldDate = null;
-        $count = 0;
-        $images = [];
+        $oldDate    = null;
+        $count      = 0;
+        $images     = [];
         $website_id = 0;
 
         $webStore = \App\WebsiteStore::where('id', $store_id)->first();
 
         if ($webStore) {
-            $list = Website::where('id', $webStore->website_id)->first();
+            $list       = Website::where('id', $webStore->website_id)->first();
             $website_id = $list->id;
 
             $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
@@ -304,18 +304,18 @@ class scrapperPhyhon extends Controller
     public function imageSave(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'country_code' => 'required',
-            'image' => 'required|valid_base',
-            'image_name' => 'required',
+            'country_code'  => 'required',
+            'image'         => 'required|valid_base',
+            'image_name'    => 'required',
             'store_website' => 'required|exists:store_websites,magento_url',
-            'device' => 'required|in:desktop,mobile,tablet',
+            'device'        => 'required|in:desktop,mobile,tablet',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'code' => 422,
+                'code'    => 422,
                 'message' => 'Invalid request',
-                'error' => $validator->errors(),
+                'error'   => $validator->errors(),
             ]);
         }
         $StoreWebsite = \App\StoreWebsite::where('magento_url', $request->store_website)->first();
@@ -330,27 +330,27 @@ class scrapperPhyhon extends Controller
 
         // For Height Width Of Base64
         $binary = \base64_decode(\explode(',', $request->image)[0]);
-        $data = \getimagesizefromstring($binary);
-        $width = $data[0];
+        $data   = \getimagesizefromstring($binary);
+        $width  = $data[0];
         $height = $data[1];
 
         if ($this->saveBase64Image($request->image_name, $request->image)) {
             $image_parts = explode('_', $request->image_name);
-            $image_date = $image_parts[2];
+            $image_date  = $image_parts[2];
 
             $newImage = [
-                'website_id' => $request->country_code,
+                'website_id'    => $request->country_code,
                 'store_website' => $StoreWebsite->id ?? 0,
-                'img_name' => $request->image_name,
-                'img_url' => $request->image_name,
-                'device' => (isset($request->device) ? $request->device : 'desktop'),
-                'coordinates' => $coordinates,
-                'height' => $height,
-                'width' => $width,
-                'url' => $request->url,
-                'scrap_date' => $image_parts[2],
-                'created_at' => \Carbon\Carbon::now(),
-                'updated_at' => \Carbon\Carbon::now(),
+                'img_name'      => $request->image_name,
+                'img_url'       => $request->image_name,
+                'device'        => (isset($request->device) ? $request->device : 'desktop'),
+                'coordinates'   => $coordinates,
+                'height'        => $height,
+                'width'         => $width,
+                'url'           => $request->url,
+                'scrap_date'    => $image_parts[2],
+                'created_at'    => \Carbon\Carbon::now(),
+                'updated_at'    => \Carbon\Carbon::now(),
             ];
 
             scraperImags::insert($newImage);
@@ -370,7 +370,7 @@ class scrapperPhyhon extends Controller
             $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
             $base64Image = str_replace('data:image/gif;base64,', '', $base64Image);
             $base64Image = str_replace(' ', '+', $base64Image);
-            $imageData = base64_decode($base64Image);
+            $imageData   = base64_decode($base64Image);
 
             // //Set image whole path here
             $filePath = public_path('scrappersImages') . '/' . $file_name;
@@ -387,24 +387,24 @@ class scrapperPhyhon extends Controller
 
     public function callScrapper(Request $request)
     {
-        $client = new Client();
-        $res = null;
-        $err = null;
+        $client        = new Client();
+        $res           = null;
+        $err           = null;
         $store_website = \App\StoreWebsite::find($request->webName);
-        $log_data = ['user_id' => \Auth::id(), 'action' => $request->data_name, 'website' => $request->webName, 'device' => $request->type, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+        $log_data      = ['user_id' => \Auth::id(), 'action' => $request->data_name, 'website' => $request->webName, 'device' => $request->type, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
         try {
             $api_host = config('env.PYTHON_SCRAPPER_API');
 
-            $url = $api_host . $request->data_name;
+            $url  = $api_host . $request->data_name;
             $data = [
                 'type' => $request->type,
                 'name' => $store_website->title,
             ];
             if ($request->webName != null && $request->is_flag != null) {
-                $flagUrls = \App\scraperImags::where('store_website', $request->webName)->where('is_flaged_url', '1')->select('url')->get();
+                $flagUrls        = \App\scraperImags::where('store_website', $request->webName)->where('is_flaged_url', '1')->select('url')->get();
                 $data['flagged'] = true;
-                $count = 1;
-                $fUrl = '';
+                $count           = 1;
+                $fUrl            = '';
                 foreach ($flagUrls as $flagUrl) {
                     $fUrl .= $flagUrl['url'];
                     if ($count < count($flagUrls)) {
@@ -415,15 +415,15 @@ class scrapperPhyhon extends Controller
                 $data['urls'] = $fUrl;
             }
             $log_data['request'] = json_encode($data);
-            $log_data['url'] = $url;
+            $log_data['url']     = $url;
 
             $response = $client->post($url, [
                 'json' => $data,
             ]);
-            $res = $response->getBody()->getContents();
+            $res                  = $response->getBody()->getContents();
             $log_data['response'] = json_encode($res);
         } catch (\GuzzleHttp\Exception\RequestException $e) {
-            $err = $e->getResponse()->getBody()->getContents();
+            $err                  = $e->getResponse()->getBody()->getContents();
             $log_data['response'] = json_encode($err);
         }
         \Log::info($log_data);
@@ -434,22 +434,22 @@ class scrapperPhyhon extends Controller
 
     public function imageRemarkStore(Request $request)
     {
-        $store_website = \App\Website::find($request->website_id);
-        $cat_id = $request->cat_id;
-        $remark = $request->remark;
+        $store_website    = \App\Website::find($request->website_id);
+        $cat_id           = $request->cat_id;
+        $remark           = $request->remark;
         $site_development = SiteDevelopment::where('site_development_category_id', $cat_id)->where('website_id', $store_website->store_website_id)->orderBy('id', 'DESC');
-        $sd = $site_development->first();
+        $sd               = $site_development->first();
         if ($site_development->count() === 0) {
-            $sd = new SiteDevelopment;
+            $sd                               = new SiteDevelopment;
             $sd->site_development_category_id = $cat_id;
-            $sd->website_id = $store_website->store_website_id;
+            $sd->website_id                   = $store_website->store_website_id;
             $sd->save();
         }
 
-        $store_development_remarks = new \App\StoreDevelopmentRemark;
-        $store_development_remarks->remarks = $remark;
+        $store_development_remarks                       = new \App\StoreDevelopmentRemark;
+        $store_development_remarks->remarks              = $remark;
         $store_development_remarks->store_development_id = $sd->id;
-        $store_development_remarks->user_id = \Auth::id();
+        $store_development_remarks->user_id              = \Auth::id();
         $store_development_remarks->save();
 
         return response()->json(['message' => 'Remark Saved Successfully', 'remark' => $store_development_remarks, 'username' => \Auth::user()->name]);
@@ -457,9 +457,9 @@ class scrapperPhyhon extends Controller
 
     public function changeCatRemarkList(Request $request)
     {
-        $store_website = \App\Website::find($request->website_id);
+        $store_website    = \App\Website::find($request->website_id);
         $site_development = SiteDevelopment::where('site_development_category_id', $request->remark)->where('website_id', $store_website->store_website_id)->get();
-        $remarks = [];
+        $remarks          = [];
         if (count($site_development) > 0) {
             foreach ($site_development as $val) {
                 $sd_remarks = \App\StoreDevelopmentRemark::join('users as usr', 'usr.id', 'store_development_remarks.user_id')
@@ -532,7 +532,7 @@ class scrapperPhyhon extends Controller
 
     public function imageUrlList(Request $request)
     {
-        $flagUrl = isset($request->flagUrl) ? $request->flagUrl : '';
+        $flagUrl       = isset($request->flagUrl) ? $request->flagUrl : '';
         $storeWebsites = \App\StoreWebsite::get();
         if (isset($request->id)) {
             $store_id = $request->id;
@@ -540,7 +540,7 @@ class scrapperPhyhon extends Controller
             $urls = [];
 
             $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-            $list = Website::where('id', $webStore->website_id)->first();
+            $list     = Website::where('id', $webStore->website_id)->first();
             if ($webStore) {
                 $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
 
@@ -570,7 +570,7 @@ class scrapperPhyhon extends Controller
         } else {
             $urls = DB::table('scraper_imags')->join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')->whereRaw('url != "" and url IS  NOT NULL');
             if (! empty($flagUrl)) {
-                $urls = $urls->where('scraper_imags.id', $flagUrl);
+                $urls    = $urls->where('scraper_imags.id', $flagUrl);
                 $flagUrl = '#' . $flagUrl;
             }
             if ($request->flt_website && $request->flt_website != null) {
@@ -588,9 +588,9 @@ class scrapperPhyhon extends Controller
 
     public function flagImageUrl($id)
     {
-        $image = \App\scraperImags::find($id);
+        $image                = \App\scraperImags::find($id);
         $image->is_flaged_url = ($image->is_flaged_url == 1) ? 0 : 1;
-        $status = ($image->is_flaged_url == 1) ? 'Flagged' : 'un-flagged';
+        $status               = ($image->is_flaged_url == 1) ? 'Flagged' : 'un-flagged';
         $image->save();
 
         return redirect()->back()
@@ -599,8 +599,8 @@ class scrapperPhyhon extends Controller
 
     public function rejectScrapperImage(Request $request)
     {
-        $image = \App\scraperImags::find($request->id);
-        $image->si_status = $request->si_status;
+        $image                        = \App\scraperImags::find($request->id);
+        $image->si_status             = $request->si_status;
         $image->manually_approve_flag = 0;
         $image->save();
 

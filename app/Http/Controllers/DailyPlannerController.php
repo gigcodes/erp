@@ -22,7 +22,7 @@ class DailyPlannerController extends Controller
      */
     public function index(Request $request)
     {
-        $userid = $request->user_id ?? Auth::id();
+        $userid     = $request->user_id ?? Auth::id();
         $planned_at = $request->planned_at ?? Carbon::now()->format('Y-m-d');
 
         $tasks = Task::where('is_statutory', '=', 0)
@@ -43,7 +43,7 @@ class DailyPlannerController extends Controller
         })->where('is_statutory', 1)->whereNull('is_verified')->count();
 
         $dailyActivities = DailyActivity::where('user_id', $userid)->where('for_date', $planned_at)->get()->groupBy('time_slot');
-        $userEvents = \App\UserEvent\UserEvent::where('date', $planned_at)->orderBy('start', 'asc')->get();
+        $userEvents      = \App\UserEvent\UserEvent::where('date', $planned_at)->orderBy('start', 'asc')->get();
 
         $time_slots = [
             '08:00am - 09:00am' => [],
@@ -63,9 +63,9 @@ class DailyPlannerController extends Controller
         ];
 
         if ($statutory > 0) {
-            $task = new Task;
-            $task->task_subject = "Complete $statutory statutory tasks today";
-            $task->is_completed = Carbon::now();
+            $task                              = new Task;
+            $task->task_subject                = "Complete $statutory statutory tasks today";
+            $task->is_completed                = Carbon::now();
             $time_slots['08:00am - 09:00am'][] = $task;
             $time_slots['09:00am - 10:00am'][] = $task;
         }
@@ -83,7 +83,7 @@ class DailyPlannerController extends Controller
         }
 
         $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%$planned_at%")->where('assigned_to', $userid)->get();
-        $users_array = Helpers::getUserArray(User::all());
+        $users_array       = Helpers::getUserArray(User::all());
 
         $generalCategories = \App\GeneralCategory::all()->pluck('name', 'id')->toArray();
 
@@ -112,15 +112,15 @@ class DailyPlannerController extends Controller
         }
 
         return view('dailyplanner.index', [
-            'tasks' => $tasks,
-            'time_slots' => $time_slots,
-            'users_array' => $users_array,
+            'tasks'             => $tasks,
+            'time_slots'        => $time_slots,
+            'users_array'       => $users_array,
             'call_instructions' => $call_instructions,
-            'userid' => $userid,
-            'planned_at' => $planned_at,
+            'userid'            => $userid,
+            'planned_at'        => $planned_at,
             'generalCategories' => $generalCategories,
-            'spentTime' => $spentTime,
-            'meetings' => $userEvents,
+            'spentTime'         => $spentTime,
+            'meetings'          => $userEvents,
         ]);
     }
 
@@ -152,12 +152,12 @@ class DailyPlannerController extends Controller
         try {
             $events = UserEvent::where('user_id', $request->user)->whereDate('date', $request->date)->get();
 
-            $userWise = [];
+            $userWise           = [];
             $vendorParticipants = [];
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {
                     $userWise[$event->user_id][] = $event;
-                    $participants = $event->attendees;
+                    $participants                = $event->attendees;
                     if (! $participants->isEmpty()) {
                         foreach ($participants as $participant) {
                             if ($participant->object == \App\Vendor::class) {
@@ -174,17 +174,17 @@ class DailyPlannerController extends Controller
                     $user = \App\User::find($id);
                     // if user exist
                     if (! empty($user)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on today';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title' => 'Sent notification',
-                                'description' => 'To ' . $user->name,
+                                'title'               => 'Sent notification',
+                                'description'         => 'To ' . $user->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
@@ -204,23 +204,23 @@ class DailyPlannerController extends Controller
                 foreach ($vendorParticipants as $id => $vendorParticipant) {
                     $vendor = \App\Vendor::find($id);
                     if (! empty($vendor)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on today';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title' => 'Sent notification',
-                                'description' => 'To ' . $vendor->name,
+                                'title'               => 'Sent notification',
+                                'description'         => 'To ' . $vendor->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                         }
 
                         $params['vendor_id'] = $vendor->id;
-                        $params['message'] = implode("\n", $notification);
+                        $params['message']   = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send
@@ -245,15 +245,15 @@ class DailyPlannerController extends Controller
     {
         if ($request->id) {
             try {
-                $events = UserEvent::where('daily_activity_id', $request->id)->get();
-                $dailyActivities = DailyActivity::where('id', $request->id)->first();
-                $userWise = [];
+                $events             = UserEvent::where('daily_activity_id', $request->id)->get();
+                $dailyActivities    = DailyActivity::where('id', $request->id)->first();
+                $userWise           = [];
                 $vendorParticipants = [];
 
                 if (! $events->isEmpty()) {
                     foreach ($events as $event) {
                         $userWise[$event->user_id][] = $event;
-                        $participants = $event->attendees;
+                        $participants                = $event->attendees;
                         if (! $participants->isEmpty()) {
                             foreach ($participants as $participant) {
                                 if ($participant->object == \App\Vendor::class) {
@@ -272,9 +272,9 @@ class DailyPlannerController extends Controller
                         $user = \App\User::find($id);
                         // if user exist
                         if (! empty($user)) {
-                            $notification = [];
+                            $notification   = [];
                             $notification[] = 'Following Event Schedule on within the next 30 min';
-                            $no = 1;
+                            $no             = 1;
 
                             foreach ($events as $event) {
                                 $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
@@ -282,8 +282,8 @@ class DailyPlannerController extends Controller
 
                                 $history = [
                                     'daily_activities_id' => $event->daily_activity_id,
-                                    'title' => 'Sent notification',
-                                    'description' => 'To ' . $user->name,
+                                    'title'               => 'Sent notification',
+                                    'description'         => 'To ' . $user->name,
                                 ];
                                 DailyActivitiesHistories::insert($history);
                             }
@@ -303,22 +303,22 @@ class DailyPlannerController extends Controller
                     foreach ($vendorParticipants as $id => $vendorParticipant) {
                         $vendor = \App\Vendor::find($id);
                         if (! empty($vendor)) {
-                            $notification = [];
+                            $notification   = [];
                             $notification[] = 'Following Event Schedule on within the next 30 min';
-                            $no = 1;
+                            $no             = 1;
                             foreach ($events as $event) {
                                 $notification[] = $no . ') [' . changeTimeZone($dailyActivities->for_datetime, null, $dailyActivities->timezone) . '] => ' . $event->subject;
                                 $no++;
                                 $history = [
                                     'daily_activities_id' => $event->daily_activity_id,
-                                    'title' => 'Sent notification',
-                                    'description' => 'To ' . $vendor->name,
+                                    'title'               => 'Sent notification',
+                                    'description'         => 'To ' . $vendor->name,
                                 ];
                                 DailyActivitiesHistories::insert($history);
                             }
 
                             $params['vendor_id'] = $vendor->id;
-                            $params['message'] = implode("\n", $notification);
+                            $params['message']   = implode("\n", $notification);
                             // send chat message
                             $chat_message = \App\ChatMessage::create($params);
                             // send
@@ -357,7 +357,7 @@ class DailyPlannerController extends Controller
 
     public function complete(Request $request)
     {
-        $user = User::find(Auth::id());
+        $user                       = User::find(Auth::id());
         $user->is_planner_completed = 1;
         $user->save();
 
@@ -367,7 +367,8 @@ class DailyPlannerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -378,7 +379,8 @@ class DailyPlannerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -389,7 +391,8 @@ class DailyPlannerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -400,7 +403,8 @@ class DailyPlannerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -410,8 +414,8 @@ class DailyPlannerController extends Controller
 
     public function reschedule(Request $request)
     {
-        $type = $request->get('type');
-        $id = $request->get('id');
+        $type      = $request->get('type');
+        $id        = $request->get('id');
         $plannedAt = $request->get('planned_at');
 
         if ($type == 'task') {
@@ -426,7 +430,7 @@ class DailyPlannerController extends Controller
             } else {
                 $time = date('H:i:s', strtotime($modal->for_datetime));
 
-                $modal->for_date = $plannedAt;
+                $modal->for_date     = $plannedAt;
                 $modal->for_datetime = $plannedAt . ' ' . $time;
             }
             $modal->save();

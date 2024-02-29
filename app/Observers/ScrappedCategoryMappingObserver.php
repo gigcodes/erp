@@ -59,7 +59,7 @@ class ScrappedCategoryMappingObserver
 
     protected function create($category)
     {
-        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
 

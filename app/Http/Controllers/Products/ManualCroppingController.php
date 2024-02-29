@@ -37,7 +37,7 @@ class ManualCroppingController extends Controller
         $currentUser = Auth::user();
 
         $reservedProductIds = DB::table('user_manual_crop')->pluck('product_id')->toArray();
-        $products = Product::whereNotIn('id', $reservedProductIds)
+        $products           = Product::whereNotIn('id', $reservedProductIds)
             ->where('manual_crop', 1)
             ->where('is_crop-approved', 0)
             ->where('is_manual_cropped', 0)
@@ -76,7 +76,8 @@ class ManualCroppingController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -104,7 +105,8 @@ class ManualCroppingController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -115,7 +117,8 @@ class ManualCroppingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -125,7 +128,7 @@ class ManualCroppingController extends Controller
         ]);
 
         $product = Product::find($id);
-        $files = $request->allFiles();
+        $files   = $request->allFiles();
 
         if ($files !== []) {
             $this->deleteCroppedImages($product);
@@ -138,20 +141,20 @@ class ManualCroppingController extends Controller
             }
         }
 
-        $product->is_crop_rejected = 0;
-        $product->cropped_at = Carbon::now()->toDateTimeString();
-        $product->manual_cropped_at = Carbon::now()->toDateTimeString();
+        $product->is_crop_rejected   = 0;
+        $product->cropped_at         = Carbon::now()->toDateTimeString();
+        $product->manual_cropped_at  = Carbon::now()->toDateTimeString();
         $product->is_image_processed = 1;
-        $product->is_manual_cropped = 1;
-        $product->manual_crop = 1;
-        $product->manual_cropped_by = Auth::id();
+        $product->is_manual_cropped  = 1;
+        $product->manual_crop        = 1;
+        $product->manual_cropped_by  = Auth::id();
         $product->save();
 
-        $e = new ListingHistory();
-        $e->user_id = Auth::user()->id;
+        $e             = new ListingHistory();
+        $e->user_id    = Auth::user()->id;
         $e->product_id = $product->id;
-        $e->content = ['action' => 'MANUAL_CROPPED', 'page' => 'Manual Crop Page'];
-        $e->action = 'MANUAL_CROPPED';
+        $e->content    = ['action' => 'MANUAL_CROPPED', 'page' => 'Manual Crop Page'];
+        $e->action     = 'MANUAL_CROPPED';
         $e->save();
 
         $product = Product::where('manual_crop', 1)
@@ -193,7 +196,8 @@ class ManualCroppingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

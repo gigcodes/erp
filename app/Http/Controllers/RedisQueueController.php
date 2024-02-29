@@ -30,7 +30,7 @@ class RedisQueueController extends Controller
         }
 
         $queues = $queues->paginate(Setting::get('pagination'));
-        $types = RedisQueue::select('type')->distinct()->get();
+        $types  = RedisQueue::select('type')->distinct()->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -49,11 +49,11 @@ class RedisQueueController extends Controller
      */
     public function store(Request $request)
     {
-        $queue = new RedisQueue();
+        $queue          = new RedisQueue();
         $queue->user_id = Auth::user()->id ?? '';
-        $queue->name = Helpers::createQueueName($request->name);
-        $queue->type = $request->type;
-        $response = $queue->save();
+        $queue->name    = Helpers::createQueueName($request->name);
+        $queue->type    = $request->type;
+        $response       = $queue->save();
         if ($response) {
             return redirect()->back()->with('success', 'Queue has been created!');
         } else {
@@ -69,7 +69,7 @@ class RedisQueueController extends Controller
     public function edit(RedisQueue $redisQueue)
     {
         try {
-            $id = request('id') ?? '';
+            $id    = request('id') ?? '';
             $queue = RedisQueue::query();
             if ($s = $id) {
                 $queue->where('id', $s);
@@ -90,10 +90,10 @@ class RedisQueueController extends Controller
     public function update(Request $request)
     {
         try {
-            $queue = RedisQueue::findorfail($request->id);
+            $queue          = RedisQueue::findorfail($request->id);
             $queue->user_id = Auth::user()->id ?? '';
-            $queue->name = Helpers::createQueueName($request->name);
-            $queue->type = $request->type;
+            $queue->name    = Helpers::createQueueName($request->name);
+            $queue->type    = $request->type;
             $queue->save();
 
             return redirect()->back()->with('success', 'Queue has been Updated!');
@@ -109,7 +109,7 @@ class RedisQueueController extends Controller
      */
     public function delete(Request $request)
     {
-        $queue = RedisQueue::find($request->id);
+        $queue    = RedisQueue::find($request->id);
         $response = $queue->delete();
         if ($response) {
             return response()->json(['code' => 200, 'message' => 'Queue has been deleted successfully!']);
@@ -134,12 +134,12 @@ class RedisQueueController extends Controller
         }
 
         $queue = RedisQueue::find($request->get('id'));
-        $cmd = 'queue:' . $keyword . ' redis --queue=' . $queue->name;
+        $cmd   = 'queue:' . $keyword . ' redis --queue=' . $queue->name;
 
         try {
-            $response = [];
+            $response   = [];
             $response[] = $cmd;
-            $result = exec($cmd, $response);
+            $result     = exec($cmd, $response);
 
             if ($result == '') {
                 $result = 'Not any response';
@@ -170,11 +170,11 @@ class RedisQueueController extends Controller
     public function executeHorizon(Request $request)
     {
         try {
-            $cmd = $request->get('command_tail');
-            $cmd = 'php ../artisan ' . $cmd;
-            $response = [];
+            $cmd        = $request->get('command_tail');
+            $cmd        = 'php ../artisan ' . $cmd;
+            $response   = [];
             $response[] = $cmd;
-            $result = exec($cmd, $response);
+            $result     = exec($cmd, $response);
 
             if ($result == '') {
                 $result = 'Not any response';
@@ -202,11 +202,11 @@ class RedisQueueController extends Controller
 
     public function addExecutionLog($cmd, $result, $id = null)
     {
-        $command = new RedisQueueCommandExecutionLog();
-        $command->user_id = \Auth::user()->id;
-        $command->command = $cmd;
+        $command            = new RedisQueueCommandExecutionLog();
+        $command->user_id   = \Auth::user()->id;
+        $command->command   = $cmd;
         $command->server_ip = env('SERVER_IP');
-        $command->response = $result;
+        $command->response  = $result;
         if ($id) {
             $command->redis_queue_id = $id;
         }
@@ -215,6 +215,8 @@ class RedisQueueController extends Controller
 
     /**
      * Get queue command execution log.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -229,13 +231,13 @@ class RedisQueueController extends Controller
 
     public function syncQueues()
     {
-        $queues = RedisQueue::all();
+        $queues      = RedisQueue::all();
         $queueString = '';
         foreach ($queues as $queue) {
             $queueString .= $queue->name . ',';
         }
         $queueString = rtrim($queueString, ',');
-        $response = Storage::disk('public_disk')->put('queues.txt', $queueString);
+        $response    = Storage::disk('public_disk')->put('queues.txt', $queueString);
         if ($response) {
             return response()->json(['code' => 200, 'message' => 'Queue synced with queue file successfully!']);
         } else {

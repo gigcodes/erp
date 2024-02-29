@@ -51,8 +51,8 @@ class StoreStates extends Command
 
                 if (! empty($country)) {
                     $input = [
-                        'name' => $value['name'],
-                        'code' => $value['iso2'],
+                        'name'       => $value['name'],
+                        'code'       => $value['iso2'],
                         'country_id' => $country->id,
                     ];
 

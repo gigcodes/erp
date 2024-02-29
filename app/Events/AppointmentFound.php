@@ -17,6 +17,8 @@ class AppointmentFound implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      *
+     * @param mixed $userAppointments
+     *
      * @return void
      */
     public function __construct($userAppointments)

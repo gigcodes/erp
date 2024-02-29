@@ -35,7 +35,7 @@ class OperationsController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->operations = $operations;
-        $this->dbi = $dbi;
+        $this->dbi        = $dbi;
     }
 
     public function __invoke(): void
@@ -50,7 +50,7 @@ class OperationsController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
@@ -58,13 +58,13 @@ class OperationsController extends AbstractController
         $urlParams['goto'] = $urlParams['back'] = Url::getFromRoute('/view/operations');
 
         $message = new Message();
-        $type = 'success';
+        $type    = 'success';
         if (isset($_POST['submitoptions'])) {
             if (isset($_POST['new_name'])) {
                 if ($tableObject->rename($_POST['new_name'])) {
                     $message->addText($tableObject->getLastMessage());
                     $result = true;
-                    $table = $tableObject->getName();
+                    $table  = $tableObject->getName();
                     /* Force reread after rename */
                     $tableObject->getStatusInfo(null, true);
                     $reload = true;
@@ -106,8 +106,8 @@ class OperationsController extends AbstractController
         }
 
         $this->render('table/operations/view', [
-            'db' => $db,
-            'table' => $table,
+            'db'         => $db,
+            'table'      => $table,
             'url_params' => $urlParams,
         ]);
     }

@@ -22,11 +22,11 @@ class HubstaffProject extends Model
                     'hubstaff_project_id' => $project->id,
                 ],
                 [
-                    'hubstaff_project_id' => $project->id,
-                    'organisation_id' => config('env.HUBSTAFF_ORG_ID'),
-                    'hubstaff_project_name' => $project->name,
+                    'hubstaff_project_id'          => $project->id,
+                    'organisation_id'              => config('env.HUBSTAFF_ORG_ID'),
+                    'hubstaff_project_name'        => $project->name,
                     'hubstaff_project_description' => isset($project->description) ? $project->description : '',
-                    'hubstaff_project_status' => $project->status,
+                    'hubstaff_project_status'      => $project->status,
                 ]
             );
         }
@@ -34,7 +34,7 @@ class HubstaffProject extends Model
 
     public function editProject($projectName, $projectDescription)
     {
-        $this->hubstaff_project_name = $projectName;
+        $this->hubstaff_project_name        = $projectName;
         $this->hubstaff_project_description = $projectDescription;
         $this->save();
     }

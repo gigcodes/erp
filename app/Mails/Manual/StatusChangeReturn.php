@@ -24,7 +24,7 @@ class StatusChangeReturn extends Mailable
 
     public function __construct(ReturnExchange $return)
     {
-        $this->return = $return;
+        $this->return     = $return;
         $this->fromMailer = \App\Helpers::getFromEmail($this->return->customer->id);
     }
 
@@ -35,8 +35,8 @@ class StatusChangeReturn extends Mailable
      */
     public function build()
     {
-        $subject = 'Your Return request status has been changed';
-        $return = $this->return;
+        $subject  = 'Your Return request status has been changed';
+        $return   = $this->return;
         $customer = $return->customer;
 
         $this->subject = $subject;

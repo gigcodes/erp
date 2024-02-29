@@ -15,7 +15,7 @@ class SqlFormatController extends AbstractController
     public function __invoke(): void
     {
         $params = ['sql' => $_POST['sql'] ?? null];
-        $query = strlen((string) $params['sql']) > 0 ? $params['sql'] : '';
+        $query  = strlen((string) $params['sql']) > 0 ? $params['sql'] : '';
         $this->response->addJSON(['sql' => Formatter::format($query)]);
     }
 }

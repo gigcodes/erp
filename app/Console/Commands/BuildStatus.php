@@ -39,7 +39,7 @@ class BuildStatus extends Command
     public function handle()
     {
         $buildHistory = BuildProcessHistory::all();
-        $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
+        $jenkins      = new \JenkinsKhan\Jenkins('https://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
 
         foreach ($buildHistory as $history) {
             $job = $jenkins->getJob($history['build_name']);

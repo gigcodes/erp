@@ -41,11 +41,11 @@ class WhatsappBusinessAccountController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'business_phone_number' => 'required',
-                'business_account_id' => 'required',
-                'business_access_token' => 'required',
+                'business_phone_number'    => 'required',
+                'business_account_id'      => 'required',
+                'business_access_token'    => 'required',
                 'business_phone_number_id' => 'required',
-                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png',
+                'profile_picture_url'      => 'sometimes|mimes:jpeg,jpg,png',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('whatsapp.business.account.index')
@@ -54,9 +54,9 @@ class WhatsappBusinessAccountController extends Controller
                     ->withInput();
             }
             $account = WhatsappBusinessAccounts::create([
-                'business_phone_number' => $request->business_phone_number,
-                'business_account_id' => $request->business_account_id,
-                'business_access_token' => $request->business_access_token,
+                'business_phone_number'    => $request->business_phone_number,
+                'business_account_id'      => $request->business_account_id,
+                'business_access_token'    => $request->business_access_token,
                 'business_phone_number_id' => $request->business_phone_number_id,
             ]);
             $whatsappApiController = new WhatsAppOfficialController($account->id);
@@ -85,11 +85,11 @@ class WhatsappBusinessAccountController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'business_phone_number' => 'required',
-                'business_account_id' => 'required',
-                'business_access_token' => 'required',
+                'business_phone_number'    => 'required',
+                'business_account_id'      => 'required',
+                'business_access_token'    => 'required',
                 'business_phone_number_id' => 'required',
-                'profile_picture_url' => 'sometimes|mimes:jpeg,jpg,png',
+                'profile_picture_url'      => 'sometimes|mimes:jpeg,jpg,png',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('whatsapp.business.account.index')
@@ -97,9 +97,9 @@ class WhatsappBusinessAccountController extends Controller
                     ->withErrors($validator)
                     ->withInput();
             }
-            $whatsappBusinessAccount->business_phone_number = $request->business_phone_number;
-            $whatsappBusinessAccount->business_account_id = $request->business_account_id;
-            $whatsappBusinessAccount->business_access_token = $request->business_access_token;
+            $whatsappBusinessAccount->business_phone_number    = $request->business_phone_number;
+            $whatsappBusinessAccount->business_account_id      = $request->business_account_id;
+            $whatsappBusinessAccount->business_access_token    = $request->business_access_token;
             $whatsappBusinessAccount->business_phone_number_id = $request->business_phone_number_id;
             $whatsappBusinessAccount->save();
             $whatsappApiController = new WhatsAppOfficialController($whatsappBusinessAccount->id);
@@ -115,6 +115,8 @@ class WhatsappBusinessAccountController extends Controller
 
     /**
      * Delete a whatsapp business account
+     *
+     * @param mixed $id
      */
     public function deleteAccount(Request $request, $id): RedirectResponse
     {
@@ -136,6 +138,8 @@ class WhatsappBusinessAccountController extends Controller
 
     /**
      * Get the account by id
+     *
+     * @param mixed $id
      */
     public function getAccount(Request $request, $id): JsonResponse
     {

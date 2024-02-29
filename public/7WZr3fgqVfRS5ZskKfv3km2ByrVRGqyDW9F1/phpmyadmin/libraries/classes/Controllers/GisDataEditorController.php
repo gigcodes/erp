@@ -71,7 +71,7 @@ class GisDataEditorController extends AbstractController
             }
 
             if (isset($value) && trim($value) !== '') {
-                $start = substr($value, 0, 1) == "'" ? 1 : 0;
+                $start                = substr($value, 0, 1) == "'" ? 1 : 0;
                 $gis_data['gis_type'] = mb_substr($value, $start, (int) mb_strpos($value, '(') - $start);
             }
 
@@ -96,22 +96,22 @@ class GisDataEditorController extends AbstractController
         }
 
         // Generate Well Known Text
-        $srid = isset($gis_data['srid']) && $gis_data['srid'] != '' ? (int) $gis_data['srid'] : 0;
-        $wkt = $gis_obj->generateWkt($gis_data, 0);
+        $srid          = isset($gis_data['srid']) && $gis_data['srid'] != '' ? (int) $gis_data['srid'] : 0;
+        $wkt           = $gis_obj->generateWkt($gis_data, 0);
         $wkt_with_zero = $gis_obj->generateWkt($gis_data, 0, '0');
-        $result = "'" . $wkt . "'," . $srid;
+        $result        = "'" . $wkt . "'," . $srid;
 
         // Generate SVG based visualization
         $visualizationSettings = [
-            'width' => 450,
-            'height' => 300,
+            'width'         => 450,
+            'height'        => 300,
             'spatialColumn' => 'wkt',
-            'mysqlVersion' => $dbi->getVersion(),
-            'isMariaDB' => $dbi->isMariaDB(),
+            'mysqlVersion'  => $dbi->getVersion(),
+            'isMariaDB'     => $dbi->isMariaDB(),
         ];
         $data = [
             [
-                'wkt' => $wkt_with_zero,
+                'wkt'  => $wkt_with_zero,
                 'srid' => $srid,
             ],
         ];
@@ -124,9 +124,9 @@ class GisDataEditorController extends AbstractController
         // If the call is to update the WKT and visualization make an AJAX response
         if ($generate) {
             $this->response->addJSON([
-                'result' => $result,
+                'result'        => $result,
                 'visualization' => $visualization,
-                'openLayers' => $open_layers,
+                'openLayers'    => $open_layers,
             ]);
 
             return;
@@ -142,18 +142,18 @@ class GisDataEditorController extends AbstractController
         }
 
         $templateOutput = $this->template->render('gis_data_editor_form', [
-            'width' => $visualizationSettings['width'],
-            'height' => $visualizationSettings['height'],
-            'field' => $field,
-            'input_name' => $inputName,
-            'srid' => $srid,
+            'width'         => $visualizationSettings['width'],
+            'height'        => $visualizationSettings['height'],
+            'field'         => $field,
+            'input_name'    => $inputName,
+            'srid'          => $srid,
             'visualization' => $visualization,
-            'open_layers' => $open_layers,
-            'gis_types' => $gis_types,
-            'geom_type' => $geom_type,
-            'geom_count' => $geom_count,
-            'gis_data' => $gis_data,
-            'result' => $result,
+            'open_layers'   => $open_layers,
+            'gis_types'     => $gis_types,
+            'geom_type'     => $geom_type,
+            'geom_count'    => $geom_count,
+            'gis_data'      => $gis_data,
+            'result'        => $result,
         ]);
 
         $this->response->addJSON(['gis_editor' => $templateOutput]);

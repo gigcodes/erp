@@ -29,7 +29,7 @@ final class AddController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -47,7 +47,7 @@ final class AddController extends AbstractController
         }
 
         $centralColumns = new CentralColumns($this->dbi);
-        $error = $centralColumns->syncUniqueColumns($selected);
+        $error          = $centralColumns->syncUniqueColumns($selected);
 
         $message = $error instanceof Message ? $error : Message::success(__('Success!'));
 

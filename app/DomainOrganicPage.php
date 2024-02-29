@@ -12,7 +12,7 @@ class DomainOrganicPage extends Model
 
     public function organicPageSemrushApi($domain, $db, $column = null)
     {
-        $key = config('env.SEMRUSH_API');
+        $key  = config('env.SEMRUSH_API');
         $apis = [
             'organic_page' => 'https://api.semrush.com/?type=domain_organic_unique&key=' . $key . '&display_filter=%2B%7CPc%7CGt%7C100&display_limit=10&export_columns=Ur,Pc,Tg,Tr&domain=' . $domain . '&display_sort=tr_desc&database=us',
         ];

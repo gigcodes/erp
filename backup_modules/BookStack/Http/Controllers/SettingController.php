@@ -35,7 +35,7 @@ class SettingController extends Controller
         $version = trim(file_get_contents(base_path('version')));
 
         return view('bookstack::settings.index', [
-            'version' => $version,
+            'version'   => $version,
             'guestUser' => User::getDefault(),
         ]);
     }
@@ -107,10 +107,10 @@ class SettingController extends Controller
         $this->checkPermission('settings-manage');
 
         $checkRevisions = ! ($request->get('ignore_revisions', 'false') === 'true');
-        $dryRun = ! ($request->has('confirm'));
+        $dryRun         = ! ($request->has('confirm'));
 
         $imagesToDelete = $imageService->deleteUnusedImages($checkRevisions, $dryRun);
-        $deleteCount = count($imagesToDelete);
+        $deleteCount    = count($imagesToDelete);
         if ($deleteCount === 0) {
             session()->flash('warning', trans('bookstack::settings.maint_image_cleanup_nothing_found'));
 

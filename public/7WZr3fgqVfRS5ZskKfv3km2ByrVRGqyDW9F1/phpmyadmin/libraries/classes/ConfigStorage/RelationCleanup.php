@@ -19,21 +19,21 @@ class RelationCleanup
     public $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface object
-     * @param  Relation  $relation Relation object
+     * @param DatabaseInterface $dbi      DatabaseInterface object
+     * @param Relation          $relation Relation object
      */
     public function __construct($dbi, Relation $relation)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = $relation;
     }
 
     /**
      * Cleanup column related relation stuff
      *
-     * @param  string  $db     database name
-     * @param  string  $table  table name
-     * @param  string  $column column name
+     * @param string $db     database name
+     * @param string $table  table name
+     * @param string $column column name
      */
     public function column($db, $table, $column): void
     {
@@ -93,8 +93,8 @@ class RelationCleanup
     /**
      * Cleanup table related relation stuff
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
+     * @param string $db    database name
+     * @param string $table table name
      */
     public function table($db, $table): void
     {
@@ -179,7 +179,7 @@ class RelationCleanup
     /**
      * Cleanup database related relation stuff
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function database($db): void
     {
@@ -280,7 +280,7 @@ class RelationCleanup
     /**
      * Cleanup user related relation stuff
      *
-     * @param  string  $username username
+     * @param string $username username
      */
     public function user($username): void
     {

@@ -17,11 +17,11 @@ class ResourceImgController extends Controller
 {
     public function index(Request $request)
     {
-        $old = $request->old('parent_id');
+        $old        = $request->old('parent_id');
         $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
-        $categories = ResourceCategory::where('parent_id', '=', 0)->get();
+        $categories     = ResourceCategory::where('parent_id', '=', 0)->get();
         $sub_categories = ResourceCategory::where('parent_id', '!=', 0)->get();
 
         $query = ResourceImage::where('is_pending', '=', 0);
@@ -85,24 +85,24 @@ class ResourceImgController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function updateStatus(Request $request)
     {
-        $postId = $request->input('postId');
+        $postId         = $request->input('postId');
         $selectedStatus = $request->input('selectedStatus');
 
-        $ResourceImage = ResourceImage::find($postId);
-        $history = new ResourceStatusHistory();
+        $ResourceImage               = ResourceImage::find($postId);
+        $history                     = new ResourceStatusHistory();
         $history->resource_images_id = $postId;
-        $history->old_value = $ResourceImage->status_id;
-        $history->new_value = $selectedStatus;
-        $history->user_id = Auth::user()->id;
+        $history->old_value          = $ResourceImage->status_id;
+        $history->new_value          = $selectedStatus;
+        $history->user_id            = Auth::user()->id;
         $history->save();
 
         $ResourceImage->status_id = $selectedStatus;
@@ -114,9 +114,9 @@ class ResourceImgController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = ResourceStatus::find($key);
+            $bugstatus               = ResourceStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
         }
@@ -127,7 +127,7 @@ class ResourceImgController extends Controller
     public function resourceStatusCreate(Request $request)
     {
         try {
-            $status = new ResourceStatus();
+            $status              = new ResourceStatus();
             $status->status_name = $request->status_name;
             $status->save();
 
@@ -180,7 +180,7 @@ class ResourceImgController extends Controller
             if ($request->method() === 'POST') {
                 if ($request->input('title')) {
                     $this->validate($request, ['title' => 'required']);
-                    $category = $category->find($request->input('parent_id'));
+                    $category        = $category->find($request->input('parent_id'));
                     $category->title = $request->input('title');
                     if (! $category->save()) {
                         return redirect()->route('resourceimg.index')->with('danger', 'Something went wrong, Please try again.');
@@ -188,12 +188,12 @@ class ResourceImgController extends Controller
                         return redirect()->route('resourceimg.index')->with('success', 'Resource category updated successfully.');
                     }
                 } else {
-                    $old = $request->input('parent_id');
+                    $old        = $request->input('parent_id');
                     $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
                         ->selected($old ? $old : 1)
                         ->renderAsDropdown();
                     $category = $category->find($request->input('parent_id'));
-                    $title = $category->title;
+                    $title    = $category->title;
 
                     return view('resourceimg.editCategory', compact('Categories', 'title'));
                 }
@@ -202,7 +202,7 @@ class ResourceImgController extends Controller
 
         if ($input['type'] == 'delete') {
             $category_instance = new ResourceCategory();
-            $category = $category_instance->find($request->input('parent_id'));
+            $category          = $category_instance->find($request->input('parent_id'));
 
             if (ResourceCategory::isParent($category->id)) {
                 return back()->with('danger', 'Can\'t delete Parent category. Please delete all the childs first');
@@ -225,18 +225,18 @@ class ResourceImgController extends Controller
     {
         $input = $request->all();
         $request->validate([
-            'cat_id' => 'required',
-            'sub_cat_id' => 'required',
-            'url' => 'sometimes',
+            'cat_id'      => 'required',
+            'sub_cat_id'  => 'required',
+            'url'         => 'sometimes',
             'description' => 'required',
-            'image' => 'sometimes',
-            'image2' => 'sometimes',
+            'image'       => 'sometimes',
+            'image2'      => 'sometimes',
         ]);
         try {
             if ($request->hasFile('image')) {
                 $images = $request->file('image');
                 foreach ($images as $image) {
-                    $name = uniqid() . time() . '.' . $image->getClientOriginalExtension();
+                    $name            = uniqid() . time() . '.' . $image->getClientOriginalExtension();
                     $destinationPath = public_path('/category_images');
                     $image->move($destinationPath, $name);
                     $input['images'][] = $name;
@@ -244,10 +244,10 @@ class ResourceImgController extends Controller
             }
 
             if ($request->image2) {
-                $image = $request->image2;  // your base64 encoded
-                $image = str_replace('data:image/png;base64,', '', $image);
-                $image = str_replace(' ', '+', $image);
-                $imageName = uniqid() . time() . '.' . 'png';
+                $image           = $request->image2;  // your base64 encoded
+                $image           = str_replace('data:image/png;base64,', '', $image);
+                $image           = str_replace(' ', '+', $image);
+                $imageName       = uniqid() . time() . '.' . 'png';
                 $destinationPath = public_path('/category_images');
                 \File::put($destinationPath . '/' . $imageName, base64_decode($image));
                 $input['images'][] = $imageName;
@@ -272,8 +272,8 @@ class ResourceImgController extends Controller
         if ($request->input('button_type') == 'delete') {
             if ($request->input('id')) {
                 $ResourceImage = new ResourceImage();
-                $Image = $ResourceImage->find($request->input('id'));
-                $file_path = public_path() . '/category_images/' . $Image->image1;
+                $Image         = $ResourceImage->find($request->input('id'));
+                $file_path     = public_path() . '/category_images/' . $Image->image1;
                 if (isset($Image->image1) && file_exists(@$file_path)) {
                     unlink($file_path);
                 }
@@ -288,8 +288,8 @@ class ResourceImgController extends Controller
                 return back()->with('danger', 'Requested id not found.');
             }
         } elseif ($request->input('button_type') == 'edit') {
-            $allresources = ResourceImage::getData();
-            $old = $request->old('cat_id');
+            $allresources          = ResourceImage::getData();
+            $old                   = $request->old('cat_id');
             $allCategoriesDropdown = Category::attr(['name' => 'cat_id', 'class' => 'form-control'])->selected($old ? $old : 1)->renderAsDropdown();
 
             return view('resourceimg.edit', compact('allCategoriesDropdown', 'allresources'));
@@ -301,12 +301,12 @@ class ResourceImgController extends Controller
     public function imagesResource($id)
     {
         $ResourceImage = new ResourceImage();
-        $allresources = $ResourceImage->find($id);
-        $title = '';
+        $allresources  = $ResourceImage->find($id);
+        $title         = '';
         if ($allresources) {
             $categories = ResourceCategory::where('id', '=', $allresources->cat_id)->get()->first();
-            $parent_id = $categories->parent_id;
-            $id = $categories->id;
+            $parent_id  = $categories->parent_id;
+            $id         = $categories->id;
             if ($parent_id == 0) {
                 $title = $categories->title;
             } else {
@@ -314,12 +314,12 @@ class ResourceImgController extends Controller
                 while ($parent_id != 0) {
                     $categories = ResourceCategory::where('id', '=', $id)->get()->first();
                     $titlestr[] = $categories->title;
-                    $id = $parent_id = $categories->parent_id;
+                    $id         = $parent_id = $categories->parent_id;
                 }
                 krsort($titlestr);
                 $title = implode(' >> ', $titlestr);
             }
-            $url = $allresources->url;
+            $url         = $allresources->url;
             $description = $allresources->description;
 
             return view('resourceimg.images', compact('allresources', 'title', 'url', 'description'));
@@ -334,8 +334,8 @@ class ResourceImgController extends Controller
     public function showImagesResource(Request $request)
     {
         $ResourceImage = new ResourceImage();
-        $allresources = $ResourceImage->find($request->id);
-        $title = '';
+        $allresources  = $ResourceImage->find($request->id);
+        $title         = '';
         if ($allresources) {
             if ($request->ajax()) {
                 return response()->json([
@@ -380,12 +380,12 @@ class ResourceImgController extends Controller
 
     public function pending(Request $request)
     {
-        $old = $request->old('parent_id');
+        $old        = $request->old('parent_id');
         $Categories = ResourceCategory::attr(['name' => 'parent_id', 'class' => 'form-control'])
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
         $categories = ResourceCategory::where('parent_id', '=', 0)->get();
-        $query = ResourceImage::where('is_pending', '=', 1);
+        $query      = ResourceImage::where('is_pending', '=', 1);
         if ($request->id) {
             $query = $query->where('id', $request->id);
         }
@@ -413,7 +413,7 @@ class ResourceImgController extends Controller
     {
         $ids = $request->id;
         foreach ($ids as $id) {
-            $resourceImage = ResourceImage::findorfail($id);
+            $resourceImage             = ResourceImage::findorfail($id);
             $resourceImage->is_pending = 0;
             $resourceImage->created_by = Auth::user()->name;
             $resourceImage->update();
@@ -428,10 +428,10 @@ class ResourceImgController extends Controller
 
         $this->validate($request, [
             'resource_images_id' => 'required',
-            'remarks' => 'required',
+            'remarks'            => 'required',
         ]);
 
-        $input = $request->except(['_token']);
+        $input             = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         ResourceRemarksHistory::create($input);
 
@@ -446,9 +446,9 @@ class ResourceImgController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -483,9 +483,9 @@ class ResourceImgController extends Controller
         }
 
         return response()->json([
-            'status' => true,
-            'html' => $html,
-            'message' => 'Images get successfully',
+            'status'      => true,
+            'html'        => $html,
+            'message'     => 'Images get successfully',
             'status_name' => 'success',
         ], 200);
     }

@@ -21,34 +21,34 @@ class ContactBloggerController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, ['name' => 'required', 'email' => 'required|email', 'instagram_handle' => 'required']);
-        $blogger_contact = new ContactBlogger($request->all());
+        $blogger_contact         = new ContactBlogger($request->all());
         $blogger_contact->status = 'pending';
         $blogger_contact->save();
 
         $email_template = BloggerEmailTemplate::first();
-        $subject = $request->get('email_subject') ?: optional($email_template)->subject;
-        $message = $request->get('email_message') ?: optional($email_template)->message;
-        $from_email = \App\Helpers::getFromEmail();
+        $subject        = $request->get('email_subject') ?: optional($email_template)->subject;
+        $message        = $request->get('email_message') ?: optional($email_template)->message;
+        $from_email     = \App\Helpers::getFromEmail();
 
         $emailClass = (new \App\Mails\Manual\ContactBlogger($subject, $message, $from_email))->build();
 
         $email = Email::create([
-            'model_id' => $blogger_contact->id,
-            'model_type' => ContactBlogger::class,
-            'from' => $from_email,
-            'to' => $blogger_contact->email,
-            'subject' => $emailClass->subject,
-            'message' => $emailClass->render(),
-            'template' => 'contact-blogger',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $blogger_contact->id,
+            'model_type'       => ContactBlogger::class,
+            'from'             => $from_email,
+            'to'               => $blogger_contact->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'contact-blogger',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 0,
+            'is_draft'         => 0,
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 

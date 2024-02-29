@@ -10,7 +10,7 @@ class SizeController extends Controller
 {
     public function index()
     {
-        $title = 'Size';
+        $title         = 'Size';
         $storeWebsites = \App\StoreWebsite::pluck('website', 'id')->toArray();
 
         return view('size.index', compact('title', 'storeWebsites'));
@@ -29,7 +29,7 @@ class SizeController extends Controller
         $items = [];
         foreach ($records->items() as &$item) {
             $item->store_wesites = [];
-            $stores = [];
+            $stores              = [];
             if (! $item->storeWebsitSize->isEmpty()) {
                 foreach ($item->storeWebsitSize as $sws) {
                     if ($sws->storeWebsite) {
@@ -38,7 +38,7 @@ class SizeController extends Controller
                 }
             }
             $item->store_wesites = $stores;
-            $items[] = $item;
+            $items[]             = $item;
         }
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => $records->total(), 'pagination' => (string) $records->render()]);
@@ -60,18 +60,18 @@ class SizeController extends Controller
                 $websites = array_filter($request->get('store_website'));
                 if (! empty($websites)) {
                     foreach ($websites as $k => $p) {
-                        $sws = new \App\StoreWebsiteSize;
-                        $sws->platform_id = $p;
+                        $sws                   = new \App\StoreWebsiteSize;
+                        $sws->platform_id      = $p;
                         $sws->store_website_id = $k;
-                        $sws->size_id = $size->id;
+                        $sws->size_id          = $size->id;
                         $sws->save();
                         $storeWebsites = \App\StoreWebsite::where('parent_id', '=', $k)->get();
                         if (count($storeWebsites) > 0) {
                             foreach ($storeWebsites as $site) {
-                                $sws = new \App\StoreWebsiteSize;
-                                $sws->platform_id = $p;
+                                $sws                   = new \App\StoreWebsiteSize;
+                                $sws->platform_id      = $p;
                                 $sws->store_website_id = $site->id;
-                                $sws->size_id = $size->id;
+                                $sws->size_id          = $size->id;
                                 $sws->save();
                             }
                         }
@@ -125,7 +125,7 @@ class SizeController extends Controller
 
         if ($id > 0) {
             $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
-            $size = \App\Size::where('id', $id)->first();
+            $size    = \App\Size::where('id', $id)->first();
 
             if (! $website->isEmpty()) {
                 foreach ($website as $web) {
@@ -133,11 +133,11 @@ class SizeController extends Controller
                     $checkSite = \App\StoreWebsiteSize::where('size_id', $size->id)->where('store_website_id', $web->id)->where('platform_id', '>', 0)->first();
                     if (! $checkSite) {
                         \App\StoreWebsiteSize::where('size_id', $size->id)->where('store_website_id', $web->id)->delete();
-                        $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($size, $web);
-                        $sws = new \App\StoreWebsiteSize;
-                        $sws->size_id = $size->id;
+                        $id                    = \seo2websites\MagentoHelper\MagentoHelper::addSize($size, $web);
+                        $sws                   = new \App\StoreWebsiteSize;
+                        $sws->size_id          = $size->id;
                         $sws->store_website_id = $web->id;
-                        $sws->platform_id = $id;
+                        $sws->platform_id      = $id;
                         $sws->save();
                     }
                 }
@@ -151,7 +151,7 @@ class SizeController extends Controller
 
     public function sizeReference(Request $request)
     {
-        $sizes = Size::all();
+        $sizes        = Size::all();
         $unknownSizes = UnknownSize::query();
         if ($request->search) {
             $unknownSizes = $unknownSizes->where('size', 'LIKE', '%' . $request->search . '%');
@@ -163,8 +163,8 @@ class SizeController extends Controller
 
     public function newSizeReferences(Request $request)
     {
-        $sizes = \App\SizeAndErpSize::all();
-        $erpSizes = \App\SystemSizeManager::select('id', 'erp_size')->get();
+        $sizes         = \App\SizeAndErpSize::all();
+        $erpSizes      = \App\SystemSizeManager::select('id', 'erp_size')->get();
         $erpSizesCount = \App\SizeAndErpSize::select('id', 'erp_size')->count();
 
         return view('size.new-reference', compact('sizes', 'erpSizes', 'erpSizesCount'));
@@ -180,8 +180,8 @@ class SizeController extends Controller
 
     public function referenceAdd(Request $request)
     {
-        $size = UnknownSize::where('size', $request->from)->first();
-        $sizeFrom = new Size;
+        $size           = UnknownSize::where('size', $request->from)->first();
+        $sizeFrom       = new Size;
         $sizeFrom->name = $size->size;
         $sizeFrom->save();
         $size->delete();
@@ -191,11 +191,11 @@ class SizeController extends Controller
 
     public function usedProducts(Request $request)
     {
-        $q = $request->id;
+        $q           = $request->id;
         $UnknownSize = \App\UnknownSize::find($q);
         if ($q) {
             // check the type and then
-            $q = '"' . $q . '"';
+            $q        = '"' . $q . '"';
             $products = \App\ScrapedProducts::where('properties', 'like', '%' . $UnknownSize->size . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
@@ -209,11 +209,11 @@ class SizeController extends Controller
     public function affectedProduct(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"' . $from . '"';
+            $q     = '"' . $from . '"';
             $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.composition', '')
@@ -229,7 +229,7 @@ class SizeController extends Controller
     public function updateSizes(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         $to = \App\Size::find($to);
 
@@ -239,8 +239,8 @@ class SizeController extends Controller
 
         if ($updateWithProduct == 'yes') {
             \App\Jobs\UpdateSizeFromErp::dispatch([
-                'from' => $from,
-                'to' => $to->name,
+                'from'    => $from,
+                'to'      => $to->name,
                 'user_id' => \Auth::user()->id,
             ])->onQueue('supplier_products');
         }

@@ -21,6 +21,8 @@ class OrderInvoice extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $params
+     *
      * @return void
      */
     public function __construct($params)
@@ -42,8 +44,8 @@ class OrderInvoice extends Mailable
     {
         return view('maileclipse::templates.orderInvoice', [
             'orderItems' => $this->orderItems,
-            'customer' => $this->customer,
-            'order' => $this->order,
+            'customer'   => $this->customer,
+            'order'      => $this->order,
             'orderTotal' => $this->orderTotal,
         ]);
     }

@@ -63,7 +63,7 @@ class SyncUpteamProducts extends Command
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
             // $output contains the output string
-            $output = curl_exec($ch);
+            $output   = curl_exec($ch);
             $products = json_decode($output); //response deocdes
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $api, 'POST', json_encode([]), $products, $httpcode, \App\Console\Commands\SyncUpteamProducts::class, 'handle');
@@ -72,7 +72,7 @@ class SyncUpteamProducts extends Command
             $headings = $products[0];
             unset($products[0]);
             $productWithKeys = [];
-            $i = 0;
+            $i               = 0;
             foreach ($products as $product) {
                 foreach ($product as $key => $value) {
                     $productWithKeys[$i][$headings[$key]] = $value;
@@ -92,7 +92,7 @@ class SyncUpteamProducts extends Command
                     UpteamLog::create(['log_description' => $product['category'] . ' Category Not found for product ' . $product['product_name']]);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => ' Category Not found for product ' . $product['product_name']]);
                     $mainCategory = Category::firstOrCreate(['title' => $product['main_category']]);
-                    $category = Category::create(['title' => $product['category'], 'parent_id' => $mainCategory['id']]);
+                    $category     = Category::create(['title' => $product['category'], 'parent_id' => $mainCategory['id']]);
                     UpteamLog::create(['log_description' => $product['category'] . ' Category created']);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => $product['category'] . ' Category created']);
                 }
@@ -105,17 +105,17 @@ class SyncUpteamProducts extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => $product['brand'] . ' brand inserted']);
                 }
                 $measurement_size_type = 'measurement';
-                $size_value = null;
+                $size_value            = null;
                 UpteamLog::create(['log_description' => ' Size check']);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => ' Size check']);
                 if ($product['ring_size'] != '' and $product['ring_size'] > 0) {
                     UpteamLog::create(['log_description' => $product['product_name'] . ' ring size assigned']);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => $product['product_name'] . ' ring size assigned']);
                     $measurement_size_type = 'size';
-                    $size_value = $product['ring_size'];
+                    $size_value            = $product['ring_size'];
                 } elseif ($product['belt_size'] != '' and $product['belt_size'] > 0) {
                     $measurement_size_type = 'size';
-                    $size_value = $product['belt_size'];
+                    $size_value            = $product['belt_size'];
                     UpteamLog::create(['log_description' => $product['product_name'] . ' belt size assigned']);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => $product['product_name'] . ' belt size assigned']);
                 }
@@ -126,31 +126,31 @@ class SyncUpteamProducts extends Command
                     $conversionRate = 0;
                 }
                 $productToInsert = [
-                    'sku' => $product['sku'],
-                    'short_description' => $product['description'],
-                    'stock' => $product['stock'],
-                    'brand' => $brand['id'],
-                    'name' => $product['product_name'],
-                    'category' => $category['id'],
-                    'composition' => $product['type_of_material'] . ' ' . $product['name_of_material'] . '/' . $product['type_of_material2'] . ' ' . $product['name_of_material2'],
-                    'color' => $product['color1'] . ' ' . $product['shade1'],
-                    'lmeasurement' => $product['length'],
-                    'hmeasurement' => $product['width'],
-                    'dmeasurement' => $product['depth'],
-                    'size' => $size_value,
+                    'sku'                   => $product['sku'],
+                    'short_description'     => $product['description'],
+                    'stock'                 => $product['stock'],
+                    'brand'                 => $brand['id'],
+                    'name'                  => $product['product_name'],
+                    'category'              => $category['id'],
+                    'composition'           => $product['type_of_material'] . ' ' . $product['name_of_material'] . '/' . $product['type_of_material2'] . ' ' . $product['name_of_material2'],
+                    'color'                 => $product['color1'] . ' ' . $product['shade1'],
+                    'lmeasurement'          => $product['length'],
+                    'hmeasurement'          => $product['width'],
+                    'dmeasurement'          => $product['depth'],
+                    'size'                  => $size_value,
                     'measurement_size_type' => $measurement_size_type,
-                    'made_in' => $product['country_of_origin'],
-                    'supplier' => 'UPTEAM',
-                    'supplier_id' => 5633,
-                    'comments' => $product['comments'],
-                    'rating' => $product['rating'],
-                    'price_usd' => $product['rrp'],
-                    'price_usd_special' => $product['selling_price_usd'],
-                    'status_id' => 3,
-                    'is_scraped' => 1,
-                    'is_on_sale' => 1,
-                    'price_inr' => round($conversionRate * $product['rrp']),
-                    'price_inr_special' => round($conversionRate * $product['selling_price_usd']),
+                    'made_in'               => $product['country_of_origin'],
+                    'supplier'              => 'UPTEAM',
+                    'supplier_id'           => 5633,
+                    'comments'              => $product['comments'],
+                    'rating'                => $product['rating'],
+                    'price_usd'             => $product['rrp'],
+                    'price_usd_special'     => $product['selling_price_usd'],
+                    'status_id'             => 3,
+                    'is_scraped'            => 1,
+                    'is_on_sale'            => 1,
+                    'price_inr'             => round($conversionRate * $product['rrp']),
+                    'price_inr_special'     => round($conversionRate * $product['selling_price_usd']),
                 ];
 
                 UpteamLog::create(['log_description' => 'Product to insert ' . json_encode($productToInsert)]);
@@ -163,27 +163,27 @@ class SyncUpteamProducts extends Command
                     $productToInsert
                 );
                 ProductSupplier::updateOrCreate(['product_id' => $insertedProd->id], [
-                    'product_id' => $insertedProd->id,
-                    'supplier_id' => 5633,
-                    'sku' => $insertedProd->sku,
-                    'title' => $insertedProd->name,
-                    'description' => $insertedProd->short_description,
+                    'product_id'    => $insertedProd->id,
+                    'supplier_id'   => 5633,
+                    'sku'           => $insertedProd->sku,
+                    'title'         => $insertedProd->name,
+                    'description'   => $insertedProd->short_description,
                     'supplier_link' => $insertedProd->supplier_link,
-                    'price' => $insertedProd->price_usd,
-                    'stock' => $insertedProd->stock,
+                    'price'         => $insertedProd->price_usd,
+                    'stock'         => $insertedProd->stock,
                     'price_special' => $insertedProd->price_usd_special,
-                    'size' => $insertedProd->size,
-                    'color' => $insertedProd->color,
-                    'composition' => $insertedProd->composition,
+                    'size'          => $insertedProd->size,
+                    'color'         => $insertedProd->color,
+                    'composition'   => $insertedProd->composition,
                 ]);
 
                 UpteamLog::create(['log_description' => 'Product imported ' . $product['product_name']]);
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Product imported ' . $product['product_name']]);
                 $photos = explode(',', $product['photos']);
                 foreach ($photos as $photo) {
-                    $jpg = Image::make($product['directory'] . $photo)->encode('jpg');
+                    $jpg      = Image::make($product['directory'] . $photo)->encode('jpg');
                     $filename = $photo;
-                    $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($insertedProd->id / 10000))->useFilename($filename)->upload();
+                    $media    = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($insertedProd->id / 10000))->useFilename($filename)->upload();
                     $insertedProd->attachMedia($media, config('constants.media_tags'));
                     UpteamLog::create(['log_description' => 'Image  saved for ' . $product['product_name']]);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Image  saved for ' . $product['product_name']]);

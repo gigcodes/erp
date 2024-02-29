@@ -42,17 +42,17 @@ class ConnectGoogleClientAccounts extends Command
     public function handle()
     {
         $GoogleClientAccountsMails = GoogleClientAccountMail::orderBy('created_at', 'desc')->get();
-        $google_redirect_url = route('googlewebmaster.get-access-token');
-        $users = User::get();
-        $admins = [];
+        $google_redirect_url       = route('googlewebmaster.get-access-token');
+        $users                     = User::get();
+        $admins                    = [];
         foreach ($users as $user) {
             if ($user->isAdmin()) {
-                $data['id'] = $user->id;
-                $data['name'] = $user->name;
-                $data['email'] = $user->email;
-                $data['phone'] = $user->phone;
+                $data['id']              = $user->id;
+                $data['name']            = $user->name;
+                $data['email']           = $user->email;
+                $data['phone']           = $user->phone;
                 $data['whatsapp_number'] = $user->whatsapp_number;
-                $admins[] = $data;
+                $admins[]                = $data;
             }
         }
 
@@ -77,9 +77,9 @@ class ConnectGoogleClientAccounts extends Command
                     $msg = 'Google Webmaster:: Your account   has been disconnected. <a href="' . route('googlewebmaster.account.connect', $acc->google_client_account_id) . '">Click here</a> to connect';
 
                     GoogleClientNotification::create([
-                        'google_client_id' => $acc->id,
-                        'receiver_id' => $admin['id'],
-                        'message' => $msg,
+                        'google_client_id'  => $acc->id,
+                        'receiver_id'       => $admin['id'],
+                        'message'           => $msg,
                         'notification_type' => 'error',
                     ]);
 

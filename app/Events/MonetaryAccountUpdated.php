@@ -14,6 +14,8 @@ class MonetaryAccountUpdated
     /**
      * Create a new event instance.
      *
+     * @param publicMonetaryAccount $account
+     *
      * @return void
      */
     public function __construct(public MonetaryAccount $account)

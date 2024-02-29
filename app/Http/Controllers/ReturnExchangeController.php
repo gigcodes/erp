@@ -31,7 +31,7 @@ class ReturnExchangeController extends Controller
     public function getOrders($id)
     {
         if (! empty($id)) {
-            $customer = Customer::find($id);
+            $customer  = Customer::find($id);
             $orderData = [];
 
             if (! empty($customer)) {
@@ -50,7 +50,7 @@ class ReturnExchangeController extends Controller
             }
         }
 
-        $status = ReturnExchangeStatus::pluck('status_name', 'id');
+        $status   = ReturnExchangeStatus::pluck('status_name', 'id');
         $response = (string) view('partials.return-exchange', compact('id', 'orderData', 'status'));
 
         return response()->json(['code' => 200, 'html' => $response]);
@@ -60,11 +60,12 @@ class ReturnExchangeController extends Controller
      * save the exchange result
      *
      * @param Request
+     * @param mixed $id
      *
      **/
     public function save(Request $request, $id)
     {
-        $params = $request->all();
+        $params    = $request->all();
         $sendEmail = $params['send_email'];
         unset($params['send_email']);
         $returnExchange = \App\ReturnExchange::create($params);
@@ -85,10 +86,10 @@ class ReturnExchangeController extends Controller
             }
 
             if (! empty($product)) {
-                $returnExchangeProduct = new \App\ReturnExchangeProduct;
-                $returnExchangeProduct->product_id = $product->id;
-                $returnExchangeProduct->order_product_id = $params['order_product_id'];
-                $returnExchangeProduct->name = $product->name;
+                $returnExchangeProduct                     = new \App\ReturnExchangeProduct;
+                $returnExchangeProduct->product_id         = $product->id;
+                $returnExchangeProduct->order_product_id   = $params['order_product_id'];
+                $returnExchangeProduct->name               = $product->name;
                 $returnExchangeProduct->return_exchange_id = $returnExchange->id;
                 $returnExchangeProduct->save();
             }
@@ -101,7 +102,7 @@ class ReturnExchangeController extends Controller
                 if ($auto_reply) {
                     $auto_message = preg_replace('/{order_id}/i', ! empty($orderProduct) ? $orderProduct->order_id : 'N/A', $auto_reply->reply);
                     $auto_message = preg_replace('/{product_names}/i', ! empty($product) ? $product->name : 'N/A', $auto_message);
-                    $requestData = new Request();
+                    $requestData  = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
                     app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -112,7 +113,7 @@ class ReturnExchangeController extends Controller
                 if ($auto_reply) {
                     $auto_message = preg_replace('/{order_id}/i', ! empty($orderProduct) ? $orderProduct->order_id : 'N/A', $auto_reply->reply);
                     $auto_message = preg_replace('/{product_names}/i', ! empty($product) ? $product->name : 'N/A', $auto_message);
-                    $requestData = new Request();
+                    $requestData  = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
                     app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -123,7 +124,7 @@ class ReturnExchangeController extends Controller
                 if ($auto_reply) {
                     $auto_message = preg_replace('/{order_id}/i', ! empty($orderProduct) ? $orderProduct->order_id : 'N/A', $auto_reply->reply);
                     $auto_message = preg_replace('/{product_names}/i', ! empty($product) ? $product->name : 'N/A', $auto_message);
-                    $requestData = new Request();
+                    $requestData  = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]);
                     app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -136,15 +137,15 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeRefundRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'refund-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'refund-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
                     ]);
 
@@ -153,17 +154,17 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'return-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'return-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -171,17 +172,17 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeExchangeRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'exchange-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'exchange-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -195,13 +196,13 @@ class ReturnExchangeController extends Controller
     public function index(Request $request)
     {
         $returnExchange = ReturnExchange::latest('created_at')->paginate(10);
-        $quickreply = Reply::where('model', 'Order')->get();
+        $quickreply     = Reply::where('model', 'Order')->get();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
 
         $dynamicColumnsToShowPostman = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns                 = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
@@ -213,9 +214,9 @@ class ReturnExchangeController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $rexchangestatus = ReturnExchangeStatus::find($key);
+            $rexchangestatus                        = ReturnExchangeStatus::find($key);
             $rexchangestatus->return_exchange_color = $value;
             $rexchangestatus->save();
         }
@@ -225,8 +226,8 @@ class ReturnExchangeController extends Controller
 
     public function records(Request $request)
     {
-        $params = $request->all();
-        $limit = ! empty($params['limit']) ? $params['limit'] : 10;
+        $params         = $request->all();
+        $limit          = ! empty($params['limit']) ? $params['limit'] : 10;
         $returnExchange = ReturnExchange::leftJoin('return_exchange_products as rep', 'rep.return_exchange_id', 'return_exchanges.id')
             ->leftJoin('order_products as op', 'op.id', 'rep.order_product_id')
             ->leftJoin('customers as c', 'c.id', 'return_exchanges.customer_id')
@@ -280,7 +281,7 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where('w.title', 'like', '%' . $params['website'] . '%');
         }
 
-        $loggedInUser = auth()->user();
+        $loggedInUser        = auth()->user();
         $isInCustomerService = $loggedInUser->isInCustomerService();
         if ($isInCustomerService) {
             $returnExchange = $returnExchange->where('c.user_id', $loggedInUser->id);
@@ -298,11 +299,11 @@ class ReturnExchangeController extends Controller
         // update items for status
         $items = $returnExchange->items();
         foreach ($items as &$item) {
-            $item['created_at_formated'] = date('d-m', strtotime($item->created_at));
-            $item['date_of_refund_formated'] = ! empty($item->date_of_refund) ? date('d-m-Y', strtotime($item->date_of_refund)) : '-';
-            $item['dispatch_date_formated'] = ! empty($item->dispatch_date) ? date('d-m-Y', strtotime($item->dispatch_date)) : '-';
+            $item['created_at_formated']      = date('d-m', strtotime($item->created_at));
+            $item['date_of_refund_formated']  = ! empty($item->date_of_refund) ? date('d-m-Y', strtotime($item->date_of_refund)) : '-';
+            $item['dispatch_date_formated']   = ! empty($item->dispatch_date) ? date('d-m-Y', strtotime($item->dispatch_date)) : '-';
             $item['date_of_request_formated'] = ! empty($item->date_of_request) ? date('d-m-Y', strtotime($item->date_of_request)) : '-';
-            $item['date_of_issue_formated'] = ! empty($item->date_of_issue) ? date('d-m-Y', strtotime($item->date_of_issue)) : '-';
+            $item['date_of_issue_formated']   = ! empty($item->date_of_issue) ? date('d-m-Y', strtotime($item->date_of_issue)) : '-';
         }
         $order_status_list = \DB::table('return_exchange_statuses')->get();
 
@@ -310,17 +311,17 @@ class ReturnExchangeController extends Controller
 
         $dynamicColumnsToShowPostman = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns                 = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $items,
-            'order_status_list' => $order_status_list,
-            'pagination' => (string) $returnExchange->links(),
-            'total' => $returnExchange->total(),
-            'page' => $returnExchange->currentPage(),
+            'code'                        => 200,
+            'data'                        => $items,
+            'order_status_list'           => $order_status_list,
+            'pagination'                  => (string) $returnExchange->links(),
+            'total'                       => $returnExchange->total(),
+            'page'                        => $returnExchange->currentPage(),
             'dynamicColumnsToShowPostman' => $dynamicColumnsToShowPostman,
         ]);
     }
@@ -328,7 +329,8 @@ class ReturnExchangeController extends Controller
     /**
      * This function is used for Create retuen Exchange status Log
      *
-     * @param  Request  $request
+     * @param Request $request
+     *
      * @return JsonResponce
      */
     public function createReturnExchangeStatusLog($request)
@@ -336,9 +338,9 @@ class ReturnExchangeController extends Controller
         try {
             $data = ReturnExchangeStatusLog::create([
                 'return_exchanges_id' => $request->id,
-                'status_name' => $request->status_name,
-                'status' => $request->status_id,
-                'updated_by' => Auth::user()->id,
+                'status_name'         => $request->status_name,
+                'status'              => $request->status_id,
+                'updated_by'          => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 200, 'data' => $data]);
@@ -355,13 +357,13 @@ class ReturnExchangeController extends Controller
     public function updateExchangeStatuses(Request $request)
     {
         try {
-            $data = ReturnExchange::where('id', $request->id)->first();
+            $data         = ReturnExchange::where('id', $request->id)->first();
             $data->status = $request->return_exchange_status;
             $data->save();
             $this->createReturnExchangeStatusLog($request);
 
-            $template = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
-            $template = str_replace(['#{id}', '#{status}'], [$data->id, $data->status], $template);
+            $template         = \App\ReturnExchange::ORDER_EXCHANGE_STATUS_TEMPLATE;
+            $template         = str_replace(['#{id}', '#{status}'], [$data->id, $data->status], $template);
             $mailing_item_cat = MailinglistTemplateCategory::where('title', 'Status Return exchange')->first();
             if (empty($mailing_item_cat)) {
                 \Log::channel('returnExchange')->info('Sending mail issue at the returnexchangecontroller  -> Please add caregory Status Return exchange');
@@ -369,7 +371,7 @@ class ReturnExchangeController extends Controller
                 return response()->json(['code' => 500, 'message' => 'Please add caregory "Status Return exchange ExchangeID : #"' . $request->id]);
             }
 
-            $mailing_item = MailinglistTemplate::select('html_text')->where('category_id', $mailing_item_cat->id)->where('html_text', '!=', '')->first();
+            $mailing_item   = MailinglistTemplate::select('html_text')->where('category_id', $mailing_item_cat->id)->where('html_text', '!=', '')->first();
             $storeWebsiteID = $data->customer->storeWebsite->id;
 
             if ($storeWebsiteID) {
@@ -417,8 +419,8 @@ class ReturnExchangeController extends Controller
 
     public function updateStatusEmailSend(Request $request)
     {
-        $params = $request->all();
-        $id = $request->id;
+        $params         = $request->all();
+        $id             = $request->id;
         $returnExchange = \App\ReturnExchange::find($id);
         if (isset($request->status) && $request->status != '') {
             $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
@@ -426,34 +428,34 @@ class ReturnExchangeController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                'name' => $code,
-                'store_website_id' => $returnExchange->customer->storeWebsite->id,
-                'website_ids' => [0 => 0],
-                'start' => date('Y-m-d H:i:s'),
-                'active' => '1',
+                'name'               => $code,
+                'store_website_id'   => $returnExchange->customer->storeWebsite->id,
+                'website_ids'        => [0 => 0],
+                'start'              => date('Y-m-d H:i:s'),
+                'active'             => '1',
                 'uses_per_coustomer' => 1,
-                'customer_groups' => [0 => 0],
-                'coupon_type' => 'SPECIFIC_COUPON',
-                'code' => $code,
-                'simple_action' => 'by_fixed',
-                'discount_amount' => $request->refund_amount,
+                'customer_groups'    => [0 => 0],
+                'coupon_type'        => 'SPECIFIC_COUPON',
+                'code'               => $code,
+                'simple_action'      => 'by_fixed',
+                'discount_amount'    => $request->refund_amount,
             ]);
 
             try {
-                $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
+                $response   = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
                 $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                $email = Email::create([
-                    'model_id' => $returnExchange->id,
-                    'model_type' => \App\ReturnExchange::class,
-                    'from' => $request->from_mail,
-                    'to' => $request->to_mail,
-                    'subject' => $request->message,
-                    'message' => 'Your refund coupon :' . $code . $request->custom_email_content,
-                    'template' => 'refund-coupon',
-                    'additional_data' => $returnExchange->id,
-                    'status' => 'pre-send',
+                $email      = Email::create([
+                    'model_id'         => $returnExchange->id,
+                    'model_type'       => \App\ReturnExchange::class,
+                    'from'             => $request->from_mail,
+                    'to'               => $request->to_mail,
+                    'subject'          => $request->message,
+                    'message'          => 'Your refund coupon :' . $code . $request->custom_email_content,
+                    'template'         => 'refund-coupon',
+                    'additional_data'  => $returnExchange->id,
+                    'status'           => 'pre-send',
                     'store_website_id' => null,
-                    'is_draft' => 1,
+                    'is_draft'         => 1,
                 ]);
 
                 $receiverNumber = $returnExchange->customer->phone;
@@ -480,18 +482,18 @@ class ReturnExchangeController extends Controller
             try {
                 if ($returnExchange->type == 'refund') {
                     $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                    $email = \App\Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $request->from_mail,
-                        'to' => $request->to_mail,
-                        'subject' => $request->message,
-                        'message' => 'Your refund coupon :' . $code . $request->custom_email_content,
-                        'template' => 'refund-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                    $email      = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $request->message,
+                        'message'          => 'Your refund coupon :' . $code . $request->custom_email_content,
+                        'template'         => 'refund-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -500,18 +502,18 @@ class ReturnExchangeController extends Controller
                     \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                 } elseif ($returnExchange->type == 'return') {
                     $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                    $email = \App\Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $request->from_mail,
-                        'to' => $request->to_mail,
-                        'subject' => $emailClass->subject,
-                        'message' => $request->custom_email_content, //$emailClass->render(),
-                        'template' => 'return-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                    $email      = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $request->custom_email_content, //$emailClass->render(),
+                        'template'         => 'return-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
@@ -519,18 +521,18 @@ class ReturnExchangeController extends Controller
                     \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                 } elseif ($returnExchange->type == 'exchange') {
                     $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                    $email = \App\Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $request->from_mail,
-                        'to' => $request->to_mail,
-                        'subject' => $emailClass->subject,
-                        'message' => $request->custom_email_content, //$emailClass->render(),
-                        'template' => 'exchange-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                    $email      = \App\Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $request->from_mail,
+                        'to'               => $request->to_mail,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $request->custom_email_content, //$emailClass->render(),
+                        'template'         => 'exchange-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -574,7 +576,7 @@ class ReturnExchangeController extends Controller
         //check error return exist
         if (! empty($returnExchange)) {
             $data['return_exchange'] = $returnExchange;
-            $data['status'] = ReturnExchangeStatus::pluck('status_name', 'id');
+            $data['status']          = ReturnExchangeStatus::pluck('status_name', 'id');
             if ($request->from == 'erp-customer') {
                 return view('ErpCustomer::partials.edit-return-summery', compact('data'));
             }
@@ -590,12 +592,12 @@ class ReturnExchangeController extends Controller
         $params = $request->all();
 
         $returnExchange = \App\ReturnExchange::find($id);
-        $status = ReturnExchangeStatus::find($request->status);
+        $status         = ReturnExchangeStatus::find($request->status);
 
         //Sending request to magento
         $magentoHelper = new MagentoHelperv2;
-        $result = $magentoHelper->changeReturnOrderStatus($status, $returnExchange);
-        $response = $result->getData();
+        $result        = $magentoHelper->changeReturnOrderStatus($status, $returnExchange);
+        $response      = $result->getData();
 
         if (isset($response) && isset($response->status) && $response->status == false) {
             return response()->json($response->error, 500);
@@ -613,34 +615,34 @@ class ReturnExchangeController extends Controller
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
-                    'name' => $code,
-                    'store_website_id' => $returnExchange->customer->storeWebsite->id,
-                    'website_ids' => [0 => 0],
-                    'start' => date('Y-m-d H:i:s'),
-                    'active' => '1',
+                    'name'               => $code,
+                    'store_website_id'   => $returnExchange->customer->storeWebsite->id,
+                    'website_ids'        => [0 => 0],
+                    'start'              => date('Y-m-d H:i:s'),
+                    'active'             => '1',
                     'uses_per_coustomer' => 1,
-                    'customer_groups' => [0 => 0],
-                    'coupon_type' => 'SPECIFIC_COUPON',
-                    'code' => $code,
-                    'simple_action' => 'by_fixed',
-                    'discount_amount' => $request->refund_amount,
+                    'customer_groups'    => [0 => 0],
+                    'coupon_type'        => 'SPECIFIC_COUPON',
+                    'code'               => $code,
+                    'simple_action'      => 'by_fixed',
+                    'discount_amount'    => $request->refund_amount,
                 ]);
 
                 try {
-                    $response = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
+                    $response   = app(\App\Http\Controllers\CouponController::class)->addRules($requestData);
                     $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                    $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => 'Your refund coupon :' . $code,
-                        'template' => 'refund-coupon',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                    $email      = Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => 'Your refund coupon :' . $code,
+                        'template'         => 'refund-coupon',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     $receiverNumber = $returnExchange->customer->phone;
@@ -666,18 +668,18 @@ class ReturnExchangeController extends Controller
                 try {
                     if ($returnExchange->type == 'refund') {
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                        $email = \App\Email::create([
-                            'model_id' => $returnExchange->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $returnExchange->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'refund-request',
-                            'additional_data' => $returnExchange->id,
-                            'status' => 'pre-send',
+                        $email      = \App\Email::create([
+                            'model_id'         => $returnExchange->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $returnExchange->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'refund-request',
+                            'additional_data'  => $returnExchange->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -686,18 +688,18 @@ class ReturnExchangeController extends Controller
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                     } elseif ($returnExchange->type == 'return') {
                         $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                        $email = \App\Email::create([
-                            'model_id' => $returnExchange->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $returnExchange->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'return-request',
-                            'additional_data' => $returnExchange->id,
-                            'status' => 'pre-send',
+                        $email      = \App\Email::create([
+                            'model_id'         => $returnExchange->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $returnExchange->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'return-request',
+                            'additional_data'  => $returnExchange->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
@@ -705,18 +707,18 @@ class ReturnExchangeController extends Controller
                         \App\Jobs\TwilioSmsJob::dispatch($receiverNumber, $emailClass->subject, $returnExchange->customer->storeWebsite->id);
                     } elseif ($returnExchange->type == 'exchange') {
                         $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                        $email = \App\Email::create([
-                            'model_id' => $returnExchange->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $returnExchange->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'exchange-request',
-                            'additional_data' => $returnExchange->id,
-                            'status' => 'pre-send',
+                        $email      = \App\Email::create([
+                            'model_id'         => $returnExchange->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $returnExchange->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'exchange-request',
+                            'additional_data'  => $returnExchange->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -738,22 +740,22 @@ class ReturnExchangeController extends Controller
     public function regenerateCoupon(Request $request, $id)
     {
         $returnExchange = \App\ReturnExchange::find($id);
-        $requestData = new CreateCouponRequest();
+        $requestData    = new CreateCouponRequest();
         $requestData->setMethod('POST');
         $code = 'REFUND-' . date('Ym') . '-' . rand(1000, 9999);
 
         $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
 
         $requestData->request->add([
-            'name' => $code,
-            'store_website_id' => $returnExchange->customer->storeWebsite->id,
+            'name'               => $code,
+            'store_website_id'   => $returnExchange->customer->storeWebsite->id,
             'customer_group_ids' => $returnExchange->customer_id,
-            'website_ids' => [$storeList[0]['platform_id'] ?? 0],
-            'start' => date('Y-m-d H:i:s'),
-            'active' => '1',
+            'website_ids'        => [$storeList[0]['platform_id'] ?? 0],
+            'start'              => date('Y-m-d H:i:s'),
+            'active'             => '1',
             'uses_per_coustomer' => 1,
-            'simple_action' => 'by_fixed',
-            'discount_amount' => $request->refund_amount,
+            'simple_action'      => 'by_fixed',
+            'discount_amount'    => $request->refund_amount,
         ]);
 
         try {
@@ -792,7 +794,7 @@ class ReturnExchangeController extends Controller
         if (! empty($result)) {
             foreach ($result as $res) {
                 $res['status'] = ReturnExchangeStatus::where('id', $res->status_id)->first()->status_name;
-                $history[] = $res;
+                $history[]     = $res;
             }
         }
 
@@ -804,47 +806,47 @@ class ReturnExchangeController extends Controller
         if (! empty($id)) {
             $product = \App\Product::find($id);
             if (! empty($product)) {
-                $data['dnf'] = $product->dnf;
-                $data['id'] = $product->id;
-                $data['name'] = $product->name;
+                $data['dnf']               = $product->dnf;
+                $data['id']                = $product->id;
+                $data['name']              = $product->name;
                 $data['short_description'] = $product->short_description;
-                $data['activities'] = $product->activities;
-                $data['scraped'] = $product->scraped_products;
+                $data['activities']        = $product->activities;
+                $data['scraped']           = $product->scraped_products;
 
                 $data['measurement_size_type'] = $product->measurement_size_type;
-                $data['lmeasurement'] = $product->lmeasurement;
-                $data['hmeasurement'] = $product->hmeasurement;
-                $data['dmeasurement'] = $product->dmeasurement;
+                $data['lmeasurement']          = $product->lmeasurement;
+                $data['hmeasurement']          = $product->hmeasurement;
+                $data['dmeasurement']          = $product->dmeasurement;
 
-                $data['size'] = $product->size;
+                $data['size']       = $product->size;
                 $data['size_value'] = $product->size_value;
 
                 $data['composition'] = $product->composition;
-                $data['sku'] = $product->sku;
-                $data['made_in'] = $product->made_in;
-                $data['brand'] = $product->brand;
-                $data['color'] = $product->color;
-                $data['price'] = $product->price;
-                $data['status'] = $product->status_id;
+                $data['sku']         = $product->sku;
+                $data['made_in']     = $product->made_in;
+                $data['brand']       = $product->brand;
+                $data['color']       = $product->color;
+                $data['price']       = $product->price;
+                $data['status']      = $product->status_id;
 
-                $data['euro_to_inr'] = $product->euro_to_inr;
-                $data['price_inr'] = $product->price_inr;
+                $data['euro_to_inr']       = $product->euro_to_inr;
+                $data['price_inr']         = $product->price_inr;
                 $data['price_inr_special'] = $product->price_inr_special;
 
-                $data['isApproved'] = $product->isApproved;
+                $data['isApproved']    = $product->isApproved;
                 $data['rejected_note'] = $product->rejected_note;
-                $data['isUploaded'] = $product->isUploaded;
-                $data['isFinal'] = $product->isFinal;
-                $data['stock'] = $product->stock;
-                $data['reason'] = $product->rejected_note;
+                $data['isUploaded']    = $product->isUploaded;
+                $data['isFinal']       = $product->isFinal;
+                $data['stock']         = $product->stock;
+                $data['reason']        = $product->rejected_note;
 
-                $data['product_link'] = $product->product_link;
-                $data['supplier'] = $product->supplier;
-                $data['supplier_link'] = $product->supplier_link;
+                $data['product_link']     = $product->product_link;
+                $data['supplier']         = $product->supplier;
+                $data['supplier_link']    = $product->supplier_link;
                 $data['description_link'] = $product->description_link;
-                $data['location'] = $product->location;
+                $data['location']         = $product->location;
 
-                $data['suppliers'] = '';
+                $data['suppliers']      = '';
                 $data['more_suppliers'] = [];
 
                 foreach ($product->suppliers as $key => $supplier) {
@@ -864,7 +866,7 @@ class ReturnExchangeController extends Controller
                 }
 
                 $data['categories'] = $product->category ? CategoryController::getCategoryTree($product->category) : '';
-                $data['product'] = $product;
+                $data['product']    = $product;
 
                 $response = (string) view('return-exchange.templates.productview', $data);
             }
@@ -903,7 +905,7 @@ class ReturnExchangeController extends Controller
             $ids = explode(',', $request->selected_ids);
             foreach ($ids as $id) {
                 if (! empty($id) && $request->customer_message && $request->customer_message != '' && $request->status) {
-                    $return = \App\ReturnExchange::where('id', $id)->first();
+                    $return  = \App\ReturnExchange::where('id', $id)->first();
                     $statuss = \App\ReturnExchangeStatus::where('id', $request->status)->first();
                     if ($return) {
                         $return->status = $request->status;
@@ -922,7 +924,7 @@ class ReturnExchangeController extends Controller
         $this->validate($request, [
             'status_name' => 'required',
         ]);
-        $input = $request->except('_token');
+        $input   = $request->except('_token');
         $isExist = \App\ReturnExchangeStatus::where('status_name', $request->status_name)->first();
         if (! $isExist) {
             \App\ReturnExchangeStatus::create([
@@ -938,12 +940,12 @@ class ReturnExchangeController extends Controller
     public function createRefund(Request $request)
     {
         $this->validate($request, [
-            'customer_id' => 'required|integer',
-            'refund_amount' => 'required',
+            'customer_id'        => 'required|integer',
+            'refund_amount'      => 'required',
             'refund_amount_mode' => 'required|string',
         ]);
 
-        $data = $request->except('_token');
+        $data                  = $request->except('_token');
         $data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
 
         if ($request->credited) {
@@ -953,11 +955,11 @@ class ReturnExchangeController extends Controller
         //create entry in table cash_flows
         \DB::table('cash_flows')->insert(
             [
-                'cash_flow_able_id' => $request->input('user_id'),
-                'description' => 'Vendor paid',
-                'date' => ('Y-m-d'),
-                'amount' => $request->input('refund_amount'),
-                'type' => 'paid',
+                'cash_flow_able_id'   => $request->input('user_id'),
+                'description'         => 'Vendor paid',
+                'date'                => ('Y-m-d'),
+                'amount'              => $request->input('refund_amount'),
+                'type'                => 'paid',
                 'cash_flow_able_type' => \App\ReturnExchange::class,
 
             ]
@@ -978,7 +980,7 @@ class ReturnExchangeController extends Controller
     public function getRefundInfo($id)
     {
         $returnExchange = ReturnExchange::find($id);
-        $response = (string) view('return-exchange.templates.update-refund', compact('returnExchange', 'id'));
+        $response       = (string) view('return-exchange.templates.update-refund', compact('returnExchange', 'id'));
 
         return response()->json(['code' => 200, 'html' => $response]);
     }
@@ -986,13 +988,13 @@ class ReturnExchangeController extends Controller
     public function updateRefund(Request $request)
     {
         $this->validate($request, [
-            'customer_id' => 'required|integer',
-            'refund_amount' => 'required',
-            'id' => 'required',
+            'customer_id'        => 'required|integer',
+            'refund_amount'      => 'required',
+            'id'                 => 'required',
             'refund_amount_mode' => 'required|string',
         ]);
 
-        $data = $request->except('_token', 'id', 'customer_id');
+        $data           = $request->except('_token', 'id', 'customer_id');
         $returnExchange = ReturnExchange::find($request->id);
 
         if (! $returnExchange->date_of_issue) {
@@ -1010,13 +1012,13 @@ class ReturnExchangeController extends Controller
         $arrToReplace = ['{FIRST_NAME}', '{REFUND_TYPE}', '{CHQ_NUMBER}', '{REFUND_AMOUNT}', '{DATE_OF_REFUND}', '{DETAILS}'];
 
         $valToReplace = [$returnExchange->customer->name, $returnExchange->type, $returnExchange->chq_number, $returnExchange->amount, $returnExchange->date_of_request, $returnExchange->details];
-        $bodyText = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
+        $bodyText     = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
 
         $storeEmailAddress = EmailAddress::where('store_website_id', $returnExchange->customer->store_website_id)->first();
 
-        $emailData['subject'] = $templateData->subject;
+        $emailData['subject']         = $templateData->subject;
         $emailData['static_template'] = $bodyText;
-        $emailData['from'] = $storeEmailAddress->from_address;
+        $emailData['from']            = $storeEmailAddress->from_address;
 
         if (isset($request->message_via)) {
             if (in_array('email', $request->message_via)) {
@@ -1034,15 +1036,15 @@ class ReturnExchangeController extends Controller
         $updateOrder = 0;
         if (! $request->dispatched) {
             $data['dispatch_date'] = $returnExchange->dispatch_date;
-            $data['awb'] = $returnExchange->awb;
+            $data['awb']           = $returnExchange->awb;
         } else {
             $order_products = ReturnExchange::join('return_exchange_products', 'return_exchanges.id', 'return_exchange_products.return_exchange_id')
                 ->join('order_products', 'order_products.id', 'return_exchange_products.order_product_id')->select('order_products.*')->first();
             if ($order_products) {
                 $order = Order::find($order_products->order_id);
                 if ($order) {
-                    $updateOrder = 1;
-                    $order->order_status = 'Refund Dispatched';
+                    $updateOrder            = 1;
+                    $order->order_status    = 'Refund Dispatched';
                     $order->order_status_id = \App\Helpers\OrderHelper::$refundDispatched;
                     event(new RefundDispatched($returnExchange));
                 }
@@ -1052,7 +1054,7 @@ class ReturnExchangeController extends Controller
         if ($request->credited) {
             $data['credited'] = 1;
             if ($updateOrder == 1) {
-                $order->order_status = 'Refund Credited';
+                $order->order_status    = 'Refund Credited';
                 $order->order_status_id = \App\Helpers\OrderHelper::$refundCredited;
             }
         }
@@ -1072,17 +1074,17 @@ class ReturnExchangeController extends Controller
         $returnExchange = ReturnExchange::find($request->exchange_id);
         if ($returnExchange) {
             if ($request->estimate_date && $request->estimate_date != '') {
-                $oldDate = $returnExchange->est_completion_date;
+                $oldDate                             = $returnExchange->est_completion_date;
                 $returnExchange->est_completion_date = $request->estimate_date;
                 $returnExchange->save();
 
                 ReturnExchangeHistory::create([
                     'return_exchange_id' => $request->exchange_id,
-                    'status_id' => 0,
-                    'user_id' => Auth::user()->id,
-                    'history_type' => 'est_date',
-                    'old_value' => $oldDate,
-                    'new_value' => $request->estimate_date,
+                    'status_id'          => 0,
+                    'user_id'            => Auth::user()->id,
+                    'history_type'       => 'est_date',
+                    'old_value'          => $oldDate,
+                    'new_value'          => $request->estimate_date,
                 ]);
 
                 return response()->json(['code' => 200, 'message' => 'Successfull']);
@@ -1111,12 +1113,12 @@ class ReturnExchangeController extends Controller
     public function addNewReply(request $request)
     {
         if ($request->reply) {
-            $replyData = [];
-            $html = '';
-            $replyData['reply'] = $request->reply;
-            $replyData['model'] = 'Order';
+            $replyData                = [];
+            $html                     = '';
+            $replyData['reply']       = $request->reply;
+            $replyData['model']       = 'Order';
             $replyData['category_id'] = 1;
-            $success = Reply::create($replyData);
+            $success                  = Reply::create($replyData);
             if ($success) {
                 $replies = Reply::where('model', 'Order')->get();
                 if ($replies) {
@@ -1144,17 +1146,17 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeRefundRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'refund-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'refund-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -1162,17 +1164,17 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'return-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'return-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -1180,17 +1182,17 @@ class ReturnExchangeController extends Controller
                     $emailClass = (new \App\Mails\Manual\InitializeExchangeRequest($returnExchange))->build();
 
                     $email = Email::create([
-                        'model_id' => $returnExchange->id,
-                        'model_type' => \App\ReturnExchange::class,
-                        'from' => $emailClass->fromMailer,
-                        'to' => $returnExchange->customer->email,
-                        'subject' => $emailClass->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'exchange-request',
-                        'additional_data' => $returnExchange->id,
-                        'status' => 'pre-send',
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'exchange-request',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
                         'store_website_id' => null,
-                        'is_draft' => 1,
+                        'is_draft'         => 1,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -1205,7 +1207,7 @@ class ReturnExchangeController extends Controller
 
     public function status(Request $request)
     {
-        $status = ReturnExchangeStatus::query();
+        $status   = ReturnExchangeStatus::query();
         $websites = \App\StoreWebsite::all();
         if ($request->search != null) {
             $status = $status->where('status_name', 'like', '%' . $request->search . '%');
@@ -1219,16 +1221,16 @@ class ReturnExchangeController extends Controller
     public function getStatusByWebsite(Request $request)
     {
         $website = \App\StoreWebsite::find($request->id);
-        $status = $website->returnExchangeStatus;
+        $status  = $website->returnExchangeStatus;
 
         return view('return-exchange.partial.list-status', compact('status'));
     }
 
     public function fetchMagentoStatus(Request $request)
     {
-        $website = \App\StoreWebsite::find($request->id);
+        $website       = \App\StoreWebsite::find($request->id);
         $magentoHelper = new MagentoHelperv2;
-        $results = $magentoHelper->getReturnOrderStatus($website);
+        $results       = $magentoHelper->getReturnOrderStatus($website);
 
         if (! is_array($results)) {
             $response = $results->getData();
@@ -1241,8 +1243,8 @@ class ReturnExchangeController extends Controller
         foreach ($results as $result) {
             $checkIfExist = app(ReturnExchangeStatus::class)->where('status_name', $result->status)->where('store_website_id', $website->id)->first();
             if (! $checkIfExist) {
-                $newStatus = new ReturnExchangeStatus;
-                $newStatus->status_name = $result->status;
+                $newStatus                   = new ReturnExchangeStatus;
+                $newStatus->status_name      = $result->status;
                 $newStatus->store_website_id = $website->id;
                 $newStatus->save();
             }
@@ -1284,16 +1286,16 @@ class ReturnExchangeController extends Controller
 
     public function statusWebsiteSave(Request $request)
     {
-        $website = \App\StoreWebsite::find($request->id);
+        $website       = \App\StoreWebsite::find($request->id);
         $magentoHelper = new MagentoHelperv2;
-        $result = $magentoHelper->addReturnOrderStatus($website, $request->status);
-        $response = $result->getData();
+        $result        = $magentoHelper->addReturnOrderStatus($website, $request->status);
+        $response      = $result->getData();
         if (isset($response) && isset($response->status) && $response->status == false) {
             return response()->json($response->error, 500);
         }
         if ($result) {
-            $newStatus = new ReturnExchangeStatus;
-            $newStatus->status_name = $request->status;
+            $newStatus                   = new ReturnExchangeStatus;
+            $newStatus->status_name      = $request->status;
             $newStatus->store_website_id = $website->id;
             $newStatus->save();
             $website->refresh();
@@ -1327,15 +1329,15 @@ class ReturnExchangeController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'return-exchange';
-            $column->column_name = json_encode($request->column_returnexchange);
+            $column->column_name  = json_encode($request->column_returnexchange);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'return-exchange';
-            $column->column_name = json_encode($request->column_returnexchange);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_returnexchange);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 

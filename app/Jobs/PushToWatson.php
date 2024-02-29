@@ -49,9 +49,9 @@ class PushToWatson implements ShouldQueue
                 }
                 $success = 0;
 
-                $storeParams = [];
+                $storeParams                                 = [];
                 $storeParams[$question->keyword_or_question] = $question->value;
-                $values = $question->chatbotQuestionExamples()->get();
+                $values                                      = $question->chatbotQuestionExamples()->get();
 
                 if ($question->keyword_or_question == 'entity') {
                     foreach ($values as $value) {
@@ -67,13 +67,13 @@ class PushToWatson implements ShouldQueue
                     $storeParams['examples'] = [];
                     foreach ($values as $k => $value) {
                         $storeParams['examples'][$k]['text'] = $value->question;
-                        $mentions = $value->annotations;
+                        $mentions                            = $value->annotations;
                         if (! $mentions->isEmpty()) {
                             $sendMentions = [];
                             foreach ($mentions as $key => $mRaw) {
                                 if ($mRaw->chatbotKeyword) {
                                     $sendMentions[] = [
-                                        'entity' => $mRaw->chatbotKeyword->keyword,
+                                        'entity'   => $mRaw->chatbotKeyword->keyword,
                                         'location' => [$mRaw->start_char_range, $mRaw->end_char_range],
                                     ];
                                 }
@@ -114,7 +114,7 @@ class PushToWatson implements ShouldQueue
                 $status = $result->getStatusCode();
                 if ($status == 400) {
                     $result = $watson->update($account->work_space_id, $question->value, $storeParams);
-                    $st = $result->getStatusCode();
+                    $st     = $result->getStatusCode();
                     if ($st == 201 || $st == 200) {
                         $success = 1;
                     }
@@ -124,21 +124,21 @@ class PushToWatson implements ShouldQueue
                     $success = 0;
                 }
                 ChatbotErrorLog::where('store_website_id', $account->store_website_id)->where('chatbot_question_id', $question->id)->delete();
-                $errorlog = new ChatbotErrorLog;
+                $errorlog                      = new ChatbotErrorLog;
                 $errorlog->chatbot_question_id = $question->id;
-                $errorlog->store_website_id = $account->store_website_id;
-                $errorlog->status = $success;
-                $errorlog->response = $result->getContent();
+                $errorlog->store_website_id    = $account->store_website_id;
+                $errorlog->status              = $success;
+                $errorlog->response            = $result->getContent();
                 $errorlog->save();
                 if ($success) {
                     $reply = ChatbotQuestionReply::where('store_website_id', $account->store_website_id)->where('chatbot_question_id', $question->id)->first();
                     if (! $reply) {
                         $anyReply = ChatbotQuestionReply::where('chatbot_question_id', $question->id)->first();
                         if ($anyReply) {
-                            $reply = new ChatbotQuestionReply;
-                            $reply->store_website_id = $account->store_website_id;
+                            $reply                      = new ChatbotQuestionReply;
+                            $reply->store_website_id    = $account->store_website_id;
                             $reply->chatbot_question_id = $question->id;
-                            $reply->suggested_reply = $anyReply->suggested_reply;
+                            $reply->suggested_reply     = $anyReply->suggested_reply;
                             $reply->save();
                         }
                     }

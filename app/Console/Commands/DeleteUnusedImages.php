@@ -43,7 +43,7 @@ class DeleteUnusedImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,7 +55,7 @@ class DeleteUnusedImages extends Command
                 'png',
             ];
             $directory = public_path('uploads');
-            $files = File::allFiles($directory);
+            $files     = File::allFiles($directory);
 
             foreach ($files as $file) {
                 $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));

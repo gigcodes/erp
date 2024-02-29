@@ -59,7 +59,7 @@ abstract class AuthenticationPlugin
     public function __construct()
     {
         $this->ipAllowDeny = new IpAllowDeny();
-        $this->template = new Template();
+        $this->template    = new Template();
     }
 
     /**
@@ -81,7 +81,7 @@ abstract class AuthenticationPlugin
 
         $this->setSessionAccessTime();
 
-        $cfg['Server']['user'] = $this->user;
+        $cfg['Server']['user']     = $this->user;
         $cfg['Server']['password'] = $this->password;
 
         return true;
@@ -97,7 +97,7 @@ abstract class AuthenticationPlugin
     /**
      * User is not allowed to login to MySQL -> authentication failed
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
      */
     public function showFailure($failure): void
     {
@@ -119,7 +119,7 @@ abstract class AuthenticationPlugin
         }
 
         /* Clear credentials */
-        $this->user = '';
+        $this->user     = '';
         $this->password = '';
 
         /*
@@ -167,7 +167,8 @@ abstract class AuthenticationPlugin
     /**
      * Returns error message for failed authentication.
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
+     *
      * @return string
      */
     public function getErrorMessage($failure)
@@ -206,7 +207,7 @@ abstract class AuthenticationPlugin
     /**
      * Callback when user changes password.
      *
-     * @param  string  $password New password to set
+     * @param string $password New password to set
      */
     public function handlePasswordChange($password): void
     {
@@ -346,7 +347,7 @@ abstract class AuthenticationPlugin
             __('You have enabled two factor authentication, please confirm your login.')
         )->getDisplay();
         echo $this->template->render('login/twofactor', [
-            'form' => $twofactor->render(),
+            'form'        => $twofactor->render(),
             'show_submit' => $twofactor->showSubmit(),
         ]);
         echo $this->template->render('login/footer');

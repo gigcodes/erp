@@ -9,24 +9,24 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 class ToryScraper extends Scraper
 {
     private const URL = [
-        'clothing' => 'https://www.toryburch.it/abbigliamento/visualizza-tutto/?sz=8000&start=1',
-        'shoes' => 'https://www.toryburch.it/scarpe/visualizza-tutto/?sz=8000&start=1',
-        'bags' => 'https://www.toryburch.it/borse/visualizza-tutto/?sz=8000&start=1',
-        'fragrance' => 'https://www.toryburch.it/fragranze/visualizza-tutto/',
-        'bags2' => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1',
-        'wallets' => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1&format=ajax&instart_disable_injection=true',
-        'card holder' => 'https://www.toryburch.it/porta-tessere-e-porta-monete/?sz=1200&start=1',
-        'wrist wallet' => 'https://www.toryburch.it/accessori/portafogli-da-polso-e-trousse/?sz=1200&start=1',
+        'clothing'       => 'https://www.toryburch.it/abbigliamento/visualizza-tutto/?sz=8000&start=1',
+        'shoes'          => 'https://www.toryburch.it/scarpe/visualizza-tutto/?sz=8000&start=1',
+        'bags'           => 'https://www.toryburch.it/borse/visualizza-tutto/?sz=8000&start=1',
+        'fragrance'      => 'https://www.toryburch.it/fragranze/visualizza-tutto/',
+        'bags2'          => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1',
+        'wallets'        => 'https://www.toryburch.it/accessori/portafogli/?sz=1200&start=1&format=ajax&instart_disable_injection=true',
+        'card holder'    => 'https://www.toryburch.it/porta-tessere-e-porta-monete/?sz=1200&start=1',
+        'wrist wallet'   => 'https://www.toryburch.it/accessori/portafogli-da-polso-e-trousse/?sz=1200&start=1',
         'cosmetic cases' => 'https://www.toryburch.it/accessori/cosmetic-cases/?sz=1200&start=1',
-        'sunglasses' => 'https://www.toryburch.it/accessori/occhiali/?sz=1200&start=1',
-        'belts' => 'https://www.toryburch.it/accessori/cinture/?sz=1200&start=1',
-        'hitech' => 'https://www.toryburch.it/accessori/hi-tech/?sz=1200&start=1',
-        'earings' => 'https://www.toryburch.it/accessori/orecchini/?sz=1200&start=1',
-        'jewellery' => 'https://www.toryburch.it/accessori/gioielli/?sz=1200&start=1',
-        'bracelets' => 'https://www.toryburch.it/accessori/bracciali/?sz=1200&start=1',
-        'watches' => 'https://www.toryburch.it/accessori/orologi/?sz=1200&start=1',
-        'necklaces' => 'https://www.toryburch.it/accessori/collane/?sz=1200&start=1',
-        'rings' => 'https://www.toryburch.it/accessori/anelli/?sz=1200&start=1',
+        'sunglasses'     => 'https://www.toryburch.it/accessori/occhiali/?sz=1200&start=1',
+        'belts'          => 'https://www.toryburch.it/accessori/cinture/?sz=1200&start=1',
+        'hitech'         => 'https://www.toryburch.it/accessori/hi-tech/?sz=1200&start=1',
+        'earings'        => 'https://www.toryburch.it/accessori/orecchini/?sz=1200&start=1',
+        'jewellery'      => 'https://www.toryburch.it/accessori/gioielli/?sz=1200&start=1',
+        'bracelets'      => 'https://www.toryburch.it/accessori/bracciali/?sz=1200&start=1',
+        'watches'        => 'https://www.toryburch.it/accessori/orologi/?sz=1200&start=1',
+        'necklaces'      => 'https://www.toryburch.it/accessori/collane/?sz=1200&start=1',
+        'rings'          => 'https://www.toryburch.it/accessori/anelli/?sz=1200&start=1',
     ];
 
     public function scrap(): void
@@ -40,10 +40,10 @@ class ToryScraper extends Scraper
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (! $scrapEntry) {
-            $scrapEntry = new ScrapEntries();
-            $scrapEntry->title = $url;
+            $scrapEntry            = new ScrapEntries();
+            $scrapEntry->title     = $url;
             $scrapEntry->site_name = 'Tory';
-            $scrapEntry->url = $url;
+            $scrapEntry->url       = $url;
             $scrapEntry->save();
         }
 
@@ -54,23 +54,23 @@ class ToryScraper extends Scraper
 
     private function getProducts(ScrapEntries $scrapEntriy): void
     {
-        $date = date('Y-m-d');
+        $date     = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Tory')->first();
         if (! $allLinks) {
-            $allLinks = new ScrapCounts();
+            $allLinks               = new ScrapCounts();
             $allLinks->scraped_date = $date;
-            $allLinks->website = 'Tory';
+            $allLinks->website      = 'Tory';
             $allLinks->save();
         }
         $body = $this->getContent($scrapEntriy->url);
-        $c = new HtmlPageCrawler($body);
+        $c    = new HtmlPageCrawler($body);
 
         $products = $c->filter('a.product-tile__name');
         foreach ($products as $product) {
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
             $title = $this->getTitleFromProduct($product);
-            $link = $this->getLinkFromProduct($product);
+            $link  = $this->getLinkFromProduct($product);
 
             echo $link;
 
@@ -86,10 +86,10 @@ class ToryScraper extends Scraper
                 continue;
             }
 
-            $entry = new ScrapEntries();
-            $entry->title = $title;
-            $entry->url = $link;
-            $entry->site_name = 'Tory';
+            $entry                  = new ScrapEntries();
+            $entry->title           = $title;
+            $entry->url             = $link;
+            $entry->site_name       = 'Tory';
             $entry->is_product_page = 1;
             $entry->save();
         }

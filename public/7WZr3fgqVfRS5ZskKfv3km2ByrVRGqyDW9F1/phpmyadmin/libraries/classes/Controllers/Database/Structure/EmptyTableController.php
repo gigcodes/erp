@@ -53,11 +53,11 @@ final class EmptyTableController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
-        $this->relation = $relation;
-        $this->relationCleanup = $relationCleanup;
-        $this->operations = $operations;
-        $this->flash = $flash;
+        $this->dbi                 = $dbi;
+        $this->relation            = $relation;
+        $this->relationCleanup     = $relationCleanup;
+        $this->operations          = $operations;
+        $this->flash               = $flash;
         $this->structureController = $structureController;
     }
 
@@ -65,7 +65,7 @@ final class EmptyTableController extends AbstractController
     {
         global $db, $table, $message, $sql_query;
 
-        $multBtn = $_POST['mult_btn'] ?? '';
+        $multBtn  = $_POST['mult_btn'] ?? '';
         $selected = $_POST['selected'] ?? [];
 
         if ($multBtn !== __('Yes')) {
@@ -77,7 +77,7 @@ final class EmptyTableController extends AbstractController
 
         $defaultFkCheckValue = ForeignKey::handleDisableCheckInit();
 
-        $sql_query = '';
+        $sql_query     = '';
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {

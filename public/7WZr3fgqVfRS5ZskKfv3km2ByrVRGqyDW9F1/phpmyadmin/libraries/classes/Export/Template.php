@@ -24,11 +24,11 @@ final class Template
 
     private function __construct(int $id, string $username, string $exportType, string $name, string $data)
     {
-        $this->id = $id;
-        $this->username = $username;
+        $this->id         = $id;
+        $this->username   = $username;
         $this->exportType = $exportType;
-        $this->name = $name;
-        $this->data = $data;
+        $this->name       = $name;
+        $this->data       = $data;
     }
 
     /** @param  array<string, mixed>  $state */

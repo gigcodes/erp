@@ -13,10 +13,10 @@ class ScrapPythonLog extends Model
     public static function log($result)
     {
         // Log result to database
-        $log = new ScrapPythonLog();
-        $log->website = $result['website'];
-        $log->date = $result['date'];
-        $log->device = $result['device'];
+        $log           = new ScrapPythonLog();
+        $log->website  = $result['website'];
+        $log->date     = $result['date'];
+        $log->device   = $result['device'];
         $log->log_text = $result['log_text'];
 
         $log->save();

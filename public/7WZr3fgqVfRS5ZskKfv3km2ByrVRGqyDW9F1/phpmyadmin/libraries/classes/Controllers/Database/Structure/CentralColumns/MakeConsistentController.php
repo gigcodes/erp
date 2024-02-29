@@ -29,7 +29,7 @@ final class MakeConsistentController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -47,7 +47,7 @@ final class MakeConsistentController extends AbstractController
         }
 
         $centralColumns = new CentralColumns($this->dbi);
-        $error = $centralColumns->makeConsistentWithList($db, $selected);
+        $error          = $centralColumns->makeConsistentWithList($db, $selected);
 
         $message = $error instanceof Message ? $error : Message::success(__('Success!'));
 

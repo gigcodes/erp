@@ -45,8 +45,8 @@ class productActivityStore extends Command
             ->pluck('total', 'status_id')->all();
         foreach ($productStats as $key => $productStat) {
             $productStats = DB::table('productactivities')->insert([
-                'status_id' => $key,
-                'value' => $productStat,
+                'status_id'  => $key,
+                'value'      => $productStat,
                 'created_at' => DB::raw('CURRENT_TIMESTAMP'),
             ]);
         }

@@ -96,7 +96,7 @@ class Util
     /**
      * Checks whether configuration value tells to show icons.
      *
-     * @param  string  $value Configuration option name
+     * @param string $value Configuration option name
      */
     public static function showIcons($value): bool
     {
@@ -106,7 +106,7 @@ class Util
     /**
      * Checks whether configuration value tells to show text.
      *
-     * @param  string  $value Configuration option name
+     * @param string $value Configuration option name
      */
     public static function showText($value): bool
     {
@@ -116,7 +116,8 @@ class Util
     /**
      * Returns the formatted maximum size for an upload
      *
-     * @param  int|float|string  $maxUploadSize the size
+     * @param int|float|string $maxUploadSize the size
+     *
      * @return string the message
      */
     public static function getFormattedMaximumUploadSize($maxUploadSize): string
@@ -133,7 +134,8 @@ class Util
      * database, table and field names.
      * Note: This function does not escape backslashes!
      *
-     * @param  string  $name the string to escape
+     * @param string $name the string to escape
+     *
      * @return string the escaped string
      */
     public static function escapeMysqlWildcards($name): string
@@ -145,7 +147,8 @@ class Util
      * removes slashes before "_" and "%" characters
      * Note: This function does not unescape backslashes!
      *
-     * @param  string  $name the string to escape
+     * @param string $name the string to escape
+     *
      * @return string the escaped string
      */
     public static function unescapeMysqlWildcards($name): string
@@ -158,8 +161,9 @@ class Util
      *
      * checks if the string is quoted and removes this quotes
      *
-     * @param  string  $quotedString string to remove quotes from
-     * @param  string  $quote        type of quote to remove
+     * @param string $quotedString string to remove quotes from
+     * @param string $quote        type of quote to remove
+     *
      * @return string unquoted string
      */
     public static function unQuote(string $quotedString, ?string $quote = null): string
@@ -190,9 +194,10 @@ class Util
     /**
      * Get a URL link to the official MySQL documentation
      *
-     * @param  string  $link   contains name of page/anchor that is being linked
-     * @param  string  $anchor anchor to page part
-     * @return string  the URL link
+     * @param string $link   contains name of page/anchor that is being linked
+     * @param string $anchor anchor to page part
+     *
+     * @return string the URL link
      */
     public static function getMySQLDocuURL(string $link, string $anchor = ''): string
     {
@@ -206,7 +211,7 @@ class Util
         }
 
         $mysql = '5.5';
-        $lang = 'en';
+        $lang  = 'en';
         if (isset($dbi)) {
             $serverVersion = $dbi->getVersion();
             if ($serverVersion >= 80000) {
@@ -234,7 +239,8 @@ class Util
      * or MariaDB depending on the database server
      * of the user.
      *
-     * @param  bool  $isMariaDB if the database server is MariaDB
+     * @param bool $isMariaDB if the database server is MariaDB
+     *
      * @return string The URL link
      */
     public static function getDocuURL(bool $isMariaDB = false): string
@@ -251,8 +257,9 @@ class Util
     /**
      * Check the correct row count
      *
-     * @param  string  $db    the db name
-     * @param  array  $table the table infos
+     * @param string $db    the db name
+     * @param array  $table the table infos
+     *
      * @return int the possibly modified row count
      */
     private static function checkRowCount($db, array $table)
@@ -286,7 +293,8 @@ class Util
     /**
      * returns array with tables of given db with extended information and grouped
      *
-     * @param  string  $db
+     * @param string $db
+     *
      * @return array (recursive) grouped table list
      */
     public static function getTableList($db): array
@@ -306,9 +314,9 @@ class Util
         }
 
         $default = [
-            'Name' => '',
-            'Rows' => 0,
-            'Comment' => '',
+            'Name'      => '',
+            'Rows'      => 0,
+            'Comment'   => '',
             'disp_name' => '',
         ];
 
@@ -322,25 +330,25 @@ class Util
             if ($GLOBALS['cfg']['NavigationTreeEnableGrouping'] && $sep && mb_strstr($tableName, $sep)) {
                 $parts = explode($sep, $tableName);
 
-                $group = &$tableGroups;
-                $i = 0;
+                $group         = &$tableGroups;
+                $i             = 0;
                 $groupNameFull = '';
-                $partsCount = count($parts) - 1;
+                $partsCount    = count($parts) - 1;
 
                 while (($i < $partsCount) && ($i < $GLOBALS['cfg']['NavigationTreeTableLevel'])) {
                     $groupName = $parts[$i] . $sep;
                     $groupNameFull .= $groupName;
 
                     if (! isset($group[$groupName])) {
-                        $group[$groupName] = [];
-                        $group[$groupName]['is' . $sep . 'group'] = true;
+                        $group[$groupName]                         = [];
+                        $group[$groupName]['is' . $sep . 'group']  = true;
                         $group[$groupName]['tab' . $sep . 'count'] = 1;
                         $group[$groupName]['tab' . $sep . 'group'] = $groupNameFull;
                     } elseif (! isset($group[$groupName]['is' . $sep . 'group'])) {
-                        $table = $group[$groupName];
-                        $group[$groupName] = [];
-                        $group[$groupName][$groupName] = $table;
-                        $group[$groupName]['is' . $sep . 'group'] = true;
+                        $table                                     = $group[$groupName];
+                        $group[$groupName]                         = [];
+                        $group[$groupName][$groupName]             = $table;
+                        $group[$groupName]['is' . $sep . 'group']  = true;
                         $group[$groupName]['tab' . $sep . 'count'] = 1;
                         $group[$groupName]['tab' . $sep . 'group'] = $groupNameFull;
                     } else {
@@ -359,7 +367,7 @@ class Util
             }
 
             $table['disp_name'] = $table['Name'];
-            $group[$tableName] = array_merge($default, $table);
+            $group[$tableName]  = array_merge($default, $table);
         }
 
         return $tableGroups;
@@ -377,7 +385,7 @@ class Util
      *
      * </code>
      *
-     * @param  Stringable|string|null  $identifier the database, table or field name to "backquote"
+     * @param Stringable|string|null $identifier the database, table or field name to "backquote"
      */
     public static function backquote($identifier): string
     {
@@ -394,9 +402,9 @@ class Util
      *
      * </code>
      *
-     * @param  Stringable|string|null  $identifier    the database, table or field name to "backquote"
-     * @param  string  $compatibility string compatibility mode (used by dump functions)
-     * @param  bool|null  $doIt          a flag to bypass this function (used by dump functions)
+     * @param Stringable|string|null $identifier    the database, table or field name to "backquote"
+     * @param string                 $compatibility string compatibility mode (used by dump functions)
+     * @param bool|null              $doIt          a flag to bypass this function (used by dump functions)
      */
     public static function backquoteCompat(
         $identifier,
@@ -412,10 +420,10 @@ class Util
             return $identifier;
         }
 
-        $quote = '`';
+        $quote      = '`';
         $escapeChar = '`';
         if ($compatibility === 'MSSQL') {
-            $quote = '"';
+            $quote      = '"';
             $escapeChar = '\\';
         }
 
@@ -425,9 +433,10 @@ class Util
     /**
      * Formats $value to byte view
      *
-     * @param  float|int|string|null  $value the value to format
-     * @param  int  $limes the sensitiveness
-     * @param  int  $comma the number of decimals to retain
+     * @param float|int|string|null $value the value to format
+     * @param int                   $limes the sensitiveness
+     * @param int                   $comma the number of decimals to retain
+     *
      * @return array|null the formatted value and its unit
      */
     public static function formatByteDown($value, $limes = 6, $comma = 0): ?array
@@ -457,8 +466,8 @@ class Util
             __('EiB'),
         ];
 
-        $dh = 10 ** $comma;
-        $li = 10 ** $limes;
+        $dh   = 10 ** $comma;
+        $li   = 10 ** $limes;
         $unit = $byteUnits[0];
 
         for ($d = 6, $ex = 15; $d >= 1; $d--, $ex -= 3) {
@@ -466,7 +475,7 @@ class Util
             if (isset($byteUnits[$d]) && $value >= $unitSize) {
                 // use 1024.0 to avoid integer overflow on 64-bit machines
                 $value = round($value / (1024 ** $d / $dh)) / $dh;
-                $unit = $byteUnits[$d];
+                $unit  = $byteUnits[$d];
                 break;
             }
         }
@@ -502,12 +511,13 @@ class Util
      * echo formatNumber(0, 6);             //       0
      * </code>
      *
-     * @param  float|int|string  $value          the value to format
-     * @param  int  $digitsLeft     number of digits left of the comma
-     * @param  int  $digitsRight    number of digits right of the comma
-     * @param  bool  $onlyDown       do not reformat numbers below 1
-     * @param  bool  $noTrailingZero removes trailing zeros right of the comma (default: true)
-     * @return string   the formatted value and its unit
+     * @param float|int|string $value          the value to format
+     * @param int              $digitsLeft     number of digits left of the comma
+     * @param int              $digitsRight    number of digits right of the comma
+     * @param bool             $onlyDown       do not reformat numbers below 1
+     * @param bool             $noTrailingZero removes trailing zeros right of the comma (default: true)
+     *
+     * @return string the formatted value and its unit
      */
     public static function formatNumber(
         $value,
@@ -552,15 +562,15 @@ class Util
             -3 => 'n',
             -2 => 'µ',
             -1 => 'm',
-            0 => ' ',
-            1 => 'k',
-            2 => 'M',
-            3 => 'G',
-            4 => 'T',
-            5 => 'P',
-            6 => 'E',
-            7 => 'Z',
-            8 => 'Y',
+            0  => ' ',
+            1  => 'k',
+            2  => 'M',
+            3  => 'G',
+            4  => 'T',
+            5  => 'P',
+            6  => 'E',
+            7  => 'Z',
+            8  => 'Y',
         ];
         /* l10n: Decimal separator */
         $decimalSep = __('.');
@@ -569,7 +579,7 @@ class Util
 
         // check for negative value to retain sign
         if ($value < 0) {
-            $sign = '-';
+            $sign  = '-';
             $value = abs($value);
         } else {
             $sign = '';
@@ -597,7 +607,7 @@ class Util
         }
 
         $value = round($value / (1000 ** $d / $dh)) / $dh;
-        $unit = $units[$d];
+        $unit  = $units[$d];
 
         // number_format is not multibyte safe, str_replace is safe
         $formattedValue = number_format($value, $digitsRight, $decimalSep, $thousandsSep);
@@ -616,7 +626,8 @@ class Util
     /**
      * Returns the number of bytes when a formatted size is given
      *
-     * @param  string|int  $formattedSize the size expression (for example 8MB)
+     * @param string|int $formattedSize the size expression (for example 8MB)
+     *
      * @return int|float The numerical part of the expression (for example 8)
      */
     public static function extractValueFromFormattedSize($formattedSize)
@@ -639,9 +650,10 @@ class Util
     /**
      * Writes localised date
      *
-     * @param  int  $timestamp the current timestamp
-     * @param  string  $format    format
-     * @return string   the formatted date
+     * @param int    $timestamp the current timestamp
+     * @param string $format    format
+     *
+     * @return string the formatted date
      */
     public static function localisedDate($timestamp = -1, $format = '')
     {
@@ -733,7 +745,8 @@ class Util
     /**
      * Splits a URL string by parameter
      *
-     * @param  string  $url the URL
+     * @param string $url the URL
+     *
      * @return array<int, string> the parameter/value pairs, for example [0] db=sakila
      */
     public static function splitURLQuery($url): array
@@ -761,7 +774,8 @@ class Util
     /**
      * Returns a given timespan value in a readable format.
      *
-     * @param  int  $seconds the timespan
+     * @param int $seconds the timespan
+     *
      * @return string the formatted value
      */
     public static function timespanFormat($seconds): string
@@ -795,15 +809,15 @@ class Util
      * Called by each script that needs parameters, it displays
      * an error message and, by default, stops the execution.
      *
-     * @param  string[]  $params  The names of the parameters needed by the calling
+     * @param string[] $params  The names of the parameters needed by the calling
      *                          script
-     * @param  bool  $request Check parameters in request
+     * @param bool     $request Check parameters in request
      */
     public static function checkParameters($params, $request = false): void
     {
         $reportedScriptName = basename($GLOBALS['PMA_PHP_SELF']);
-        $foundError = false;
-        $errorMessage = '';
+        $foundError         = false;
+        $errorMessage       = '';
         if ($request) {
             $array = $_REQUEST;
         } else {
@@ -833,11 +847,12 @@ class Util
     /**
      * Build a condition and with a value
      *
-     * @param  string|int|float|null  $row          The row value
-     * @param  FieldMetadata  $meta         The field metadata
-     * @param  int  $fieldsCount  A number of fields
-     * @param  string  $conditionKey A key used for BINARY fields functions
-     * @param  string  $condition    The condition
+     * @param string|int|float|null $row          The row value
+     * @param FieldMetadata         $meta         The field metadata
+     * @param int                   $fieldsCount  A number of fields
+     * @param string                $conditionKey A key used for BINARY fields functions
+     * @param string                $condition    The condition
+     *
      * @return array<int,string|null>
      *
      * @psalm-return array{string|null, string}
@@ -877,7 +892,7 @@ class Util
             } elseif ($fieldsCount === 1) {
                 // when this blob is the only field present
                 // try settling with length comparison
-                $condition = ' CHAR_LENGTH(' . $conditionKey . ') ';
+                $condition      = ' CHAR_LENGTH(' . $conditionKey . ') ';
                 $conditionValue = ' = ' . $rowLength;
             } else {
                 // this blob won't be part of the final condition
@@ -904,12 +919,12 @@ class Util
     /**
      * Function to generate unique condition for specified row.
      *
-     * @param  int  $fieldsCount     number of fields
-     * @param  FieldMetadata[]  $fieldsMeta      meta information about fields
-     * @param  array  $row             current row
-     * @param  bool  $forceUnique     generate condition only on pk or unique
-     * @param  string|bool  $restrictToTable restrict the unique condition to this table or false if none
-     * @param  Expression[]  $expressions     An array of Expression instances.
+     * @param int             $fieldsCount     number of fields
+     * @param FieldMetadata[] $fieldsMeta      meta information about fields
+     * @param array           $row             current row
+     * @param bool            $forceUnique     generate condition only on pk or unique
+     * @param string|bool     $restrictToTable restrict the unique condition to this table or false if none
+     * @param Expression[]    $expressions     An array of Expression instances.
      *
      * @psalm-param array<int, mixed> $row
      *
@@ -925,14 +940,14 @@ class Util
     ): array {
         global $dbi;
 
-        $primaryKey = '';
-        $uniqueKey = '';
-        $nonPrimaryCondition = '';
-        $preferredCondition = '';
-        $primaryKeyArray = [];
-        $uniqueKeyArray = [];
+        $primaryKey               = '';
+        $uniqueKey                = '';
+        $nonPrimaryCondition      = '';
+        $preferredCondition       = '';
+        $primaryKeyArray          = [];
+        $uniqueKeyArray           = [];
         $nonPrimaryConditionArray = [];
-        $conditionArray = [];
+        $conditionArray           = [];
 
         for ($i = 0; $i < $fieldsCount; $i++) {
             $meta = $fieldsMeta[$i];
@@ -1019,14 +1034,14 @@ class Util
 
         if ($primaryKey) {
             $preferredCondition = $primaryKey;
-            $conditionArray = $primaryKeyArray;
+            $conditionArray     = $primaryKeyArray;
         } elseif ($uniqueKey) {
             $preferredCondition = $uniqueKey;
-            $conditionArray = $uniqueKeyArray;
+            $conditionArray     = $uniqueKeyArray;
         } elseif (! $forceUnique) {
             $preferredCondition = $nonPrimaryCondition;
-            $conditionArray = $nonPrimaryConditionArray;
-            $clauseIsUnique = false;
+            $conditionArray     = $nonPrimaryConditionArray;
+            $clauseIsUnique     = false;
         }
 
         $whereClause = trim((string) preg_replace('|\s?AND$|', '', $preferredCondition));
@@ -1041,13 +1056,13 @@ class Util
     /**
      * Generate the charset query part
      *
-     * @param  string  $collation Collation
-     * @param  bool  $override  (optional) force 'CHARACTER SET' keyword
+     * @param string $collation Collation
+     * @param bool   $override  (optional) force 'CHARACTER SET' keyword
      */
     public static function getCharsetQueryPart(string $collation, bool $override = false): string
     {
         [$charset] = explode('_', $collation);
-        $keyword = ' CHARSET=';
+        $keyword   = ' CHARSET=';
 
         if ($override) {
             $keyword = ' CHARACTER SET ';
@@ -1060,20 +1075,20 @@ class Util
     /**
      * Generate a pagination selector for browsing resultsets
      *
-     * @param  string  $name        The name for the request parameter
-     * @param  int  $rows        Number of rows in the pagination set
-     * @param  int  $pageNow     current page number
-     * @param  int  $nbTotalPage number of total pages
-     * @param  int  $showAll     If the number of pages is lower than this
+     * @param string $name        The name for the request parameter
+     * @param int    $rows        Number of rows in the pagination set
+     * @param int    $pageNow     current page number
+     * @param int    $nbTotalPage number of total pages
+     * @param int    $showAll     If the number of pages is lower than this
      *                            variable, no pages will be omitted in pagination
-     * @param  int  $sliceStart  How many rows at the beginning should always
+     * @param int    $sliceStart  How many rows at the beginning should always
      *                            be shown?
-     * @param  int  $sliceEnd    How many rows at the end should always be shown?
-     * @param  int  $percent     Percentage of calculation page offsets to hop to a
+     * @param int    $sliceEnd    How many rows at the end should always be shown?
+     * @param int    $percent     Percentage of calculation page offsets to hop to a
      *                            next page
-     * @param  int  $range       Near the current page, how many pages should
+     * @param int    $range       Near the current page, how many pages should
      *                            be considered "nearby" and displayed as well?
-     * @param  string  $prompt      The prompt to display (sometimes empty)
+     * @param string $prompt      The prompt to display (sometimes empty)
      */
     public static function pageselector(
         $name,
@@ -1087,9 +1102,9 @@ class Util
         $range = 10,
         $prompt = ''
     ): string {
-        $increment = floor($nbTotalPage / $percent);
+        $increment         = floor($nbTotalPage / $percent);
         $pageNowMinusRange = $pageNow - $range;
-        $pageNowPlusRange = $pageNow + $range;
+        $pageNowPlusRange  = $pageNow + $range;
 
         $gotoPage = $prompt . ' <select class="pageselector ajax"';
 
@@ -1115,8 +1130,8 @@ class Util
             // immediately jump to specific pages.
             // As soon as we get near our currently chosen page ($pageNow -
             // $range), every page number will be shown.
-            $i = $sliceStart;
-            $x = $nbTotalPage - $sliceEnd;
+            $i           = $sliceStart;
+            $x           = $nbTotalPage - $sliceEnd;
             $metBoundary = false;
 
             while ($i <= $x) {
@@ -1157,11 +1172,11 @@ class Util
             The following code adds page numbers +/- 2,4,8,16,32,64,128,256 etc.
             around the current page.
             */
-            $i = $pageNow;
+            $i    = $pageNow;
             $dist = 1;
             while ($i < $x) {
                 $dist = 2 * $dist;
-                $i = $pageNow + $dist;
+                $i    = $pageNow + $dist;
                 if ($i <= 0 || $i > $x) {
                     continue;
                 }
@@ -1169,11 +1184,11 @@ class Util
                 $pages[] = $i;
             }
 
-            $i = $pageNow;
+            $i    = $pageNow;
             $dist = 1;
             while ($i > 0) {
                 $dist = 2 * $dist;
-                $i = $pageNow - $dist;
+                $i    = $pageNow - $dist;
                 if ($i <= 0 || $i > $x) {
                     continue;
                 }
@@ -1210,8 +1225,9 @@ class Util
     /**
      * Calculate page number through position
      *
-     * @param  int  $pos      position of first item
-     * @param  int  $maxCount number of items per page
+     * @param int $pos      position of first item
+     * @param int $maxCount number of items per page
+     *
      * @return int $page_num
      */
     public static function getPageFromPosition($pos, $maxCount)
@@ -1228,7 +1244,8 @@ class Util
      *
      * </code>
      *
-     * @param  string  $dir with wildcard for user
+     * @param string $dir with wildcard for user
+     *
      * @return string per user directory
      */
     public static function userDir(string $dir): string
@@ -1258,8 +1275,9 @@ class Util
      * function because in PHP, decbin() supports only 32 bits
      * on 32-bit servers
      *
-     * @param  int  $value  coming from a BIT field
-     * @param  int  $length length
+     * @param int $value  coming from a BIT field
+     * @param int $length length
+     *
      * @return string the printable value
      */
     public static function printableBitValue(int $value, int $length): string
@@ -1269,7 +1287,7 @@ class Util
             $printable = decbin($value);
         } else {
             // FIXME: does not work for the leftmost bit of a 64-bit value
-            $i = 0;
+            $i         = 0;
             $printable = '';
             while ($value >= 2 ** $i) {
                 $i++;
@@ -1302,7 +1320,8 @@ class Util
      * Converts a BIT type default value
      * for example, b'010' becomes 010
      *
-     * @param  string|null  $bitDefaultValue value
+     * @param string|null $bitDefaultValue value
+     *
      * @return string the converted value
      */
     public static function convertBitDefaultValue(?string $bitDefaultValue): string
@@ -1318,9 +1337,10 @@ class Util
     /**
      * Extracts the various parts from a column spec
      *
-     * @param  string  $columnSpecification Column specification
+     * @param string $columnSpecification Column specification
+     *
      * @return array associative array containing type, spec_in_brackets
-     *          and possibly enum_set_values (another array)
+     *               and possibly enum_set_values (another array)
      */
     public static function extractColumnSpec($columnSpecification)
     {
@@ -1340,17 +1360,17 @@ class Util
         } else {
             // Split trailing attributes such as unsigned,
             // binary, zerofill and get data type name
-            $typeParts = explode(' ', $columnSpecification);
-            $type = mb_strtolower($typeParts[0]);
+            $typeParts      = explode(' ', $columnSpecification);
+            $type           = mb_strtolower($typeParts[0]);
             $specInBrackets = '';
         }
 
         if ($type === 'enum' || $type === 'set') {
             // Define our working vars
             $enumSetValues = self::parseEnumSetValues($columnSpecification, false);
-            $printType = $type
+            $printType     = $type
                 . '(' . str_replace("','", "', '", $specInBrackets) . ')';
-            $binary = false;
+            $binary   = false;
             $unsigned = false;
             $zerofill = false;
         } else {
@@ -1365,15 +1385,15 @@ class Util
             // because this is not accepted in MySQL syntax.
             if (str_contains($printType, 'binary') && ! preg_match('@binary[\(]@', $printType)) {
                 $printType = str_replace('binary', '', $printType);
-                $binary = true;
+                $binary    = true;
             } else {
                 $binary = false;
             }
 
             $printType = (string) preg_replace('@zerofill@', '', $printType, -1, $zerofillCount);
-            $zerofill = ($zerofillCount > 0);
+            $zerofill  = ($zerofillCount > 0);
             $printType = (string) preg_replace('@unsigned@', '', $printType, -1, $unsignedCount);
-            $unsigned = ($unsignedCount > 0);
+            $unsigned  = ($unsignedCount > 0);
             $printType = trim($printType);
         }
 
@@ -1411,23 +1431,24 @@ class Util
         }
 
         return [
-            'type' => $type,
-            'spec_in_brackets' => $specInBrackets,
-            'enum_set_values' => $enumSetValues,
-            'print_type' => $printType,
-            'binary' => $binary,
-            'unsigned' => $unsigned,
-            'zerofill' => $zerofill,
-            'attribute' => $attribute,
+            'type'                  => $type,
+            'spec_in_brackets'      => $specInBrackets,
+            'enum_set_values'       => $enumSetValues,
+            'print_type'            => $printType,
+            'binary'                => $binary,
+            'unsigned'              => $unsigned,
+            'zerofill'              => $zerofill,
+            'attribute'             => $attribute,
             'can_contain_collation' => $canContainCollation,
-            'displayed_type' => $displayedType,
+            'displayed_type'        => $displayedType,
         ];
     }
 
     /**
      * If the string starts with a \r\n pair (0x0d0a) add an extra \n
      *
-     * @param  string  $string string
+     * @param string $string string
+     *
      * @return string with the chars replaced
      */
     public static function duplicateFirstNewline(string $string): string
@@ -1444,19 +1465,20 @@ class Util
      * Get the action word corresponding to a script name
      * in order to display it as a title in navigation panel
      *
-     * @param  string  $target a valid value for $cfg['NavigationTreeDefaultTabTable'],
+     * @param string $target a valid value for $cfg['NavigationTreeDefaultTabTable'],
      *                       $cfg['NavigationTreeDefaultTabTable2'],
      *                       $cfg['DefaultTabTable'] or $cfg['DefaultTabDatabase']
+     *
      * @return string|bool Title for the $cfg value
      */
     public static function getTitleForTarget($target)
     {
         $mapping = [
-            'structure' => __('Structure'),
-            'sql' => __('SQL'),
-            'search' => __('Search'),
-            'insert' => __('Insert'),
-            'browse' => __('Browse'),
+            'structure'  => __('Structure'),
+            'sql'        => __('SQL'),
+            'search'     => __('Search'),
+            'insert'     => __('Insert'),
+            'browse'     => __('Browse'),
             'operations' => __('Operations'),
         ];
 
@@ -1467,12 +1489,13 @@ class Util
      * Get the script name corresponding to a plain English config word
      * in order to append in links on navigation and main panel
      *
-     * @param  string  $target   a valid value for
+     * @param string $target   a valid value for
      *                         $cfg['NavigationTreeDefaultTabTable'],
      *                         $cfg['NavigationTreeDefaultTabTable2'],
      *                         $cfg['DefaultTabTable'], $cfg['DefaultTabDatabase'] or
      *                         $cfg['DefaultTabServer']
-     * @param  string  $location one out of 'server', 'table', 'database'
+     * @param string $location one out of 'server', 'table', 'database'
+     *
      * @return string script name corresponding to the config word
      */
     public static function getScriptNameForOption($target, string $location): string
@@ -1484,12 +1507,13 @@ class Util
      * Get the URL corresponding to a plain English config word
      * in order to append in links on navigation and main panel
      *
-     * @param  string  $target   a valid value for
+     * @param string $target   a valid value for
      *                         $cfg['NavigationTreeDefaultTabTable'],
      *                         $cfg['NavigationTreeDefaultTabTable2'],
      *                         $cfg['DefaultTabTable'], $cfg['DefaultTabDatabase'] or
      *                         $cfg['DefaultTabServer']
-     * @param  string  $location one out of 'server', 'table', 'database'
+     * @param string $location one out of 'server', 'table', 'database'
+     *
      * @return string The URL corresponding to the config word
      */
     public static function getUrlForOption($target, string $location): string
@@ -1570,14 +1594,15 @@ class Util
      * Formats user string, expanding @VARIABLES@, accepting strftime format
      * string.
      *
-     * @param  string  $string  Text where to do expansion.
-     * @param  array|string  $escape  Function to call for escaping variable values.
+     * @param string       $string  Text where to do expansion.
+     * @param array|string $escape  Function to call for escaping variable values.
      *                              Can also be an array of:
      *                              - the escape method name
      *                              - the class that contains the method
      *                              - location of the class (for inclusion)
-     * @param  array  $updates Array with overrides for default parameters
+     * @param array        $updates Array with overrides for default parameters
      *                              (obtained from GLOBALS).
+     *
      * @return string
      */
     public static function expandUserString(
@@ -1588,9 +1613,9 @@ class Util
         global $dbi;
 
         /* Content */
-        $vars = [];
-        $vars['http_host'] = Core::getenv('HTTP_HOST');
-        $vars['server_name'] = $GLOBALS['cfg']['Server']['host'];
+        $vars                   = [];
+        $vars['http_host']      = Core::getenv('HTTP_HOST');
+        $vars['server_name']    = $GLOBALS['cfg']['Server']['host'];
         $vars['server_verbose'] = $GLOBALS['cfg']['Server']['verbose'];
 
         if (empty($GLOBALS['cfg']['Server']['verbose'])) {
@@ -1599,8 +1624,8 @@ class Util
             $vars['server_verbose_or_name'] = $GLOBALS['cfg']['Server']['verbose'];
         }
 
-        $vars['database'] = $GLOBALS['db'];
-        $vars['table'] = $GLOBALS['table'];
+        $vars['database']           = $GLOBALS['db'];
+        $vars['table']              = $GLOBALS['table'];
         $vars['phpmyadmin_version'] = 'phpMyAdmin ' . Version::VERSION;
 
         /* Update forced variables */
@@ -1614,22 +1639,22 @@ class Util
          * might still have it in cookies.
          */
         $replace = [
-            '@HTTP_HOST@' => $vars['http_host'],
-            '@SERVER@' => $vars['server_name'],
-            '__SERVER__' => $vars['server_name'],
-            '@VERBOSE@' => $vars['server_verbose'],
-            '@VSERVER@' => $vars['server_verbose_or_name'],
-            '@DATABASE@' => $vars['database'],
-            '__DB__' => $vars['database'],
-            '@TABLE@' => $vars['table'],
-            '__TABLE__' => $vars['table'],
+            '@HTTP_HOST@'  => $vars['http_host'],
+            '@SERVER@'     => $vars['server_name'],
+            '__SERVER__'   => $vars['server_name'],
+            '@VERBOSE@'    => $vars['server_verbose'],
+            '@VSERVER@'    => $vars['server_verbose_or_name'],
+            '@DATABASE@'   => $vars['database'],
+            '__DB__'       => $vars['database'],
+            '@TABLE@'      => $vars['table'],
+            '__TABLE__'    => $vars['table'],
             '@PHPMYADMIN@' => $vars['phpmyadmin_version'],
         ];
 
         /* Optional escaping */
         if ($escape !== null) {
             if (is_array($escape)) {
-                $escapeClass = new $escape[1]();
+                $escapeClass  = new $escape[1]();
                 $escapeMethod = $escape[0];
             }
 
@@ -1680,9 +1705,10 @@ class Util
      * (useful for quickly checking if a datatype is supported)
      * or an HTML snippet that creates a drop-down list.
      *
-     * @param  bool  $html     Whether to generate an html snippet or an array
-     * @param  string  $selected The value to mark as selected in HTML mode
-     * @return mixed   An HTML snippet or an array of datatypes.
+     * @param bool   $html     Whether to generate an html snippet or an array
+     * @param string $selected The value to mark as selected in HTML mode
+     *
+     * @return mixed An HTML snippet or an array of datatypes.
      */
     public static function getSupportedDatatypes($html = false, $selected = '')
     {
@@ -1734,11 +1760,11 @@ class Util
      *            // 'CREATE ROUTINE' privilege or, if not, checks if the
      *            // user has this privilege on database 'mydb'.
      *
-     * @param  string  $priv The privilege to check
-     * @param  string|null  $db   null, to only check global privileges
+     * @param string      $priv The privilege to check
+     * @param string|null $db   null, to only check global privileges
      *                          string, db name where to also check
      *                          for privileges
-     * @param  string|null  $tbl  null, to only check global/db privileges
+     * @param string|null $tbl  null, to only check global/db privileges
      *                          string, table name where to also check
      *                          for privileges
      */
@@ -1851,9 +1877,10 @@ class Util
     /**
      * Parses ENUM/SET values
      *
-     * @param  string  $definition The definition of the column
+     * @param string $definition The definition of the column
      *                           for which to parse the values
-     * @param  bool  $escapeHtml Whether to escape html entities
+     * @param bool   $escapeHtml Whether to escape html entities
+     *
      * @return array
      */
     public static function parseEnumSetValues($definition, $escapeHtml = true)
@@ -1862,9 +1889,9 @@ class Util
         // There is a JS port of the below parser in functions.js
         // If you are fixing something here,
         // you need to also update the JS port.
-        $values = [];
+        $values   = [];
         $inString = false;
-        $buffer = '';
+        $buffer   = '';
 
         for ($i = 0, $length = mb_strlen($valuesString); $i < $length; $i++) {
             $curr = mb_substr($valuesString, $i, 1);
@@ -1883,7 +1910,7 @@ class Util
             } elseif ($inString && $curr == "'") {
                 $inString = false;
                 $values[] = $buffer;
-                $buffer = '';
+                $buffer   = '';
             } elseif ($inString) {
                 $buffer .= $curr;
             }
@@ -1906,55 +1933,56 @@ class Util
     /**
      * Return the list of tabs for the menu with corresponding names
      *
-     * @param  string  $level 'server', 'db' or 'table' level
+     * @param string $level 'server', 'db' or 'table' level
+     *
      * @return array|null list of tabs for the menu
      */
     public static function getMenuTabList($level = null)
     {
         $tabList = [
             'server' => [
-                'databases' => __('Databases'),
-                'sql' => __('SQL'),
-                'status' => __('Status'),
-                'rights' => __('Users'),
-                'export' => __('Export'),
-                'import' => __('Import'),
-                'settings' => __('Settings'),
-                'binlog' => __('Binary log'),
+                'databases'   => __('Databases'),
+                'sql'         => __('SQL'),
+                'status'      => __('Status'),
+                'rights'      => __('Users'),
+                'export'      => __('Export'),
+                'import'      => __('Import'),
+                'settings'    => __('Settings'),
+                'binlog'      => __('Binary log'),
                 'replication' => __('Replication'),
-                'vars' => __('Variables'),
-                'charset' => __('Charsets'),
-                'plugins' => __('Plugins'),
-                'engine' => __('Engines'),
+                'vars'        => __('Variables'),
+                'charset'     => __('Charsets'),
+                'plugins'     => __('Plugins'),
+                'engine'      => __('Engines'),
             ],
             'db' => [
-                'structure' => __('Structure'),
-                'sql' => __('SQL'),
-                'search' => __('Search'),
-                'query' => __('Query'),
-                'export' => __('Export'),
-                'import' => __('Import'),
-                'operation' => __('Operations'),
-                'privileges' => __('Privileges'),
-                'routines' => __('Routines'),
-                'events' => __('Events'),
-                'triggers' => __('Triggers'),
-                'tracking' => __('Tracking'),
-                'designer' => __('Designer'),
+                'structure'       => __('Structure'),
+                'sql'             => __('SQL'),
+                'search'          => __('Search'),
+                'query'           => __('Query'),
+                'export'          => __('Export'),
+                'import'          => __('Import'),
+                'operation'       => __('Operations'),
+                'privileges'      => __('Privileges'),
+                'routines'        => __('Routines'),
+                'events'          => __('Events'),
+                'triggers'        => __('Triggers'),
+                'tracking'        => __('Tracking'),
+                'designer'        => __('Designer'),
                 'central_columns' => __('Central columns'),
             ],
             'table' => [
-                'browse' => __('Browse'),
-                'structure' => __('Structure'),
-                'sql' => __('SQL'),
-                'search' => __('Search'),
-                'insert' => __('Insert'),
-                'export' => __('Export'),
-                'import' => __('Import'),
+                'browse'     => __('Browse'),
+                'structure'  => __('Structure'),
+                'sql'        => __('SQL'),
+                'search'     => __('Search'),
+                'insert'     => __('Insert'),
+                'export'     => __('Export'),
+                'import'     => __('Import'),
                 'privileges' => __('Privileges'),
-                'operation' => __('Operations'),
-                'tracking' => __('Tracking'),
-                'triggers' => __('Triggers'),
+                'operation'  => __('Operations'),
+                'tracking'   => __('Tracking'),
+                'triggers'   => __('Triggers'),
             ],
         ];
 
@@ -1974,7 +2002,8 @@ class Util
      * If the string contains fractional seconds,
      * pads it with 0s up to 6 decimal places.
      *
-     * @param  string  $value time, datetime or timestamp strings
+     * @param string $value time, datetime or timestamp strings
+     *
      * @return string time, datetime or timestamp strings with fractional seconds
      */
     public static function addMicroseconds($value)
@@ -2000,7 +2029,8 @@ class Util
      * Reads the file, detects the compression MIME type, closes the file
      * and returns the MIME type
      *
-     * @param  resource  $file the file handle
+     * @param resource $file the file handle
+     *
      * @return string the MIME type for compression, or 'none'
      */
     public static function getCompressionMimeType($file)
@@ -2055,15 +2085,16 @@ class Util
     /**
      * Process the index data.
      *
-     * @param  array  $indexes index data
+     * @param array $indexes index data
+     *
      * @return array processes index data
      */
     public static function processIndexData(array $indexes)
     {
         $lastIndex = '';
 
-        $primary = '';
-        $pkArray = []; // will be use to emphasis prim. keys in the table
+        $primary     = '';
+        $pkArray     = []; // will be use to emphasis prim. keys in the table
         $indexesInfo = [];
         $indexesData = [];
 
@@ -2082,7 +2113,7 @@ class Util
             }
 
             $indexesInfo[$row['Key_name']]['Sequences'][] = $row['Seq_in_index'];
-            $indexesInfo[$row['Key_name']]['Non_unique'] = $row['Non_unique'];
+            $indexesInfo[$row['Key_name']]['Non_unique']  = $row['Non_unique'];
             if (isset($row['Cardinality'])) {
                 $indexesInfo[$row['Key_name']]['Cardinality'] = $row['Cardinality'];
             }
@@ -2112,8 +2143,9 @@ class Util
      * Gets the list of tables in the current db and information about these
      * tables if possible
      *
-     * @param  string  $db      database name
-     * @param  string  $subPart part of script name
+     * @param string $db      database name
+     * @param string $subPart part of script name
+     *
      * @return array
      */
     public static function getDbInfo($db, string $subPart)
@@ -2124,7 +2156,7 @@ class Util
          * limits for table list
          */
         if (! isset($_SESSION['tmpval']['table_limit_offset']) || $_SESSION['tmpval']['table_limit_offset_db'] != $db) {
-            $_SESSION['tmpval']['table_limit_offset'] = 0;
+            $_SESSION['tmpval']['table_limit_offset']    = 0;
             $_SESSION['tmpval']['table_limit_offset_db'] = $db;
         }
 
@@ -2145,7 +2177,7 @@ class Util
         $isSystemSchema = false;
 
         if (Utilities::isSystemSchema($db)) {
-            $isShowStats = false;
+            $isShowStats    = false;
             $isSystemSchema = true;
         }
 
@@ -2154,7 +2186,7 @@ class Util
          */
         $tables = [];
 
-        $tooltipTrueName = [];
+        $tooltipTrueName  = [];
         $tooltipAliasName = [];
 
         // Special speedup for newer MySQL Versions (in 4.0 format changed)
@@ -2171,21 +2203,21 @@ class Util
 
         if (empty($tables)) {
             // Set some sorting defaults
-            $sort = 'Name';
+            $sort      = 'Name';
             $sortOrder = 'ASC';
 
             if (isset($_REQUEST['sort'])) {
                 $sortableNameMappings = [
-                    'table' => 'Name',
-                    'records' => 'Rows',
-                    'type' => 'Engine',
-                    'collation' => 'Collation',
-                    'size' => 'Data_length',
-                    'overhead' => 'Data_free',
-                    'creation' => 'Create_time',
+                    'table'       => 'Name',
+                    'records'     => 'Rows',
+                    'type'        => 'Engine',
+                    'collation'   => 'Collation',
+                    'size'        => 'Data_length',
+                    'overhead'    => 'Data_free',
+                    'creation'    => 'Create_time',
                     'last_update' => 'Update_time',
-                    'last_check' => 'Check_time',
-                    'comment' => 'Comment',
+                    'last_check'  => 'Check_time',
+                    'comment'     => 'Comment',
                 ];
 
                 // Make sure the sort type is implemented
@@ -2198,10 +2230,10 @@ class Util
             }
 
             $groupWithSeparator = false;
-            $tableType = null;
-            $limitOffset = 0;
-            $limitCount = false;
-            $groupTable = [];
+            $tableType          = null;
+            $limitOffset        = 0;
+            $limitCount         = false;
+            $groupTable         = [];
 
             if (! empty($_REQUEST['tbl_group']) || ! empty($_REQUEST['tbl_type'])) {
                 if (! empty($_REQUEST['tbl_type'])) {
@@ -2231,12 +2263,12 @@ class Util
                 // all tables in db
                 // - get the total number of tables
                 //  (needed for proper working of the MaxTableList feature)
-                $tables = $dbi->getTables($db);
+                $tables         = $dbi->getTables($db);
                 $totalNumTables = count($tables);
                 if ($subPart !== '_export') {
                     // fetch the details for a possible limited subset
                     $limitOffset = $pos;
-                    $limitCount = true;
+                    $limitCount  = true;
                 }
             }
 
@@ -2286,8 +2318,9 @@ class Util
      * Gets the list of tables in the current db, taking into account
      * that they might be "in use"
      *
-     * @param  string  $db           database name
-     * @param  ResultInterface  $dbInfoResult result set
+     * @param string          $db           database name
+     * @param ResultInterface $dbInfoResult result set
+     *
      * @return array list of tables
      */
     public static function getTablesWhenOpen($db, ResultInterface $dbInfoResult): array
@@ -2295,7 +2328,7 @@ class Util
         global $dbi;
 
         $sotCache = [];
-        $tables = [];
+        $tables   = [];
 
         foreach ($dbInfoResult as $tmp) {
             $sotCache[$tmp['Table']] = true;
@@ -2304,13 +2337,13 @@ class Util
         // is there at least one "in use" table?
         if (count($sotCache) > 0) {
             $tblGroupSql = '';
-            $whereAdded = false;
+            $whereAdded  = false;
             if (
                 isset($_REQUEST['tbl_group'])
                 && is_scalar($_REQUEST['tbl_group'])
                 && strlen((string) $_REQUEST['tbl_group']) > 0
             ) {
-                $group = $dbi->escapeMysqlLikeString((string) $_REQUEST['tbl_group']);
+                $group              = $dbi->escapeMysqlLikeString((string) $_REQUEST['tbl_group']);
                 $groupWithSeparator = $dbi->escapeMysqlLikeString(
                     $_REQUEST['tbl_group']
                     . $GLOBALS['cfg']['NavigationTreeTableSeparator']
@@ -2343,10 +2376,10 @@ class Util
                         $names[] = $tmp[0];
                     } else { // table in use
                         $tables[$tmp[0]] = [
-                            'TABLE_NAME' => $tmp[0],
-                            'ENGINE' => '',
-                            'TABLE_TYPE' => '',
-                            'TABLE_ROWS' => 0,
+                            'TABLE_NAME'    => $tmp[0],
+                            'ENGINE'        => '',
+                            'TABLE_TYPE'    => '',
+                            'TABLE_ROWS'    => 0,
                             'TABLE_COMMENT' => '',
                         ];
                     }
@@ -2373,7 +2406,7 @@ class Util
     /**
      * Checks whether database extension is loaded
      *
-     * @param  string  $extension mysql extension to check
+     * @param string $extension mysql extension to check
      */
     public static function checkDbExtension(string $extension = 'mysqli'): bool
     {
@@ -2406,7 +2439,7 @@ class Util
     /**
      * Converts given (request) parameter to string
      *
-     * @param  mixed  $value Value to convert
+     * @param mixed $value Value to convert
      */
     public static function requestString($value): string
     {
@@ -2424,8 +2457,8 @@ class Util
     /**
      * Generates random string consisting of ASCII chars
      *
-     * @param  int  $length Length of string
-     * @param  bool  $asHex  (optional) Send the result as hex
+     * @param int  $length Length of string
+     * @param bool $asHex  (optional) Send the result as hex
      */
     public static function generateRandom(int $length, bool $asHex = false): string
     {
@@ -2449,7 +2482,8 @@ class Util
     /**
      * Wrapper around PHP date function
      *
-     * @param  string  $format Date format string
+     * @param string $format Date format string
+     *
      * @return string
      */
     public static function date($format)
@@ -2473,9 +2507,10 @@ class Util
     /**
      * Access to a multidimensional array by dot notation
      *
-     * @param  array  $array   List of values
-     * @param  string|array  $path    Path to searched value
-     * @param  mixed  $default Default value
+     * @param array        $array   List of values
+     * @param string|array $path    Path to searched value
+     * @param mixed        $default Default value
+     *
      * @return mixed Searched value
      */
     public static function getValueByKey(array $array, $path, $default = null)
@@ -2491,7 +2526,7 @@ class Util
             }
 
             $array = $array[$p];
-            $p = array_shift($path);
+            $p     = array_shift($path);
         }
 
         return $array;
@@ -2500,15 +2535,16 @@ class Util
     /**
      * Creates a clickable column header for table information
      *
-     * @param  string  $title            Title to use for the link
-     * @param  string  $sort             Corresponds to sortable data name mapped
+     * @param string $title            Title to use for the link
+     * @param string $sort             Corresponds to sortable data name mapped
      *                                 in Util::getDbInfo
-     * @param  string  $initialSortOrder Initial sort order
+     * @param string $initialSortOrder Initial sort order
+     *
      * @return string Link to be displayed in the table header
      */
     public static function sortableTableHeader($title, $sort, $initialSortOrder = 'ASC')
     {
-        $requestedSort = 'table';
+        $requestedSort      = 'table';
         $requestedSortOrder = $futureSortOrder = $initialSortOrder;
         // If the user requested a sort
         if (isset($_REQUEST['sort'])) {
@@ -2518,8 +2554,8 @@ class Util
             }
         }
 
-        $orderImg = '';
-        $orderLinkParams = [];
+        $orderImg                 = '';
+        $orderLinkParams          = [];
         $orderLinkParams['title'] = __('Sort');
         // If this column was requested to be sorted.
         if ($requestedSort == $sort) {
@@ -2573,9 +2609,9 @@ class Util
         }
 
         $urlParams = [
-            'db' => $_REQUEST['db'],
-            'pos' => 0, // We set the position back to 0 every time they sort.
-            'sort' => $sort,
+            'db'         => $_REQUEST['db'],
+            'pos'        => 0, // We set the position back to 0 every time they sort.
+            'sort'       => $sort,
             'sort_order' => $futureSortOrder,
         ];
 
@@ -2595,7 +2631,7 @@ class Util
     /**
      * Check that input is an int or an int in a string
      *
-     * @param  mixed  $input input to check
+     * @param mixed $input input to check
      */
     public static function isInteger($input): bool
     {
@@ -2605,13 +2641,14 @@ class Util
     /**
      * Get the protocol from the RFC 7239 Forwarded header
      *
-     * @param  string  $headerContents The Forwarded header contents
+     * @param string $headerContents The Forwarded header contents
+     *
      * @return string the protocol http/https
      */
     public static function getProtoFromForwardedHeader(string $headerContents): string
     {
         if (str_contains($headerContents, '=')) {// does not contain any equal sign
-            $hops = explode(',', $headerContents);
+            $hops  = explode(',', $headerContents);
             $parts = explode(';', $hops[0]);
             foreach ($parts as $part) {
                 $keyValueArray = explode('=', $part, 2);
@@ -2622,7 +2659,7 @@ class Util
                 [
                     $keyName,
                     $value,
-                ] = $keyValueArray;
+                ]      = $keyValueArray;
                 $value = trim(strtolower($value));
                 if (strtolower(trim($keyName)) === 'proto' && in_array($value, ['http', 'https'])) {
                     return $value;

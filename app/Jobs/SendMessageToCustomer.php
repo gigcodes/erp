@@ -37,12 +37,15 @@ class SendMessageToCustomer implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed          $data
+     * @param null|protected $chatbotReply
+     *
      * @return void
      */
     public function __construct($data, protected $chatbotReply = null)
     {
         // Set product
-        $this->type = isset($data['type']) ? $data['type'] : 'simple';
+        $this->type   = isset($data['type']) ? $data['type'] : 'simple';
         $this->params = isset($data) ? $data : [];
     }
 
@@ -56,11 +59,11 @@ class SendMessageToCustomer implements ShouldQueue
         try {
             // Set time limit
             set_time_limit(0);
-            $medias = [];
+            $medias      = [];
             $mediaImages = [];
-            $params = $this->params;
-            $this->type = 'by_product';
-            $haveMedia = false;
+            $params      = $this->params;
+            $this->type  = 'by_product';
+            $haveMedia   = false;
 
             // query section
 
@@ -68,15 +71,15 @@ class SendMessageToCustomer implements ShouldQueue
                 $mediaImages = ProductHelper::getImagesByProduct($params);
                 if (! empty($mediaImages)) {
                     $haveMedia = true;
-                    $medias = Media::whereIn('id', $mediaImages)->get();
+                    $medias    = Media::whereIn('id', $mediaImages)->get();
                 }
             }
 
             // if we need to send by images id  direct then use this one
             if (! empty($params['images'])) {
-                $ids = is_array($params['images']) ? $params['images'] : json_decode($params['images']);
+                $ids       = is_array($params['images']) ? $params['images'] : json_decode($params['images']);
                 $haveMedia = true;
-                $medias = Media::whereIn('id', $ids)->get();
+                $medias    = Media::whereIn('id', $ids)->get();
             }
 
             if (isset($params['images']) && is_array($params['images'])) {
@@ -110,33 +113,33 @@ class SendMessageToCustomer implements ShouldQueue
             $rates['EUR'] = 1;
 
             $insertParams = [
-                'message' => isset($params['message']) ? $params['message'] : null,
-                'status' => isset($params['status']) ? $params['status'] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
-                'is_queue' => isset($params['is_queue']) ? $params['is_queue'] : 0,
-                'group_id' => isset($params['group_id']) ? $params['group_id'] : null,
-                'user_id' => isset($params['user_id']) ? $params['user_id'] : null,
+                'message'                => isset($params['message']) ? $params['message'] : null,
+                'status'                 => isset($params['status']) ? $params['status'] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
+                'is_queue'               => isset($params['is_queue']) ? $params['is_queue'] : 0,
+                'group_id'               => isset($params['group_id']) ? $params['group_id'] : null,
+                'user_id'                => isset($params['user_id']) ? $params['user_id'] : null,
                 'message_application_id' => isset($params['message_application_id']) ? $params['message_application_id'] : null,
-                'number' => null,
-                'is_chatbot' => isset($params['is_chatbot']) ? $params['is_chatbot'] : 0,
+                'number'                 => null,
+                'is_chatbot'             => isset($params['is_chatbot']) ? $params['is_chatbot'] : 0,
             ];
 
             $allMediaIds = ($haveMedia) ? $medias->pluck('id')->toArray() : [];
-            $mediable = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
+            $mediable    = \DB::table('mediables')->whereIn('media_id', $allMediaIds)->where('mediable_type', \App\Product::class)->get();
 
             $availableMedia = [];
-            $productIds = [];
+            $productIds     = [];
             if (! $mediable->isEmpty()) {
                 foreach ($mediable as $media) {
                     $availableMedia[$media->media_id] = $media;
-                    $productIds[] = $media->mediable_id;
+                    $productIds[]                     = $media->mediable_id;
                 }
             }
 
             $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
             // check first if the media needs to be handled by pdf then first create the images of it
-            $allpdf = [];
-            $allMedia = [];
+            $allpdf         = [];
+            $allMedia       = [];
             $translatedPdfs = [];
             if (! empty($medias)) {
                 if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params['send_pdf']) && $params['send_pdf'] == 1)) {
@@ -174,8 +177,8 @@ class SendMessageToCustomer implements ShouldQueue
 
                             File::put($fileName, $pdf->output());
 
-                            $allpdf[] = $fileName;
-                            $media = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                            $allpdf[]            = $fileName;
+                            $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
                             $allMedia[$fileName] = $media;
 
                             $translatedPdfs[$fileName][$currency] = $media;
@@ -186,15 +189,15 @@ class SendMessageToCustomer implements ShouldQueue
 
             if (! $customers->isEmpty()) {
                 foreach ($customers as $customer) {
-                    $customerPreferredCurrency = $customer->currency;
+                    $customerPreferredCurrency   = $customer->currency;
                     $insertParams['customer_id'] = $customer->id;
-                    $chatMessage = ChatMessage::create($insertParams);
+                    $chatMessage                 = ChatMessage::create($insertParams);
                     if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
                         if ($this->chatbotReply) {
-                            $chatbotReply = $this->chatbotReply;
-                            $chatbotReply->chat_id = $chatMessage->id;
-                            $chatbotReply->answer = $chatMessage->message;
-                            $chatbotReply->reply = isset($params['chatbot_response']) ? json_encode($params['chatbot_response']) : null;
+                            $chatbotReply             = $this->chatbotReply;
+                            $chatbotReply->chat_id    = $chatMessage->id;
+                            $chatbotReply->answer     = $chatMessage->message;
+                            $chatbotReply->reply      = isset($params['chatbot_response']) ? json_encode($params['chatbot_response']) : null;
                             $chatbotReply->reply_from = 'watson';
                             $chatbotReply->save();
                         }
@@ -228,9 +231,9 @@ class SendMessageToCustomer implements ShouldQueue
                                         $chatMessage->attachMedia($media, config('constants.media_tags'));
                                     } else {
                                         // attach to customer so we can send later after approval
-                                        $extradata = $insertParams;
+                                        $extradata             = $insertParams;
                                         $extradata['is_queue'] = 0;
-                                        $extraChatMessage = ChatMessage::create($extradata);
+                                        $extraChatMessage      = ChatMessage::create($extradata);
                                         $extraChatMessage->attachMedia($media, config('constants.media_tags'));
                                     }
                                 }
@@ -269,6 +272,8 @@ class SendMessageToCustomer implements ShouldQueue
 
     /**
      * delete all pdf files after we send to the customer
+     *
+     * @param mixed $files
      */
     public static function deletePdfFiles($files = [])
     {

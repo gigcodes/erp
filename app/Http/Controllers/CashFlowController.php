@@ -30,7 +30,7 @@ class CashFlowController extends Controller
     {
         $date_fornightly = Carbon::now()->format('d');
 
-        $cash_flow = CashFlow::with(['user', 'files', 'website']);
+        $cash_flow    = CashFlow::with(['user', 'files', 'website']);
         $website_name = StoreWebsite::get();
 
         if ($request->site_name != '') {
@@ -70,32 +70,32 @@ class CashFlowController extends Controller
             }
         }
         if ($request->hidden_daterange != '') {
-            $date = explode('-', $request->hidden_daterange);
+            $date     = explode('-', $request->hidden_daterange);
             $datefrom = date('Y-m-d', strtotime($date[0]));
-            $dateto = date('Y-m-d', strtotime($date[1]));
+            $dateto   = date('Y-m-d', strtotime($date[1]));
             $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
         }
 
         $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('cash_flows.id', 'desc')->paginate(Setting::get('pagination'));
 
-        $users = User::select(['id', 'name', 'email'])->get();
+        $users      = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
-        $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
+        $purchases  = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
         if ($request->ajax()) {
             return view('cashflows.index_page', [
-                'cash_flows' => $cash_flows,
-                'users' => $users,
+                'cash_flows'   => $cash_flows,
+                'users'        => $users,
                 'website_name' => $website_name,
-                'categories' => $categories,
-                'purchases' => $purchases,
+                'categories'   => $categories,
+                'purchases'    => $purchases,
             ]);
         } else {
             return view('cashflows.index', [
-                'cash_flows' => $cash_flows,
-                'users' => $users,
+                'cash_flows'   => $cash_flows,
+                'users'        => $users,
                 'website_name' => $website_name,
-                'categories' => $categories,
-                'purchases' => $purchases,
+                'categories'   => $categories,
+                'purchases'    => $purchases,
             ]);
         }
     }
@@ -119,13 +119,13 @@ class CashFlowController extends Controller
     {
         $this->validate($request, [
             'cash_flow_category_id' => 'sometimes|nullable|integer',
-            'description' => 'sometimes|nullable|string',
-            'date' => 'required',
-            'amount' => 'required|integer',
-            'type' => 'required|string',
+            'description'           => 'sometimes|nullable|string',
+            'date'                  => 'required',
+            'amount'                => 'required|integer',
+            'type'                  => 'required|string',
         ]);
 
-        $data = $request->except(['_token', 'file']);
+        $data            = $request->except(['_token', 'file']);
         $data['user_id'] = Auth::id();
 
         $cash_flow = CashFlow::create($data);
@@ -136,9 +136,9 @@ class CashFlowController extends Controller
 
                 $file->storeAs('files', $filename, 's3');
 
-                $new_file = new File;
-                $new_file->filename = $filename;
-                $new_file->model_id = $cash_flow->id;
+                $new_file             = new File;
+                $new_file->filename   = $filename;
+                $new_file->model_id   = $cash_flow->id;
                 $new_file->model_type = CashFlow::class;
                 $new_file->save();
             }
@@ -157,7 +157,8 @@ class CashFlowController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -167,7 +168,8 @@ class CashFlowController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -178,7 +180,8 @@ class CashFlowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -189,7 +192,8 @@ class CashFlowController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -210,27 +214,27 @@ class CashFlowController extends Controller
 
     public function masterCashFlow(CashFlow $cashFlow, MonetaryAccount $account, Request $request)
     {
-        $cash_flows = $cashFlow;
-        $capitals = $account;
+        $cash_flows         = $cashFlow;
+        $capitals           = $account;
         $data['start_date'] = date('Y-m-d');
-        $data['end_date'] = date('Y-m-d');
-        $range_start = $request->get('range_start');
-        $range_end = $request->get('range_end');
+        $data['end_date']   = date('Y-m-d');
+        $range_start        = $request->get('range_start');
+        $range_end          = $request->get('range_end');
 
         $dates = [date('Y-m-d')];
         if ($range_start != '' && $range_end != '') {
-            $cash_flows = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $cash_flows                = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $added_capitals_in_between = MonetaryAccount::whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
-            $data['start_date'] = $range_start;
-            $data['end_date'] = $range_end;
+            $data['start_date']        = $range_start;
+            $data['end_date']          = $range_end;
         }
 
         if (! $range_start || ! $range_end) {
-            $cash_flows = $cash_flows->where('date', date('Y-m-d'));
+            $cash_flows                = $cash_flows->where('date', date('Y-m-d'));
             $added_capitals_in_between = MonetaryAccount::where('date', date('Y-m-d'))->get();
         }
-        $capitals = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
-        $currencies = Helpers::currencies();
+        $capitals        = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
+        $currencies      = Helpers::currencies();
         $opening_balance = [
             'total' => 0,
         ];
@@ -247,10 +251,10 @@ class CashFlowController extends Controller
                 }
             }
         }
-        $data['currencies'] = $currencies;
-        $data['opening_balance'] = $opening_balance;
+        $data['currencies']                = $currencies;
+        $data['opening_balance']           = $opening_balance;
         $data['added_capitals_in_between'] = $added_capitals_in_between;
-        $data['transactions'] = collect($cash_flows->orderBy('date')->orderBy('type', 'desc')->orderBy('cash_flow_able_type')->get()->toArray());
+        $data['transactions']              = collect($cash_flows->orderBy('date')->orderBy('type', 'desc')->orderBy('cash_flow_able_type')->get()->toArray());
 
         return view('cashflows.master', $data);
     }
@@ -261,10 +265,10 @@ class CashFlowController extends Controller
 
         $validator = Validator::make($request->all(), [
             'cash_flow_id' => 'required',
-            'description' => 'required',
-            'date' => 'required',
-            'amount' => 'required',
-            'type' => 'required',
+            'description'  => 'required',
+            'date'         => 'required',
+            'amount'       => 'required',
+            'type'         => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -274,11 +278,11 @@ class CashFlowController extends Controller
         if ($id > 0) {
             $cashflow = \App\CashFlow::find($id);
             if ($cashflow) {
-                $cashflow->erp_amount = $request->amount;
-                $cashflow->type = $request->type;
+                $cashflow->erp_amount          = $request->amount;
+                $cashflow->type                = $request->type;
                 $cashflow->monetary_account_id = $request->monetary_account_id;
-                $cashflow->updated_by = auth()->user()->id;
-                $cashflow->status = 1;
+                $cashflow->updated_by          = auth()->user()->id;
+                $cashflow->status              = 1;
                 if ($cashflow->erp_amount > 0) {
                     $cashflow->erp_eur_amount = \App\Currency::convert($cashflow->erp_amount, 'EUR', $cashflow->currency);
                 }
@@ -295,7 +299,7 @@ class CashFlowController extends Controller
     public function getPaymentDetails(Request $request)
     {
         $cashflow_id = $request->id;
-        $cash_flow = CashFlow::find($cashflow_id);
+        $cash_flow   = CashFlow::find($cashflow_id);
 
         $payment_receipts = [];
         if ($cash_flow) {
@@ -317,8 +321,8 @@ class CashFlowController extends Controller
         $model_type = $request->model_type;
         if ($model_type == 'order') {
             $model_type = \App\Customer::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $arr['name'] = $r->name;
 
@@ -329,8 +333,8 @@ class CashFlowController extends Controller
         }
         if ($model_type == 'assent_manager') {
             $model_type = \App\AssetsManager::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $arr['name'] = $r->name;
 
@@ -342,8 +346,8 @@ class CashFlowController extends Controller
 
         if ($model_type == 'payment_receipt') {
             $model_type = \App\PaymentReceipt::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $arr['name'] = $r->remarks;
 
@@ -364,10 +368,10 @@ class CashFlowController extends Controller
             }
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
         } else {
             $paginate = (Setting::get('pagination') * 10);
-            $logs = HubstuffCommandLog::orderby('created_at', 'desc')->paginate($paginate);
+            $logs     = HubstuffCommandLog::orderby('created_at', 'desc')->paginate($paginate);
         }
 
         if ($request->ajax()) {
@@ -384,7 +388,7 @@ class CashFlowController extends Controller
     public function hubstuffCommandLogDetail(Request $request)
     {
         $messageLogs = [];
-        $users = \App\User::pluck('name', 'id');
+        $users       = \App\User::pluck('name', 'id');
         if (isset($request->id) and $request->id != 0) {
             $messageLogs = HubstuffCommandLogMessage::where('hubstuff_command_log_id', $request->id)->get();
         }

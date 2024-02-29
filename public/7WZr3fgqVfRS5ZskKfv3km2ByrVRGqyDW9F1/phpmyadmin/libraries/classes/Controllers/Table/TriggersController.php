@@ -49,7 +49,7 @@ class TriggersController extends AbstractController
                 Util::checkParameters(['db', 'table']);
 
                 $urlParams = ['db' => $db, 'table' => $table];
-                $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+                $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
                 $errorUrl .= Url::getCommon($urlParams, '&');
 
                 DbTableExists::check();

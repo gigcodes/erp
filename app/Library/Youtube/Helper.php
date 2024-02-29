@@ -18,9 +18,9 @@ class Helper
 
             $params = [
                 'refresh_token' => $youtubeChannel->oauth2_refresh_token,
-                'client_id' => $youtubeChannel->oauth2_client_id,
+                'client_id'     => $youtubeChannel->oauth2_client_id,
                 'client_secret' => $youtubeChannel->oauth2_client_secret,
-                'grant_type' => 'refresh_token',
+                'grant_type'    => 'refresh_token',
             ];
             $headers = [
                 'Host' => 'oauth2.googleapis.com',
@@ -32,7 +32,7 @@ class Helper
 
             if (! empty($expireIn)) {
                 $currentTime = strtotime(Carbon::now());
-                $expireIn = Carbon::createFromTimestamp(($currentTime + $expireIn));
+                $expireIn    = Carbon::createFromTimestamp(($currentTime + $expireIn));
                 YoutubeChannel::where('id', $id)->update(['token_expire_time' => $expireIn]);
             }
 
@@ -46,8 +46,8 @@ class Helper
     public static function getVideoCategories()
     {
         return [
-            '1' => 'Film & Animation',
-            '2' => 'Autos & Vehicles',
+            '1'  => 'Film & Animation',
+            '2'  => 'Autos & Vehicles',
             '10' => 'Music',
             '15' => 'Pets & Animals',
             '17' => 'Sports',
@@ -106,8 +106,8 @@ class Helper
     public static function regenerateToken($id)
     {
         $youtubeChannelData = YoutubeChannel::where('id', $id)->first();
-        $tokenExpireTime = strtotime(Carbon::parse($youtubeChannelData->token_expire_time));
-        $currentTime = strtotime(Carbon::now());
+        $tokenExpireTime    = strtotime(Carbon::parse($youtubeChannelData->token_expire_time));
+        $currentTime        = strtotime(Carbon::now());
 
         if (($tokenExpireTime - $currentTime) <= 0) {
             self::updateYoutubeAccessToken($id);
@@ -121,21 +121,21 @@ class Helper
 
             $params = [
                 'refresh_token' => $youtubeChannel->oauth2_refresh_token,
-                'client_id' => $youtubeChannel->oauth2_client_id,
+                'client_id'     => $youtubeChannel->oauth2_client_id,
                 'client_secret' => $youtubeChannel->oauth2_client_secret,
-                'grant_type' => 'refresh_token',
+                'grant_type'    => 'refresh_token',
             ];
             $headers = [
                 'Host' => 'oauth2.googleapis.com',
             ];
 
-            $response = Http::withHeaders($headers)->post('https://oauth2.googleapis.com/token', $params)->json();
+            $response                     = Http::withHeaders($headers)->post('https://oauth2.googleapis.com/token', $params)->json();
             $youtubeChannel->access_token = $response['access_token'];
 
             $expireIn = ! empty($response['expires_in']) ? $response['expires_in'] : null;
             if (! empty($expireIn)) {
                 $currentTime = strtotime(Carbon::now());
-                $expireIn = Carbon::createFromTimestamp(($currentTime + $expireIn));
+                $expireIn    = Carbon::createFromTimestamp(($currentTime + $expireIn));
             }
             $youtubeChannel->token_expire_time = $expireIn;
             $youtubeChannel->save();
@@ -169,18 +169,18 @@ class Helper
         $videoIds = [];
         if (! empty($videoData)) {
             foreach ($videoData as $value) {
-                $videoAdd = [];
+                $videoAdd                       = [];
                 $videoAdd['youtube_channel_id'] = $youtubeChanelTableId;
-                $videoAdd['media_id'] = ! empty($value['media_id']) ? $value['media_id'] : '';
-                $videoAdd['title'] = ! empty($value['title']) ? $value['title'] : '';
-                $videoAdd['link'] = ! empty($value['link']) ? $value['link'] : '';
-                $videoAdd['like_count'] = ! empty($value['like_count']) ? $value['like_count'] : '';
-                $videoAdd['view_count'] = ! empty($value['view_count']) ? $value['view_count'] : '';
-                $videoAdd['create_time'] = ! empty($value['create_time']) ? $value['create_time'] : '';
-                $videoAdd['description'] = ! empty($value['description']) ? $value['description'] : '';
-                $videoAdd['dislike_count'] = ! empty($value['dislike_count']) ? $value['dislike_count'] : '';
-                $videoAdd['comment_count'] = ! empty($value['comment_count']) ? $value['comment_count'] : '';
-                $videoAdd['channel_id'] = ! empty($value['channel_id']) ? $value['channel_id'] : '';
+                $videoAdd['media_id']           = ! empty($value['media_id']) ? $value['media_id'] : '';
+                $videoAdd['title']              = ! empty($value['title']) ? $value['title'] : '';
+                $videoAdd['link']               = ! empty($value['link']) ? $value['link'] : '';
+                $videoAdd['like_count']         = ! empty($value['like_count']) ? $value['like_count'] : '';
+                $videoAdd['view_count']         = ! empty($value['view_count']) ? $value['view_count'] : '';
+                $videoAdd['create_time']        = ! empty($value['create_time']) ? $value['create_time'] : '';
+                $videoAdd['description']        = ! empty($value['description']) ? $value['description'] : '';
+                $videoAdd['dislike_count']      = ! empty($value['dislike_count']) ? $value['dislike_count'] : '';
+                $videoAdd['comment_count']      = ! empty($value['comment_count']) ? $value['comment_count'] : '';
+                $videoAdd['channel_id']         = ! empty($value['channel_id']) ? $value['channel_id'] : '';
 
                 $checkVideoExist = self::checkVideoExistOrNot($videoAdd['media_id']);
 
@@ -220,12 +220,12 @@ class Helper
                     foreach ($videoLists as $video) {
                         if ($video['kind'] == 'youtube#commentThread') {
                             $commentInsertData['youtube_video_id'] = $youtubeVideoTableId;
-                            $commentInsertData['title'] = ! empty($video['snippet']['topLevelComment']['snippet']['textOriginal']) ? $video['snippet']['topLevelComment']['snippet']['textOriginal'] : '';
-                            $commentInsertData['like_count'] = ! empty($video['snippet']['topLevelComment']['snippet']['likeCount']) ? $video['snippet']['topLevelComment']['snippet']['likeCount'] : '';
-                            $commentInsertData['create_time'] = ! empty($video['snippet']['topLevelComment']['snippet']['publishedAt']) ? $video['snippet']['topLevelComment']['snippet']['publishedAt'] : '';
-                            $commentInsertData['video_id'] = ! empty($video['snippet']['topLevelComment']['snippet']['videoId']) ? $video['snippet']['topLevelComment']['snippet']['videoId'] : '';
-                            $commentInsertData['comment_id'] = ! empty($video['id']) ? $video['id'] : '';
-                            $checkCommnetExistsOrNot = self::checkCommentExistsOrNot($commentInsertData['comment_id']);
+                            $commentInsertData['title']            = ! empty($video['snippet']['topLevelComment']['snippet']['textOriginal']) ? $video['snippet']['topLevelComment']['snippet']['textOriginal'] : '';
+                            $commentInsertData['like_count']       = ! empty($video['snippet']['topLevelComment']['snippet']['likeCount']) ? $video['snippet']['topLevelComment']['snippet']['likeCount'] : '';
+                            $commentInsertData['create_time']      = ! empty($video['snippet']['topLevelComment']['snippet']['publishedAt']) ? $video['snippet']['topLevelComment']['snippet']['publishedAt'] : '';
+                            $commentInsertData['video_id']         = ! empty($video['snippet']['topLevelComment']['snippet']['videoId']) ? $video['snippet']['topLevelComment']['snippet']['videoId'] : '';
+                            $commentInsertData['comment_id']       = ! empty($video['id']) ? $video['id'] : '';
+                            $checkCommnetExistsOrNot               = self::checkCommentExistsOrNot($commentInsertData['comment_id']);
                             if (empty($checkCommnetExistsOrNot)) {
                                 YoutubeComment::create($commentInsertData);
                             } else {
@@ -264,18 +264,18 @@ class Helper
                             if (isset($videos['kind'])) {
                                 if ($video['kind'] == 'youtube#video') {
                                     if (! empty($video['id'])) {
-                                        $videoObj['media_id'] = $video['id'];
-                                        $videoObj['title'] = ! empty($video['snippet']['title']) ? $video['snippet']['title'] : '';
-                                        $videoObj['link'] = 'https://www.youtube.com/embed/' . $video['id'];
-                                        $videoObj['like_count'] = ! empty($video['statistics']['likeCount']) ? $video['statistics']['likeCount'] : '';
-                                        $videoObj['view_count'] = ! empty($video['statistics']['viewCount']) ? $video['statistics']['viewCount'] : '';
+                                        $videoObj['media_id']      = $video['id'];
+                                        $videoObj['title']         = ! empty($video['snippet']['title']) ? $video['snippet']['title'] : '';
+                                        $videoObj['link']          = 'https://www.youtube.com/embed/' . $video['id'];
+                                        $videoObj['like_count']    = ! empty($video['statistics']['likeCount']) ? $video['statistics']['likeCount'] : '';
+                                        $videoObj['view_count']    = ! empty($video['statistics']['viewCount']) ? $video['statistics']['viewCount'] : '';
                                         $videoObj['dislike_count'] = ! empty($video['statistics']['dislikeCount']) ? $video['statistics']['dislikeCount'] : '';
                                         $videoObj['comment_count'] = ! empty($video['statistics']['commentCount']) ? $video['statistics']['commentCount'] : '';
-                                        $videoObj['title'] = ! empty($video['snippet']['title']) ? $video['snippet']['title'] : '';
-                                        $videoObj['description'] = ! empty($video['snippet']['description']) ? $video['snippet']['description'] : '';
-                                        $videoObj['create_time'] = ! empty($video['snippet']['publishedAt']) ? date('Y-m-d H:i:s', strtotime($video['snippet']['publishedAt'])) : '';
-                                        $videoObj['created_at'] = now();
-                                        $videoObj['channel_id'] = ! empty($video['snippet']['channelId']) ? $video['snippet']['channelId'] : '';
+                                        $videoObj['title']         = ! empty($video['snippet']['title']) ? $video['snippet']['title'] : '';
+                                        $videoObj['description']   = ! empty($video['snippet']['description']) ? $video['snippet']['description'] : '';
+                                        $videoObj['create_time']   = ! empty($video['snippet']['publishedAt']) ? date('Y-m-d H:i:s', strtotime($video['snippet']['publishedAt'])) : '';
+                                        $videoObj['created_at']    = now();
+                                        $videoObj['channel_id']    = ! empty($video['snippet']['channelId']) ? $video['snippet']['channelId'] : '';
                                     }
                                 }
                             }

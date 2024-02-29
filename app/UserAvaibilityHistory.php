@@ -33,7 +33,7 @@ class UserAvaibilityHistory extends Model
     public static function getAvailableDates($stDate, $enDate, $days, $dates = [])
     {
         $return = [];
-        $range = dateRangeArr($stDate, $enDate);
+        $range  = dateRangeArr($stDate, $enDate);
         foreach ($range as $value) {
             if (in_array($value['day'], $days)) {
                 $return[] = $value['date'];
@@ -81,7 +81,7 @@ class UserAvaibilityHistory extends Model
             if ($lunchTime) {
                 $stTime1 = $stDatetime;
                 $enTime1 = $lunchTime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
 
                 $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour')));
                 foreach ($temp as $key => $value) {
@@ -91,7 +91,7 @@ class UserAvaibilityHistory extends Model
 
                 $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
                 $enTime2 = $enDatetime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
             } else {
                 $slots = array_merge_recursive($slots, getHourlySlots($stDatetime, $enDatetime));
             }
@@ -100,7 +100,7 @@ class UserAvaibilityHistory extends Model
         if ($slots) {
             $temp = [];
             foreach ($slots as $key => $value) {
-                $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
+                $value['type']                                  = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $temp[date('Y-m-d', strtotime($value['st']))][] = $value;
             }
             $slots = $temp;

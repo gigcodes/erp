@@ -32,15 +32,15 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize, WithEven
             ->whereIn('products.id', $this->products)->whereIn('order_products.id', $this->orders)->groupBy('order_products.sku')->get();
 
         foreach ($products as $product) {
-            $arr = [];
-            $arr['name'] = $product->name;
-            $arr['brand'] = $product->brand_name;
-            $arr['sku'] = $product->sku;
+            $arr                      = [];
+            $arr['name']              = $product->name;
+            $arr['brand']             = $product->brand_name;
+            $arr['sku']               = $product->sku;
             $arr['short_description'] = $product->short_description;
-            $arr['product_price'] = $product->price;
-            $arr['composition'] = $product->composition;
-            $arr['product_link'] = $product->product_link;
-            $products_array[] = $arr;
+            $arr['product_price']     = $product->price;
+            $arr['composition']       = $product->composition;
+            $arr['product_link']      = $product->product_link;
+            $products_array[]         = $arr;
         }
 
         return $products_array;

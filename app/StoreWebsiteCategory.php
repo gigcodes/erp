@@ -52,10 +52,10 @@ class StoreWebsiteCategory extends Model
             }
         }
 
-        $dataPost = "{\n        \"faq_category_name\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_category_description\": \"Answer!!\"\n}";
-        $headers = [];
-        $headers[] = 'Authorization: Bearer ' . $api_token;
-        $headers[] = 'Content-Type: application/json';
+        $dataPost      = "{\n        \"faq_category_name\": \"$faqCategoryName??\",\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_category_description\": \"Answer!!\"\n}";
+        $headers       = [];
+        $headers[]     = 'Authorization: Bearer ' . $api_token;
+        $headers[]     = 'Content-Type: application/json';
         $dataPostArray = json_decode($dataPost, 'true');
 
         $postUrl = $url . '/' . $storeValue . '/rest/V1/faqcategory';
@@ -78,10 +78,10 @@ class StoreWebsiteCategory extends Model
             $result = json_decode($response);
 
             //save store website category
-            $this->category_id = $categoryId;
-            $this->remote_id = $result->category_id;
+            $this->category_id      = $categoryId;
+            $this->remote_id        = $result->category_id;
             $this->store_website_id = $store_website_id;
-            $this->store_code = $storeValue;
+            $this->store_code       = $storeValue;
             $this->save();
 
             return $result->category_id;

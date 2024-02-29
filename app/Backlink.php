@@ -17,7 +17,7 @@ class Backlink extends Model
 
     public function backlinkSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'backlinks_overview' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_overview&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
 
@@ -145,7 +145,7 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
 
     public function backlinkAhrefsApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
 
             'backlinks' => 'https://apiv2.ahrefs.com?from=backlinks&target=ahrefs.com&mode=domain&limit=2&order_by=ahrefs_rank%3Adesc&output=json',

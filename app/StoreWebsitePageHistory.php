@@ -11,7 +11,6 @@ class StoreWebsitePageHistory extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="content",type="string")
      * @SWG\Property(property="url",type="string")

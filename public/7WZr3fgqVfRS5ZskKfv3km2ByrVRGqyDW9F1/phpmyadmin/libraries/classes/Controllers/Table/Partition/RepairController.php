@@ -40,7 +40,7 @@ final class RepairController extends AbstractController
         try {
             Assert::stringNotEmpty($partitionName);
             $database = DatabaseName::fromValue($request->getParam('db'));
-            $table = TableName::fromValue($request->getParam('table'));
+            $table    = TableName::fromValue($request->getParam('table'));
         } catch (InvalidArgumentException $exception) {
             $message = Message::error($exception->getMessage());
             $this->response->addHTML($message->getDisplay());
@@ -58,8 +58,8 @@ final class RepairController extends AbstractController
 
         $this->render('table/partition/repair', [
             'partition_name' => $partitionName,
-            'message' => $message,
-            'rows' => $rows,
+            'message'        => $message,
+            'rows'           => $rows,
         ]);
     }
 }

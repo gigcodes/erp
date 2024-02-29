@@ -149,6 +149,10 @@ class Vendor extends Model
      *  Get information by ids
      *
      *  @param []
+     * @param mixed $ids
+     * @param mixed $fields
+     * @param mixed $toArray
+     *
      *  @return mixed
      */
     public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)

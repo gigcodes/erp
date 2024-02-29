@@ -41,20 +41,20 @@ class GithubUser extends Model
             ->get();
 
         $user = [
-            'id' => $userDetails[0]->github_users_id,
+            'id'       => $userDetails[0]->github_users_id,
             'username' => $userDetails[0]->username,
         ];
 
         $repositories = $userDetails->map(function ($repository) {
             return [
-                'id' => $repository->github_repositories_id,
-                'name' => $repository->name,
+                'id'     => $repository->github_repositories_id,
+                'name'   => $repository->name,
                 'rights' => $repository->rights,
             ];
         });
 
         return [
-            'user' => $user,
+            'user'         => $user,
             'repositories' => $repositories,
         ];
     }

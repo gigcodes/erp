@@ -48,9 +48,9 @@ class SyncController extends Controller
         }
 
         $githubOrganization = GithubOrganization::find($request->organizationId);
-        $organizationId = $githubOrganization->name;
-        $userName = $githubOrganization->username;
-        $token = $githubOrganization->token;
+        $organizationId     = $githubOrganization->name;
+        $userName           = $githubOrganization->username;
+        $token              = $githubOrganization->token;
 
         $groups = $this->refreshGithubGroups($organizationId, $userName, $token);
 
@@ -59,21 +59,21 @@ class SyncController extends Controller
 
         $updatedUserAccess = [];
         foreach ($repositories as $repository) {
-            $accessIds = $this->refreshUserAccessForRepository($organizationId, $userName, $token, $repository->id, $repository->name);
+            $accessIds         = $this->refreshUserAccessForRepository($organizationId, $userName, $token, $repository->id, $repository->name);
             $updatedUserAccess = array_merge($updatedUserAccess, $accessIds);
         }
         GithubRepositoryUser::whereNotIn('id', $updatedUserAccess)->delete();
 
         $updatedTeamAccessIds = [];
         foreach ($groups as $group) {
-            $updatedIds = $this->refreshUserAccessInTeam($organizationId, $userName, $token, $group->id);
+            $updatedIds           = $this->refreshUserAccessInTeam($organizationId, $userName, $token, $group->id);
             $updatedTeamAccessIds = array_merge($updatedTeamAccessIds, $updatedIds);
         }
         GithubGroupMember::whereNotIn('id', $updatedTeamAccessIds)->delete();
 
         $updatedRepositoryAccess = [];
         foreach ($groups as $group) {
-            $updatedIds = $this->refreshRepositoryForTeam($organizationId, $userName, $token, $group->id);
+            $updatedIds              = $this->refreshRepositoryForTeam($organizationId, $userName, $token, $group->id);
             $updatedRepositoryAccess = array_merge($updatedRepositoryAccess, $updatedIds);
         }
         GithubRepositoryGroup::whereNotIn('id', $updatedRepositoryAccess)->delete();
@@ -94,16 +94,16 @@ class SyncController extends Controller
         $repositories = json_decode($response->getBody()->getContents());
 
         $dbRepositories = [];
-        $repositoryIds = [];
+        $repositoryIds  = [];
         foreach ($repositories as $repository) {
             $data = [
-                'id' => $repository->id,
+                'id'                     => $repository->id,
                 'github_organization_id' => $organization->id,
-                'name' => $repository->name,
-                'html' => $repository->html_url,
-                'webhook' => $repository->hooks_url,
-                'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
-                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
+                'name'                   => $repository->name,
+                'html'                   => $repository->html_url,
+                'webhook'                => $repository->hooks_url,
+                'created_at'             => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
+                'updated_at'             => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
             ];
 
             $updatedData = GithubRepository::updateOrCreate(
@@ -113,7 +113,7 @@ class SyncController extends Controller
                 $data
             );
             $dbRepositories[] = $updatedData;
-            $repositoryIds[] = $repository->id;
+            $repositoryIds[]  = $repository->id;
         }
 
         // delete other repositories
@@ -130,12 +130,12 @@ class SyncController extends Controller
 
         $response = $githubClient->get($url);
 
-        $users = json_decode($response->getBody()->getContents());
+        $users      = json_decode($response->getBody()->getContents());
         $returnUser = [];
-        $userIds = [];
+        $userIds    = [];
         foreach ($users as $user) {
             $dbUser = [
-                'id' => $user->id,
+                'id'       => $user->id,
                 'username' => $user->login,
             ];
 
@@ -146,7 +146,7 @@ class SyncController extends Controller
                 $dbUser
             );
             $returnUser[] = $updatedUser;
-            $userIds[] = $user->id;
+            $userIds[]    = $user->id;
         }
 
         // delete additional users
@@ -163,12 +163,12 @@ class SyncController extends Controller
 
         $response = $githubClient->get($url);
 
-        $groups = json_decode($response->getBody()->getContents());
+        $groups      = json_decode($response->getBody()->getContents());
         $returnGroup = [];
-        $groupIds = [];
+        $groupIds    = [];
         foreach ($groups as $group) {
             $dbGroup = [
-                'id' => $group->id,
+                'id'   => $group->id,
                 'name' => $group->name,
             ];
 
@@ -178,7 +178,7 @@ class SyncController extends Controller
             );
 
             $returnGroup[] = $updatedGroup;
-            $groupIds[] = $group->id;
+            $groupIds[]    = $group->id;
         }
 
         // delete other groups
@@ -213,14 +213,14 @@ class SyncController extends Controller
 
             $updatedAccess[] = GithubRepositoryUser::updateOrCreate(
                 [
-                    'github_users_id' => $user->id,
+                    'github_users_id'        => $user->id,
                     'github_repositories_id' => $repositoryId,
                 ],
                 [
                     'github_organization_id' => $organization->id,
-                    'github_users_id' => $user->id,
+                    'github_users_id'        => $user->id,
                     'github_repositories_id' => $repositoryId,
-                    'rights' => $rights,
+                    'rights'                 => $rights,
                 ]
             );
         }
@@ -250,7 +250,7 @@ class SyncController extends Controller
         foreach ($users as $user) {
             $data = [
                 'github_groups_id' => $teamId,
-                'github_users_id' => $user->id,
+                'github_users_id'  => $user->id,
             ];
 
             $updates[] = GithubGroupMember::updateOrCreate($data, $data);
@@ -294,13 +294,13 @@ class SyncController extends Controller
             $updates[] = GithubRepositoryGroup::updateOrCreate(
                 [
                     'github_repositories_id' => $repo->id,
-                    'github_groups_id' => $teamId,
+                    'github_groups_id'       => $teamId,
                 ],
                 [
                     'github_organization_id' => $organization->id,
                     'github_repositories_id' => $repo->id,
-                    'github_groups_id' => $teamId,
-                    'rights' => $rights,
+                    'github_groups_id'       => $teamId,
+                    'rights'                 => $rights,
                 ]
             );
         }

@@ -22,12 +22,12 @@ class CreateCouponCodeRulesStatusesTable extends Migration
         });
 
         \Illuminate\Support\Facades\DB::table('coupon_code_rules_statuses')->insert([
-            'status_name' => 'Active',
+            'status_name'  => 'Active',
             'status_alias' => 1,
         ]);
 
         \Illuminate\Support\Facades\DB::table('coupon_code_rules_statuses')->insert([
-            'status_name' => 'InActive',
+            'status_name'  => 'InActive',
             'status_alias' => 0,
         ]);
     }

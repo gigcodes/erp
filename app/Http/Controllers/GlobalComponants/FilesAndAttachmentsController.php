@@ -20,7 +20,7 @@ class FilesAndAttachmentsController extends Controller
     public function store_data(Request $request)
     {
         $error = $this->validate($request, [
-            'title' => 'required',
+            'title'    => 'required',
             'filename' => 'required',
         ]);
 
@@ -38,10 +38,10 @@ class FilesAndAttachmentsController extends Controller
             }
 
             $storeHistory = GlobalFilesAndAttachments::create([
-                'module_id' => $store['module_id'],
-                'module' => $store['module'],
-                'title' => $store['title'],
-                'filename' => $filename,
+                'module_id'  => $store['module_id'],
+                'module'     => $store['module'],
+                'title'      => $store['title'],
+                'filename'   => $filename,
                 'created_by' => ! empty(Auth::user()->id) ? Auth::user()->id : null,
             ]);
 

@@ -36,12 +36,12 @@ class BrokenLinkCheckerController extends Controller
     {
         $json_file = Storage::get('local/files/broken-link-checker.json');
         if ($json_file) {
-            $json['type'] = 'success';
+            $json['type']    = 'success';
             $json['message'] = 'Data Received Successfully';
 
             return Response::json($json, 200);
         } else {
-            $json['type'] = 'error';
+            $json['type']    = 'error';
             $json['message'] = 'File Not Found';
 
             return Response::json($json, 203);
@@ -57,16 +57,16 @@ class BrokenLinkCheckerController extends Controller
     public function displayBrokenLinkDetails(Request $request)
     {
         if (! empty($_GET['domain'])) {
-            $domain = $_GET['domain'];
-            $details = BackLinkChecker::where('domains', $domain)->paginate(100)->setPath('');
+            $domain     = $_GET['domain'];
+            $details    = BackLinkChecker::where('domains', $domain)->paginate(100)->setPath('');
             $pagination = $details->appends(
                 [
                     'domain' => $request->domain,
                 ]
             );
         } elseif (! empty($_GET['ranking'])) {
-            $ranking = $_GET['ranking'];
-            $details = BackLinkChecker::where('rank', $ranking)->paginate(100)->setPath('');
+            $ranking    = $_GET['ranking'];
+            $details    = BackLinkChecker::where('rank', $ranking)->paginate(100)->setPath('');
             $pagination = $details->appends(
                 [
                     'ranking' => $request->ranking,
@@ -75,7 +75,7 @@ class BrokenLinkCheckerController extends Controller
         } else {
             $details = BackLinkChecker::paginate(100);
         }
-        $domains = BackLinkChecker::select('domains')->pluck('domains')->toArray();
+        $domains  = BackLinkChecker::select('domains')->pluck('domains')->toArray();
         $rankings = BackLinkChecker::select('rank')->pluck('rank')->toArray();
 
         return view('broken-link-checker.index',
@@ -91,12 +91,12 @@ class BrokenLinkCheckerController extends Controller
      */
     public function updateDomain(Request $request)
     {
-        $checker = BackLinkChecker::findOrFail($request['id']);
+        $checker          = BackLinkChecker::findOrFail($request['id']);
         $checker->domains = $request['domain_name'];
         $checker->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Domain Updated',
         ]);
     }
@@ -109,12 +109,12 @@ class BrokenLinkCheckerController extends Controller
      */
     public function updateTitle(Request $request)
     {
-        $checker = BackLinkChecker::findOrFail($request['id']);
+        $checker        = BackLinkChecker::findOrFail($request['id']);
         $checker->title = $request['title'];
         $checker->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Title Updated',
         ]);
     }

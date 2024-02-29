@@ -21,12 +21,14 @@ class DobAndAnniversaryMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
         $this->subject = isset($data['subject']) ? $data['subject'] : '';
-        $this->body = isset($data['template']) ? $data['template'] : '';
+        $this->body    = isset($data['template']) ? $data['template'] : '';
         if (isset($data['from'])) {
             $this->sendFrom = $data['from'];
         } else {

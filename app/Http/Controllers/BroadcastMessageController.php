@@ -37,11 +37,11 @@ class BroadcastMessageController extends Controller
         $new_data = [];
 
         foreach ($message_groups as $group_id => $datas) {
-            $pending_count = 0;
+            $pending_count  = 0;
             $received_count = 0;
-            $stopped_count = 0;
-            $failed_count = 0;
-            $total_count = 0;
+            $stopped_count  = 0;
+            $failed_count   = 0;
+            $total_count    = 0;
             foreach ($datas as $data) {
                 if ($data->sent_at != null && $data->sent_at != '2002-02-02 02:02:02') {
                     $received_count++;
@@ -97,34 +97,34 @@ class BroadcastMessageController extends Controller
                     $lastMessage->send_after = 0;
                 }
 
-                $message_groups_array['start_time'] = $firstMessage->send_after;
-                $message_groups_array['end_time'] = $lastMessage->send_after;
-                $message_groups_array['message'] = $data->text;
+                $message_groups_array['start_time']       = $firstMessage->send_after;
+                $message_groups_array['end_time']         = $lastMessage->send_after;
+                $message_groups_array['message']          = $data->text;
                 $message_groups_array['broadcast_number'] = $data->number_from;
-                $message_groups_array['frequency'] = $frequency;
-                $message_groups_array['image'] = $data->image;
-                $message_groups_array['can_be_stopped'] = $can_be_stopped;
-                $message_groups_array['sending_time'] = $data->send_after;
-                $message_groups_array['whatsapp_number'] = $data->number_from;
+                $message_groups_array['frequency']        = $frequency;
+                $message_groups_array['image']            = $data->image;
+                $message_groups_array['can_be_stopped']   = $can_be_stopped;
+                $message_groups_array['sending_time']     = $data->send_after;
+                $message_groups_array['whatsapp_number']  = $data->number_from;
                 $total_count++;
             }
 
-            $message_groups_array['pending'] = $pending_count;
-            $message_groups_array['received'] = $received_count;
-            $message_groups_array['stopped'] = $stopped_count;
-            $message_groups_array['failed'] = $failed_count;
-            $message_groups_array['total'] = $total_count;
+            $message_groups_array['pending']        = $pending_count;
+            $message_groups_array['received']       = $received_count;
+            $message_groups_array['stopped']        = $stopped_count;
+            $message_groups_array['failed']         = $failed_count;
+            $message_groups_array['total']          = $total_count;
             $message_groups_array['expecting_time'] = '';
-            $message_groups_array['group_id'] = $group_id;
-            $message_groups['datas'] = $message_groups_array;
+            $message_groups_array['group_id']       = $group_id;
+            $message_groups['datas']                = $message_groups_array;
 
             $new_data[] = $message_groups_array;
         }
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $perPage     = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
-            $perPage = count($vendors);
+            $perPage     = count($vendors);
             $currentPage = 1;
         }
         $currentItems = array_slice($new_data, $perPage * ($currentPage - 1), $perPage);
@@ -140,14 +140,14 @@ class BroadcastMessageController extends Controller
 
         return view('customers.broadcast', [
             'broadcasts' => $new_data,
-            'platforms' => $platforms,
+            'platforms'  => $platforms,
 
         ]);
     }
 
     public function doNotDisturb(Request $request, $id)
     {
-        $customer = Customer::find($id);
+        $customer                 = Customer::find($id);
         $customer->do_not_disturb = 1;
         \Log::channel('customerDnd')->debug('(Customer ID ' . $customer->id . ' line ' . $customer->name . ' ' . $customer->number . ': Added To DND');
 
@@ -161,14 +161,14 @@ class BroadcastMessageController extends Controller
     public function images()
     {
         $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
-        $api_keys = ApiKey::select('number')->get();
+        $api_keys         = ApiKey::select('number')->get();
 
         $platforms = MarketingPlatform::all();
 
         return view('customers.broadcast-images', [
             'broadcast_images' => $broadcast_images,
-            'api_keys' => $api_keys,
-            'platforms' => $platforms,
+            'api_keys'         => $api_keys,
+            'platforms'        => $platforms,
         ]);
     }
 
@@ -190,7 +190,7 @@ class BroadcastMessageController extends Controller
 
     public function imagesLink(Request $request)
     {
-        $image = BroadcastImage::find($request->moduleid);
+        $image           = BroadcastImage::find($request->moduleid);
         $image->products = $request->products;
         $image->save();
 
@@ -212,7 +212,7 @@ class BroadcastMessageController extends Controller
 
     public function calendar()
     {
-        $message_queues = MessageQueue::latest()->get()->groupBy('group_id');
+        $message_queues    = MessageQueue::latest()->get()->groupBy('group_id');
         $filtered_messages = [];
 
         foreach ($message_queues as $group_id => $message_queue) {

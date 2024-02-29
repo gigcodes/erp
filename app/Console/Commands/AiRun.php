@@ -44,7 +44,7 @@ class AiRun extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,7 +56,7 @@ class AiRun extends Command
 
             // Get all listings
             $orderByPritority = "CASE WHEN products.brand IN (27, 42, 11, 19, 24) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
-            $products = Product::where('stock', '>=', 1)->with('product_category')->leftJoin('log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id')->where('ai_name', null)->orderByRaw($orderByPritority)->orderBy('products.listing_approved_at', 'DESC')->get(['products.id']);
+            $products         = Product::where('stock', '>=', 1)->with('product_category')->leftJoin('log_scraper_vs_ai', 'products.id', '=', 'log_scraper_vs_ai.product_id')->where('ai_name', null)->orderByRaw($orderByPritority)->orderBy('products.listing_approved_at', 'DESC')->get(['products.id']);
 
             // Loop over products
             foreach ($products as $product) {
@@ -93,22 +93,22 @@ class AiRun extends Command
 
                 // Set json with original data
                 $resultScraper = [
-                    'category' => $product->product_category->title,
-                    'color' => $product->color,
+                    'category'  => $product->product_category->title,
+                    'color'     => $product->color,
                     'composite' => $product->composition,
-                    'gender' => '',
+                    'gender'    => '',
                 ];
 
                 // Run test
                 $resultAI = GoogleVisionHelper::getPropertiesFromImageSet($arrImages);
 
                 // Log result
-                $logScraperVsAi = new LogScraperVsAi();
-                $logScraperVsAi->product_id = $product->id;
-                $logScraperVsAi->ai_name = 'Google Vision';
-                $logScraperVsAi->media_input = json_encode($arrImages);
+                $logScraperVsAi                 = new LogScraperVsAi();
+                $logScraperVsAi->product_id     = $product->id;
+                $logScraperVsAi->ai_name        = 'Google Vision';
+                $logScraperVsAi->media_input    = json_encode($arrImages);
                 $logScraperVsAi->result_scraper = json_encode($resultScraper);
-                $logScraperVsAi->result_ai = json_encode($resultAI);
+                $logScraperVsAi->result_ai      = json_encode($resultAI);
                 $logScraperVsAi->save();
 
                 // Remove 'is_listing_rejected' from product

@@ -46,7 +46,7 @@ class CategoryMissingReferences extends Command
         try {
             // Create cron job report
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron job report was added.']);

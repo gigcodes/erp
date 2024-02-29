@@ -39,7 +39,7 @@ class ScheduleList extends Command
         try {
             $events = array_map(function ($event) {
                 return [
-                    'cron' => $event->expression,
+                    'cron'    => $event->expression,
                     'command' => static::fixupCommand($event->command),
                 ];
             }, $this->schedule->events());
@@ -47,15 +47,15 @@ class ScheduleList extends Command
             //Getting artisan
             foreach ($events as $event) {
                 $schedule = $event['cron'];
-                $command = explode(' ', $event['command']);
+                $command  = explode(' ', $event['command']);
                 if (isset($command[1])) {
                     $signature = $command[1];
                     if ($signature != null) {
                         $detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
                         if ($detail == null) {
-                            $cron = new CronJob();
-                            $cron->signature = $signature;
-                            $cron->schedule = $schedule;
+                            $cron              = new CronJob();
+                            $cron->signature   = $signature;
+                            $cron->schedule    = $schedule;
                             $cron->error_count = 0;
                             $cron->save();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was saved.']);
@@ -73,6 +73,8 @@ class ScheduleList extends Command
 
     /**
      * If it's an artisan command, strip off the PHP
+     *
+     * @param mixed $command
      *
      * @return string
      */

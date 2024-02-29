@@ -2,9 +2,9 @@
 
 namespace App\Social;
 
-use App\Models\SocialAdAccount;
 use App\StoreWebsite;
 use App\SocialContact;
+use App\Models\SocialAdAccount;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;

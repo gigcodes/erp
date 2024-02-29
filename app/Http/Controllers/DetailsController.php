@@ -27,11 +27,11 @@ class DetailsController extends Controller
 
     public function domainDetails($id, $type = 'organic', $viewId = '', $viewTypeName = '')
     {
-        $now = Carbon::now()->format('Y-m-d');
-        $keywords = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->where('created_at', 'like', $now . '%')->get();
+        $now               = Carbon::now()->format('Y-m-d');
+        $keywords          = DomainSearchKeyword::where('store_website_id', $id)->where('subtype', $type)->where('created_at', 'like', $now . '%')->get();
         $domainorganicpage = DomainOrganicPage::where('store_website_id', $id)->where('created_at', 'like', $now . '%')->get();
         $domainlandingpage = DomainLandingPage::where('store_website_id', $id)->where('created_at', 'like', $now . '%')->get();
-        $compitetors = Competitor::where('store_website_id', $id)->where('created_at', 'like', $now . '%')->get();
+        $compitetors       = Competitor::where('store_website_id', $id)->where('created_at', 'like', $now . '%')->get();
         if (request()->ajax()) {
             return view('seo-tools.partials.domain-data', compact('keywords', 'domainorganicpage', 'domainlandingpage', 'compitetors', 'viewId', 'viewTypeName'));
         }
@@ -42,10 +42,11 @@ class DetailsController extends Controller
     /**
      * This function is use to search Domain Details
      *
-     * @param  int  $id
-     * @param  string  $type
-     * @param  int  $viewId
-     * @param  string  $viewTypeName
+     * @param int    $id
+     * @param string $type
+     * @param int    $viewId
+     * @param string $viewTypeName
+     *
      * @return JsonResponse || View
      */
     public function domainDetailsSearch(Request $request, $id, $type = 'organic', $viewId = '', $viewTypeName = '')
@@ -112,9 +113,9 @@ class DetailsController extends Controller
 
     public function backlinkDetails($id, $viewId = '', $viewTypeName = '')
     {
-        $now = Carbon::now()->format('Y-m-d');
-        $backlink_domains = BacklinkDomains::where(['store_website_id' => $id, 'tool_id' => '1'])->where('created_at', 'like', $now . '%')->orderBy('id', 'desc')->get();
-        $backlink_anchors = BacklinkAnchors::where(['store_website_id' => $id, 'tool_id' => '1'])->where('created_at', 'like', $now . '%')->orderBy('id', 'desc')->get();
+        $now                   = Carbon::now()->format('Y-m-d');
+        $backlink_domains      = BacklinkDomains::where(['store_website_id' => $id, 'tool_id' => '1'])->where('created_at', 'like', $now . '%')->orderBy('id', 'desc')->get();
+        $backlink_anchors      = BacklinkAnchors::where(['store_website_id' => $id, 'tool_id' => '1'])->where('created_at', 'like', $now . '%')->orderBy('id', 'desc')->get();
         $backlink_indexed_page = BacklinkIndexedPage::where(['store_website_id' => $id, 'tool_id' => '1'])->where('created_at', 'like', $now . '%')->orderBy('id', 'desc')->get();
 
         return view('seo-tools.backlinkrecords', compact('backlink_domains', 'backlink_anchors', 'id', 'backlink_indexed_page', 'viewId', 'viewTypeName'));
@@ -123,9 +124,10 @@ class DetailsController extends Controller
     /**
      * This function is used to search backlink.
      *
-     * @param  int  $id
-     * @param  int  $viewId
-     * @param  string  $viewTypeName
+     * @param int    $id
+     * @param int    $viewId
+     * @param string $viewTypeName
+     *
      * @return JsonResponse
      */
     public function backlinkDetailsSearch(Request $request, $id, $viewId = '', $viewTypeName = '')
@@ -187,7 +189,7 @@ class DetailsController extends Controller
     public function siteAudit(Request $request, $id, $viewId = '', $viewTypeName = '')
     {
         $websiteId = $id;
-        $now = Carbon::now()->format('Y-m-d');
+        $now       = Carbon::now()->format('Y-m-d');
         $siteAudit = SiteAudit::where(['store_website_id' => $id])->where($viewTypeName, '=', $viewId)->where('created_at', 'like', $now . '%')->first();
 
         return view('seo-tools.partials.audit-detail', compact('siteAudit', 'id', 'viewId', 'viewTypeName'))->render();
@@ -196,15 +198,16 @@ class DetailsController extends Controller
     /**
      * This function use for search site audit
      *
-     * @param  int  $id
-     * @param  int  $viewId
-     * @param  string  $viewTypeName
+     * @param int    $id
+     * @param int    $viewId
+     * @param string $viewTypeName
+     *
      * @return JsonResponse
      */
     public function siteAuditSearch(Request $request, $id, $viewId = '', $viewTypeName = '')
     {
         $websiteId = $id;
-        $now = Carbon::now()->format('Y-m-d');
+        $now       = Carbon::now()->format('Y-m-d');
         $searchCon = [];
         if ($request->search_status != '') {
             $searchCon[] = ['status', 'LIKE', '%' . $request->search_status . '%'];

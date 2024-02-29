@@ -13,10 +13,10 @@ class CheckListController extends Controller
     public function __construct()
     {
         //view files
-        $this->index_view = 'checklist.index';
+        $this->index_view  = 'checklist.index';
         $this->create_view = 'checklist.create';
         $this->detail_view = 'checklist.details';
-        $this->edit_view = 'checklist.edit';
+        $this->edit_view   = 'checklist.edit';
     }
 
     /**
@@ -80,14 +80,14 @@ class CheckListController extends Controller
         $update_record = ChecklistSubject::where('id', $request->id)->update(['is_checked' => $request->is_checked]);
         if (! empty($update_record)) {
             return response()->json([
-                'status' => true,
-                'message' => 'Checklist saved successfully',
+                'status'      => true,
+                'message'     => 'Checklist saved successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -98,24 +98,24 @@ class CheckListController extends Controller
         $subjects = array_unique($request->subjects);
         foreach ($subjects as $subject) {
             $record = [
-                'subject_id' => $subject,
+                'subject_id'   => $subject,
                 'checklist_id' => $request->id,
-                'is_checked' => 0,
-                'user_id' => \Auth::id(),
-                'date' => $request->date,
+                'is_checked'   => 0,
+                'user_id'      => \Auth::id(),
+                'date'         => $request->date,
             ];
             ChecklistSubject::create($record);
         }
         if (! empty($subjects)) {
             return response()->json([
-                'status' => true,
-                'message' => 'Record saved successfully',
+                'status'      => true,
+                'message'     => 'Record saved successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -143,8 +143,8 @@ class CheckListController extends Controller
         $checklist = Checklist::where('category_name', $input['category_name'])->where('sub_category_name', $input['sub_category_name'])->where('status', 1)->first();
         if ($checklist) {
             return response()->json([
-                'status' => false,
-                'message' => 'Category and Sub Category already exists!',
+                'status'      => false,
+                'message'     => 'Category and Sub Category already exists!',
                 'status_name' => 'error',
             ], 500);
         } else {
@@ -154,7 +154,7 @@ class CheckListController extends Controller
                     $input['subjects'] = explode(',', $input['subjects']);
                     foreach ($input['subjects'] as $subject) {
                         $record = [
-                            'title' => $subject,
+                            'title'        => $subject,
                             'checklist_id' => $data->id,
                         ];
                         Subject::create($record);
@@ -163,14 +163,14 @@ class CheckListController extends Controller
             }
             if ($data) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Checklist saved successfully',
+                    'status'      => true,
+                    'message'     => 'Checklist saved successfully',
                     'status_name' => 'success',
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'something error occurred',
+                    'status'      => false,
+                    'message'     => 'something error occurred',
                     'status_name' => 'error',
                 ], 500);
             }
@@ -180,7 +180,8 @@ class CheckListController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -191,7 +192,8 @@ class CheckListController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -202,12 +204,13 @@ class CheckListController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $input = $request->except('_token');
+        $input     = $request->except('_token');
         $checklist = Checklist::find($id);
         if ($checklist) {
             $checklist->update($input);
@@ -216,7 +219,7 @@ class CheckListController extends Controller
                 Subject::where('checklist_id', $id)->delete();
                 foreach ($input['subjects'] as $subject) {
                     $record = [
-                        'title' => $subject,
+                        'title'        => $subject,
                         'checklist_id' => $id,
                     ];
                     Subject::create($record);
@@ -224,14 +227,14 @@ class CheckListController extends Controller
             }
             if ($checklist) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Checklist updated successfully',
+                    'status'      => true,
+                    'message'     => 'Checklist updated successfully',
                     'status_name' => 'success',
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'something error occurred',
+                    'status'      => false,
+                    'message'     => 'something error occurred',
                     'status_name' => 'error',
                 ], 500);
             }
@@ -239,14 +242,14 @@ class CheckListController extends Controller
             $saveRecord = Checklist::create($input);
             if ($saveRecord) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Checklist saved successfully',
+                    'status'      => true,
+                    'message'     => 'Checklist saved successfully',
                     'status_name' => 'success',
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'something error occurred',
+                    'status'      => false,
+                    'message'     => 'something error occurred',
                     'status_name' => 'error',
                 ], 500);
             }
@@ -256,7 +259,8 @@ class CheckListController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -265,14 +269,14 @@ class CheckListController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'message' => 'Checklist Deleted successfully',
+                'status'      => true,
+                'message'     => 'Checklist Deleted successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Deleted unsuccessfully',
+                'status'      => false,
+                'message'     => 'Deleted unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -296,12 +300,12 @@ class CheckListController extends Controller
     public function subjectRemarkCreate(Request $request)
     {
         try {
-            $remark = new ChecklistSubjectRemarkHistory();
-            $remark->user_id = \Auth::user()->id;
+            $remark               = new ChecklistSubjectRemarkHistory();
+            $remark->user_id      = \Auth::user()->id;
             $remark->checklist_id = $request->checklist_id;
-            $remark->subject_id = $request->subject_id;
-            $remark->remark = $request->remark;
-            $remark->old_remark = $request->old_remark;
+            $remark->subject_id   = $request->subject_id;
+            $remark->remark       = $request->remark;
+            $remark->old_remark   = $request->old_remark;
 
             $remark->save();
 

@@ -17,6 +17,11 @@ class MagnetoGoogledriveUpload
     /**
      * Create a new job instance.
      *
+     * @param privateMagentoFrontendDocumentation|MagentoBackendDocumentation $googleScreencast
+     * @param private                                                         $uploadedFile
+     * @param null|private                                                    $permissionForAll
+     * @param null|private                                                    $updatable
+     *
      * @return void
      */
     public function __construct(private MagentoFrontendDocumentation|MagentoBackendDocumentation $googleScreencast, private $uploadedFile, private $permissionForAll = null, private $updatable = null)
@@ -75,20 +80,20 @@ class MagnetoGoogledriveUpload
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
             $fileMetadata = new Drive\DriveFile([
-                'name' => $this->uploadedFile->getClientOriginalName(),
+                'name'    => $this->uploadedFile->getClientOriginalName(),
                 'parents' => [$folderId],
             ]);
             $content = file_get_contents($this->uploadedFile->getRealPath());
-            $file = $driveService->files->create($fileMetadata, [
-                'data' => $content,
-                'mimeType' => $this->uploadedFile->getClientMimeType(),
+            $file    = $driveService->files->create($fileMetadata, [
+                'data'       => $content,
+                'mimeType'   => $this->uploadedFile->getClientMimeType(),
                 'uploadType' => 'multipart',
-                'fields' => 'id,parents,mimeType']);
+                'fields'     => 'id,parents,mimeType']);
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
 
             if ($this->permissionForAll == 'anyone') {
-                $batch = $driveService->createBatch();
+                $batch          = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
                     'role' => 'reader',
@@ -97,7 +102,7 @@ class MagnetoGoogledriveUpload
                 $batch->add($request, 'user' . $index);
                 $results = $batch->execute();
 
-                $batch = $driveService->createBatch();
+                $batch          = $driveService->createBatch();
                 $userPermission = new Drive\Permission([
                     'type' => 'anyone',
                     'role' => 'writer',
@@ -106,12 +111,12 @@ class MagnetoGoogledriveUpload
                 $batch->add($request, 'user' . $index);
                 $results = $batch->execute();
             } else {
-                $batch = $driveService->createBatch();
+                $batch               = $driveService->createBatch();
                 $googleFileUsersRead = explode(',', $googleFileUsersRead);
                 foreach ($googleFileUsersRead as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'reader',
+                        'type'         => 'user',
+                        'role'         => 'reader',
                         'emailAddress' => $email,
                     ]);
 
@@ -121,13 +126,13 @@ class MagnetoGoogledriveUpload
                 }
                 $results = $batch->execute();
 
-                $batch = $driveService->createBatch();
+                $batch                = $driveService->createBatch();
                 $googleFileUsersWrite = explode(',', $googleFileUsersWrite);
 
                 foreach ($googleFileUsersWrite as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'writer',
+                        'type'         => 'user',
+                        'role'         => 'writer',
                         'emailAddress' => $email,
                     ]);
 

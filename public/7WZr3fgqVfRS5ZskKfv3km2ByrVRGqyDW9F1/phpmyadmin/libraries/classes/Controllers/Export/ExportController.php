@@ -228,7 +228,7 @@ final class ExportController extends AbstractController
         // export class instance, not array of properties, as before
         /** @var ExportPlugin $export_plugin */
         $export_plugin = Plugins::getPlugin('export', $what, [
-            'export_type' => (string) $export_type,
+            'export_type'  => (string) $export_type,
             'single_table' => isset($single_table),
         ]);
 
@@ -252,16 +252,16 @@ final class ExportController extends AbstractController
         /**
          * init and variable checking
          */
-        $compression = '';
-        $onserver = false;
+        $compression    = '';
+        $onserver       = false;
         $save_on_server = false;
-        $buffer_needed = false;
-        $back_button = '';
-        $refreshButton = '';
-        $save_filename = '';
-        $file_handle = '';
-        $errorUrl = '';
-        $filename = '';
+        $buffer_needed  = false;
+        $back_button    = '';
+        $refreshButton  = '';
+        $save_filename  = '';
+        $file_handle    = '';
+        $errorUrl       = '';
+        $filename       = '';
         $separate_files = '';
 
         // Is it a quick or custom export?
@@ -280,7 +280,7 @@ final class ExportController extends AbstractController
             }
 
             if (in_array($compressionParam, $compression_methods)) {
-                $compression = $compressionParam;
+                $compression   = $compressionParam;
                 $buffer_needed = true;
             }
 
@@ -322,7 +322,7 @@ final class ExportController extends AbstractController
             $tables = $table_select ?? [];
         } elseif ($export_type === 'table' && strlen($db) > 0 && strlen($table) > 0) {
             $errorUrl = Url::getFromRoute('/table/export', [
-                'db' => $db,
+                'db'    => $db,
                 'table' => $table,
             ]);
         } elseif ($export_type === 'raw') {
@@ -334,14 +334,14 @@ final class ExportController extends AbstractController
         // Merge SQL Query aliases with Export aliases from
         // export page, Export page aliases are given more
         // preference over SQL Query aliases.
-        $parser = new Parser($sql_query);
+        $parser  = new Parser($sql_query);
         $aliases = [];
         if (! empty($parser->statements[0]) && ($parser->statements[0] instanceof SelectStatement)) {
             $aliases = Misc::getAliases($parser->statements[0], $db);
         }
 
         if (! empty($aliasesParam)) {
-            $aliases = $this->export->mergeAliases($aliases, $aliasesParam);
+            $aliases                       = $this->export->mergeAliases($aliases, $aliasesParam);
             $_SESSION['tmpval']['aliases'] = $aliasesParam;
         }
 
@@ -355,7 +355,7 @@ final class ExportController extends AbstractController
 
         register_shutdown_function([$this->export, 'shutdown']);
         // Start with empty buffer
-        $this->export->dumpBuffer = '';
+        $this->export->dumpBuffer       = '';
         $this->export->dumpBufferLength = 0;
 
         // Array of dump buffers - used in separate file exports
@@ -459,7 +459,7 @@ final class ExportController extends AbstractController
 
         try {
             // Re - initialize
-            $this->export->dumpBuffer = '';
+            $this->export->dumpBuffer       = '';
             $this->export->dumpBufferLength = 0;
 
             // Add possibly some comments to export
@@ -515,7 +515,7 @@ final class ExportController extends AbstractController
 
                 if ($structureOrDataForced) {
                     $table_structure = $tables;
-                    $table_data = $tables;
+                    $table_data      = $tables;
                 }
 
                 if (isset($lock_tables)) {

@@ -15,7 +15,7 @@ class Client implements ClientInterface
      */
     private $options = [
         'exceptions' => false,
-        'headers' => [
+        'headers'    => [
             'Accept' => 'application/json',
         ],
     ];

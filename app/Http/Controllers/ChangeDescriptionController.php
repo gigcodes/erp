@@ -32,7 +32,7 @@ class ChangeDescriptionController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'keyword' => 'required',
+            'keyword'      => 'required',
             'replace_with' => 'required',
         ]);
 
@@ -50,13 +50,14 @@ class ChangeDescriptionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Compositions  $compositions
+     * @param \App\Compositions $compositions
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
         $id = $request->description_id;
-        $c = DescriptionChange::find($id);
+        $c  = DescriptionChange::find($id);
         $c->delete();
 
         return redirect()->back();

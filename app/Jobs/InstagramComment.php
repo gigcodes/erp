@@ -26,12 +26,14 @@ class InstagramComment implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
-        $this->_message = $data['message'];
-        $this->_postId = $data['id'];
+        $this->_message    = $data['message'];
+        $this->_postId     = $data['id'];
         $this->_account_id = $data['account_id'];
     }
 
@@ -43,9 +45,9 @@ class InstagramComment implements ShouldQueue
     public function handle()
     {
         try {
-            $comment = new InstagramCommentQueue();
-            $comment->message = $this->_message;
-            $comment->post_id = $this->_postId;
+            $comment             = new InstagramCommentQueue();
+            $comment->message    = $this->_message;
+            $comment->post_id    = $this->_postId;
             $comment->account_id = $this->_account_id;
             $comment->save();
         } catch (\Exception $e) {

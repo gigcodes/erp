@@ -13,7 +13,7 @@ use function array_intersect_key;
 final class TablePartitionDefinition
 {
     /**
-     * @param  array|null  $details Details that may be pre-filled
+     * @param array|null $details Details that may be pre-filled
      */
     public static function getDetails(?array $details = null): array
     {
@@ -52,9 +52,9 @@ final class TablePartitionDefinition
     private static function extractDetailsFromRequest(): array
     {
         $partitionParams = [
-            'partition_by' => null,
-            'partition_expr' => null,
-            'subpartition_by' => null,
+            'partition_by'      => null,
+            'partition_expr'    => null,
+            'subpartition_by'   => null,
             'subpartition_expr' => null,
         ];
         //Initialize details with values to "null" if not in request
@@ -64,14 +64,14 @@ final class TablePartitionDefinition
             array_intersect_key($_POST, $partitionParams)
         );
 
-        $details['partition_count'] = self::extractPartitionCount('partition_count') ?: 0;
+        $details['partition_count']    = self::extractPartitionCount('partition_count') ?: 0;
         $details['subpartition_count'] = self::extractPartitionCount('subpartition_count') ?: 0;
 
         return $details;
     }
 
     /**
-     * @param  string  $paramLabel Label searched in request
+     * @param string $paramLabel Label searched in request
      */
     private static function extractPartitionCount(string $paramLabel): int
     {
@@ -87,11 +87,11 @@ final class TablePartitionDefinition
     }
 
     /**
-     * @param  array  $partitionDetails Details of partitions
+     * @param array $partitionDetails Details of partitions
      */
     private static function extractPartitions(array $partitionDetails): array
     {
-        $partitionCount = $partitionDetails['partition_count'];
+        $partitionCount    = $partitionDetails['partition_count'];
         $subpartitionCount = $partitionDetails['subpartition_count'];
 
         // No partitions
@@ -109,38 +109,38 @@ final class TablePartitionDefinition
         for ($i = 0; $i < $partitionCount; $i++) {
             if (! isset($partitions[$i])) { // Newly added partition
                 $partitions[$i] = [
-                    'name' => 'p' . $i,
-                    'value_type' => '',
-                    'value' => '',
-                    'engine' => '',
-                    'comment' => '',
-                    'data_directory' => '',
+                    'name'            => 'p' . $i,
+                    'value_type'      => '',
+                    'value'           => '',
+                    'engine'          => '',
+                    'comment'         => '',
+                    'data_directory'  => '',
                     'index_directory' => '',
-                    'max_rows' => '',
-                    'min_rows' => '',
-                    'tablespace' => '',
-                    'node_group' => '',
+                    'max_rows'        => '',
+                    'min_rows'        => '',
+                    'tablespace'      => '',
+                    'node_group'      => '',
                 ];
             }
 
-            $partition = &$partitions[$i];
+            $partition           = &$partitions[$i];
             $partition['prefix'] = 'partitions[' . $i . ']';
 
             // Changing from HASH/KEY to RANGE/LIST
             if (! isset($partition['value_type'])) {
                 $partition['value_type'] = '';
-                $partition['value'] = '';
+                $partition['value']      = '';
             }
 
             if (! isset($partition['engine'])) { // When removing subpartitioning
-                $partition['engine'] = '';
-                $partition['comment'] = '';
-                $partition['data_directory'] = '';
+                $partition['engine']          = '';
+                $partition['comment']         = '';
+                $partition['data_directory']  = '';
                 $partition['index_directory'] = '';
-                $partition['max_rows'] = '';
-                $partition['min_rows'] = '';
-                $partition['tablespace'] = '';
-                $partition['node_group'] = '';
+                $partition['max_rows']        = '';
+                $partition['min_rows']        = '';
+                $partition['tablespace']      = '';
+                $partition['node_group']      = '';
             }
 
             // No subpartitions
@@ -166,15 +166,15 @@ final class TablePartitionDefinition
             for ($j = 0; $j < $subpartitionCount; $j++) {
                 if (! isset($subpartitions[$j])) { // Newly added subpartition
                     $subpartitions[$j] = [
-                        'name' => $partition['name'] . '_s' . $j,
-                        'engine' => '',
-                        'comment' => '',
-                        'data_directory' => '',
+                        'name'            => $partition['name'] . '_s' . $j,
+                        'engine'          => '',
+                        'comment'         => '',
+                        'data_directory'  => '',
                         'index_directory' => '',
-                        'max_rows' => '',
-                        'min_rows' => '',
-                        'tablespace' => '',
-                        'node_group' => '',
+                        'max_rows'        => '',
+                        'min_rows'        => '',
+                        'tablespace'      => '',
+                        'node_group'      => '',
                     ];
                 }
 

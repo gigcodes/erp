@@ -31,10 +31,10 @@ class DeploymentVersionController extends Controller
         $deploymentVersions = $deploymentVersions->latest()->paginate(25);
 
         $search_versionNumber = $request->search_versionNumber;
-        $search_jobName = $request->search_jobName;
-        $search_branchName = $request->search_branchName;
-        $deployment_date = $request->deployment_date;
-        $pr_date = $request->pr_date;
+        $search_jobName       = $request->search_jobName;
+        $search_branchName    = $request->search_branchName;
+        $deployment_date      = $request->deployment_date;
+        $pr_date              = $request->pr_date;
 
         return view('deployment-versions.deployment-version-listing', compact('deploymentVersions', 'search_versionNumber', 'search_jobName', 'search_branchName', 'deployment_date', 'pr_date'));
     }
@@ -42,19 +42,19 @@ class DeploymentVersionController extends Controller
     public function deployVersion(Request $request)
     {
         $deploymentVersion = DeploymentVersion::find($request->deployVerId);
-        $jobName = $deploymentVersion->job_name;
-        $branch_name = $deploymentVersion->branch_name;
-        $pullNo = $deploymentVersion->pull_no;
-        $serverenv = $request->selectedValue;
-        $user_id = auth()->user()->id;
-        $revision = $deploymentVersion->revision;
+        $jobName           = $deploymentVersion->job_name;
+        $branch_name       = $deploymentVersion->branch_name;
+        $pullNo            = $deploymentVersion->pull_no;
+        $serverenv         = $request->selectedValue;
+        $user_id           = auth()->user()->id;
+        $revision          = $deploymentVersion->revision;
 
         try {
             $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
             $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'serverenv' => $serverenv, 'revision' => $revision, 'pull_no' => $pullNo]);
-            $job = $jenkins->getJob($jobName);
+            $job         = $jenkins->getJob($jobName);
             $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
-            $record = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
+            $record      = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
             DeploymentVersionLog::create($record);
 
             return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
@@ -71,9 +71,9 @@ class DeploymentVersionController extends Controller
         $deployementVersionLogs = DeploymentVersionLog::with(['user', 'deployversion'])->where('deployement_version_id', $id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $deployementVersionLogs,
-            'message' => 'Logs show successfully',
+            'status'      => true,
+            'data'        => $deployementVersionLogs,
+            'message'     => 'Logs show successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -81,10 +81,10 @@ class DeploymentVersionController extends Controller
     public function restoreRevision(Request $request)
     {
         $deploymentVersion = DeploymentVersion::find($request->deployVersionId);
-        $jobName = $deploymentVersion->job_name;
-        $branch_name = $deploymentVersion->branch_name;
-        $user_id = auth()->user()->id;
-        $revision = $deploymentVersion->revision;
+        $jobName           = $deploymentVersion->job_name;
+        $branch_name       = $deploymentVersion->branch_name;
+        $user_id           = auth()->user()->id;
+        $revision          = $deploymentVersion->revision;
 
         try {
             // Jenkins API URL
@@ -96,7 +96,7 @@ class DeploymentVersionController extends Controller
 
             $parameters = [
                 'revision' => $revision,
-                'branch' => $branch_name,
+                'branch'   => $branch_name,
             ];
             // Construct the URL for triggering the build
             $buildUrl = "$jenkinsApiUrl/job/$jobName/buildWithParameters";
@@ -109,7 +109,7 @@ class DeploymentVersionController extends Controller
                 return response()->json(['code' => 200, 'message' => 'Restore completed successfully.']);
             } else {
                 $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
-                $record = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
+                $record      = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
                 DeploymentVersionLog::create($record);
 
                 return response()->json(['code' => 500, 'message' => 'Failed To Restore']);

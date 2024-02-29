@@ -53,7 +53,9 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
+     * @param \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     * @param mixed                            $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -66,7 +68,8 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
+     * @param \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, PriceComparisonScraperSites $priceComparisonScraperSites)
@@ -77,7 +80,8 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
+     * @param \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(PriceComparisonScraperSites $priceComparisonScraperSites)

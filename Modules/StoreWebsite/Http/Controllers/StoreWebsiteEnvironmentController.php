@@ -32,9 +32,9 @@ class StoreWebsiteEnvironmentController extends Controller
         $paths = StoreWebsiteEnvironment::pluck('path', 'path');
 
         return view('storewebsite::environment.environment', [
-            'title' => $title,
+            'title'         => $title,
             'storeWebsites' => $storeWebsites,
-            'paths' => $paths,
+            'paths'         => $paths,
         ]);
     }
 
@@ -48,7 +48,7 @@ class StoreWebsiteEnvironmentController extends Controller
 
         $historyStatuses = StoreWebsiteEnvironmentHistoryStatus::all();
 
-        $env_paths = StoreWebsiteEnvironment::groupBy('path');
+        $env_paths          = StoreWebsiteEnvironment::groupBy('path');
         $env_store_websites = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id')->select(['store_website_environments.store_website_id', 'sw.title as store_website_name', 'store_website_environments.path']);
         if ($request->store_websites) {
             $env_paths->whereIn('store_website_id', $request->store_websites);
@@ -63,12 +63,12 @@ class StoreWebsiteEnvironmentController extends Controller
         }
 
         //$env_paths = $env_paths->pluck('path', 'id');
-        $env_paths = $env_paths->paginate(25);
+        $env_paths          = $env_paths->paginate(25);
         $env_store_websites = $env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
 
         $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id', 'path', 'value')->get()->toArray();
 
-        $result = [];
+        $result               = [];
         $defaultHistoryStatus = StoreWebsiteEnvironmentHistoryStatus::where('name', 'LIKE', '%Default%')->select('color')->first();
         array_walk($environments, function ($value, $key) use (&$result, $defaultHistoryStatus) {
             $value['status_color'] = '';
@@ -91,18 +91,18 @@ class StoreWebsiteEnvironmentController extends Controller
 
         $dynamicColumnsToShowse = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns            = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowse = json_decode($hideColumns, true);
         }
 
         return view('storewebsite::environment.environment-matrix', [
-            'title' => $title,
-            'storeWebsites' => $storeWebsites,
-            'paths' => $paths,
-            'env_paths' => $env_paths,
-            'env_store_websites' => $env_store_websites,
-            'environments' => $result,
-            'historyStatuses' => $historyStatuses,
+            'title'                  => $title,
+            'storeWebsites'          => $storeWebsites,
+            'paths'                  => $paths,
+            'env_paths'              => $env_paths,
+            'env_store_websites'     => $env_store_websites,
+            'environments'           => $result,
+            'historyStatuses'        => $historyStatuses,
             'dynamicColumnsToShowse' => $dynamicColumnsToShowse,
         ]);
     }
@@ -112,15 +112,15 @@ class StoreWebsiteEnvironmentController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'store-website-environment')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'store-website-environment';
-            $column->column_name = json_encode($request->column_se);
+            $column->column_name  = json_encode($request->column_se);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'store-website-environment';
-            $column->column_name = json_encode($request->column_se);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_se);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -149,14 +149,14 @@ class StoreWebsiteEnvironmentController extends Controller
         }
 
         return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'total' => $environments->total(),
-            'pagination' => (string) $environments->links(),
+            'pagination'                => (string) $environments->links(),
         ]);
     }
 
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     // Old Concept - Not need
     // public function updateValue(Request $request)
@@ -297,7 +297,7 @@ class StoreWebsiteEnvironmentController extends Controller
     public function updateValue(Request $request)
     {
         $post = $request->all();
-        $id = $request->get('id', 0);
+        $id   = $request->get('id', 0);
 
         $params = [
             'value' => 'required',
@@ -306,7 +306,7 @@ class StoreWebsiteEnvironmentController extends Controller
         $validator = Validator::make($post, $params);
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -322,24 +322,24 @@ class StoreWebsiteEnvironmentController extends Controller
         }
 
         $store_website_id = $records->store_website_id;
-        $storeWebsite = StoreWebsite::where('id', $store_website_id)->first();
+        $storeWebsite     = StoreWebsite::where('id', $store_website_id)->first();
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'error' => 'Store Website not found!']);
         }
 
         \Log::info('Start Environment Pushed');
         $environment_id = $records->id;
-        $old_value = $records->value;
-        $new_value = $request->value;
-        $updated_by = $request->user_id;
-        $path = $records->path;
-        $encodeValue = base64_encode($new_value);
-        $cwd = $storeWebsite->working_directory;
-        $title = $storeWebsite->title;
-        $serverIP = $storeWebsite->server_ip;
-        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+        $old_value      = $records->value;
+        $new_value      = $request->value;
+        $updated_by     = $request->user_id;
+        $path           = $records->path;
+        $encodeValue    = base64_encode($new_value);
+        $cwd            = $storeWebsite->working_directory;
+        $title          = $storeWebsite->title;
+        $serverIP       = $storeWebsite->server_ip;
+        $scriptsPath    = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-        $cmd = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\" 2>&1";
+        $cmd    = "bash $scriptsPath" . "magento-env-update.sh -w \"$title\" -s \"$serverIP\" -d \"$cwd\" -p \"$path\" -v \"$encodeValue\" 2>&1";
         $output = [];
         exec($cmd, $output, $statusCode);
         \Log::info('Command Status' . $statusCode);
@@ -355,31 +355,31 @@ class StoreWebsiteEnvironmentController extends Controller
                 // Handle the values accordingly
                 if ($status === 'true') {
                     $statusText = 'Success';
-                    $response = $output[0]; // This is json string
+                    $response   = $output[0]; // This is json string
                 } else {
                     $statusText = 'Error';
-                    $response = $output[0]; // This is json string
+                    $response   = $output[0]; // This is json string
                 }
             } else {
                 // Invalid output format
                 $statusText = 'Error';
-                $response = 'Invalid output format';
+                $response   = 'Invalid output format';
             }
         } else {
             $statusText = 'Error';
-            $response = 'Command Executed Failed';
+            $response   = 'Command Executed Failed';
         }
 
         StoreWebsiteEnvironmentHistory::create([
-            'environment_id' => $environment_id,
+            'environment_id'   => $environment_id,
             'store_website_id' => $store_website_id,
-            'updated_by' => $updated_by,
-            'key' => $path,
-            'old_value' => $old_value,
-            'new_value' => $new_value,
-            'command' => $cmd,
-            'status' => $statusText,
-            'response' => $response,
+            'updated_by'       => $updated_by,
+            'key'              => $path,
+            'old_value'        => $old_value,
+            'new_value'        => $new_value,
+            'command'          => $cmd,
+            'status'           => $statusText,
+            'response'         => $response,
         ]);
         \Log::info('End Environment Pushed');
 
@@ -389,17 +389,17 @@ class StoreWebsiteEnvironmentController extends Controller
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function store(Request $request)
     {
         $post = $request->all();
-        $id = $request->get('id', 0);
+        $id   = $request->get('id', 0);
 
         $params = [
-            'path' => 'required',
+            'path'             => 'required',
             'store_website_id' => 'required',
-            'command' => 'required',
+            'command'          => 'required',
         ];
         if (empty($id)) {
             $params['value'] = 'required';
@@ -408,7 +408,7 @@ class StoreWebsiteEnvironmentController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -432,7 +432,8 @@ class StoreWebsiteEnvironmentController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -464,15 +465,15 @@ class StoreWebsiteEnvironmentController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -481,9 +482,9 @@ class StoreWebsiteEnvironmentController extends Controller
     public function updateEnvironmentHistoryStatus(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $cronStatus = StoreWebsiteEnvironmentHistoryStatus::find($key);
+            $cronStatus        = StoreWebsiteEnvironmentHistoryStatus::find($key);
             $cronStatus->color = $value;
             $cronStatus->save();
         }

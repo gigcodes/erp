@@ -108,26 +108,26 @@ class Task extends Model
     ];
 
     const TASK_STATUS_FILTER = [
-        'DONE' => 1,
-        'DISCUSSING' => 2,
-        'IN_PROGRESS' => 3,
-        'ISSUE' => 4,
-        'PLANNED' => 5,
-        'DISCUSS_WITH_LEAD' => 6,
-        'NOTE' => 7,
-        'LEAD_RESPONSE_NEEDED' => 8,
-        'ERRORS_IN_TASK' => 9,
-        'IN_REVIEW' => 10,
-        'PRIORITY' => 11,
-        'PRIORITY_2' => 12,
-        'HIGH_PRIORITY' => 13,
+        'DONE'                  => 1,
+        'DISCUSSING'            => 2,
+        'IN_PROGRESS'           => 3,
+        'ISSUE'                 => 4,
+        'PLANNED'               => 5,
+        'DISCUSS_WITH_LEAD'     => 6,
+        'NOTE'                  => 7,
+        'LEAD_RESPONSE_NEEDED'  => 8,
+        'ERRORS_IN_TASK'        => 9,
+        'IN_REVIEW'             => 10,
+        'PRIORITY'              => 11,
+        'PRIORITY_2'            => 12,
+        'HIGH_PRIORITY'         => 13,
         'REVIEW_ESTIMATED_TIME' => 14,
-        'USER_COMPLETE' => 15,
-        'USER_COMPLETE_2' => 16,
-        'USER_ESTIMATED' => 17,
-        'DECLINE' => 18,
-        'REOPEN' => 19,
-        'APPROVED' => 20,
+        'USER_COMPLETE'         => 15,
+        'USER_COMPLETE_2'       => 16,
+        'USER_ESTIMATED'        => 17,
+        'DECLINE'               => 18,
+        'REOPEN'                => 19,
+        'APPROVED'              => 20,
     ];
 
     const TASK_STATUS_DONE = 1;
@@ -306,8 +306,8 @@ class Task extends Model
 
     public function createTaskFromSortcuts($request)
     {
-        $created = 0;
-        $message = '';
+        $created        = 0;
+        $message        = '';
         $assignedUserId = 0;
 
         if (isset($request['task_asssigned_from'])) {
@@ -317,8 +317,8 @@ class Task extends Model
         }
 
         $data['status'] = 3;
-        $task = 0;
-        $taskType = $request['task_type'];
+        $task           = 0;
+        $taskType       = $request['task_type'];
 
         if (isset($request['parent_task_id'])) {
             $data['parent_task_id'] = $request['parent_task_id'];
@@ -342,17 +342,17 @@ class Task extends Model
             }
             //discussion task
 
-            $data['is_statutory'] = $request['task_type'];
-            $data['task_details'] = $request['task_detail'];
-            $data['task_subject'] = $request['task_subject'];
-            $data['customer_id'] = $request['customer_id'];
+            $data['is_statutory']         = $request['task_type'];
+            $data['task_details']         = $request['task_detail'];
+            $data['task_subject']         = $request['task_subject'];
+            $data['customer_id']          = $request['customer_id'];
             $data['site_developement_id'] = $request['site_id'];
-            $data['cost'] = $request['cost'];
+            $data['cost']                 = $request['cost'];
             if ($request['category_id'] != null) {
                 $data['category'] = $request['category_id'];
             }
-            $task = Task::create($data);
-            $created = 1;
+            $task           = Task::create($data);
+            $created        = 1;
             $assignedUserId = $task->assign_to;
             if ($task->is_statutory != 1) {
                 $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
@@ -361,12 +361,12 @@ class Task extends Model
             }
 
             $params = [
-                'number' => null,
-                'user_id' => $data['assign_from'],
+                'number'   => null,
+                'user_id'  => $data['assign_from'],
                 'approved' => 1,
-                'status' => 2,
-                'task_id' => $task->id,
-                'message' => $message,
+                'status'   => 2,
+                'task_id'  => $task->id,
+                'message'  => $message,
             ];
 
             if (count($task->users) > 0) {
@@ -403,10 +403,10 @@ class Task extends Model
 
             $chat_message = ChatMessage::create($params);
             ChatMessagesQuickData::updateOrCreate([
-                'model' => \App\Task::class,
+                'model'    => \App\Task::class,
                 'model_id' => $params['task_id'],
             ], [
-                'last_communicated_message' => @$params['message'],
+                'last_communicated_message'    => @$params['message'],
                 'last_communicated_message_at' => $chat_message->created_at,
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
@@ -442,11 +442,11 @@ class Task extends Model
                 $task->save();
             }
             if ($hubstaffTaskId) {
-                $hubtask = new HubstaffTask();
-                $hubtask->hubstaff_task_id = $hubstaffTaskId;
-                $hubtask->project_id = $hubstaff_project_id;
+                $hubtask                      = new HubstaffTask();
+                $hubtask->hubstaff_task_id    = $hubstaffTaskId;
+                $hubtask->project_id          = $hubstaff_project_id;
                 $hubtask->hubstaff_project_id = $hubstaff_project_id;
-                $hubtask->summary = $message;
+                $hubtask->summary             = $message;
                 $hubtask->save();
             }
         }
@@ -488,7 +488,7 @@ class Task extends Model
         $old = $this->due_date;
 
         if (isset($this->start_date) && $this->start_date != '0000-00-00 00:00:00' && isset($new)) {
-            $startDate = Carbon::parse($this->start_date);
+            $startDate       = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
             if ($newEstimateDate->lte($startDate)) {
                 throw new Exception('Estimate end date time must be greater then Estimate start date time.');
@@ -513,11 +513,11 @@ class Task extends Model
     /* Common function to get tasks filtered and for Task & Activity module */
     public static function getSearchedTasks($type, $request)
     {
-        $term = $request->term ?? '';
+        $term          = $request->term ?? '';
         $selected_user = $request->selected_user ?? '';
-        $paginate = 50;
-        $page = $request->get('page', 1);
-        $offSet = ($page * $paginate) - $paginate;
+        $paginate      = 50;
+        $page          = $request->get('page', 1);
+        $offSet        = ($page * $paginate) - $paginate;
 
         $chatSubQuery = DB::table('chat_messages')
                     ->select(
@@ -621,7 +621,7 @@ class Task extends Model
             }
 
             $userIdsString = $request->input('selected_user');
-            $selectedUser = $userIdsString;
+            $selectedUser  = $userIdsString;
             if ($userIdsString == '') {
                 $userIdsString = [Auth::id()];
             }

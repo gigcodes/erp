@@ -46,7 +46,7 @@ class TwoFactor
     /**
      * Creates new TwoFactor object
      *
-     * @param  string  $user User name
+     * @param string $user User name
      */
     public function __construct($user)
     {
@@ -55,11 +55,11 @@ class TwoFactor
         (new Relation($dbi))->initRelationParamsCache();
 
         $this->userPreferences = new UserPreferences();
-        $this->user = $user;
-        $this->available = $this->getAvailableBackends();
-        $this->config = $this->readConfig();
-        $this->writable = ($this->config['type'] === 'db');
-        $this->backend = $this->getBackendForCurrentUser();
+        $this->user            = $user;
+        $this->available       = $this->getAvailableBackends();
+        $this->config          = $this->readConfig();
+        $this->writable        = ($this->config['type'] === 'db');
+        $this->backend         = $this->getBackendForCurrentUser();
     }
 
     /**
@@ -143,21 +143,21 @@ class TwoFactor
         if (! class_exists(Google2FA::class)) {
             $result[] = [
                 'class' => Application::getName(),
-                'dep' => 'pragmarx/google2fa-qrcode',
+                'dep'   => 'pragmarx/google2fa-qrcode',
             ];
         }
 
         if (! class_exists(ImageRenderer::class)) {
             $result[] = [
                 'class' => Application::getName(),
-                'dep' => 'bacon/bacon-qr-code',
+                'dep'   => 'bacon/bacon-qr-code',
             ];
         }
 
         if (! class_exists(U2FServer::class)) {
             $result[] = [
                 'class' => Key::getName(),
-                'dep' => 'code-lts/u2f-php-server',
+                'dep'   => 'code-lts/u2f-php-server',
             ];
         }
 
@@ -167,7 +167,8 @@ class TwoFactor
     /**
      * Returns class name for given name
      *
-     * @param  string  $name Backend name
+     * @param string $name Backend name
+     *
      * @return string
      *
      * @psalm-return class-string
@@ -200,7 +201,7 @@ class TwoFactor
     /**
      * Checks authentication, returns true on success
      *
-     * @param  bool  $skipSession Skip session cache
+     * @param bool $skipSession Skip session cache
      */
     public function check($skipSession = false): bool
     {
@@ -251,23 +252,23 @@ class TwoFactor
      * The object might stay in partially changed setup
      * if configuration fails.
      *
-     * @param  string  $name Backend name
+     * @param string $name Backend name
      */
     public function configure($name): bool
     {
         $this->config = ['backend' => $name];
         if ($name === '') {
-            $cls = $this->getBackendClass($name);
+            $cls                      = $this->getBackendClass($name);
             $this->config['settings'] = [];
-            $this->backend = new $cls($this);
+            $this->backend            = new $cls($this);
         } else {
             if (! in_array($name, $this->available)) {
                 return false;
             }
 
-            $cls = $this->getBackendClass($name);
+            $cls                      = $this->getBackendClass($name);
             $this->config['settings'] = [];
-            $this->backend = new $cls($this);
+            $this->backend            = new $cls($this);
             if (! $this->backend->configure()) {
                 return false;
             }
@@ -288,13 +289,13 @@ class TwoFactor
      */
     public function getAllBackends()
     {
-        $all = array_merge([''], $this->available);
+        $all      = array_merge([''], $this->available);
         $backends = [];
         foreach ($all as $name) {
-            $cls = $this->getBackendClass($name);
+            $cls        = $this->getBackendClass($name);
             $backends[] = [
-                'id' => $cls::$id,
-                'name' => $cls::getName(),
+                'id'          => $cls::$id,
+                'name'        => $cls::getName(),
                 'description' => $cls::getDescription(),
             ];
         }

@@ -26,22 +26,22 @@ class QuickSellController extends Controller
     public function index(Request $request)
     {
         $category_dropdown = (new \App\Category)->attr([
-            'name' => 'category[]',
-            'class' => 'form-control select-multiple2',
-            'multiple' => 'multiple',
+            'name'             => 'category[]',
+            'class'            => 'form-control select-multiple2',
+            'multiple'         => 'multiple',
             'data-placeholder' => 'Select Category',
         ])->selected(request('category'))->renderAsDropdown();
 
-        $products = Product::where('quick_product', 1)->where('is_pending', 0)->latest();
+        $products     = Product::where('quick_product', 1)->where('is_pending', 0)->latest();
         $totalProduct = $products->count();
-        $products = $products->paginate(Setting::get('pagination'));
+        $products     = $products->paginate(Setting::get('pagination'));
 
         $allSize = Product::where('quick_product', 1)->where('is_pending', 0)->groupBy('size')->select('size')->pluck('size')->toArray();
 
-        $brands_all = Brand::all();
+        $brands_all     = Brand::all();
         $categories_all = Category::all();
-        $brands = [];
-        $categories = [];
+        $brands         = [];
+        $categories     = [];
 
         foreach ($brands_all as $brand) {
             $brands[$brand->id] = $brand->name;
@@ -63,7 +63,7 @@ class QuickSellController extends Controller
         $locations = \App\ProductLocation::pluck('name', 'name');
         $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
 
-        $category_tree = [];
+        $category_tree    = [];
         $categories_array = [];
 
         foreach (Category::all() as $category) {
@@ -80,27 +80,27 @@ class QuickSellController extends Controller
         }
 
         $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
-        $api_keys = ApiKey::select('number')->get();
-        $customers = Customer::orderBy('name', 'asc')->get();
+        $api_keys               = ApiKey::select('number')->get();
+        $customers              = Customer::orderBy('name', 'asc')->get();
 
         return view('quicksell.index', [
-            'products' => $products,
-            'brands' => $brands,
-            'categories' => $categories,
-            'category_selection' => $category_selection,
-            'brand' => $brand,
-            'category' => $category,
-            'location' => $location ?? '',
-            'suppliers' => $suppliers,
+            'products'                    => $products,
+            'brands'                      => $brands,
+            'categories'                  => $categories,
+            'category_selection'          => $category_selection,
+            'brand'                       => $brand,
+            'category'                    => $category,
+            'location'                    => $location ?? '',
+            'suppliers'                   => $suppliers,
             'filter_categories_selection' => $filter_categories_selection,
-            'locations' => $locations,
-            'category_tree' => $category_tree,
-            'categories_array' => $categories_array,
-            'new_category_selection' => $new_category_selection,
-            'api_keys' => $api_keys,
-            'customers' => $customers,
-            'totalProduct' => $totalProduct,
-            'category_dropdown' => $category_dropdown,
+            'locations'                   => $locations,
+            'category_tree'               => $category_tree,
+            'categories_array'            => $categories_array,
+            'new_category_selection'      => $new_category_selection,
+            'api_keys'                    => $api_keys,
+            'customers'                   => $customers,
+            'totalProduct'                => $totalProduct,
+            'category_dropdown'           => $category_dropdown,
         ]);
     }
 
@@ -122,23 +122,23 @@ class QuickSellController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'sku' => 'required|unique:products',
+            'sku'      => 'required|unique:products',
             'images.*' => 'required | mimes:jpeg,bmp,png,jpg',
         ]);
 
         $product = new Product;
 
-        $product->name = $request->name;
-        $product->sku = $request->sku;
-        $product->size = $request->size ? implode(',', $request->size) : $request->other_size;
-        $product->size_eu = $request->get('size_eu', null);
-        $product->brand = $request->brand;
-        $product->color = $request->color;
-        $product->supplier = $request->supplier;
-        $product->location = $request->location;
-        $product->category = $request->category;
-        $product->price = $request->price;
-        $product->stock = 1;
+        $product->name          = $request->name;
+        $product->sku           = $request->sku;
+        $product->size          = $request->size ? implode(',', $request->size) : $request->other_size;
+        $product->size_eu       = $request->get('size_eu', null);
+        $product->brand         = $request->brand;
+        $product->color         = $request->color;
+        $product->supplier      = $request->supplier;
+        $product->location      = $request->location;
+        $product->category      = $request->category;
+        $product->price         = $request->price;
+        $product->stock         = 1;
         $product->quick_product = 1;
 
         $brand = Brand::find($request->brand);
@@ -150,7 +150,7 @@ class QuickSellController extends Controller
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr = round($product->price_inr, -3);
+            $product->price_inr         = round($product->price_inr, -3);
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);
@@ -166,7 +166,7 @@ class QuickSellController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $filename = Str::slug($image->getClientOriginalName());
-                $media = MediaUploader::fromSource($image)->useFilename($filename)
+                $media    = MediaUploader::fromSource($image)->useFilename($filename)
                     ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                     ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
@@ -179,7 +179,8 @@ class QuickSellController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -190,7 +191,8 @@ class QuickSellController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -201,7 +203,8 @@ class QuickSellController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -214,15 +217,15 @@ class QuickSellController extends Controller
         $product = Product::find($id);
 
         $product->supplier = $request->supplier;
-        $product->price = $request->price;
-        $product->size = $request->size;
-        $product->size_eu = $request->get('size_eu');
-        $product->brand = $request->brand;
+        $product->price    = $request->price;
+        $product->size     = $request->size;
+        $product->size_eu  = $request->get('size_eu');
+        $product->brand    = $request->brand;
         $product->location = $request->location;
         $product->category = $request->category;
 
         if (! empty($product->brand) && ! empty($product->price)) {
-            $product->price_inr = app(\App\Http\Controllers\ProductSelectionController::class)->euroToInr($product->price, $product->brand);
+            $product->price_inr         = app(\App\Http\Controllers\ProductSelectionController::class)->euroToInr($product->price, $product->brand);
             $product->price_inr_special = app(\App\Http\Controllers\ProductSelectionController::class)->calculateSpecialDiscount($product->price_inr, $product->brand);
         } else {
             $product->price_inr_special = $request->price_special;
@@ -235,30 +238,30 @@ class QuickSellController extends Controller
         $product->update();
         if ($request->group_old != null) {
             ProductQuicksellGroup::where('product_id', $product->id)->delete();
-            $edit = new ProductQuicksellGroup();
+            $edit                     = new ProductQuicksellGroup();
             $edit->quicksell_group_id = $request->group_old;
-            $edit->product_id = $product->id;
+            $edit->product_id         = $product->id;
             $edit->save();
         } elseif ($request->group_new != null) {
             ProductQuicksellGroup::where('product_id', $product->id)->delete();
             $group = QuickSellGroup::orderBy('id', 'desc')->first();
 
-            $group_create = new QuickSellGroup();
-            $incrementId = ($group->group + 1);
+            $group_create        = new QuickSellGroup();
+            $incrementId         = ($group->group + 1);
             $group_create->group = $incrementId;
-            $group_create->name = $request->group_new;
+            $group_create->name  = $request->group_new;
             $group_create->save();
 
-            $edit = new ProductQuicksellGroup();
+            $edit                     = new ProductQuicksellGroup();
             $edit->quicksell_group_id = $group_create->group;
-            $edit->product_id = $product->id;
+            $edit->product_id         = $product->id;
             $edit->save();
         }
 
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $filename = Str::slug($image->getClientOriginalName());
-                $media = MediaUploader::fromSource($image)
+                $media    = MediaUploader::fromSource($image)
                     ->useFilename($filename)
                     ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                     ->upload();
@@ -298,7 +301,7 @@ class QuickSellController extends Controller
 
         if ($request->group_new == null && $request->group_old == null) {
             $input = '<input type="checkbox" name="blank" class="group-checkbox checkbox" data-id=' . $product->id . '>';
-            $data = [$supplier, $price, $brand, $title, $input, $size];
+            $data  = [$supplier, $price, $brand, $title, $input, $size];
         }
         if ($request->group_new != null) {
             $data = [$supplier, $price, $brand, $title, $request->group_new, $size];
@@ -309,13 +312,14 @@ class QuickSellController extends Controller
 
         return Response::json([
             'success' => true,
-            'data' => $data, ]);
+            'data'    => $data, ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -329,7 +333,7 @@ class QuickSellController extends Controller
 
         if ($sku) {
             $exploded = explode('-', $sku->sku);
-            $new_sku = 'QCKPRO-' . (intval($exploded[1]) + 1);
+            $new_sku  = 'QCKPRO-' . (intval($exploded[1]) + 1);
 
             return $new_sku;
         }
@@ -342,28 +346,28 @@ class QuickSellController extends Controller
         if ($request->type != null && $request->products) {
             if ($request->type == 1) {
                 foreach ($request->products as $id) {
-                    $group = new ProductQuicksellGroup();
-                    $group->product_id = $id;
+                    $group                     = new ProductQuicksellGroup();
+                    $group->product_id         = $id;
                     $group->quicksell_group_id = $request->group;
                     $group->save();
                 }
             } else {
                 $group = QuickSellGroup::orderBy('id', 'desc')->first();
                 if ($group != null) {
-                    $group_create = new QuickSellGroup();
-                    $incrementId = ($group->group + 1);
+                    $group_create        = new QuickSellGroup();
+                    $incrementId         = ($group->group + 1);
                     $group_create->group = $incrementId;
                     $group_create->save();
                     $group_id = $group_create->group;
                 } else {
-                    $group = new QuickSellGroup();
+                    $group        = new QuickSellGroup();
                     $group->group = 1;
                     $group->save();
                     $group_id = $group->group;
                 }
                 foreach ($request->products as $id) {
-                    $group = new ProductQuicksellGroup();
-                    $group->product_id = $id;
+                    $group                     = new ProductQuicksellGroup();
+                    $group->product_id         = $id;
                     $group->quicksell_group_id = $group_id;
                     $group->save();
                 }
@@ -422,8 +426,8 @@ class QuickSellController extends Controller
 
             if (request('price') != null) {
                 $price = (explode(',', $request->price));
-                $from = $price[0];
-                $to = $price[1];
+                $from  = $price[0];
+                $to    = $price[1];
                 $query->whereBetween('price', [$from, $to]);
             }
 
@@ -438,10 +442,10 @@ class QuickSellController extends Controller
             $products = Product::where('is_pending', 1)->latest()->paginate(Setting::get('pagination'));
         }
 
-        $brands_all = Brand::all();
+        $brands_all     = Brand::all();
         $categories_all = Category::all();
-        $brands = [];
-        $categories = [];
+        $brands         = [];
+        $categories     = [];
 
         foreach ($brands_all as $brand) {
             $brands[$brand->id] = $brand->name;
@@ -463,7 +467,7 @@ class QuickSellController extends Controller
         $locations = \App\ProductLocation::pluck('name', 'name');
         $suppliers = Supplier::select(['id', 'supplier'])->get();
 
-        $category_tree = [];
+        $category_tree    = [];
         $categories_array = [];
 
         foreach (Category::all() as $category) {
@@ -483,19 +487,19 @@ class QuickSellController extends Controller
             ->renderAsDropdown();
 
         return view('quicksell.pending', [
-            'products' => $products,
-            'brands' => $brands,
-            'categories' => $categories,
-            'category_selection' => $category_selection,
-            'brand' => $brand,
-            'category' => $category,
-            'location' => $location ?? '',
-            'suppliers' => $suppliers,
+            'products'                    => $products,
+            'brands'                      => $brands,
+            'categories'                  => $categories,
+            'category_selection'          => $category_selection,
+            'brand'                       => $brand,
+            'category'                    => $category,
+            'location'                    => $location ?? '',
+            'suppliers'                   => $suppliers,
             'filter_categories_selection' => $filter_categories_selection,
-            'locations' => $locations,
-            'category_tree' => $category_tree,
-            'categories_array' => $categories_array,
-            'new_category_selection' => $new_category_selection,
+            'locations'                   => $locations,
+            'category_tree'               => $category_tree,
+            'categories_array'            => $categories_array,
+            'new_category_selection'      => $new_category_selection,
         ]);
     }
 
@@ -505,12 +509,12 @@ class QuickSellController extends Controller
 
         if ($request->id == null) {
             foreach ($ids as $id) {
-                $product = Product::findorfail($id);
+                $product             = Product::findorfail($id);
                 $product->is_pending = 0;
                 $product->update();
             }
         } else {
-            $product = Product::findorfail($request->id);
+            $product             = Product::findorfail($request->id);
             $product->is_pending = 0;
             $product->update();
         }
@@ -521,9 +525,9 @@ class QuickSellController extends Controller
     public function search(Request $request)
     {
         $category_dropdown = (new \App\Category)->attr([
-            'name' => 'category[]',
-            'class' => 'form-control select-multiple2',
-            'multiple' => 'multiple',
+            'name'             => 'category[]',
+            'class'            => 'form-control select-multiple2',
+            'multiple'         => 'multiple',
             'data-placeholder' => 'Select Category',
         ])->selected(request('category'))->renderAsDropdown();
 
@@ -567,8 +571,8 @@ class QuickSellController extends Controller
 
             if (request('price') != null) {
                 $price = (explode(',', $request->price));
-                $from = $price[0];
-                $to = $price[1];
+                $from  = $price[0];
+                $to    = $price[1];
                 if ($from == 0) {
                     $query->where(function ($q) use ($from, $to) {
                         $q->whereNull('price')->orWhereBetween('price', [$from, $to]);
@@ -584,19 +588,19 @@ class QuickSellController extends Controller
                 $per_page = Setting::get('pagination');
             }
 
-            $products = $query->where('quick_product', 1)->where('is_pending', 0);
+            $products     = $query->where('quick_product', 1)->where('is_pending', 0);
             $totalProduct = $products->count();
-            $products = $products->paginate($per_page);
+            $products     = $products->paginate($per_page);
         } else {
-            $products = Product::where('is_pending', 0)->latest();
+            $products     = Product::where('is_pending', 0)->latest();
             $totalProduct = $products->count();
-            $products = $products->paginate(Setting::get('pagination'));
+            $products     = $products->paginate(Setting::get('pagination'));
         }
 
-        $brands_all = Brand::all();
+        $brands_all     = Brand::all();
         $categories_all = Category::all();
-        $brands = [];
-        $categories = [];
+        $brands         = [];
+        $categories     = [];
 
         foreach ($brands_all as $brand) {
             $brands[$brand->id] = $brand->name;
@@ -618,7 +622,7 @@ class QuickSellController extends Controller
         $locations = \App\ProductLocation::pluck('name', 'name');
         $suppliers = Supplier::select(['id', 'supplier'])->get();
 
-        $category_tree = [];
+        $category_tree    = [];
         $categories_array = [];
 
         foreach (Category::all() as $category) {
@@ -636,27 +640,27 @@ class QuickSellController extends Controller
 
         $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])
             ->renderAsDropdown();
-        $api_keys = ApiKey::select('number')->get();
+        $api_keys  = ApiKey::select('number')->get();
         $customers = Customer::orderBy('name', 'asc')->get();
 
         return view('quicksell.index', [
-            'products' => $products,
-            'brands' => $brands,
-            'categories' => $categories,
-            'category_selection' => $category_selection,
-            'brand' => $brand,
-            'category' => $category,
-            'location' => $location ?? '',
-            'suppliers' => $suppliers,
+            'products'                    => $products,
+            'brands'                      => $brands,
+            'categories'                  => $categories,
+            'category_selection'          => $category_selection,
+            'brand'                       => $brand,
+            'category'                    => $category,
+            'location'                    => $location ?? '',
+            'suppliers'                   => $suppliers,
             'filter_categories_selection' => $filter_categories_selection,
-            'locations' => $locations,
-            'category_tree' => $category_tree,
-            'categories_array' => $categories_array,
-            'new_category_selection' => $new_category_selection,
-            'api_keys' => $api_keys,
-            'customers' => $customers,
-            'totalProduct' => $totalProduct,
-            'category_dropdown' => $category_dropdown,
+            'locations'                   => $locations,
+            'category_tree'               => $category_tree,
+            'categories_array'            => $categories_array,
+            'new_category_selection'      => $new_category_selection,
+            'api_keys'                    => $api_keys,
+            'customers'                   => $customers,
+            'totalProduct'                => $totalProduct,
+            'category_dropdown'           => $category_dropdown,
         ]);
     }
 
@@ -664,41 +668,41 @@ class QuickSellController extends Controller
     {
         if ($request->groups != null) {
             ProductQuicksellGroup::where('product_id', $request->product_id)->delete();
-            $product = new ProductQuicksellGroup();
-            $product->product_id = $request->product_id;
+            $product                     = new ProductQuicksellGroup();
+            $product->product_id         = $request->product_id;
             $product->quicksell_group_id = $request->groups;
             $product->save();
 
-            $group = QuickSellGroup::findorfail($request->groups);
-            $group->suppliers = json_encode($request->suppliers);
-            $group->brands = json_encode($request->brands);
-            $group->price = $request->buying_price;
+            $group                = QuickSellGroup::findorfail($request->groups);
+            $group->suppliers     = json_encode($request->suppliers);
+            $group->brands        = json_encode($request->brands);
+            $group->price         = $request->buying_price;
             $group->special_price = $request->special_price;
-            $group->categories = json_encode($request->categories);
+            $group->categories    = json_encode($request->categories);
             $group->update();
         } else {
             $group = QuickSellGroup::orderBy('id', 'desc')->first();
             if ($group != null) {
-                $group_create = new QuickSellGroup();
-                $incrementId = ($group->group + 1);
-                $group_create->group = $incrementId;
-                $group_create->name = $request->group_id;
-                $group_create->suppliers = json_encode($request->suppliers);
-                $group_create->brands = json_encode($request->brands);
-                $group_create->price = $request->buying_price;
+                $group_create                = new QuickSellGroup();
+                $incrementId                 = ($group->group + 1);
+                $group_create->group         = $incrementId;
+                $group_create->name          = $request->group_id;
+                $group_create->suppliers     = json_encode($request->suppliers);
+                $group_create->brands        = json_encode($request->brands);
+                $group_create->price         = $request->buying_price;
                 $group_create->special_price = $request->special_price;
-                $group_create->categories = json_encode($request->categories);
+                $group_create->categories    = json_encode($request->categories);
                 $group_create->save();
                 $group_id = $group_create->group;
             } else {
-                $group = new QuickSellGroup();
+                $group        = new QuickSellGroup();
                 $group->group = 1;
                 $group->save();
                 $group_id = $group->group;
             }
             if ($group_id != null && $group_id != 0) {
-                $product = new ProductQuicksellGroup();
-                $product->product_id = $request->product_id;
+                $product                     = new ProductQuicksellGroup();
+                $product->product_id         = $request->product_id;
                 $product->quicksell_group_id = $group_id;
                 $product->save();
             }
@@ -710,8 +714,8 @@ class QuickSellController extends Controller
     public function quickSellGroupProductsList(Request $request)
     {
         $current_group = [];
-        $productArray = [];
-        $list = QuickSellGroup::query();
+        $productArray  = [];
+        $list          = QuickSellGroup::query();
         $list->with('getProductsIds');
         $list->whereHas('getProductsIds');
         if ($request->group_id) {
@@ -721,7 +725,7 @@ class QuickSellController extends Controller
         if ($productsList) {
             $current_group = [
                 'group_id' => $productsList->group,
-                'name' => $productsList->name,
+                'name'     => $productsList->name,
             ];
         }
         $product_list = [];
@@ -776,17 +780,17 @@ class QuickSellController extends Controller
 
     public function quickSellGroupProductDelete(Request $request)
     {
-        $group_id = $request->group_id;
+        $group_id   = $request->group_id;
         $product_id = $request->product_id;
-        $delete = ProductQuicksellGroup::where('quicksell_group_id', $group_id)->where('product_id', $product_id)->delete();
+        $delete     = ProductQuicksellGroup::where('quicksell_group_id', $group_id)->where('product_id', $product_id)->delete();
         if ($delete) {
             return response()->json([
-                'status' => 1,
+                'status'  => 1,
                 'message' => 'Products deleted from group successfully!',
             ]);
         } else {
             return response()->json([
-                'status' => 0,
+                'status'  => 0,
                 'message' => 'Invalid group id or product id',
             ]);
         }

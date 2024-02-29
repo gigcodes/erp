@@ -44,22 +44,22 @@ class ViewServiceProvider extends ServiceProvider
     public function boot(Request $request)
     {
         View::composer(['layouts.app'], function ($view) use ($request) {
-            $auth_user = $request->user();
+            $auth_user  = $request->user();
             $route_name = request()->route()->getName();
             if ($auth_user) {
-                $d_taskList = DeveloperTask::select('id')->orderBy('id', 'desc')->pluck('id');
-                $g_taskList = Task::select('id')->orderBy('id', 'desc')->pluck('id');
-                $status = MonitorServer::where('status', 'off')->count();
-                $logs = TimeDoctorLog::query()->with(['user']);
-                $dbBackupList = DatabaseBackupMonitoring::where('is_resolved', 0)->count();
+                $d_taskList      = DeveloperTask::select('id')->orderBy('id', 'desc')->pluck('id');
+                $g_taskList      = Task::select('id')->orderBy('id', 'desc')->pluck('id');
+                $status          = MonitorServer::where('status', 'off')->count();
+                $logs            = TimeDoctorLog::query()->with(['user']);
+                $dbBackupList    = DatabaseBackupMonitoring::where('is_resolved', 0)->count();
                 $permissionCount = PermissionRequest::count();
-                $description = ZoomMeetingParticipant::whereNull('description')->count();
-                $todoLists = TodoList::where('user_id', $auth_user['id'])->where('status', 'Active')
+                $description     = ZoomMeetingParticipant::whereNull('description')->count();
+                $todoLists       = TodoList::where('user_id', $auth_user['id'])->where('status', 'Active')
                     ->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
-                $statuses = TodoStatus::all();
-                $vendors = Vendor::all();
+                $statuses      = TodoStatus::all();
+                $vendors       = Vendor::all();
                 $liveChatUsers = LiveChatUser::where('user_id', $auth_user->id)->first();
-                $key_ls = LivechatincSetting::first();
+                $key_ls        = LivechatincSetting::first();
 
                 // Instruction counts
                 $pending_instructions_count = Instruction::where('assigned_to', $auth_user->id)
@@ -88,16 +88,16 @@ class ViewServiceProvider extends ServiceProvider
                 $newMessageCount = CustomerLiveChat::where('seen', 0)->count();
 
                 $usersop = Sop::all();
-                $users = User::orderBy('name', 'ASC')->get();
+                $users   = User::orderBy('name', 'ASC')->get();
 
                 $userEmails = Email::where('seen', '0')
                     ->orderBy('created_at', 'desc')
                     ->latest()
                     ->take(20)
                     ->get();
-                $websites = StoreWebsite::get();
+                $websites       = StoreWebsite::get();
                 $todoCategories = TodoCategory::get();
-                $userLists = $users->filter(fn ($user) => $user->is_active == 1);
+                $userLists      = $users->filter(fn ($user) => $user->is_active == 1);
 
                 $storeWebsiteConnections = StoreWebsite::DB_CONNECTION;
 

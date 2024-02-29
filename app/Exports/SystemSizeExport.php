@@ -42,7 +42,7 @@ class SystemSizeExport implements FromCollection, WithHeadings
                 $sizes .= $sizes == '' ? $string : ', ' . $string;
             }
             $manager->category_parent_id = Category::where('id', $manager->category_parent_id)->value('title');
-            $manager->sizes = $sizes;
+            $manager->sizes              = $sizes;
             unset($manager->id);
 
             return $manager;

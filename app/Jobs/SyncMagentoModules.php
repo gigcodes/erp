@@ -21,6 +21,10 @@ class SyncMagentoModules implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $storeWebsite
+     * @param protected $scriptsPath
+     * @param protected $updated_by
+     *
      * @return void
      */
     public function __construct(protected $storeWebsite, protected $scriptsPath, protected $updated_by)
@@ -40,9 +44,9 @@ class SyncMagentoModules implements ShouldQueue
             set_time_limit(0);
 
             $website = $this->storeWebsite->title;
-            $server = $this->storeWebsite->server_ip;
+            $server  = $this->storeWebsite->server_ip;
             $rootDir = $this->storeWebsite->working_directory;
-            $action = 'sync';
+            $action  = 'sync';
 
             $cmd = "bash $this->scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -a \"$action\" 2>&1";
             \Log::info('syncModules command Before Command Run:' . $cmd);
@@ -61,7 +65,7 @@ class SyncMagentoModules implements ShouldQueue
             \Log::info('Database name.' . \DB::connection()->getDatabaseName());
             // Sample Output  $output[0] = enabled=mod1,mod2,mod3
             // Sample Output  $output[2] = disabled=mod1,mod2,mod3
-            $enabledModules = [];
+            $enabledModules  = [];
             $disabledModules = [];
 
             if (strpos($output[0], 'enabled=') === 0) {
@@ -85,19 +89,19 @@ class SyncMagentoModules implements ShouldQueue
                         if (! $magento_module) {
                             // The record does not exist, so create it
                             $magento_module = new MagentoModule([
-                                'module' => $enabledModule,
+                                'module'           => $enabledModule,
                                 'store_website_id' => $this->storeWebsite->id,
-                                'status' => 1, // The value you want to set for 'status'
+                                'status'           => 1, // The value you want to set for 'status'
                             ]);
                             $magento_module->save();
 
                             // Log the creation of a new record
                             MagentoModuleLogs::create([
-                                'store_website_id' => $this->storeWebsite->id,
-                                'updated_by' => $this->updated_by,
-                                'command' => $cmd,
-                                'status' => 'Created',
-                                'response' => json_encode($output),
+                                'store_website_id'  => $this->storeWebsite->id,
+                                'updated_by'        => $this->updated_by,
+                                'command'           => $cmd,
+                                'status'            => 'Created',
+                                'response'          => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
@@ -109,11 +113,11 @@ class SyncMagentoModules implements ShouldQueue
 
                             // Log the update of an existing record
                             MagentoModuleLogs::create([
-                                'store_website_id' => $this->storeWebsite->id,
-                                'updated_by' => $this->updated_by,
-                                'command' => $cmd,
-                                'status' => 'Updated',
-                                'response' => json_encode($output),
+                                'store_website_id'  => $this->storeWebsite->id,
+                                'updated_by'        => $this->updated_by,
+                                'command'           => $cmd,
+                                'status'            => 'Updated',
+                                'response'          => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
@@ -133,19 +137,19 @@ class SyncMagentoModules implements ShouldQueue
                         if (! $magento_module) {
                             // The record does not exist, so create it
                             $magento_module = new MagentoModule([
-                                'module' => $disableModule,
+                                'module'           => $disableModule,
                                 'store_website_id' => $this->storeWebsite->id,
-                                'status' => 0, // The value you want to set for 'status'
+                                'status'           => 0, // The value you want to set for 'status'
                             ]);
                             $magento_module->save();
 
                             // Log the creation of a new record
                             MagentoModuleLogs::create([
-                                'store_website_id' => $this->storeWebsite->id,
-                                'updated_by' => $this->updated_by,
-                                'command' => $cmd,
-                                'status' => 'Created',
-                                'response' => json_encode($output),
+                                'store_website_id'  => $this->storeWebsite->id,
+                                'updated_by'        => $this->updated_by,
+                                'command'           => $cmd,
+                                'status'            => 'Created',
+                                'response'          => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
@@ -157,11 +161,11 @@ class SyncMagentoModules implements ShouldQueue
 
                             // Log the update of an existing record
                             MagentoModuleLogs::create([
-                                'store_website_id' => $this->storeWebsite->id,
-                                'updated_by' => $this->updated_by,
-                                'command' => $cmd,
-                                'status' => 'Updated',
-                                'response' => json_encode($output),
+                                'store_website_id'  => $this->storeWebsite->id,
+                                'updated_by'        => $this->updated_by,
+                                'command'           => $cmd,
+                                'status'            => 'Updated',
+                                'response'          => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 

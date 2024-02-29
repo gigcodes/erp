@@ -42,7 +42,7 @@ class DailyTimeDoctorActivityLevel extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,13 +67,13 @@ class DailyTimeDoctorActivityLevel extends Command
                 foreach ($activities as $act) {
                     $hsn = new TimeDoctorActivityNotification;
                     $hsn->fill([
-                        'user_id' => $act->erp_user_id,
+                        'user_id'             => $act->erp_user_id,
                         'time_doctor_user_id' => $act->time_doctor_user_id,
-                        'total_track' => $act->total_track,
-                        'start_date' => $checkDate,
-                        'end_date' => $checkDate,
-                        'min_percentage' => (float) $act->min_activity_percentage,
-                        'actual_percentage' => (float) ($act->total_spent * 100) / $act->total_track,
+                        'total_track'         => $act->total_track,
+                        'start_date'          => $checkDate,
+                        'end_date'            => $checkDate,
+                        'min_percentage'      => (float) $act->min_activity_percentage,
+                        'actual_percentage'   => (float) ($act->total_spent * 100) / $act->total_track,
                     ]);
                     $hsn->save();
                 }

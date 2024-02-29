@@ -42,7 +42,7 @@ class InfluencersStartStop extends Command
         //get all keywords
         $keywords = InfluencerKeyword::all();
         //check scrapper
-        $runningCount = 0;
+        $runningCount     = 0;
         $runningKeywordId = 0;
         foreach ($keywords as $keyword) {
             $status = $this->get_status($keyword->name);
@@ -55,7 +55,7 @@ class InfluencersStartStop extends Command
         if ($runningCount == 0) {
             //scrapper is not running, run it for first keyword
             $firstkeyword = InfluencerKeyword::first();
-            $success = $this->start_script($firstkeyword->name);
+            $success      = $this->start_script($firstkeyword->name);
             $this->info($success);
         } else {
             //stop running script
@@ -74,18 +74,18 @@ class InfluencersStartStop extends Command
     public function stop_script($name)
     {
         //stop current script
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $name = str_replace(' ', '', $name);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $name           = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/stop-script?' . $name;
+        $url            = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/stop-script?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
-        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        $httpcode  = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'stop_script');
         curl_close($cURLConnection);
         $jsonArrayResponse = json_decode($phoneList);
-        $b64 = $jsonArrayResponse->status;
+        $b64               = $jsonArrayResponse->status;
 
         return $b64;
     }
@@ -93,36 +93,36 @@ class InfluencersStartStop extends Command
     public function start_script($name)
     {
         //start script
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $name = str_replace(' ', '', $name);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $name           = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/start-script?' . $name;
+        $url            = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/start-script?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
-        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        $httpcode  = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'start_script');
         curl_close($cURLConnection);
         $jsonArrayResponse = json_decode($phoneList);
-        $b64 = $jsonArrayResponse->status;
+        $b64               = $jsonArrayResponse->status;
 
         return $b64;
     }
 
     public function get_status($name)
     {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $name = str_replace(' ', '', $name);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $name           = str_replace(' ', '', $name);
         $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-status?' . $name;
+        $url            = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-status?' . $name;
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
         $phoneList = curl_exec($cURLConnection);
-        $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        $httpcode  = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($phoneList), $httpcode, \App\Console\Commands\InfluencersStartStop::class, 'get_status');
         curl_close($cURLConnection);
         $jsonArrayResponse = json_decode($phoneList);
-        $b64 = isset($jsonArrayResponse->status) ? $jsonArrayResponse->status : '';
+        $b64               = isset($jsonArrayResponse->status) ? $jsonArrayResponse->status : '';
 
         return $b64;
     }

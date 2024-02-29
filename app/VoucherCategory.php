@@ -12,7 +12,6 @@ class VoucherCategory extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="parent_id",type="integer")

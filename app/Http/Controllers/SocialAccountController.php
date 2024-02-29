@@ -27,7 +27,7 @@ class SocialAccountController extends Controller
     {
         try {
             $contactId = $request->id;
-            $messages = SocialMessages::where('social_contact_id', $contactId)->get();
+            $messages  = SocialMessages::where('social_contact_id', $contactId)->get();
 
             return response()->json(['messages' => $messages]);
         } catch (\Exception $e) {
@@ -40,11 +40,11 @@ class SocialAccountController extends Controller
      */
     public function sendMessage(Request $request)
     {
-        $contact = SocialContact::with('socialConfig')->findOrFail($request->contactId);
+        $contact      = SocialContact::with('socialConfig')->findOrFail($request->contactId);
         $firstMessage = $contact->messages()->first();
-        $page_id = $contact->socialConfig->page_id;
-        $to = $firstMessage->from['id'] != $page_id ? $firstMessage->from : $firstMessage->to[0];
-        $from = $firstMessage->from['id'] == $page_id ? $firstMessage->from : $firstMessage->to[0];
+        $page_id      = $contact->socialConfig->page_id;
+        $to           = $firstMessage->from['id'] != $page_id ? $firstMessage->from : $firstMessage->to[0];
+        $from         = $firstMessage->from['id'] == $page_id ? $firstMessage->from : $firstMessage->to[0];
 
         $message = $request->input;
 
@@ -53,17 +53,16 @@ class SocialAccountController extends Controller
         try {
             $response = $fb->replyFbMessage($contact->socialConfig->page_id, $to['id'], $message);
             $contact->messages()->create([
-                'from' => $from,
-                'to' => $to,
-                'message' => $message,
-                'message_id' => $response['data']['message_id'],
+                'from'         => $from,
+                'to'           => $to,
+                'message'      => $message,
+                'message_id'   => $response['data']['message_id'],
                 'created_time' => Carbon::now(),
             ]);
 
             return response()->json([
                 'message' => 'Message sent successfully',
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Unable to sent message',

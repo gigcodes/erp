@@ -45,22 +45,22 @@ class CreateErpLeadFromCancellationOrder extends Command
             if ($orders) {
                 foreach ($orders as $order) {
                     $orderProduct = $order->order_product()->first();
-                    $product = $orderProduct->products()->first();
-                    $brand = \App\Brand::where('id', $product->id)->first();
+                    $product      = $orderProduct->products()->first();
+                    $brand        = \App\Brand::where('id', $product->id)->first();
 
                     $erpLeads = new \App\ErpLeads;
                     $erpLeads->fill([
                         'lead_status_id' => 4,
-                        'customer_id' => $order->customer_id,
-                        'product_id' => $product->id,
-                        'brand_id' => $product->brand,
-                        'category_id' => $product->category,
-                        'color' => $orderProduct->color,
-                        'size' => $orderProduct->size,
-                        'type' => 'erp-lead-from-cancellation-order',
-                        'min_price' => $orderProduct->product_price,
-                        'max_price' => $orderProduct->product_price,
-                        'brand_segment' => $brand->brand_segment,
+                        'customer_id'    => $order->customer_id,
+                        'product_id'     => $product->id,
+                        'brand_id'       => $product->brand,
+                        'category_id'    => $product->category,
+                        'color'          => $orderProduct->color,
+                        'size'           => $orderProduct->size,
+                        'type'           => 'erp-lead-from-cancellation-order',
+                        'min_price'      => $orderProduct->product_price,
+                        'max_price'      => $orderProduct->product_price,
+                        'brand_segment'  => $brand->brand_segment,
                     ]);
                     $erpLeads->save();
 

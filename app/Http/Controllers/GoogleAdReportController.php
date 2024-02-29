@@ -13,9 +13,9 @@ class GoogleAdReportController extends Controller
 {
     public function index(Request $request)
     {
-        $accounts = GoogleAdsAccount::all();
+        $accounts  = GoogleAdsAccount::all();
         $campaigns = GoogleAdsCampaign::has('account')->with('account')->get();
-        $adgroups = GoogleAdsGroup::has('campaign')->with('campaign', 'campaign.account')->get();
+        $adgroups  = GoogleAdsGroup::has('campaign')->with('campaign', 'campaign.account')->get();
 
         $records = GoogleAdsReporting::select(
             'google_ads_reportings.*',

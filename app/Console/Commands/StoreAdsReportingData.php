@@ -68,6 +68,8 @@ class StoreAdsReportingData extends Command
 
     /**
      * @param $googleAdsCampaign
+     * @param mixed $googleAdsAccount
+     * @param mixed $campaignIds
      *
      * @throws \Google\ApiCore\ApiException
      */
@@ -116,32 +118,32 @@ class StoreAdsReportingData extends Command
         // Iterates over all rows in all messages and prints the requested field values for
         // the keyword in each row.
         foreach ($stream->iterateAllElements() as $googleAdsRow) {
-            $metrics = $googleAdsRow->getMetrics();
+            $metrics  = $googleAdsRow->getMetrics();
             $campaign = $googleAdsRow->getCampaign();
-            $adGroup = $googleAdsRow->getAdGroup();
-            $ad = $googleAdsRow->getAdGroupAd()->getAd();
+            $adGroup  = $googleAdsRow->getAdGroup();
+            $ad       = $googleAdsRow->getAdGroupAd()->getAd();
 
             try {
                 $input = [
-                    'google_customer_id' => $googleAdsAccount->google_customer_id,
+                    'google_customer_id'         => $googleAdsAccount->google_customer_id,
                     'adgroup_google_campaign_id' => $campaign->getId(),
-                    'google_adgroup_id' => $adGroup->getId(),
-                    'google_ad_id' => $ad->getId(),
-                    'google_account_id' => $googleAdsAccount->id,
-                    'campaign_type' => self::getCampaignType($campaign->getAdvertisingChannelType()),
-                    'impression' => $metrics->getImpressions(),
-                    'click' => $metrics->getClicks(),
-                    'cost_micros' => $metrics->getCostMicros(),
-                    'average_cpc' => $metrics->getAverageCpc(),
-                    'date' => date('Y-m-d'),
+                    'google_adgroup_id'          => $adGroup->getId(),
+                    'google_ad_id'               => $ad->getId(),
+                    'google_account_id'          => $googleAdsAccount->id,
+                    'campaign_type'              => self::getCampaignType($campaign->getAdvertisingChannelType()),
+                    'impression'                 => $metrics->getImpressions(),
+                    'click'                      => $metrics->getClicks(),
+                    'cost_micros'                => $metrics->getCostMicros(),
+                    'average_cpc'                => $metrics->getAverageCpc(),
+                    'date'                       => date('Y-m-d'),
                 ];
                 GoogleAdsReporting::updateOrCreate([
-                    'google_customer_id' => $googleAdsAccount->google_customer_id,
+                    'google_customer_id'         => $googleAdsAccount->google_customer_id,
                     'adgroup_google_campaign_id' => $campaign->getId(),
-                    'google_adgroup_id' => $adGroup->getId(),
-                    'google_ad_id' => $ad->getId(),
-                    'google_account_id' => $googleAdsAccount->id,
-                    'date' => date('Y-m-d'),
+                    'google_adgroup_id'          => $adGroup->getId(),
+                    'google_ad_id'               => $ad->getId(),
+                    'google_account_id'          => $googleAdsAccount->id,
+                    'date'                       => date('Y-m-d'),
                 ], $input);
 
                 $this->info('Store reporting data for ad: ' . $ad->getId());

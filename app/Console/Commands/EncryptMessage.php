@@ -43,8 +43,8 @@ class EncryptMessage extends Command
         foreach ($customerChats as $customerChat) {
             $public = PublicKey::first();
             if ($public != null) {
-                $public = hex2bin($public->key);
-                $message = sodium_crypto_box_seal($customerChat->message, $public);
+                $public                = hex2bin($public->key);
+                $message               = sodium_crypto_box_seal($customerChat->message, $public);
                 $customerChat->message = bin2hex($message);
                 $customerChat->update();
             }

@@ -108,7 +108,7 @@ class Waybill extends Model
     public static function PaymentMode()
     {
         return [
-            'cash' => 'Cash',
+            'cash'          => 'Cash',
             'bank_transfer' => 'Bank Transfer',
         ];
     }

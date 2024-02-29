@@ -25,7 +25,7 @@ class CaseController extends Controller
     public function index(LegalCase $case, Request $request)
     {
         $this->data['cases'] = $case;
-        $order_by = 'DESC';
+        $order_by            = 'DESC';
         if ($request->orderby == '') {
             $order_by = 'ASC';
         }
@@ -34,8 +34,8 @@ class CaseController extends Controller
         //use some searchable package..
 
         if ($request->has('term') && $request->get('term')) {
-            $term = $request->get('term');
-            $this->data['term'] = $term;
+            $term                = $request->get('term');
+            $this->data['term']  = $term;
             $this->data['cases'] = $this->data['cases']->where(function ($query) use ($term) {
                 $query->where('case_number', 'like', '%' . $term . '%')
                     ->orWhere('court_detail', 'like', '%' . $term . '%')
@@ -88,10 +88,10 @@ class CaseController extends Controller
 
     public function show(LegalCase $case)
     {
-        $this->data['case'] = $case;
-        $this->data['lawyers'] = Lawyer::pluck('name', 'id');
+        $this->data['case']             = $case;
+        $this->data['lawyers']          = Lawyer::pluck('name', 'id');
         $this->data['reply_categories'] = ReplyCategory::all();
-        $this->data['users_array'] = Helpers::getUserArray(User::all());
+        $this->data['users_array']      = Helpers::getUserArray(User::all());
 
         return view('case.show', $this->data);
     }
@@ -114,11 +114,11 @@ class CaseController extends Controller
     {
         $this->validate($request, [
             'billed_date' => 'required',
-            'amount' => 'required|numeric',
+            'amount'      => 'required|numeric',
         ]);
         try {
             $payment = CaseCost::create($request->all());
-            $case = LegalCase::find($request->case_id);
+            $case    = LegalCase::find($request->case_id);
             if ($case) {
                 event(new CaseBilled($case, $payment));
             }
@@ -132,11 +132,11 @@ class CaseController extends Controller
     public function costUpdate(CaseCost $case_cost, Request $request)
     {
         $this->validate($request, [
-            'paid_date' => 'required',
+            'paid_date'   => 'required',
             'amount_paid' => 'required|numeric',
         ]);
         try {
-            $case_cost->paid_date = $request->get('paid_date');
+            $case_cost->paid_date   = $request->get('paid_date');
             $case_cost->amount_paid = $request->get('amount_paid');
             $case_cost->save();
             event(new CaseBillPaid($case_cost->case, $case_cost));

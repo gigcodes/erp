@@ -27,7 +27,7 @@ final class TableName implements Stringable
     private $name;
 
     /**
-     * @param  mixed  $name
+     * @param mixed $name
      *
      * @throws InvalidArgumentException
      */
@@ -40,7 +40,7 @@ final class TableName implements Stringable
     }
 
     /**
-     * @param  mixed  $name
+     * @param mixed $name
      *
      * @throws InvalidArgumentException
      */

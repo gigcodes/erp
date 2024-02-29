@@ -27,7 +27,7 @@ class ProcessesController extends AbstractController
         Processes $processes
     ) {
         parent::__construct($response, $template, $data);
-        $this->dbi = $dbi;
+        $this->dbi       = $dbi;
         $this->processes = $processes;
     }
 
@@ -36,11 +36,11 @@ class ProcessesController extends AbstractController
         global $errorUrl;
 
         $params = [
-            'showExecuting' => $_POST['showExecuting'] ?? null,
-            'full' => $_POST['full'] ?? null,
-            'column_name' => $_POST['column_name'] ?? null,
+            'showExecuting'  => $_POST['showExecuting'] ?? null,
+            'full'           => $_POST['full'] ?? null,
+            'column_name'    => $_POST['column_name'] ?? null,
             'order_by_field' => $_POST['order_by_field'] ?? null,
-            'sort_order' => $_POST['sort_order'] ?? null,
+            'sort_order'     => $_POST['sort_order'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');
 
@@ -56,18 +56,18 @@ class ProcessesController extends AbstractController
         }
 
         $urlParams = [
-            'ajax_request' => true,
-            'full' => $params['full'] ?? '',
-            'column_name' => $params['column_name'] ?? '',
+            'ajax_request'   => true,
+            'full'           => $params['full'] ?? '',
+            'column_name'    => $params['column_name'] ?? '',
             'order_by_field' => $params['order_by_field'] ?? '',
-            'sort_order' => $params['sort_order'] ?? '',
+            'sort_order'     => $params['sort_order'] ?? '',
         ];
 
         $listHtml = $this->template->render('server/status/processes/list', $this->processes->getList($params));
 
         $this->render('server/status/processes/index', [
-            'url_params' => $urlParams,
-            'is_checked' => $isChecked,
+            'url_params'          => $urlParams,
+            'is_checked'          => $isChecked,
             'server_process_list' => $listHtml,
         ]);
     }

@@ -40,8 +40,8 @@ class GTMatrixErrorLogController extends Controller
         DB::statement('TRUNCATE TABLE g_t_matrix_error_logs');
 
         return response()->json([
-            'status' => true,
-            'message' => ' Your selected batabase tables has been truncate successfully',
+            'status'      => true,
+            'message'     => ' Your selected batabase tables has been truncate successfully',
             'status_name' => 'success',
         ], 200);
     }

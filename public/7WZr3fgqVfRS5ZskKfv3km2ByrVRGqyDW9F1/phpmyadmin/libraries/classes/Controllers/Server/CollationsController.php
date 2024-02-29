@@ -28,8 +28,8 @@ class CollationsController extends AbstractController
     private $dbi;
 
     /**
-     * @param  array<string, Charset>|null  $charsets
-     * @param  array<string, array<string, Collation>>|null  $collations
+     * @param array<string, Charset>|null                  $charsets
+     * @param array<string, array<string, Collation>>|null $collations
      */
     public function __construct(
         ResponseRenderer $response,
@@ -43,7 +43,7 @@ class CollationsController extends AbstractController
         parent::__construct($response, $template);
         $this->dbi = $dbi;
 
-        $this->charsets = $charsets ?? Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
+        $this->charsets   = $charsets ?? Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
         $this->collations = $collations ?? Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
     }
 
@@ -62,16 +62,16 @@ class CollationsController extends AbstractController
             $charsetCollations = [];
             foreach ($this->collations[$charset->getName()] as $collation) {
                 $charsetCollations[] = [
-                    'name' => $collation->getName(),
+                    'name'        => $collation->getName(),
                     'description' => $collation->getDescription(),
-                    'is_default' => $collation->isDefault(),
+                    'is_default'  => $collation->isDefault(),
                 ];
             }
 
             $charsets[] = [
-                'name' => $charset->getName(),
+                'name'        => $charset->getName(),
                 'description' => $charset->getDescription(),
-                'collations' => $charsetCollations,
+                'collations'  => $charsetCollations,
             ];
         }
 

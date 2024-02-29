@@ -13,10 +13,10 @@ class MagentoModuleTypeController extends Controller
     public function __construct()
     {
         //view files
-        $this->index_view = 'magento_module_type.index';
+        $this->index_view  = 'magento_module_type.index';
         $this->create_view = 'magento_module_type.create';
         $this->detail_view = 'magento_module_type.details';
-        $this->edit_view = 'magento_module_type.edit';
+        $this->edit_view   = 'magento_module_type.edit';
     }
 
     /**
@@ -31,9 +31,9 @@ class MagentoModuleTypeController extends Controller
 
             return datatables()->eloquent($items)->toJson();
         } else {
-            $title = 'Magento Module Type';
+            $title             = 'Magento Module Type';
             $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-            $task_statuses = TaskStatus::pluck('name', 'id');
+            $task_statuses     = TaskStatus::pluck('name', 'id');
 
             return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
         }
@@ -46,9 +46,9 @@ class MagentoModuleTypeController extends Controller
      */
     public function create()
     {
-        $title = 'Magento Module Type';
+        $title             = 'Magento Module Type';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $task_statuses = TaskStatus::pluck('name', 'id');
+        $task_statuses     = TaskStatus::pluck('name', 'id');
 
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
     }
@@ -56,7 +56,8 @@ class MagentoModuleTypeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(MagentoModuleTypeRequest $request)
@@ -67,15 +68,15 @@ class MagentoModuleTypeController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -84,7 +85,8 @@ class MagentoModuleTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(MagentoModuleType $magento_module_type)
@@ -93,15 +95,15 @@ class MagentoModuleTypeController extends Controller
 
         if (request()->ajax() && $magento_module_type) {
             return response()->json([
-                'data' => view('magento_module_type.partials.data', compact('magento_module_type'))->render(),
+                'data'  => view('magento_module_type.partials.data', compact('magento_module_type'))->render(),
                 'title' => $title,
-                'code' => 200,
+                'code'  => 200,
             ], 200);
         } else {
             return response()->json([
-                'data' => '',
+                'data'  => '',
                 'title' => $title,
-                'code' => 500,
+                'code'  => 500,
             ], 500);
         }
 
@@ -111,14 +113,15 @@ class MagentoModuleTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(MagentoModuleType $magento_module_type)
     {
-        $title = 'Magento Module Type';
+        $title             = 'Magento Module Type';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $task_statuses = TaskStatus::pluck('name', 'id');
+        $task_statuses     = TaskStatus::pluck('name', 'id');
 
         return view($this->edit_view, compact('module_categories', 'title', 'magento_module_type', 'task_statuses'));
     }
@@ -126,7 +129,8 @@ class MagentoModuleTypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleTypeRequest $request, MagentoModuleType $magento_module_type)
@@ -137,14 +141,14 @@ class MagentoModuleTypeController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'message' => 'Updated successfully',
+                'status'      => true,
+                'message'     => 'Updated successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Updated unsuccessfully',
+                'status'      => false,
+                'message'     => 'Updated unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -161,14 +165,14 @@ class MagentoModuleTypeController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'message' => 'Deleted successfully',
+                'status'      => true,
+                'message'     => 'Deleted successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Deleted unsuccessfully',
+                'status'      => false,
+                'message'     => 'Deleted unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }

@@ -51,7 +51,7 @@ class Routing
     public static function canWriteCache(): bool
     {
         $cacheFileExists = file_exists(self::ROUTES_CACHE_FILE);
-        $canWriteFile = is_writable(self::ROUTES_CACHE_FILE);
+        $canWriteFile    = is_writable(self::ROUTES_CACHE_FILE);
         if ($cacheFileExists && $canWriteFile) {
             return true;
         }
@@ -86,7 +86,7 @@ class Routing
         );
         $routeDefinitionCallback($routeCollector);
 
-        $dispatchData = $routeCollector->getData();
+        $dispatchData  = $routeCollector->getData();
         $canWriteCache = self::canWriteCache();
 
         // If skip cache is enabled, do not try to write it

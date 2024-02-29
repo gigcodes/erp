@@ -11,7 +11,6 @@ class StoreWebsiteOrder extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="status_id",type="integer")
      * @SWG\Property(property="order_id",type="integer")

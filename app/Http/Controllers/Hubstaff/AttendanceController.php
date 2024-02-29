@@ -38,10 +38,10 @@ class AttendanceController extends Controller
         $curl->setHeader('App-Token', $this->appToken);
 
         $curl->get($url, [
-            'page_start_id' => $request->page_start_id,
-            'page_limit' => $request->page_limit,
-            'start_time' => $request->start_time,
-            'stop_time' => $request->stop_time,
+            'page_start_id'   => $request->page_start_id,
+            'page_limit'      => $request->page_limit,
+            'start_time'      => $request->start_time,
+            'stop_time'       => $request->stop_time,
             'organization_id' => $request->organization_id,
         ]);
 

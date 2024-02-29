@@ -19,9 +19,9 @@ class MagentoSettingRevisionHistoryController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('keyword');
-        $status = $request->get('status');
-        $active = $request->get('active');
-        $date = $request->get('date');
+        $status  = $request->get('status');
+        $active  = $request->get('active');
+        $date    = $request->get('date');
 
         $magentoSettingRevisionHistories = MagentoSettingRevisionHistory::latest();
 

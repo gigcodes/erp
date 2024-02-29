@@ -26,7 +26,7 @@ class ResponsePurify
     public function __construct($response, public $customer = null, public $logId = null)
     {
         $this->response = isset($response->output) ? $response->output : null;
-        $this->context = isset($response->context) ? $response->context : null;
+        $this->context  = isset($response->context) ? $response->context : null;
 
         if ($this->isValid()) {
             $this->settleResponse();
@@ -80,7 +80,7 @@ class ResponsePurify
     public function assignAction()
     {
         $medias = $this->isNeedToSendProductImages();
-        $text = $this->getReplyText();
+        $text   = $this->getReplyText();
         // if match action then assign
         if (! empty($medias['match']) && $medias['match'] == true) {
             return ['action' => 'send_product_images', 'reply_text' => $text, 'response' => $this->response, 'medias' => $medias['medias']];
@@ -88,9 +88,9 @@ class ResponsePurify
             if (isset($this->logId)) {
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $this->logId,
-                    'request' => '',
-                    'response' => 'Watson assistant function send message customer function media not match.',
-                    'status' => 'success',
+                    'request'                => '',
+                    'response'               => 'Watson assistant function send message customer function media not match.',
+                    'status'                 => 'success',
                 ]);
             }
         }
@@ -100,9 +100,9 @@ class ResponsePurify
         if (isset($this->logId)) {
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
-                'request' => '',
-                'response' => 'Watson assistant function send message customer function order status => ' . json_encode($orderStatus),
-                'status' => 'success',
+                'request'                => '',
+                'response'               => 'Watson assistant function send message customer function order status => ' . json_encode($orderStatus),
+                'status'                 => 'success',
             ]);
         }
 
@@ -115,9 +115,9 @@ class ResponsePurify
         if (isset($this->logId)) {
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
-                'request' => '',
-                'response' => 'Watson assistant function send message customer function refund status => ' . json_encode($refundStatus),
-                'status' => 'success',
+                'request'                => '',
+                'response'               => 'Watson assistant function send message customer function refund status => ' . json_encode($refundStatus),
+                'status'                 => 'success',
             ]);
         }
         if (! empty($refundStatus)) {
@@ -127,9 +127,9 @@ class ResponsePurify
         if (isset($this->logId)) {
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $this->logId,
-                'request' => '',
-                'response' => 'Watson assistant function send message customer function text => ' . $text,
-                'status' => 'success',
+                'request'                => '',
+                'response'               => 'Watson assistant function send message customer function text => ' . $text,
+                'status'                 => 'success',
             ]);
         }
 
@@ -143,7 +143,7 @@ class ResponsePurify
     /**
      * Check response is valid or not
      *
-     * @return  false
+     * @return false
      */
     public function isValid()
     {
@@ -162,15 +162,15 @@ class ResponsePurify
 
     private function isNeedToSendProductImages()
     {
-        $entity = 'product';
+        $entity      = 'product';
         $intentsList = ['Customer_Care_Products_Offered', 'Customer_Brand_Enquiry'];
-        $gender = null;
+        $gender      = null;
         if (isset($this->customer) && isset($this->customer->gender)) {
             $gender = ($this->customer->gender == 'male') ? 3 : 2;
         }
 
         $return = [
-            'match' => false,
+            'match'  => false,
             'medias' => [],
         ];
 
@@ -203,9 +203,9 @@ class ResponsePurify
                         if (! empty($skills->user_defined->category_name)) {
                             $attributes .= $skills->user_defined->category_name;
                             // if brand and category both setup then
-                            $obect = new \stdClass;
+                            $obect             = new \stdClass;
                             $obect->attributes = $attributes;
-                            $sendImages = new Action\SendProductImages($attributes, $params = [
+                            $sendImages        = new Action\SendProductImages($attributes, $params = [
                                 'gender' => $gender,
                             ]);
                             $return['match'] = true;
@@ -244,12 +244,12 @@ class ResponsePurify
                         }
 
                         $paramsToReplace = [
-                            '#{order_id}' => $lastOrder->order_id,
-                            '#{order_status}' => $lastOrder->status->status,
-                            '#{website}' => $lastOrder->getWebsiteTitle(),
+                            '#{order_id}'      => $lastOrder->order_id,
+                            '#{order_status}'  => $lastOrder->status->status,
+                            '#{website}'       => $lastOrder->getWebsiteTitle(),
                             '#{estimate_date}' => $lastOrder->estimated_delivery_date,
                             '#{delivery_date}' => $lastOrder->date_of_delivery,
-                            '#{awb_number}' => $lastOrder->totalWayBills(),
+                            '#{awb_number}'    => $lastOrder->totalWayBills(),
                         ];
 
                         $replyText = ! empty($text) ? $text : 'Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status} Thanks for your trust.';
@@ -271,7 +271,7 @@ class ResponsePurify
         foreach ($intentsList as $intents) {
             if (in_array($intents, array_keys($this->intents))) {
                 // check the last order of customer and send the message status
-                $customer = $this->customer;
+                $customer     = $this->customer;
                 $latestRefund = $customer->latestRefund();
                 if (! empty($latestRefund)) {
                     if ($latestRefund->returnExchangeStatus) {

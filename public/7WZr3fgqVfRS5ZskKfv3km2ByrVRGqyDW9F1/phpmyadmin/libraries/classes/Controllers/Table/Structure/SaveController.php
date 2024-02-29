@@ -55,9 +55,9 @@ final class SaveController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->relation = $relation;
-        $this->transformations = $transformations;
-        $this->dbi = $dbi;
+        $this->relation            = $relation;
+        $this->transformations     = $transformations;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
 
         $this->tableObj = $this->dbi->getTable($this->db, $this->table);
@@ -82,13 +82,13 @@ final class SaveController extends AbstractController
     private function updateColumns(): bool
     {
         $err_url = Url::getFromRoute('/table/structure', [
-            'db' => $this->db,
+            'db'    => $this->db,
             'table' => $this->table,
         ]);
-        $regenerate = false;
-        $field_cnt = count($_POST['field_name'] ?? []);
-        $changes = [];
-        $adjust_privileges = [];
+        $regenerate         = false;
+        $field_cnt          = count($_POST['field_name'] ?? []);
+        $changes            = [];
+        $adjust_privileges  = [];
         $columns_with_index = $this->dbi
             ->getTable($this->db, $this->table)
             ->getColumnsWithIndex(Index::PRIMARY | Index::UNIQUE);
@@ -232,7 +232,7 @@ final class SaveController extends AbstractController
                 // An error happened while inserting/updating a table definition
 
                 // Save the Original Error
-                $orig_error = $this->dbi->getError();
+                $orig_error     = $this->dbi->getError();
                 $changes_revert = [];
 
                 // Change back to Original Collation and data type
@@ -315,7 +315,7 @@ final class SaveController extends AbstractController
     /**
      * Verifies if some elements of a column have changed
      *
-     * @param  int  $i column index in the request
+     * @param int $i column index in the request
      */
     private function columnNeedsAlterTable($i): bool
     {
@@ -357,7 +357,7 @@ final class SaveController extends AbstractController
     /**
      * Adjusts the Privileges for all the columns whose names have changed
      *
-     * @param  array  $adjust_privileges assoc array of old col names mapped to new
+     * @param array $adjust_privileges assoc array of old col names mapped to new
      *                                 cols
      */
     private function adjustColumnPrivileges(array $adjust_privileges): bool

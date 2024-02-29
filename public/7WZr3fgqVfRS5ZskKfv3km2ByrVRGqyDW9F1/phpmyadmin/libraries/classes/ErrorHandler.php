@@ -118,7 +118,7 @@ class ErrorHandler
     /**
      * Toggles location hiding
      *
-     * @param  bool  $hide Whether to hide
+     * @param bool $hide Whether to hide
      */
     public function setHideLocation(bool $hide): void
     {
@@ -128,7 +128,8 @@ class ErrorHandler
     /**
      * returns array with all errors
      *
-     * @param  bool  $check Whether to check for session errors
+     * @param bool $check Whether to check for session errors
+     *
      * @return Error[]
      */
     public function getErrors(bool $check = true): array
@@ -154,7 +155,8 @@ class ErrorHandler
     /**
      * Pops recent errors from the storage
      *
-     * @param  int  $count Old error count (amount of errors to splice)
+     * @param int $count Old error count (amount of errors to splice)
+     *
      * @return Error[] The non spliced elements (total-$count)
      */
     public function sliceErrors(int $count): array
@@ -177,10 +179,10 @@ class ErrorHandler
      * This calls the addError() function, escaping the error string
      * Ignores the errors wherever Error Control Operator (@) is used.
      *
-     * @param  int  $errno   error number
-     * @param  string  $errstr  error string
-     * @param  string  $errfile error file
-     * @param  int  $errline error line
+     * @param int    $errno   error number
+     * @param string $errstr  error string
+     * @param string $errfile error file
+     * @param int    $errline error line
      *
      * @throws ErrorException
      */
@@ -230,7 +232,7 @@ class ErrorHandler
      */
     public function handleException(Throwable $exception): void
     {
-        $config = $GLOBALS['config'] ?? null;
+        $config      = $GLOBALS['config'] ?? null;
         $environment = $config instanceof Config ? $config->get('environment') : 'production';
         if ($environment !== 'development') {
             return;
@@ -250,11 +252,11 @@ class ErrorHandler
      * Do not use the context parameter as we want to avoid storing the
      * complete $GLOBALS inside $_SESSION['errors']
      *
-     * @param  string  $errstr  error string
-     * @param  int  $errno   error number
-     * @param  string  $errfile error file
-     * @param  int  $errline error line
-     * @param  bool  $escape  whether to escape the error string
+     * @param string $errstr  error string
+     * @param int    $errno   error number
+     * @param string $errfile error file
+     * @param int    $errline error line
+     * @param bool   $escape  whether to escape the error string
      */
     public function addError(
         string $errstr,
@@ -306,8 +308,8 @@ class ErrorHandler
     /**
      * trigger a custom error
      *
-     * @param  string  $errorInfo   error message
-     * @param  int  $errorNumber error number
+     * @param string $errorInfo   error message
+     * @param int    $errorNumber error number
      *
      * @psalm-param 256|512|1024|16384 $errorNumber
      */
@@ -321,7 +323,7 @@ class ErrorHandler
     /**
      * display fatal error and exit
      *
-     * @param  Error  $error the error
+     * @param Error $error the error
      */
     protected function dispFatalError(Error $error): void
     {
@@ -362,7 +364,7 @@ class ErrorHandler
     /**
      * display HTML header
      *
-     * @param  Error  $error the error
+     * @param Error $error the error
      */
     protected function dispPageStart(?Error $error = null): void
     {
@@ -417,9 +419,9 @@ class ErrorHandler
 
             $retval .= '>';
             $retval .= Url::getHiddenFields([
-                'exception_type' => 'php',
+                'exception_type'    => 'php',
                 'send_error_report' => '1',
-                'server' => $GLOBALS['server'],
+                'server'            => $GLOBALS['server'],
             ]);
             $retval .= '<input type="submit" value="'
                     . __('Report')
@@ -472,7 +474,8 @@ class ErrorHandler
     /**
      * return count of errors
      *
-     * @param  bool  $check Whether to check for session errors
+     * @param bool $check Whether to check for session errors
+     *
      * @return int number of errors occurred
      */
     public function countErrors(bool $check = true): int
@@ -579,7 +582,7 @@ class ErrorHandler
         // Delete all the prev_errors in session & store new prev_errors in session
         $this->savePreviousErrors();
         $response = ResponseRenderer::getInstance();
-        $jsCode = '';
+        $jsCode   = '';
         if ($GLOBALS['cfg']['SendErrorReports'] === 'always') {
             if ($response->isAjax()) {
                 // set flag for automatic report submission.

@@ -23,7 +23,7 @@ class Spintax
 
     public function replace($text)
     {
-        $text = $this->process($text[1]);
+        $text  = $this->process($text[1]);
         $parts = explode('|', $text);
 
         return $parts[array_rand($parts)];

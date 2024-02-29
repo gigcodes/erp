@@ -38,33 +38,33 @@ class UpdateAutoSuggestedCategory extends Command
      */
     public function handle()
     {
-        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
 
-        $input = preg_quote('', '~');
+        $input             = preg_quote('', '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
         if (! empty($unKnownCategories)) {
             foreach ($unKnownCategories as $i => $unkc) {
                 $filter = \App\Category::updateCategoryAutoSpace($unkc);
                 if ($filter) {
-                    $old = $unKnownCategory->id;
-                    $from = $unkc;
-                    $to = $filter->id;
-                    $change = 'yes';
+                    $old         = $unKnownCategory->id;
+                    $from        = $unkc;
+                    $to          = $filter->id;
+                    $change      = 'yes';
                     $wholeString = $unkc;
                     if ($change == 'yes') {
                         \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                            'from' => $from,
-                            'to' => $to,
+                            'from'    => $from,
+                            'to'      => $to,
                             'user_id' => 152,
                         ])->onQueue('supplier_products');
                     }
                     $c = $unKnownCategory;
                     if ($c) {
                         $allrefernce = explode(',', $c->references);
-                        $newRef = [];
+                        $newRef      = [];
                         if (! empty($allrefernce)) {
                             foreach ($allrefernce as $ar) {
                                 if ($ar != $wholeString) {
@@ -76,15 +76,15 @@ class UpdateAutoSuggestedCategory extends Command
                         $c->save();
                         // new category reference store
                         if ($filter) {
-                            $existingRef = explode(',', $filter->references);
+                            $existingRef   = explode(',', $filter->references);
                             $existingRef[] = $from;
 
                             $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                                'old_value' => $filter->references,
-                                'new_value' => implode(',', array_unique($existingRef)),
+                                'old_value'      => $filter->references,
+                                'new_value'      => implode(',', array_unique($existingRef)),
                                 'attribute_name' => 'category',
-                                'attribute_id' => $filter->id,
-                                'user_id' => 152,
+                                'attribute_id'   => $filter->id,
+                                'user_id'        => 152,
                             ]);
 
                             $filter->references = implode(',', array_unique($existingRef));

@@ -22,6 +22,9 @@ class PushCategorySeoToMagento implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed     $categories
+     * @param protected $stores
+     *
      * @return void
      */
     public function __construct($categories, protected $stores)

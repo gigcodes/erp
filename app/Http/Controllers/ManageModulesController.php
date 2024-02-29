@@ -49,7 +49,7 @@ class ManageModulesController extends Controller
         $records = DeveloperModule::find($id);
 
         if (! $records) {
-            $records = new DeveloperModule;
+            $records   = new DeveloperModule;
             $validator = Validator::make($post, [
                 'name' => 'required|min:1|unique:developer_modules,name,NULL,id,deleted_at,NULL',
             ]);
@@ -61,7 +61,7 @@ class ManageModulesController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -108,7 +108,8 @@ class ManageModulesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -119,7 +120,8 @@ class ManageModulesController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -135,7 +137,8 @@ class ManageModulesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -146,7 +149,8 @@ class ManageModulesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -157,7 +161,8 @@ class ManageModulesController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -179,7 +184,7 @@ class ManageModulesController extends Controller
 
     public function mergeModule(Request $request)
     {
-        $toModule = $request->get('to_module');
+        $toModule   = $request->get('to_module');
         $fromModule = $request->get('from_module');
 
         if (empty($toModule)) {
@@ -194,7 +199,7 @@ class ManageModulesController extends Controller
             return response()->json(['code' => 500, 'error' => 'Merge module can not be same']);
         }
 
-        $module = \App\DeveloperModule::where('id', $toModule)->first();
+        $module         = \App\DeveloperModule::where('id', $toModule)->first();
         $allMergeModule = \App\DeveloperTask::whereIn('module_id', $fromModule)->get();
 
         if ($module) {
@@ -223,7 +228,7 @@ class ManageModulesController extends Controller
                 $otherModules = DeveloperModule::where('name', $value['name'])->where('id', '!=', $value['id'])->pluck('id')->toArray();
 
                 if (! empty($otherModules)) {
-                    $DeveloperModule[$key] = $value;
+                    $DeveloperModule[$key]                  = $value;
                     $DeveloperModule[$key]['other_modules'] = $otherModules;
 
                     $allMergeModule = \App\DeveloperTask::whereIn('module_id', $otherModules)->update(['module_id' => $value['id']]);

@@ -43,7 +43,7 @@ class ReconsileBrand extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was updated.']);

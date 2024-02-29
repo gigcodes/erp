@@ -15,10 +15,10 @@ class FlowLogController extends Controller
 
     public function index(Request $request)
     {
-        $page = isset($request->page) ? $request->page : 1;
+        $page      = isset($request->page) ? $request->page : 1;
         $flow_logs = Flow::pluck('flow_name', 'id');
-        $websites = StoreWebsite::pluck('website', 'id');
-        $leads = Customer::pluck('name', 'id');
+        $websites  = StoreWebsite::pluck('website', 'id');
+        $leads     = Customer::pluck('name', 'id');
 
         $logs = FlowLog::orderby('updated_at', 'desc')->select(
             [
@@ -68,7 +68,7 @@ class FlowLogController extends Controller
         $logs = $logs->paginate(50);
 
         if ($request->ajax()) {
-            $page = $request->input('page', 1);
+            $page       = $request->input('page', 1);
             $page_count = $page > 1 ? ($request->input('page', 1) - 1) * 50 : $request->input('page', 1) * 50;
 
             return response()->json([

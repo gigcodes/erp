@@ -21,6 +21,8 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $products
+     *
      * @return void
      */
     public function __construct(private $products)

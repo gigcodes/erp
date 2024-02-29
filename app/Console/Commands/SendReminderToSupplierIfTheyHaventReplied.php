@@ -46,7 +46,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -103,16 +103,17 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     /**
      * @param $message
      * Create the chat_message record and then approve and send the message
+     * @param mixed $supplier
      */
     private function sendMessage($supplier, $message): void
     {
         $params = [
-            'number' => null,
-            'user_id' => 6,
-            'approved' => 1,
-            'status' => 1,
+            'number'      => null,
+            'user_id'     => 6,
+            'approved'    => 1,
+            'status'      => 1,
             'supplier_id' => $supplier,
-            'message' => $message,
+            'message'     => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

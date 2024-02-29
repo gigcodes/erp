@@ -18,12 +18,12 @@ class GraphqlService
     {
         self::$storeWebsiteUrl = $url;
         self::$storeWebsitePwd = $pwd;
-        $result = true;
-        $localeExist = self::getValidLocales()['success'];
+        $result                = true;
+        $localeExist           = self::getValidLocales()['success'];
 
         if ($localeExist) {
             $validLocales = self::getValidLocales()['validLocales'];
-            $localeDiffs = self::getValidLocales()['localeDiffs'];
+            $localeDiffs  = self::getValidLocales()['localeDiffs'];
 
             $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
 
@@ -53,16 +53,16 @@ class GraphqlService
             ';
 
             $vars = [
-                'resourceId' => "gid://shopify/Product/$shopifyProductId",
+                'resourceId'   => "gid://shopify/Product/$shopifyProductId",
                 'translations' => $translations,
             ];
 
-            $data = [];
-            $data['query'] = $qry;
+            $data              = [];
+            $data['query']     = $qry;
             $data['variables'] = $vars;
-            $data = json_encode($data);
+            $data              = json_encode($data);
 
-            $headers = [];
+            $headers   = [];
             $headers[] = 'Content-Type: application/json';
             $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
@@ -98,7 +98,7 @@ class GraphqlService
             curl_close($ch);
         } else {
             //add logs
-            $result = false;
+            $result  = false;
             $message = 'no_locales: No locales enabled in shopify store. Please visit:
              ' . self::$storeWebsiteUrl . '/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
             self::addLogs($message);
@@ -112,8 +112,8 @@ class GraphqlService
 
     private static function getDataByCurl($query)
     {
-        $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
-        $headers = [];
+        $endpoint  = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
+        $headers   = [];
         $headers[] = 'Content-Type: application/graphql';
         $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
@@ -139,8 +139,8 @@ class GraphqlService
 
     private static function getValidLocales()
     {
-        $data = ['success' => false];
-        $languages = Language::pluck('locale')->toArray();
+        $data            = ['success' => false];
+        $languages       = Language::pluck('locale')->toArray();
         $shopLocalesData = self::retrieveDataByGrapql('getLocales');
 
         if (isset($shopLocalesData['data']['shopLocales'])) {
@@ -153,8 +153,8 @@ class GraphqlService
 
             $data = [
                 'validLocales' => array_intersect($shopLocales, $languages),
-                'localeDiffs' => $localeDiffs,
-                'success' => true,
+                'localeDiffs'  => $localeDiffs,
+                'success'      => true,
             ];
         }
 
@@ -171,25 +171,25 @@ class GraphqlService
             ->groupBy('locale')->get()->keyBy('locale')->toArray();
 
         if ($productTranslations) {
-            $shopifyProduct = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);
-            $hashTitle = hash('sha256', $shopifyProduct['data']['product']['title']);
-            $hashDesc = hash('sha256', $shopifyProduct['data']['product']['description']);
+            $shopifyProduct      = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);
+            $hashTitle           = hash('sha256', $shopifyProduct['data']['product']['title']);
+            $hashDesc            = hash('sha256', $shopifyProduct['data']['product']['description']);
             $hashProductCategory = hash('sha256', $shopifyProduct['data']['product']['productType']);
 
             foreach ($productTranslations as $data) {
                 $titleData = [];
-                $descData = [];
+                $descData  = [];
 
                 //one for title
-                $titleData['locale'] = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
-                $titleData['key'] = 'title';
-                $titleData['value'] = $data['title'];
+                $titleData['locale']                    = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
+                $titleData['key']                       = 'title';
+                $titleData['value']                     = $data['title'];
                 $titleData['translatableContentDigest'] = $hashTitle;
 
                 //one for description
-                $descData['locale'] = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
-                $descData['key'] = 'body_html';
-                $descData['value'] = $data['description'];
+                $descData['locale']                    = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
+                $descData['key']                       = 'body_html';
+                $descData['value']                     = $data['description'];
                 $descData['translatableContentDigest'] = $hashDesc;
 
                 $translations[] = $titleData;
@@ -203,9 +203,9 @@ class GraphqlService
                 $titleData = [];
                 foreach ($translationsData as $data) {
                     //one for title
-                    $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
-                    $titleData['key'] = 'productType';
-                    $titleData['value'] = $data['text'];
+                    $titleData['locale']                    = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
+                    $titleData['key']                       = 'productType';
+                    $titleData['value']                     = $data['text'];
                     $titleData['translatableContentDigest'] = $hashProductCategory;
 
                     $translations[] = $titleData;

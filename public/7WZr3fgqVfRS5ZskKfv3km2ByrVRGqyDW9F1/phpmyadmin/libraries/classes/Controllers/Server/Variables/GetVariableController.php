@@ -26,7 +26,7 @@ final class GetVariableController extends AbstractController
     }
 
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
      */
     public function __invoke(ServerRequest $request, array $params): void
     {
@@ -52,7 +52,7 @@ final class GetVariableController extends AbstractController
 
         if ($variableType === 'byte') {
             /** @var string[] $bytes */
-            $bytes = Util::formatByteDown($varValue[1], 3, 3);
+            $bytes           = Util::formatByteDown($varValue[1], 3, 3);
             $json['message'] = implode(' ', $bytes);
         }
 

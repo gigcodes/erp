@@ -40,7 +40,7 @@ class CourierController extends Controller
             'name' => 'required',
         ]);
 
-        $courier = new Courier();
+        $courier       = new Courier();
         $courier->name = $request->get('name');
         $courier->save();
 
@@ -50,7 +50,8 @@ class CourierController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
+     * @param \App\KeywordToCategory $keywordToCategory
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(KeywordToCategory $keywordToCategory)
@@ -61,7 +62,8 @@ class CourierController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
+     * @param \App\KeywordToCategory $keywordToCategory
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(KeywordToCategory $keywordToCategory)
@@ -72,7 +74,8 @@ class CourierController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
+     * @param \App\KeywordToCategory $keywordToCategory
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, KeywordToCategory $keywordToCategory)
@@ -83,7 +86,9 @@ class CourierController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\KeywordToCategory  $keywordToCategory
+     * @param \App\KeywordToCategory $keywordToCategory
+     * @param mixed                  $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

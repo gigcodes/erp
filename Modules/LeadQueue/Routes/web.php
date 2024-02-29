@@ -15,14 +15,14 @@ use Modules\LeadQueue\Http\Controllers\LeadQueueController;
 */
 
 Route::group([
-    'prefix' => 'leadqueue',
+    'prefix'     => 'leadqueue',
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [LeadQueueController::class, 'index']);
 });
 
 Route::group([
-    'prefix' => 'lead-queue',
+    'prefix'     => 'lead-queue',
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [LeadQueueController::class, 'index'])->name('lead-queue.index');

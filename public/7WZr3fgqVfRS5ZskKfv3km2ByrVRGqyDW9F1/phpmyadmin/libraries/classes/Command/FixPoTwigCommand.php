@@ -56,8 +56,8 @@ final class FixPoTwigCommand extends Command
             '@(twig-templates[0-9a-f/]*.php):([0-9]*)@',
             static function (array $matches) use ($replacements): string {
                 $filename = $matches[1];
-                $line = intval($matches[2]);
-                $replace = $replacements[$filename];
+                $line     = intval($matches[2]);
+                $replace  = $replacements[$filename];
                 foreach ($replace[1] as $cacheLine => $result) {
                     if ($line >= $cacheLine) {
                         return $replace[0] . ':' . $result;

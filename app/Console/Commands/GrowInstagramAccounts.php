@@ -42,7 +42,7 @@ class GrowInstagramAccounts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -68,9 +68,9 @@ class GrowInstagramAccounts extends Command
                 $account->save();
 
                 if ($stage >= 7) {
-                    $account->bulk_comment = 1;
+                    $account->bulk_comment   = 1;
                     $account->manual_comment = 0;
-                    $account->is_seeding = 0;
+                    $account->is_seeding     = 0;
                     $account->save();
 
                     continue;
@@ -103,11 +103,11 @@ class GrowInstagramAccounts extends Command
                 }
 
                 foreach ($imagesToPost as $i) {
-                    $filename = __DIR__ . '/images/' . $i . '.jpeg';
-                    $source = imagecreatefromjpeg($filename);
+                    $filename         = __DIR__ . '/images/' . $i . '.jpeg';
+                    $source           = imagecreatefromjpeg($filename);
                     [$width, $height] = getimagesize($filename);
 
-                    $newwidth = 800;
+                    $newwidth  = 800;
                     $newheight = 800;
 
                     $destination = imagecreatetruecolor($newwidth, $newheight);

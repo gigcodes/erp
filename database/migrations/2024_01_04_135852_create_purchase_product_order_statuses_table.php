@@ -22,22 +22,22 @@ class CreatePurchaseProductOrderStatusesTable extends Migration
         });
 
         \Illuminate\Support\Facades\DB::table('purchase_product_order_statuses')->insert([
-            'status_name' => 'Pending',
+            'status_name'  => 'Pending',
             'status_alias' => 'pending',
         ]);
 
         \Illuminate\Support\Facades\DB::table('purchase_product_order_statuses')->insert([
-            'status_name' => 'Complete',
+            'status_name'  => 'Complete',
             'status_alias' => 'complete',
         ]);
 
         \Illuminate\Support\Facades\DB::table('purchase_product_order_statuses')->insert([
-            'status_name' => 'In Stock',
+            'status_name'  => 'In Stock',
             'status_alias' => 'in_stock',
         ]);
 
         \Illuminate\Support\Facades\DB::table('purchase_product_order_statuses')->insert([
-            'status_name' => 'Out Stock',
+            'status_name'  => 'Out Stock',
             'status_alias' => 'out_stock',
         ]);
     }

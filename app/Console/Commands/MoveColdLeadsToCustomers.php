@@ -45,7 +45,7 @@ class MoveColdLeadsToCustomers extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report was added.']);
@@ -55,7 +55,7 @@ class MoveColdLeadsToCustomers extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cold leads query was finished.']);
 
             // Set count to 0 and maxcount to 50
-            $count = 0;
+            $count    = 0;
             $maxCount = 500000;
 
             // Get all numbers from config
@@ -86,12 +86,12 @@ class MoveColdLeadsToCustomers extends Command
                         // Nothing found?
                         if ($customer == null && ! empty($coldLead->name)) {
                             // Create new customer
-                            $customer = new Customer();
-                            $customer->name = $coldLead->name;
-                            $customer->phone = $coldLead->platform_id;
+                            $customer                  = new Customer();
+                            $customer->name            = $coldLead->name;
+                            $customer->phone           = $coldLead->platform_id;
                             $customer->whatsapp_number = $arrCustomerNumbers[rand(0, count($arrCustomerNumbers) - 1)];
-                            $customer->city = $coldLead->address;
-                            $customer->country = 'IN';
+                            $customer->city            = $coldLead->address;
+                            $customer->country         = 'IN';
                             try {
                                 $customer->save();
                             } catch (\Exception $e) {

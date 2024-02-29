@@ -173,11 +173,11 @@ class ResponseRenderer
         }
 
         $this->header = new Header();
-        $this->HTML = '';
-        $this->JSON = [];
+        $this->HTML   = '';
+        $this->JSON   = [];
         $this->footer = new Footer();
 
-        $this->isSuccess = true;
+        $this->isSuccess  = true;
         $this->isDisabled = false;
         $this->setAjax(! empty($_REQUEST['ajax_request']));
     }
@@ -186,7 +186,7 @@ class ResponseRenderer
      * Set the ajax flag to indicate whether
      * we are servicing an ajax request
      *
-     * @param  bool  $isAjax Whether we are servicing an ajax request
+     * @param bool $isAjax Whether we are servicing an ajax request
      */
     public function setAjax(bool $isAjax): void
     {
@@ -213,7 +213,7 @@ class ResponseRenderer
      * Set the status of an ajax response,
      * whether it is a success or an error
      *
-     * @param  bool  $state Whether the request was successfully processed
+     * @param bool $state Whether the request was successfully processed
      */
     public function setRequestStatus(bool $state): void
     {
@@ -271,8 +271,8 @@ class ResponseRenderer
     /**
      * Add JSON code to the response
      *
-     * @param  string|int|array  $json  Either a key (string) or an array or key-value pairs
-     * @param  mixed|null  $value Null, if passing an array in $json otherwise
+     * @param string|int|array $json  Either a key (string) or an array or key-value pairs
+     * @param mixed|null       $value Null, if passing an array in $json otherwise
      *                                it's a string value to the key
      */
     public function addJSON($json, $value = null): void
@@ -326,7 +326,7 @@ class ResponseRenderer
             $this->JSON['success'] = true;
         } else {
             $this->JSON['success'] = false;
-            $this->JSON['error'] = $this->JSON['message'];
+            $this->JSON['error']   = $this->JSON['message'];
             unset($this->JSON['message']);
         }
 
@@ -359,7 +359,7 @@ class ResponseRenderer
             if (empty($GLOBALS['error_message'])) {
                 // set current db, table and sql query in the querywindow
                 // (this is for the bottom console)
-                $query = '';
+                $query    = '';
                 $maxChars = $GLOBALS['cfg']['MaxCharactersInDisplayedSQL'];
                 if (isset($GLOBALS['sql_query']) && mb_strlen($GLOBALS['sql_query']) < $maxChars) {
                     $query = $GLOBALS['sql_query'];
@@ -395,7 +395,7 @@ class ResponseRenderer
         if ($result === false) {
             return (string) json_encode([
                 'success' => false,
-                'error' => 'JSON encoding failed: ' . json_last_error_msg(),
+                'error'   => 'JSON encoding failed: ' . json_last_error_msg(),
             ]);
         }
 
@@ -425,7 +425,7 @@ class ResponseRenderer
     /**
      * Wrapper around PHP's header() function.
      *
-     * @param  string  $text header string
+     * @param string $text header string
      */
     public function header($text): void
     {
@@ -444,7 +444,7 @@ class ResponseRenderer
     /**
      * Wrapper around PHP's http_response_code() function.
      *
-     * @param  int  $response_code will set the response code.
+     * @param int $response_code will set the response code.
      */
     public function httpResponseCode($response_code): void
     {
@@ -454,7 +454,7 @@ class ResponseRenderer
     /**
      * Sets http response code.
      *
-     * @param  int  $responseCode will set the response code.
+     * @param int $responseCode will set the response code.
      */
     public function setHttpResponseCode(int $responseCode): void
     {
@@ -476,7 +476,7 @@ class ResponseRenderer
     /**
      * Generate header for 303
      *
-     * @param  string  $location will set location to redirect.
+     * @param string $location will set location to redirect.
      */
     public function generateHeader303($location): void
     {

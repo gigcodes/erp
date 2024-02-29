@@ -54,13 +54,13 @@ class SendHubstaffReport extends Command
         //STOPPED CERTAIN MESSAGES
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $userPastHour = $this->getActionsForPastHour();
-            $userToday = $this->getActionsForToday();
-            $users = DB::table('users')->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+            $userToday    = $this->getActionsForToday();
+            $users        = DB::table('users')->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
                 ->select(['hubstaff_user_id', 'name'])
                 ->get();
 
@@ -75,7 +75,7 @@ class SendHubstaffReport extends Command
                     : '0');
 
                 if ($today != '0') {
-                    $message = $user->name . ' ' . $pastHour . ' ' . $today;
+                    $message          = $user->name . ' ' . $pastHour . ' ' . $today;
                     $hubstaffReport[] = $message;
                 }
             }
@@ -111,8 +111,8 @@ class SendHubstaffReport extends Command
     private static function getActivity($startTime, $endTime)
     {
         // start hubstaff section from here
-        $hubstaff = Hubstaff::getInstance();
-        $hubstaff = $hubstaff->authenticate();
+        $hubstaff        = Hubstaff::getInstance();
+        $hubstaff        = $hubstaff->authenticate();
         $organizationAct = $hubstaff->getRepository('organization')->getActivity(
             // env("HUBSTAFF_ORG_ID"),
             config('env.HUBSTAFF_ORG_ID'),

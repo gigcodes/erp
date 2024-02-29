@@ -14,10 +14,10 @@ class UserDeliveredController extends Controller
     public function index()
     {
         return view('usermanagement::user-delivered.index', [
-            'title' => 'User Delivered',
-            'table' => 'listUserDelivered',
+            'title'       => 'User Delivered',
+            'table'       => 'listUserDelivered',
             'urlLoadData' => route('user-management.user-delivered.load-data'),
-            'listUsers' => User::dropdown([
+            'listUsers'   => User::dropdown([
                 'is_active' => 1,
             ]),
         ]);
@@ -27,14 +27,14 @@ class UserDeliveredController extends Controller
     {
         try {
             $count = 0;
-            $data = [];
+            $data  = [];
 
             $isPrint = ! request()->ajax();
 
             $stDate = request('srchDateFrom');
             $enDate = request('srchDateTo');
             if ($stDate && $enDate) {
-                $filterDates = dateRangeArr($stDate, $enDate);
+                $filterDates     = dateRangeArr($stDate, $enDate);
                 $filterDatesOnly = array_column($filterDates, 'date');
 
                 // if ($isPrint) {
@@ -85,8 +85,8 @@ class UserDeliveredController extends Controller
                     foreach ($userAvaibilities as $single) {
                         $userIds[] = $single->id;
 
-                        $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
-                        $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
+                        $single->uaStTime    = date('H:i:00', strtotime($single->uaStTime));
+                        $single->uaEnTime    = date('H:i:00', strtotime($single->uaEnTime));
                         $single->uaLunchTime = date('H:i:00', strtotime($single->uaLunchTime));
 
                         $single->uaDays = UserAvaibility::getAvailableDays($single->uaDays);
@@ -97,9 +97,9 @@ class UserDeliveredController extends Controller
                             if (! $slots || isset($userArr[$single->id]['dates'][$date])) {
                                 continue;
                             }
-                            $userArr[$single->id]['id'] = $single->id;
-                            $userArr[$single->id]['name'] = $single->name;
-                            $userArr[$single->id]['lunch'] = substr($single->uaLunchTime, 0, 5);
+                            $userArr[$single->id]['id']           = $single->id;
+                            $userArr[$single->id]['name']         = $single->name;
+                            $userArr[$single->id]['lunch']        = substr($single->uaLunchTime, 0, 5);
                             $userArr[$single->id]['dates'][$date] = [
                                 'stTime' => $slots[0]['st'],
                                 'enTime' => $slots[count($slots) - 1]['en'],
@@ -111,13 +111,13 @@ class UserDeliveredController extends Controller
                     if ($userIds) {
                         $tasks = $this->getTaskList([
                             'userIds' => $userIds,
-                            'stDate' => $stDate,
-                            'enDate' => $enDate,
+                            'stDate'  => $stDate,
+                            'enDate'  => $enDate,
                         ]);
 
                         if ($tasks) {
                             foreach ($tasks as $task) {
-                                $tempDate = date('Y-m-d', strtotime($task->st_date));
+                                $tempDate      = date('Y-m-d', strtotime($task->st_date));
                                 $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
 
                                 if (! isset($userArr[$task->assigned_to]['dates'][$tempDate])) {
@@ -128,16 +128,16 @@ class UserDeliveredController extends Controller
                                     $userArr[$task->assigned_to]['dates'][$tempDate]['planned_tasks'] = [];
                                 }
                                 $userArr[$task->assigned_to]['dates'][$tempDate]['planned_tasks'][] = [
-                                    'id' => $task->id,
-                                    'typeId' => $task->type . '-' . $task->id,
+                                    'id'      => $task->id,
+                                    'typeId'  => $task->type . '-' . $task->id,
                                     'subject' => $task->title,
-                                    'stDate' => $task->st_date,
-                                    'enDate' => $task->en_date,
-                                    'status' => $task->status,
+                                    'stDate'  => $task->st_date,
+                                    'enDate'  => $task->en_date,
+                                    'status'  => $task->status,
                                     'status2' => TaskStatus::printName($task->status),
-                                    'mins' => $task->est_minutes,
-                                    'stTime' => date('H:i', strtotime($task->st_date)),
-                                    'enTime' => date('H:i', strtotime($task->en_date)),
+                                    'mins'    => $task->est_minutes,
+                                    'stTime'  => date('H:i', strtotime($task->st_date)),
+                                    'enTime'  => date('H:i', strtotime($task->en_date)),
                                 ];
                             }
                         }
@@ -147,8 +147,8 @@ class UserDeliveredController extends Controller
                     if ($userIds) {
                         $hubstaffData = $this->getHubstaffData([
                             'userIds' => $userIds,
-                            'stDate' => $stDate,
-                            'enDate' => $enDate,
+                            'stDate'  => $stDate,
+                            'enDate'  => $enDate,
                         ]);
                         if ($isPrint) {
                             _p($hubstaffData);
@@ -187,12 +187,12 @@ class UserDeliveredController extends Controller
                             }
 
                             $actualTasks = [];
-                            $temp = $dateRow['actual_tasks'] ?? [];
+                            $temp        = $dateRow['actual_tasks'] ?? [];
                             if ($temp) {
-                                $trackedTotal = 0;
-                                $trackedWithTask = 0;
+                                $trackedTotal       = 0;
+                                $trackedWithTask    = 0;
                                 $trackedWithoutTask = 0;
-                                $taskHours = [];
+                                $taskHours          = [];
 
                                 foreach ($temp as $row) {
                                     $trackedTotal += $row['hub_tracked'];
@@ -219,22 +219,22 @@ class UserDeliveredController extends Controller
                             }
 
                             $data[] = [
-                                'name' => $user['name'],
-                                'date' => $date,
+                                'name'         => $user['name'],
+                                'date'         => $date,
                                 'availability' => date('H:i', strtotime($dateRow['stTime'])) . ' - ' . date('H:i', strtotime($dateRow['enTime'])),
-                                'lunch' => ($user['lunch'] ?: '-'),
-                                'planned' => $planned_tasks ? implode('', $planned_tasks) : '-',
-                                'actual' => $actualTasks ? implode('', $actualTasks) : '-',
+                                'lunch'        => ($user['lunch'] ?: '-'),
+                                'planned'      => $planned_tasks ? implode('', $planned_tasks) : '-',
+                                'actual'       => $actualTasks ? implode('', $actualTasks) : '-',
                             ];
                         }
                     }
                 }
 
                 return respJson(200, '', [
-                    'draw' => request('draw'),
-                    'recordsTotal' => $count,
+                    'draw'            => request('draw'),
+                    'recordsTotal'    => $count,
                     'recordsFiltered' => $count,
-                    'data' => $data,
+                    'data'            => $data,
                 ]);
             } else {
                 return respJson(400, 'From and To Date is required.');
@@ -247,8 +247,8 @@ class UserDeliveredController extends Controller
     public function getTaskList($wh = [])
     {
         $userIds = $wh['userIds'] ?? [0];
-        $stDate = $wh['stDate'] ?? null;
-        $enDate = $wh['enDate'] ?? null;
+        $stDate  = $wh['stDate'] ?? null;
+        $enDate  = $wh['enDate'] ?? null;
 
         $stDate = $stDate . ' 00:00:00';
         $enDate = $enDate . ' 23:59:59';
@@ -307,10 +307,10 @@ class UserDeliveredController extends Controller
     public function getHubstaffData($wh = [])
     {
         $userIds = $wh['userIds'] ?? [0];
-        $stDate = $wh['stDate'] ?? null;
-        $enDate = $wh['enDate'] ?? null;
-        $stDate = $stDate . ' 00:00:00';
-        $enDate = $enDate . ' 23:59:59';
+        $stDate  = $wh['stDate'] ?? null;
+        $enDate  = $wh['enDate'] ?? null;
+        $stDate  = $stDate . ' 00:00:00';
+        $enDate  = $enDate . ' 23:59:59';
 
         $query = HubstaffActivity::query();
         $query->leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id');
@@ -387,16 +387,16 @@ class UserDeliveredController extends Controller
 
         $data = [];
         foreach ($list as $activity) {
-            $data[$activity->userId]['id'] = $activity->userId;
-            $data[$activity->userId]['name'] = $activity->userName;
-            $data[$activity->userId]['hub_user_id'] = $activity->hub_user_id;
+            $data[$activity->userId]['id']                           = $activity->userId;
+            $data[$activity->userId]['name']                         = $activity->userName;
+            $data[$activity->userId]['hub_user_id']                  = $activity->hub_user_id;
             $data[$activity->userId]['dates'][$activity->hub_date][] = [
                 'hub_task_id' => $activity->hub_task_id,
                 'hub_tracked' => $activity->hub_tracked,
                 'hub_overall' => $activity->hub_overall,
 
-                'task_type' => ($activity->task_table_id ? $activity->task_type_id : ($activity->developer_task_table_id ? $activity->developer_task_type_id : '')) ?: 'HB-' . $activity->hub_task_id,
-                'task_title' => ($activity->task_table_id ? $activity->task_title : ($activity->developer_task_table_id ? $activity->developer_task_title : '')) ?: 'Hubstaff Task ID: ' . $activity->hub_task_id,
+                'task_type'    => ($activity->task_table_id ? $activity->task_type_id : ($activity->developer_task_table_id ? $activity->developer_task_type_id : '')) ?: 'HB-' . $activity->hub_task_id,
+                'task_title'   => ($activity->task_table_id ? $activity->task_title : ($activity->developer_task_table_id ? $activity->developer_task_title : '')) ?: 'Hubstaff Task ID: ' . $activity->hub_task_id,
                 'task_status2' => $activity->task_table_id ? TaskStatus::printName($activity->task_status) : ($activity->developer_task_table_id ? TaskStatus::printName($activity->developer_task_status) : ''),
 
                 // 'task_table_id' => $activity->task_table_id,

@@ -55,26 +55,26 @@ class GoogleTraslationSettingsController extends Controller
     {
         try {
             $this->validate($request, [
-                'email' => 'required|email',
-                'last_note' => 'required',
-                'status' => 'required|boolean',
+                'email'        => 'required|email',
+                'last_note'    => 'required',
+                'status'       => 'required|boolean',
                 'account_json' => 'required',
-                'project_id' => 'required',
+                'project_id'   => 'required',
             ]);
 
-            $email = $request->email;
+            $email        = $request->email;
             $account_json = $request->account_json;
-            $status = $request->status;
-            $last_note = $request->last_note;
-            $project_id = $request->project_id;
+            $status       = $request->status;
+            $last_note    = $request->last_note;
+            $project_id   = $request->project_id;
 
             $googleTraslationSettings = new googleTraslationSettings;
 
-            $googleTraslationSettings->email = $email;
+            $googleTraslationSettings->email        = $email;
             $googleTraslationSettings->account_json = $account_json;
-            $googleTraslationSettings->status = $status;
-            $googleTraslationSettings->last_note = $last_note;
-            $googleTraslationSettings->project_id = $project_id;
+            $googleTraslationSettings->status       = $status;
+            $googleTraslationSettings->last_note    = $last_note;
+            $googleTraslationSettings->project_id   = $project_id;
             $googleTraslationSettings->save();
 
             $msg = 'Setting Add Successfully';
@@ -98,6 +98,8 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id, googleTraslationSettings $googleTraslationSettings)
@@ -115,29 +117,29 @@ class GoogleTraslationSettingsController extends Controller
     public function update(Request $request, googleTraslationSettings $googleTraslationSettings)
     {
         $this->validate($request, [
-            'email' => 'required|email',
-            'last_note' => 'required',
-            'status' => 'required|boolean',
+            'email'        => 'required|email',
+            'last_note'    => 'required',
+            'status'       => 'required|boolean',
             'account_json' => 'required',
-            'project_id' => 'required',
+            'project_id'   => 'required',
         ]);
         try {
-            $id = $request->id;
-            $email = $request->email;
+            $id           = $request->id;
+            $email        = $request->email;
             $account_json = $request->account_json;
-            $status = $request->status;
-            $last_note = $request->last_note;
-            $project_id = $request->project_id;
+            $status       = $request->status;
+            $last_note    = $request->last_note;
+            $project_id   = $request->project_id;
 
             $googleTraslationSettings = new googleTraslationSettings;
             $googleTraslationSettings->where('id', $id)
                 ->limit(1)
                 ->update([
-                    'email' => $email,
+                    'email'        => $email,
                     'account_json' => $account_json,
-                    'status' => $status,
-                    'last_note' => $last_note,
-                    'project_id' => $project_id,
+                    'status'       => $status,
+                    'last_note'    => $last_note,
+                    'project_id'   => $project_id,
                 ]);
 
             return redirect()->route('google-traslation-settings.index')->with('success', 'Setting Update Successfully');
@@ -149,7 +151,8 @@ class GoogleTraslationSettingsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\googleTraslationSettings  $googleTraslationSettings
+     * @param \App\googleTraslationSettings $googleTraslationSettings
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $googleTraslationSettings)

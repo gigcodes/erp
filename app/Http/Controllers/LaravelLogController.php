@@ -73,10 +73,10 @@ class LaravelLogController extends Controller
             }
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
         } else {
             $paginate = (Setting::get('pagination') * 10);
-            $logs = LaravelLog::orderby('updated_at', 'desc')->paginate($paginate);
+            $logs     = LaravelLog::orderby('updated_at', 'desc')->paginate($paginate);
         }
 
         if ($request->ajax()) {
@@ -92,14 +92,14 @@ class LaravelLogController extends Controller
 
     public function liveLogsSingle(Request $request)
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        $path = storage_path('logs');
-        $fullPath = $path . $filename;
+        $filename     = '/laravel-' . now()->format('Y-m-d') . '.log';
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-            $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
             $errorTypeSeparated = implode('|', $errorTypeArr);
 
             $defaultSearchTerm = 'ERROR';
@@ -117,20 +117,20 @@ class LaravelLogController extends Controller
                 }
                 if ($request->get('search') && $request->get('search') != '') {
                     if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                        $str = $value;
+                        $str   = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
-                        $type = $temp2[2];
+                        $type  = $temp2[2];
                         array_push($this->channel_filter, $type);
 
                         $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 } else {
                     if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                        $str = $value;
+                        $str   = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
-                        $type = $temp2[2];
+                        $type  = $temp2[2];
                         array_push($this->channel_filter, $type);
 
                         $errors[] = $value . '===' . str_replace('/', '', $filename);
@@ -148,7 +148,7 @@ class LaravelLogController extends Controller
         }
         $allErrorTypes = array_values(array_unique($errSelection));
 
-        $users = User::all();
+        $users       = User::all();
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         $perPage = Setting::get('pagination');
@@ -158,10 +158,10 @@ class LaravelLogController extends Controller
             session(['channel' => $request->channel]);
         }
         foreach ($errors as $key => $error) {
-            $str = $error;
-            $temp1 = explode('.', $str);
-            $temp2 = explode(' ', $temp1[0]);
-            $type = $temp2[2];
+            $str          = $error;
+            $temp1        = explode('.', $str);
+            $temp2        = explode(' ', $temp1[0]);
+            $type         = $temp2[2];
             $if_available = false;
             if (stripos(strtolower($request->msg), $temp1[1]) !== false) {
                 array_push($final, $temp2[0] . $temp2[1]);
@@ -173,14 +173,14 @@ class LaravelLogController extends Controller
 
     public function liveLogs(Request $request)
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        $path = storage_path('logs');
-        $fullPath = $path . $filename;
+        $filename     = '/laravel-' . now()->format('Y-m-d') . '.log';
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-            $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
             $errorTypeSeparated = implode('|', $errorTypeArr);
 
             $defaultSearchTerm = 'ERROR';
@@ -198,20 +198,20 @@ class LaravelLogController extends Controller
                 }
                 if ($request->get('search') && $request->get('search') != '') {
                     if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                        $str = $value;
+                        $str   = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
-                        $type = $temp2[2];
+                        $type  = $temp2[2];
                         array_push($this->channel_filter, $type);
 
                         $errors[] = $value . '===' . str_replace('/', '', $filename);
                     }
                 } else {
                     if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                        $str = $value;
+                        $str   = $value;
                         $temp1 = explode('.', $str);
                         $temp2 = explode(' ', $temp1[0]);
-                        $type = $temp2[2];
+                        $type  = $temp2[2];
                         array_push($this->channel_filter, $type);
 
                         $errors[] = $value . '===' . str_replace('/', '', $filename);
@@ -224,7 +224,7 @@ class LaravelLogController extends Controller
         }
         $allErrorTypes = array_values(array_unique($errSelection));
 
-        $users = User::all();
+        $users       = User::all();
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         $perPage = Setting::get('pagination');
@@ -234,10 +234,10 @@ class LaravelLogController extends Controller
             session(['channel' => $request->channel]);
         }
         foreach ($errors as $key => $error) {
-            $str = $error;
+            $str   = $error;
             $temp1 = explode('.', $str);
             $temp2 = explode(' ', $temp1[0]);
-            $type = $temp2[2];
+            $type  = $temp2[2];
 
             $if_available = false;
             if (isset($request->channel) && $request->channel == $type) {
@@ -267,12 +267,12 @@ class LaravelLogController extends Controller
             }
         }
 
-        $errors = [];
-        $errors = array_unique($final);
+        $errors       = [];
+        $errors       = array_unique($final);
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'path'  => LengthAwarePaginator::resolveCurrentPath(),
             'query' => $request->query(),
         ]);
         $filter_channel = [];
@@ -281,7 +281,7 @@ class LaravelLogController extends Controller
                 array_push($filter_channel, $ch);
             }
         }
-        $logKeywords = LogKeyword::all();
+        $logKeywords  = LogKeyword::all();
         $ChatMessages = ChatMessage::join('developer_tasks', 'developer_tasks.id', 'chat_messages.developer_task_id')
             ->leftJoin('users', 'users.id', 'developer_tasks.assigned_to')
             ->where('developer_tasks.log_keyword_id', '>', 0)
@@ -294,14 +294,14 @@ class LaravelLogController extends Controller
 
     public function liveLogsSummary()
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        $path = storage_path('logs');
-        $fullPath = $path . $filename;
+        $filename     = '/laravel-' . now()->format('Y-m-d') . '.log';
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-            $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
             $errorTypeSeparated = implode('|', $errorTypeArr);
 
             $defaultSearchTerm = 'ERROR';
@@ -315,10 +315,10 @@ class LaravelLogController extends Controller
                 }
 
                 if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                    $str = $value;
+                    $str   = $value;
                     $temp1 = explode('.', $str);
                     $temp2 = explode(' ', $temp1[0]);
-                    $type = $temp2[2];
+                    $type  = $temp2[2];
                     array_push($this->channel_filter, $type);
 
                     $errors[] = $value . '===' . str_replace('/', '', $filename);
@@ -330,14 +330,14 @@ class LaravelLogController extends Controller
         }
 
         $allErrorTypes = array_values(array_unique($errSelection));
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
-        $final = $key = [];
+        $currentPage   = LengthAwarePaginator::resolveCurrentPage();
+        $perPage       = Setting::get('pagination');
+        $final         = $key = [];
         foreach ($errors as $key => $error) {
-            $str = $error;
+            $str   = $error;
             $temp1 = explode('.', $str);
             $temp2 = explode(' ', $temp1[0]);
-            $type = $temp2[2];
+            $type  = $temp2[2];
 
             $if_available = false;
 
@@ -355,7 +355,7 @@ class LaravelLogController extends Controller
 
         $errors = [];
         $errors = array_unique($final);
-        $logs = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
+        $logs   = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
 
         $html = view('partials.modals.live-laravel-logs-summary-ajax')
             ->with('logs', $logs)
@@ -407,12 +407,12 @@ class LaravelLogController extends Controller
     public function scraperLiveLogs()
     {
         $filename = '/scraper-' . now()->format('Y-m-d') . '.log';
-        $path = storage_path('logs') . DIRECTORY_SEPARATOR . 'scraper';
+        $path     = storage_path('logs') . DIRECTORY_SEPARATOR . 'scraper';
         $fullPath = $path . $filename;
-        $errors = self::getErrors($fullPath);
+        $errors   = self::getErrors($fullPath);
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
@@ -425,16 +425,16 @@ class LaravelLogController extends Controller
     public function assign(Request $request)
     {
         if ($request->get('issue') && $request->get('assign_to')) {
-            $error = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
-            $issueName = substr($error, 0, 150);
+            $error       = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
+            $issueName   = substr($error, 0, 150);
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                'priority' => 1,
-                'issue' => $error,
-                'status' => 'Planned',
-                'module' => 'Cron',
-                'subject' => $issueName . '...',
+                'priority'    => 1,
+                'issue'       => $error,
+                'status'      => 'Planned',
+                'module'      => 'Cron',
+                'subject'     => $issueName . '...',
                 'assigned_to' => $request->get('assign_to'),
             ]);
 
@@ -468,7 +468,7 @@ class LaravelLogController extends Controller
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
-        $path = storage_path('logs');
+        $path     = storage_path('logs');
         $fullPath = $path . $filename;
 
         return response()->download($fullPath, str_replace('/', '', $filename));
@@ -478,7 +478,7 @@ class LaravelLogController extends Controller
     {
         $filename = '/list-magento-' . now()->format('Y-m-d') . '.log';
 
-        $path = storage_path('logs');
+        $path     = storage_path('logs');
         $fullPath = $path . $filename;
 
         return response()->download($fullPath, str_replace('/', '', $filename));
@@ -486,9 +486,9 @@ class LaravelLogController extends Controller
 
     public function saveNewLogData(Request $request)
     {
-        $url = $request->url;
-        $message = $request->message;
-        $website = $request->website;
+        $url         = $request->url;
+        $message     = $request->message;
+        $website     = $request->website;
         $module_name = $request->module_name;
         if (! empty($request->modulename)) {
             $module_name = $request->modulename;
@@ -526,13 +526,13 @@ class LaravelLogController extends Controller
 
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        $laravelLog = new LaravelLog();
-        $laravelLog->filename = $url;
-        $laravelLog->log = $message;
-        $laravelLog->website = $website;
-        $laravelLog->module_name = $module_name;
+        $laravelLog                  = new LaravelLog();
+        $laravelLog->filename        = $url;
+        $laravelLog->log             = $message;
+        $laravelLog->website         = $website;
+        $laravelLog->module_name     = $module_name;
         $laravelLog->controller_name = $controller_name;
-        $laravelLog->action = $action;
+        $laravelLog->action          = $action;
         $laravelLog->save();
         $message = $this->generate_erp_response('laravel.log.success', 0, $default = 'Log data Saved', request('lang_code'));
 
@@ -541,25 +541,25 @@ class LaravelLogController extends Controller
 
     public function getDirContents($dir, $results = [])
     {
-        $directories = glob($dir . '/*', GLOB_ONLYDIR);
+        $directories   = glob($dir . '/*', GLOB_ONLYDIR);
         $allErrorTypes = [];
-        $final_result = [];
+        $final_result  = [];
         foreach ($directories as $dir) {
             if ($handle = opendir($dir)) {
                 while (false !== ($entry = readdir($handle))) {
                     if ($entry != '.' && $entry != '..') {
                         $current_date = explode('-', date('Y-m-d'));
-                        $temp = explode('-', $entry);
-                        $errors = [];
+                        $temp         = explode('-', $entry);
+                        $errors       = [];
                         $errSelection = [];
                         if (! isset($temp[1]) || ! isset($temp[2])) {
                             continue;
                         }
                         if ($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log', '', $temp[3])) {
                             $fullPath = $dir . '/' . $entry;
-                            $content = File::get($fullPath);
+                            $content  = File::get($fullPath);
                             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-                            $errorTypeArr = ['ERROR', 'INFO', 'WARNING'];
+                            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
                             $errorTypeSeparated = implode('|', $errorTypeArr);
 
                             $defaultSearchTerm = 'ERROR';
@@ -575,15 +575,15 @@ class LaravelLogController extends Controller
                                     }
                                 }
                                 if (preg_match('/' . $defaultSearchTerm . '/', $value)) {
-                                    $str = $value;
+                                    $str   = $value;
                                     $temp1 = explode('.', $str);
                                     $temp2 = explode(' ', $temp1[0]);
-                                    $type = $temp2[2];
+                                    $type  = $temp2[2];
                                     array_push($this->channel_filter, $type);
                                     $errors[] = $value . '===' . str_replace('/', '', $entry);
                                 }
                             }
-                            $errors = array_reverse($errors);
+                            $errors          = array_reverse($errors);
                             $allErrorTypes[] = array_values(array_unique($errSelection));
                             foreach ($errors as $er) {
                                 array_push($final_result, $er);
@@ -647,7 +647,7 @@ class LaravelLogController extends Controller
         }
 
         $count = $logs->count();
-        $logs = $logs->orderBy('id', 'desc')->paginate(Setting::get('pagination') ?: 50);
+        $logs  = $logs->orderBy('id', 'desc')->paginate(Setting::get('pagination') ?: 50);
 
         if (request()->ajax()) {
             $html = view('logging.partials.apilogdata', compact('logs'))->render();
@@ -659,10 +659,10 @@ class LaravelLogController extends Controller
             }
         }
 
-        $filterApiNames = \App\LogRequest::distinct()->orderBy('api_name')->pluck('api_name')->toArray();
+        $filterApiNames    = \App\LogRequest::distinct()->orderBy('api_name')->pluck('api_name')->toArray();
         $filterMethodNames = \App\LogRequest::distinct()->whereNotNull('method_name')->orderBy('method_name')->pluck('method_name')->toArray();
-        $filterMethods = \App\LogRequest::distinct()->orderBy('method')->pluck('method')->toArray();
-        $filterUrls = \App\LogRequest::distinct()->orderBy('url')->pluck('url')->toArray();
+        $filterMethods     = \App\LogRequest::distinct()->orderBy('method')->pluck('method')->toArray();
+        $filterUrls        = \App\LogRequest::distinct()->orderBy('url')->pluck('url')->toArray();
         $filterStatusCodes = \App\LogRequest::distinct()->orderBy('status_code')->pluck('status_code')->toArray();
 
         return view('logging.apilog', compact(
@@ -681,14 +681,14 @@ class LaravelLogController extends Controller
         $logsGroupWise = \App\LogRequest::query();
 
         if ($request->keyword != '') {
-            $keyword = $request->keyword;
+            $keyword       = $request->keyword;
             $logsGroupWise = $logsGroupWise->where(function ($q) use ($keyword) {
                 $q->orWhere('request', 'like', '%' . $keyword . '%')->orWhere('response', 'like', '%' . $keyword . '%');
             });
         }
 
         if ($request->for_date != '') {
-            $forDate = $request->for_date;
+            $forDate       = $request->for_date;
             $logsGroupWise = $logsGroupWise->whereDate('created_at', '>=', $forDate);
         }
 

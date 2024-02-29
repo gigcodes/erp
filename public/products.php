@@ -30,8 +30,8 @@ $primaryKey = 'id';
 // indexes
 $columns = [
     [
-        'db' => 'id',
-        'dt' => 'DT_RowId',
+        'db'        => 'id',
+        'dt'        => 'DT_RowId',
         'formatter' => function ($d, $row) {
             // Technically a DOM id cannot start with an integer, so we prefix
             // a string. This can also be useful if you have multiple tables
@@ -51,7 +51,7 @@ $columns = [
 $sql_details = [
     'user' => 'root',
     'pass' => '',
-    'db' => 'solo',
+    'db'   => 'solo',
     'host' => 'localhost',
 ];
 

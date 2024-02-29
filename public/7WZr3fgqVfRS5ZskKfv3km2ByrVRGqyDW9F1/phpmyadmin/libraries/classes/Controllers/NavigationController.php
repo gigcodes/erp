@@ -34,7 +34,7 @@ class NavigationController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->navigation = $navigation;
-        $this->relation = $relation;
+        $this->relation   = $relation;
     }
 
     public function __invoke(): void

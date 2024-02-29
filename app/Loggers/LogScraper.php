@@ -20,7 +20,7 @@ class LogScraper extends Model
     public static function LogScrapeValidationUsingRequest($request, $isExcel = 0)
     {
         // Set empty log for errors and warnings
-        $errorLog = '';
+        $errorLog   = '';
         $warningLog = '';
 
         // Validate the website
@@ -78,23 +78,23 @@ class LogScraper extends Model
         }
 
         // Update values
-        $logScraper->ip_address = self::getRealIp();
-        $logScraper->website = $request->website ?? '';
-        $logScraper->url = $request->url ?? '';
-        $logScraper->sku = ProductHelper::getSku($request->sku) ?? '';
-        $logScraper->original_sku = $request->sku ?? '';
-        $logScraper->brand = $request->brand ?? '';
-        $logScraper->category = isset($request->properties['category']) ? serialize($request->properties['category']) : '';
-        $logScraper->title = $request->title ?? '';
-        $logScraper->description = $request->description ?? '';
-        $logScraper->properties = isset($request->properties) ? serialize($request->properties) : '';
-        $logScraper->images = isset($request->images) ? serialize($request->images) : '';
-        $logScraper->size_system = $request->size_system ?? '';
-        $logScraper->currency = $request->currency ?? '';
-        $logScraper->price = $request->price ?? '0.00';
-        $logScraper->discounted_price = $request->discounted_price ?? 0;
-        $logScraper->is_sale = $request->is_sale ?? 0;
-        $logScraper->validated = empty($errorLog) ? 1 : 0;
+        $logScraper->ip_address        = self::getRealIp();
+        $logScraper->website           = $request->website ?? '';
+        $logScraper->url               = $request->url ?? '';
+        $logScraper->sku               = ProductHelper::getSku($request->sku) ?? '';
+        $logScraper->original_sku      = $request->sku ?? '';
+        $logScraper->brand             = $request->brand ?? '';
+        $logScraper->category          = isset($request->properties['category']) ? serialize($request->properties['category']) : '';
+        $logScraper->title             = $request->title ?? '';
+        $logScraper->description       = $request->description ?? '';
+        $logScraper->properties        = isset($request->properties) ? serialize($request->properties) : '';
+        $logScraper->images            = isset($request->images) ? serialize($request->images) : '';
+        $logScraper->size_system       = $request->size_system ?? '';
+        $logScraper->currency          = $request->currency ?? '';
+        $logScraper->price             = $request->price ?? '0.00';
+        $logScraper->discounted_price  = $request->discounted_price ?? 0;
+        $logScraper->is_sale           = $request->is_sale ?? 0;
+        $logScraper->validated         = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
         $logScraper->save();
 
@@ -435,9 +435,9 @@ class LogScraper extends Model
 
     public function taskType($supplier, $category, $brand)
     {
-        $string = $supplier . $category . $brand;
+        $string    = $supplier . $category . $brand;
         $reference = md5(strtolower($string));
-        $issue = DeveloperTask::where('reference', $reference)->first();
+        $issue     = DeveloperTask::where('reference', $reference)->first();
         if ($issue != null && $issue != '') {
             if ($issue->status == 'Done') {
                 return '<p>Issue Resolved</p><button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="' . $issue->id . '" title="Load messages"><img src="/images/chat.png" alt=""></button>';

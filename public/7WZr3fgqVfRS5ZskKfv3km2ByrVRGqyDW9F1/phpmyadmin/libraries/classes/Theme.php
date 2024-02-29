@@ -109,7 +109,7 @@ class Theme
             return false;
         }
 
-        $this->mtimeInfo = filemtime($infofile);
+        $this->mtimeInfo    = filemtime($infofile);
         $this->filesizeInfo = filesize($infofile);
 
         $this->setVersion($data['version']);
@@ -195,7 +195,7 @@ class Theme
     /**
      * set path to theme
      *
-     * @param  string  $path path to theme
+     * @param string $path path to theme
      */
     public function setPath($path): void
     {
@@ -205,7 +205,7 @@ class Theme
     /**
      * set file system path to the theme
      *
-     * @param  string  $path path to theme
+     * @param string $path path to theme
      */
     public function setFsPath(string $path): void
     {
@@ -215,7 +215,7 @@ class Theme
     /**
      * sets version
      *
-     * @param  string  $version version to set
+     * @param string $version version to set
      */
     public function setVersion($version): void
     {
@@ -236,7 +236,7 @@ class Theme
      * checks theme version against $version
      * returns true if theme version is equal or higher to $version
      *
-     * @param  string  $version version to compare to
+     * @param string $version version to compare to
      */
     public function checkVersion($version): bool
     {
@@ -246,7 +246,7 @@ class Theme
     /**
      * sets name
      *
-     * @param  string  $name name to set
+     * @param string $name name to set
      */
     public function setName($name): void
     {
@@ -266,7 +266,7 @@ class Theme
     /**
      * sets id
      *
-     * @param  string  $id new id
+     * @param string $id new id
      */
     public function setId($id): void
     {
@@ -286,7 +286,7 @@ class Theme
     /**
      * Sets path to images for the theme
      *
-     * @param  string  $path path to images for this theme as an URL path
+     * @param string $path path to images for this theme as an URL path
      */
     public function setImgPath($path): void
     {
@@ -296,7 +296,7 @@ class Theme
     /**
      * Sets path to images for the theme
      *
-     * @param  string  $path file-system path to images for this theme
+     * @param string $path file-system path to images for this theme
      */
     public function setImgPathFs(string $path): void
     {
@@ -308,8 +308,9 @@ class Theme
      * If filename is given, it possibly fallbacks to fallback
      * theme for it if image does not exist.
      *
-     * @param  string  $file     file name for image
-     * @param  string  $fallback fallback image
+     * @param string $file     file name for image
+     * @param string $fallback fallback image
+     *
      * @return string image path for this theme
      */
     public function getImgPath($file = null, $fallback = null)

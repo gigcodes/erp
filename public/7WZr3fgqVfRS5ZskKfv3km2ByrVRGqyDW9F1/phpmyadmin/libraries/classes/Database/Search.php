@@ -90,14 +90,14 @@ class Search
     public $template;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface object
-     * @param  string  $db       Database name
-     * @param  Template  $template Template object
+     * @param DatabaseInterface $dbi      DatabaseInterface object
+     * @param string            $db       Database name
+     * @param Template          $template Template object
      */
     public function __construct(DatabaseInterface $dbi, $db, Template $template)
     {
-        $this->db = $db;
-        $this->dbi = $dbi;
+        $this->db          = $db;
+        $this->dbi         = $dbi;
         $this->searchTypes = [
             '1' => __('at least one of the words'),
             '2' => __('all of the words'),
@@ -125,7 +125,7 @@ class Search
             $this->criteriaSearchType = 1;
             unset($_POST['submit_search']);
         } else {
-            $this->criteriaSearchType = (int) $_POST['criteriaSearchType'];
+            $this->criteriaSearchType    = (int) $_POST['criteriaSearchType'];
             $this->searchTypeDescription = $this->searchTypes[$_POST['criteriaSearchType']];
         }
 
@@ -153,7 +153,8 @@ class Search
     /**
      * Builds the SQL search query
      *
-     * @param  string  $table The table name
+     * @param string $table The table name
+     *
      * @return array 3 SQL queries (for count, display and delete results)
      *
      * @todo    can we make use of fulltextsearch IN BOOLEAN MODE for this?
@@ -176,7 +177,7 @@ class Search
         // Gets where clause for the query
         $where_clause = $this->getWhereClause($table);
         // Builds complete queries
-        $sql = [];
+        $sql                   = [];
         $sql['select_columns'] = $sqlstr_select . ' * ' . $sqlstr_from
             . $where_clause;
         // here, I think we need to still use the COUNT clause, even for
@@ -191,16 +192,17 @@ class Search
     /**
      * Provides where clause for building SQL query
      *
-     * @param  string  $table The table name
+     * @param string $table The table name
+     *
      * @return string The generated where clause
      */
     private function getWhereClause($table)
     {
         // Columns to select
-        $allColumns = $this->dbi->getColumns($GLOBALS['db'], $table);
+        $allColumns  = $this->dbi->getColumns($GLOBALS['db'], $table);
         $likeClauses = [];
         // Based on search type, decide like/regex & '%'/''
-        $like_or_regex = ($this->criteriaSearchType == 5 ? 'REGEXP' : 'LIKE');
+        $like_or_regex      = ($this->criteriaSearchType == 5 ? 'REGEXP' : 'LIKE');
         $automatic_wildcard = ($this->criteriaSearchType < 4 ? '%' : '');
         // For "as regular expression" (search option 5), LIKE won't be used
         // Usage example: If user is searching for a literal $ in a regexp search,
@@ -266,7 +268,7 @@ class Search
     public function getSearchResults()
     {
         $resultTotal = 0;
-        $rows = [];
+        $rows        = [];
         // For each table selected as search criteria
         foreach ($this->criteriaTables as $eachTable) {
             // Gets the SQL statements
@@ -278,18 +280,18 @@ class Search
             $resultTotal += $resultCount;
             // Gets the result row's HTML for a table
             $rows[] = [
-                'table' => htmlspecialchars($eachTable),
+                'table'           => htmlspecialchars($eachTable),
                 'new_search_sqls' => $newSearchSqls,
-                'result_count' => $resultCount,
+                'result_count'    => $resultCount,
             ];
         }
 
         return $this->template->render('database/search/results', [
-            'db' => $this->db,
-            'rows' => $rows,
-            'result_total' => $resultTotal,
-            'criteria_tables' => $this->criteriaTables,
-            'criteria_search_string' => htmlspecialchars($this->criteriaSearchString),
+            'db'                      => $this->db,
+            'rows'                    => $rows,
+            'result_total'            => $resultTotal,
+            'criteria_tables'         => $this->criteriaTables,
+            'criteria_search_string'  => htmlspecialchars($this->criteriaSearchString),
             'search_type_description' => $this->searchTypeDescription,
         ]);
     }
@@ -302,12 +304,12 @@ class Search
     public function getMainHtml()
     {
         return $this->template->render('database/search/main', [
-            'db' => $this->db,
+            'db'                     => $this->db,
             'criteria_search_string' => $this->criteriaSearchString,
-            'criteria_search_type' => $this->criteriaSearchType,
-            'criteria_tables' => $this->criteriaTables,
-            'tables_names_only' => $this->tablesNamesOnly,
-            'criteria_column_name' => $this->criteriaColumnName ?? null,
+            'criteria_search_type'   => $this->criteriaSearchType,
+            'criteria_tables'        => $this->criteriaTables,
+            'tables_names_only'      => $this->tablesNamesOnly,
+            'criteria_column_name'   => $this->criteriaColumnName ?? null,
         ]);
     }
 }

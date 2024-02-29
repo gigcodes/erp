@@ -35,7 +35,7 @@ class ReplicationController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->replicationGui = $replicationGui;
-        $this->dbi = $dbi;
+        $this->dbi            = $dbi;
     }
 
     public function __invoke(): void
@@ -43,10 +43,10 @@ class ReplicationController extends AbstractController
         global $urlParams, $errorUrl;
 
         $params = [
-            'url_params' => $_POST['url_params'] ?? null,
+            'url_params'        => $_POST['url_params'] ?? null,
             'primary_configure' => $_POST['primary_configure'] ?? null,
             'replica_configure' => $_POST['replica_configure'] ?? null,
-            'repl_clear_scr' => $_POST['repl_clear_scr'] ?? null,
+            'repl_clear_scr'    => $_POST['repl_clear_scr'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');
 
@@ -92,17 +92,17 @@ class ReplicationController extends AbstractController
         }
 
         $this->render('server/replication/index', [
-            'url_params' => $urlParams,
-            'is_super_user' => $this->dbi->isSuperUser(),
-            'error_messages' => $errorMessages,
-            'is_primary' => $primaryInfo['status'],
-            'primary_configure' => $params['primary_configure'],
-            'replica_configure' => $params['replica_configure'],
-            'clear_screen' => $params['repl_clear_scr'],
-            'primary_replication_html' => $primaryReplicationHtml ?? '',
+            'url_params'                 => $urlParams,
+            'is_super_user'              => $this->dbi->isSuperUser(),
+            'error_messages'             => $errorMessages,
+            'is_primary'                 => $primaryInfo['status'],
+            'primary_configure'          => $params['primary_configure'],
+            'replica_configure'          => $params['replica_configure'],
+            'clear_screen'               => $params['repl_clear_scr'],
+            'primary_replication_html'   => $primaryReplicationHtml ?? '',
             'primary_configuration_html' => $primaryConfigurationHtml ?? '',
             'replica_configuration_html' => $replicaConfigurationHtml ?? '',
-            'change_primary_html' => $changePrimaryHtml ?? '',
+            'change_primary_html'        => $changePrimaryHtml ?? '',
         ]);
     }
 }

@@ -42,22 +42,22 @@ class SendDailyReports extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now = Carbon::now();
+            $now  = Carbon::now();
             $date = Carbon::now()->format('Y-m-d');
 
             $daily_activities = DailyActivity::whereNotNull('repeat_type')->where('for_date', $date)->where('type', 'event')->get();
             foreach ($daily_activities as $key) {
                 $start_date = Carbon::parse($date);
-                $end_date = Carbon::parse($key->repeat_end_date);
+                $end_date   = Carbon::parse($key->repeat_end_date);
 
                 if ($key->repeat_type == 'daily') {
                     if ($key->repeat_end == 'on' && $now->between($start_date, $end_date)) {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::tomorrow(),
                             ]
@@ -65,7 +65,7 @@ class SendDailyReports extends Command
                         $copy->save();
                     } elseif ($key->repeat_end == 'never') {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::tomorrow(),
                             ]
@@ -75,7 +75,7 @@ class SendDailyReports extends Command
                 } elseif ($key->repeat_type == 'weekly') {
                     if ($key->repeat_end == 'on' && $now->between($start_date, $end_date)) {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]
@@ -83,7 +83,7 @@ class SendDailyReports extends Command
                         $copy->save();
                     } elseif ($key->repeat_end == 'never') {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]
@@ -93,7 +93,7 @@ class SendDailyReports extends Command
                 } elseif ($key->repeat_type == 'monthly') {
                     if ($key->repeat_end == 'on' && $now->between($start_date, $end_date)) {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse($key->for_date)->addMonth(),
                             ]
@@ -101,7 +101,7 @@ class SendDailyReports extends Command
                         $copy->save();
                     } elseif ($key->repeat_end == 'never') {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]

@@ -53,7 +53,7 @@ class GTMetrixTestCMDGetReport extends Command
             \Log::info('GTMetrix :: Report cron start ');
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -74,24 +74,24 @@ class GTMetrixTestCMDGetReport extends Command
                     $this->GTMatrixError($value->id, 'pagespeed', 'API Key not found', 'API Key not found');
                 }
                 $curl = curl_init();
-                $url = "https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
+                $url  = "https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed?url=' . $value->website_url . '&key=' . $Api_key,";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $url,
+                    CURLOPT_URL            => $url,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 0,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'GET',
+                    CURLOPT_HTTPHEADER     => [
                         'Accept: application/json',
                     ],
                 ]);
 
                 $response = curl_exec($curl);
                 // Get possible error
-                $err = curl_error($curl);
+                $err      = curl_error($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                 LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                 curl_close($curl);
@@ -104,7 +104,7 @@ class GTMetrixTestCMDGetReport extends Command
                 } else {
                     \Log::info(print_r(['Pagespeed Insight Result started to fetch'], true));
                     $JsonfileName = '/uploads/speed-insight/' . $value->test_id . '_pagespeedInsight.json';
-                    $Jsonfile = public_path() . $JsonfileName;
+                    $Jsonfile     = public_path() . $JsonfileName;
                     if (! file_exists($JsonfileName)) {
                         $this->GTMatrixError($value->id, 'pagespeed', 'File not found', $value->test_id . '_pagespeedInsight.json');
                     }
@@ -128,8 +128,8 @@ class GTMetrixTestCMDGetReport extends Command
                                     $key_data = GTMetrixCategories::where('name', $key)->first();
                                     if (isset($key_data) && $key_data != '' && $key_data->website_url != $value->website_url && $key_data->test_id != $value->test_id) {
                                     } else {
-                                        $GTMetrixCategories = new GTMetrixCategories();
-                                        $GTMetrixCategories->name = $key;
+                                        $GTMetrixCategories         = new GTMetrixCategories();
+                                        $GTMetrixCategories->name   = $key;
                                         $GTMetrixCategories->source = 'Pagespeed Insight';
                                     }
                                 }
@@ -145,29 +145,29 @@ class GTMetrixTestCMDGetReport extends Command
                     $password = $gtmatrix['account_id'];
 
                     $curl = curl_init();
-                    $url = 'https://gtmetrix.com/api/2.0/status';
+                    $url  = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_USERPWD => $value->account_id . ':' . '',
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_USERPWD        => $value->account_id . ':' . '',
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 0,
                         CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
                     ]);
 
                     $response = curl_exec($curl);
-                    $err = curl_error($curl);
+                    $err      = curl_error($curl);
                     if ($err) {
                         $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                     }
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, 'handle', \App\Console\Commands\GTMetrixTestCMDGetReport::class);
                     curl_close($curl);
-                    $data = json_decode($response);
+                    $data    = json_decode($response);
                     $credits = '';
                     if (isset($data->data->attributes->api_credits)) {
                         $credits = $data->data->attributes->api_credits;
@@ -183,26 +183,26 @@ class GTMetrixTestCMDGetReport extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to GTMetrixClient']);
                     } else {
                         $gtmatrixAccount = StoreGTMetrixAccount::select(\DB::raw('store_gt_metrix_account.*'));
-                        $AccountData = $gtmatrixAccount->where('status', 'active')->orderBy('id', 'desc')->get();
+                        $AccountData     = $gtmatrixAccount->where('status', 'active')->orderBy('id', 'desc')->get();
 
                         foreach ($AccountData as $key => $ValueData) {
                             $curl = curl_init();
-                            $url = 'https://gtmetrix.com/api/2.0/status';
+                            $url  = 'https://gtmetrix.com/api/2.0/status';
 
                             curl_setopt_array($curl, [
-                                CURLOPT_URL => $url,
+                                CURLOPT_URL            => $url,
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_USERPWD => $ValueData['account_id'] . ':' . '',
-                                CURLOPT_ENCODING => '',
-                                CURLOPT_MAXREDIRS => 10,
-                                CURLOPT_TIMEOUT => 0,
+                                CURLOPT_USERPWD        => $ValueData['account_id'] . ':' . '',
+                                CURLOPT_ENCODING       => '',
+                                CURLOPT_MAXREDIRS      => 10,
+                                CURLOPT_TIMEOUT        => 0,
                                 CURLOPT_FOLLOWLOCATION => true,
-                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                CURLOPT_CUSTOMREQUEST => 'GET',
+                                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                                CURLOPT_CUSTOMREQUEST  => 'GET',
                             ]);
 
                             $response = curl_exec($curl);
-                            $err = curl_error($curl);
+                            $err      = curl_error($curl);
                             if ($err) {
                                 $this->GTMatrixError($value->id, 'gtmetrix', 'API response error', $err);
                             }
@@ -211,12 +211,12 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_close($curl);
 
                             // decode the response
-                            $data = json_decode($response);
+                            $data    = json_decode($response);
                             $credits = $data->data->attributes->api_credits;
                             if ($credits != 0) {
                                 $username = $ValueData['email'];
                                 $password = $ValueData['account_id'];
-                                $client = new GTMetrixClient();
+                                $client   = new GTMetrixClient();
                                 $client->setUsername($username);
                                 $client->setAPIKey($password);
                                 $client->getLocations();
@@ -228,19 +228,19 @@ class GTMetrixTestCMDGetReport extends Command
                     }
 
                     try {
-                        $test = $client->getTestStatus($value->test_id);
+                        $test  = $client->getTestStatus($value->test_id);
                         $model = $value->update([
-                            'status' => $test->getState(),
-                            'error' => $test->getError(),
-                            'report_url' => $test->getReportUrl(),
-                            'html_load_time' => $test->getHtmlLoadTime(),
-                            'html_bytes' => $test->getHtmlBytes(),
-                            'page_load_time' => $test->getPageLoadTime(),
-                            'page_bytes' => $test->getPageBytes(),
-                            'page_elements' => $test->getPageElements(),
+                            'status'          => $test->getState(),
+                            'error'           => $test->getError(),
+                            'report_url'      => $test->getReportUrl(),
+                            'html_load_time'  => $test->getHtmlLoadTime(),
+                            'html_bytes'      => $test->getHtmlBytes(),
+                            'page_load_time'  => $test->getPageLoadTime(),
+                            'page_bytes'      => $test->getPageBytes(),
+                            'page_elements'   => $test->getPageElements(),
                             'pagespeed_score' => $test->getPagespeedScore(),
-                            'yslow_score' => $test->getYslowScore(),
-                            'resources' => json_encode($test->getResources()),
+                            'yslow_score'     => $test->getYslowScore(),
+                            'resources'       => json_encode($test->getResources()),
                         ]);
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'StoreViewsGTMetrix model update query finished']);
@@ -256,11 +256,11 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            $result = curl_exec($ch);
+                            $result     = curl_exec($ch);
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $curlErrNo = curl_errno($ch);
-                            $curlError = curl_error($ch);
-                            $err = curl_error($curl);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            $err        = curl_error($curl);
                             if ($err) {
                                 $this->GTMatrixError($value->id, $resources['report_pdf'], 'API response error', $err);
                             }
@@ -270,7 +270,7 @@ class GTMetrixTestCMDGetReport extends Command
                             \Log::info(print_r(['Result started to fetch'], true));
 
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '.pdf';
-                            $file = public_path() . $fileName;
+                            $file     = public_path() . $fileName;
                             file_put_contents($file, $result);
                             $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
@@ -294,11 +294,11 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            $result = curl_exec($ch);
+                            $result     = curl_exec($ch);
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $curlErrNo = curl_errno($ch);
-                            $curlError = curl_error($ch);
-                            $err = curl_error($curl);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            $err        = curl_error($curl);
                             if ($err) {
                                 $this->GTMatrixError($value->id, 'pagespeed', 'API response error', $err);
                             }
@@ -308,7 +308,7 @@ class GTMetrixTestCMDGetReport extends Command
                             \Log::info(print_r(['Result started to fetch pagespeed json'], true));
 
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '_pagespeed.json';
-                            $file = public_path() . $fileName;
+                            $file     = public_path() . $fileName;
                             file_put_contents($file, $result);
                             $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
@@ -324,8 +324,8 @@ class GTMetrixTestCMDGetReport extends Command
                                             $key_data = GTMetrixCategories::where('name', $valueData['name'])->first();
                                             if (isset($key_data) && $key_data != '' && $key_data->website_url != $value->website_url && $key_data->test_id != $value->test_id) {
                                             } else {
-                                                $GTMetrixCategories = new GTMetrixCategories();
-                                                $GTMetrixCategories->name = $valueData['name'];
+                                                $GTMetrixCategories         = new GTMetrixCategories();
+                                                $GTMetrixCategories->name   = $valueData['name'];
                                                 $GTMetrixCategories->source = 'pagespeed';
                                                 $GTMetrixCategories->save();
                                             }
@@ -342,11 +342,11 @@ class GTMetrixTestCMDGetReport extends Command
                             curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                             curl_setopt($ch, CURLOPT_POST, 0);
-                            $result = strip_tags(curl_exec($ch));
+                            $result     = strip_tags(curl_exec($ch));
                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                            $curlErrNo = curl_errno($ch);
-                            $curlError = curl_error($ch);
-                            $err = curl_error($curl);
+                            $curlErrNo  = curl_errno($ch);
+                            $curlError  = curl_error($ch);
+                            $err        = curl_error($curl);
                             if ($err) {
                                 $this->GTMatrixError($value->id, 'yslow', 'API response error', $err);
                             }
@@ -356,7 +356,7 @@ class GTMetrixTestCMDGetReport extends Command
                             \Log::info(print_r(['Result started to fetch yslow json'], true));
 
                             $fileName = '/uploads/gt-matrix/' . $value->test_id . '_yslow.json';
-                            $file = public_path() . $fileName;
+                            $file     = public_path() . $fileName;
                             file_put_contents($file, $result);
                             $storeview = StoreViewsGTMetrix::where('test_id', $value->test_id)->where('store_view_id', $value->store_view_id)->first();
 
@@ -372,8 +372,8 @@ class GTMetrixTestCMDGetReport extends Command
                                             $key_data = GTMetrixCategories::where('name', $key)->first();
                                             if (isset($key_data) && $key_data != '' && $key_data->website_url != $value->website_url && $key_data->test_id != $value->test_id) {
                                             } else {
-                                                $GTMetrixCategories = new GTMetrixCategories();
-                                                $GTMetrixCategories->name = $key;
+                                                $GTMetrixCategories         = new GTMetrixCategories();
+                                                $GTMetrixCategories->name   = $key;
                                                 $GTMetrixCategories->source = 'yslow';
                                                 $GTMetrixCategories->save();
                                             }
@@ -386,7 +386,7 @@ class GTMetrixTestCMDGetReport extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Got the error: ' . $e->getMessage()]);
 
                         $value->status = 'error';
-                        $value->error = $e->getMessage();
+                        $value->error  = $e->getMessage();
                         $value->save();
                         if ($err) {
                             $this->GTMatrixError($value->id, 'pagespeed', 'catch error', $e->getMessage());
@@ -410,17 +410,17 @@ class GTMetrixTestCMDGetReport extends Command
     public function GTMatrixError($store_viewGTM_id, $erro_type, $error_title, $error = '')
     {
         try {
-            $GTError = new GTMatrixErrorLog();
+            $GTError                   = new GTMatrixErrorLog();
             $GTError->store_viewGTM_id = $store_viewGTM_id;
-            $GTError->error_type = $erro_type;
-            $GTError->error_title = $error_title;
-            $GTError->error = $error;
+            $GTError->error_type       = $erro_type;
+            $GTError->error_title      = $error_title;
+            $GTError->error            = $error;
             $GTError->save();
         } catch (\Exception $e) {
-            $GTError = new GTMatrixErrorLog();
+            $GTError                   = new GTMatrixErrorLog();
             $GTError->store_viewGTM_id = $store_viewGTM_id;
-            $GTError->error_type = $erro_type;
-            $GTError->error = $e->getMessage();
+            $GTError->error_type       = $erro_type;
+            $GTError->error            = $e->getMessage();
             $GTError->save();
         }
     }

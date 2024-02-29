@@ -43,7 +43,7 @@ class ImportWatsonIntents extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $watson = new IntentService(
@@ -62,7 +62,7 @@ class ImportWatsonIntents extends Command
                     $question = ChatbotQuestion::where('value', $intents->intent)->first();
                     if (! $question) {
                         $question = ChatbotQuestion::create([
-                            'value' => $intents->intent,
+                            'value'        => $intents->intent,
                             'workspace_id' => $workspaceId,
                         ]);
                     }

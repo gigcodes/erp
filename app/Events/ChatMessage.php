@@ -15,6 +15,8 @@ class ChatMessage implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
+     * @param public $user
+     *
      * @return void
      */
     public function __construct(public $user)

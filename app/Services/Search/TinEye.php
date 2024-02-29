@@ -55,7 +55,7 @@ class TinEye
     private function _convertResultToMatchGoogleVision($url = '', $results = false)
     {
         // Set empty arrays
-        $pages = [];
+        $pages      = [];
         $pagesMedia = [];
 
         // Loop over results to find pages
@@ -63,7 +63,7 @@ class TinEye
             foreach ($results->results->matches as $match) {
                 if (isset($match->backlinks)) {
                     foreach ($match->backlinks as $backlink) {
-                        $pages[] = $backlink->backlink;
+                        $pages[]      = $backlink->backlink;
                         $pagesMedia[] = $backlink->url;
                     }
                 }
@@ -71,7 +71,7 @@ class TinEye
         }
 
         return [
-            'pages' => $pages,
+            'pages'       => $pages,
             'pages_media' => $pagesMedia,
         ];
     }

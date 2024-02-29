@@ -45,11 +45,11 @@ class SubPartition
     /**
      * Constructs a partition
      *
-     * @param  array  $row fetched row from information_schema.PARTITIONS
+     * @param array $row fetched row from information_schema.PARTITIONS
      */
     public function __construct(array $row)
     {
-        $this->db = $row['TABLE_SCHEMA'];
+        $this->db    = $row['TABLE_SCHEMA'];
         $this->table = $row['TABLE_NAME'];
         $this->loadData($row);
     }
@@ -57,13 +57,13 @@ class SubPartition
     /**
      * Loads data from the fetched row from information_schema.PARTITIONS
      *
-     * @param  array  $row fetched row
+     * @param array $row fetched row
      */
     protected function loadData(array $row): void
     {
-        $this->name = $row['SUBPARTITION_NAME'];
-        $this->ordinal = $row['SUBPARTITION_ORDINAL_POSITION'];
-        $this->method = $row['SUBPARTITION_METHOD'];
+        $this->name       = $row['SUBPARTITION_NAME'];
+        $this->ordinal    = $row['SUBPARTITION_ORDINAL_POSITION'];
+        $this->method     = $row['SUBPARTITION_METHOD'];
         $this->expression = $row['SUBPARTITION_EXPRESSION'];
         $this->loadCommonData($row);
     }
@@ -71,14 +71,14 @@ class SubPartition
     /**
      * Loads some data that is common to both partitions and sub partitions
      *
-     * @param  array  $row fetched row
+     * @param array $row fetched row
      */
     protected function loadCommonData(array $row): void
     {
-        $this->rows = $row['TABLE_ROWS'];
-        $this->dataLength = $row['DATA_LENGTH'];
+        $this->rows        = $row['TABLE_ROWS'];
+        $this->dataLength  = $row['DATA_LENGTH'];
         $this->indexLength = $row['INDEX_LENGTH'];
-        $this->comment = $row['PARTITION_COMMENT'];
+        $this->comment     = $row['PARTITION_COMMENT'];
     }
 
     /**

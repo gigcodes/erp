@@ -22,12 +22,13 @@ class MySQLDocumentation
     /**
      * Displays a link to the official MySQL documentation
      *
-     * @param  string  $link    contains name of page/anchor that is being linked
-     * @param  bool  $bigIcon whether to use big icon (like in left frame)
-     * @param  string|null  $url     href attribute
-     * @param  string|null  $text    text of link
-     * @param  string  $anchor  anchor to page part
-     * @return string  the html link
+     * @param string      $link    contains name of page/anchor that is being linked
+     * @param bool        $bigIcon whether to use big icon (like in left frame)
+     * @param string|null $url     href attribute
+     * @param string|null $text    text of link
+     * @param string      $anchor  anchor to page part
+     *
+     * @return string the html link
      */
     public static function show(
         $link,
@@ -40,7 +41,7 @@ class MySQLDocumentation
             $url = Util::getMySQLDocuURL($link, $anchor);
         }
 
-        $openLink = '<a href="' . htmlspecialchars($url) . '" target="mysql_doc">';
+        $openLink  = '<a href="' . htmlspecialchars($url) . '" target="mysql_doc">';
         $closeLink = '</a>';
 
         if ($bigIcon) {
@@ -59,10 +60,11 @@ class MySQLDocumentation
     /**
      * Displays a link to the phpMyAdmin documentation
      *
-     * @param  string  $page   Page in documentation
-     * @param  string  $anchor Optional anchor in page
-     * @param  bool  $bbcode Optional flag indicating whether to output bbcode
-     * @return string  the html link
+     * @param string $page   Page in documentation
+     * @param string $anchor Optional anchor in page
+     * @param bool   $bbcode Optional flag indicating whether to output bbcode
+     *
+     * @return string the html link
      */
     public static function showDocumentation($page, $anchor = '', $bbcode = false): string
     {
@@ -72,9 +74,10 @@ class MySQLDocumentation
     /**
      * Returns link to documentation.
      *
-     * @param  string  $page       Page in documentation
-     * @param  string  $anchor     Optional anchor in page
-     * @param  string  $pathPrefix Optional path in case it is called in a folder (e.g. setup)
+     * @param string $page       Page in documentation
+     * @param string $anchor     Optional anchor in page
+     * @param string $pathPrefix Optional path in case it is called in a folder (e.g. setup)
+     *
      * @return string URL
      */
     public static function getDocumentationLink($page, $anchor = '', string $pathPrefix = './'): string

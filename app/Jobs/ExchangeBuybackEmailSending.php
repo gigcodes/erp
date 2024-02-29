@@ -19,6 +19,10 @@ class ExchangeBuybackEmailSending implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $to
+     * @param protected $success
+     * @param protected $emailObject
+     *
      * @return void
      */
     public function __construct(protected $to, protected $success, protected $emailObject)

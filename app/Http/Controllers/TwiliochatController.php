@@ -13,7 +13,7 @@ class TwiliochatController extends Controller
     {
         $store_websites = [];
         $website_stores = [];
-        $name = '';
+        $name           = '';
         $customerInital = '';
 
         $query = ChatMessage::query();
@@ -35,19 +35,19 @@ class TwiliochatController extends Controller
                 if ($chat->user_id != 0) {
                     // Finding Agent
                     if ($chat->customer_id != '') {
-                        $obj = Customer::where('id', $chat->customer_id)->first();
-                        $chat->customer_name = $obj->name;
+                        $obj                  = Customer::where('id', $chat->customer_id)->first();
+                        $chat->customer_name  = $obj->name;
                         $chat->customer_email = $obj->email;
                     }
 
-                    $agent = User::where('id', $chat->user_id)->first();
+                    $agent       = User::where('id', $chat->user_id)->first();
                     $agentInital = $agent ? substr($agent->name, 0, 1) : '';
 
                     $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
                 } else {
                     if ($chat->customer_id != '') {
-                        $obj = Customer::where('id', $chat->customer_id)->first();
-                        $chat->customer_name = $obj->name;
+                        $obj                  = Customer::where('id', $chat->customer_id)->first();
+                        $chat->customer_name  = $obj->name;
                         $chat->customer_email = $obj->email;
                     }
                     $chat->message = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
@@ -68,7 +68,7 @@ class TwiliochatController extends Controller
 
     public function twilioChatsEdit(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id;
         $data = ChatMessage::where('id', $id)->first();
 
         return view('twilio.edit', compact('data'));
@@ -77,7 +77,7 @@ class TwiliochatController extends Controller
     public function twilioChatsUpdate(Request $request)
     {
         $input = $request->all();
-        $data = ChatMessage::where('id', $input['id'])->first();
+        $data  = ChatMessage::where('id', $input['id'])->first();
 
         $data->update($input);
 

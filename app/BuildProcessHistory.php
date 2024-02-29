@@ -32,7 +32,7 @@ class BuildProcessHistory extends Model
 
     public function getJobStatusAttribute()
     {
-        $githubRepositoryId = $this->github_repository_id;
+        $githubRepositoryId    = $this->github_repository_id;
         $githubBranchStateName = $this->github_branch_state_name;
 
         if (empty($githubRepositoryId) || $githubBranchStateName == '') {
@@ -44,7 +44,7 @@ class BuildProcessHistory extends Model
         $githubRepositoryJobs = GithubRepositoryJob::where('github_repository_id', $githubRepositoryId)->pluck('job_name')->toArray();
 
         if ($githubActionRuns->total_count > 0 && isset($githubActionRuns->workflow_runs)) {
-            $job_status = [];
+            $job_status          = [];
             $githubActionRunJobs = $this->getGithubActionRunJobs($githubRepositoryId, $githubActionRuns->workflow_runs[0]->id);
             // Prepareing job status for every actions
             foreach ($githubActionRunJobs->jobs as $job) {

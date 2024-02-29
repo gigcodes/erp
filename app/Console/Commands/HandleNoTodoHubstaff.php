@@ -82,7 +82,7 @@ class HandleNoTodoHubstaff extends Command
                 }
                 $projectsToRemoveFrom[$activity->last_project_id][] = [
                     'user_ids' => $activity->user_id,
-                    'role' => 'remove',
+                    'role'     => 'remove',
                 ];
             }
 

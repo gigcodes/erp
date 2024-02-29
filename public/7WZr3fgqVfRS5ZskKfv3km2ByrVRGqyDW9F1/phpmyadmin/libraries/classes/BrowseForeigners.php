@@ -38,7 +38,7 @@ class BrowseForeigners
     public $template;
 
     /**
-     * @param  Template  $template Template object
+     * @param Template $template Template object
      */
     public function __construct(Template $template)
     {
@@ -46,22 +46,23 @@ class BrowseForeigners
 
         $this->template = $template;
 
-        $this->limitChars = (int) $cfg['LimitChars'];
-        $this->maxRows = (int) $cfg['MaxRows'];
+        $this->limitChars  = (int) $cfg['LimitChars'];
+        $this->maxRows     = (int) $cfg['MaxRows'];
         $this->repeatCells = (int) $cfg['RepeatCells'];
-        $this->showAll = (bool) $cfg['ShowAll'];
+        $this->showAll     = (bool) $cfg['ShowAll'];
     }
 
     /**
      * Function to get html for one relational key
      *
-     * @param  int  $horizontalCount    the current horizontal count
-     * @param  string  $header             table header
-     * @param  array  $keys               all the keys
-     * @param  int  $indexByKeyname     index by keyname
-     * @param  array  $descriptions       descriptions
-     * @param  int  $indexByDescription index by description
-     * @param  string  $currentValue       current value on the edit form
+     * @param int    $horizontalCount    the current horizontal count
+     * @param string $header             table header
+     * @param array  $keys               all the keys
+     * @param int    $indexByKeyname     index by keyname
+     * @param array  $descriptions       descriptions
+     * @param int    $indexByDescription index by description
+     * @param string $currentValue       current value on the edit form
+     *
      * @return array the generated html
      */
     private function getHtmlForOneKey(
@@ -80,7 +81,7 @@ class BrowseForeigners
 
         // whether the key name corresponds to the selected value in the form
         $rightKeynameIsSelected = false;
-        $leftKeynameIsSelected = false;
+        $leftKeynameIsSelected  = false;
 
         if ($this->repeatCells > 0 && $horizontalCount > $this->repeatCells) {
             $output .= $header;
@@ -107,24 +108,24 @@ class BrowseForeigners
 
         if (! empty($currentValue)) {
             $rightKeynameIsSelected = $rightKeyname == $currentValue;
-            $leftKeynameIsSelected = $leftKeyname == $currentValue;
+            $leftKeynameIsSelected  = $leftKeyname == $currentValue;
         }
 
         $output .= '<tr class="noclick">';
 
         $output .= $this->template->render('table/browse_foreigners/column_element', [
-            'keyname' => $leftKeyname,
+            'keyname'     => $leftKeyname,
             'description' => $leftDescription,
-            'title' => $leftDescriptionTitle,
+            'title'       => $leftDescriptionTitle,
             'is_selected' => $leftKeynameIsSelected,
-            'nowrap' => true,
+            'nowrap'      => true,
         ]);
         $output .= $this->template->render('table/browse_foreigners/column_element', [
-            'keyname' => $leftKeyname,
+            'keyname'     => $leftKeyname,
             'description' => $leftDescription,
-            'title' => $leftDescriptionTitle,
+            'title'       => $leftDescriptionTitle,
             'is_selected' => $leftKeynameIsSelected,
-            'nowrap' => false,
+            'nowrap'      => false,
         ]);
 
         $output .= '<td width="20%"><img src="'
@@ -132,18 +133,18 @@ class BrowseForeigners
             . '" alt="" width="1" height="1"></td>';
 
         $output .= $this->template->render('table/browse_foreigners/column_element', [
-            'keyname' => $rightKeyname,
+            'keyname'     => $rightKeyname,
             'description' => $rightDescription,
-            'title' => $rightDescriptionTitle,
+            'title'       => $rightDescriptionTitle,
             'is_selected' => $rightKeynameIsSelected,
-            'nowrap' => false,
+            'nowrap'      => false,
         ]);
         $output .= $this->template->render('table/browse_foreigners/column_element', [
-            'keyname' => $rightKeyname,
+            'keyname'     => $rightKeyname,
             'description' => $rightDescription,
-            'title' => $rightDescriptionTitle,
+            'title'       => $rightDescriptionTitle,
             'is_selected' => $rightKeynameIsSelected,
-            'nowrap' => true,
+            'nowrap'      => true,
         ]);
 
         $output .= '</tr>';
@@ -158,12 +159,12 @@ class BrowseForeigners
     /**
      * Function to get html for relational field selection
      *
-     * @param  string  $db           current database
-     * @param  string  $table        current table
-     * @param  string  $field        field
-     * @param  array  $foreignData  foreign column data
-     * @param  string|null  $fieldKey     field key
-     * @param  string  $currentValue current columns's value
+     * @param string      $db           current database
+     * @param string      $table        current table
+     * @param string      $field        field
+     * @param array       $foreignData  foreign column data
+     * @param string|null $fieldKey     field key
+     * @param string      $currentValue current columns's value
      */
     public function getHtmlForRelationalFieldSelection(
         string $db,
@@ -173,11 +174,11 @@ class BrowseForeigners
         ?string $fieldKey,
         string $currentValue
     ): string {
-        $gotoPage = $this->getHtmlForGotoPage($foreignData);
+        $gotoPage       = $this->getHtmlForGotoPage($foreignData);
         $foreignShowAll = $this->template->render('table/browse_foreigners/show_all', [
             'foreign_data' => $foreignData,
-            'show_all' => $this->showAll,
-            'max_rows' => $this->maxRows,
+            'show_all'     => $this->showAll,
+            'max_rows'     => $this->maxRows,
         ]);
 
         $output = '<form class="ajax" '
@@ -232,7 +233,7 @@ class BrowseForeigners
             . '<tbody>' . "\n";
 
         $descriptions = [];
-        $keys = [];
+        $keys         = [];
         foreach ($foreignData['disp_row'] as $relrow) {
             if ($foreignData['foreign_display'] != false) {
                 $descriptions[] = $relrow[$foreignData['foreign_display']] ?? '';
@@ -245,7 +246,7 @@ class BrowseForeigners
 
         asort($keys);
 
-        $horizontalCount = 0;
+        $horizontalCount    = 0;
         $indexByDescription = 0;
 
         foreach (array_keys($keys) as $indexByKeyname) {
@@ -273,7 +274,8 @@ class BrowseForeigners
     /**
      * Get the description (possibly truncated) and the title
      *
-     * @param  string  $description the key name's description
+     * @param string $description the key name's description
+     *
      * @return array the new description and title
      */
     private function getDescriptionAndTitle(string $description): array
@@ -282,7 +284,7 @@ class BrowseForeigners
             $descriptionTitle = '';
         } else {
             $descriptionTitle = $description;
-            $description = mb_substr($description, 0, $this->limitChars)
+            $description      = mb_substr($description, 0, $this->limitChars)
             . '...';
         }
 
@@ -295,17 +297,17 @@ class BrowseForeigners
     /**
      * Function to get html for the goto page option
      *
-     * @param  array|null  $foreignData foreign data
+     * @param array|null $foreignData foreign data
      */
     private function getHtmlForGotoPage(?array $foreignData): string
     {
-        $gotoPage = '';
+        $gotoPage                   = '';
         isset($_POST['pos']) ? $pos = $_POST['pos'] : $pos = 0;
         if ($foreignData === null || ! is_array($foreignData['disp_row'])) {
             return $gotoPage;
         }
 
-        $pageNow = (int) floor($pos / $this->maxRows) + 1;
+        $pageNow     = (int) floor($pos / $this->maxRows) + 1;
         $nbTotalPage = (int) ceil($foreignData['the_total'] / $this->maxRows);
 
         if ($foreignData['the_total'] > $this->maxRows) {
@@ -329,7 +331,7 @@ class BrowseForeigners
     /**
      * Function to get foreign limit
      *
-     * @param  string|null  $foreignShowAll foreign navigation
+     * @param string|null $foreignShowAll foreign navigation
      */
     public function getForeignLimit(?string $foreignShowAll): ?string
     {

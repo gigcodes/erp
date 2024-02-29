@@ -19,7 +19,7 @@ class EditForm extends BaseForm
     public static function getForms()
     {
         return [
-            'Edit' => MainForm::getForms()['Edit'],
+            'Edit'        => MainForm::getForms()['Edit'],
             'Text_fields' => FeaturesForm::getForms()['Text_fields'],
         ];
     }

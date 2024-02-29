@@ -49,10 +49,10 @@ class ZabbixController extends Controller
 
             $hostZabbix = new HostZabbix();
 
-            $hostInterfaceZabbix = $hostZabbix->getById($host->hostid);
-            $hostZbx = $this->zabbix->call('host.get', ['hostids' => $host->hostid]);
+            $hostInterfaceZabbix         = $hostZabbix->getById($host->hostid);
+            $hostZbx                     = $this->zabbix->call('host.get', ['hostids' => $host->hostid]);
             $hostInterfaceZabbix['name'] = $hostZbx[0]['host'];
-            $hostInterfaceZabbix['id'] = $host->id;
+            $hostInterfaceZabbix['id']   = $host->id;
 
             return response()->json(['code' => 200, 'data' => $hostInterfaceZabbix]);
         } catch (Exception $e) {
@@ -97,14 +97,14 @@ class ZabbixController extends Controller
             $hostZabbix = new HostZabbix();
 
             if ($isCreate) {
-                $hostArray['host'] = $data['name'];
+                $hostArray['host']       = $data['name'];
                 $hostArray['interfaces'] = [
-                    'type' => 1,
-                    'main' => 1,
+                    'type'  => 1,
+                    'main'  => 1,
                     'useip' => 1,
-                    'ip' => $data['ip'],
-                    'dns' => '',
-                    'port' => $data['port'],
+                    'ip'    => $data['ip'],
+                    'dns'   => '',
+                    'port'  => $data['port'],
                 ];
 
                 if (! empty($data['template_ids'])) {
@@ -121,16 +121,16 @@ class ZabbixController extends Controller
             } else {
                 $hostZabbixArray = $hostZabbix->getById($host->hostid);
 
-                $hostArray['host'] = $data['name'];
+                $hostArray['host']   = $data['name'];
                 $hostArray['hostid'] = $hostZabbixArray['hostid'];
                 $hostArray['groups'] = [
                     'groupid' => 1,
                 ];
 
                 $hostArray['interfaces'] = [
-                    'main' => 1,
-                    'ip' => $data['ip'],
-                    'port' => $data['port'],
+                    'main'        => 1,
+                    'ip'          => $data['ip'],
+                    'port'        => $data['port'],
                     'interfaceid' => $hostZabbixArray['interfaceid'],
                 ];
 
@@ -179,9 +179,9 @@ class ZabbixController extends Controller
     {
         if ($request->ajax()) {
             $dueDate = Carbon::now()->subDays(2);
-            $query = ZabbixHistory::whereDate('created_at', '>', $dueDate)->where('host_id', $request->hostid)->orderBy('created_at', 'desc')->get();
+            $query   = ZabbixHistory::whereDate('created_at', '>', $dueDate)->where('host_id', $request->hostid)->orderBy('created_at', 'desc')->get();
             foreach ($query as $val) {
-                $host = Host::where('hostid', $val->host_id)->first();
+                $host            = Host::where('hostid', $val->host_id)->first();
                 $val['hostname'] = $host->name;
             }
 

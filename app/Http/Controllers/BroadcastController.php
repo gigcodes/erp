@@ -10,7 +10,7 @@ class BroadcastController extends Controller
     public function index(Request $request)
     {
         $inputs = $request->input();
-        $data = \App\BroadcastMessage::with('numbers');
+        $data   = \App\BroadcastMessage::with('numbers');
 
         //Suppliers
         $suppliers = \App\Supplier::all();
@@ -36,7 +36,7 @@ class BroadcastController extends Controller
 
     public function deleteMessage(Request $request)
     {
-        $ID = $request->id;
+        $ID      = $request->id;
         $deleted = \App\BroadcastMessage::where('id', $ID)->delete();
 
         return response()->json(['code' => 200, 'message' => 'Message deleted successfully']);
@@ -44,7 +44,7 @@ class BroadcastController extends Controller
 
     public function deleteType(Request $request)
     {
-        $ID = $request->id;
+        $ID      = $request->id;
         $deleted = \App\BroadcastMessageNumber::where('id', $ID)->delete();
 
         return response()->json(['code' => 200, 'message' => 'Type deleted successfully']);
@@ -52,7 +52,7 @@ class BroadcastController extends Controller
 
     public function messagePreviewNumbers(Request $request)
     {
-        $id = $request->id;
+        $id    = $request->id;
         $lists = \App\BroadcastMessageNumber::with(['customer', 'vendor', 'supplier'])->where('broadcast_message_id', $id)->orderBy('id', 'DESC')->get();
 
         return response()->json(['code' => 200, 'data' => $lists]);
@@ -60,9 +60,9 @@ class BroadcastController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $data = \App\BroadcastMessageNumber::where(['broadcast_message_id' => $request->id])->orderBy('id', 'desc')->groupBy('type_id')->get();
+        $data    = \App\BroadcastMessageNumber::where(['broadcast_message_id' => $request->id])->orderBy('id', 'desc')->groupBy('type_id')->get();
         $isEmail = $request->is_email;
-        $params = [];
+        $params  = [];
         $message = [];
         //Create broadcast
         $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id' => $request->id, 'name' => $request->name, 'message' => $request->message]);
@@ -71,21 +71,21 @@ class BroadcastController extends Controller
                 if ($item->type == 'App\Http\Controllers\App\Vendor') {
                     //Vendor
                     $message = [
-                        'type_id' => $item->type_id,
-                        'type' => App\Vendor::class,
+                        'type_id'              => $item->type_id,
+                        'type'                 => App\Vendor::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
                     $params = [
-                        'vendor_id' => $item->type_id,
-                        'number' => null,
-                        'message' => $request->message,
-                        'user_id' => \Auth::id(),
-                        'status' => 2,
-                        'approved' => 1,
-                        'is_queue' => 0,
-                        'is_email' => $isEmail,
+                        'vendor_id'            => $item->type_id,
+                        'number'               => null,
+                        'message'              => $request->message,
+                        'user_id'              => \Auth::id(),
+                        'status'               => 2,
+                        'approved'             => 1,
+                        'is_queue'             => 0,
+                        'is_email'             => $isEmail,
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
@@ -98,19 +98,19 @@ class BroadcastController extends Controller
                 } elseif ($item->type == 'App\Http\Controllers\App\Supplier') {
                     //Supplier
                     $message = [
-                        'type_id' => $item->type_id,
-                        'type' => App\Supplier::class,
+                        'type_id'              => $item->type_id,
+                        'type'                 => App\Supplier::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
                     $params = [
-                        'supplier_id' => $item->type_id,
-                        'number' => null,
-                        'message' => $request->message,
-                        'user_id' => \Auth::id(),
-                        'status' => 1,
-                        'is_email' => $isEmail,
+                        'supplier_id'          => $item->type_id,
+                        'number'               => null,
+                        'message'              => $request->message,
+                        'user_id'              => \Auth::id(),
+                        'status'               => 1,
+                        'is_email'             => $isEmail,
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
@@ -124,25 +124,25 @@ class BroadcastController extends Controller
                     $sendingData = [];
 
                     $message = [
-                        'type_id' => $item->type_id,
-                        'type' => ErpCustomer::class,
+                        'type_id'              => $item->type_id,
+                        'type'                 => ErpCustomer::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
                     $params = [
-                        'sending_time' => $request->get('sending_time', ''),
-                        'user_id' => \Auth::id(),
-                        'message' => $request->message,
-                        'phone' => null,
-                        'type' => 'message_all',
-                        'data' => json_encode($sendingData),
-                        'group_id' => '',
-                        'is_email' => $isEmail,
+                        'sending_time'         => $request->get('sending_time', ''),
+                        'user_id'              => \Auth::id(),
+                        'message'              => $request->message,
+                        'phone'                => null,
+                        'type'                 => 'message_all',
+                        'data'                 => json_encode($sendingData),
+                        'group_id'             => '',
+                        'is_email'             => $isEmail,
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
-                    $custRequest = new Request();
+                    $custRequest  = new Request();
                     $custRequest->setMethod('POST');
                     $custRequest->request->add(['messageId' => $chat_message->id, 'subject' => $request->name]);
                     app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('customer', $custRequest, $chat_message->id);
@@ -160,22 +160,22 @@ class BroadcastController extends Controller
                 foreach ($request->values as $_value) {
                     if ($request->type == 'vendor') {
                         $message = [
-                            'type_id' => $_value,
-                            'type' => App\Vendor::class,
+                            'type_id'              => $_value,
+                            'type'                 => App\Vendor::class,
                             'broadcast_message_id' => $request->id,
                         ];
                         $broadcastnumber = \App\BroadcastMessageNumber::create($message);
                     } elseif ($request->type == 'supplier') {
                         $message = [
-                            'type_id' => $_value,
-                            'type' => App\Supplier::class,
+                            'type_id'              => $_value,
+                            'type'                 => App\Supplier::class,
                             'broadcast_message_id' => $request->id,
                         ];
                         $broadcastnumber = \App\BroadcastMessageNumber::create($message);
                     } else {
                         $message = [
-                            'type_id' => $_value,
-                            'type' => ErpCustomer::class,
+                            'type_id'              => $_value,
+                            'type'                 => ErpCustomer::class,
                             'broadcast_message_id' => $request->id,
                         ];
                         $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -210,7 +210,7 @@ class BroadcastController extends Controller
         } else {
             $data = \App\BroadcastMessageNumber::where(['id' => $request->id])->get();
         }
-        $params = [];
+        $params  = [];
         $message = [];
 
         if (count($data)) {
@@ -223,20 +223,20 @@ class BroadcastController extends Controller
                     }
                     //Vendor
                     $message = [
-                        'type_id' => $item->type_id,
-                        'type' => App\Vendor::class,
+                        'type_id'              => $item->type_id,
+                        'type'                 => App\Vendor::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
                     $params = [
-                        'vendor_id' => $item->type_id,
-                        'number' => null,
-                        'message' => $message_data->message,
-                        'user_id' => \Auth::id(),
-                        'status' => 2,
-                        'approved' => 1,
-                        'is_queue' => 0,
+                        'vendor_id'            => $item->type_id,
+                        'number'               => null,
+                        'message'              => $message_data->message,
+                        'user_id'              => \Auth::id(),
+                        'status'               => 2,
+                        'approved'             => 1,
+                        'is_queue'             => 0,
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
@@ -256,18 +256,18 @@ class BroadcastController extends Controller
                     }
                     //Supplier
                     $message = [
-                        'type_id' => $item->type_id,
-                        'type' => App\Supplier::class,
+                        'type_id'              => $item->type_id,
+                        'type'                 => App\Supplier::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
 
                     $params = [
-                        'supplier_id' => $item->type_id,
-                        'number' => null,
-                        'message' => $message_data->message,
-                        'user_id' => \Auth::id(),
-                        'status' => 1,
+                        'supplier_id'          => $item->type_id,
+                        'number'               => null,
+                        'message'              => $message_data->message,
+                        'user_id'              => \Auth::id(),
+                        'status'               => 1,
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                     $chat_message = \App\ChatMessage::create($params);
@@ -281,9 +281,9 @@ class BroadcastController extends Controller
                 } else {
                     //Customer
                     $sendingData = [];
-                    $message = [
-                        'type_id' => $item->type_id,
-                        'type' => ErpCustomer::class,
+                    $message     = [
+                        'type_id'              => $item->type_id,
+                        'type'                 => ErpCustomer::class,
                         'broadcast_message_id' => $request->id,
                     ];
                     $broadcastnumber = \App\BroadcastMessageNumber::create($message);
@@ -291,12 +291,12 @@ class BroadcastController extends Controller
                     $BroadcastDetails = \App\BroadcastDetails::create(['broadcast_message_id' => $request->id, 'name' => $request->name, 'message' => $request->message]);
 
                     $params = [
-                        'sending_time' => $request->get('sending_time', ''),
-                        'user_id' => \Auth::id(),
-                        'phone' => null,
-                        'type' => 'message_all',
-                        'data' => json_encode($sendingData),
-                        'group_id' => '',
+                        'sending_time'         => $request->get('sending_time', ''),
+                        'user_id'              => \Auth::id(),
+                        'phone'                => null,
+                        'type'                 => 'message_all',
+                        'data'                 => json_encode($sendingData),
+                        'group_id'             => '',
                         'broadcast_numbers_id' => $broadcastnumber->id,
                     ];
                 }

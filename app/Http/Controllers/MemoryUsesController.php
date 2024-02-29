@@ -28,7 +28,7 @@ class MemoryUsesController extends Controller
         $updatedData = Setting::updateOrCreate([
             'name' => 'thresold_limit_for_memory_uses',
         ], [
-            'val' => $request->limit,
+            'val'  => $request->limit,
             'type' => 'number',
         ]);
 

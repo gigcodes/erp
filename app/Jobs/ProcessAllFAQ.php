@@ -15,6 +15,9 @@ class ProcessAllFAQ implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $replyInfo
+     * @param private $user_id
+     *
      * @return void
      */
     public function __construct(private $replyInfo, private $user_id)
@@ -29,18 +32,18 @@ class ProcessAllFAQ implements ShouldQueue
     public function handle()
     {
         $replyInfo = $this->replyInfo;
-        $user_id = $this->user_id;
+        $user_id   = $this->user_id;
 
         try {
             //Add the data for queue
             foreach ($replyInfo as $key => $value) {
                 if (! empty($value->is_translate)) {   //if FAQ translate is  available then send for FAQ
-                    $insertArray = [];
+                    $insertArray   = [];
                     $insertArray[] = $value->id;
 
                     ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 } else {   //If FAQ transation is not available then first set for translation
-                    $insertArray = [];
+                    $insertArray   = [];
                     $insertArray[] = $value->id;
 
                     $replyInformation = \App\Reply::find($value->id);

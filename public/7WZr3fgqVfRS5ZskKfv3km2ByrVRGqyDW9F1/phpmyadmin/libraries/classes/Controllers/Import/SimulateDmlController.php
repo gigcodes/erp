@@ -33,11 +33,11 @@ final class SimulateDmlController extends AbstractController
 
     public function __invoke(): void
     {
-        $error = '';
+        $error    = '';
         $errorMsg = __('Only single-table UPDATE and DELETE queries can be simulated.');
         /** @var string $sqlDelimiter */
         $sqlDelimiter = $_POST['sql_delimiter'];
-        $sqlData = [];
+        $sqlData      = [];
         /** @var string[] $queries */
         $queries = explode($sqlDelimiter, $GLOBALS['sql_query']);
         foreach ($queries as $sqlQuery) {
@@ -70,7 +70,7 @@ final class SimulateDmlController extends AbstractController
 
             // Get the matched rows for the query.
             $result = $this->simulateDml->getMatchedRows($sqlQuery, $parser, $statement);
-            $error = $this->simulateDml->getError();
+            $error  = $this->simulateDml->getError();
 
             if ($error !== '') {
                 break;

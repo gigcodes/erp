@@ -51,8 +51,9 @@ class Logging
     /**
      * Generate log message for authentication logging
      *
-     * @param  string  $user   user name
-     * @param  string  $status status message
+     * @param string $user   user name
+     * @param string $status status message
+     *
      * @return string
      */
     public static function getLogMessage($user, $status)
@@ -67,8 +68,8 @@ class Logging
     /**
      * Logs user information to webserver logs.
      *
-     * @param  string  $user   user name
-     * @param  string  $status status message
+     * @param string $user   user name
+     * @param string $status status message
      */
     public static function logUser($user, $status = 'ok'): void
     {

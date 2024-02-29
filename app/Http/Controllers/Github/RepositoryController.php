@@ -88,13 +88,13 @@ class RepositoryController extends Controller
 
                 foreach ($repositories as $repository) {
                     $data = [
-                        'id' => $repository->id,
+                        'id'                     => $repository->id,
                         'github_organization_id' => $organization->id,
-                        'name' => $repository->name,
-                        'html' => $repository->html_url,
-                        'webhook' => $repository->hooks_url,
-                        'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
-                        'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
+                        'name'                   => $repository->name,
+                        'html'                   => $repository->html_url,
+                        'webhook'                => $repository->hooks_url,
+                        'created_at'             => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
+                        'updated_at'             => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
                     ];
 
                     GithubRepository::updateOrCreate(
@@ -127,36 +127,36 @@ class RepositoryController extends Controller
         }
 
         return view('github.repositories', [
-            'repositories' => $repositories,
+            'repositories'        => $repositories,
             'githubOrganizations' => $githubOrganizations,
-            'organizationId' => $organizationId,
+            'organizationId'      => $organizationId,
         ]);
     }
 
     public function getRepositoryDetails($repositoryId)
     {
         $repository = GithubRepository::find($repositoryId);
-        $branches = $repository->branches;
+        $branches   = $repository->branches;
 
         $currentBranch = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
 
         return view('github.repository_settings', [
-            'repository' => $repository,
-            'branches' => $branches,
+            'repository'     => $repository,
+            'branches'       => $branches,
             'current_branch' => $currentBranch,
         ]);
     }
 
     public function deployBranch($repoId, Request $request)
     {
-        $repository = GithubRepository::find($repoId);
+        $repository   = GithubRepository::find($repoId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
 
-        $source = 'master';
+        $source      = 'master';
         $destination = $request->branch;
-        $pullOnly = request('pull_only', 0);
+        $pullOnly    = request('pull_only', 0);
 
         $url = 'https://api.github.com/repositories/' . $repoId . '/merges';
 
@@ -182,14 +182,14 @@ class RepositoryController extends Controller
             // Deploy branch
             $repository = GithubRepository::find($repoId);
 
-            $branch = $request->branch;
+            $branch         = $request->branch;
             $composerupdate = request('composer', false);
 
             $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/' . $repository->name . '/deploy_branch.sh ' . $branch . ' ' . $composerupdate . ' 2>&1';
 
-            $allOutput = [];
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result      = exec($cmd, $allOutput);
 
             $migrationError = is_array($result) ? json_encode($result) : $result;
             if (Str::contains($migrationError, 'database/migrations') || Str::contains($migrationError, 'migrations') || Str::contains($migrationError, 'Database/Migrations') || Str::contains($migrationError, 'Migrations')) {
@@ -209,7 +209,7 @@ class RepositoryController extends Controller
                 $arrErr[] = $errorArr;
                 $errorArr = implode(' ', $arrErr);
             } else {
-                $arrErr = $errorArr;
+                $arrErr   = $errorArr;
                 $errorArr = $errorArr;
             }
             $migrationError = is_array($result) ? json_encode($errorArr) : $errorArr;
@@ -225,14 +225,14 @@ class RepositoryController extends Controller
 
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => $e->getMessage(),
+                    'message'    => $e->getMessage(),
                     'alert-type' => 'error',
                 ]
             );
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => print_r($allOutput, true),
+            'message'    => print_r($allOutput, true),
             'alert-type' => 'success',
         ]);
     }
@@ -243,23 +243,24 @@ class RepositoryController extends Controller
      * @param [mix] $repoId
      * @param [mix] $branchName
      * @param [array] $errorLog
+     *
      * @return void
      */
     public function createGitMigrationErrorLog($repoId, $branchName, $errorLog)
     {
-        $repository = GithubRepository::find($repoId);
+        $repository   = GithubRepository::find($repoId);
         $organization = $repository->organization;
 
         $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
         GitMigrationErrorLog::create([
-            'github_organization_id' => $organization->id,
-            'repository_id' => $repoId,
-            'branch_name' => $branchName,
-            'ahead_by' => $comparison['ahead_by'],
-            'behind_by' => $comparison['behind_by'],
+            'github_organization_id'      => $organization->id,
+            'repository_id'               => $repoId,
+            'branch_name'                 => $branchName,
+            'ahead_by'                    => $comparison['ahead_by'],
+            'behind_by'                   => $comparison['behind_by'],
             'last_commit_author_username' => $comparison['last_commit_author_username'],
-            'last_commit_time' => $comparison['last_commit_time'],
-            'error' => $errorLog,
+            'last_commit_time'            => $comparison['last_commit_time'],
+            'error'                       => $errorLog,
         ]);
     }
 
@@ -285,13 +286,13 @@ class RepositoryController extends Controller
 
     private function updateBranchState($repoId, $branchName)
     {
-        $repository = GithubRepository::find($repoId);
+        $repository   = GithubRepository::find($repoId);
         $organization = $repository->organization;
 
         $comparison = $this->compareRepoBranches($organization->username, $organization->token, $repoId, $branchName);
-        $filters = [
+        $filters    = [
             'state' => 'all',
-            'head' => $organization->name . ':' . $branchName,
+            'head'  => $organization->name . ':' . $branchName,
         ];
         $pullRequests = $this->pullRequests($organization->username, $organization->token, $repoId, $filters);
         if (! empty($pullRequests) && count($pullRequests) > 0) {
@@ -301,17 +302,17 @@ class RepositoryController extends Controller
         GithubBranchState::updateOrCreate(
             [
                 'repository_id' => $repoId,
-                'branch_name' => $branchName,
+                'branch_name'   => $branchName,
             ],
             [
-                'github_organization_id' => $organization->id,
-                'repository_id' => $repoId,
-                'branch_name' => $branchName,
-                'status' => ! empty($pullRequest) ? $pullRequest['state'] : '',
-                'ahead_by' => $comparison['ahead_by'],
-                'behind_by' => $comparison['behind_by'],
+                'github_organization_id'      => $organization->id,
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'status'                      => ! empty($pullRequest) ? $pullRequest['state'] : '',
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
                 'last_commit_author_username' => $comparison['last_commit_author_username'],
-                'last_commit_time' => $comparison['last_commit_time'],
+                'last_commit_time'            => $comparison['last_commit_time'],
             ]
         );
     }
@@ -319,7 +320,7 @@ class RepositoryController extends Controller
     private function findDeveloperTask($branchName)
     {
         $devTaskId = null;
-        $usIt = explode('-', $branchName);
+        $usIt      = explode('-', $branchName);
 
         if (count($usIt) > 1) {
             $devTaskId = $usIt[1];
@@ -354,10 +355,10 @@ class RepositoryController extends Controller
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message . '. kindly test task in live if possible and put test result as comment in task.');
                 $devTask->update(['is_pr_merged' => 1]);
 
-                $request = new DeveoperTaskPullRequestMerge;
-                $request->task_id = $devTask->id;
+                $request                  = new DeveoperTaskPullRequestMerge;
+                $request->task_id         = $devTask->id;
                 $request->pull_request_id = $pull_request_id;
-                $request->user_id = auth()->user()->id;
+                $request->user_id         = auth()->user()->id;
                 $request->save();
             } catch (Exception $e) {
                 \Log::info('updateDevTask ::' . $e->getMessage());
@@ -371,11 +372,11 @@ class RepositoryController extends Controller
 
     public function mergeBranch($id, Request $request)
     {
-        $source = $request->source;
-        $destination = $request->destination;
+        $source          = $request->source;
+        $destination     = $request->destination;
         $pull_request_id = $request->task_id;
 
-        $repository = GithubRepository::find($id);
+        $repository   = GithubRepository::find($id);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -406,10 +407,10 @@ class RepositoryController extends Controller
 
             $branch = 'master';
 
-            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
-            $allOutput = [];
+            $cmd         = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result      = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput, true));
 
             $sqlIssue = false;
@@ -423,7 +424,7 @@ class RepositoryController extends Controller
             if ($sqlIssue) {
                 $devTask = $this->findDeveloperTask($source);
                 if ($devTask) {
-                    $message = $source . ':: there is some issue while running migration please check migration or contact administrator';
+                    $message     = $source . ':: there is some issue while running migration please check migration or contact administrator';
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
@@ -435,7 +436,7 @@ class RepositoryController extends Controller
                 $this->createGitMigrationErrorLog($id, $source, $migrationError);
 
                 return redirect(url('/github/pullRequests'))->with([
-                    'message' => 'Branch merged successfully but migration failed',
+                    'message'    => 'Branch merged successfully but migration failed',
                     'alert-type' => 'error',
                 ]);
             }
@@ -444,7 +445,7 @@ class RepositoryController extends Controller
             print_r($e->getMessage());
             $devTask = $this->findDeveloperTask($source);
             if ($devTask) {
-                $message = $source . ':: Failed to Merge please check branch has not any conflict or contact administrator';
+                $message     = $source . ':: Failed to Merge please check branch has not any conflict or contact administrator';
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
@@ -453,14 +454,14 @@ class RepositoryController extends Controller
 
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => 'Failed to Merge please check branch has not any conflict !',
+                    'message'    => 'Failed to Merge please check branch has not any conflict !',
                     'alert-type' => 'error',
                 ]
             );
         }
 
         return redirect(url('/github/pullRequests'))->with([
-            'message' => 'Branch merged successfully',
+            'message'    => 'Branch merged successfully',
             'alert-type' => 'success',
         ]);
     }
@@ -469,7 +470,7 @@ class RepositoryController extends Controller
     {
         $addedFilters = ! empty($filters) ? Arr::query($filters) : '';
         $pullRequests = [];
-        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
+        $url          = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
         if (! empty($addedFilters)) {
             $url .= '&' . $addedFilters;
         }
@@ -481,14 +482,14 @@ class RepositoryController extends Controller
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
-                    'id' => $pullRequest->number,
-                    'title' => $pullRequest->title,
-                    'number' => $pullRequest->number,
-                    'state' => $pullRequest->state,
-                    'username' => $pullRequest->user->login,
-                    'userId' => $pullRequest->user->id,
-                    'updated_at' => $pullRequest->updated_at,
-                    'source' => $pullRequest->head->ref,
+                    'id'          => $pullRequest->number,
+                    'title'       => $pullRequest->title,
+                    'number'      => $pullRequest->number,
+                    'state'       => $pullRequest->state,
+                    'username'    => $pullRequest->user->login,
+                    'userId'      => $pullRequest->user->id,
+                    'updated_at'  => $pullRequest->updated_at,
+                    'source'      => $pullRequest->head->ref,
                     'destination' => $pullRequest->base->ref,
                 ];
             }
@@ -500,7 +501,7 @@ class RepositoryController extends Controller
 
     public function listPullRequests($repoId)
     {
-        $repository = GithubRepository::find($repoId);
+        $repository   = GithubRepository::find($repoId);
         $organization = $repository->organization;
 
         $pullRequests = $this->getPullRequests($organization->username, $organization->token, $repoId);
@@ -524,7 +525,7 @@ class RepositoryController extends Controller
 
         return view('github.repository_pull_requests', [
             'pullRequests' => $pullRequests,
-            'repository' => $repository,
+            'repository'   => $repository,
         ]);
     }
 
@@ -535,23 +536,23 @@ class RepositoryController extends Controller
 
     public function deleteBranchFromRepo($repositoryId, DeleteBranchRequest $request)
     {
-        $response = $this->deleteBranch($repositoryId, $request->branch_name);
+        $response          = $this->deleteBranch($repositoryId, $request->branch_name);
         $githubBranchState = GithubBranchState::where('repository_id', $repositoryId)->where('branch_name', $request->branch_name)->first();
         if (! empty($githubBranchState) && $response['status']) {
             DeletedGithubBranchLog::create([
-                'branch_name' => $request->branch_name,
+                'branch_name'   => $request->branch_name,
                 'repository_id' => $repositoryId,
-                'deleted_by' => \Auth::id(),
-                'status' => 'success',
+                'deleted_by'    => \Auth::id(),
+                'status'        => 'success',
             ]);
 
             $githubBranchState->delete();
         } else {
             DeletedGithubBranchLog::create([
-                'branch_name' => $request->branch_name,
+                'branch_name'   => $request->branch_name,
                 'repository_id' => $repositoryId,
-                'deleted_by' => \Auth::id(),
-                'status' => 'failed',
+                'deleted_by'    => \Auth::id(),
+                'status'        => 'failed',
                 'error_message' => $response['error'],
             ]);
         }
@@ -562,9 +563,9 @@ class RepositoryController extends Controller
     // devtask - 23311
     public function deleteNumberOfBranchesFromRepo($repositoryId, Request $request)
     {
-        $branches = $this->getGithubBranches($repositoryId, []);
+        $branches                 = $this->getGithubBranches($repositoryId, []);
         $numberOfBranchesToDelete = $request->number_of_branches;
-        $branchArr = [];
+        $branchArr                = [];
 
         for ($i = 0; $i < $numberOfBranchesToDelete; $i++) {
             if (isset($branches[$i]->name)) {
@@ -594,9 +595,9 @@ class RepositoryController extends Controller
             $branchName = $request->branchName;
         }
 
-        $selectedRepository = GithubRepository::where('id', $selectedRepositoryId)->first();
+        $selectedRepository     = GithubRepository::where('id', $selectedRepositoryId)->first();
         $selectedOrganizationID = $selectedRepository->organization->id;
-        $githubActionRuns = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status, $branchName);
+        $githubActionRuns       = $this->githubActionResult($selectedRepositoryId, $request->page, $date, $status, $branchName);
 
         $githubOrganizations = GithubOrganization::with('repos')->get();
         // Get Repo Jobs from DB & Prepare the status.
@@ -604,7 +605,7 @@ class RepositoryController extends Controller
 
         // Paginate
         // Set the current page number
-        $currentPage = request()->query('page', 1);
+        $currentPage               = request()->query('page', 1);
         $githubActionRunsPaginated = new LengthAwarePaginator(
             $githubActionRuns,
             $githubActionRuns->total_count,
@@ -620,14 +621,14 @@ class RepositoryController extends Controller
         $githubActionRunsPaginated->withPath(Paginator::resolveCurrentPath());
 
         return view('github.action_workflows', [
-            'githubActionRuns' => $githubActionRunsPaginated,
-            'repositoryId' => $repositoryId,
-            'selectedRepositoryId' => $selectedRepositoryId,
-            'githubOrganizations' => $githubOrganizations,
+            'githubActionRuns'       => $githubActionRunsPaginated,
+            'repositoryId'           => $repositoryId,
+            'selectedRepositoryId'   => $selectedRepositoryId,
+            'githubOrganizations'    => $githubOrganizations,
             'selectedOrganizationID' => $selectedOrganizationID,
-            'selectedRepoBranches' => $selectedRepository->branches,
-            'branchName' => $branchName,
-            'githubRepositoryJobs' => $githubRepositoryJobs,
+            'selectedRepoBranches'   => $selectedRepository->branches,
+            'branchName'             => $branchName,
+            'githubRepositoryJobs'   => $githubRepositoryJobs,
         ]);
     }
 
@@ -646,7 +647,7 @@ class RepositoryController extends Controller
 
         foreach ($githubActionRuns->workflow_runs as $key => $runs) {
             $githubActionRuns->workflow_runs[$key]->failure_reason = '';
-            $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $runs->id);
+            $githubActionRunJobs                                   = $this->getGithubActionRunJobs($repositoryId, $runs->id);
             if ($runs->conclusion == 'failure') {
                 foreach ($githubActionRunJobs->jobs as $job) {
                     foreach ($job->steps as $step) {
@@ -671,7 +672,7 @@ class RepositoryController extends Controller
     public function getGithubJobs(Request $request)
     {
         // Get the action ID from the query parameter
-        $actionId = $request->query('action_id');
+        $actionId     = $request->query('action_id');
         $repositoryId = $request->query('selectedRepositoryId');
 
         $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $actionId);
@@ -683,15 +684,15 @@ class RepositoryController extends Controller
     {
         // Get the action ID from the query parameter
         $repositoryId = $request->query('selectedRepositoryId');
-        $branchName = $request->query('selectedBranchName');
+        $branchName   = $request->query('selectedBranchName');
 
         // Prepare the actions & jobs
         $githubActionRuns = $this->getGithubActionRuns($repositoryId, 1, null, null, $branchName);
-        $actions = [];
+        $actions          = [];
         if ($githubActionRuns) {
             foreach ($githubActionRuns->workflow_runs as $action) {
                 $actionName = $action->name;
-                $jobs = [];
+                $jobs       = [];
 
                 $githubActionRunJobs = $this->getGithubActionRunJobs($repositoryId, $action->id);
                 if ($githubActionRunJobs) {
@@ -704,7 +705,7 @@ class RepositoryController extends Controller
                             foreach ($job->steps as $step) {
                                 if ($step->conclusion != 'success') {
                                     $jobSteps[] = [
-                                        'name' => $step->name,
+                                        'name'       => $step->name,
                                         'conclusion' => $step->conclusion,
                                     ];
                                 }
@@ -712,11 +713,11 @@ class RepositoryController extends Controller
 
                             // Add the job to the jobs array
                             $jobs[] = [
-                                'id' => $job->id,
-                                'name' => $job->name,
-                                'status' => $job->status,
+                                'id'         => $job->id,
+                                'name'       => $job->name,
+                                'status'     => $job->status,
                                 'conclusion' => $job->conclusion,
-                                'steps' => $jobSteps,
+                                'steps'      => $jobSteps,
                             ];
                         }
                     }
@@ -739,7 +740,7 @@ class RepositoryController extends Controller
         if ($request->ajax()) {
             ini_set('max_execution_time', -1);
 
-            $repositories = GithubRepository::where('id', $request->repoId)->get();
+            $repositories    = GithubRepository::where('id', $request->repoId)->get();
             $allPullRequests = [];
 
             foreach ($repositories as $repository) {
@@ -748,12 +749,12 @@ class RepositoryController extends Controller
 
                 foreach ($pullRequests as $key => $pullRequest) {
                     //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
-                    $pr = $this->getPullRequestDetail($organization->username, $organization->token, $repository->id, $pullRequest['id']);
+                    $pr                                    = $this->getPullRequestDetail($organization->username, $organization->token, $repository->id, $pullRequest['id']);
                     $pullRequests[$key]['mergeable_state'] = $pr['mergeable_state'];
-                    $pullRequests[$key]['conflict_exist'] = $pr['mergeable_state'] == 'dirty' ? true : false;
+                    $pullRequests[$key]['conflict_exist']  = $pr['mergeable_state'] == 'dirty' ? true : false;
                     // Get Latest Activity for this PR
                     $pullRequests[$key]['latest_activity'] = [];
-                    $latestGithubPrActivity = GithubPrActivity::latest('activity_id')
+                    $latestGithubPrActivity                = GithubPrActivity::latest('activity_id')
                         ->where('github_organization_id', $organization->id)
                         ->where('github_repository_id', $repository->id)
                         ->where('pull_number', $pullRequest['id'])
@@ -761,9 +762,9 @@ class RepositoryController extends Controller
                     if ($latestGithubPrActivity) {
                         $pullRequests[$key]['latest_activity'] = [
                             'activity_id' => $latestGithubPrActivity->activity_id,
-                            'user' => $latestGithubPrActivity->user,
-                            'event' => $latestGithubPrActivity->event,
-                            'label_name' => $latestGithubPrActivity->label_name,
+                            'user'        => $latestGithubPrActivity->user,
+                            'event'       => $latestGithubPrActivity->event,
+                            'label_name'  => $latestGithubPrActivity->label_name,
                             'label_color' => $latestGithubPrActivity->label_color,
                         ];
                     }
@@ -827,7 +828,7 @@ class RepositoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'data'    => $data,
             ]);
         }
         $githubOrganizations = GithubOrganization::with('repos')->get();
@@ -855,7 +856,7 @@ class RepositoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'data'    => $data,
             ]);
         }
 
@@ -880,16 +881,16 @@ class RepositoryController extends Controller
 
     public function getPullRequestReviewComments($repo, $pullNumber)
     {
-        $repository = GithubRepository::where('id', $repo)->first();
+        $repository   = GithubRepository::where('id', $repo)->first();
         $organization = $repository->organization;
 
         // Set the username and token
         $userName = $organization->username;
-        $token = $organization->token;
+        $token    = $organization->token;
 
         // Set the repository owner and name
         $owner = $organization->name;
-        $repo = $repository->name;
+        $repo  = $repository->name;
 
         // Set the number of comments per page
         $perPage = 10;
@@ -904,8 +905,8 @@ class RepositoryController extends Controller
         try {
             // Send a GET request to the GitHub API
             $githubClient = $this->connectGithubClient($userName, $token);
-            $response = $githubClient->get($url);
-            $comments = json_decode($response->getBody()->getContents(), true);
+            $response     = $githubClient->get($url);
+            $comments     = json_decode($response->getBody()->getContents(), true);
             \Log::info(print_r($comments, true));
             $totalCount = $this->getPullRequestReviewTotalCommentsCount($userName, $token, $owner, $repo, $pullNumber);
 
@@ -925,17 +926,17 @@ class RepositoryController extends Controller
                 $arrErr[] = $errorArr;
                 $errorArr = implode(' ', $arrErr);
             } else {
-                $arrErr = $errorArr;
+                $arrErr   = $errorArr;
                 $errorArr = $errorArr;
             }
 
             // Save Error Log in DB
-            $githubPrErrorLog = new GithubPrErrorLog();
-            $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_REVIEW_COMMENTS;
-            $githubPrErrorLog->log = $errorArr;
+            $githubPrErrorLog                         = new GithubPrErrorLog();
+            $githubPrErrorLog->type                   = GithubPrErrorLog::TYPE_PR_REVIEW_COMMENTS;
+            $githubPrErrorLog->log                    = $errorArr;
             $githubPrErrorLog->github_organization_id = $organization->id;
-            $githubPrErrorLog->github_repository_id = $repository->id;
-            $githubPrErrorLog->pull_number = $pullNumber;
+            $githubPrErrorLog->github_repository_id   = $repository->id;
+            $githubPrErrorLog->pull_number            = $pullNumber;
             $githubPrErrorLog->save();
 
             return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
@@ -943,7 +944,7 @@ class RepositoryController extends Controller
 
         // Return the comments to the view
         return View::make('github.pull-request-review-comments', [
-            'comments' => $commentsPaginated,
+            'comments'   => $commentsPaginated,
             'totalCount' => $totalCount,
         ]);
     }
@@ -955,7 +956,7 @@ class RepositoryController extends Controller
 
         // Send a GET request to the GitHub API
         $githubClient = $this->connectGithubClient($userName, $token);
-        $response = $githubClient->get($url);
+        $response     = $githubClient->get($url);
 
         // Get the response body
         $pullRequest = json_decode($response->getBody(), true);
@@ -966,7 +967,7 @@ class RepositoryController extends Controller
 
     public function getPullRequestActivities($repo, $pullNumber)
     {
-        $repository = GithubRepository::where('id', $repo)->first();
+        $repository   = GithubRepository::where('id', $repo)->first();
         $organization = $repository->organization;
 
         // Set the number of activities per page
@@ -988,7 +989,7 @@ class RepositoryController extends Controller
 
     public function getPrErrorLogs($repoId, $pullNumber)
     {
-        $repository = GithubRepository::where('id', $repoId)->first();
+        $repository   = GithubRepository::where('id', $repoId)->first();
         $organization = $repository->organization;
 
         // Set the number of activities per page
@@ -1012,7 +1013,7 @@ class RepositoryController extends Controller
     {
         // Set the number of activities per page
         $perPage = 10;
-        $page = request('page', 1);
+        $page    = request('page', 1);
 
         $githubTaskPullRequests = GithubTaskPullRequest::with('task')
             ->select('*', DB::raw('GROUP_CONCAT(pull_number SEPARATOR ",") as pull_number_concatenated'))
@@ -1027,7 +1028,7 @@ class RepositoryController extends Controller
 
     public function repoStatusCheck(Request $request)
     {
-        $gitRepo = GithubRepository::find($request->get('repoId'));
+        $gitRepo              = GithubRepository::find($request->get('repoId'));
         $gitRepo->repo_status = 1;
         $gitRepo->save();
 
@@ -1080,25 +1081,25 @@ class RepositoryController extends Controller
         // Validation Part
         $this->validate(
             $request, [
-                'job_name' => 'required',
+                'job_name'     => 'required',
                 'organization' => 'required',
-                'repository' => 'required',
+                'repository'   => 'required',
             ]
         );
 
         $data = $request->except('_token');
 
         // Store job name
-        $githubRepositoryJob = new GithubRepositoryJob();
+        $githubRepositoryJob                         = new GithubRepositoryJob();
         $githubRepositoryJob->github_organization_id = $data['organization'];
-        $githubRepositoryJob->github_repository_id = $data['repository'];
-        $githubRepositoryJob->job_name = $data['job_name'];
+        $githubRepositoryJob->github_repository_id   = $data['repository'];
+        $githubRepositoryJob->job_name               = $data['job_name'];
         $githubRepositoryJob->save();
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Job name created successfully!',
             ]
         );
@@ -1109,23 +1110,23 @@ class RepositoryController extends Controller
         // Validation Part
         $this->validate(
             $request, [
-                'prIds' => 'required',
+                'prIds'  => 'required',
                 'repoId' => 'required',
             ]
         );
 
         $data = $request->except('_token');
 
-        $repository = GithubRepository::where('id', $data['repoId'])->first();
+        $repository   = GithubRepository::where('id', $data['repoId'])->first();
         $organization = $repository->organization;
 
         // Set the username and token
         $userName = $organization->username;
-        $token = $organization->token;
+        $token    = $organization->token;
 
         // Set the repository owner and name
         $owner = $organization->name;
-        $repo = $repository->name;
+        $repo  = $repository->name;
 
         foreach ($data['prIds'] as $pullNumber) {
             try {
@@ -1134,8 +1135,8 @@ class RepositoryController extends Controller
 
                 // Send a GET request to the GitHub API
                 $githubClient = $this->connectGithubClient($userName, $token);
-                $response = $githubClient->get($url);
-                $activities = json_decode($response->getBody()->getContents(), true);
+                $response     = $githubClient->get($url);
+                $activities   = json_decode($response->getBody()->getContents(), true);
                 \Log::info(print_r($activities, true));
                 if ($activities) {
                     foreach ($activities as $activity) {
@@ -1144,7 +1145,7 @@ class RepositoryController extends Controller
                             $labelName = $labelColor = $commentText = '';
                             if ($activity['event'] === 'labeled' && isset($activity['label'])) {
                                 // Add the label name to the array
-                                $labelName = $activity['label']['name'];
+                                $labelName  = $activity['label']['name'];
                                 $labelColor = '#' . $activity['label']['color'];
                             }
 
@@ -1166,15 +1167,15 @@ class RepositoryController extends Controller
 
                             GithubPrActivity::updateOrCreate([
                                 'github_organization_id' => $organization->id,
-                                'github_repository_id' => $repository->id,
-                                'pull_number' => $pullNumber,
-                                'activity_id' => $activity['id'],
+                                'github_repository_id'   => $repository->id,
+                                'pull_number'            => $pullNumber,
+                                'activity_id'            => $activity['id'],
                             ], [
-                                'user' => $user,
-                                'event' => $activity['event'],
-                                'label_name' => $labelName,
-                                'label_color' => $labelColor,
-                                'comment_text' => $commentText,
+                                'user'                => $user,
+                                'event'               => $activity['event'],
+                                'label_name'          => $labelName,
+                                'label_color'         => $labelColor,
+                                'comment_text'        => $commentText,
                                 'activity_created_at' => $activity_created_at,
                             ]);
                         }
@@ -1209,26 +1210,26 @@ class RepositoryController extends Controller
                                 foreach ($activitiesWithLabels as $activitiesWithLabel) {
                                     // 3. Save the label mapped messages for that task
                                     // WhatsAppController private function createTask($data) Getting code from here.
-                                    $task = Task::find($createdPrTask->task_id);
+                                    $task            = Task::find($createdPrTask->task_id);
                                     $default_user_id = \App\User::USER_ADMIN_ID;
-                                    $message = "#{$task->id}. {$task->task_subject}. PR {$pullNumber}. {$activitiesWithLabel->label_mapped_message}";
-                                    $params = [
-                                        'number' => null,
-                                        'user_id' => $default_user_id,
+                                    $message         = "#{$task->id}. {$task->task_subject}. PR {$pullNumber}. {$activitiesWithLabel->label_mapped_message}";
+                                    $params          = [
+                                        'number'   => null,
+                                        'user_id'  => $default_user_id,
                                         'approved' => 1,
-                                        'status' => 1,
-                                        'task_id' => $task->id,
-                                        'message' => $message,
+                                        'status'   => 1,
+                                        'task_id'  => $task->id,
+                                        'message'  => $message,
                                     ];
 
                                     $user = User::find($task->assign_to);
                                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                                     $chat_message = ChatMessage::create($params);
                                     ChatMessagesQuickData::updateOrCreate([
-                                        'model' => \App\Task::class,
+                                        'model'    => \App\Task::class,
                                         'model_id' => $params['task_id'],
                                     ], [
-                                        'last_communicated_message' => @$params['message'],
+                                        'last_communicated_message'    => @$params['message'],
                                         'last_communicated_message_at' => $chat_message->created_at,
                                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                                     ]);
@@ -1246,17 +1247,17 @@ class RepositoryController extends Controller
                     $arrErr[] = $errorArr;
                     $errorArr = implode(' ', $arrErr);
                 } else {
-                    $arrErr = $errorArr;
+                    $arrErr   = $errorArr;
                     $errorArr = $errorArr;
                 }
 
                 // Save Error Log in DB
-                $githubPrErrorLog = new GithubPrErrorLog();
-                $githubPrErrorLog->type = GithubPrErrorLog::TYPE_PR_ACTIVITY_TIMELINE;
-                $githubPrErrorLog->log = $errorArr;
+                $githubPrErrorLog                         = new GithubPrErrorLog();
+                $githubPrErrorLog->type                   = GithubPrErrorLog::TYPE_PR_ACTIVITY_TIMELINE;
+                $githubPrErrorLog->log                    = $errorArr;
                 $githubPrErrorLog->github_organization_id = $organization->id;
-                $githubPrErrorLog->github_repository_id = $repository->id;
-                $githubPrErrorLog->pull_number = $pullNumber;
+                $githubPrErrorLog->github_repository_id   = $repository->id;
+                $githubPrErrorLog->pull_number            = $pullNumber;
                 $githubPrErrorLog->save();
 
                 return "<div class='modal-header'><p><strong>Message:</strong> Something went wrong !</p></div><div class='modal-body'><p><strong>Error:</strong> {$errorArr}</p></div>";
@@ -1265,8 +1266,8 @@ class RepositoryController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Activities update successfully!',
             ]
         );
@@ -1277,11 +1278,11 @@ class RepositoryController extends Controller
         // Validation Part
         $this->validate(
             $request, [
-                'task_name' => 'required',
-                'task_details' => 'required',
-                'selected_rows' => 'required',
+                'task_name'        => 'required',
+                'task_details'     => 'required',
+                'selected_rows'    => 'required',
                 'selected_repo_id' => 'required',
-                'assign_to' => 'required',
+                'assign_to'        => 'required',
             ]
         );
 
@@ -1291,8 +1292,8 @@ class RepositoryController extends Controller
         if (! $repository) {
             return response()->json(
                 [
-                    'code' => 404,
-                    'data' => [],
+                    'code'    => 404,
+                    'data'    => [],
                     'message' => 'Repository not found',
                 ]
             );
@@ -1302,8 +1303,8 @@ class RepositoryController extends Controller
         if (! $selectedPRs) {
             return response()->json(
                 [
-                    'code' => 404,
-                    'data' => [],
+                    'code'    => 404,
+                    'data'    => [],
                     'message' => 'Rows not selected',
                 ]
             );
@@ -1325,16 +1326,16 @@ class RepositoryController extends Controller
             foreach ($selectedPRs as $selectedPR) {
                 GithubTaskPullRequest::UpdateOrCreate([
                     'github_organization_id' => $organization->id,
-                    'github_repository_id' => $repository->id,
-                    'pull_number' => $selectedPR,
-                    'task_id' => $task->id,
+                    'github_repository_id'   => $repository->id,
+                    'pull_number'            => $selectedPR,
+                    'task_id'                => $task->id,
                 ]);
             }
 
             return response()->json(
                 [
-                    'code' => 200,
-                    'data' => [],
+                    'code'    => 200,
+                    'data'    => [],
                     'message' => 'Task created successfully!',
                 ]
             );
@@ -1342,8 +1343,8 @@ class RepositoryController extends Controller
 
         return response()->json(
             [
-                'code' => 500,
-                'data' => [],
+                'code'    => 500,
+                'data'    => [],
                 'message' => 'Error when creating a task',
             ]
         );
@@ -1351,17 +1352,17 @@ class RepositoryController extends Controller
 
     public function syncRepoLabels(Request $request)
     {
-        $repo_id = $request->input('repo_id');
-        $repository = GithubRepository::where('id', $repo_id)->first();
+        $repo_id      = $request->input('repo_id');
+        $repository   = GithubRepository::where('id', $repo_id)->first();
         $organization = $repository->organization;
 
         // Set the username and token
         $userName = $organization->username;
-        $token = $organization->token;
+        $token    = $organization->token;
 
         // Set the repository owner and name
         $owner = $organization->name;
-        $repo = $repository->name;
+        $repo  = $repository->name;
 
         // Fetch labels for the specific repository from the GitHub API
         $url = "https://api.github.com/repos/{$owner}/{$repo}/labels";
@@ -1369,8 +1370,8 @@ class RepositoryController extends Controller
         // Send a GET request to the GitHub API
         try {
             $githubClient = $this->connectGithubClient($userName, $token);
-            $response = $githubClient->get($url);
-            $labels = json_decode($response->getBody()->getContents(), true);
+            $response     = $githubClient->get($url);
+            $labels       = json_decode($response->getBody()->getContents(), true);
 
             if ($labels) {
                 // Save labels in the database
@@ -1383,16 +1384,16 @@ class RepositoryController extends Controller
 
                 return response()->json(
                     [
-                        'code' => 200,
-                        'data' => [],
+                        'code'    => 200,
+                        'data'    => [],
                         'message' => 'Labels synced successfully!',
                     ]
                 );
             } else {
                 return response()->json(
                     [
-                        'code' => 200,
-                        'data' => [],
+                        'code'    => 200,
+                        'data'    => [],
                         'message' => 'Labels Not Found',
                     ]
                 );
@@ -1401,8 +1402,8 @@ class RepositoryController extends Controller
             // Handle any exceptions or errors
             return response()->json(
                 [
-                    'code' => 500,
-                    'data' => [],
+                    'code'    => 500,
+                    'data'    => [],
                     'message' => 'Labels sync failed!' . $e->getMessage(),
                 ]
             );
@@ -1423,7 +1424,7 @@ class RepositoryController extends Controller
         $labelId = $request->input('label_id');
         $message = $request->input('message');
 
-        $label = GithubRepositoryLabel::findOrFail($labelId);
+        $label          = GithubRepositoryLabel::findOrFail($labelId);
         $label->message = $message;
         $label->save();
 
@@ -1443,23 +1444,23 @@ class RepositoryController extends Controller
                 // Find first or Create PR
                 $pullNumber = $source = $destination = $mergeable_state = '';
                 if (isset($requestData['pull_request'])) {
-                    $pullNumber = $requestData['pull_request']['number'];
-                    $prTitle = $requestData['pull_request']['title'];
-                    $prUrl = $requestData['pull_request']['url'];
-                    $state = $requestData['pull_request']['state'];
-                    $createdBy = $requestData['pull_request']['user']['login'];
-                    $body = $requestData['pull_request']['body'];
+                    $pullNumber        = $requestData['pull_request']['number'];
+                    $prTitle           = $requestData['pull_request']['title'];
+                    $prUrl             = $requestData['pull_request']['url'];
+                    $state             = $requestData['pull_request']['state'];
+                    $createdBy         = $requestData['pull_request']['user']['login'];
+                    $body              = $requestData['pull_request']['body'];
                     $activityCreatedAt = $requestData['pull_request']['created_at'];
-                    $source = $requestData['pull_request']['head']['ref'];
-                    $destination = $requestData['pull_request']['base']['ref'];
-                    $mergeable_state = $requestData['pull_request']['mergeable_state'];
+                    $source            = $requestData['pull_request']['head']['ref'];
+                    $destination       = $requestData['pull_request']['base']['ref'];
+                    $mergeable_state   = $requestData['pull_request']['mergeable_state'];
                 } elseif (isset($requestData['issue'])) {
-                    $pullNumber = $requestData['issue']['number'];
-                    $prTitle = $requestData['issue']['title'];
-                    $prUrl = $requestData['issue']['url'];
-                    $state = $requestData['issue']['state'];
-                    $createdBy = $requestData['issue']['user']['login'];
-                    $body = $requestData['issue']['body'];
+                    $pullNumber        = $requestData['issue']['number'];
+                    $prTitle           = $requestData['issue']['title'];
+                    $prUrl             = $requestData['issue']['url'];
+                    $state             = $requestData['issue']['state'];
+                    $createdBy         = $requestData['issue']['user']['login'];
+                    $body              = $requestData['issue']['body'];
                     $activityCreatedAt = $requestData['issue']['created_at'];
                 }
 
@@ -1468,16 +1469,16 @@ class RepositoryController extends Controller
                 }
 
                 $githubPullRequest = GithubPullRequest::updateOrCreate([
-                    'pull_number' => $pullNumber,
+                    'pull_number'          => $pullNumber,
                     'github_repository_id' => $requestData['repository']['id'],
                 ], [
-                    'repo_name' => $requestData['repository']['name'],
-                    'pr_title' => $prTitle,
-                    'pr_url' => $prUrl,
-                    'state' => $state,
-                    'created_by' => $createdBy,
-                    'source' => $source,
-                    'destination' => $destination,
+                    'repo_name'       => $requestData['repository']['name'],
+                    'pr_title'        => $prTitle,
+                    'pr_url'          => $prUrl,
+                    'state'           => $state,
+                    'created_by'      => $createdBy,
+                    'source'          => $source,
+                    'destination'     => $destination,
                     'mergeable_state' => $mergeable_state,
                 ]);
 
@@ -1485,16 +1486,16 @@ class RepositoryController extends Controller
                 if ($githubPullRequest) {
                     $githubPRActivity = new GithubPrActivity();
 
-                    $githubPRActivity->pull_number = $pullNumber;
+                    $githubPRActivity->pull_number          = $pullNumber;
                     $githubPRActivity->github_repository_id = $requestData['repository']['id'];
-                    $githubPRActivity->event = $requestData['action'];
-                    $githubPRActivity->event_header = $eventHeader;
+                    $githubPRActivity->event                = $requestData['action'];
+                    $githubPRActivity->event_header         = $eventHeader;
 
                     if ($requestData['action'] === 'labeled' && isset($requestData['label'])) {
                         // Add the label name to the array
-                        $labelName = $requestData['label']['name'];
-                        $labelColor = '#' . $requestData['label']['color'];
-                        $githubPRActivity->label_name = $labelName;
+                        $labelName                     = $requestData['label']['name'];
+                        $labelColor                    = '#' . $requestData['label']['color'];
+                        $githubPRActivity->label_name  = $labelName;
                         $githubPRActivity->label_color = $labelColor;
                     }
 
@@ -1502,8 +1503,8 @@ class RepositoryController extends Controller
                         $body = $requestData['comment']['body'];
                     }
 
-                    $githubPRActivity->body = $body;
-                    $githubPRActivity->user = $createdBy;
+                    $githubPRActivity->body                = $body;
+                    $githubPRActivity->user                = $createdBy;
                     $githubPRActivity->activity_created_at = $activityCreatedAt;
                     $githubPRActivity->save();
                 }
@@ -1511,11 +1512,11 @@ class RepositoryController extends Controller
 
             return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
         } catch (\Exception $e) {
-            $errorLog = new GitPullRequestErrorLog();
+            $errorLog                       = new GitPullRequestErrorLog();
             $errorLog->github_repository_id = $requestData['repository']['id'];
-            $errorLog->pull_number = $pullNumber;
-            $errorLog->type = 'pull request';
-            $errorLog->error_message = $e->getMessage();
+            $errorLog->pull_number          = $pullNumber;
+            $errorLog->type                 = 'pull request';
+            $errorLog->error_message        = $e->getMessage();
             Log::channel('github_error')->error($e->getMessage());
 
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
@@ -1529,7 +1530,7 @@ class RepositoryController extends Controller
         $perPage = 20; // Number of items per page
 
         $repo_names = GithubPullRequest::distinct()->pluck('repo_name');
-        $users = GithubPullRequest::distinct()->pluck('created_by');
+        $users      = GithubPullRequest::distinct()->pluck('created_by');
 
         if ($request->ajax()) {
             ini_set('max_execution_time', -1);
@@ -1542,14 +1543,14 @@ class RepositoryController extends Controller
             }
 
             foreach ($pullRequests as $key => $pullRequest) {
-                $getRepo = GithubRepository::find($request->repoId);
+                $getRepo        = GithubRepository::find($request->repoId);
                 $organizationId = $getRepo->github_organization_id ?? '';
 
                 $pullRequests[$key]['mergeable_state'] = $pullRequest->mergeable_state;
-                $pullRequests[$key]['conflict_exist'] = $pullRequest->mergeable_state == 'dirty' ? true : false;
+                $pullRequests[$key]['conflict_exist']  = $pullRequest->mergeable_state == 'dirty' ? true : false;
                 // Get Latest Activity for this PR
                 $pullRequests[$key]['latest_activity'] = [];
-                $latestGithubPrActivity = GithubPrActivity::latest('activity_id')
+                $latestGithubPrActivity                = GithubPrActivity::latest('activity_id')
                     ->where('github_organization_id', $organizationId)
                     ->where('github_repository_id', $request->repoId)
                     ->where('pull_number', $pullRequest->pull_number)
@@ -1557,9 +1558,9 @@ class RepositoryController extends Controller
                 if ($latestGithubPrActivity) {
                     $pullRequests[$key]['latest_activity'] = [
                         'activity_id' => $latestGithubPrActivity->activity_id,
-                        'user' => $latestGithubPrActivity->user,
-                        'event' => $latestGithubPrActivity->event,
-                        'label_name' => $latestGithubPrActivity->label_name,
+                        'user'        => $latestGithubPrActivity->user,
+                        'event'       => $latestGithubPrActivity->event,
+                        'label_name'  => $latestGithubPrActivity->label_name,
                         'label_color' => $latestGithubPrActivity->label_color,
                     ];
                 }
@@ -1595,8 +1596,8 @@ class RepositoryController extends Controller
             $pullRequests = $pullRequests->toArray();
 
             $currentPage = request()->query('page', 1);
-            $start = ($currentPage - 1) * $perPage;
-            $slicedData = array_slice($pullRequests, $start, $perPage);
+            $start       = ($currentPage - 1) * $perPage;
+            $slicedData  = array_slice($pullRequests, $start, $perPage);
 
             $githubPullPaginated = new LengthAwarePaginator(
                 $slicedData,
@@ -1629,18 +1630,18 @@ class RepositoryController extends Controller
     {
         $prActivities = new GithubPrActivity();
 
-        $orgs = GithubOrganization::distinct()->pluck('name', 'id');
-        $repos = GithubRepository::distinct()->pluck('name', 'id');
-        $users = GithubPrActivity::distinct()->pluck('user');
-        $events = GithubPrActivity::distinct()->pluck('event');
+        $orgs         = GithubOrganization::distinct()->pluck('name', 'id');
+        $repos        = GithubRepository::distinct()->pluck('name', 'id');
+        $users        = GithubPrActivity::distinct()->pluck('user');
+        $events       = GithubPrActivity::distinct()->pluck('event');
         $eventHeaders = GithubPrActivity::distinct()->pluck('event_header');
-        $labelNames = GithubPrActivity::distinct()->pluck('label_name');
-        $pullNumbers = GithubPrActivity::distinct()->pluck('pull_number');
+        $labelNames   = GithubPrActivity::distinct()->pluck('label_name');
+        $pullNumbers  = GithubPrActivity::distinct()->pluck('pull_number');
 
-        $repositories = \App\Github\GithubRepository::All();
+        $repositories  = \App\Github\GithubRepository::All();
         $organizations = \App\Github\GithubOrganization::All();
-        $projects = \App\Models\Project::All();
-        $branches = \App\Github\GithubBranchState::All();
+        $projects      = \App\Models\Project::All();
+        $branches      = \App\Github\GithubBranchState::All();
 
         if ($request->org) {
             $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
@@ -1683,7 +1684,7 @@ class RepositoryController extends Controller
 
     public function generateRandomString($length = 10)
     {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+        $characters   = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
         $randomString = '';
 
         for ($i = 0; $i < $length; $i++) {
@@ -1699,9 +1700,9 @@ class RepositoryController extends Controller
         $this->validate(
             $request, [
                 'github_repositories_id' => 'required',
-                'github_type' => 'required',
-                'token_key' => 'required',
-                'expiry_date' => 'required',
+                'github_type'            => 'required',
+                'token_key'              => 'required',
+                'expiry_date'            => 'required',
             ]
         );
 
@@ -1711,8 +1712,8 @@ class RepositoryController extends Controller
         if (! $repository) {
             return response()->json(
                 [
-                    'code' => 404,
-                    'data' => [],
+                    'code'    => 404,
+                    'data'    => [],
                     'message' => 'Repository not found',
                 ]
             );
@@ -1720,20 +1721,20 @@ class RepositoryController extends Controller
 
         $GithubToken = GithubToken::where('github_repositories_id', $data['github_repositories_id'])->first();
         if (! $GithubToken) {
-            $GithubToken = new GithubToken();
+            $GithubToken                         = new GithubToken();
             $GithubToken->github_repositories_id = $data['github_repositories_id'];
         }
-        $GithubToken->created_by = auth()->user()->id;
+        $GithubToken->created_by  = auth()->user()->id;
         $GithubToken->github_type = $data['github_type'];
-        $GithubToken->token_key = $data['token_key'];
+        $GithubToken->token_key   = $data['token_key'];
         $GithubToken->expiry_date = $data['expiry_date'];
         $GithubToken->save();
 
         if ($GithubToken) {
             return response()->json(
                 [
-                    'code' => 200,
-                    'data' => [],
+                    'code'    => 200,
+                    'data'    => [],
                     'message' => 'Token updated successfully!',
                 ]
             );
@@ -1741,8 +1742,8 @@ class RepositoryController extends Controller
 
         return response()->json(
             [
-                'code' => 500,
-                'data' => [],
+                'code'    => 500,
+                'data'    => [],
                 'message' => 'Error when creating a token',
             ]
         );
@@ -1757,9 +1758,9 @@ class RepositoryController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1769,9 +1770,9 @@ class RepositoryController extends Controller
         $GithubToken = GithubToken::where('github_repositories_id', $request->repo_id)->first();
 
         return response()->json([
-            'status' => true,
-            'data' => $GithubToken,
-            'message' => 'repository get successfully',
+            'status'      => true,
+            'data'        => $GithubToken,
+            'message'     => 'repository get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1782,7 +1783,7 @@ class RepositoryController extends Controller
         $this->validate(
             $request, [
                 'github_repositories_id' => 'required',
-                'details' => 'required',
+                'details'                => 'required',
             ]
         );
 
@@ -1792,8 +1793,8 @@ class RepositoryController extends Controller
         if (! $githubToken) {
             return response()->json(
                 [
-                    'code' => 404,
-                    'data' => [],
+                    'code'    => 404,
+                    'data'    => [],
                     'message' => 'Repository Token not found',
                 ]
             );
@@ -1803,8 +1804,8 @@ class RepositoryController extends Controller
                 if ($githubToken['expiry_date'] < $now) {
                     return response()->json(
                         [
-                            'code' => 404,
-                            'data' => [],
+                            'code'    => 404,
+                            'data'    => [],
                             'message' => 'Token or rsa key is expired.',
                         ]
                     );
@@ -1812,19 +1813,19 @@ class RepositoryController extends Controller
             }
         }
 
-        $GithubTokenHistory = new GithubTokenHistory();
+        $GithubTokenHistory                         = new GithubTokenHistory();
         $GithubTokenHistory->github_repositories_id = $githubToken['github_repositories_id'];
-        $GithubTokenHistory->run_by = 0;
-        $GithubTokenHistory->github_type = $githubToken['github_type'];
-        $GithubTokenHistory->token_key = $githubToken['token_key'];
-        $GithubTokenHistory->details = $data['details'];
+        $GithubTokenHistory->run_by                 = 0;
+        $GithubTokenHistory->github_type            = $githubToken['github_type'];
+        $GithubTokenHistory->token_key              = $githubToken['token_key'];
+        $GithubTokenHistory->details                = $data['details'];
         $GithubTokenHistory->save();
 
         if ($githubToken) {
             return response()->json(
                 [
-                    'code' => 200,
-                    'data' => $githubToken,
+                    'code'    => 200,
+                    'data'    => $githubToken,
                     'message' => 'Token history updated successfully!',
                 ]
             );
@@ -1832,8 +1833,8 @@ class RepositoryController extends Controller
 
         return response()->json(
             [
-                'code' => 500,
-                'data' => [],
+                'code'    => 500,
+                'data'    => [],
                 'message' => 'Error when creating a token',
             ]
         );

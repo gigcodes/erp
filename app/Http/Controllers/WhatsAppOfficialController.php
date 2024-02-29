@@ -15,7 +15,7 @@ class WhatsAppOfficialController extends Controller
 
     public function __construct($accountId)
     {
-        $this->account = WhatsappBusinessAccounts::find($accountId);
+        $this->account           = WhatsappBusinessAccounts::find($accountId);
         $this->ignorePhoneNumber = false;
     }
 
@@ -43,9 +43,9 @@ class WhatsAppOfficialController extends Controller
     public function uploadMedia($parameters): array
     {
         $this->ignorePhoneNumber = true;
-        $response = $this->callApi('POST', 'media', $parameters);
+        $response                = $this->callApi('POST', 'media', $parameters);
         if ($response['data']['id']) {
-            $urlResponse = $this->callApi('GET', $response['data']['id']);
+            $urlResponse             = $this->callApi('GET', $response['data']['id']);
             $response['data']['url'] = $urlResponse['data']['url'];
         }
 
@@ -60,6 +60,8 @@ class WhatsAppOfficialController extends Controller
     }
 
     /**
+     * @param mixed $params
+     *
      * @return string[]
      */
     public function buildMessageParams($params): array
@@ -75,20 +77,20 @@ class WhatsAppOfficialController extends Controller
             ]);
             $finalParams = $finalParams + [
                 $params['type'] => [
-                    'id' => $mediaResponse['data']['id'],
+                    'id'       => $mediaResponse['data']['id'],
                     'filename' => $params['file']->getClientOriginalName(),
                 ],
-                'to' => $params['number'],
+                'to'   => $params['number'],
                 'type' => $params['type'],
             ];
         } else {
             $finalParams = $finalParams + [
                 'text' => [
-                    'body' => $params['body'],
+                    'body'        => $params['body'],
                     'preview_url' => $params['preview_url'],
                 ],
-                'to' => $params['number'],
-                'type' => 'text',
+                'to'          => $params['number'],
+                'type'        => 'text',
                 'preview_url' => true,
             ];
         }
@@ -98,10 +100,13 @@ class WhatsAppOfficialController extends Controller
 
     /**
      * Common function to fetch data from API using CURL.
+     *
+     * @param mixed $method
+     * @param mixed $url
      */
     public function callApi($method, $url, array $params = []): array
     {
-        $finalUrl = $this->BASE_API_URL;
+        $finalUrl  = $this->BASE_API_URL;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (! $this->ignorePhoneNumber) {
             $finalUrl .= $this->account->business_phone_number_id . '/';
@@ -109,15 +114,15 @@ class WhatsAppOfficialController extends Controller
         $finalUrl .= $url;
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => $finalUrl,
+            CURLOPT_URL            => $finalUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $this->account->business_access_token,
             ],
@@ -130,7 +135,7 @@ class WhatsAppOfficialController extends Controller
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($params));
         }
         $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $err      = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         LogRequest::log($startTime, $finalUrl, $method, json_encode($params), $response, $httpcode, \App\Http\Controllers\WhatsAppOfficialController::class, 'callApi');

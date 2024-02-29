@@ -104,9 +104,9 @@ class DatabaseController extends Controller
             $return_var = proc_close($process);
 
             if ($return_var === 0) {
-                $commandLog = new DatabaseExportCommandLog();
-                $commandLog->user_id = \Auth::user()->id;
-                $commandLog->command = $cmd;
+                $commandLog           = new DatabaseExportCommandLog();
+                $commandLog->user_id  = \Auth::user()->id;
+                $commandLog->command  = $cmd;
                 $commandLog->response = 'Database exported successfully';
                 $commandLog->save();
 
@@ -120,9 +120,9 @@ class DatabaseController extends Controller
             } else {
                 $errorMessage = "Error exporting database. Exit status: $return_var\nOutput:\n" . $stderr;
 
-                $commandLog = new DatabaseExportCommandLog();
-                $commandLog->user_id = \Auth::user()->id;
-                $commandLog->command = $cmd;
+                $commandLog           = new DatabaseExportCommandLog();
+                $commandLog->user_id  = \Auth::user()->id;
+                $commandLog->command  = $cmd;
                 $commandLog->response = $errorMessage;
                 $commandLog->save();
 

@@ -36,13 +36,13 @@ class AccountController extends Controller
 
         $accounts = $query->orderBy('id', 'desc')->paginate(25);
 
-        $platforms = MarketingPlatform::all();
-        $automation_form = [];
-        $automation_form['posts_per_day'] = Setting::get('posts_per_day');
-        $automation_form['likes_per_day'] = Setting::get('likes_per_day');
-        $automation_form['send_requests_per_day'] = Setting::get('send_requests_per_day');
+        $platforms                                  = MarketingPlatform::all();
+        $automation_form                            = [];
+        $automation_form['posts_per_day']           = Setting::get('posts_per_day');
+        $automation_form['likes_per_day']           = Setting::get('likes_per_day');
+        $automation_form['send_requests_per_day']   = Setting::get('send_requests_per_day');
         $automation_form['accept_requests_per_day'] = Setting::get('accept_requests_per_day');
-        $automation_form['image_per_post'] = Setting::get('image_per_post');
+        $automation_form['image_per_post']          = Setting::get('image_per_post');
 
         $websites = \App\StoreWebsite::select('id', 'title')->get();
 
@@ -60,36 +60,36 @@ class AccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'username' => 'required',
-            'password' => 'required',
-            'email' => 'required:email',
-            'frequency' => 'required',
+            'username'    => 'required',
+            'password'    => 'required',
+            'email'       => 'required:email',
+            'frequency'   => 'required',
             'instance_id' => 'required',
-            'token' => 'required',
-            'platform' => 'required',
+            'token'       => 'required',
+            'platform'    => 'required',
         ]);
 
         $check = Account::where('platform', $request->platform)->where('last_name', $request->username)->first();
         if ($check) {
             return redirect()->back()->with('message', 'Account Already Exist');
         }
-        $account = new Account;
-        $account->first_name = $request->username;
-        $account->last_name = $request->username;
-        $account->password = $request->password;
-        $account->email = $request->email;
-        $account->number = $request->number;
-        $account->provider = $request->provider;
-        $account->frequency = $request->frequency;
+        $account                      = new Account;
+        $account->first_name          = $request->username;
+        $account->last_name           = $request->username;
+        $account->password            = $request->password;
+        $account->email               = $request->email;
+        $account->number              = $request->number;
+        $account->provider            = $request->provider;
+        $account->frequency           = $request->frequency;
         $account->is_customer_support = $request->customer_support;
-        $account->instance_id = $request->instance_id;
-        $account->token = $request->token;
-        $account->send_start = $request->send_start;
-        $account->send_end = $request->send_end;
-        $account->platform = $request->platform;
-        $account->status = $request->status;
-        $account->store_website_id = $request->website;
-        $account->proxy = $request->proxy;
+        $account->instance_id         = $request->instance_id;
+        $account->token               = $request->token;
+        $account->send_start          = $request->send_start;
+        $account->send_end            = $request->send_end;
+        $account->platform            = $request->platform;
+        $account->status              = $request->status;
+        $account->store_website_id    = $request->website;
+        $account->proxy               = $request->proxy;
         $account->save();
 
         return redirect()->back()->with('message', 'Account Saved');
@@ -98,32 +98,32 @@ class AccountController extends Controller
     public function edit(Request $request)
     {
         $this->validate($request, [
-            'username' => 'required',
-            'password' => 'required',
-            'email' => 'required:email',
-            'frequency' => 'required',
+            'username'    => 'required',
+            'password'    => 'required',
+            'email'       => 'required:email',
+            'frequency'   => 'required',
             'instance_id' => 'required',
-            'token' => 'required',
-            'platform' => 'required',
+            'token'       => 'required',
+            'platform'    => 'required',
         ]);
 
-        $account = Account::find($request->id);
-        $account->first_name = $request->username;
-        $account->last_name = $request->username;
-        $account->password = $request->password;
-        $account->email = $request->email;
-        $account->number = $request->number;
-        $account->provider = $request->provider;
-        $account->frequency = $request->frequency;
+        $account                      = Account::find($request->id);
+        $account->first_name          = $request->username;
+        $account->last_name           = $request->username;
+        $account->password            = $request->password;
+        $account->email               = $request->email;
+        $account->number              = $request->number;
+        $account->provider            = $request->provider;
+        $account->frequency           = $request->frequency;
         $account->is_customer_support = $request->customer_support;
-        $account->instance_id = $request->instance_id;
-        $account->token = $request->token;
-        $account->send_start = $request->send_start;
-        $account->send_end = $request->send_end;
-        $account->platform = $request->platform;
-        $account->store_website_id = $request->website;
-        $account->proxy = $request->proxy;
-        $account->status = $request->status;
+        $account->instance_id         = $request->instance_id;
+        $account->token               = $request->token;
+        $account->send_start          = $request->send_start;
+        $account->send_end            = $request->send_end;
+        $account->platform            = $request->platform;
+        $account->store_website_id    = $request->website;
+        $account->proxy               = $request->proxy;
+        $account->status              = $request->status;
         $account->save();
 
         return redirect()->back()->with('message', 'Account Updated');

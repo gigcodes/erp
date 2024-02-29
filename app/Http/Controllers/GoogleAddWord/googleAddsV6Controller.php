@@ -46,7 +46,7 @@ class googleAddsV6Controller extends Controller
     public function main(Request $request)
     {
         $google_redirect_url = route('google-keyword-search-v6');
-        $gClient = new \Google_Client();
+        $gClient             = new \Google_Client();
         $gClient->setApplicationName(env('GOOGLE_ADS_CLIENT_APPLICATION_NAME', null));
         $gClient->setClientId(env('GOOGLE_ADS_CLIENT_ID', null));
         $gClient->setClientSecret(env('GOOGLE_ADS_CLIENT_SECRET', null));
@@ -65,7 +65,7 @@ class googleAddsV6Controller extends Controller
             $gClient->authenticate($request->get('code'));
         }
         if ($gClient->getAccessToken()) {
-            $file = file(storage_path('google_ads_php.ini'));
+            $file      = file(storage_path('google_ads_php.ini'));
             $edit_file = str_replace($file[30], 'refreshToken = "' . $gClient->getAccessToken()['refresh_token'] . '"' . PHP_EOL . '', file_get_contents(storage_path('google_ads_php.ini')));
             file_put_contents(storage_path('google_ads_php.ini'), $edit_file);
 
@@ -130,12 +130,12 @@ class googleAddsV6Controller extends Controller
     /**
      * Runs the example.
      *
-     * @param  GoogleAdsClient  $googleAdsClient the Google Ads API client
-     * @param  int  $customerId the customer ID
-     * @param  int[]  $locationIds the location IDs
-     * @param  int  $languageId the language ID
-     * @param  string[]  $keywords the list of keywords to use as a seed for ideas
-     * @param  string|null  $pageUrl optional URL related to your business to use as a seed for ideas
+     * @param GoogleAdsClient $googleAdsClient the Google Ads API client
+     * @param int             $customerId      the customer ID
+     * @param int[]           $locationIds     the location IDs
+     * @param int             $languageId      the language ID
+     * @param string[]        $keywords        the list of keywords to use as a seed for ideas
+     * @param string|null     $pageUrl         optional URL related to your business to use as a seed for ideas
      */
     // [START GenerateKeywordIdeas]
     public static function runExample(GoogleAdsClient $googleAdsClient, int $customerId, array $locationIds, int $languageId, array $keywords, ?string $pageUrl)
@@ -174,7 +174,7 @@ class googleAddsV6Controller extends Controller
         $response = $keywordPlanIdeaServiceClient->generateKeywordIdeas(
             [
                 // Set the language resource using the provided language ID.
-                'language' => ResourceNames::forLanguageConstant($languageId),
+                'language'   => ResourceNames::forLanguageConstant($languageId),
                 'customerId' => $customerId,
                 // Add the resource name of each location ID to the request.
                 'geoTargetConstants' => $geoTargetConstants,
@@ -198,12 +198,12 @@ class googleAddsV6Controller extends Controller
                 $translateText = $googleTranslate->translate('en', $result->getText());
             }
             $finalData[] = [
-                'keyword' => $result->getText(),
+                'keyword'              => $result->getText(),
                 'avg_monthly_searches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getAvgMonthlySearches(),
-                'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
-                'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
-                'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
-                'translate_text' => $translateText,
+                'competition'          => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
+                'low_top'              => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
+                'high_top'             => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
+                'translate_text'       => $translateText,
 
             ];
         }
@@ -217,252 +217,252 @@ class googleAddsV6Controller extends Controller
             [
                 'language_name' => 'Arabic',
                 'language_code' => 'ar',
-                'criterion_id' => 1019,
+                'criterion_id'  => 1019,
             ],
             [
                 'language_name' => 'Bengali',
                 'language_code' => 'bn',
-                'criterion_id' => 1056,
+                'criterion_id'  => 1056,
             ],
             [
                 'language_name' => 'Bulgarian',
                 'language_code' => 'bg',
-                'criterion_id' => 1020,
+                'criterion_id'  => 1020,
             ],
             [
                 'language_name' => 'Catalan',
                 'language_code' => 'ca',
-                'criterion_id' => 1038,
+                'criterion_id'  => 1038,
             ],
             [
                 'language_name' => 'Chinese (simplified)',
                 'language_code' => 'zh_CN',
-                'criterion_id' => 1017,
+                'criterion_id'  => 1017,
             ],
             [
                 'language_name' => 'Chinese (traditional)',
                 'language_code' => 'zh_TW',
-                'criterion_id' => 1018,
+                'criterion_id'  => 1018,
             ],
             [
                 'language_name' => 'Croatian',
                 'language_code' => 'hr',
-                'criterion_id' => 1039,
+                'criterion_id'  => 1039,
             ],
             [
                 'language_name' => 'Czech',
                 'language_code' => 'cs',
-                'criterion_id' => 1021,
+                'criterion_id'  => 1021,
             ],
             [
                 'language_name' => 'Danish',
                 'language_code' => 'da',
-                'criterion_id' => 1009,
+                'criterion_id'  => 1009,
             ],
             [
                 'language_name' => 'Dutch',
                 'language_code' => 'nl',
-                'criterion_id' => 1010,
+                'criterion_id'  => 1010,
             ],
             [
                 'language_name' => 'English',
                 'language_code' => 'en',
-                'criterion_id' => 1000,
+                'criterion_id'  => 1000,
             ],
             [
                 'language_name' => 'Estonian',
                 'language_code' => 'et',
-                'criterion_id' => 1043,
+                'criterion_id'  => 1043,
             ],
             [
                 'language_name' => 'Filipino',
                 'language_code' => 'tl',
-                'criterion_id' => 1042,
+                'criterion_id'  => 1042,
             ],
             [
                 'language_name' => 'Finnish',
                 'language_code' => 'fi',
-                'criterion_id' => 1011,
+                'criterion_id'  => 1011,
             ],
             [
                 'language_name' => 'French',
                 'language_code' => 'fr',
-                'criterion_id' => 1002,
+                'criterion_id'  => 1002,
             ],
             [
                 'language_name' => 'German',
                 'language_code' => 'de',
-                'criterion_id' => 1001,
+                'criterion_id'  => 1001,
             ],
             [
                 'language_name' => 'Greek',
                 'language_code' => 'el',
-                'criterion_id' => 1022,
+                'criterion_id'  => 1022,
             ],
             [
                 'language_name' => 'Gujarati',
                 'language_code' => 'gu',
-                'criterion_id' => 1072,
+                'criterion_id'  => 1072,
             ],
             [
                 'language_name' => 'Hebrew',
                 'language_code' => 'iw',
-                'criterion_id' => 1027,
+                'criterion_id'  => 1027,
             ],
             [
                 'language_name' => 'Hindi',
                 'language_code' => 'hi',
-                'criterion_id' => 1023,
+                'criterion_id'  => 1023,
             ],
             [
                 'language_name' => 'Hungarian',
                 'language_code' => 'hu',
-                'criterion_id' => 1024,
+                'criterion_id'  => 1024,
             ],
             [
                 'language_name' => 'Icelandic',
                 'language_code' => 'is',
-                'criterion_id' => 1026,
+                'criterion_id'  => 1026,
             ],
             [
                 'language_name' => 'Indonesian',
                 'language_code' => 'id',
-                'criterion_id' => 1025,
+                'criterion_id'  => 1025,
             ],
             [
                 'language_name' => 'Italian',
                 'language_code' => 'it',
-                'criterion_id' => 1004,
+                'criterion_id'  => 1004,
             ],
             [
                 'language_name' => 'Japanese',
                 'language_code' => 'ja',
-                'criterion_id' => 1005,
+                'criterion_id'  => 1005,
             ],
             [
                 'language_name' => 'Kannada',
                 'language_code' => 'kn',
-                'criterion_id' => 1086,
+                'criterion_id'  => 1086,
             ],
             [
                 'language_name' => 'Korean',
                 'language_code' => 'ko',
-                'criterion_id' => 1012,
+                'criterion_id'  => 1012,
             ],
             [
                 'language_name' => 'Latvian',
                 'language_code' => 'lv',
-                'criterion_id' => 1028,
+                'criterion_id'  => 1028,
             ],
             [
                 'language_name' => 'Lithuanian',
                 'language_code' => 'lt',
-                'criterion_id' => 1029,
+                'criterion_id'  => 1029,
             ],
             [
                 'language_name' => 'Malay',
                 'language_code' => 'ms',
-                'criterion_id' => 1102,
+                'criterion_id'  => 1102,
             ],
             [
                 'language_name' => 'Malayalam',
                 'language_code' => 'ml',
-                'criterion_id' => 1098,
+                'criterion_id'  => 1098,
             ],
             [
                 'language_name' => 'Marathi',
                 'language_code' => 'mr',
-                'criterion_id' => 1101,
+                'criterion_id'  => 1101,
             ],
             [
                 'language_name' => 'Norwegian',
                 'language_code' => 'no',
-                'criterion_id' => 1013,
+                'criterion_id'  => 1013,
             ],
             [
                 'language_name' => 'Persian',
                 'language_code' => 'fa',
-                'criterion_id' => 1064,
+                'criterion_id'  => 1064,
             ],
             [
                 'language_name' => 'Polish',
                 'language_code' => 'pl',
-                'criterion_id' => 1030,
+                'criterion_id'  => 1030,
             ],
             [
                 'language_name' => 'Portuguese',
                 'language_code' => 'pt',
-                'criterion_id' => 1014,
+                'criterion_id'  => 1014,
             ],
             [
                 'language_name' => 'Romanian',
                 'language_code' => 'ro',
-                'criterion_id' => 1032,
+                'criterion_id'  => 1032,
             ],
             [
                 'language_name' => 'Russian',
                 'language_code' => 'ru',
-                'criterion_id' => 1031,
+                'criterion_id'  => 1031,
             ],
             [
                 'language_name' => 'Serbian',
                 'language_code' => 'sr',
-                'criterion_id' => 1035,
+                'criterion_id'  => 1035,
             ],
             [
                 'language_name' => 'Slovak',
                 'language_code' => 'sk',
-                'criterion_id' => 1033,
+                'criterion_id'  => 1033,
             ],
             [
                 'language_name' => 'Slovenian',
                 'language_code' => 'sl',
-                'criterion_id' => 1034,
+                'criterion_id'  => 1034,
             ],
             [
                 'language_name' => 'Spanish',
                 'language_code' => 'es',
-                'criterion_id' => 1003,
+                'criterion_id'  => 1003,
             ],
             [
                 'language_name' => 'Swedish',
                 'language_code' => 'sv',
-                'criterion_id' => 1015,
+                'criterion_id'  => 1015,
             ],
             [
                 'language_name' => 'Tamil',
                 'language_code' => 'ta',
-                'criterion_id' => 1130,
+                'criterion_id'  => 1130,
             ],
             [
                 'language_name' => 'Telugu',
                 'language_code' => 'te',
-                'criterion_id' => 1131,
+                'criterion_id'  => 1131,
             ],
             [
                 'language_name' => 'Thai',
                 'language_code' => 'th',
-                'criterion_id' => 1044,
+                'criterion_id'  => 1044,
             ],
             [
                 'language_name' => 'Turkish',
                 'language_code' => 'tr',
-                'criterion_id' => 1037,
+                'criterion_id'  => 1037,
             ],
             [
                 'language_name' => 'Ukrainian',
                 'language_code' => 'uk',
-                'criterion_id' => 1036,
+                'criterion_id'  => 1036,
             ],
             [
                 'language_name' => 'Urdu',
                 'language_code' => 'ur',
-                'criterion_id' => 1041,
+                'criterion_id'  => 1041,
             ],
             [
                 'language_name' => 'Vietnamese',
                 'language_code' => 'vi',
-                'criterion_id' => 1040,
+                'criterion_id'  => 1040,
             ],
         ];
 
@@ -471,9 +471,9 @@ class googleAddsV6Controller extends Controller
 
     public function getGooglelocations()
     {
-        $file = storage_path('app/GoogleAds/geotargets-2020-11-18.csv');
+        $file  = storage_path('app/GoogleAds/geotargets-2020-11-18.csv');
         $array = [];
-        $row = 0;
+        $row   = 0;
         if (($handle = fopen($file, 'r')) !== false) {
             while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 $row++;

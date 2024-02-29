@@ -34,11 +34,12 @@ class Text_Plain_Iptobinary extends IOTransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed. a binary string containing
+     * @param string             $buffer  text to be transformed. a binary string containing
      *                                    an IP address, as returned from MySQL's INET6_ATON
      *                                    function
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string IP address
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
@@ -50,15 +51,16 @@ class Text_Plain_Iptobinary extends IOTransformationsPlugin
      * Returns the html for input field to override default textarea.
      * Note: Return empty string if default textarea is required.
      *
-     * @param  array  $column               column details
-     * @param  int  $row_id               row number
-     * @param  string  $column_name_appendix the name attribute
-     * @param  array  $options              transformation options
-     * @param  string  $value                Current field value
-     * @param  string  $text_dir             text direction
-     * @param  int  $tabindex             tab index
-     * @param  int  $tabindex_for_value   offset for the values tabindex
-     * @param  int  $idindex              id index
+     * @param array  $column               column details
+     * @param int    $row_id               row number
+     * @param string $column_name_appendix the name attribute
+     * @param array  $options              transformation options
+     * @param string $value                Current field value
+     * @param string $text_dir             text direction
+     * @param int    $tabindex             tab index
+     * @param int    $tabindex_for_value   offset for the values tabindex
+     * @param int    $idindex              id index
+     *
      * @return string the html for input field
      */
     public function getInputHtml(
@@ -73,7 +75,7 @@ class Text_Plain_Iptobinary extends IOTransformationsPlugin
         $idindex
     ) {
         $html = '';
-        $val = '';
+        $val  = '';
         if (! empty($value)) {
             $length = strlen($value);
             if ($length == 4 || $length == 16) {

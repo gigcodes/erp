@@ -65,7 +65,7 @@ class FindReplaceController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
@@ -135,19 +135,19 @@ class FindReplaceController extends AbstractController
 
         $column_names = $this->columnNames;
         $column_types = $this->columnTypes;
-        $types = [];
-        $num_cols = count($column_names);
+        $types        = [];
+        $num_cols     = count($column_names);
         for ($i = 0; $i < $num_cols; $i++) {
             $types[$column_names[$i]] = preg_replace('@\\(.*@s', '', $column_types[$i]);
         }
 
         $this->render('table/find_replace/index', [
-            'db' => $this->db,
-            'table' => $this->table,
-            'goto' => $goto,
+            'db'           => $this->db,
+            'table'        => $this->table,
+            'goto'         => $goto,
             'column_names' => $column_names,
-            'types' => $types,
-            'sql_types' => $this->dbi->types,
+            'types'        => $types,
+            'sql_types'    => $this->dbi->types,
         ]);
     }
 
@@ -187,11 +187,12 @@ class FindReplaceController extends AbstractController
     /**
      * Returns HTML for previewing strings found and their replacements
      *
-     * @param  int  $columnIndex index of the column
-     * @param  string  $find        string to find in the column
-     * @param  string  $replaceWith string to replace with
-     * @param  bool  $useRegex    to use Regex replace or not
-     * @param  string  $charSet     character set of the connection
+     * @param int    $columnIndex index of the column
+     * @param string $find        string to find in the column
+     * @param string $replaceWith string to replace with
+     * @param bool   $useRegex    to use Regex replace or not
+     * @param string $charSet     character set of the connection
+     *
      * @return string HTML for previewing strings found and their replacements
      */
     public function getReplacePreview(
@@ -226,23 +227,24 @@ class FindReplaceController extends AbstractController
         }
 
         return $this->template->render('table/find_replace/replace_preview', [
-            'db' => $this->db,
-            'table' => $this->table,
+            'db'           => $this->db,
+            'table'        => $this->table,
             'column_index' => $columnIndex,
-            'find' => $find,
+            'find'         => $find,
             'replace_with' => $replaceWith,
-            'use_regex' => $useRegex,
-            'result' => $result,
+            'use_regex'    => $useRegex,
+            'result'       => $result,
         ]);
     }
 
     /**
      * Finds and returns Regex pattern and their replacements
      *
-     * @param  int  $columnIndex index of the column
-     * @param  string  $find        string to find in the column
-     * @param  string  $replaceWith string to replace with
-     * @param  string  $charSet     character set of the connection
+     * @param int    $columnIndex index of the column
+     * @param string $find        string to find in the column
+     * @param string $replaceWith string to replace with
+     * @param string $charSet     character set of the connection
+     *
      * @return array|bool Array containing original values, replaced values and count
      */
     private function getRegexReplaceRows(
@@ -251,7 +253,7 @@ class FindReplaceController extends AbstractController
         $replaceWith,
         $charSet
     ) {
-        $column = $this->columnNames[$columnIndex];
+        $column    = $this->columnNames[$columnIndex];
         $sql_query = 'SELECT '
             . Util::backquote($column) . ','
             . ' 1,' // to add an extra column that will have replaced value
@@ -304,11 +306,11 @@ class FindReplaceController extends AbstractController
     /**
      * Replaces a given string in a column with a give replacement
      *
-     * @param  int  $columnIndex index of the column
-     * @param  string  $find        string to find in the column
-     * @param  string  $replaceWith string to replace with
-     * @param  bool  $useRegex    to use Regex replace or not
-     * @param  string  $charSet     character set of the connection
+     * @param int    $columnIndex index of the column
+     * @param string $find        string to find in the column
+     * @param string $replaceWith string to replace with
+     * @param bool   $useRegex    to use Regex replace or not
+     * @param string $charSet     character set of the connection
      */
     public function replace(
         $columnIndex,

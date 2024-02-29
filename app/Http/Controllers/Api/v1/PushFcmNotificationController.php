@@ -32,8 +32,8 @@ class PushFcmNotificationController extends Controller
     public function create(request $request)
     {
         $validator = Validator::make($request->all(), [
-            'token' => 'required',
-            'website' => 'required|exists:store_websites,website',
+            'token'     => 'required',
+            'website'   => 'required|exists:store_websites,website',
             'device_id' => 'required',
         ]);
         if ($validator->fails()) {
@@ -41,15 +41,15 @@ class PushFcmNotificationController extends Controller
 
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
-        $storeweb = StoreWebsite::where('website', $request->website)->first();
+        $storeweb   = StoreWebsite::where('website', $request->website)->first();
         $token_data = [
-            'token' => $request->token,
+            'token'            => $request->token,
             'store_website_id' => $storeweb->id,
         ];
         $insert = FcmToken::updateOrCreate(
             [
                 'store_website_id' => $storeweb->id,
-                'device_id' => $request->device_id,
+                'device_id'        => $request->device_id,
             ],
             $token_data
         );
@@ -66,8 +66,8 @@ class PushFcmNotificationController extends Controller
     public function updateLang(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'lang' => 'required|string',
-            'website' => 'required|exists:store_websites,website',
+            'lang'      => 'required|string',
+            'website'   => 'required|exists:store_websites,website',
             'device_id' => 'required|exists:fcm_tokens,device_id',
         ]);
         if ($validator->fails()) {

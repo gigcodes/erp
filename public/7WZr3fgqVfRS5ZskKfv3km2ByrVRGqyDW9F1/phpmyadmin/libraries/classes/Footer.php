@@ -66,11 +66,11 @@ class Footer
     {
         global $dbi;
 
-        $this->template = new Template();
+        $this->template  = new Template();
         $this->isEnabled = true;
-        $this->scripts = new Scripts();
+        $this->scripts   = new Scripts();
         $this->isMinimal = false;
-        $this->relation = new Relation($dbi);
+        $this->relation  = new Relation($dbi);
     }
 
     /**
@@ -93,8 +93,9 @@ class Footer
     /**
      * Remove recursions and iterator objects from an object
      *
-     * @param  mixed  $object Object to clean
-     * @param  array  $stack  Stack used to keep track of recursion, need not be passed for the first time
+     * @param mixed $object Object to clean
+     * @param array $stack  Stack used to keep track of recursion, need not be passed for the first time
+     *
      * @return mixed Reference passed object
      */
     private static function removeRecursion(&$object, array $stack = [])
@@ -126,7 +127,7 @@ class Footer
             // Remove recursions and iterators from $_SESSION['debug']
             self::removeRecursion($_SESSION['debug']);
 
-            $retval = (string) json_encode($_SESSION['debug']);
+            $retval            = (string) json_encode($_SESSION['debug']);
             $_SESSION['debug'] = [];
 
             return json_last_error() ? '\'false\'' : $retval;
@@ -248,7 +249,7 @@ class Footer
      * Set the ajax flag to indicate whether
      * we are servicing an ajax request
      *
-     * @param  bool  $isAjax Whether we are servicing an ajax request
+     * @param bool $isAjax Whether we are servicing an ajax request
      */
     public function setAjax(bool $isAjax): void
     {
@@ -287,7 +288,7 @@ class Footer
 
                 $this->scripts->addCode('var debugSQLInfo = ' . $this->getDebugMessage() . ';');
                 $errorMessages = $this->getErrorMessages();
-                $scripts = $this->scripts->getDisplay();
+                $scripts       = $this->scripts->getDisplay();
 
                 if ($GLOBALS['cfg']['DBG']['demo']) {
                     $gitRevisionInfo = $this->getGitRevisionInfo();
@@ -297,14 +298,14 @@ class Footer
             }
 
             return $this->template->render('footer', [
-                'is_ajax' => $this->isAjax,
-                'is_minimal' => $this->isMinimal,
-                'self_url' => $url ?? null,
-                'error_messages' => $errorMessages ?? '',
-                'scripts' => $scripts ?? '',
-                'is_demo' => $GLOBALS['cfg']['DBG']['demo'],
+                'is_ajax'           => $this->isAjax,
+                'is_minimal'        => $this->isMinimal,
+                'self_url'          => $url ?? null,
+                'error_messages'    => $errorMessages ?? '',
+                'scripts'           => $scripts ?? '',
+                'is_demo'           => $GLOBALS['cfg']['DBG']['demo'],
                 'git_revision_info' => $gitRevisionInfo ?? [],
-                'footer' => $footer ?? '',
+                'footer'            => $footer ?? '',
             ]);
         }
 

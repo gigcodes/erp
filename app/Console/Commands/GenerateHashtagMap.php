@@ -41,7 +41,7 @@ class GenerateHashtagMap extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

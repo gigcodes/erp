@@ -29,15 +29,15 @@ class LdapService
     /**
      * LdapService constructor.
      *
-     * @param  Ldap  $ldap
-     * @param  \BookStack\Auth\UserRepo  $userRepo
+     * @param Ldap                     $ldap
+     * @param \BookStack\Auth\UserRepo $userRepo
      */
     public function __construct(Access\Ldap $ldap, UserRepo $userRepo)
     {
-        $this->ldap = $ldap;
-        $this->config = config('services.ldap');
+        $this->ldap     = $ldap;
+        $this->config   = config('services.ldap');
         $this->userRepo = $userRepo;
-        $this->enabled = config('auth.method') === 'ldap';
+        $this->enabled  = config('auth.method') === 'ldap';
     }
 
     /**
@@ -53,8 +53,9 @@ class LdapService
     /**
      * Search for attributes for a specific user on the ldap
      *
-     * @param  string  $userName
-     * @param  array  $attributes
+     * @param string $userName
+     * @param array  $attributes
+     *
      * @return null|array
      *
      * @throws LdapException
@@ -66,7 +67,7 @@ class LdapService
 
         // Find user
         $userFilter = $this->buildFilter($this->config['user_filter'], ['user' => $userName]);
-        $baseDn = $this->config['base_dn'];
+        $baseDn     = $this->config['base_dn'];
 
         $followReferrals = $this->config['follow_referrals'] ? 1 : 0;
         $this->ldap->setOption($ldapConnection, LDAP_OPT_REFERRALS, $followReferrals);
@@ -82,13 +83,16 @@ class LdapService
      * Get the details of a user from LDAP using the given username.
      * User found via configurable user filter.
      *
+     *
+     * @param mixed $userName
+     *
      * @return array|null
      *
      * @throws LdapException
      */
     public function getUserDetails($userName)
     {
-        $emailAttr = $this->config['email_attribute'];
+        $emailAttr       = $this->config['email_attribute'];
         $displayNameAttr = $this->config['display_name_attribute'];
 
         $user = $this->getUserWithAttributes($userName, ['cn', 'uid', 'dn', $emailAttr, $displayNameAttr]);
@@ -100,9 +104,9 @@ class LdapService
         $userCn = $this->getUserResponseProperty($user, 'cn', null);
 
         return [
-            'uid' => $this->getUserResponseProperty($user, 'uid', $user['dn']),
-            'name' => $this->getUserResponseProperty($user, $displayNameAttr, $userCn),
-            'dn' => $user['dn'],
+            'uid'   => $this->getUserResponseProperty($user, 'uid', $user['dn']),
+            'name'  => $this->getUserResponseProperty($user, $displayNameAttr, $userCn),
+            'dn'    => $user['dn'],
             'email' => $this->getUserResponseProperty($user, $emailAttr, null),
         ];
     }
@@ -110,6 +114,8 @@ class LdapService
     /**
      * Get a property from an LDAP user response fetch.
      * Handles properties potentially being part of an array.
+     *
+     * @param mixed $defaultValue
      *
      * @return mixed
      */
@@ -123,8 +129,9 @@ class LdapService
     }
 
     /**
-     * @param  string  $username
-     * @param  string  $password
+     * @param string $username
+     * @param string $password
+     *
      * @return bool
      *
      * @throws LdapException
@@ -155,11 +162,13 @@ class LdapService
      * otherwise anonymous access is attempted.
      *
      *
+     * @param mixed $connection
+     *
      * @throws LdapException
      */
     protected function bindSystemUser($connection)
     {
-        $ldapDn = $this->config['dn'];
+        $ldapDn   = $this->config['dn'];
         $ldapPass = $this->config['pass'];
 
         $isAnonymous = ($ldapDn === false || $ldapPass === false);
@@ -199,7 +208,7 @@ class LdapService
             $this->ldap->setOption(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
         }
 
-        $serverDetails = $this->parseServerString($this->config['server']);
+        $serverDetails  = $this->parseServerString($this->config['server']);
         $ldapConnection = $this->ldap->connect($serverDetails['host'], $serverDetails['port']);
 
         if ($ldapConnection === false) {
@@ -219,6 +228,8 @@ class LdapService
     /**
      * Parse a LDAP server string and return the host and port for
      * a connection. Is flexible to formats such as 'ldap.example.com:8069' or 'ldaps://ldap.example.com'
+     *
+     * @param mixed $serverString
      *
      * @return array
      */
@@ -241,14 +252,15 @@ class LdapService
     /**
      * Build a filter string by injecting common variables.
      *
-     * @param  string  $filterString
+     * @param string $filterString
+     *
      * @return string
      */
     protected function buildFilter($filterString, array $attrs)
     {
         $newAttrs = [];
         foreach ($attrs as $key => $attrText) {
-            $newKey = '${' . $key . '}';
+            $newKey            = '${' . $key . '}';
             $newAttrs[$newKey] = $this->ldap->escape($attrText);
         }
 
@@ -258,7 +270,8 @@ class LdapService
     /**
      * Get the groups a user is a part of on ldap
      *
-     * @param  string  $userName
+     * @param string $userName
+     *
      * @return array
      *
      * @throws LdapException
@@ -266,7 +279,7 @@ class LdapService
     public function getUserGroups($userName)
     {
         $groupsAttr = $this->config['group_attribute'];
-        $user = $this->getUserWithAttributes($userName, [$groupsAttr]);
+        $user       = $this->getUserWithAttributes($userName, [$groupsAttr]);
 
         if ($user === null) {
             return [];
@@ -281,8 +294,9 @@ class LdapService
     /**
      * Get the parent groups of an array of groups
      *
-     * @param  array  $groupsArray
-     * @param  array  $checked
+     * @param array $groupsArray
+     * @param array $checked
+     *
      * @return array
      *
      * @throws LdapException
@@ -295,9 +309,9 @@ class LdapService
                 continue;
             }
 
-            $groupsToAdd = $this->getGroupGroups($groupName);
+            $groupsToAdd   = $this->getGroupGroups($groupName);
             $groups_to_add = array_merge($groups_to_add, $groupsToAdd);
-            $checked[] = $groupName;
+            $checked[]     = $groupName;
         }
         $groupsArray = array_unique(array_merge($groupsArray, $groups_to_add), SORT_REGULAR);
 
@@ -311,7 +325,8 @@ class LdapService
     /**
      * Get the parent groups of a single group
      *
-     * @param  string  $groupName
+     * @param string $groupName
+     *
      * @return array
      *
      * @throws LdapException
@@ -324,11 +339,11 @@ class LdapService
         $followReferrals = $this->config['follow_referrals'] ? 1 : 0;
         $this->ldap->setOption($ldapConnection, LDAP_OPT_REFERRALS, $followReferrals);
 
-        $baseDn = $this->config['base_dn'];
+        $baseDn     = $this->config['base_dn'];
         $groupsAttr = strtolower($this->config['group_attribute']);
 
         $groupFilter = 'CN=' . $this->ldap->escape($groupName);
-        $groups = $this->ldap->searchAndGetEntries($ldapConnection, $baseDn, $groupFilter, [$groupsAttr]);
+        $groups      = $this->ldap->searchAndGetEntries($ldapConnection, $baseDn, $groupFilter, [$groupsAttr]);
         if ($groups['count'] === 0) {
             return [];
         }
@@ -348,7 +363,7 @@ class LdapService
     {
         $groupsAttr = strtolower($this->config['group_attribute']);
         $ldapGroups = [];
-        $count = 0;
+        $count      = 0;
 
         if (isset($userGroupSearchResponse[$groupsAttr]['count'])) {
             $count = (int) $userGroupSearchResponse[$groupsAttr]['count'];
@@ -367,7 +382,7 @@ class LdapService
     /**
      * Sync the LDAP groups to the user roles for the current user
      *
-     * @param  \BookStack\Auth\User  $user
+     * @param \BookStack\Auth\User $user
      *
      * @throws LdapException
      */
@@ -417,7 +432,8 @@ class LdapService
      * Check a role against an array of group names to see if it matches.
      * Checked against role 'external_auth_id' if set otherwise the name of the role.
      *
-     * @param  \BookStack\Auth\Role  $role
+     * @param \BookStack\Auth\Role $role
+     *
      * @return bool
      */
     protected function roleMatchesGroupNames(Role $role, array $groupNames)

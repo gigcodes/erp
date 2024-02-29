@@ -20,11 +20,11 @@ class UpdateUiDevicesStatusNullToNoneInUiDevicesTable extends Migration
             $device->update(['status' => 10]); // 10 - None in site_development_statuses table
 
             $dataArray = [
-                'id' => $device->id,
+                'id'         => $device->id,
                 'uicheck_id' => $device->uicheck_id,
-                'device_no' => $device->device_no,
+                'device_no'  => $device->device_no,
                 'old_status' => $old_status,
-                'status' => 10,
+                'status'     => 10,
             ];
 
             $collection = collect($dataArray);
@@ -41,12 +41,12 @@ class UpdateUiDevicesStatusNullToNoneInUiDevicesTable extends Migration
             // $data['user_id'] = \Auth::user()->id ?? '';
             UiResponsivestatusHistory::create(
                 [
-                    'user_id' => 6, // Yogesh user id.
+                    'user_id'      => 6, // Yogesh user id.
                     'ui_device_id' => $data->id ?? '',
-                    'uicheck_id' => $data->uicheck_id ?? '',
-                    'device_no' => $data->device_no ?? '',
-                    'status' => $data->status ?? '',
-                    'old_status' => $old_status ?? '',
+                    'uicheck_id'   => $data->uicheck_id ?? '',
+                    'device_no'    => $data->device_no ?? '',
+                    'status'       => $data->status ?? '',
+                    'old_status'   => $old_status ?? '',
                 ]
             );
         } catch (\Exception $e) {

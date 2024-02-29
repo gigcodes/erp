@@ -14,6 +14,13 @@ class InstantMessagingHelper
      * Save Messages For Send Whats App
      *
      * @param $numberTo , $text , $image , $priority, $numberFrom , $client , sendAfter
+     * @param null|mixed $text
+     * @param null|mixed $image
+     * @param null|mixed $priority
+     * @param null|mixed $numberFrom
+     * @param null|mixed $client
+     * @param null|mixed $sendAfter
+     *
      * @return void
      *
      * @static
@@ -38,9 +45,9 @@ class InstantMessagingHelper
             }
 
             //saving queue
-            $queue = new ImQueue();
-            $queue->im_client = $client;
-            $queue->number_to = $numberTo;
+            $queue              = new ImQueue();
+            $queue->im_client   = $client;
+            $queue->number_to   = $numberTo;
             $queue->number_from = $numberFrom;
 
             //getting image or text
@@ -110,15 +117,15 @@ class InstantMessagingHelper
         }
 
         // Insert message into queue
-        $imQueue = new ImQueue();
-        $imQueue->im_client = 'whatsapp';
-        $imQueue->number_to = $numberTo;
-        $imQueue->number_from = $numberFrom;
-        $imQueue->text = $message;
-        $imQueue->image = $image;
-        $imQueue->priority = $priority;
-        $imQueue->send_after = $sendAfter;
-        $imQueue->broadcast_id = $broadcastId;
+        $imQueue                            = new ImQueue();
+        $imQueue->im_client                 = 'whatsapp';
+        $imQueue->number_to                 = $numberTo;
+        $imQueue->number_from               = $numberFrom;
+        $imQueue->text                      = $message;
+        $imQueue->image                     = $image;
+        $imQueue->priority                  = $priority;
+        $imQueue->send_after                = $sendAfter;
+        $imQueue->broadcast_id              = $broadcastId;
         $imQueue->marketing_message_type_id = 2;
 
         return $imQueue->save();
@@ -128,6 +135,8 @@ class InstantMessagingHelper
      * Return Json Encode URL
      *
      * @param $text , $image
+     * @param mixed $image
+     *
      * @return jsonencoded image
      */
     public function encodeImage($text, $image)
@@ -150,14 +159,14 @@ class InstantMessagingHelper
     {
         // Set tags to replace
         $fields = [
-            '[[NAME]]' => $customer->name,
-            '[[CITY]]' => $customer->city,
-            '[[EMAIL]]' => $customer->email,
-            '[[PHONE]]' => $customer->phone,
-            '[[PINCODE]]' => $customer->pincode,
+            '[[NAME]]'            => $customer->name,
+            '[[CITY]]'            => $customer->city,
+            '[[EMAIL]]'           => $customer->email,
+            '[[PHONE]]'           => $customer->phone,
+            '[[PINCODE]]'         => $customer->pincode,
             '[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number,
-            '[[SHOESIZE]]' => $customer->shoe_size,
-            '[[CLOTHINGSIZE]]' => $customer->clothing_size,
+            '[[SHOESIZE]]'        => $customer->shoe_size,
+            '[[CLOTHINGSIZE]]'    => $customer->clothing_size,
         ];
 
         // Get replacement tags from message
@@ -179,6 +188,9 @@ class InstantMessagingHelper
      * Check if the number is correct
      *
      * @var int
+     *
+     * @param mixed $phone
+     * @param mixed $type
      */
     public static function customerPhoneCheck($phone, $type)
     {
@@ -203,8 +215,8 @@ class InstantMessagingHelper
 
         try {
             $countries = \Config('countries');
-            $country = $countries[$customer->country];
-            $code = $country['code'];
+            $country   = $countries[$customer->country];
+            $code      = $country['code'];
 
             //getting first 3 digit from number
             $length = strlen($country['code']);
@@ -238,7 +250,7 @@ class InstantMessagingHelper
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
         try {
             $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
-            $isValid = $phoneUtil->isValidNumber($swissNumberProto);
+            $isValid          = $phoneUtil->isValidNumber($swissNumberProto);
             if ($isValid == false) {
                 if ($type == 1) {
                     $customer->broadcast_number = null;

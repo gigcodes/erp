@@ -31,13 +31,13 @@ class LogListMagento extends Model
         Log::channel('listMagento')->$severity($message);
 
         // Write to database
-        $logListMagento = new LogListMagento();
-        $logListMagento->product_id = $productId;
-        $logListMagento->message = $message;
+        $logListMagento                   = new LogListMagento();
+        $logListMagento->product_id       = $productId;
+        $logListMagento->message          = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
-        $logListMagento->sync_status = $syncStatus;
-        $logListMagento->languages = $languages;
-        $logListMagento->user_id = @\Auth::user()->id;
+        $logListMagento->sync_status      = $syncStatus;
+        $logListMagento->languages        = $languages;
+        $logListMagento->user_id          = @\Auth::user()->id;
         $logListMagento->save();
 
         // Return

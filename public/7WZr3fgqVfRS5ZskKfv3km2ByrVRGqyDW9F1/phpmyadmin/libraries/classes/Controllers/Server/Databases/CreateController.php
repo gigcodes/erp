@@ -36,7 +36,7 @@ final class CreateController extends AbstractController
         global $cfg, $db;
 
         $params = [
-            'new_db' => $_POST['new_db'] ?? null,
+            'new_db'       => $_POST['new_db'] ?? null,
             'db_collation' => $_POST['db_collation'] ?? null,
         ];
 
@@ -57,8 +57,8 @@ final class CreateController extends AbstractController
         $sqlQuery = 'CREATE DATABASE ' . Util::backquote($params['new_db']);
         if (! empty($params['db_collation'])) {
             [$databaseCharset] = explode('_', $params['db_collation']);
-            $charsets = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
-            $collations = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
+            $charsets          = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
+            $collations        = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
             if (
                 array_key_exists($databaseCharset, $charsets)
                 && array_key_exists($params['db_collation'], $collations[$databaseCharset])
@@ -77,7 +77,7 @@ final class CreateController extends AbstractController
             $db = '';
 
             $message = Message::rawError($this->dbi->getError());
-            $json = ['message' => $message];
+            $json    = ['message' => $message];
 
             $this->response->setRequestStatus(false);
         } else {
@@ -89,9 +89,9 @@ final class CreateController extends AbstractController
             $scriptName = Util::getScriptNameForOption($cfg['DefaultTabDatabase'], 'database');
 
             $json = [
-                'message' => $message,
+                'message'   => $message,
                 'sql_query' => Generator::getMessage('', $sqlQuery, 'success'),
-                'url' => $scriptName . Url::getCommon(
+                'url'       => $scriptName . Url::getCommon(
                     ['db' => $params['new_db']],
                     ! str_contains($scriptName, '?') ? '?' : '&'
                 ),

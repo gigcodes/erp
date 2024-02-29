@@ -22,12 +22,12 @@ class CreateSeoStatusesTable extends Migration
         });
 
         \Illuminate\Support\Facades\DB::table('seo_statuses')->insert([
-            'status_name' => 'Planned',
+            'status_name'  => 'Planned',
             'status_alias' => 'planned',
         ]);
 
         \Illuminate\Support\Facades\DB::table('seo_statuses')->insert([
-            'status_name' => 'Admin Approved',
+            'status_name'  => 'Admin Approved',
             'status_alias' => 'admin_approve',
         ]);
     }

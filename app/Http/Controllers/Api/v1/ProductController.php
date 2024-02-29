@@ -33,6 +33,8 @@ class ProductController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $sku
      */
     public function price(Request $request, $sku)
     {
@@ -43,18 +45,18 @@ class ProductController extends Controller
         }
 
         if ($product) {
-            $price = $product->getPrice($request->store_website, $request->country_code, '', '', '', '', '', '', '', '', $request->order_id, $product->id);
+            $price              = $product->getPrice($request->store_website, $request->country_code, '', '', '', '', '', '', '', '', $request->order_id, $product->id);
             $price['sub_total'] = $price['total'];
-            $price['duty'] = $product->getDuty($request->store_website);
-            $extra = ($price['total'] * $price['duty']) / 100;
-            $price['total'] = $price['total'] + $extra;
+            $price['duty']      = $product->getDuty($request->store_website);
+            $extra              = ($price['total'] * $price['duty']) / 100;
+            $price['total']     = $price['total'] + $extra;
 
             $return = [
                 'original_price' => $price['original_price'],
-                'promotion' => $price['promotion'],
-                'sub_total' => $price['sub_total'],
-                'duty' => $price['duty'],
-                'total' => number_format($price['total'], 2, '.', ''),
+                'promotion'      => $price['promotion'],
+                'sub_total'      => $price['sub_total'],
+                'duty'           => $price['duty'],
+                'total'          => number_format($price['total'], 2, '.', ''),
             ];
 
             return response()->json(['code' => 200, 'message' => 'Success', 'data' => $return]);
@@ -70,7 +72,7 @@ class ProductController extends Controller
             $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
             // $get
             if ($storeWebsite) {
-                $getStoreWebsiteOrder = StoreWebsiteOrder::where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)->first();
+                $getStoreWebsiteOrder       = StoreWebsiteOrder::where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)->first();
                 $ProductCancellationPolicie = ProductCancellationPolicie::where('store_website_id', $storeWebsite->id)->first();
                 if ($getStoreWebsiteOrder) {
                     //check order status
@@ -78,7 +80,7 @@ class ProductController extends Controller
                     if ($cancellationType == 'order') {
                         $orderProducts = $getOrder->order_product;
                     } elseif ($cancellationType == 'products') {
-                        $skus = explode(',', rtrim($request->product_sku, ','));
+                        $skus          = explode(',', rtrim($request->product_sku, ','));
                         $orderProducts = OrderProduct::where('order_id', '=', $request->order_id)->whereIn('sku', $skus)->get();
                     } else {
                         $orderProducts = [];
@@ -86,22 +88,22 @@ class ProductController extends Controller
                     if (count($orderProducts) > 0) {
                         $results = [];
                         foreach ($orderProducts as $orderProduct) {
-                            $result_input = $request->input();
+                            $result_input               = $request->input();
                             $result_input['iscanceled'] = true;
-                            $result_input['isrefund'] = true;
-                            $result_input['isreturn'] = true;
-                            $result_input['sku'] = $orderProduct->sku;
+                            $result_input['isrefund']   = true;
+                            $result_input['isreturn']   = true;
+                            $result_input['sku']        = $orderProduct->sku;
                             if ($ProductCancellationPolicie) {
-                                $created = new Carbon($orderProduct->created_at);
-                                $now = Carbon::now();
+                                $created    = new Carbon($orderProduct->created_at);
+                                $now        = Carbon::now();
                                 $difference = ($created->diff($now)->days < 1) ? 0 : $created->diffInDays($now);
                                 if ($difference >= $ProductCancellationPolicie->days_cancelation) {
                                     $result_input['iscanceled'] = false;
-                                    $result_input['isreturn'] = false;
+                                    $result_input['isreturn']   = false;
                                 }
 
-                                $created = new Carbon($orderProduct->shipment_date);
-                                $now = Carbon::now();
+                                $created    = new Carbon($orderProduct->shipment_date);
+                                $now        = Carbon::now();
                                 $difference = ($created->diff($now)->days < 1) ? 0 : $created->diffInDays($now);
                                 if ($difference >= $ProductCancellationPolicie->days_refund) {
                                     $result_input['isrefund'] = false;
@@ -110,7 +112,7 @@ class ProductController extends Controller
                             }
                             if ($getOrder->order_status_id == 11) {
                                 $result_input['iscanceled'] = false;
-                                $result_input['isreturn'] = false;
+                                $result_input['isreturn']   = false;
                             }
 
                             if ($getOrder->shipment_date != '' && ! is_null($getOrder->shipment_date)) {
@@ -147,7 +149,7 @@ class ProductController extends Controller
         $result_input = ['has_return_request' => false];
         if ($request->website) {
             $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
-            $sku = explode('-', $request->product_sku);
+            $sku          = explode('-', $request->product_sku);
             // $get
             if ($storeWebsite) {
                 $returnExchange = StoreWebsiteOrder::where('website_id', $storeWebsite->id)->where('platform_order_id', $request->order_id)
@@ -157,15 +159,15 @@ class ProductController extends Controller
                     ->where('op.sku', $sku[0])
                     ->first();
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
-                $categoriesRef = null;
-                $productRef = null;
+                $categoriesRef  = null;
+                $productRef     = null;
 
                 $order = Order::select('created_at', 'order_return_request')->withTrashed()->where('id', $request->order_id)->first();
                 if ($order) {
-                    $orderDays = strtotime($order->created_at);
+                    $orderDays    = strtotime($order->created_at);
                     $ordercurrent = strtotime(date('Y-m-d H:i:s'));
-                    $timeleft = $ordercurrent - $orderDays;
-                    $daysPanding = round((($timeleft / 24) / 60) / 60);
+                    $timeleft     = $ordercurrent - $orderDays;
+                    $daysPanding  = round((($timeleft / 24) / 60) / 60);
                     if ($order->order_return_request == 1) {
                         $result_input = ['has_return_request' => true, 'duration' => $daysPanding];
                     }
@@ -197,14 +199,14 @@ class ProductController extends Controller
     {
         if ($request->category) {
             $eligible_for_return = 'No';
-            $duration = 0;
-            $categories = Category::select('days_refund')->where('id', '=', $request->category)->first();
+            $duration            = 0;
+            $categories          = Category::select('days_refund')->where('id', '=', $request->category)->first();
             if ($categories) {
                 if ($categories->days_refund != null) {
                     $categoriesRef = $categories->days_refund;
 
                     $eligible_for_return = 'Yes';
-                    $duration = $categoriesRef;
+                    $duration            = $categoriesRef;
                 }
             }
 
@@ -219,13 +221,13 @@ class ProductController extends Controller
     public function wishList(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'website' => 'required|exists:store_websites,website',
-            'customer_name' => 'required',
-            'customer_email' => 'required',
-            'language_code' => 'required',
-            'product_sku' => 'required',
-            'product_name' => 'required',
-            'product_price' => 'required',
+            'website'          => 'required|exists:store_websites,website',
+            'customer_name'    => 'required',
+            'customer_email'   => 'required',
+            'language_code'    => 'required',
+            'product_sku'      => 'required',
+            'product_name'     => 'required',
+            'product_price'    => 'required',
             'product_currency' => 'required',
         ]);
 
@@ -237,13 +239,13 @@ class ProductController extends Controller
         }
 
         $customer = \App\Customer::where('email', $request->customer_email)->where('store_website_id', $storeweb->id)->first();
-        $basket = \App\CustomerBasket::where('customer_email', $request->customer_email)->first();
+        $basket   = \App\CustomerBasket::where('customer_email', $request->customer_email)->first();
         if (! $basket) {
-            $basket = new \App\CustomerBasket;
-            $basket->customer_name = $request->customer_name;
-            $basket->customer_email = $request->customer_email;
+            $basket                   = new \App\CustomerBasket;
+            $basket->customer_name    = $request->customer_name;
+            $basket->customer_email   = $request->customer_email;
             $basket->store_website_id = $storeweb->id;
-            $basket->language_code = $request->language_code;
+            $basket->language_code    = $request->language_code;
             $basket->save();
         }
 
@@ -253,13 +255,13 @@ class ProductController extends Controller
 
         $basketProduct = \App\CustomerBasketProduct::where('customer_basket_id', $basket->id)->where('product_sku', $sku[0])->first();
         if (! $basketProduct) {
-            $basketProduct = new \App\CustomerBasketProduct;
+            $basketProduct                     = new \App\CustomerBasketProduct;
             $basketProduct->customer_basket_id = $basket->id;
-            $basketProduct->product_id = $product->id;
-            $basketProduct->product_sku = $product->sku;
-            $basketProduct->product_name = $request->product_name;
-            $basketProduct->product_price = $request->product_price;
-            $basketProduct->product_currency = $request->product_currency;
+            $basketProduct->product_id         = $product->id;
+            $basketProduct->product_sku        = $product->sku;
+            $basketProduct->product_name       = $request->product_name;
+            $basketProduct->product_price      = $request->product_price;
+            $basketProduct->product_currency   = $request->product_currency;
             $basketProduct->save();
         }
 
@@ -271,9 +273,9 @@ class ProductController extends Controller
     public function wishListRemove(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'website' => 'required|exists:store_websites,website',
+            'website'        => 'required|exists:store_websites,website',
             'customer_email' => 'required',
-            'product_sku' => 'required',
+            'product_sku'    => 'required',
         ]);
 
         $storeweb = StoreWebsite::where('website', $request->website)->first();

@@ -15,12 +15,12 @@ class AutoCommentHistoryController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * get comments, hashtags and country list for commenting in bulk
+     *                                   get comments, hashtags and country list for commenting in bulk
      */
     public function index(Request $request)
     {
-        $comments = AutoCommentHistory::orderBy('created_at', 'DESC');
-        $hashtags = AutoReplyHashtags::all();
+        $comments  = AutoCommentHistory::orderBy('created_at', 'DESC');
+        $hashtags  = AutoReplyHashtags::all();
         $countries = TargetLocation::all();
 
         if ($request->get('verified')) {
@@ -85,12 +85,14 @@ class AutoCommentHistoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\AutoCommentHistory  $autoCommentHistory
+     * @param \App\AutoCommentHistory $autoCommentHistory
+     * @param mixed                   $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $comment = AutoCommentHistory::find($id);
+        $comment              = AutoCommentHistory::find($id);
         $comment->is_verified = 1;
         $comment->save();
 

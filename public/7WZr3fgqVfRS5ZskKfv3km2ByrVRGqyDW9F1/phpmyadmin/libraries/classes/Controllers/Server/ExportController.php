@@ -28,7 +28,7 @@ final class ExportController extends AbstractController
     {
         parent::__construct($response, $template);
         $this->export = $export;
-        $this->dbi = $dbi;
+        $this->dbi    = $dbi;
     }
 
     public function __invoke(): void
@@ -42,14 +42,14 @@ final class ExportController extends AbstractController
             $this->dbi->selectDb('mysql');
         }
 
-        $pageSettings = new PageSettings('Export');
+        $pageSettings          = new PageSettings('Export');
         $pageSettingsErrorHtml = $pageSettings->getErrorHTML();
-        $pageSettingsHtml = $pageSettings->getHTML();
+        $pageSettingsHtml      = $pageSettings->getHTML();
 
         $this->addScriptFiles(['export.js']);
 
         $select_item = $tmp_select ?? '';
-        $databases = $this->export->getDatabasesForSelectOptions($select_item);
+        $databases   = $this->export->getDatabasesForSelectOptions($select_item);
 
         if (! isset($sql_query)) {
             $sql_query = '';
@@ -87,8 +87,8 @@ final class ExportController extends AbstractController
 
         $this->render('server/export/index', array_merge($options, [
             'page_settings_error_html' => $pageSettingsErrorHtml,
-            'page_settings_html' => $pageSettingsHtml,
-            'databases' => $databases,
+            'page_settings_html'       => $pageSettingsHtml,
+            'databases'                => $databases,
         ]));
     }
 }

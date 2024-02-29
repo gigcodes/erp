@@ -100,9 +100,9 @@ class Table implements Stringable
     private $relation;
 
     /**
-     * @param  string  $tableName table name
-     * @param  string  $dbName    database name
-     * @param  DatabaseInterface|null  $dbi       database interface for the table
+     * @param string                 $tableName table name
+     * @param string                 $dbName    database name
+     * @param DatabaseInterface|null $dbi       database interface for the table
      */
     public function __construct($tableName, $dbName, ?DatabaseInterface $dbi = null)
     {
@@ -110,9 +110,9 @@ class Table implements Stringable
             $dbi = $GLOBALS['dbi'];
         }
 
-        $this->dbi = $dbi;
-        $this->name = $tableName;
-        $this->dbName = $dbName;
+        $this->dbi      = $dbi;
+        $this->name     = $tableName;
+        $this->dbName   = $dbName;
         $this->relation = new Relation($this->dbi);
     }
 
@@ -129,9 +129,10 @@ class Table implements Stringable
     /**
      * Table getter
      *
-     * @param  string  $tableName table name
-     * @param  string  $dbName    database name
-     * @param  DatabaseInterface|null  $dbi       database interface for the table
+     * @param string                 $tableName table name
+     * @param string                 $dbName    database name
+     * @param DatabaseInterface|null $dbi       database interface for the table
+     *
      * @return Table
      */
     public static function get($tableName, $dbName, ?DatabaseInterface $dbi = null)
@@ -162,8 +163,9 @@ class Table implements Stringable
     /**
      * returns table name
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @return string  table name
+     * @param bool $backquoted whether to quote name with backticks ``
+     *
+     * @return string table name
      */
     public function getName($backquoted = false)
     {
@@ -177,8 +179,9 @@ class Table implements Stringable
     /**
      * returns database name for this table
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @return string  database name for this table
+     * @param bool $backquoted whether to quote name with backticks ``
+     *
+     * @return string database name for this table
      */
     public function getDbName($backquoted = false)
     {
@@ -192,7 +195,8 @@ class Table implements Stringable
     /**
      * returns full name for table, including database name
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
+     * @param bool $backquoted whether to quote name with backticks ``
+     *
      * @return string
      */
     public function getFullName($backquoted = false)
@@ -204,7 +208,7 @@ class Table implements Stringable
     /**
      * Checks the storage engine used to create table
      *
-     * @param  array|string  $engine Checks the table engine against an
+     * @param array|string $engine Checks the table engine against an
      *                             array of engine strings or a single string, should be uppercase
      */
     public function isEngine($engine): bool
@@ -229,7 +233,7 @@ class Table implements Stringable
      */
     public function isView(): bool
     {
-        $db = $this->dbName;
+        $db    = $this->dbName;
         $table = $this->name;
         if (empty($db) || empty($table)) {
             return false;
@@ -296,9 +300,10 @@ class Table implements Stringable
      * Returns full table status info, or specific if $info provided
      * this info is collected from information_schema
      *
-     * @param  string  $info         specific information to be fetched
-     * @param  bool  $forceRead    read new rather than serving from cache
-     * @param  bool  $disableError if true, disables error message
+     * @param string $info         specific information to be fetched
+     * @param bool   $forceRead    read new rather than serving from cache
+     * @param bool   $disableError if true, disables error message
+     *
      * @return mixed
      *
      * @todo DatabaseInterface::getTablesFull needs to be merged
@@ -309,7 +314,7 @@ class Table implements Stringable
         $forceRead = false,
         $disableError = false
     ) {
-        $db = $this->dbName;
+        $db    = $this->dbName;
         $table = $this->name;
 
         if (! empty($_SESSION['is_multi_query'])) {
@@ -354,8 +359,8 @@ class Table implements Stringable
     /**
      * Returns the Table storage Engine for current table.
      *
-     * @return string                 Return storage engine info if it is set for
-     *                                the selected table else return blank.
+     * @return string Return storage engine info if it is set for
+     *                the selected table else return blank.
      */
     public function getStorageEngine(): string
     {
@@ -447,9 +452,9 @@ class Table implements Stringable
      */
     public function getCreateOptions()
     {
-        $tableOptions = $this->getStatusInfo('CREATE_OPTIONS', false, true);
+        $tableOptions     = $this->getStatusInfo('CREATE_OPTIONS', false, true);
         $createOptionsTmp = empty($tableOptions) ? [] : explode(' ', $tableOptions);
-        $createOptions = [];
+        $createOptions    = [];
         // export create options by its name as variables into global namespace
         // f.e. pack_keys=1 becomes available as $pack_keys with value of '1'
         // unset($pack_keys);
@@ -464,7 +469,7 @@ class Table implements Stringable
         }
 
         // we need explicit DEFAULT value here (different from '0')
-        $hasPackKeys = isset($createOptions['pack_keys']) && strlen($createOptions['pack_keys']) > 0;
+        $hasPackKeys                = isset($createOptions['pack_keys']) && strlen($createOptions['pack_keys']) > 0;
         $createOptions['pack_keys'] = $hasPackKeys ? $createOptions['pack_keys'] : 'DEFAULT';
 
         return $createOptions;
@@ -473,24 +478,25 @@ class Table implements Stringable
     /**
      * generates column specification for ALTER or CREATE TABLE syntax
      *
-     * @param  string  $name             name
-     * @param  string  $type             type ('INT', 'VARCHAR', 'BIT', ...)
-     * @param  string  $length           length ('2', '5,2', '', ...)
-     * @param  string  $attribute        attribute
-     * @param  string  $collation        collation
-     * @param  bool|string  $null             with 'NULL' or 'NOT NULL'
-     * @param  string  $defaultType      whether default is CURRENT_TIMESTAMP,
-     *                                       NULL, NONE, USER_DEFINED
-     * @param  string  $defaultValue     default value for USER_DEFINED
-     *                                       default type
-     * @param  string  $extra            'AUTO_INCREMENT'
-     * @param  string  $comment          field comment
-     * @param  string  $virtuality       virtuality of the column
-     * @param  string  $expression       expression for the virtual column
-     * @param  string  $moveTo           new position for column
-     * @param  array  $columnsWithIndex Fields having PRIMARY or UNIQUE KEY indexes
-     * @param  string  $oldColumnName    Old column name
-     * @return string  field specification
+     * @param string      $name             name
+     * @param string      $type             type ('INT', 'VARCHAR', 'BIT', ...)
+     * @param string      $length           length ('2', '5,2', '', ...)
+     * @param string      $attribute        attribute
+     * @param string      $collation        collation
+     * @param bool|string $null             with 'NULL' or 'NOT NULL'
+     * @param string      $defaultType      whether default is CURRENT_TIMESTAMP,
+     *                                      NULL, NONE, USER_DEFINED
+     * @param string      $defaultValue     default value for USER_DEFINED
+     *                                      default type
+     * @param string      $extra            'AUTO_INCREMENT'
+     * @param string      $comment          field comment
+     * @param string      $virtuality       virtuality of the column
+     * @param string      $expression       expression for the virtual column
+     * @param string      $moveTo           new position for column
+     * @param array       $columnsWithIndex Fields having PRIMARY or UNIQUE KEY indexes
+     * @param string      $oldColumnName    Old column name
+     *
+     * @return string field specification
      *
      * @todo    move into class PMA_Column
      * @todo on the interface, some js to clear the default value when the
@@ -515,7 +521,7 @@ class Table implements Stringable
     ) {
         global $dbi;
 
-        $strLength = strlen($length);
+        $strLength   = strlen($length);
         $isTimestamp = mb_stripos($type, 'TIMESTAMP') !== false;
 
         $query = Util::backquote($name) . ' ' . $type;
@@ -677,7 +683,7 @@ class Table implements Stringable
      * Checks if the number of records in a table is at least equal to
      * $min_records
      *
-     * @param  int  $minRecords Number of records to check for in a table
+     * @param int $minRecords Number of records to check for in a table
      */
     public function checkIfMinRecordsExist($minRecords = 0): bool
     {
@@ -714,15 +720,16 @@ class Table implements Stringable
     /**
      * Counts and returns (or displays) the number of records in a table
      *
-     * @param  bool  $forceExact whether to force an exact count
+     * @param bool $forceExact whether to force an exact count
+     *
      * @return mixed the number of records if "retain" param is true,
      *               otherwise true
      */
     public function countRecords($forceExact = false)
     {
         $isView = $this->isView();
-        $db = $this->dbName;
-        $table = $this->name;
+        $db     = $this->dbName;
+        $table  = $this->name;
 
         if ($this->dbi->getCache()->getCachedTableContent([$db, $table, 'ExactRows']) != null) {
             return $this->dbi->getCache()->getCachedTableContent(
@@ -809,24 +816,25 @@ class Table implements Stringable
      *
      * @see Table::generateFieldSpec()
      *
-     * @param  string  $oldcol           old column name
-     * @param  string  $newcol           new column name
-     * @param  string  $type             type ('INT', 'VARCHAR', 'BIT', ...)
-     * @param  string  $length           length ('2', '5,2', '', ...)
-     * @param  string  $attribute        attribute
-     * @param  string  $collation        collation
-     * @param  bool|string  $null             with 'NULL' or 'NOT NULL'
-     * @param  string  $defaultType      whether default is CURRENT_TIMESTAMP,
-     *                                       NULL, NONE, USER_DEFINED
-     * @param  string  $defaultValue     default value for USER_DEFINED default
-     *                                       type
-     * @param  string  $extra            'AUTO_INCREMENT'
-     * @param  string  $comment          field comment
-     * @param  string  $virtuality       virtuality of the column
-     * @param  string  $expression       expression for the virtual column
-     * @param  string  $moveTo           new position for column
-     * @param  array  $columnsWithIndex Fields having PRIMARY or UNIQUE KEY indexes
-     * @return string  field specification
+     * @param string      $oldcol           old column name
+     * @param string      $newcol           new column name
+     * @param string      $type             type ('INT', 'VARCHAR', 'BIT', ...)
+     * @param string      $length           length ('2', '5,2', '', ...)
+     * @param string      $attribute        attribute
+     * @param string      $collation        collation
+     * @param bool|string $null             with 'NULL' or 'NOT NULL'
+     * @param string      $defaultType      whether default is CURRENT_TIMESTAMP,
+     *                                      NULL, NONE, USER_DEFINED
+     * @param string      $defaultValue     default value for USER_DEFINED default
+     *                                      type
+     * @param string      $extra            'AUTO_INCREMENT'
+     * @param string      $comment          field comment
+     * @param string      $virtuality       virtuality of the column
+     * @param string      $expression       expression for the virtual column
+     * @param string      $moveTo           new position for column
+     * @param array       $columnsWithIndex Fields having PRIMARY or UNIQUE KEY indexes
+     *
+     * @return string field specification
      */
     public static function generateAlter(
         $oldcol,
@@ -869,12 +877,13 @@ class Table implements Stringable
      * Inserts existing entries in a PMA_* table by reading a value from an old
      * entry
      *
-     * @param  string  $work        The array index, which Relation feature to check ('relwork', 'commwork', ...)
-     * @param  string  $table       The array index, which PMA-table to update ('bookmark', 'relation', ...)
-     * @param  array  $getFields   Which fields will be SELECT'ed from the old entry
-     * @param  array  $whereFields Which fields will be used for the WHERE query (array('FIELDNAME' => 'FIELDVALUE'))
-     * @param  array  $newFields   Which fields will be used as new VALUES. These are the important keys which differ
+     * @param string $work        The array index, which Relation feature to check ('relwork', 'commwork', ...)
+     * @param string $table       The array index, which PMA-table to update ('bookmark', 'relation', ...)
+     * @param array  $getFields   Which fields will be SELECT'ed from the old entry
+     * @param array  $whereFields Which fields will be used for the WHERE query (array('FIELDNAME' => 'FIELDVALUE'))
+     * @param array  $newFields   Which fields will be used as new VALUES. These are the important keys which differ
      *                            from the old entry (array('FIELDNAME' => 'NEW FIELDVALUE'))
+     *
      * @return int|bool
      */
     public static function duplicateInfo(
@@ -886,19 +895,19 @@ class Table implements Stringable
     ) {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation           = new Relation($dbi);
         $relationParameters = $relation->getRelationParameters();
-        $relationParams = $relationParameters->toArray();
-        $lastId = -1;
+        $relationParams     = $relationParameters->toArray();
+        $lastId             = -1;
 
         if (! isset($relationParams[$work], $relationParams[$table]) || ! $relationParams[$work]) {
             return true;
         }
 
         $selectParts = [];
-        $rowFields = [];
+        $rowFields   = [];
         foreach ($getFields as $getField) {
-            $selectParts[] = Util::backquote($getField);
+            $selectParts[]        = Util::backquote($getField);
             $rowFields[$getField] = 'cc';
         }
 
@@ -908,10 +917,10 @@ class Table implements Stringable
                 . $dbi->escapeString((string) $value) . '\'';
         }
 
-        $newParts = [];
+        $newParts      = [];
         $newValueParts = [];
         foreach ($newFields as $where => $value) {
-            $newParts[] = Util::backquote($where);
+            $newParts[]      = Util::backquote($where);
             $newValueParts[] = $dbi->escapeString((string) $value);
         }
 
@@ -953,13 +962,13 @@ class Table implements Stringable
     /**
      * Copies or renames table
      *
-     * @param  string  $sourceDb    source database
-     * @param  string  $sourceTable source table
-     * @param  string|null  $targetDb    target database
-     * @param  string  $targetTable target table
-     * @param  string  $what        what to be moved or copied (data, dataonly)
-     * @param  bool  $move        whether to move
-     * @param  string  $mode        mode
+     * @param string      $sourceDb    source database
+     * @param string      $sourceTable source table
+     * @param string|null $targetDb    target database
+     * @param string      $targetTable target table
+     * @param string      $what        what to be moved or copied (data, dataonly)
+     * @param bool        $move        whether to move
+     * @param string      $mode        mode
      */
     public static function moveCopy(
         $sourceDb,
@@ -987,7 +996,7 @@ class Table implements Stringable
 
         // Setting required export settings.
         $GLOBALS['sql_backquotes'] = 1;
-        $GLOBALS['asfile'] = 1;
+        $GLOBALS['asfile']         = 1;
 
         // Ensuring the target database is valid.
         if (! $GLOBALS['dblist']->databases->exists($sourceDb, $targetDb)) {
@@ -1046,11 +1055,11 @@ class Table implements Stringable
              * @var ExportSql $exportSqlPlugin
              */
             $exportSqlPlugin = Plugins::getPlugin('export', 'sql', [
-                'export_type' => 'table',
+                'export_type'  => 'table',
                 'single_table' => false,
             ]);
 
-            $noConstraintsComments = true;
+            $noConstraintsComments            = true;
             $GLOBALS['sql_constraints_query'] = '';
             // set the value of global sql_auto_increment variable
             if (isset($_POST['sql_auto_increment'])) {
@@ -1263,7 +1272,7 @@ class Table implements Stringable
             $dbi->query($sqlSetMode);
             $GLOBALS['sql_query'] .= "\n\n" . $sqlSetMode . ';';
 
-            $oldTable = new Table($sourceTable, $sourceDb);
+            $oldTable         = new Table($sourceTable, $sourceDb);
             $nonGeneratedCols = $oldTable->getNonGeneratedColumns(true);
             if (count($nonGeneratedCols) > 0) {
                 $sqlInsertData = 'INSERT INTO ' . $target . '('
@@ -1358,13 +1367,13 @@ class Table implements Stringable
         // duplicating the bookmarks must not be done here, but
         // just once per db
 
-        $getFields = ['display_field'];
+        $getFields   = ['display_field'];
         $whereFields = [
-            'db_name' => $sourceDb,
+            'db_name'    => $sourceDb,
             'table_name' => $sourceTable,
         ];
         $newFields = [
-            'db_name' => $targetDb,
+            'db_name'    => $targetDb,
             'table_name' => $targetTable,
         ];
         self::duplicateInfo('displaywork', 'table_info', $getFields, $whereFields, $newFields);
@@ -1378,12 +1387,12 @@ class Table implements Stringable
             'foreign_field',
         ];
         $whereFields = [
-            'master_db' => $sourceDb,
+            'master_db'    => $sourceDb,
             'master_table' => $sourceTable,
         ];
         $newFields = [
-            'master_db' => $targetDb,
-            'foreign_db' => $targetDb,
+            'master_db'    => $targetDb,
+            'foreign_db'   => $targetDb,
             'master_table' => $targetTable,
         ];
         self::duplicateInfo('relwork', 'relation', $getFields, $whereFields, $newFields);
@@ -1394,12 +1403,12 @@ class Table implements Stringable
             'master_field',
         ];
         $whereFields = [
-            'foreign_db' => $sourceDb,
+            'foreign_db'    => $sourceDb,
             'foreign_table' => $sourceTable,
         ];
         $newFields = [
-            'master_db' => $targetDb,
-            'foreign_db' => $targetDb,
+            'master_db'     => $targetDb,
+            'foreign_db'    => $targetDb,
             'foreign_table' => $targetTable,
         ];
         self::duplicateInfo('relwork', 'relation', $getFields, $whereFields, $newFields);
@@ -1413,8 +1422,8 @@ class Table implements Stringable
      *
      * @see  https://dev.mysql.com/doc/refman/5.0/en/legal-names.html
      *
-     * @param  string  $tableName    name to check
-     * @param  bool  $isBackquoted whether this name is used inside backquotes or not
+     * @param string $tableName    name to check
+     * @param bool   $isBackquoted whether this name is used inside backquotes or not
      *
      * @todo add check for valid chars in filename on current system/os
      */
@@ -1448,8 +1457,8 @@ class Table implements Stringable
     /**
      * renames table
      *
-     * @param  string  $newName new table name
-     * @param  string  $newDb   new database name
+     * @param string $newName new table name
+     * @param string $newDb   new database name
      */
     public function rename($newName, $newDb = null): bool
     {
@@ -1526,9 +1535,9 @@ class Table implements Stringable
             return false;
         }
 
-        $oldName = $this->getName();
-        $oldDb = $this->getDbName();
-        $this->name = $newName;
+        $oldName      = $this->getName();
+        $oldDb        = $this->getDbName();
+        $this->name   = $newName;
         $this->dbName = $newDb;
 
         // Rename table in configuration storage
@@ -1555,8 +1564,9 @@ class Table implements Stringable
      *  - PRIMARY(fk_id1, fk_id2) // NONE
      *  - UNIQUE(x,y) // NONE
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @param  bool  $fullName   whether to include full name of the table as a prefix
+     * @param bool $backquoted whether to quote name with backticks ``
+     * @param bool $fullName   whether to include full name of the table as a prefix
+     *
      * @return array
      */
     public function getUniqueColumns($backquoted = true, $fullName = true)
@@ -1611,9 +1621,10 @@ class Table implements Stringable
      *
      * e.g. index(col1, col2) would return col1, col2
      *
-     * @param  array  $indexed    column data
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @param  bool  $fullName   whether to include full name of the table as a prefix
+     * @param array $indexed    column data
+     * @param bool  $backquoted whether to quote name with backticks ``
+     * @param bool  $fullName   whether to include full name of the table as a prefix
+     *
      * @return array
      */
     private function formatColumns(array $indexed, $backquoted, $fullName)
@@ -1634,8 +1645,9 @@ class Table implements Stringable
      *
      * e.g. index(col1, col2) would return col1, col2
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @param  bool  $fullName   whether to include full name of the table as a prefix
+     * @param bool $backquoted whether to quote name with backticks ``
+     * @param bool $fullName   whether to include full name of the table as a prefix
+     *
      * @return array
      */
     public function getIndexedColumns($backquoted = true, $fullName = true)
@@ -1655,13 +1667,14 @@ class Table implements Stringable
      *
      * returns an array with all columns
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
-     * @param  bool  $fullName   whether to include full name of the table as a prefix
+     * @param bool $backquoted whether to quote name with backticks ``
+     * @param bool $fullName   whether to include full name of the table as a prefix
+     *
      * @return array
      */
     public function getColumns($backquoted = true, $fullName = true)
     {
-        $sql = 'SHOW COLUMNS FROM ' . $this->getFullName(true);
+        $sql     = 'SHOW COLUMNS FROM ' . $this->getFullName(true);
         $indexed = $this->dbi->fetchResult($sql, 'Field', 'Field');
 
         return $this->formatColumns($indexed, $backquoted, $fullName);
@@ -1691,13 +1704,14 @@ class Table implements Stringable
     /**
      * Get non-generated columns in table
      *
-     * @param  bool  $backquoted whether to quote name with backticks ``
+     * @param bool $backquoted whether to quote name with backticks ``
+     *
      * @return array
      */
     public function getNonGeneratedColumns($backquoted = true)
     {
         $columnsMetaQuery = 'SHOW COLUMNS FROM ' . $this->getFullName(true);
-        $ret = [];
+        $ret              = [];
 
         $columnsMetaQueryResult = $this->dbi->fetchResult($columnsMetaQuery);
 
@@ -1725,6 +1739,8 @@ class Table implements Stringable
 
     /**
      * Return UI preferences for this table from phpMyAdmin database.
+     *
+     * @param ?UiPreferencesFeature $uiPreferencesFeature
      *
      * @return array
      */
@@ -1787,12 +1803,12 @@ class Table implements Stringable
 
         // Remove some old rows in table_uiprefs if it exceeds the configured
         // maximum rows
-        $sqlQuery = 'SELECT COUNT(*) FROM ' . $table;
+        $sqlQuery  = 'SELECT COUNT(*) FROM ' . $table;
         $rowsCount = (int) $this->dbi->fetchValue($sqlQuery);
-        $maxRows = (int) $GLOBALS['cfg']['Server']['MaxTableUiprefs'];
+        $maxRows   = (int) $GLOBALS['cfg']['Server']['MaxTableUiprefs'];
         if ($rowsCount > $maxRows) {
             $numRowsToDelete = $rowsCount - $maxRows;
-            $sqlQuery = ' DELETE FROM ' . $table .
+            $sqlQuery        = ' DELETE FROM ' . $table .
                 ' ORDER BY last_update ASC' .
                 ' LIMIT ' . $numRowsToDelete;
             $success = $this->dbi->tryQuery($sqlQuery, DatabaseInterface::CONNECT_CONTROL);
@@ -1826,12 +1842,12 @@ class Table implements Stringable
     protected function loadUiPrefs(): void
     {
         $uiPreferencesFeature = $this->relation->getRelationParameters()->uiPreferencesFeature;
-        $serverId = $GLOBALS['server'];
+        $serverId             = $GLOBALS['server'];
 
         // set session variable if it's still undefined
         if (! isset($_SESSION['tmpval']['table_uiprefs'][$serverId][$this->dbName][$this->name])) {
             // check whether we can get from pmadb
-            $uiPrefs = $this->getUiPrefsFromDb($uiPreferencesFeature);
+            $uiPrefs                                                                    = $this->getUiPrefsFromDb($uiPreferencesFeature);
             $_SESSION['tmpval']['table_uiprefs'][$serverId][$this->dbName][$this->name] = $uiPrefs;
         }
 
@@ -1846,7 +1862,8 @@ class Table implements Stringable
      * - PROP_COLUMN_ORDER
      * - PROP_COLUMN_VISIB
      *
-     * @param  string  $property property
+     * @param string $property property
+     *
      * @return mixed
      */
     public function getUiProp($property)
@@ -1863,7 +1880,7 @@ class Table implements Stringable
 
             if (! isset($_POST['discard_remembered_sort'])) {
                 // check if the column name exists in this table
-                $tmp = explode(' ', $this->uiprefs[$property]);
+                $tmp     = explode(' ', $this->uiprefs[$property]);
                 $colname = $tmp[0];
                 //remove backquoting from colname
                 $colname = str_replace('`', '', $colname);
@@ -1913,9 +1930,10 @@ class Table implements Stringable
      * - PROP_COLUMN_ORDER
      * - PROP_COLUMN_VISIB
      *
-     * @param  string  $property        Property
-     * @param  mixed  $value           Value for the property
-     * @param  string  $tableCreateTime Needed for PROP_COLUMN_ORDER and PROP_COLUMN_VISIB
+     * @param string $property        Property
+     * @param mixed  $value           Value for the property
+     * @param string $tableCreateTime Needed for PROP_COLUMN_ORDER and PROP_COLUMN_VISIB
+     *
      * @return bool|Message
      */
     public function setUiProp($property, $value, $tableCreateTime = null)
@@ -1961,7 +1979,8 @@ class Table implements Stringable
     /**
      * Remove a property from UI preferences.
      *
-     * @param  string  $property the property
+     * @param string $property the property
+     *
      * @return true|Message
      */
     public function removeUiProp($property)
@@ -1991,9 +2010,9 @@ class Table implements Stringable
     public function getReservedColumnNames()
     {
         $columns = $this->getColumns(false);
-        $return = [];
+        $return  = [];
         foreach ($columns as $column) {
-            $temp = explode('.', $column);
+            $temp       = explode('.', $column);
             $columnName = $temp[2];
             if (! Context::isKeyword($columnName, true)) {
                 continue;
@@ -2034,7 +2053,8 @@ class Table implements Stringable
     /**
      * Get index with index name
      *
-     * @param  string  $index Index name
+     * @param string $index Index name
+     *
      * @return Index
      */
     public function getIndex($index)
@@ -2045,8 +2065,9 @@ class Table implements Stringable
     /**
      * Function to get the sql query for index creation or edit
      *
-     * @param  Index  $index current index
-     * @param  bool  $error whether error occurred or not
+     * @param Index $index current index
+     * @param bool  $error whether error occurred or not
+     *
      * @return string
      */
     public function getSqlQueryForIndexCreateOrEdit($index, &$error)
@@ -2163,7 +2184,7 @@ class Table implements Stringable
     /**
      * Function to handle update for display field
      *
-     * @param  string  $displayField display field
+     * @param string $displayField display field
      */
     public function updateDisplayField($displayField, DisplayFeature $displayFeature): void
     {
@@ -2191,11 +2212,11 @@ class Table implements Stringable
     /**
      * Function to get update query for updating internal relations
      *
-     * @param  array  $multiEditColumnsName multi edit column names
-     * @param  array  $destinationDb        destination tables
-     * @param  array  $destinationTable     destination tables
-     * @param  array  $destinationColumn    destination columns
-     * @param  array|null  $existrel             db, table, column
+     * @param array      $multiEditColumnsName multi edit column names
+     * @param array      $destinationDb        destination tables
+     * @param array      $destinationTable     destination tables
+     * @param array      $destinationColumn    destination columns
+     * @param array|null $existrel             db, table, column
      */
     public function updateInternalRelations(
         array $multiEditColumnsName,
@@ -2209,7 +2230,7 @@ class Table implements Stringable
         foreach ($destinationDb as $masterFieldMd5 => $foreignDb) {
             $updQuery = null;
             // Map the fieldname's md5 back to its real name
-            $masterField = $multiEditColumnsName[$masterFieldMd5];
+            $masterField  = $multiEditColumnsName[$masterFieldMd5];
             $foreignTable = $destinationTable[$masterFieldMd5];
             $foreignField = $destinationColumn[$masterFieldMd5];
             if (! empty($foreignDb) && ! empty($foreignTable) && ! empty($foreignField)) {
@@ -2273,13 +2294,14 @@ class Table implements Stringable
     /**
      * Function to handle foreign key updates
      *
-     * @param  array  $destinationForeignDb     destination foreign database
-     * @param  array  $multiEditColumnsName     multi edit column names
-     * @param  array  $destinationForeignTable  destination foreign table
-     * @param  array  $destinationForeignColumn destination foreign column
-     * @param  array  $optionsArray             options array
-     * @param  string  $table                    current table
-     * @param  array  $existrelForeign          db, table, column
+     * @param array  $destinationForeignDb     destination foreign database
+     * @param array  $multiEditColumnsName     multi edit column names
+     * @param array  $destinationForeignTable  destination foreign table
+     * @param array  $destinationForeignColumn destination foreign column
+     * @param array  $optionsArray             options array
+     * @param string $table                    current table
+     * @param array  $existrelForeign          db, table, column
+     *
      * @return array
      */
     public function updateForeignKeys(
@@ -2291,14 +2313,14 @@ class Table implements Stringable
         $table,
         array $existrelForeign
     ) {
-        $htmlOutput = '';
+        $htmlOutput     = '';
         $previewSqlData = '';
-        $displayQuery = '';
-        $seenError = false;
+        $displayQuery   = '';
+        $seenError      = false;
 
         foreach ($destinationForeignDb as $masterFieldMd5 => $foreignDb) {
             $create = false;
-            $drop = false;
+            $drop   = false;
 
             // Map the fieldname's md5 back to its real name
             $masterField = $multiEditColumnsName[$masterFieldMd5];
@@ -2331,7 +2353,7 @@ class Table implements Stringable
             if (! empty($foreignDb) && ! empty($foreignTable) && ! $emptyFields) {
                 if (isset($existrelForeign[$masterFieldMd5])) {
                     $constraintName = $existrelForeign[$masterFieldMd5]['constraint'];
-                    $onDelete = ! empty(
+                    $onDelete       = ! empty(
                         $existrelForeign[$masterFieldMd5]['on_delete']
                     )
                         ? $existrelForeign[$masterFieldMd5]['on_delete']
@@ -2353,7 +2375,7 @@ class Table implements Stringable
                     ) {
                         // another foreign key is already defined for this field
                         // or an option has been changed for ON DELETE or ON UPDATE
-                        $drop = true;
+                        $drop   = true;
                         $create = true;
                     }
                 } else {
@@ -2464,14 +2486,15 @@ class Table implements Stringable
     /**
      * Returns the SQL query for foreign key constraint creation
      *
-     * @param  string  $table        table name
-     * @param  array  $field        field names
-     * @param  string  $foreignDb    foreign database name
-     * @param  string  $foreignTable foreign table name
-     * @param  array  $foreignField foreign field names
-     * @param  string  $name         name of the constraint
-     * @param  string  $onDelete     on delete action
-     * @param  string  $onUpdate     on update action
+     * @param string $table        table name
+     * @param array  $field        field names
+     * @param string $foreignDb    foreign database name
+     * @param string $foreignTable foreign table name
+     * @param array  $foreignField foreign field names
+     * @param string $name         name of the constraint
+     * @param string $onDelete     on delete action
+     * @param string $onUpdate     on update action
+     *
      * @return string SQL query for foreign key constraint creation
      */
     private function getSQLToCreateForeignKey(
@@ -2520,9 +2543,10 @@ class Table implements Stringable
     /**
      * Returns the generation expression for virtual columns
      *
-     * @param  string  $column name of the column
+     * @param string $column name of the column
+     *
      * @return array|bool associative array of column name and their expressions
-     * or false on failure
+     *                    or false on failure
      */
     public function getColumnGenerationExpression($column = null)
     {
@@ -2553,7 +2577,7 @@ class Table implements Stringable
         }
 
         $parser = new Parser($createTable);
-        $stmt = $parser->statements[0];
+        $stmt   = $parser->statements[0];
         $fields = [];
         if ($stmt instanceof CreateStatement) {
             $fields = TableUtils::getFields($stmt);
@@ -2617,7 +2641,8 @@ class Table implements Stringable
     /**
      * Get columns with indexes
      *
-     * @param  int  $types types bitmask
+     * @param int $types types bitmask
+     *
      * @return array an array of columns
      */
     public function getColumnsWithIndex($types)
@@ -2626,7 +2651,7 @@ class Table implements Stringable
         foreach (
             Index::getFromTableByChoice($this->name, $this->dbName, $types) as $index
         ) {
-            $columns = $index->getColumns();
+            $columns          = $index->getColumns();
             $columnsWithIndex = array_merge($columnsWithIndex, array_keys($columns));
         }
 

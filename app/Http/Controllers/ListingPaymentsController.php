@@ -13,7 +13,7 @@ class ListingPaymentsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * Get the listing history
+     *                                   Get the listing history
      */
     public function index(Request $request)
     {
@@ -53,22 +53,22 @@ class ListingPaymentsController extends Controller
      * Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
-     * Create the entry for the paid amount
+     *                                   Create the entry for the paid amount
      */
     public function store(Request $request)
     {
         $this->validate($request, [
-            'date' => 'required',
-            'amount' => 'required',
+            'date'    => 'required',
+            'amount'  => 'required',
             'user_id' => 'required',
         ]);
 
-        $amt = new ListingPayments();
-        $amt->paid_at = $request->get('date');
-        $amt->amount = $request->get('amount');
-        $amt->user_id = $request->get('user_id');
+        $amt              = new ListingPayments();
+        $amt->paid_at     = $request->get('date');
+        $amt->amount      = $request->get('amount');
+        $amt->user_id     = $request->get('user_id');
         $amt->product_ids = [];
-        $amt->remarks = 'Paid till ' . $request->get('date');
+        $amt->remarks     = 'Paid till ' . $request->get('date');
         $amt->save();
 
         return redirect()->back()->with('success', 'Amount paid successfully!');

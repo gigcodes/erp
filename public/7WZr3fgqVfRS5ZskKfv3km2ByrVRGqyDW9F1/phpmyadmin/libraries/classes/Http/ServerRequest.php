@@ -290,12 +290,13 @@ class ServerRequest implements ServerRequestInterface
     }
 
     /**
-     * @param  mixed  $default
+     * @param mixed $default
+     *
      * @return mixed
      */
     public function getParam(string $param, $default = null)
     {
-        $getParams = $this->getQueryParams();
+        $getParams  = $this->getQueryParams();
         $postParams = $this->getParsedBody();
 
         if (is_array($postParams) && isset($postParams[$param])) {
@@ -314,7 +315,8 @@ class ServerRequest implements ServerRequestInterface
     }
 
     /**
-     * @param  mixed  $default
+     * @param mixed $default
+     *
      * @return mixed
      */
     public function getParsedBodyParam(string $param, $default = null)

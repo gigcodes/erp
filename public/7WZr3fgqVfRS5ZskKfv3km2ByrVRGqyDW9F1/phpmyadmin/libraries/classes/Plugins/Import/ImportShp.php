@@ -73,7 +73,8 @@ class ImportShp extends ImportPlugin
     /**
      * Handles the whole import logic
      *
-     * @param  array  $sql_data 2-element array with sql data
+     * @param array $sql_data     2-element array with sql data
+     * @param ?File $importHandle
      */
     public function doImport(?File $importHandle = null, array &$sql_data = []): void
     {
@@ -121,7 +122,7 @@ class ImportShp extends ImportPlugin
                         // dresden_osm.shp/gis.osm_transport_a_v06.dbf
                         // to
                         // dresden_osm.shp/gis.osm_transport_a_v06
-                        $path_parts = pathinfo($dbf_file_name);
+                        $path_parts    = pathinfo($dbf_file_name);
                         $dbf_file_name = $path_parts['dirname'] . '/' . $path_parts['filename'];
 
                         // sanitize filename
@@ -156,7 +157,7 @@ class ImportShp extends ImportPlugin
         }
 
         if ($shp->lastError != '') {
-            $error = true;
+            $error   = true;
             $message = Message::error(
                 __('There was an error importing the ESRI shape file: "%s".')
             );
@@ -186,7 +187,7 @@ class ImportShp extends ImportPlugin
                 $gis_type = 'multipoint';
                 break;
             default:
-                $error = true;
+                $error   = true;
                 $message = Message::error(
                     __('MySQL Spatial Extension does not support ESRI type "%s".')
                 );
@@ -206,7 +207,7 @@ class ImportShp extends ImportPlugin
         // If .dbf file is loaded, the number of extra data columns
         $num_data_cols = $shp->getDBFHeader() !== null ? count($shp->getDBFHeader()) : 0;
 
-        $rows = [];
+        $rows      = [];
         $col_names = [];
         if ($num_rows != 0) {
             foreach ($shp->records as $record) {
@@ -235,7 +236,7 @@ class ImportShp extends ImportPlugin
         }
 
         if (count($rows) === 0) {
-            $error = true;
+            $error   = true;
             $message = Message::error(
                 __('The imported file does not contain any data!')
             );
@@ -246,7 +247,7 @@ class ImportShp extends ImportPlugin
         // Column names for spatial column and the rest of the columns,
         // if they are available
         $col_names[] = 'SPATIAL';
-        $dbfHeader = $shp->getDBFHeader();
+        $dbfHeader   = $shp->getDBFHeader();
         for ($n = 0; $n < $num_data_cols; $n++) {
             if ($dbfHeader === null) {
                 continue;
@@ -257,7 +258,7 @@ class ImportShp extends ImportPlugin
 
         // Set table name based on the number of tables
         if (strlen((string) $db) > 0) {
-            $result = $dbi->fetchResult('SHOW TABLES');
+            $result     = $dbi->fetchResult('SHOW TABLES');
             $table_name = 'TABLE ' . (count($result) + 1);
         } else {
             $table_name = 'TBL_NAME';
@@ -272,12 +273,12 @@ class ImportShp extends ImportPlugin
         ];
 
         // Use data from shape file to chose best-fit MySQL types for each column
-        $analyses = [];
+        $analyses   = [];
         $analyses[] = $this->import->analyzeTable($tables[0]);
 
-        $table_no = 0;
-        $spatial_col = 0;
-        $analyses[$table_no][Import::TYPES][$spatial_col] = Import::GEOMETRY;
+        $table_no                                                = 0;
+        $spatial_col                                             = 0;
+        $analyses[$table_no][Import::TYPES][$spatial_col]        = Import::GEOMETRY;
         $analyses[$table_no][Import::FORMATTEDSQL][$spatial_col] = true;
 
         // Set database name to the currently selected one, if applicable
@@ -296,7 +297,7 @@ class ImportShp extends ImportPlugin
         unset($tables, $analyses);
 
         $finished = true;
-        $error = false;
+        $error    = false;
 
         // Commit any possible data in buffers
         $this->import->runQuery('', '', $sql_data);
@@ -308,7 +309,8 @@ class ImportShp extends ImportPlugin
      * falls short.
      * Sets $eof when $GLOBALS['finished'] is set and the buffer falls short.
      *
-     * @param  int  $length number of bytes
+     * @param int $length number of bytes
+     *
      * @return string
      */
     public static function readFromBuffer($length)

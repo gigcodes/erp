@@ -11,7 +11,7 @@
 // MEMCACHED - Split out configuration into an array
 if (env('CACHE_DRIVER') === 'memcached') {
     $memcachedServerKeys = ['host', 'port', 'weight'];
-    $memcachedServers = explode(',', trim(env('MEMCACHED_SERVERS', '127.0.0.1:11211:100'), ','));
+    $memcachedServers    = explode(',', trim(env('MEMCACHED_SERVERS', '127.0.0.1:11211:100'), ','));
     foreach ($memcachedServers as $index => $memcachedServer) {
         $memcachedServerDetails = explode(':', $memcachedServer);
         if (count($memcachedServerDetails) < 2) {
@@ -42,23 +42,23 @@ return [
         ],
 
         'database' => [
-            'driver' => 'database',
-            'table' => 'cache',
+            'driver'     => 'database',
+            'table'      => 'cache',
             'connection' => null,
         ],
 
         'file' => [
             'driver' => 'file',
-            'path' => storage_path('framework/cache'),
+            'path'   => storage_path('framework/cache'),
         ],
 
         'memcached' => [
-            'driver' => 'memcached',
+            'driver'  => 'memcached',
             'servers' => env('CACHE_DRIVER') === 'memcached' ? $memcachedServers : [],
         ],
 
         'redis' => [
-            'driver' => 'redis',
+            'driver'     => 'redis',
             'connection' => 'default',
         ],
 

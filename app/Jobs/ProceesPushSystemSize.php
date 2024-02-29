@@ -17,6 +17,8 @@ class ProceesPushSystemSize implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $data
+     *
      * @return void
      */
     public function __construct(private $data)
@@ -59,7 +61,7 @@ class ProceesPushSystemSize implements ShouldQueue
 
             foreach ($systemSizeRelations as $key => $systemSizeRelation) {
                 $categoryId = $systemSizeRelation->category_id;
-                $size = $systemSizeRelation->size;
+                $size       = $systemSizeRelation->size;
 
                 $allWebsites = StoreWebsite::all();
 
@@ -88,23 +90,23 @@ class ProceesPushSystemSize implements ShouldQueue
                         }
 
                         //get the Magento URL and token
-                        $url = $websitevalue->magento_url;
+                        $url       = $websitevalue->magento_url;
                         $api_token = $websitevalue->api_token;
 
                         if (! empty($url) && ! empty($api_token) && ! empty($stores)) {
                             foreach ($stores as $key => $storeValue) {
                                 $urlSystemSizePush = $url . '/rest/V1/size/config';
 
-                                $postdata = "{\n    \"sizeConfig\": {\n        \"value\": \"$size\",\n        \"category_id\": \"$categoryId\",\n        \"store_id\": \"$storeValue\"\n    }\n}";
+                                $postdata  = "{\n    \"sizeConfig\": {\n        \"value\": \"$size\",\n        \"category_id\": \"$categoryId\",\n        \"store_id\": \"$storeValue\"\n    }\n}";
                                 $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                                $ch = curl_init();
+                                $ch        = curl_init();
 
                                 curl_setopt($ch, CURLOPT_URL, $urlSystemSizePush);
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                 curl_setopt($ch, CURLOPT_POST, 1);
                                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 
-                                $headers = [];
+                                $headers   = [];
                                 $headers[] = 'Authorization: Bearer ' . $api_token;
                                 $headers[] = 'Content-Type: application/json';
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);

@@ -17,9 +17,9 @@ class SkuFormatController extends Controller
      */
     public function index()
     {
-        $categories = Category::orderBy('title', 'asc')->get();
-        $brands = Brand::orderBy('name', 'asc')->get();
-        $skus = SkuFormat::all();
+        $categories         = Category::orderBy('title', 'asc')->get();
+        $brands             = Brand::orderBy('name', 'asc')->get();
+        $skus               = SkuFormat::all();
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category'])->renderAsDropdown();
 
         return view('sku-format.index', compact('categories', 'brands', 'skus', 'category_selection'));
@@ -44,20 +44,20 @@ class SkuFormatController extends Controller
     {
         $this->validate($request, [
             'category_id' => 'required',
-            'brand_id' => 'required',
+            'brand_id'    => 'required',
         ]);
 
-        $sku = new SkuFormat();
-        $sku->category_id = $request->category_id;
-        $sku->brand_id = $request->brand_id;
+        $sku               = new SkuFormat();
+        $sku->category_id  = $request->category_id;
+        $sku->brand_id     = $request->brand_id;
         $sku->sku_examples = $request->sku_examples;
-        $sku->sku_format = ($request->sku_format == null) ? '' : $request->sku_format;
+        $sku->sku_format   = ($request->sku_format == null) ? '' : $request->sku_format;
         $sku->save();
 
         \App\SkuFormatHistory::create([
             'sku_format_id' => $sku->id,
-            'sku_format' => $request->sku_format,
-            'user_id' => \Auth::user()->id,
+            'sku_format'    => $request->sku_format,
+            'user_id'       => \Auth::user()->id,
         ]);
 
         return redirect()->back()->withSuccess('You have successfully saved SKU');
@@ -86,29 +86,30 @@ class SkuFormatController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\SkuFormat  $skuFormat
+     * @param \App\SkuFormat $skuFormat
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $this->validate($request, [
             'category_id' => 'required',
-            'brand_id' => 'required',
+            'brand_id'    => 'required',
         ]);
 
-        $sku = SkuFormat::findorfail($request->id);
-        $oldFormat = $sku->sku_format;
-        $sku->category_id = $request->category_id;
-        $sku->brand_id = $request->brand_id;
+        $sku               = SkuFormat::findorfail($request->id);
+        $oldFormat         = $sku->sku_format;
+        $sku->category_id  = $request->category_id;
+        $sku->brand_id     = $request->brand_id;
         $sku->sku_examples = $request->sku_examples;
-        $sku->sku_format = ($request->sku_format == null) ? '' : $request->sku_format;
+        $sku->sku_format   = ($request->sku_format == null) ? '' : $request->sku_format;
         $sku->update();
 
         \App\SkuFormatHistory::create([
-            'sku_format_id' => $sku->id,
+            'sku_format_id'  => $sku->id,
             'old_sku_format' => $oldFormat,
-            'sku_format' => $sku->sku_format,
-            'user_id' => \Auth::user()->id,
+            'sku_format'     => $sku->sku_format,
+            'user_id'        => \Auth::user()->id,
         ]);
 
         return response()->json(['success' => 'success'], 200);

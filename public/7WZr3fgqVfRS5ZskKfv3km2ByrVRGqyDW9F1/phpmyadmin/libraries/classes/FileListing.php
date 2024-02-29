@@ -23,8 +23,9 @@ class FileListing
     /**
      * Returns array of filtered file names
      *
-     * @param  string  $dir        directory to list
-     * @param  string  $expression regular expression to match files
+     * @param string $dir        directory to list
+     * @param string $expression regular expression to match files
+     *
      * @return array|bool sorted file list on success, false on failure
      */
     public function getDirContent(string $dir, string $expression = '')
@@ -65,9 +66,10 @@ class FileListing
     /**
      * Returns options of filtered file names
      *
-     * @param  string  $dir        directory to list
-     * @param  string  $extensions regular expression to match files
-     * @param  string  $active     currently active choice
+     * @param string $dir        directory to list
+     * @param string $extensions regular expression to match files
+     * @param string $active     currently active choice
+     *
      * @return string|false Html <option> field, false if not files in dir
      */
     public function getFileSelectOptions(
@@ -84,7 +86,7 @@ class FileListing
 
         return $template->render('file_select_options', [
             'filesList' => $list,
-            'active' => $active,
+            'active'    => $active,
         ]);
     }
 

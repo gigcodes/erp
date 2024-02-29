@@ -15,15 +15,15 @@ class SearchController extends Controller
 {
     public function search(Stage $stage, Request $request)
     {
-        $data = [];
-        $term = $request->input('term');
-        $roletype = $request->input('roletype');
-        $model_type = $request->input('model_type');
+        $data                = [];
+        $term                = $request->input('term');
+        $roletype            = $request->input('roletype');
+        $model_type          = $request->input('model_type');
         $data['customer_id'] = $request->input('customer_id');
 
-        $data['term'] = $term;
+        $data['term']     = $term;
         $data['roletype'] = $roletype;
-        $perPageLimit = $request->get('per_page');
+        $perPageLimit     = $request->get('per_page');
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
@@ -50,8 +50,8 @@ class SearchController extends Controller
 
         if (! empty($doSelection)) {
             $data['doSelection'] = true;
-            $data['model_id'] = $request->input('model_id');
-            $data['model_type'] = $request->input('model_type');
+            $data['model_id']    = $request->input('model_id');
+            $data['model_type']  = $request->input('model_type');
 
             $data['selected_products'] = ProductController::getSelectedProducts($data['model_type'], $data['model_id']);
         }
@@ -60,14 +60,14 @@ class SearchController extends Controller
 
         Cache::forget('filter-brand-' . Auth::id());
         if ($request->brand[0] != null) {
-            $products = $products->whereIn('brand', $request->brand);
+            $products      = $products->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
             Cache::put('filter-brand-' . Auth::id(), $data['brand'], 7200);
         }
 
         Cache::forget('filter-color-' . Auth::id());
         if ($request->color[0] != null) {
-            $products = $products->whereIn('color', $request->color);
+            $products      = $products->whereIn('color', $request->color);
             $data['color'] = $request->color[0];
             Cache::put('filter-color-' . Auth::id(), $data['color'], 7200);
         }
@@ -100,7 +100,7 @@ class SearchController extends Controller
                 }
             }
 
-            $products = $products->whereIn('category', $category_children);
+            $products         = $products->whereIn('category', $category_children);
             $data['category'] = $request->category[0];
             Cache::put('filter-category-' . Auth::id(), $data['category'], 7200);
         }
@@ -121,7 +121,7 @@ class SearchController extends Controller
         if ($request->supplier[0] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
-            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            $products         = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
             $data['supplier'] = $request->supplier;
             Cache::put('filter-supplier-' . Auth::id(), $data['supplier'], 7200);
         }
@@ -136,7 +136,7 @@ class SearchController extends Controller
         }
 
         if ($request->location[0] != null) {
-            $products = $products->whereIn('location', $request->location);
+            $products         = $products->whereIn('location', $request->location);
             $data['location'] = $request->location[0];
         }
 
@@ -231,7 +231,7 @@ class SearchController extends Controller
         $data['is_on_sale'] = 0;
         if ($request->get('is_on_sale') == 'on') {
             $data['is_on_sale'] = 1;
-            $products = $products->where('is_on_sale', 1);
+            $products           = $products->where('is_on_sale', 1);
         }
 
         // start for the expoert file in excel
@@ -240,8 +240,8 @@ class SearchController extends Controller
             return \Excel::download(new \App\Exports\ProductExport($products->get()), 'export.xlsx');
         }
 
-        $products_count = $products->get()->count();
-        $data['products_count'] = $products_count;
+        $products_count           = $products->get()->count();
+        $data['products_count']   = $products_count;
         $data['all_products_ids'] = $products->pluck('id')->toArray();
 
         if ($request->has('limit')) {
@@ -252,16 +252,16 @@ class SearchController extends Controller
 
         if ($request->model_type == 'broadcast-images') {
             $data['attachImages'] = true;
-            $data['doSelection'] = false;
+            $data['doSelection']  = false;
         }
 
         $categoryAll = Category::where('parent_id', 0)->get();
         foreach ($categoryAll as $category) {
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
-            $childs = Category::where('parent_id', $category->id)->get();
+            $childs          = Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' ' . $child->title];
-                $grandChilds = Category::where('parent_id', $child->id)->get();
+                $grandChilds     = Category::where('parent_id', $child->id)->get();
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title];
@@ -278,14 +278,14 @@ class SearchController extends Controller
             return response()->json(['html' => $html, 'products_count' => $products_count, 'all_product_ids' => $data['all_products_ids']]);
         }
         $data['categoryArray'] = $categoryArray;
-        $data['sampleColors'] = $sampleColors;
+        $data['sampleColors']  = $sampleColors;
 
         return view('partials.grid', $data);
     }
 
     public function getPendingProducts($roletype)
     {
-        $stage = new Stage();
+        $stage    = new Stage();
         $stage_no = intval($stage->getID($roletype));
 
         $products = Product::latest()

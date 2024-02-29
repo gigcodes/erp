@@ -70,7 +70,7 @@ class CreateMailBoxes extends Command
         foreach ($emails as $email) {
             try {
                 if (! empty($email->from)) {
-                    $emailArr = str_split($email->from, 1);
+                    $emailArr   = str_split($email->from, 1);
                     $fromEmails = [];
 
                     if ($emailArr[0] == '[') {

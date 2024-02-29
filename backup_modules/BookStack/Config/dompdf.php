@@ -11,8 +11,8 @@
 return [
 
     'show_warnings' => false,   // Throw an Exception on warnings from dompdf
-    'orientation' => 'portrait',
-    'defines' => [
+    'orientation'   => 'portrait',
+    'defines'       => [
         /**
          * The location of the DOMPDF font directory
          *

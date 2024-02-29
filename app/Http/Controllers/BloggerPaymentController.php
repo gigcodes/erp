@@ -15,8 +15,8 @@ class BloggerPaymentController extends Controller
         $payments = $blogger->payments()->orderBy('payment_date')->paginate(50);
 
         return view('blogger.payments', [
-            'payments' => $payments,
-            'blogger' => $blogger,
+            'payments'   => $payments,
+            'blogger'    => $blogger,
             'currencies' => Helpers::currencies(),
         ]);
     }
@@ -24,11 +24,11 @@ class BloggerPaymentController extends Controller
     public function store(Blogger $blogger, Request $request)
     {
         $this->validate($request, [
-            'currency' => 'required|numeric',
-            'payment_date' => 'required|date',
+            'currency'       => 'required|numeric',
+            'payment_date'   => 'required|date',
             'payable_amount' => 'required|numeric',
-            'paid_date' => 'sometimes|nullable|date',
-            'paid_amount' => 'sometimes|nullable|numeric',
+            'paid_date'      => 'sometimes|nullable|date',
+            'paid_amount'    => 'sometimes|nullable|numeric',
         ]);
         try {
             $status = 0;
@@ -36,13 +36,13 @@ class BloggerPaymentController extends Controller
                 $status = 1;
             }
             $blogger_payment = $blogger->payments()->create([
-                'payment_date' => $request->get('payment_date'),
+                'payment_date'   => $request->get('payment_date'),
                 'payable_amount' => $request->get('payable_amount'),
-                'paid_date' => $request->get('paid_date'),
-                'paid_amount' => $request->get('paid_amount'),
-                'description' => $request->get('description'),
-                'currency' => $request->get('currency'),
-                'status' => $status,
+                'paid_date'      => $request->get('paid_date'),
+                'paid_amount'    => $request->get('paid_amount'),
+                'description'    => $request->get('description'),
+                'currency'       => $request->get('currency'),
+                'status'         => $status,
             ]);
             event(new BloggerPaymentCreated($blogger, $blogger_payment, $status));
         } catch (\Exception $exception) {
@@ -55,26 +55,26 @@ class BloggerPaymentController extends Controller
     public function update(Blogger $blogger, BloggerPayment $blogger_payment, Request $request)
     {
         $this->validate($request, [
-            'currency' => 'required|numeric',
-            'payment_date' => 'required|date',
+            'currency'       => 'required|numeric',
+            'payment_date'   => 'required|date',
             'payable_amount' => 'required|numeric',
-            'paid_date' => 'sometimes|nullable|date',
-            'paid_amount' => 'sometimes|nullable|numeric',
+            'paid_date'      => 'sometimes|nullable|date',
+            'paid_amount'    => 'sometimes|nullable|numeric',
         ]);
         try {
             $payment = $blogger->payments()->where('id', $blogger_payment->id)->first();
-            $status = 0;
+            $status  = 0;
             if ($request->get('paid_date') && $request->get('paid_amount')) {
                 $status = 1;
             }
             $payment->fill([
-                'payment_date' => $request->get('payment_date'),
+                'payment_date'   => $request->get('payment_date'),
                 'payable_amount' => $request->get('payable_amount'),
-                'paid_date' => $request->get('paid_date'),
-                'paid_amount' => $request->get('paid_amount'),
-                'description' => $request->get('description'),
-                'currency' => $request->get('currency'),
-                'status' => $status,
+                'paid_date'      => $request->get('paid_date'),
+                'paid_amount'    => $request->get('paid_amount'),
+                'description'    => $request->get('description'),
+                'currency'       => $request->get('currency'),
+                'status'         => $status,
             ])->save();
             event(new BloggerPaymentCreated($blogger, $payment, $status));
         } catch (\Exception $exception) {

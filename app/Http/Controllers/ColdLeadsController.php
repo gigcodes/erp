@@ -54,7 +54,7 @@ class ColdLeadsController extends Controller
         $accounts = Account::where('platform', 'instagram')->where('broadcast', 1)->get();
 
         return response()->json([
-            'leads' => $leads,
+            'leads'    => $leads,
             'accounts' => $accounts,
         ]);
     }
@@ -112,6 +112,8 @@ class ColdLeadsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param mixed $id
+     *
      * @return void
      */
     public function destroy($id)
@@ -130,7 +132,7 @@ class ColdLeadsController extends Controller
         $lead = ColdLeads::find($leadId);
 
         $senderUsername = env('IG_USERNAME');
-        $password = env('IG_PASSWORD');
+        $password       = env('IG_PASSWORD');
 
         $receiverId = $lead->platform_id;
 
@@ -150,7 +152,7 @@ class ColdLeadsController extends Controller
     public function deleteColdLead(Request $request)
     {
         $leadId = $request->get('lead_id');
-        $dl = ColdLeads::findOrFail($leadId);
+        $dl     = ColdLeads::findOrFail($leadId);
         $dl->forceDelete();
 
         return response()->json([
@@ -187,12 +189,12 @@ class ColdLeadsController extends Controller
         $lead = ColdLeads::find($request->get('cold_lead_id'));
 
         if ($lead) {
-            $customer = new Customer();
-            $customer->name = $lead->name;
-            $customer->phone = $lead->platform_id;
+            $customer                  = new Customer();
+            $customer->name            = $lead->name;
+            $customer->phone           = $lead->platform_id;
             $customer->whatsapp_number = $lead->platform_id;
-            $customer->city = $lead->address;
-            $customer->country = 'IN';
+            $customer->city            = $lead->address;
+            $customer->country         = 'IN';
             $customer->save();
 
             $lead->customer_id = $customer->id;

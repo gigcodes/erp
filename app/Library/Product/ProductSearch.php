@@ -25,6 +25,8 @@ class ProductSearch
     /**
      * find matched categories
      *
+     * @param mixed $categoies
+     *
      * @return []
      */
     public function matchedCategories($categoies)

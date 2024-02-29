@@ -41,7 +41,7 @@ class UpdateScraperDuration extends Command
      */
     public function handle()
     {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime       = date('Y-m-d H:i:s', LARAVEL_START);
         $activeSuppliers = Scraper::with([
             'scraperDuration' => function ($q) {
                 $q->orderBy('id', 'desc');
@@ -96,12 +96,12 @@ class UpdateScraperDuration extends Command
                     continue;
                 }
 
-                $pid = $duration->Process[0]->pid;
+                $pid      = $duration->Process[0]->pid;
                 $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null;
 
                 if ($duration) {
                     $duration = explode(' ', $duration);
-                    $text = '';
+                    $text     = '';
                     if (in_array('Hours', $duration)) {
                         $text .= (strlen($duration[0]) == 2 ? $duration[0] : '0' . $duration[0]) . ':';
                         $text .= $duration[0] . ':';
@@ -125,7 +125,7 @@ class UpdateScraperDuration extends Command
                     }
                     $scrap_duration->scraper_id = $scraper->id;
                     $scrap_duration->process_id = $pid;
-                    $scrap_duration->duration = $text;
+                    $scrap_duration->duration   = $text;
                     $scrap_duration->save();
                 }
             }

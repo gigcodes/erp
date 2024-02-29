@@ -37,26 +37,27 @@ class Common
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface object
-     * @param  Relation  $relation Relation instance
+     * @param DatabaseInterface $dbi      DatabaseInterface object
+     * @param Relation          $relation Relation instance
      */
     public function __construct(DatabaseInterface $dbi, Relation $relation)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = $relation;
     }
 
     /**
      * Retrieves table info and returns it
      *
-     * @param  string  $db    (optional) Filter only a DB ($table is required if you use $db)
-     * @param  string  $table (optional) Filter only a table ($db is now required)
+     * @param string $db    (optional) Filter only a DB ($table is required if you use $db)
+     * @param string $table (optional) Filter only a table ($db is now required)
+     *
      * @return DesignerTable[] with table info
      */
     public function getTablesInfo(?string $db = null, ?string $table = null): array
     {
         $designerTables = [];
-        $db = $db ?? $GLOBALS['db'];
+        $db             = $db ?? $GLOBALS['db'];
         // seems to be needed later
         $this->dbi->selectDb($db);
         if ($table === null) {
@@ -66,9 +67,9 @@ class Common
         }
 
         foreach ($tables as $one_table) {
-            $DF = $this->relation->getDisplayField($db, $one_table['TABLE_NAME']);
-            $DF = is_string($DF) ? $DF : '';
-            $DF = $DF !== '' ? $DF : null;
+            $DF               = $this->relation->getDisplayField($db, $one_table['TABLE_NAME']);
+            $DF               = is_string($DF) ? $DF : '';
+            $DF               = $DF !== '' ? $DF : null;
             $designerTables[] = new DesignerTable(
                 $db,
                 $one_table['TABLE_NAME'],
@@ -83,7 +84,8 @@ class Common
     /**
      * Retrieves table column info
      *
-     * @param  DesignerTable[]  $designerTables The designer tables
+     * @param DesignerTable[] $designerTables The designer tables
+     *
      * @return array table column nfo
      */
     public function getColumnsInfo(array $designerTables): array
@@ -104,10 +106,10 @@ class Common
                     $tabColumn[$designerTable->getDbTableString()] = [];
                 }
 
-                $tabColumn[$designerTable->getDbTableString()]['COLUMN_ID'][$j] = $j;
+                $tabColumn[$designerTable->getDbTableString()]['COLUMN_ID'][$j]   = $j;
                 $tabColumn[$designerTable->getDbTableString()]['COLUMN_NAME'][$j] = $row['Field'];
-                $tabColumn[$designerTable->getDbTableString()]['TYPE'][$j] = $row['Type'];
-                $tabColumn[$designerTable->getDbTableString()]['NULLABLE'][$j] = $row['Null'];
+                $tabColumn[$designerTable->getDbTableString()]['TYPE'][$j]        = $row['Type'];
+                $tabColumn[$designerTable->getDbTableString()]['NULLABLE'][$j]    = $row['Null'];
                 $j++;
             }
         }
@@ -118,16 +120,17 @@ class Common
     /**
      * Returns JavaScript code for initializing vars
      *
-     * @param  DesignerTable[]  $designerTables The designer tables
+     * @param DesignerTable[] $designerTables The designer tables
+     *
      * @return array JavaScript code
      */
     public function getScriptContr(array $designerTables): array
     {
         $this->dbi->selectDb($GLOBALS['db']);
-        $con = [];
+        $con           = [];
         $con['C_NAME'] = [];
-        $i = 0;
-        $alltab_rs = $this->dbi->query('SHOW TABLES FROM ' . Util::backquote($GLOBALS['db']));
+        $i             = 0;
+        $alltab_rs     = $this->dbi->query('SHOW TABLES FROM ' . Util::backquote($GLOBALS['db']));
         while ($val = $alltab_rs->fetchRow()) {
             $val = (string) $val[0];
 
@@ -135,10 +138,10 @@ class Common
 
             foreach ($row as $field => $value) {
                 $con['C_NAME'][$i] = '';
-                $con['DTN'][$i] = rawurlencode($GLOBALS['db'] . '.' . $val);
-                $con['DCN'][$i] = rawurlencode((string) $field);
-                $con['STN'][$i] = rawurlencode($value['foreign_db'] . '.' . $value['foreign_table']);
-                $con['SCN'][$i] = rawurlencode($value['foreign_field']);
+                $con['DTN'][$i]    = rawurlencode($GLOBALS['db'] . '.' . $val);
+                $con['DCN'][$i]    = rawurlencode((string) $field);
+                $con['STN'][$i]    = rawurlencode($value['foreign_db'] . '.' . $value['foreign_table']);
+                $con['SCN'][$i]    = rawurlencode($value['foreign_field']);
                 $i++;
             }
 
@@ -152,9 +155,9 @@ class Common
             foreach ($row['foreign_keys_data'] as $one_key) {
                 foreach ($one_key['index_list'] as $index => $one_field) {
                     $con['C_NAME'][$i] = rawurlencode($one_key['constraint']);
-                    $con['DTN'][$i] = rawurlencode($GLOBALS['db'] . '.' . $val);
-                    $con['DCN'][$i] = rawurlencode($one_field);
-                    $con['STN'][$i] = rawurlencode(
+                    $con['DTN'][$i]    = rawurlencode($GLOBALS['db'] . '.' . $val);
+                    $con['DCN'][$i]    = rawurlencode($one_field);
+                    $con['STN'][$i]    = rawurlencode(
                         ($one_key['ref_db_name'] ?? $GLOBALS['db'])
                         . '.' . $one_key['ref_table_name']
                     );
@@ -169,15 +172,15 @@ class Common
             $tableDbNames[] = rawurlencode($designerTable->getDbTableString());
         }
 
-        $ti = 0;
+        $ti     = 0;
         $retval = [];
         for ($i = 0, $cnt = count($con['C_NAME']); $i < $cnt; $i++) {
-            $c_name_i = $con['C_NAME'][$i];
-            $dtn_i = $con['DTN'][$i];
-            $retval[$ti] = [];
+            $c_name_i               = $con['C_NAME'][$i];
+            $dtn_i                  = $con['DTN'][$i];
+            $retval[$ti]            = [];
             $retval[$ti][$c_name_i] = [];
             if (in_array($dtn_i, $tableDbNames) && in_array($con['STN'][$i], $tableDbNames)) {
-                $retval[$ti][$c_name_i][$dtn_i] = [];
+                $retval[$ti][$c_name_i][$dtn_i]                  = [];
                 $retval[$ti][$c_name_i][$dtn_i][$con['DCN'][$i]] = [
                     0 => $con['STN'][$i],
                     1 => $con['SCN'][$i],
@@ -193,7 +196,8 @@ class Common
     /**
      * Returns UNIQUE and PRIMARY indices
      *
-     * @param  DesignerTable[]  $designerTables The designer tables
+     * @param DesignerTable[] $designerTables The designer tables
+     *
      * @return array unique or primary indices
      */
     public function getPkOrUniqueKeys(array $designerTables): array
@@ -204,8 +208,9 @@ class Common
     /**
      * Returns all indices
      *
-     * @param  DesignerTable[]  $designerTables The designer tables
-     * @param  bool  $unique_only    whether to include only unique ones
+     * @param DesignerTable[] $designerTables The designer tables
+     * @param bool            $unique_only    whether to include only unique ones
+     *
      * @return array indices
      */
     public function getAllKeys(array $designerTables, bool $unique_only = false): array
@@ -233,7 +238,7 @@ class Common
     /**
      * Return j_tab and h_tab arrays
      *
-     * @param  DesignerTable[]  $designerTables The designer tables
+     * @param DesignerTable[] $designerTables The designer tables
      */
     public function getScriptTabs(array $designerTables): array
     {
@@ -243,7 +248,7 @@ class Common
         ];
 
         foreach ($designerTables as $designerTable) {
-            $key = rawurlencode($designerTable->getDbTableString());
+            $key                    = rawurlencode($designerTable->getDbTableString());
             $retval['j_tabs'][$key] = $designerTable->supportsForeignkeys() ? 1 : 0;
             $retval['h_tabs'][$key] = 1;
         }
@@ -254,7 +259,8 @@ class Common
     /**
      * Returns table positions of a given pdf page
      *
-     * @param  int  $pg pdf page id
+     * @param int $pg pdf page id
+     *
      * @return array|null of table positions
      */
     public function getTablePositions($pg): ?array
@@ -286,7 +292,8 @@ class Common
     /**
      * Returns page name of a given pdf page
      *
-     * @param  int  $pg pdf page id
+     * @param int $pg pdf page id
+     *
      * @return string|null table name
      */
     public function getPageName($pg)
@@ -313,7 +320,7 @@ class Common
     /**
      * Deletes a given pdf page and its corresponding coordinates
      *
-     * @param  int  $pg page id
+     * @param int $pg page id
      */
     public function deletePage($pg): bool
     {
@@ -339,7 +346,8 @@ class Common
      * Returns the id of the default pdf page of the database.
      * Default page is the one which has the same name as the database.
      *
-     * @param  string  $db database
+     * @param string $db database
+     *
      * @return int|null id of the default pdf page for the database
      */
     public function getDefaultPage($db): ?int
@@ -373,7 +381,7 @@ class Common
      * Get the status if the page already exists
      * If no such exists, returns negative index.
      *
-     * @param  string  $pg name
+     * @param string $pg name
      */
     public function getPageExists(string $pg): bool
     {
@@ -400,7 +408,8 @@ class Common
      * Get the id of the page to load. If a default page exists it will be returned.
      * If no such exists, returns the id of the first page of the database.
      *
-     * @param  string  $db database
+     * @param string $db database
+     *
      * @return int id of the page to load
      */
     public function getLoadingPage($db)
@@ -434,8 +443,9 @@ class Common
     /**
      * Creates a new page and returns its auto-incrementing id
      *
-     * @param  string  $pageName name of the page
-     * @param  string  $db       name of the database
+     * @param string $pageName name of the page
+     * @param string $db       name of the database
+     *
      * @return int|null
      */
     public function createNewPage($pageName, $db)
@@ -451,7 +461,7 @@ class Common
     /**
      * Saves positions of table(s) of a given pdf page
      *
-     * @param  int  $pg pdf page id
+     * @param int $pg pdf page id
      */
     public function saveTablePositions($pg): bool
     {
@@ -470,7 +480,7 @@ class Common
         $this->dbi->queryAsControlUser($query);
 
         foreach ($_POST['t_h'] as $key => $value) {
-            $DB = $_POST['t_db'][$key];
+            $DB  = $_POST['t_db'][$key];
             $TAB = $_POST['t_tbl'][$key];
             if (! $value) {
                 continue;
@@ -496,9 +506,10 @@ class Common
     /**
      * Saves the display field for a table.
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
-     * @param  string  $field display field name
+     * @param string $db    database name
+     * @param string $table table name
+     * @param string $field display field name
+     *
      * @return array<int,string|bool|null>
      *
      * @psalm-return array{0: bool, 1: string|null}
@@ -529,31 +540,32 @@ class Common
     /**
      * Adds a new foreign relation
      *
-     * @param  string  $db        database name
-     * @param  string  $T1        foreign table
-     * @param  string  $F1        foreign field
-     * @param  string  $T2        master table
-     * @param  string  $F2        master field
-     * @param  string  $on_delete on delete action
-     * @param  string  $on_update on update action
-     * @param  string  $DB1       database
-     * @param  string  $DB2       database
+     * @param string $db        database name
+     * @param string $T1        foreign table
+     * @param string $F1        foreign field
+     * @param string $T2        master table
+     * @param string $F2        master field
+     * @param string $on_delete on delete action
+     * @param string $on_update on update action
+     * @param string $DB1       database
+     * @param string $DB2       database
+     *
      * @return array<int,string|bool> array of success/failure and message
      *
      * @psalm-return array{0: bool, 1: string}
      */
     public function addNewRelation($db, $T1, $F1, $T2, $F2, $on_delete, $on_update, $DB1, $DB2): array
     {
-        $tables = $this->dbi->getTablesFull($DB1, $T1);
+        $tables  = $this->dbi->getTablesFull($DB1, $T1);
         $type_T1 = mb_strtoupper($tables[$T1]['ENGINE'] ?? '');
-        $tables = $this->dbi->getTablesFull($DB2, $T2);
+        $tables  = $this->dbi->getTablesFull($DB2, $T2);
         $type_T2 = mb_strtoupper($tables[$T2]['ENGINE'] ?? '');
 
         // native foreign key
         if (ForeignKey::isSupported($type_T1) && ForeignKey::isSupported($type_T2) && $type_T1 == $type_T2) {
             // relation exists?
             $existrel_foreign = $this->relation->getForeigners($DB2, $T2, '', 'foreign');
-            $foreigner = $this->relation->searchColumnInForeigners($existrel_foreign, $F2);
+            $foreigner        = $this->relation->searchColumnInForeigners($existrel_foreign, $F2);
             if ($foreigner && isset($foreigner['constraint'])) {
                 return [
                     false,
@@ -672,10 +684,11 @@ class Common
     /**
      * Removes a foreign relation
      *
-     * @param  string  $T1 foreign db.table
-     * @param  string  $F1 foreign field
-     * @param  string  $T2 master db.table
-     * @param  string  $F2 master field
+     * @param string $T1 foreign db.table
+     * @param string $F1 foreign field
+     * @param string $T2 master db.table
+     * @param string $F2 master field
+     *
      * @return array array of success/failure and message
      */
     public function removeRelation($T1, $F1, $T2, $F2)
@@ -683,15 +696,15 @@ class Common
         [$DB1, $T1] = explode('.', $T1);
         [$DB2, $T2] = explode('.', $T2);
 
-        $tables = $this->dbi->getTablesFull($DB1, $T1);
+        $tables  = $this->dbi->getTablesFull($DB1, $T1);
         $type_T1 = mb_strtoupper($tables[$T1]['ENGINE']);
-        $tables = $this->dbi->getTablesFull($DB2, $T2);
+        $tables  = $this->dbi->getTablesFull($DB2, $T2);
         $type_T2 = mb_strtoupper($tables[$T2]['ENGINE']);
 
         if (ForeignKey::isSupported($type_T1) && ForeignKey::isSupported($type_T2) && $type_T1 == $type_T2) {
             // InnoDB
             $existrel_foreign = $this->relation->getForeigners($DB2, $T2, '', 'foreign');
-            $foreigner = $this->relation->searchColumnInForeigners($existrel_foreign, $F2);
+            $foreigner        = $this->relation->searchColumnInForeigners($existrel_foreign, $F2);
 
             if (is_array($foreigner) && isset($foreigner['constraint'])) {
                 $upd_query = 'ALTER TABLE ' . Util::backquote($DB2)
@@ -745,16 +758,16 @@ class Common
     /**
      * Save value for a designer setting
      *
-     * @param  string  $index setting
-     * @param  string  $value value
+     * @param string $index setting
+     * @param string $value value
      */
     public function saveSetting($index, $value): bool
     {
         $databaseDesignerSettingsFeature = $this->relation->getRelationParameters()->databaseDesignerSettingsFeature;
         if ($databaseDesignerSettingsFeature !== null) {
             $cfgDesigner = [
-                'user' => $GLOBALS['cfg']['Server']['user'],
-                'db' => $databaseDesignerSettingsFeature->database->getName(),
+                'user'  => $GLOBALS['cfg']['Server']['user'],
+                'db'    => $databaseDesignerSettingsFeature->database->getName(),
                 'table' => $databaseDesignerSettingsFeature->designerSettings->getName(),
             ];
 
@@ -771,9 +784,9 @@ class Common
             );
 
             if (! empty($orig_data)) {
-                $orig_data = json_decode($orig_data['settings_data'], true);
+                $orig_data         = json_decode($orig_data['settings_data'], true);
                 $orig_data[$index] = $value;
-                $orig_data = json_encode($orig_data);
+                $orig_data         = json_encode($orig_data);
 
                 $save_query = 'UPDATE '
                     . Util::backquote($cfgDesigner['db'])

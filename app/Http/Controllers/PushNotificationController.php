@@ -14,14 +14,14 @@ class PushNotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $data = [];
-        $term = $request->input('term');
+        $data         = [];
+        $term         = $request->input('term');
         $data['term'] = $term;
 
-        $lead_notifications = PushNotification::where('model_type', \App\Leads::class);
-        $order_notifications = PushNotification::where('model_type', \App\Order::class);
+        $lead_notifications    = PushNotification::where('model_type', \App\Leads::class);
+        $order_notifications   = PushNotification::where('model_type', \App\Order::class);
         $message_notifications = PushNotification::whereIn('model_type', ['order', 'leads', 'customer']);
-        $task_notifications = PushNotification::whereIn('model_type', [\App\Task::class, \App\SatutoryTask::class, 'App\Http\Controllers\Task', 'User']);
+        $task_notifications    = PushNotification::whereIn('model_type', [\App\Task::class, \App\SatutoryTask::class, 'App\Http\Controllers\Task', 'User']);
 
         if ($request->user[0] != null) {
             $lead_notifications = $lead_notifications->where(function ($query) use ($request) {
@@ -48,10 +48,10 @@ class PushNotificationController extends Controller
         }
 
         if (trim($term) != '') {
-            $lead_notifications = $lead_notifications->where('message', 'LIKE', "%$term%");
-            $order_notifications = $order_notifications->where('message', 'LIKE', "%$term%");
+            $lead_notifications    = $lead_notifications->where('message', 'LIKE', "%$term%");
+            $order_notifications   = $order_notifications->where('message', 'LIKE', "%$term%");
             $message_notifications = $message_notifications->where('message', 'LIKE', "%$term%");
-            $task_notifications = $task_notifications->where('message', 'LIKE', "%$term%");
+            $task_notifications    = $task_notifications->where('message', 'LIKE', "%$term%");
         } else {
             if ($request->user[0] == null) {
                 $lead_notifications = $lead_notifications->where(function ($query) {
@@ -76,13 +76,13 @@ class PushNotificationController extends Controller
             }
         }
 
-        $lead_notifications = $lead_notifications->orderBy('created_at', 'DESC')->paginate(50, ['*'], 'lead_page');
-        $order_notifications = $order_notifications->orderBy('created_at', 'DESC')->paginate(50, ['*'], 'order_page');
+        $lead_notifications    = $lead_notifications->orderBy('created_at', 'DESC')->paginate(50, ['*'], 'lead_page');
+        $order_notifications   = $order_notifications->orderBy('created_at', 'DESC')->paginate(50, ['*'], 'order_page');
         $message_notifications = $message_notifications->orderBy('created_at', 'DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
-        $task_notifications = $task_notifications->orderBy('created_at', 'DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
+        $task_notifications    = $task_notifications->orderBy('created_at', 'DESC')->get()->groupBy('message', 'model_type', 'model_id', 'role', 'reminder')->toArray();
 
-        $currentPage = $request->message_page ? $request->message_page : 1;
-        $perPage = 50;
+        $currentPage  = $request->message_page ? $request->message_page : 1;
+        $perPage      = 50;
         $currentItems = array_slice($message_notifications, $perPage * ($currentPage - 1), $perPage);
 
         $message_notifications = new LengthAwarePaginator($currentItems, count($message_notifications), $perPage, $currentPage, [
@@ -90,8 +90,8 @@ class PushNotificationController extends Controller
         ]);
         $message_notifications->setPageName('message_page');
 
-        $currentPage = $request->task_page ? $request->task_page : 1;
-        $perPage = 50;
+        $currentPage  = $request->task_page ? $request->task_page : 1;
+        $perPage      = 50;
         $currentItems = array_slice($task_notifications, $perPage * ($currentPage - 1), $perPage);
 
         $task_notifications = new LengthAwarePaginator($currentItems, count($task_notifications), $perPage, $currentPage, [
@@ -152,34 +152,34 @@ class PushNotificationController extends Controller
 
     public function changeStatus(PushNotification $push_notification, Request $request)
     {
-        $status = $request->input('status');
+        $status     = $request->input('status');
         $model_type = $push_notification->model_type;
-        $remark = $request->input('remark');
+        $remark     = $request->input('remark');
 
-        $model_class = new $model_type();
+        $model_class    = new $model_type();
         $model_instance = $model_class->findOrFail($push_notification->model_id);
 
         $model_instance->assign_status = $status;
 
         if ($status == 1) {
             PushNotification::create([
-                'message' => 'Task Accepted by ' . Helpers::getUserNameById(Auth::id()),
+                'message'    => 'Task Accepted by ' . Helpers::getUserNameById(Auth::id()),
                 'model_type' => Task::class,
-                'model_id' => $push_notification->model_id,
-                'user_id' => Auth::id(),
-                'sent_to' => '',
-                'role' => 'Admin',
+                'model_id'   => $push_notification->model_id,
+                'user_id'    => Auth::id(),
+                'sent_to'    => '',
+                'role'       => 'Admin',
             ]);
         }
 
         if ($status == 3) {
             PushNotification::create([
-                'message' => 'Task Declined by ' . Helpers::getUserNameById(Auth::id()),
+                'message'    => 'Task Declined by ' . Helpers::getUserNameById(Auth::id()),
                 'model_type' => Task::class,
-                'model_id' => $push_notification->model_id,
-                'user_id' => Auth::id(),
-                'sent_to' => '',
-                'role' => 'Admin',
+                'model_id'   => $push_notification->model_id,
+                'user_id'    => Auth::id(),
+                'sent_to'    => '',
+                'role'       => 'Admin',
             ]);
         }
 
@@ -193,12 +193,12 @@ class PushNotificationController extends Controller
                     ]);
 
                     PushNotification::create([
-                        'message' => 'Remark added ' . $remark,
+                        'message'    => 'Remark added ' . $remark,
                         'model_type' => Task::class,
-                        'model_id' => $push_notification->model_id,
-                        'user_id' => Auth::id(),
-                        'sent_to' => '',
-                        'role' => 'Admin',
+                        'model_id'   => $push_notification->model_id,
+                        'user_id'    => Auth::id(),
+                        'sent_to'    => '',
+                        'role'       => 'Admin',
                     ]);
                 }
 
@@ -226,23 +226,23 @@ class PushNotificationController extends Controller
         }
 
         PushNotification::create([
-            'message' => $message . ' : ' . $push_notification->message,
-            'role' => '',
-            'user_id' => Auth::id(),
-            'sent_to' => $push_notification->user_id,
+            'message'    => $message . ' : ' . $push_notification->message,
+            'role'       => '',
+            'user_id'    => Auth::id(),
+            'sent_to'    => $push_notification->user_id,
             'model_type' => $push_notification->model_type,
-            'model_id' => $push_notification->model_id,
+            'model_id'   => $push_notification->model_id,
         ]);
 
         if ($status == 1) {
             NotificationQueueController::createNewNotification([
-                'message' => 'Reminder: ' . $push_notification->message,
+                'message'    => 'Reminder: ' . $push_notification->message,
                 'timestamps' => ['+10 minutes', '+20 minutes', '+30 minutes', '+40 minutes', '+50 minutes', '+60 minutes', '+70 minutes', '+80 minutes', '+90 minutes', '+100 minutes', '+110 minutes', '+120 minutes'],
                 'model_type' => $push_notification->model_type,
-                'model_id' => $push_notification->model_id,
-                'user_id' => Auth::id(),
-                'sent_to' => $push_notification->user_id,
-                'role' => '',
+                'model_id'   => $push_notification->model_id,
+                'user_id'    => Auth::id(),
+                'sent_to'    => $push_notification->user_id,
+                'role'       => '',
             ]);
         }
 

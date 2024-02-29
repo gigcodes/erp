@@ -26,7 +26,8 @@ class NodeFactory
     /**
      * Sanitizes the name of a Node class
      *
-     * @param  string  $class The class name to be sanitized
+     * @param string $class The class name to be sanitized
+     *
      * @return string
      *
      * @psalm-return class-string
@@ -53,7 +54,8 @@ class NodeFactory
      * Will return the default class name back if the
      * file for some subclass is not available
      *
-     * @param  string  $class The class name to check
+     * @param string $class The class name to check
+     *
      * @return string
      *
      * @psalm-return class-string
@@ -81,10 +83,10 @@ class NodeFactory
     /**
      * Instantiates a Node object
      *
-     * @param  string  $class   The name of the class to instantiate
-     * @param  string|array  $name    An identifier for the new node
-     * @param  int  $type    Type of node, may be one of CONTAINER or OBJECT
-     * @param  bool  $isGroup Whether this object has been created while grouping nodes
+     * @param string       $class   The name of the class to instantiate
+     * @param string|array $name    An identifier for the new node
+     * @param int          $type    Type of node, may be one of CONTAINER or OBJECT
+     * @param bool         $isGroup Whether this object has been created while grouping nodes
      */
     public static function getInstance(
         $class = 'Node',
@@ -103,16 +105,16 @@ class NodeFactory
     /**
      * Instantiates a Node object that will be used only for "New db/table/etc.." objects
      *
-     * @param  string  $name    An identifier for the new node
-     * @param  string  $classes Extra CSS classes for the node
+     * @param string $name    An identifier for the new node
+     * @param string $classes Extra CSS classes for the node
      */
     public static function getInstanceForNewNode(
         string $name,
         string $classes
     ): Node {
-        $node = new Node($name, Node::OBJECT, false);
-        $node->title = $name;
-        $node->isNew = true;
+        $node          = new Node($name, Node::OBJECT, false);
+        $node->title   = $name;
+        $node->isNew   = true;
         $node->classes = $classes;
 
         return $node;

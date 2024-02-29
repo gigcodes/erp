@@ -40,7 +40,7 @@ class ProductLocationController extends Controller
             'name' => 'required',
         ]);
 
-        $productLocation = new ProductLocation();
+        $productLocation       = new ProductLocation();
         $productLocation->name = $request->get('name');
         $productLocation->save();
 
@@ -49,6 +49,8 @@ class ProductLocationController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\Response
      */

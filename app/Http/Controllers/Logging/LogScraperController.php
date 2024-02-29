@@ -14,8 +14,8 @@ class LogScraperController extends Controller
     public function index(Request $request)
     {
         $customrange = $request->get('customrange', null);
-        $from = null;
-        $to = null;
+        $from        = null;
+        $to          = null;
 
         if (! empty($customrange)) {
             [$from, $to] = explode(' - ', $customrange);
@@ -69,7 +69,7 @@ class LogScraperController extends Controller
         $logsByGroup = $logsByGroup->groupBy('website');
         $logsByGroup = $logsByGroup->having('total_error', '>', 0)->get();
 
-        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        $scraperLogs      = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
         $requestParamData = request()->except(['page']);
 
         // For ajax
@@ -146,8 +146,8 @@ class LogScraperController extends Controller
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_data', compact('logScrappers', 'category_selection', 'failed', 'existingIssues', 'pendingIssues', 'lastCreatedIssue', 'requestParam'))->render(),
-                'links' => (string) $logScrappers->render(),
+                'tbody'       => view('logging.partials.listsku_data', compact('logScrappers', 'category_selection', 'failed', 'existingIssues', 'pendingIssues', 'lastCreatedIssue', 'requestParam'))->render(),
+                'links'       => (string) $logScrappers->render(),
                 'totalFailed' => $failed,
             ], 200);
         }
@@ -230,8 +230,8 @@ class LogScraperController extends Controller
                 }
             }
 
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $perPage = Setting::get('pagination');
+            $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+            $perPage      = Setting::get('pagination');
             $currentItems = array_slice($scrapArray, $perPage * ($currentPage - 1), $perPage);
 
             $log = new LengthAwarePaginator($currentItems, count($scrapArray), $perPage, $currentPage, [
@@ -262,8 +262,8 @@ class LogScraperController extends Controller
         // For ajax
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.listsku_errors_data', compact('logScrappers', 'category_selection', 'failed', 'existingIssues', 'pendingIssues', 'lastCreatedIssue', 'requestParam', 'pendingIssuesCount'))->render(),
-                'links' => (string) $logScrappers->render(),
+                'tbody'       => view('logging.partials.listsku_errors_data', compact('logScrappers', 'category_selection', 'failed', 'existingIssues', 'pendingIssues', 'lastCreatedIssue', 'requestParam', 'pendingIssuesCount'))->render(),
+                'links'       => (string) $logScrappers->render(),
                 'totalFailed' => $failed,
             ], 200);
         }
@@ -283,14 +283,14 @@ class LogScraperController extends Controller
         if ($request->start_date && $request->end_date) {
             if ($request->start_date != $request->end_date) {
                 $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
-                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->end_date);
-                $apilogs = $apilogs->whereBetween('scrap_api_logs.created_at', [$startDate, $endDate]);
+                $endDate   = \Carbon\Carbon::createFromFormat('d-m-Y', $request->end_date);
+                $apilogs   = $apilogs->whereBetween('scrap_api_logs.created_at', [$startDate, $endDate]);
             }
 
             if ($request->start_date == $request->end_date) {
                 $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
-                $date = $startDate->format('Y-m-d');
-                $apilogs = $apilogs->where('scrap_api_logs.created_at', 'LIKE', "%$date%");
+                $date      = $startDate->format('Y-m-d');
+                $apilogs   = $apilogs->where('scrap_api_logs.created_at', 'LIKE', "%$date%");
             }
         }
         $data['api_logs'] = $apilogs->latest()->paginate(30);

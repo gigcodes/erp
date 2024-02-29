@@ -26,14 +26,15 @@ class Flow2PushProductOnlyJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  StoreWebsite  $website
-     * @param  null  $log
-     * @param  null  $mode
+     * @param StoreWebsite $website
+     * @param null         $log
+     * @param null         $mode
+     * @param protected    $details
      */
     public function __construct(Product $product, protected $details)
     {
         // Set product and website
-        $this->_product = $product;
+        $this->_product      = $product;
         $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index'] : 0;
         $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product'] : 0;
     }
@@ -49,14 +50,14 @@ class Flow2PushProductOnlyJob implements ShouldQueue
         set_time_limit(0);
 
         $product = $this->_product;
-        $mode = 'product-push';
+        $mode    = 'product-push';
 
         // Setting is_push_attempted flag as 1
-        $productRow = Product::find($product->id);
+        $productRow                    = Product::find($product->id);
         $productRow->is_push_attempted = 1;
         $productRow->save();
 
-        $category = $product->categories;
+        $category      = $product->categories;
         $websiteArrays = ProductHelper::getStoreWebsiteNameByTag($product->id);
         if (! empty($websiteArrays)) {
             $i = 1;
@@ -64,7 +65,7 @@ class Flow2PushProductOnlyJob implements ShouldQueue
                 $website = $websiteArray;
                 if ($website) {
                     \Log::info('Product push started For the website' . $website->website);
-                    $log = LogListMagento::log($product->id, 'Push to magento: product with id ' . $product->id . ' status id ' . $product->status_id, 'info', $website->id, 'initialization');
+                    $log        = LogListMagento::log($product->id, 'Push to magento: product with id ' . $product->id . ' status id ' . $product->status_id, 'info', $website->id, 'initialization');
                     $log->queue = \App\Helpers::createQueueName($website->title);
                     $log->save();
                     ProductPushErrorLog::log('', $product->id, 'Started pushing ' . $product->name, 'success', $website->id, null, null, $log->id, null);

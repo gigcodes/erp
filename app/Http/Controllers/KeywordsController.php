@@ -20,7 +20,7 @@ class KeywordsController extends Controller
             'name' => 'required',
         ]);
 
-        $k = new Keywords();
+        $k       = new Keywords();
         $k->text = $request->get('name');
         $k->save();
 

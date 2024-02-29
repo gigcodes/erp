@@ -12,8 +12,8 @@ class TwilioAccountLog extends Model
     {
         static::create([
             'email' => $email,
-            'sid' => $sid,
-            'log' => $log,
+            'sid'   => $sid,
+            'log'   => $log,
         ]);
     }
 }

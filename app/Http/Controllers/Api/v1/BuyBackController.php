@@ -63,9 +63,9 @@ class BuyBackController extends Controller
     public function store(Request $request)
     {
         $validationsarr = [
-            'order_id' => 'required',
-            'website' => 'required',
-            'type' => 'required|in:refund,exchange,buyback,return,cancellation',
+            'order_id'    => 'required',
+            'website'     => 'required',
+            'type'        => 'required|in:refund,exchange,buyback,return,cancellation',
             'product_sku' => 'required|exists:order_products,sku',
         ];
 
@@ -89,15 +89,15 @@ class BuyBackController extends Controller
         }
 
         $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
-        $skus = [];
+        $skus         = [];
         if ($storeWebsite) {
             if ($request->type == 'cancellation' && $request->cancellation_type == 'order') {
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where('website_id', $storeWebsite->id)->first();
                 if ($storewebisteOrder) {
-                    $skus = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
+                    $skus  = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
                     $order = \App\Order::find($storewebisteOrder->order_id);
                     if ($order) {
-                        $order->order_status = 'Cancel';
+                        $order->order_status    = 'Cancel';
                         $order->order_status_id = 11;
                         $order->save();
                         $storewebisteOrder->status_id = 11;
@@ -108,10 +108,10 @@ class BuyBackController extends Controller
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where('website_id', $storeWebsite->id)->first();
 
                 if ($storewebisteOrder) {
-                    $skus = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
+                    $skus  = \App\OrderProduct::where('order_id', $storewebisteOrder->order_id)->get()->pluck('sku')->toArray();
                     $order = \App\Order::find($storewebisteOrder->order_id);
                     if ($order) {
-                        $order->order_status = OrderHelper::getStatus()[OrderHelper::$refundToBeProcessed];
+                        $order->order_status    = OrderHelper::getStatus()[OrderHelper::$refundToBeProcessed];
                         $order->order_status_id = OrderHelper::$refundToBeProcessed;
                         $order->save();
                         $storewebisteOrder->status_id = OrderHelper::$refundToBeProcessed;
@@ -145,19 +145,19 @@ class BuyBackController extends Controller
                     }
 
                     $return_exchange_products_data = [
-                        'status_id' => 1, //Return request received from customer
-                        'product_id' => $getCustomerOrderData->product_id,
+                        'status_id'        => 1, //Return request received from customer
+                        'product_id'       => $getCustomerOrderData->product_id,
                         'order_product_id' => $getCustomerOrderData->order_product_id,
-                        'name' => $getCustomerOrderData->product_name,
+                        'name'             => $getCustomerOrderData->product_name,
                     ];
                     $return_exchanges_data = [
-                        'customer_id' => $getCustomerOrderData->customer_id,
-                        'website_id' => $storeWebsite->id,
-                        'type' => $request->type,
+                        'customer_id'       => $getCustomerOrderData->customer_id,
+                        'website_id'        => $storeWebsite->id,
+                        'type'              => $request->type,
                         'reason_for_refund' => $request->get('reason', '' . ucwords($request->type) . ' of product from ' . $storeWebsite->website),
-                        'refund_amount' => $getCustomerOrderData->product_price,
-                        'status' => 1,
-                        'date_of_request' => date('Y-m-d H:i:s'),
+                        'refund_amount'     => $getCustomerOrderData->product_price,
+                        'status'            => 1,
+                        'date_of_request'   => date('Y-m-d H:i:s'),
                     ];
                     $success = ReturnExchange::create($return_exchanges_data);
 
@@ -167,7 +167,7 @@ class BuyBackController extends Controller
                         return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
                     $return_exchange_products_data['return_exchange_id'] = $success->id;
-                    $isSuccess = true;
+                    $isSuccess                                           = true;
                     ReturnExchangeProduct::create($return_exchange_products_data);
 
                     // send emails
@@ -175,17 +175,17 @@ class BuyBackController extends Controller
                         $emailClass = (new \App\Mails\Manual\InitializeRefundRequest($success))->build();
 
                         $email = Email::create([
-                            'model_id' => $success->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $success->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'refund-request',
-                            'additional_data' => $success->id,
-                            'status' => 'pre-send',
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'refund-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -195,7 +195,7 @@ class BuyBackController extends Controller
                         if ($auto_reply) {
                             $auto_message = preg_replace('/{order_id}/i', $getCustomerOrderData->order_id, $auto_reply->reply);
                             $auto_message = preg_replace('/{product_names}/i', $getCustomerOrderData->product_name, $auto_message);
-                            $requestData = new Request();
+                            $requestData  = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
                             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -204,17 +204,17 @@ class BuyBackController extends Controller
                         $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
 
                         $email = Email::create([
-                            'model_id' => $success->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $success->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'return-request',
-                            'additional_data' => $success->id,
-                            'status' => 'pre-send',
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'return-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -224,7 +224,7 @@ class BuyBackController extends Controller
                         if ($auto_reply) {
                             $auto_message = preg_replace('/{order_id}/i', $getCustomerOrderData->order_id, $auto_reply->reply);
                             $auto_message = preg_replace('/{product_names}/i', $getCustomerOrderData->product_name, $auto_message);
-                            $requestData = new Request();
+                            $requestData  = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
                             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -233,17 +233,17 @@ class BuyBackController extends Controller
                         $emailClass = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
 
                         $email = Email::create([
-                            'model_id' => $success->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $success->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'exchange-request',
-                            'additional_data' => $success->id,
-                            'status' => 'pre-send',
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'exchange-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -253,7 +253,7 @@ class BuyBackController extends Controller
                         if ($auto_reply) {
                             $auto_message = preg_replace('/{order_id}/i', $getCustomerOrderData->order_id, $auto_reply->reply);
                             $auto_message = preg_replace('/{product_names}/i', $getCustomerOrderData->product_name, $auto_message);
-                            $requestData = new Request();
+                            $requestData  = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
                             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -262,17 +262,17 @@ class BuyBackController extends Controller
                         $emailClass = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
 
                         $email = Email::create([
-                            'model_id' => $success->id,
-                            'model_type' => \App\ReturnExchange::class,
-                            'from' => $emailClass->fromMailer,
-                            'to' => $success->customer->email,
-                            'subject' => $emailClass->subject,
-                            'message' => $emailClass->render(),
-                            'template' => 'cancellation',
-                            'additional_data' => $success->id,
-                            'status' => 'pre-send',
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'cancellation',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
                             'store_website_id' => null,
-                            'is_draft' => 1,
+                            'is_draft'         => 1,
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -282,7 +282,7 @@ class BuyBackController extends Controller
                         if ($auto_reply) {
                             $auto_message = preg_replace('/{order_id}/i', $getCustomerOrderData->order_id, $auto_reply->reply);
                             $auto_message = preg_replace('/{product_names}/i', $getCustomerOrderData->product_name, $auto_message);
-                            $requestData = new Request();
+                            $requestData  = new Request();
                             $requestData->setMethod('POST');
                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]);
                             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
@@ -308,7 +308,8 @@ class BuyBackController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -319,7 +320,8 @@ class BuyBackController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -330,7 +332,8 @@ class BuyBackController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -341,7 +344,8 @@ class BuyBackController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -372,7 +376,7 @@ class BuyBackController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'customer_email' => 'required|email',
-            'website' => 'required',
+            'website'        => 'required',
         ]);
         if ($validator->fails()) {
             $message = $this->generate_erp_response('buyback.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
@@ -394,7 +398,7 @@ class BuyBackController extends Controller
                 return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
 
-            $customer_id = $checkCustomer->id;
+            $customer_id          = $checkCustomer->id;
             $getCustomerOrderData = Order::Where('customer_id', $customer_id)->where('swo.website_id', $storeWebsite->id)
                 ->join('order_products as op', 'op.order_id', 'orders.id')
                 ->join('products as p', 'p.id', 'op.product_id')

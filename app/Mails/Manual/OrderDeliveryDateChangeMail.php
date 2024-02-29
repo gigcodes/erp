@@ -19,11 +19,13 @@ class OrderDeliveryDateChangeMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
-        $this->order = $data;
+        $this->order      = $data;
         $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
@@ -35,9 +37,9 @@ class OrderDeliveryDateChangeMail extends Mailable
     public function build()
     {
         $subject = 'Order # ' . $this->order->order_id . ' delivery date has been changed';
-        $order = $this->order;
+        $order   = $this->order;
 
-        $customer = $order->customer;
+        $customer       = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
@@ -71,10 +73,10 @@ class OrderDeliveryDateChangeMail extends Mailable
                         'order', 'customer', 'order_products'
                     ));
             } else {
-                $content = $template->static_template;
+                $content      = $template->static_template;
                 $arrToReplace = ['{FIRST_NAME}', '{ORDER_DELIVERY_DATE}', '{ORDER_ID}'];
                 $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
-                $content = str_replace($arrToReplace, $valToReplace, $content);
+                $content      = str_replace($arrToReplace, $valToReplace, $content);
 
                 return $this->from($this->fromMailer)->subject($this->subject)
                     ->view('emails.blank_content', compact(

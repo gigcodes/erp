@@ -41,9 +41,9 @@ class DeleteDatabaseItems extends Command
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
-            $datebeforetenday = date('Y-m-d', strtotime('-10 day'));
+            $datebeforetenday     = date('Y-m-d', strtotime('-10 day'));
             $datebeforefifteenday = date('Y-m-d', strtotime('-15 day'));
-            $datebeforethreeday = date('Y-m-d', strtotime('-3 day'));
+            $datebeforethreeday   = date('Y-m-d', strtotime('-3 day'));
             // delete scraper position history
             \App\ScraperPositionHistory::whereDate('created_at', '<=', $datebeforetenday)->delete();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraper position history deleted.']);

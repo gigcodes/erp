@@ -31,7 +31,7 @@ class UserPasswordController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->userPassword = $userPassword;
-        $this->dbi = $dbi;
+        $this->dbi          = $dbi;
     }
 
     public function __invoke(): void
@@ -68,7 +68,7 @@ class UserPasswordController extends AbstractController
             }
 
             $change_password_message = $this->userPassword->setChangePasswordMsg();
-            $msg = $change_password_message['msg'];
+            $msg                     = $change_password_message['msg'];
 
             if (! $change_password_message['error']) {
                 $sql_query = $this->userPassword->changePassword($password);

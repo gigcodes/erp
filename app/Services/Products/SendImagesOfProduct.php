@@ -13,10 +13,10 @@ class SendImagesOfProduct
     public function check($chatMessage)
     {
         $temp_log_params = [
-            'model' => \App\Customer::class,
-            'model_id' => $chatMessage->customer_id,
+            'model'           => \App\Customer::class,
+            'model_id'        => $chatMessage->customer_id,
             'message_sent_id' => $chatMessage->id,
-            'keyword' => $chatMessage->message,
+            'keyword'         => $chatMessage->message,
         ];
 
         $addKeyword = \App\KeywordAutoGenratedMessageLog::create($temp_log_params);
@@ -27,13 +27,13 @@ class SendImagesOfProduct
             $sentence = preg_replace('/\s+/', ' ', $chatMessage->message);
             $sentence = explode(' ', $sentence);
 
-            $brand = $this->checkWithBrand($sentence);
+            $brand    = $this->checkWithBrand($sentence);
             $category = $this->checkWithCategory($sentence);
 
             if ($brand && $category) {
                 // find the values from setting to get the how many images we need to send in total;
                 try {
-                    $setting = \App\Setting::where('name', 'send_auto_brand_category_image_no')->first();
+                    $setting     = \App\Setting::where('name', 'send_auto_brand_category_image_no')->first();
                     $totalImages = 10;
                     if ($setting) {
                         $totalImages = $setting->val;
@@ -49,7 +49,7 @@ class SendImagesOfProduct
                     $myRequest->request->add(['keyword_matched' => $chatMessage->message]);
 
                     $this->log[] = 'Started function to call the attach image function with : ' . json_encode($myRequest->all());
-                    $return = (new \App\Http\Controllers\ProductController)->attachImages('customer', $chatMessage->customer_id, null, null, $myRequest);
+                    $return      = (new \App\Http\Controllers\ProductController)->attachImages('customer', $chatMessage->customer_id, null, null, $myRequest);
                     if (! empty($return)) {
                         $this->log[] = 'Total product found for message : ' . $return['total_product'];
                     }
@@ -63,7 +63,7 @@ class SendImagesOfProduct
             $this->log[] = 'Message type is not message or empty message';
         }
 
-        $addKeyword->comment = implode("\n\r", $this->log);
+        $addKeyword->comment       = implode("\n\r", $this->log);
         $addKeyword->keyword_match = implode("\n\r", $this->keyword_match);
         $addKeyword->save();
     }
@@ -73,7 +73,7 @@ class SendImagesOfProduct
         foreach ((array) $sentence as $s) {
             $brand = \App\Brand::where('name', 'like', $s)->orderBy('id', 'asc')->first();
             if ($brand) {
-                $this->log[] = "Brand name matched with '" . $s . "' and id is '" . $brand->id . "'";
+                $this->log[]           = "Brand name matched with '" . $s . "' and id is '" . $brand->id . "'";
                 $this->keyword_match[] = $brand->name;
 
                 return $brand;
@@ -90,7 +90,7 @@ class SendImagesOfProduct
         foreach ((array) $sentence as $s) {
             $category = \App\Category::where('title', 'like', $s)->first();
             if ($category) {
-                $this->log[] = "Category name matched with '" . $s . "' and id is '" . $category->id . "'";
+                $this->log[]           = "Category name matched with '" . $s . "' and id is '" . $category->id . "'";
                 $this->keyword_match[] = $category->title;
 
                 return $category;

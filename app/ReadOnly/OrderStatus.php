@@ -13,14 +13,14 @@ use App\ReadOnlyBase;
 class OrderStatus extends ReadOnlyBase
 {
     protected $data = [
-        2 => 'Follow up for advance',
-        4 => 'Proceed without advance',
+        2  => 'Follow up for advance',
+        4  => 'Proceed without advance',
         13 => 'Advance received',
         11 => 'Cancel',
-        3 => 'Prepaid',
-        7 => 'Product shipped from italy',
+        3  => 'Prepaid',
+        7  => 'Product shipped from italy',
         14 => 'In Transist from Italy',
-        9 => 'Product shipped to client',
+        9  => 'Product shipped to client',
         10 => 'Delivered',
         15 => 'Refund to be processed',
         16 => 'Refund Dispatched',

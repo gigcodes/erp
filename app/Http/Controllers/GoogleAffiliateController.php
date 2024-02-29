@@ -29,7 +29,7 @@ class GoogleAffiliateController extends Controller
     public function index(Request $request)
     {
         $queryString = '';
-        $sortBy = 'hashtag';
+        $sortBy      = 'hashtag';
         if ($request->input('orderby') == '') {
             $orderBy = 'DESC';
         } else {
@@ -79,9 +79,9 @@ class GoogleAffiliateController extends Controller
             'name' => 'required',
         ]);
 
-        $hashtag = new HashTag();
-        $hashtag->hashtag = $request->get('name');
-        $hashtag->rating = $request->get('rating') ?? 8;
+        $hashtag               = new HashTag();
+        $hashtag->hashtag      = $request->get('name');
+        $hashtag->rating       = $request->get('rating') ?? 8;
         $hashtag->platforms_id = $this->platformsId;
         $hashtag->save();
 
@@ -91,7 +91,8 @@ class GoogleAffiliateController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -102,7 +103,8 @@ class GoogleAffiliateController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -134,7 +136,7 @@ class GoogleAffiliateController extends Controller
             ]);
         }
 
-        $hashtag = HashTag::findOrFail($id);
+        $hashtag           = HashTag::findOrFail($id);
         $hashtag->priority = $request->type;
         $hashtag->update();
 
@@ -228,20 +230,20 @@ class GoogleAffiliateController extends Controller
                     // Retrieve instagram post or initiate new
                     $affiliateResults = Affiliates::firstOrNew(['location' => $postJson['URL']]);
 
-                    $affiliateResults->hashtag_id = $keywords->id;
-                    $affiliateResults->title = $postJson['title'];
-                    $affiliateResults->caption = $postJson['description'];
-                    $affiliateResults->posted_at = ($postJson['crawledAt']) ? date('Y-m-d H:i:s', strtotime($postJson['crawledAt'])) : date('Y-m-d H:i:s');
-                    $affiliateResults->address = (isset($postJson['address'])) ? $postJson['address'] : '';
-                    $affiliateResults->facebook = (isset($postJson['facebook'])) ? $postJson['facebook'] : '';
-                    $affiliateResults->instagram = (isset($postJson['instagram'])) ? $postJson['instagram'] : '';
-                    $affiliateResults->twitter = (isset($postJson['twitter'])) ? $postJson['twitter'] : '';
-                    $affiliateResults->youtube = (isset($postJson['youtube'])) ? $postJson['youtube'] : '';
-                    $affiliateResults->linkedin = (isset($postJson['linkedin'])) ? $postJson['linkedin'] : '';
-                    $affiliateResults->pinterest = (isset($postJson['pinterest'])) ? $postJson['pinterest'] : '';
-                    $affiliateResults->phone = (isset($postJson['phone'])) ? $postJson['phone'] : '';
+                    $affiliateResults->hashtag_id   = $keywords->id;
+                    $affiliateResults->title        = $postJson['title'];
+                    $affiliateResults->caption      = $postJson['description'];
+                    $affiliateResults->posted_at    = ($postJson['crawledAt']) ? date('Y-m-d H:i:s', strtotime($postJson['crawledAt'])) : date('Y-m-d H:i:s');
+                    $affiliateResults->address      = (isset($postJson['address'])) ? $postJson['address'] : '';
+                    $affiliateResults->facebook     = (isset($postJson['facebook'])) ? $postJson['facebook'] : '';
+                    $affiliateResults->instagram    = (isset($postJson['instagram'])) ? $postJson['instagram'] : '';
+                    $affiliateResults->twitter      = (isset($postJson['twitter'])) ? $postJson['twitter'] : '';
+                    $affiliateResults->youtube      = (isset($postJson['youtube'])) ? $postJson['youtube'] : '';
+                    $affiliateResults->linkedin     = (isset($postJson['linkedin'])) ? $postJson['linkedin'] : '';
+                    $affiliateResults->pinterest    = (isset($postJson['pinterest'])) ? $postJson['pinterest'] : '';
+                    $affiliateResults->phone        = (isset($postJson['phone'])) ? $postJson['phone'] : '';
                     $affiliateResults->emailaddress = (isset($postJson['emailaddress'])) ? $postJson['emailaddress'] : '';
-                    $affiliateResults->source = 'google';
+                    $affiliateResults->source       = 'google';
                     $affiliateResults->save();
                 }
             }
@@ -261,7 +263,7 @@ class GoogleAffiliateController extends Controller
     public function searchResults(Request $request)
     {
         $queryString = '';
-        $orderBy = 'DESC';
+        $orderBy     = 'DESC';
         if (! empty($request->hashtag)) {
             $queryString .= 'hashtag=' . $request->hashtag . '&';
         }
@@ -303,7 +305,7 @@ class GoogleAffiliateController extends Controller
      */
     private function getFilteredGoogleSearchResults(Request $request)
     {
-        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
+        $sortBy  = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
         $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
 
         // Base query
@@ -377,15 +379,15 @@ class GoogleAffiliateController extends Controller
         $emailClass = (new AffiliateEmail($request->subject, $request->message))->build();
 
         $email = \App\Email::create([
-            'model_id' => $affiliates->id,
-            'model_type' => Affiliates::class,
-            'from' => 'affiliate@amourint.com',
-            'to' => $affiliates->emailaddress,
-            'subject' => $request->subject,
-            'message' => $emailClass->render(),
-            'template' => 'order-confirmation',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $affiliates->id,
+            'model_type'       => Affiliates::class,
+            'from'             => 'affiliate@amourint.com',
+            'to'               => $affiliates->emailaddress,
+            'subject'          => $request->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'order-confirmation',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
         ]);
 
@@ -397,7 +399,8 @@ class GoogleAffiliateController extends Controller
     /**
      * function to call google scraper
      *
-     * @param  \Illuminate\Http\Request  $request , id of keyword to scrap
+     * @param \Illuminate\Http\Request $request , id of keyword to scrap
+     *
      * @return success, failure
      */
     public function callScraper(Request $request)
@@ -405,7 +408,7 @@ class GoogleAffiliateController extends Controller
         $id = $request->input('id');
 
         $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
         if (is_null($searchKeywords)) {
             // Return
             return response()->json([
@@ -413,7 +416,7 @@ class GoogleAffiliateController extends Controller
             ], 400);
         } else {
             $postData = ['data' => $searchKeywords];
-            $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
+            $url      = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
             $response = Http::post($url, $postData);
 
             $responseData = $response->json();

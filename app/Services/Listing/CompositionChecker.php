@@ -23,9 +23,9 @@ class CompositionChecker implements CheckerInterface
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $data, $extractedData);
 
         if ($hasExtracted) {
-            $extractedData = $extractedData[0];
-            $extractedData = $this->improvise($extractedData);
-            $extractedData = implode(', ', $extractedData);
+            $extractedData        = $extractedData[0];
+            $extractedData        = $this->improvise($extractedData);
+            $extractedData        = implode(', ', $extractedData);
             $product->composition = $extractedData;
             $product->save();
             dump($product->composition);
@@ -39,8 +39,8 @@ class CompositionChecker implements CheckerInterface
             return false;
         }
 
-        $additionalData = $this->improvise($additionalData);
-        $additionalData = implode(', ', $additionalData);
+        $additionalData       = $this->improvise($additionalData);
+        $additionalData       = implode(', ', $additionalData);
         $product->composition = $additionalData;
         $product->save();
 
@@ -66,7 +66,7 @@ class CompositionChecker implements CheckerInterface
 
     private function setCompositionReplacementData(): void
     {
-        $cs = [];
+        $cs       = [];
         $original = [];
         $replaces = [];
         foreach ($cs as $c) {

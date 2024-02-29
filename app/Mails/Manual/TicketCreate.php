@@ -24,7 +24,7 @@ class TicketCreate extends Mailable
 
     public function __construct(Tickets $ticket)
     {
-        $this->ticket = $ticket;
+        $this->ticket     = $ticket;
         $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
@@ -35,12 +35,12 @@ class TicketCreate extends Mailable
      */
     public function build()
     {
-        $subject = 'New Ticket # ' . $this->ticket->ticket_id;
-        $ticket = $this->ticket;
+        $subject  = 'New Ticket # ' . $this->ticket->ticket_id;
+        $ticket   = $this->ticket;
         $customer = $ticket->customer;
 
         $this->subject = $subject;
-        $emailAddress = \App\EmailAddress::whereHas('website', function ($q) use ($ticket) {
+        $emailAddress  = \App\EmailAddress::whereHas('website', function ($q) use ($ticket) {
             $q->where('website', '=', $ticket->source_of_ticket);
         })->first();
 

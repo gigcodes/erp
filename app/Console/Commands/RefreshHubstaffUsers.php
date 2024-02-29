@@ -39,7 +39,7 @@ class RefreshHubstaffUsers extends Command
     {
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
-        $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN       = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -52,7 +52,7 @@ class RefreshHubstaffUsers extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
@@ -106,8 +106,8 @@ class RefreshHubstaffUsers extends Command
                         $userExist = \App\User::where('email', $member->email)->first();
                         HubstaffMember::create([
                             'hubstaff_user_id' => $member->user_id,
-                            'email' => $member->email,
-                            'user_id' => ($userExist) ? $userExist->id : null,
+                            'email'            => $member->email,
+                            'user_id'          => ($userExist) ? $userExist->id : null,
                         ]);
                     }
                 }

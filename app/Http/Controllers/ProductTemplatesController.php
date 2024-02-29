@@ -24,7 +24,7 @@ class ProductTemplatesController extends Controller
      */
     public function index(Request $request)
     {
-        $images = $request->get('images', false);
+        $images     = $request->get('images', false);
         $productArr = null;
         if ($images) {
             $productIdsArr = \DB::table('mediables')
@@ -38,7 +38,7 @@ class ProductTemplatesController extends Controller
             }
         }
 
-        $texts = \App\ProductTemplate::where('text', '!=', '')->groupBy('text')->pluck('text', 'text')->toArray();
+        $texts            = \App\ProductTemplate::where('text', '!=', '')->groupBy('text')->pluck('text', 'text')->toArray();
         $backgroundColors = \App\ProductTemplate::where('background_color', '!=', '')->groupBy('background_color')->pluck('background_color', 'background_color')->toArray();
 
         $templateArr = \App\Template::all();
@@ -74,8 +74,8 @@ class ProductTemplatesController extends Controller
         }
 
         return response()->json([
-            'code' => 1,
-            'result' => $records,
+            'code'       => 1,
+            'result'     => $records,
             'pagination' => (string) $records->appends(request()->except('page')),
         ]);
     }
@@ -84,12 +84,12 @@ class ProductTemplatesController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     * function is renamed from create to previous_create after implement bearbanner api
+     *                                   function is renamed from create to previous_create after implement bearbanner api
      */
     public function previous_create(Request $request)
     {
         $template = new \App\ProductTemplate;
-        $params = request()->all();
+        $params   = request()->all();
         if (empty($params['product_id'])) {
             $params['product_id'] = [];
         }
@@ -122,7 +122,8 @@ class ProductTemplatesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -172,16 +173,16 @@ class ProductTemplatesController extends Controller
         }
 
         $parent = '';
-        $child = '';
+        $child  = '';
 
         try {
             if ($cat != 'Select Category') {
                 if ($category->isParent($category->id)) {
                     $parent = $cat;
-                    $child = $cat;
+                    $child  = $cat;
                 } else {
                     $parent = $category->parent()->first()->title;
-                    $child = $cat;
+                    $child  = $cat;
                 }
             }
         } catch (\ErrorException $e) {
@@ -198,20 +199,20 @@ class ProductTemplatesController extends Controller
 
         if ($record) {
             $data = [
-                'id' => $record->id,
-                'templateNumber' => $record->template_no,
-                'productTitle' => $record->product_title,
-                'productBrand' => ($record->brand) ? $record->brand->name : '',
-                'productCategory' => $productCategory,
-                'productPrice' => $record->price,
+                'id'                     => $record->id,
+                'templateNumber'         => $record->template_no,
+                'productTitle'           => $record->product_title,
+                'productBrand'           => ($record->brand) ? $record->brand->name : '',
+                'productCategory'        => $productCategory,
+                'productPrice'           => $record->price,
                 'productDiscountedPrice' => $record->discounted_price,
-                'productCurrency' => $record->currency,
-                'text' => $record->text,
-                'fontStyle' => $record->font_style,
-                'fontSize' => $record->font_size,
-                'backgroundColor' => explode(',', $record->background_color),
-                'color' => $record->color,
-                'logo' => ($record->storeWebsite) ? $record->storeWebsite->title : '',
+                'productCurrency'        => $record->currency,
+                'text'                   => $record->text,
+                'fontStyle'              => $record->font_style,
+                'fontSize'               => $record->font_size,
+                'backgroundColor'        => explode(',', $record->background_color),
+                'color'                  => $record->color,
+                'logo'                   => ($record->storeWebsite) ? $record->storeWebsite->title : '',
             ];
 
             if ($record->hasMedia('template-image-attach')) {
@@ -268,7 +269,7 @@ class ProductTemplatesController extends Controller
                     $template->save();
 
                     // Store as broadcast image
-                    $broadcastImage = new BroadcastImage();
+                    $broadcastImage           = new BroadcastImage();
                     $broadcastImage->products = '[' . $template->product_id . ']';
                     $broadcastImage->save();
                     $broadcastImage->attachMedia($media, config('constants.media_tags'));
@@ -276,7 +277,7 @@ class ProductTemplatesController extends Controller
                     //Save Product For Image In Mediable
                     if ($template->product_id != null) {
                         $product = Product::find($template->product_id);
-                        $tag = 'template_' . $template->template_no;
+                        $tag     = 'template_' . $template->template_no;
                         $product->attachMedia($media, $tag);
                     }
 
@@ -293,7 +294,7 @@ class ProductTemplatesController extends Controller
     public function NewApiSave(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'text' => 'required',
+            'text'            => 'required',
             'backgroundColor' => 'nullable',
         ]);
 
@@ -302,7 +303,7 @@ class ProductTemplatesController extends Controller
         }
 
         $new = [
-            'text' => request('text'),
+            'text'             => request('text'),
             'background_color' => request('backgroundColor'),
         ];
 
@@ -322,7 +323,7 @@ class ProductTemplatesController extends Controller
      */
     public function selectProductId(Request $request)
     {
-        $html = '';
+        $html      = '';
         $productId = $request->get('product_ids');
         if ($productId) {
             $productArr = \App\Product::whereIn('id', $productId)->get();
@@ -369,7 +370,7 @@ class ProductTemplatesController extends Controller
                 $query->whereDate('updated_at', end($range));
             } else {
                 $start = str_replace('/', '-', $range[0]);
-                $end = str_replace('/', '-', end($range));
+                $end   = str_replace('/', '-', end($range));
                 $query->whereBetween('updated_at', [$start, $end]);
             }
 
@@ -389,8 +390,8 @@ class ProductTemplatesController extends Controller
 
     public function create(Request $request)
     {
-        $template = new \App\ProductTemplate;
-        $params = request()->all();
+        $template    = new \App\ProductTemplate;
+        $params      = request()->all();
         $imagesArray = [];
         if (empty($params['product_id'])) {
             $params['product_id'] = [];
@@ -399,8 +400,8 @@ class ProductTemplatesController extends Controller
         $params['product_id'] = implode(',', (array) $params['product_id']);
         if ($request->modifications_array) {
             $params['background_color'] = $request->modifications_array[0]['background'] ?? null;
-            $params['text'] = $request->modifications_array[0]['text'] ?? null;
-            $params['color'] = $request->modifications_array[0]['color'] ?? null;
+            $params['text']             = $request->modifications_array[0]['text'] ?? null;
+            $params['color']            = $request->modifications_array[0]['color'] ?? null;
         }
 
         $template->fill($params);
@@ -452,16 +453,16 @@ class ProductTemplatesController extends Controller
                 }
 
                 $parent = '';
-                $child = '';
+                $child  = '';
 
                 try {
                     if ($cat != 'Select Category') {
                         if ($category->isParent($category->id)) {
                             $parent = $cat;
-                            $child = $cat;
+                            $child  = $cat;
                         } else {
                             $parent = $category->parent()->first()->title;
-                            $child = $cat;
+                            $child  = $cat;
                         }
                     }
                 } catch (\ErrorException $e) {
@@ -479,20 +480,20 @@ class ProductTemplatesController extends Controller
                 if ($template) {
                     try {
                         $data = [
-                            'id' => $template->id,
-                            'templateNumber' => $template->template_no,
-                            'productTitle' => $template->product_title,
-                            'productBrand' => ($template->brand) ? $template->brand->name : '',
-                            'productCategory' => $productCategory,
-                            'productPrice' => $template->price,
+                            'id'                     => $template->id,
+                            'templateNumber'         => $template->template_no,
+                            'productTitle'           => $template->product_title,
+                            'productBrand'           => ($template->brand) ? $template->brand->name : '',
+                            'productCategory'        => $productCategory,
+                            'productPrice'           => $template->price,
                             'productDiscountedPrice' => $template->discounted_price,
-                            'productCurrency' => $template->currency,
-                            'text' => $template->text,
-                            'fontStyle' => $template->font_style,
-                            'fontSize' => $template->font_size,
-                            'backgroundColor' => explode(',', $template->background_color),
-                            'color' => $template->color,
-                            'logo' => ($template->storeWebsite) ? $template->storeWebsite->title : '',
+                            'productCurrency'        => $template->currency,
+                            'text'                   => $template->text,
+                            'fontStyle'              => $template->font_style,
+                            'fontSize'               => $template->font_size,
+                            'backgroundColor'        => explode(',', $template->background_color),
+                            'color'                  => $template->color,
+                            'logo'                   => ($template->storeWebsite) ? $template->storeWebsite->title : '',
                         ];
 
                         if ($template->hasMedia('template-image-attach')) {
@@ -503,11 +504,11 @@ class ProductTemplatesController extends Controller
                             $data['image'] = $images;
                         }
                         \Log::info(json_encode($data, true));
-                        $url = env('PYTHON_PRODUCT_TEMPLATES') . '/api/product-template';
-                        $response = \App\Helpers\GuzzleHelper::post($url, $data, []);
-                        $log = new ProductTemplateLog();
-                        $log->url = $url;
-                        $log->data = json_encode($data);
+                        $url           = env('PYTHON_PRODUCT_TEMPLATES') . '/api/product-template';
+                        $response      = \App\Helpers\GuzzleHelper::post($url, $data, []);
+                        $log           = new ProductTemplateLog();
+                        $log->url      = $url;
+                        $log->data     = json_encode($data);
                         $log->response = $response;
                         $log->save();
                     } catch (\Exception $e) {
@@ -540,12 +541,12 @@ class ProductTemplatesController extends Controller
 
             $body = ['template' => $template->template->uid, 'modifications' => $modifications, 'webhook_url' => route('api.product.update.webhook'), 'metadata' => $template->id];
 
-            $url = env('BANNER_API_LINK') . '/images';
+            $url     = env('BANNER_API_LINK') . '/images';
             $api_key = env('BANNER_API_KEY');
 
             $headers = [
                 'Authorization' => 'Bearer ' . $api_key,
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ];
 
             $response = \App\Helpers\GuzzleHelper::post($url, $body, $headers);
@@ -586,12 +587,12 @@ class ProductTemplatesController extends Controller
     public function fetchImage(Request $request)
     {
         try {
-            $url = env('BANNER_API_LINK') . '/images/' . $request->uid;
+            $url     = env('BANNER_API_LINK') . '/images/' . $request->uid;
             $api_key = env('BANNER_API_KEY');
 
             $headers = [
                 'Authorization' => 'Bearer ' . $api_key,
-                'Content-Type' => 'application/json',
+                'Content-Type'  => 'application/json',
             ];
 
             $response = \App\Helpers\GuzzleHelper::get($url, $headers);
@@ -599,9 +600,9 @@ class ProductTemplatesController extends Controller
             if (isset($response->uid)) {
                 $template = ProductTemplate::where('id', $response->metadata)->first();
 
-                $path = $response->image_url_png;
+                $path     = $response->image_url_png;
                 $filename = basename($path);
-                $media = MediaUploader::fromSource($image)->toDirectory(date('Y/m/d'))->useFilename($filename)->upload();
+                $media    = MediaUploader::fromSource($image)->toDirectory(date('Y/m/d'))->useFilename($filename)->upload();
                 $template->attachMedia($media, 'template-image');
                 $template->save();
 
@@ -617,7 +618,7 @@ class ProductTemplatesController extends Controller
     public function getImageByCurl($url)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $ch        = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
@@ -637,14 +638,14 @@ class ProductTemplatesController extends Controller
 
     public function loginstance(Request $request)
     {
-        $url = env('PYTHON_PRODUCT_TEMPLATES') . '/api/get-logs';
+        $url  = env('PYTHON_PRODUCT_TEMPLATES') . '/api/get-logs';
         $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
         \Log::info('Payment_Template_loginstance -->' . $url);
         if (! empty($date)) {
             $data = ['date' => $date];
         } else {
             return response()->json([
-                'type' => 'error',
+                'type'     => 'error',
                 'response' => 'Please select Date',
             ], 200);
         }
@@ -663,12 +664,12 @@ class ProductTemplatesController extends Controller
         \log::info($result);
         if (count($result) > 1) {
             return response()->json([
-                'type' => 'success',
+                'type'     => 'success',
                 'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render(),
             ], 200);
         } else {
             return response()->json([
-                'type' => 'error',
+                'type'     => 'error',
                 'response' => ($result[0] == '') ? 'Please select Date' : "Product Template for $date is  not found",
             ], 200);
         }

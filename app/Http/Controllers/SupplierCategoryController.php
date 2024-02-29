@@ -52,7 +52,8 @@ class SupplierCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -65,7 +66,8 @@ class SupplierCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -74,7 +76,7 @@ class SupplierCategoryController extends Controller
             'name' => 'required',
         ]);
 
-        $department = SupplierCategory::find($id);
+        $department       = SupplierCategory::find($id);
         $department->name = $request->input('name');
         $department->save();
 
@@ -85,7 +87,8 @@ class SupplierCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -98,7 +101,7 @@ class SupplierCategoryController extends Controller
 
     public function usersPermission(Request $request)
     {
-        $users = User::where('is_active', 1)->orderBy('name', 'asc')->with('supplierCategoryPermission')->get();
+        $users      = User::where('is_active', 1)->orderBy('name', 'asc')->with('supplierCategoryPermission')->get();
         $categories = SupplierCategory::orderBy('name', 'asc')->get();
 
         return view('suppliers.supplier-category-permission.index', compact('users', 'categories'))->with('i', ($request->input('page', 1) - 1) * 10);
@@ -106,10 +109,10 @@ class SupplierCategoryController extends Controller
 
     public function updatePermission(Request $request)
     {
-        $user_id = $request->user_id;
+        $user_id     = $request->user_id;
         $category_id = $request->supplier_category_id;
-        $check = $request->check;
-        $user = User::findorfail($user_id);
+        $check       = $request->check;
+        $user        = User::findorfail($user_id);
         //ADD PERMISSION
         if ($check == 1) {
             $user->supplierCategoryPermission()->attach($category_id);

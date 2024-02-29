@@ -24,12 +24,12 @@ class ChatBotController extends Controller
     public function editMessage(Request $request)
     {
         $messageId = $request->get('id');
-        $message = $request->get('message');
+        $message   = $request->get('message');
 
         $chatMessage = ChatMessage::where('id', $messageId)->first();
 
         if ($chatMessage) {
-            $oldMessage = $chatMessage->message;
+            $oldMessage           = $chatMessage->message;
             $chatMessage->message = $message;
             $chatMessage->save();
 

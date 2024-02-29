@@ -75,20 +75,20 @@ class AssetsManagerPaymentCron extends Command
         if (count($results) == 0) {
             return $this->info(' no record exist for ' . $payment_cycle . ' payments ');
         }
-        $count = count($results);
-        $i = 0;
+        $count   = count($results);
+        $i       = 0;
         $success = false;
         foreach ($results as $result) {
             //create entry in table cash_flows
             CashFlow::create(
                 [
-                    'description' => 'Asset Manager Payment for name ' . $result->name,
-                    'date' => date('Y-m-d'),
-                    'amount' => $result->amount,
-                    'currency' => $result->currency,
-                    'type' => 'pending',
+                    'description'         => 'Asset Manager Payment for name ' . $result->name,
+                    'date'                => date('Y-m-d'),
+                    'amount'              => $result->amount,
+                    'currency'            => $result->currency,
+                    'type'                => 'pending',
                     'cash_flow_able_type' => \App\AssetsManager::class,
-                    'cash_flow_able_id' => $result->id,
+                    'cash_flow_able_id'   => $result->id,
                 ]
             );
 

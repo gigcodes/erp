@@ -26,20 +26,20 @@ class SiteAttributesControllers extends Controller
 
     public function log($log_case_id, $attribute_id, $attribute_key, $attribute_val, $store_website_id, $log_msg)
     {
-        $log = new LogStoreWebsiteAttributes();
-        $log->log_case_id = $log_case_id;
-        $log->attribute_id = $attribute_id;
-        $log->attribute_key = $attribute_key;
-        $log->attribute_val = $attribute_val;
+        $log                   = new LogStoreWebsiteAttributes();
+        $log->log_case_id      = $log_case_id;
+        $log->attribute_id     = $attribute_id;
+        $log->attribute_key    = $attribute_key;
+        $log->attribute_val    = $attribute_val;
         $log->store_website_id = $store_website_id;
-        $log->log_msg = $log_msg;
+        $log->log_msg          = $log_msg;
         $log->save();
     }
 
     public function attributesHistory(request $request)
     {
-        $id = $request->id;
-        $html = '';
+        $id          = $request->id;
+        $html        = '';
         $paymentData = LogStoreWebsiteAttributes::where('attribute_id', $id)
             ->get();
         $i = 1;
@@ -78,20 +78,20 @@ class SiteAttributesControllers extends Controller
     /**
      * Store Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function store(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'attribute_key' => 'required',
-            'attribute_val' => 'required',
+            'attribute_key'    => 'required',
+            'attribute_val'    => 'required',
             'store_website_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -101,18 +101,18 @@ class SiteAttributesControllers extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
         $storeWebsiteId = $request->get('store_website_id');
-        $websites = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
+        $websites       = \App\StoreWebsite::where('parent_id', '=', $storeWebsiteId)->orWhere('id', '=', $storeWebsiteId)->get();
 
-        $id = $request->get('id', 0);
+        $id      = $request->get('id', 0);
         $records = StoreWebsiteAttributes::find($id);
 
         if (! $records) {
             $dataArray = [];
             foreach ($websites as $key => $website) {
-                $data['attribute_key'] = $request->get('attribute_key');
-                $data['attribute_val'] = $request->get('attribute_val');
+                $data['attribute_key']    = $request->get('attribute_key');
+                $data['attribute_val']    = $request->get('attribute_val');
                 $data['store_website_id'] = $website->id;
-                $dataArray[] = $data;
+                $dataArray[]              = $data;
                 $this->log('#1', $key + 1, $request->input('attribute_key'), $request->input('attribute_key'), $website->id, 'Store Website Attribute has stored.');
             }
             StoreWebsiteAttributes::insert($dataArray);
@@ -130,7 +130,7 @@ class SiteAttributesControllers extends Controller
     /**
      * Index Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function records(Request $request)
     {
@@ -151,14 +151,14 @@ class SiteAttributesControllers extends Controller
         $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(['store_website_attributes.*', 'store_websites.website'])->paginate();
 
         return response()->json(['code' => 200, 'data' => $StoreWebsiteAttributesViews->items(), 'total' => $StoreWebsiteAttributesViews->count(),
-            'pagination' => (string) $StoreWebsiteAttributesViews->render(),
+            'pagination'                => (string) $StoreWebsiteAttributesViews->render(),
         ]);
     }
 
     /**
      * Add Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function list(Request $request)
     {
@@ -170,7 +170,8 @@ class SiteAttributesControllers extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -188,7 +189,8 @@ class SiteAttributesControllers extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {

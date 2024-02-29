@@ -47,7 +47,7 @@ class WebsiteCreateLog extends Command
     {
         try {
             DB::beginTransaction();
-            $mainPath = env('WEBSITES_LOGS_FOLDER');
+            $mainPath    = env('WEBSITES_LOGS_FOLDER');
             $ifPathExist = file_exists($mainPath);
             if ($ifPathExist) {
                 $this->info('Found Path');
@@ -67,14 +67,14 @@ class WebsiteCreateLog extends Command
                                     } else {
                                         $fileTypeName = $val->getFilename();
                                     }
-                                    $content = File::get($mainPath . $websiteName . '/' . $val->getFilename());
-                                    $logs = preg_split('/\n\n/', $content);
+                                    $content   = File::get($mainPath . $websiteName . '/' . $val->getFilename());
+                                    $logs      = preg_split('/\n\n/', $content);
                                     $totalLogs = [];
                                     foreach ($logs as $log) {
                                         $entries = explode(PHP_EOL, $log);
-                                        $sql = null;
-                                        $time = null;
-                                        $module = null;
+                                        $sql     = null;
+                                        $time    = null;
+                                        $module  = null;
 
                                         foreach ($entries as $entry) {
                                             if (strpos($entry, 'SQL') !== false) {
@@ -89,12 +89,12 @@ class WebsiteCreateLog extends Command
                                             if (! is_null($sql) && ! is_null($time) && ! is_null($module)) {
                                                 $find = WebsiteLog::where([['sql_query', '=', $sql], ['time', '=', $time], ['module', '=', $module]])->first();
                                                 if (empty($find)) {
-                                                    $ins = new WebsiteLog;
-                                                    $ins->sql_query = $sql;
-                                                    $ins->time = $time;
-                                                    $ins->module = $module;
+                                                    $ins             = new WebsiteLog;
+                                                    $ins->sql_query  = $sql;
+                                                    $ins->time       = $time;
+                                                    $ins->module     = $module;
                                                     $ins->website_id = $website->website ?? '';
-                                                    $ins->type = $fileTypeName;
+                                                    $ins->type       = $fileTypeName;
                                                     $ins->save();
                                                 }
                                             }

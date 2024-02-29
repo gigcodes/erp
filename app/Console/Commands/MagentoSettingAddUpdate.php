@@ -43,32 +43,32 @@ class MagentoSettingAddUpdate extends Command
     {
         try {
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $websites = StoreWebsite::whereNotNull('api_token')->whereNotNull('magento_url')->whereNotNull('server_ip')->get();
+            $websites  = StoreWebsite::whereNotNull('api_token')->whereNotNull('magento_url')->whereNotNull('server_ip')->get();
             foreach ($websites as $website) {
                 if ($website->api_token != '' && $website->server_ip != '') {
                     $curl = curl_init();
-                    $url = $website->magento_url . '/rest/V1/core/config/';
+                    $url  = $website->magento_url . '/rest/V1/core/config/';
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 30,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
-                        CURLOPT_HTTPHEADER => [
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 30,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
+                        CURLOPT_HTTPHEADER     => [
                             'authorization:Bearer ' . $website->api_token,
                         ],
                     ]);
                     $response = curl_exec($curl);
-                    $err = curl_error($curl);
+                    $err      = curl_error($curl);
                     if (curl_errno($curl)) {
                         $error_msg = curl_error($curl);
                     }
 
-                    $response = curl_exec($curl);
+                    $response  = curl_exec($curl);
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $resArr = is_string($response) ? json_decode($response, true) : $response;
+                    $resArr    = is_string($response) ? json_decode($response, true) : $response;
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Console\Commands\MagentoSettingAddUpdate::class, 'handle');
                     curl_close($curl);
 
@@ -81,28 +81,28 @@ class MagentoSettingAddUpdate extends Command
                                         foreach ($findMegntoSetting as $megntoSetting) {
                                             MagentoSetting::where('id', $megntoSetting->id)->update(
                                                 [
-                                                    'config_id' => $res['config_id'],
-                                                    'scope' => $res['scope'],
+                                                    'config_id'        => $res['config_id'],
+                                                    'scope'            => $res['scope'],
                                                     'store_website_id' => $website->id,
                                                     'website_store_id' => $website->id,
-                                                    'scope_id' => $res['scope_id'],
-                                                    'path' => $res['path'],
-                                                    'value' => $res['value'],
-                                                    'updated_at' => $res['updated_at'],
+                                                    'scope_id'         => $res['scope_id'],
+                                                    'path'             => $res['path'],
+                                                    'value'            => $res['value'],
+                                                    'updated_at'       => $res['updated_at'],
                                                 ]
                                             );
                                         }
                                     } else {
                                         MagentoSetting::create(
                                             [
-                                                'config_id' => $res['config_id'],
-                                                'scope' => $res['scope'],
+                                                'config_id'        => $res['config_id'],
+                                                'scope'            => $res['scope'],
                                                 'store_website_id' => $website->id,
                                                 'website_store_id' => $website->id,
-                                                'scope_id' => $res['scope_id'],
-                                                'path' => $res['path'],
-                                                'value' => $res['value'],
-                                                'updated_at' => $res['updated_at'],
+                                                'scope_id'         => $res['scope_id'],
+                                                'path'             => $res['path'],
+                                                'value'            => $res['value'],
+                                                'updated_at'       => $res['updated_at'],
                                             ]
                                         );
                                     }
@@ -112,24 +112,24 @@ class MagentoSettingAddUpdate extends Command
                         MagentoSettingUpdateResponseLog::create(
                             [
                                 'website_id' => $website->id,
-                                'response' => is_array($response) ? json_encode($response) : $response,
+                                'response'   => is_array($response) ? json_encode($response) : $response,
                             ]
                         );
                     } else {
                         MagentoSettingUpdateResponseLog::create(
                             [
                                 'website_id' => $website->id,
-                                'response' => is_array($response) ? json_encode($response) : $response,
+                                'response'   => is_array($response) ? json_encode($response) : $response,
                             ]
                         );
                     }
                 } else {
-                    $token = empty($website->api_token) ? 'Please Check API TOKEN' : '';
+                    $token     = empty($website->api_token) ? 'Please Check API TOKEN' : '';
                     $server_ip = empty($website->server_ip) ? ' Please Check Server Ip' : '';
                     MagentoSettingUpdateResponseLog::create(
                         [
                             'website_id' => $website->id,
-                            'response' => $token . ', ==  ' . $server_ip,
+                            'response'   => $token . ', ==  ' . $server_ip,
                         ]
                     );
                 }// end if condition if api_tocken not found
@@ -137,9 +137,9 @@ class MagentoSettingAddUpdate extends Command
         } catch (\Exception $e) {
             MagentoSettingUpdateResponseLog::create(
                 [
-                    'website_id' => $website->id,
+                    'website_id'         => $website->id,
                     'magento_setting_id' => $findMegntoSetting[0]->id ?? '',
-                    'response' => is_array($e->getMessage()) ? json_encode($e->getMessage()) : $e->getMessage(),
+                    'response'           => is_array($e->getMessage()) ? json_encode($e->getMessage()) : $e->getMessage(),
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

@@ -42,7 +42,7 @@ class RunPriorityKeywordSearch extends Command
         //call priority api call for google search
         // $searchKeywords = HashTag::where('priority', 1)->where('platforms_id', 2)->get(['hashtag', 'id']);
         $searchKeywords = [];
-        $postData = json_encode($searchKeywords);
+        $postData       = json_encode($searchKeywords);
 
         // call this endpoint - /api/googleSearch
         $this->callCurl(env('NODE_SCRAPER_SERVER') . 'api/googleSearch', $postData);
@@ -61,22 +61,22 @@ class RunPriorityKeywordSearch extends Command
     {
         // call this endpoint
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
             ],
             CURLOPT_POSTFIELDS => "$postData",
         ]);
         $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $err      = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Console\Commands\RunPriorityKeywordSearch::class, 'callCurl');
         curl_close($curl);

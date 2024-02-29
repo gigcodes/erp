@@ -87,7 +87,7 @@ class SiteDevelopment extends Model
     public static function getLastRemark($scci, $web_id)
     {
         $site_devs = self::where('site_development_category_id', $scci)->where('website_id', $web_id)->get()->pluck('id')->toArray();
-        $remark = StoreDevelopmentRemark::whereIn('store_development_id', $site_devs)->latest()->first();
+        $remark    = StoreDevelopmentRemark::whereIn('store_development_id', $site_devs)->latest()->first();
 
         return $remark->remarks ?? '';
     }

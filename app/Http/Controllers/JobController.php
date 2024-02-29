@@ -10,8 +10,8 @@ class JobController extends Controller
     {
         $validator = \Validator::make($request->all(),
             [
-                'queue' => 'nullable|exists:jobs,queue',
-                'reserved_date' => 'nullable|date_format:Y-m-d',
+                'queue'          => 'nullable|exists:jobs,queue',
+                'reserved_date'  => 'nullable|date_format:Y-m-d',
                 'available_date' => 'nullable|date_format:Y-m-d',
             ], [
                 'exists' => 'Sorry! no results found for this queue',
@@ -35,7 +35,7 @@ class JobController extends Controller
 
         if ($request->reserved_date != '') {
             $reserved_start = \Carbon\Carbon::Parse($request->reserved_date)->startOfDay()->getTimeStamp();
-            $reserved_end = \Carbon\Carbon::Parse($request->reserved_date)->endOfDay()->getTimeStamp();
+            $reserved_end   = \Carbon\Carbon::Parse($request->reserved_date)->endOfDay()->getTimeStamp();
 
             $jobs->where('reserved_at', '>=', $reserved_start)
                 ->where('reserved_at', '<', $reserved_end);
@@ -43,15 +43,15 @@ class JobController extends Controller
 
         if ($request->available_date != '') {
             $available_start = \Carbon\Carbon::Parse($request->available_date)->startOfDay()->getTimeStamp();
-            $available_end = \Carbon\Carbon::Parse($request->available_date)->endOfDay()->getTimeStamp();
+            $available_end   = \Carbon\Carbon::Parse($request->available_date)->endOfDay()->getTimeStamp();
 
             $jobs->where('available_at', '>=', $available_start)
                 ->where('available_at', '<', $available_end);
         }
 
-        $checkbox = $jobs->pluck('id');
-        $jobs = $jobs->paginate();
-        $count = $jobs->count();
+        $checkbox   = $jobs->pluck('id');
+        $jobs       = $jobs->paginate();
+        $count      = $jobs->count();
         $listQueues = \App\Job::JOBS_LIST;
 
         return view('job.list', compact('jobs', 'filters', 'count', 'checkbox', 'listQueues'))
@@ -78,9 +78,9 @@ class JobController extends Controller
 
     public function alldelete(Request $request, $id)
     {
-        $trim = trim($id, '[]');
+        $trim    = trim($id, '[]');
         $myArray = explode(',', $trim);
-        $jobs = \App\Job::whereIn('id', $myArray)->delete();
+        $jobs    = \App\Job::whereIn('id', $myArray)->delete();
 
         return response()->json(['code' => 200, 'data' => []]);
     }

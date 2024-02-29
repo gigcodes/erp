@@ -21,6 +21,9 @@ class TagController extends Controller
     /**
      * Get all the Tags for a particular entity
      *
+     * @param mixed $entityType
+     * @param mixed $entityId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getForEntity($entityType, $entityId)
@@ -37,7 +40,7 @@ class TagController extends Controller
      */
     public function getNameSuggestions(Request $request)
     {
-        $searchTerm = $request->get('search', false);
+        $searchTerm  = $request->get('search', false);
         $suggestions = $this->tagRepo->getNameSuggestions($searchTerm);
 
         return response()->json($suggestions);
@@ -50,8 +53,8 @@ class TagController extends Controller
      */
     public function getValueSuggestions(Request $request)
     {
-        $searchTerm = $request->get('search', false);
-        $tagName = $request->get('name', false);
+        $searchTerm  = $request->get('search', false);
+        $tagName     = $request->get('name', false);
         $suggestions = $this->tagRepo->getValueSuggestions($searchTerm, $tagName);
 
         return response()->json($suggestions);

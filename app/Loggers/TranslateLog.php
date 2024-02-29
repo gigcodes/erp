@@ -12,12 +12,12 @@ class TranslateLog extends Model
     public static function log($result)
     {
         // Log result to database
-        $translatelog = new TranslateLog();
+        $translatelog                                = new TranslateLog();
         $translatelog->google_traslation_settings_id = $result['google_traslation_settings_id'];
-        $translatelog->messages = $result['messages'];
-        $translatelog->error_code = $result['code'];
-        $translatelog->domain = $result['domain'];
-        $translatelog->reason = $result['reason'];
+        $translatelog->messages                      = $result['messages'];
+        $translatelog->error_code                    = $result['code'];
+        $translatelog->domain                        = $result['domain'];
+        $translatelog->reason                        = $result['reason'];
         $translatelog->save();
 
         // Return

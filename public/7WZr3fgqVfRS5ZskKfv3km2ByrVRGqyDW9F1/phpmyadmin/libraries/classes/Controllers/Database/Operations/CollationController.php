@@ -31,7 +31,7 @@ final class CollationController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->operations = $operations;
-        $this->dbi = $dbi;
+        $this->dbi        = $dbi;
     }
 
     public function __invoke(): void

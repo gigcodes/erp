@@ -50,7 +50,7 @@ class PrivilegesController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     public function __invoke(): void
@@ -68,7 +68,7 @@ class PrivilegesController extends AbstractController
 
         $this->addScriptFiles(['server/privileges.js', 'vendor/zxcvbn-ts.js']);
 
-        $relationCleanup = new RelationCleanup($this->dbi, $this->relation);
+        $relationCleanup  = new RelationCleanup($this->dbi, $this->relation);
         $serverPrivileges = new Privileges(
             $this->template,
             $this->dbi,
@@ -101,7 +101,7 @@ class PrivilegesController extends AbstractController
         ) {
             $this->response->addHTML('<div class="container-fluid">');
             $this->render('server/privileges/subnav', [
-                'active' => 'privileges',
+                'active'        => 'privileges',
                 'is_super_user' => $this->dbi->isSuperUser(),
             ]);
         }
@@ -140,12 +140,12 @@ class PrivilegesController extends AbstractController
         /**
          * Checks if the user is allowed to do what they try to...
          */
-        $isGrantUser = $this->dbi->isGrantUser();
+        $isGrantUser  = $this->dbi->isGrantUser();
         $isCreateUser = $this->dbi->isCreateUser();
 
         if (! $this->dbi->isSuperUser() && ! $isGrantUser && ! $isCreateUser) {
             $this->render('server/sub_page_header', [
-                'type' => 'privileges',
+                'type'     => 'privileges',
                 'is_image' => false,
             ]);
             $this->response->addHTML(
@@ -302,8 +302,8 @@ class PrivilegesController extends AbstractController
          * Changes / copies a user, part V
          */
         if (isset($_POST['change_copy'])) {
-            $queries = $serverPrivileges->getDataForQueries($queries, $queries_for_display);
-            $message = Message::success();
+            $queries   = $serverPrivileges->getDataForQueries($queries, $queries_for_display);
+            $message   = Message::success();
             $sql_query = implode("\n", $queries);
         }
 
@@ -397,7 +397,7 @@ class PrivilegesController extends AbstractController
         } elseif (isset($_GET['checkprivsdb'])) {
             if (isset($_GET['checkprivstable'])) {
                 $this->response->addHTML($tableController([
-                    'checkprivsdb' => strtolower($_GET['checkprivsdb']),
+                    'checkprivsdb'    => strtolower($_GET['checkprivsdb']),
                     'checkprivstable' => $_GET['checkprivstable'],
                 ]));
                 $this->render('export_modal');

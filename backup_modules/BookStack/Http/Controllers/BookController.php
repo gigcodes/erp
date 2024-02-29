@@ -35,11 +35,11 @@ class BookController extends Controller
         EntityContextManager $entityContextManager,
         ImageRepo $imageRepo
     ) {
-        $this->entityRepo = $entityRepo;
-        $this->userRepo = $userRepo;
-        $this->exportService = $exportService;
+        $this->entityRepo           = $entityRepo;
+        $this->userRepo             = $userRepo;
+        $this->exportService        = $exportService;
         $this->entityContextManager = $entityContextManager;
-        $this->imageRepo = $imageRepo;
+        $this->imageRepo            = $imageRepo;
         parent::__construct();
     }
 
@@ -51,32 +51,32 @@ class BookController extends Controller
     public function index()
     {
         return redirect()->route('searchGrid');
-        $view = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
-        $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
-        $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
+        $view        = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
+        $sort        = setting()->getUser($this->currentUser, 'books_sort', 'name');
+        $order       = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
         $sortOptions = [
-            'name' => trans('bookstack::common.sort_name'),
+            'name'       => trans('bookstack::common.sort_name'),
             'created_at' => trans('bookstack::common.sort_created_at'),
             'updated_at' => trans('bookstack::common.sort_updated_at'),
         ];
 
-        $books = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
+        $books   = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
         $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('book', 4, 0) : false;
         $popular = $this->entityRepo->getPopular('book', 4, 0);
-        $new = $this->entityRepo->getRecentlyCreated('book', 4, 0);
+        $new     = $this->entityRepo->getRecentlyCreated('book', 4, 0);
 
         $this->entityContextManager->clearShelfContext();
 
         $this->setPageTitle(trans('bookstack::entities.books'));
 
         return view('bookstack::shelves.index_grid', [
-            'books' => $books,
-            'recents' => $recents,
-            'popular' => $popular,
-            'new' => $new,
-            'view' => $view,
-            'sort' => $sort,
-            'order' => $order,
+            'books'       => $books,
+            'recents'     => $recents,
+            'popular'     => $popular,
+            'new'         => $new,
+            'view'        => $view,
+            'sort'        => $sort,
+            'order'       => $order,
             'sortOptions' => $sortOptions,
         ]);
     }
@@ -84,7 +84,8 @@ class BookController extends Controller
     /**
      * Show the form for creating a new book.
      *
-     * @param  string  $shelfSlug
+     * @param string $shelfSlug
+     *
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -108,7 +109,8 @@ class BookController extends Controller
     /**
      * Store a newly created book in storage.
      *
-     * @param  string  $shelfSlug
+     * @param string $shelfSlug
+     *
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -118,9 +120,9 @@ class BookController extends Controller
     {
         $this->checkPermission('book-create-all');
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'string|max:1000',
-            'image' => $this->imageRepo->getImageValidationRules(),
+            'image'       => $this->imageRepo->getImageValidationRules(),
         ]);
 
         $bookshelf = null;
@@ -144,6 +146,9 @@ class BookController extends Controller
     /**
      * Display the specified book.
      *
+     *
+     * @param mixed $slug
+     *
      * @return Response
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -163,47 +168,49 @@ class BookController extends Controller
         $this->setPageTitle($book->getShortName());
 
         return view('bookstack::books.show', [
-            'book' => $book,
-            'current' => $book,
+            'book'         => $book,
+            'current'      => $book,
             'bookChildren' => $bookChildren,
-            'activity' => Activity::entityActivity($book, 20, 1),
+            'activity'     => Activity::entityActivity($book, 20, 1),
         ]);
     }
 
     public function showBook($sortByView, $sortByDate)
     {
-        $view = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
-        $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
-        $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
+        $view        = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
+        $sort        = setting()->getUser($this->currentUser, 'books_sort', 'name');
+        $order       = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
         $sortOptions = [
-            'name' => trans('bookstack::common.sort_name'),
+            'name'       => trans('bookstack::common.sort_name'),
             'created_at' => trans('bookstack::common.sort_created_at'),
             'updated_at' => trans('bookstack::common.sort_updated_at'),
         ];
 
-        $books = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
+        $books   = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
         $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('book', 4, 0) : false;
         $popular = $this->entityRepo->getPopular('book', 4, 0);
-        $new = $this->entityRepo->getRecentlyCreated('book', 4, 0);
+        $new     = $this->entityRepo->getRecentlyCreated('book', 4, 0);
 
         $this->entityContextManager->clearShelfContext();
 
         $this->setPageTitle(trans('bookstack::entities.books'));
 
         return response()->json([
-            'books' => $books,
-            'recents' => $recents,
-            'popular' => $popular,
-            'new' => $new,
-            'view' => $view,
-            'sort' => $sort,
-            'order' => $order,
+            'books'       => $books,
+            'recents'     => $recents,
+            'popular'     => $popular,
+            'new'         => $new,
+            'view'        => $view,
+            'sort'        => $sort,
+            'order'       => $order,
             'sortOptions' => $sortOptions,
         ]);
     }
 
     /**
      * Show the form for editing the specified book.
+     *
+     * @param mixed $slug
      *
      * @return Response
      */
@@ -229,9 +236,9 @@ class BookController extends Controller
         $book = $this->entityRepo->getBySlug('book', $slug);
         $this->checkOwnablePermission('book-update', $book);
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'string|max:1000',
-            'image' => $this->imageRepo->getImageValidationRules(),
+            'image'       => $this->imageRepo->getImageValidationRules(),
         ]);
 
         $book = $this->entityRepo->updateFromInput('book', $book, $request->all());
@@ -244,6 +251,8 @@ class BookController extends Controller
 
     /**
      * Shows the page to confirm deletion
+     *
+     * @param mixed $bookSlug
      *
      * @return \Illuminate\View\View
      */
@@ -259,7 +268,8 @@ class BookController extends Controller
     /**
      * Shows the view which allows pages to be re-ordered and sorted.
      *
-     * @param  string  $bookSlug
+     * @param string $bookSlug
+     *
      * @return \Illuminate\View\View
      *
      * @throws \BookStack\Exceptions\NotFoundException
@@ -280,11 +290,13 @@ class BookController extends Controller
      * Shows the sort box for a single book.
      * Used via AJAX when loading in extra books to a sort.
      *
+     * @param mixed $bookSlug
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getSortItem($bookSlug)
     {
-        $book = $this->entityRepo->getBySlug('book', $bookSlug);
+        $book         = $this->entityRepo->getBySlug('book', $bookSlug);
         $bookChildren = $this->entityRepo->getBookChildren($book);
 
         return view('bookstack::books.sort-box', ['book' => $book, 'bookChildren' => $bookChildren]);
@@ -293,7 +305,8 @@ class BookController extends Controller
     /**
      * Saves an array of sort mapping to pages and chapters.
      *
-     * @param  string  $bookSlug
+     * @param string $bookSlug
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function saveSort($bookSlug, Request $request)
@@ -307,12 +320,12 @@ class BookController extends Controller
         }
 
         // Sort pages and chapters
-        $sortMap = collect(json_decode($request->get('sort-tree')));
+        $sortMap         = collect(json_decode($request->get('sort-tree')));
         $bookIdsInvolved = collect([$book->id]);
 
         // Load models into map
         $sortMap->each(function ($mapItem) use ($bookIdsInvolved) {
-            $mapItem->type = ($mapItem->type === 'page' ? 'page' : 'chapter');
+            $mapItem->type  = ($mapItem->type === 'page' ? 'page' : 'chapter');
             $mapItem->model = $this->entityRepo->getById($mapItem->type, $mapItem->id);
             // Store source and target books
             $bookIdsInvolved->push(intval($mapItem->model->book_id));
@@ -321,7 +334,7 @@ class BookController extends Controller
 
         // Get the books involved in the sort
         $bookIdsInvolved = $bookIdsInvolved->unique()->toArray();
-        $booksInvolved = $this->entityRepo->getManyById('book', $bookIdsInvolved, false, true);
+        $booksInvolved   = $this->entityRepo->getManyById('book', $bookIdsInvolved, false, true);
         // Throw permission error if invalid ids or inaccessible books given.
         if (count($bookIdsInvolved) !== count($booksInvolved)) {
             $this->showPermissionError();
@@ -336,8 +349,8 @@ class BookController extends Controller
             $model = $mapItem->model;
 
             $priorityChanged = intval($model->priority) !== intval($mapItem->sort);
-            $bookChanged = intval($model->book_id) !== intval($mapItem->book);
-            $chapterChanged = ($mapItem->type === 'page') && intval($model->chapter_id) !== $mapItem->parentChapter;
+            $bookChanged     = intval($model->book_id) !== intval($mapItem->book);
+            $chapterChanged  = ($mapItem->type === 'page') && intval($model->chapter_id) !== $mapItem->parentChapter;
 
             if ($bookChanged) {
                 $this->entityRepo->changeBook($mapItem->type, $mapItem->book, $model);
@@ -364,6 +377,8 @@ class BookController extends Controller
     /**
      * Remove the specified book from storage.
      *
+     * @param mixed $bookSlug
+     *
      * @return Response
      */
     public function destroy($bookSlug)
@@ -383,6 +398,8 @@ class BookController extends Controller
     /**
      * Show the Restrictions view.
      *
+     * @param mixed $bookSlug
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showPermissions($bookSlug)
@@ -392,13 +409,16 @@ class BookController extends Controller
         $roles = $this->userRepo->getRestrictableRoles();
 
         return view('bookstack::books.permissions', [
-            'book' => $book,
+            'book'  => $book,
             'roles' => $roles,
         ]);
     }
 
     /**
      * Set the restrictions for this book.
+     *
+     *
+     * @param mixed $bookSlug
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
@@ -418,12 +438,13 @@ class BookController extends Controller
     /**
      * Export a book as a PDF file.
      *
-     * @param  string  $bookSlug
+     * @param string $bookSlug
+     *
      * @return mixed
      */
     public function exportPdf($bookSlug)
     {
-        $book = $this->entityRepo->getBySlug('book', $bookSlug);
+        $book       = $this->entityRepo->getBySlug('book', $bookSlug);
         $pdfContent = $this->exportService->bookToPdf($book);
 
         return $this->downloadResponse($pdfContent, $bookSlug . '.pdf');
@@ -432,12 +453,13 @@ class BookController extends Controller
     /**
      * Export a book as a contained HTML file.
      *
-     * @param  string  $bookSlug
+     * @param string $bookSlug
+     *
      * @return mixed
      */
     public function exportHtml($bookSlug)
     {
-        $book = $this->entityRepo->getBySlug('book', $bookSlug);
+        $book        = $this->entityRepo->getBySlug('book', $bookSlug);
         $htmlContent = $this->exportService->bookToContainedHtml($book);
 
         return $this->downloadResponse($htmlContent, $bookSlug . '.html');
@@ -446,11 +468,13 @@ class BookController extends Controller
     /**
      * Export a book as a plain text file.
      *
+     * @param mixed $bookSlug
+     *
      * @return mixed
      */
     public function exportPlainText($bookSlug)
     {
-        $book = $this->entityRepo->getBySlug('book', $bookSlug);
+        $book        = $this->entityRepo->getBySlug('book', $bookSlug);
         $textContent = $this->exportService->bookToPlainText($book);
 
         return $this->downloadResponse($textContent, $bookSlug . '.txt');
@@ -468,8 +492,8 @@ class BookController extends Controller
         // Update the cover image if in request
         if ($request->has('image')) {
             $this->imageRepo->destroyImage($book->cover);
-            $newImage = $request->file('image');
-            $image = $this->imageRepo->saveNew($newImage, 'cover_book', $book->id, 512, 512, true);
+            $newImage       = $request->file('image');
+            $image          = $this->imageRepo->saveNew($newImage, 'cover_book', $book->id, 512, 512, true);
             $book->image_id = $image->id;
             $book->save();
         }

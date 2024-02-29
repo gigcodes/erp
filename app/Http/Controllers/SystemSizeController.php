@@ -49,14 +49,14 @@ class SystemSizeController extends Controller
             $managers[] = $value;
         }
 
-        $systemSizes = SystemSize::where('status', 1)->get();
+        $systemSizes      = SystemSize::where('status', 1)->get();
         $parentCategories = Category::where('parent_id', 0)->get();
-        $categories = [];
+        $categories       = [];
 
         foreach ($parentCategories as $key => $value) {
             $tempCat['parentcategory'] = $value->title;
-            $tempCat['subcategories'] = Category::where('parent_id', $value->id)->get();
-            $categories[] = $tempCat;
+            $tempCat['subcategories']  = Category::where('parent_id', $value->id)->get();
+            $categories[]              = $tempCat;
         }
 
         return view('system-size.index', compact('systemSizes', 'systemSizesManagers', 'categories', 'managers'));
@@ -79,7 +79,7 @@ class SystemSizeController extends Controller
             'code' => 'required',
         ]);
 
-        $systemsize = SystemSize::find($request->input('id'));
+        $systemsize       = SystemSize::find($request->input('id'));
         $systemsize->name = $request->input('code');
         if ($systemsize->save()) {
             return response()->json(['success' => true, 'message' => 'System size update successfully']);
@@ -90,7 +90,7 @@ class SystemSizeController extends Controller
 
     public function delete(Request $request)
     {
-        $systemsize = SystemSize::find($request->input('id'));
+        $systemsize         = SystemSize::find($request->input('id'));
         $systemsize->status = 0;
         if ($systemsize->save()) {
             return response()->json(['success' => true, 'message' => 'System size delete successfully']);
@@ -112,8 +112,8 @@ class SystemSizeController extends Controller
                     if (! empty($value['size'])) {
                         SystemSizeRelation::create([
                             'system_size_manager_id' => $manager->id,
-                            'system_size' => $value['system_size_id'],
-                            'size' => $value['size'],
+                            'system_size'            => $value['system_size_id'],
+                            'size'                   => $value['size'],
                         ]);
                     }
                 }
@@ -127,7 +127,7 @@ class SystemSizeController extends Controller
 
     public function manageredit(Request $request)
     {
-        $sm = SystemSizeManager::find($request->input('id'));
+        $sm                = SystemSizeManager::find($request->input('id'));
         $systemSizeRelated = SystemSizeRelation::select(
             'system_size_relations.id',
             'system_sizes.name',
@@ -136,9 +136,9 @@ class SystemSizeController extends Controller
         )
             ->leftjoin('system_sizes', 'system_sizes.id', 'system_size_relations.system_size')
             ->where('system_size_manager_id', $sm->id);
-        $exitIds = $systemSizeRelated->pluck('system_size')->toArray();
+        $exitIds           = $systemSizeRelated->pluck('system_size')->toArray();
         $systemSizeRelated = $systemSizeRelated->get();
-        $html = '<div class="col-md-12 mt-3 sizevarintinput1">
+        $html              = '<div class="col-md-12 mt-3 sizevarintinput1">
                     <div class="row">
                         <input type="hidden" name="manager_id" value="' . $sm->id . '">
                         <div class="col-md-4">
@@ -202,8 +202,8 @@ class SystemSizeController extends Controller
                     } else {
                         SystemSizeRelation::create([
                             'system_size_manager_id' => $request->manager_id,
-                            'system_size' => $value['system_size_id'],
-                            'size' => $value['size'],
+                            'system_size'            => $value['system_size_id'],
+                            'size'                   => $value['size'],
                         ]);
                     }
                 }
@@ -215,7 +215,7 @@ class SystemSizeController extends Controller
 
     public function managerdelete(Request $request)
     {
-        $sm = SystemSizeManager::find($request->input('id'));
+        $sm         = SystemSizeManager::find($request->input('id'));
         $sm->status = 0;
         if ($sm->save()) {
             return response()->json(['success' => true, 'message' => 'Delete successfully!']);
@@ -226,9 +226,9 @@ class SystemSizeController extends Controller
 
     public function managercheckexistvalue(Request $request)
     {
-        $sm = SystemSizeManager::where('category_id', $request->id)->where('status', 1)->get();
+        $sm          = SystemSizeManager::where('category_id', $request->id)->where('status', 1)->get();
         $systemSizes = SystemSize::where('status', 1)->get();
-        $html = '';
+        $html        = '';
 
         foreach ($sm as $s) {
             if ($s->system_size_id == 0) {
@@ -241,11 +241,11 @@ class SystemSizeController extends Controller
 
         foreach ($systemSizes as $systemSize) {
             $sizeValue = '';
-            $id = '';
+            $id        = '';
             foreach ($sm as $s) {
                 if ($systemSize->id == $s->system_size_id) {
                     $sizeValue = $s->size;
-                    $id = '<input type="hidden" name="sizes[' . $systemSize->id . '][id]" value="' . $s->id . '">';
+                    $id        = '<input type="hidden" name="sizes[' . $systemSize->id . '][id]" value="' . $s->id . '">';
                 }
             }
             $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>' . $systemSize->name . '</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[' . $systemSize->id . '][size]" value="' . $sizeValue . '"><input type="hidden" name="sizes[' . $systemSize->id . '][system_size_id]" value="' . $systemSize->id . '">' . $id . '</div></div></div>';

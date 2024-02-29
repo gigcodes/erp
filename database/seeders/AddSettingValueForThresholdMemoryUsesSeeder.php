@@ -17,7 +17,7 @@ class AddSettingValueForThresholdMemoryUsesSeeder extends Seeder
         Setting::updateOrCreate([
             'name' => 'thresold_limit_for_memory_uses',
         ], [
-            'val' => 80,
+            'val'  => 80,
             'type' => 'number',
         ]);
     }

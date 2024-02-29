@@ -22,7 +22,7 @@ class IssueCredit extends Mailable
 
     public function __construct(Customer $customer)
     {
-        $this->customer = $customer;
+        $this->customer   = $customer;
         $this->fromMailer = \App\Helpers::getFromEmail($this->customer->id);
     }
 

@@ -100,7 +100,7 @@ class Messages implements Reindex
             }
             Elasticsearch::index([
                 'index' => self::INDEX_NAME,
-                'body' => $item->getAttributes(),
+                'body'  => $item->getAttributes(),
             ]);
         }
     }
@@ -156,7 +156,7 @@ class Messages implements Reindex
             $record = Elasticsearch::search(
                 [
                     'index' => self::INDEX_NAME,
-                    'body' => [
+                    'body'  => [
                         'query' => [
                             'match' => ['id' => $id],
                         ],
@@ -187,8 +187,8 @@ class Messages implements Reindex
     {
         $params = [
             'index' => self::INDEX_NAME,
-            'id' => $_id,
-            'body' => [
+            'id'    => $_id,
+            'body'  => [
                 'doc' => $model->getAttributes(),
             ],
         ];
@@ -207,7 +207,7 @@ class Messages implements Reindex
             } else {
                 Elasticsearch::index([
                     'index' => self::INDEX_NAME,
-                    'body' => $model->getAttributes(),
+                    'body'  => $model->getAttributes(),
                 ]);
             }
         } catch (\Exception $e) {

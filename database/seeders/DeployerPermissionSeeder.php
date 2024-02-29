@@ -16,9 +16,9 @@ class DeployerPermissionSeeder extends Seeder
     {
         Permission::create(
             [
-                'name' => 'deployer',
+                'name'       => 'deployer',
                 'guard_name' => 'web',
-                'route' => 'deploy-node-list',
+                'route'      => 'deploy-node-list',
             ]
         );
     }

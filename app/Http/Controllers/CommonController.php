@@ -47,7 +47,8 @@ class CommonController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -58,7 +59,8 @@ class CommonController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -69,7 +71,8 @@ class CommonController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -80,7 +83,8 @@ class CommonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -96,9 +100,9 @@ class CommonController extends Controller
             $this->validate($request, [
                 'subject' => 'required|min:3|max:255',
                 'message' => 'required',
-                'cc.*' => 'nullable|email',
-                'bcc.*' => 'nullable|email',
-                'sendto' => 'required',
+                'cc.*'    => 'nullable|email',
+                'bcc.*'   => 'nullable|email',
+                'sendto'  => 'required',
             ]);
 
             if (! empty($request->datatype == 'multi_user')) {
@@ -107,20 +111,20 @@ class CommonController extends Controller
                         $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
                         if ($mail) {
                             $fromEmail = $mail->from_address;
-                            $fromName = $mail->from_name;
-                            $config = config('mail');
+                            $fromName  = $mail->from_name;
+                            $config    = config('mail');
                             unset($config['sendmail']);
                             $configExtra = [
                                 'driver' => $mail->driver,
-                                'host' => $mail->host,
-                                'port' => $mail->port,
-                                'from' => [
+                                'host'   => $mail->host,
+                                'port'   => $mail->port,
+                                'from'   => [
                                     'address' => $mail->from_address,
-                                    'name' => $mail->from_name,
+                                    'name'    => $mail->from_name,
                                 ],
                                 'encryption' => $mail->encryption,
-                                'username' => $mail->username,
-                                'password' => $mail->password,
+                                'username'   => $mail->username,
+                                'password'   => $mail->password,
                             ];
                             \Config::set('mail', array_merge($config, $configExtra));
                             (new \Illuminate\Mail\MailServiceProvider(app()))->register();
@@ -150,16 +154,16 @@ class CommonController extends Controller
                     $emailClass = (new PurchaseEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]))->build();
 
                     $params = [
-                        'model_id' => $request->id,
-                        'from' => $fromEmail,
-                        'seen' => 1,
-                        'to' => $data,
-                        'subject' => $request->subject,
-                        'message' => $emailClass->render(),
-                        'template' => 'simple',
+                        'model_id'        => $request->id,
+                        'from'            => $fromEmail,
+                        'seen'            => 1,
+                        'to'              => $data,
+                        'subject'         => $request->subject,
+                        'message'         => $emailClass->render(),
+                        'template'        => 'simple',
                         'additional_data' => json_encode(['attachment' => $file_paths]),
-                        'cc' => $cc ?: null,
-                        'bcc' => $bcc ?: null,
+                        'cc'              => $cc ?: null,
+                        'bcc'             => $bcc ?: null,
                     ];
                     if ($request->object) {
                         if ($request->object == 'vendor') {
@@ -180,9 +184,9 @@ class CommonController extends Controller
                     $email = Email::create($params);
                     \App\EmailLog::create(
                         [
-                            'email_id' => $email->id,
+                            'email_id'  => $email->id,
                             'email_log' => 'Email initiated',
-                            'message' => $email->to,
+                            'message'   => $email->to,
                         ]
                     );
 
@@ -198,20 +202,20 @@ class CommonController extends Controller
                     $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
                     if ($mail) {
                         $fromEmail = $mail->from_address;
-                        $fromName = $mail->from_name;
-                        $config = config('mail');
+                        $fromName  = $mail->from_name;
+                        $config    = config('mail');
                         unset($config['sendmail']);
                         $configExtra = [
                             'driver' => $mail->driver,
-                            'host' => $mail->host,
-                            'port' => $mail->port,
-                            'from' => [
+                            'host'   => $mail->host,
+                            'port'   => $mail->port,
+                            'from'   => [
                                 'address' => $mail->from_address,
-                                'name' => $mail->from_name,
+                                'name'    => $mail->from_name,
                             ],
                             'encryption' => $mail->encryption,
-                            'username' => $mail->username,
-                            'password' => $mail->password,
+                            'username'   => $mail->username,
+                            'password'   => $mail->password,
                         ];
                         \Config::set('mail', array_merge($config, $configExtra));
                         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
@@ -241,16 +245,16 @@ class CommonController extends Controller
                 $emailClass = (new PurchaseEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]))->build();
 
                 $params = [
-                    'model_id' => $request->id,
-                    'from' => $fromEmail,
-                    'seen' => 1,
-                    'to' => $request->sendto,
-                    'subject' => $request->subject,
-                    'message' => $emailClass->render(),
-                    'template' => 'simple',
+                    'model_id'        => $request->id,
+                    'from'            => $fromEmail,
+                    'seen'            => 1,
+                    'to'              => $request->sendto,
+                    'subject'         => $request->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ];
                 if ($request->object) {
                     if ($request->object == 'vendor') {
@@ -271,9 +275,9 @@ class CommonController extends Controller
                 $email = Email::create($params);
                 \App\EmailLog::create(
                     [
-                        'email_id' => $email->id,
+                        'email_id'  => $email->id,
                         'email_log' => 'Email initiated',
-                        'message' => $email->to,
+                        'message'   => $email->to,
                     ]
                 );
 
@@ -294,11 +298,11 @@ class CommonController extends Controller
     public function sendClanaderLinkEmail(request $request)
     {
         $objects = [
-            'vendor' => Vendor::class,
-            'user' => User::class,
+            'vendor'   => Vendor::class,
+            'user'     => User::class,
             'supplier' => Supplier::class,
             'customer' => Customer::class,
-            'charity' => Charity::class,
+            'charity'  => Charity::class,
         ];
         $multi_email = [];
         if (isset($request->send_to) && count($request->send_to) > 0) {
@@ -309,8 +313,8 @@ class CommonController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'send_to' => 'required',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
         try {
             foreach ($multi_email as $data) {
@@ -318,20 +322,20 @@ class CommonController extends Controller
                     $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
                     if ($mail) {
                         $fromEmail = $mail->from_address;
-                        $fromName = $mail->from_name;
-                        $config = config('mail');
+                        $fromName  = $mail->from_name;
+                        $config    = config('mail');
                         unset($config['sendmail']);
                         $configExtra = [
                             'driver' => $mail->driver,
-                            'host' => $mail->host,
-                            'port' => $mail->port,
-                            'from' => [
+                            'host'   => $mail->host,
+                            'port'   => $mail->port,
+                            'from'   => [
                                 'address' => $mail->from_address,
-                                'name' => $mail->from_name,
+                                'name'    => $mail->from_name,
                             ],
                             'encryption' => $mail->encryption,
-                            'username' => $mail->username,
-                            'password' => $mail->password,
+                            'username'   => $mail->username,
+                            'password'   => $mail->password,
                         ];
                         \Config::set('mail', array_merge($config, $configExtra));
                         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
@@ -361,16 +365,16 @@ class CommonController extends Controller
                 $emailClass = (new PurchaseEmail($request->subject, $request->message, $file_paths, ['from' => $fromEmail]))->build();
 
                 $params = [
-                    'model_id' => $$request->id ?? null,
-                    'from' => $fromEmail,
-                    'seen' => 1,
-                    'to' => $data,
-                    'subject' => $request->subject,
-                    'message' => $emailClass->render(),
-                    'template' => 'simple',
+                    'model_id'        => $$request->id ?? null,
+                    'from'            => $fromEmail,
+                    'seen'            => 1,
+                    'to'              => $data,
+                    'subject'         => $request->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ];
                 if ($request->object) {
                     if ($request->object == 'vendor') {
@@ -392,9 +396,9 @@ class CommonController extends Controller
 
                 \App\EmailLog::create(
                     [
-                        'email_id' => $email->id,
+                        'email_id'  => $email->id,
                         'email_log' => 'Email initiated',
-                        'message' => $email->to,
+                        'message'   => $email->to,
                     ]
                 );
 
@@ -412,9 +416,9 @@ class CommonController extends Controller
     public function getMailTemplate(request $request)
     {
         if (isset($request->mailtemplateid)) {
-            $data = MailinglistTemplate::select('static_template', 'subject')->where('id', $request->mailtemplateid)->first();
+            $data            = MailinglistTemplate::select('static_template', 'subject')->where('id', $request->mailtemplateid)->first();
             $static_template = $data->static_template;
-            $subject = $data->subject;
+            $subject         = $data->subject;
             if (! $static_template) {
                 return response()->json(['error' => 'unable to get template', 'success' => false]);
             }

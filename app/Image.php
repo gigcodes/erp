@@ -6,16 +6,15 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Support\Facades\File;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Request as Input;
 
 class Image extends Model
 {
     public static function generateImageName($key)
     {
-        $name = Input::file($key)->getClientOriginalName();
+        $name      = Input::file($key)->getClientOriginalName();
         $extension = Input::file($key)->getClientOriginalExtension();
         $timestamp = date('Y-m-d-His', time());
 
@@ -25,7 +24,7 @@ class Image extends Model
     public static function newImage($key = 'image')
     {
         $image_name = self::generateImageName($key);
-        $imageFile = Input::file($key);
+        $imageFile  = Input::file($key);
         Storage::disk('s3')->put(config('constants.default_uploads_dir') . $image_name, file_get_contents($imageFile->getRealPath()));
 
         return $image_name;
@@ -33,17 +32,17 @@ class Image extends Model
 
     public static function replaceImage($imageName, $key = 'image')
     {
-        $sourcePath = config('constants.default_uploads_dir') . $imageName;
+        $sourcePath      = config('constants.default_uploads_dir') . $imageName;
         $destinationPath = config('constants.default_archive__dir') . $imageName;
 
         Storage::disk('s3')->move($sourcePath, $destinationPath);
 
-        return self::newImage($key); 
+        return self::newImage($key);
     }
 
     public static function trashImage($imageName)
     {
-        $sourcePath = config('constants.default_uploads_dir') . $imageName;
+        $sourcePath      = config('constants.default_uploads_dir') . $imageName;
         $destinationPath = config('constants.default_trash__dir') . $imageName;
 
         Storage::disk('s3')->move($sourcePath, $destinationPath);

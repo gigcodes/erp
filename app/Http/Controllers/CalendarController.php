@@ -21,14 +21,14 @@ class CalendarController extends Controller
     {
         try {
             $userstring = base64_decode($userid);
-            $userArray = explode(':', $userstring);
+            $userArray  = explode(':', $userstring);
 
             if (count($userArray) < 2) {
                 throw new Exception('User not found');
             }
             $userid = $userArray[1];
-            $user = User::where('id', $userid)->first();
-            $event = Event::with('eventAvailabilities')->where('slug', $event_slug)->first();
+            $user   = User::where('id', $userid)->first();
+            $event  = Event::with('eventAvailabilities')->where('slug', $event_slug)->first();
             if ($user == null) {
                 throw new Exception('User not found');
             }
@@ -53,11 +53,11 @@ class CalendarController extends Controller
     {
         try {
             $availability = EventAvailability::where('numeric_day', $request->day)->where('event_id', $request->event_id)->first();
-            $event = Event::find($request->event_id);
+            $event        = Event::find($request->event_id);
 
             $occupiedSlot = EventSchedule::where([
                 'schedule_date' => $request->scheduleDate,
-                'event_id' => $request->event_id,
+                'event_id'      => $request->event_id,
             ])->get()->pluck('start_at')->toArray();
 
             // Private event slots also an occupied slots.
@@ -80,7 +80,7 @@ class CalendarController extends Controller
             if ($userPrivateEvents) {
                 foreach ($userPrivateEvents as $userPrivateEvent) {
                     $pr_startat = Carbon::parse($userPrivateEvent->start_at);
-                    $pr_endat = Carbon::parse($userPrivateEvent->end_at);
+                    $pr_endat   = Carbon::parse($userPrivateEvent->end_at);
                     if ($pr_startat->lte($pr_endat)) {
                         while ($pr_startat->lt($pr_endat)) {
                             $occupiedSlot[] = $pr_startat->toTimeString();
@@ -92,9 +92,9 @@ class CalendarController extends Controller
                 }
             }
 
-            $slots = [];
+            $slots     = [];
             $c_startat = Carbon::parse($availability->start_at);
-            $c_endat = Carbon::parse($availability->end_at);
+            $c_endat   = Carbon::parse($availability->end_at);
             if ($c_startat->lte($c_endat)) {
                 while ($c_startat->lt($c_endat)) {
                     $slots[] = $c_startat->toTimeString();
@@ -114,24 +114,24 @@ class CalendarController extends Controller
         try {
             $event = Event::with('user')->find($data['event']);
             if (isset($event) && $event->duration_in_min) {
-                $c_end_at = Carbon::parse($data['schedule-slot'])->addMinutes($event->duration_in_min);
+                $c_end_at        = Carbon::parse($data['schedule-slot'])->addMinutes($event->duration_in_min);
                 $c_schedule_date = Carbon::parse($data['schedule-date']);
 
-                $eventschedule = new EventSchedule();
-                $eventschedule->event_id = $data['event'];
+                $eventschedule                = new EventSchedule();
+                $eventschedule->event_id      = $data['event'];
                 $eventschedule->schedule_date = $c_schedule_date;
-                $eventschedule->start_at = $data['schedule-slot'];
-                $eventschedule->end_at = $c_end_at->toTimeString();
-                $eventschedule->public_name = $data['guest-user-name'];
-                $eventschedule->public_email = $data['guest-user-email'];
+                $eventschedule->start_at      = $data['schedule-slot'];
+                $eventschedule->end_at        = $c_end_at->toTimeString();
+                $eventschedule->public_name   = $data['guest-user-name'];
+                $eventschedule->public_email  = $data['guest-user-email'];
                 $eventschedule->public_remark = $data['guest-user-reark'];
                 $eventschedule->save();
 
-                $userEvent = new UserEvent();
-                $userEvent->user_id = $event->user->id;
+                $userEvent              = new UserEvent();
+                $userEvent->user_id     = $event->user->id;
                 $userEvent->description = $data['schedule-slot'] . '-' . $c_end_at->toTimeString() . ', ' . $c_schedule_date->format('l') . ', ' . $c_schedule_date->toDateString();
-                $userEvent->subject = $event->slug . " ($userEvent->description)";
-                $userEvent->date = $c_schedule_date;
+                $userEvent->subject     = $event->slug . " ($userEvent->description)";
+                $userEvent->date        = $c_schedule_date;
 
                 $c_schedule_date->setTimeFromTimeString($data['schedule-slot']);
                 $userEvent->start = $c_schedule_date->toDateTime();
@@ -141,8 +141,8 @@ class CalendarController extends Controller
                 $userEvent->save();
 
                 return redirect()->back()->with('success_data', [
-                    'message' => 'You are scheduled with ' . $event->user->name,
-                    'userEvent' => $userEvent,
+                    'message'       => 'You are scheduled with ' . $event->user->name,
+                    'userEvent'     => $userEvent,
                     'eventschedule' => $eventschedule,
                 ]);
             } else {
@@ -157,17 +157,17 @@ class CalendarController extends Controller
     {
         try {
             $objects = [
-                'vendor' => Vendor::class,
-                'user' => User::class,
+                'vendor'   => Vendor::class,
+                'user'     => User::class,
                 'supplier' => Supplier::class,
                 'customer' => Customer::class,
-                'charity' => Charity::class,
+                'charity'  => Charity::class,
             ];
             $multi_email = [];
             if (isset($request->object)) {
                 $multi_email = $objects[$request->object]::whereNotNull('email')->distinct()->select('email', 'id')->get()->map(function ($email) {
                     return [
-                        'id' => $email->email,
+                        'id'   => $email->email,
                         'text' => $email->email,
                     ];
                 });

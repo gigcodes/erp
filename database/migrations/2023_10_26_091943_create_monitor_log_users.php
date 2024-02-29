@@ -22,7 +22,7 @@ class CreateMonitorLogUsers extends Migration
             $table->timestamps();
         });
 
-        $charset = config('database.connections.mysql.charset');
+        $charset   = config('database.connections.mysql.charset');
         $collation = config('database.connections.mysql.collation');
         DB::statement("ALTER TABLE `monitor_log_users` ENGINE = MyISAM DEFAULT CHARSET = $charset COLLATE = $collation");
     }

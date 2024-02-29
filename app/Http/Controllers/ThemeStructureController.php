@@ -18,6 +18,8 @@ class ThemeStructureController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param null|mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function index($id = null)
@@ -29,7 +31,7 @@ class ThemeStructureController extends Controller
         }
         $theme = ProjectTheme::find($id);
 
-        $tree = json_encode($this->buildTree($id));
+        $tree     = json_encode($this->buildTree($id));
         $theme_id = $id;
 
         // Logs
@@ -49,24 +51,24 @@ class ThemeStructureController extends Controller
 
     private function buildTree($theme, $parentID = null)
     {
-        $tree = [];
+        $tree  = [];
         $items = ThemeStructure::where('theme_id', $theme)->where('parent_id', $parentID)->orderBy('position')->get(['id', 'name', 'is_file', 'is_root', 'theme_id']);
 
         foreach ($items as $item) {
             $node = [
-                'id' => $item->id,
+                'id'        => $item->id,
                 'parent_id' => $parentID ?: '#',
-                'text' => $item->name,
-                'is_root' => $item->is_root,
-                'theme_id' => $item->theme_id,
+                'text'      => $item->name,
+                'is_root'   => $item->is_root,
+                'theme_id'  => $item->theme_id,
             ];
 
             if ($item->is_file) {
                 $node['icon'] = 'jstree-file';
                 $node['type'] = 'file';
             } else {
-                $node['icon'] = 'jstree-folder';
-                $node['type'] = 'folder';
+                $node['icon']     = 'jstree-folder';
+                $node['type']     = 'folder';
                 $node['children'] = $this->buildTree($theme, $item->id);
             }
 
@@ -79,19 +81,19 @@ class ThemeStructureController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required',
-            'theme_id' => 'required',
-            'is_file' => 'required|boolean',
+            'name'      => 'required',
+            'theme_id'  => 'required',
+            'is_file'   => 'required|boolean',
             'parent_id' => 'nullable|exists:theme_structure,id',
         ]);
 
         $folder = ThemeStructure::create($validatedData);
 
-        $action = 'add';
-        $path = $request->fullpath . '/' . $request->name;
+        $action    = 'add';
+        $path      = $request->fullpath . '/' . $request->name;
         $directory = true;
-        $theme = $folder->theme->name;
-        $project = $folder->theme->project->name;
+        $theme     = $folder->theme->name;
+        $project   = $folder->theme->project->name;
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "' . $directory . '" -t "' . $theme . '" -p "' . $project . '" 2>&1';
 
@@ -106,9 +108,9 @@ class ThemeStructureController extends Controller
             // Maintain Error Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $folder->theme->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'  => $cmd,
+                'message'  => json_encode($output),
+                'status'   => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
@@ -122,9 +124,9 @@ class ThemeStructureController extends Controller
             // Maintain Success Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $folder->theme->id,
-                'command' => $cmd,
-                'message' => $message,
-                'status' => 'Success',
+                'command'  => $cmd,
+                'message'  => $message,
+                'status'   => 'Success',
             ]);
 
             return response()->json(['code' => 200, 'message' => $message]);
@@ -137,9 +139,9 @@ class ThemeStructureController extends Controller
             // Maintain Error Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $folder->theme->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'  => $cmd,
+                'message'  => json_encode($output),
+                'status'   => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => $message]);
@@ -153,19 +155,19 @@ class ThemeStructureController extends Controller
     public function themeFileStore(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required',
-            'theme_id' => 'required',
-            'is_file' => 'required|boolean',
+            'name'      => 'required',
+            'theme_id'  => 'required',
+            'is_file'   => 'required|boolean',
             'parent_id' => 'required|exists:theme_structure,id',
         ]);
 
         $file = ThemeFile::create($validatedData);
 
-        $action = 'add';
-        $path = $request->fullpath . '/' . $request->name;
+        $action    = 'add';
+        $path      = $request->fullpath . '/' . $request->name;
         $directory = false;
-        $theme = $file->theme->name;
-        $project = $file->theme->project->name;
+        $theme     = $file->theme->name;
+        $project   = $file->theme->project->name;
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "' . $directory . '" -t "' . $theme . '" -p "' . $project . '" 2>&1';
 
@@ -180,9 +182,9 @@ class ThemeStructureController extends Controller
             // Maintain Error Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $file->theme->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'  => $cmd,
+                'message'  => json_encode($output),
+                'status'   => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
@@ -196,9 +198,9 @@ class ThemeStructureController extends Controller
             // Maintain Success Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $file->theme->id,
-                'command' => $cmd,
-                'message' => $message,
-                'status' => 'Success',
+                'command'  => $cmd,
+                'message'  => $message,
+                'status'   => 'Success',
             ]);
 
             return response()->json(['code' => 200, 'message' => $message]);
@@ -211,9 +213,9 @@ class ThemeStructureController extends Controller
             // Maintain Error Log here in new table.
             ThemeStructureLog::create([
                 'theme_id' => $file->theme->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'  => $cmd,
+                'message'  => json_encode($output),
+                'status'   => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => $message]);
@@ -227,20 +229,20 @@ class ThemeStructureController extends Controller
     public function deleteItem(Request $request)
     {
         $itemId = $request->input('id');
-        $item = ThemeStructure::find($itemId);
+        $item   = ThemeStructure::find($itemId);
 
         if ($item) {
             if ($item->is_root) {
                 return response()->json(['code' => 500, 'message' => 'Root folder cannot be deleted'], 403);
             }
 
-            $action = 'delete';
-            $path = $request->fullpath . '/' . $item->name;
+            $action    = 'delete';
+            $path      = $request->fullpath . '/' . $item->name;
             $directory = true;
             if ($item->is_file) {
                 $directory = false;
             }
-            $theme = $item->theme->name;
+            $theme   = $item->theme->name;
             $project = $item->theme->project->name;
 
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'theme_structure.sh -a "' . $action . '" -u "' . $path . '" -d "' . $directory . '" -t "' . $theme . '" -p "' . $project . '" 2>&1';
@@ -256,9 +258,9 @@ class ThemeStructureController extends Controller
                 // Maintain Error Log here in new table.
                 ThemeStructureLog::create([
                     'theme_id' => $item->theme->id,
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'  => $cmd,
+                    'message'  => json_encode($output),
+                    'status'   => 'Error',
                 ]);
 
                 return response()->json(['code' => 500, 'message' => 'The response is not found!']);
@@ -272,9 +274,9 @@ class ThemeStructureController extends Controller
                 // Maintain Success Log here in new table.
                 ThemeStructureLog::create([
                     'theme_id' => $item->theme->id,
-                    'command' => $cmd,
-                    'message' => $message,
-                    'status' => 'Success',
+                    'command'  => $cmd,
+                    'message'  => $message,
+                    'status'   => 'Success',
                 ]);
 
                 return response()->json(['code' => 200, 'message' => $message]);
@@ -287,9 +289,9 @@ class ThemeStructureController extends Controller
                 // Maintain Error Log here in new table.
                 ThemeStructureLog::create([
                     'theme_id' => $item->theme->id,
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'  => $cmd,
+                    'message'  => json_encode($output),
+                    'status'   => 'Error',
                 ]);
 
                 return response()->json(['code' => 500, 'message' => $message]);
@@ -331,19 +333,19 @@ class ThemeStructureController extends Controller
         // Validation Part
         $this->validate(
             $request, [
-                'name' => 'required',
-                'job_name' => 'required',
+                'name'             => 'required',
+                'job_name'         => 'required',
                 'store_website_id' => 'required',
-                'serverenv' => 'required',
+                'serverenv'        => 'required',
             ]
         );
 
         $data = $request->except('_token');
 
         // Save Project
-        $project = Project::find($data['id']);
-        $project->name = $data['name'];
-        $project->job_name = $data['job_name'];
+        $project            = Project::find($data['id']);
+        $project->name      = $data['name'];
+        $project->job_name  = $data['job_name'];
         $project->serverenv = $data['serverenv'];
         $project->save();
 
@@ -352,8 +354,8 @@ class ThemeStructureController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Project updated successfully!',
             ]
         );

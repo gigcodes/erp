@@ -13,7 +13,7 @@ class BacklinkIndexedPage extends Model
 
     public function indexedPageSemrushApi($domain, $db, $column = null)
     {
-        $key = config('env.SEMRUSH_API');
+        $key  = config('env.SEMRUSH_API');
         $apis = [
             'indexed_page' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_pages&target=' . $domain . '&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
         ];

@@ -20,11 +20,11 @@ class MagentoCareersController extends Controller
      */
     public function index(Request $request)
     {
-        $careers = Career::orderBy('created_at', 'desc')->get();
+        $careers       = Career::orderBy('created_at', 'desc')->get();
         $storeWebsites = StoreWebsite::all();
 
         return view('magento_careers.index', [
-            'careers' => $careers,
+            'careers'       => $careers,
             'storeWebsites' => $storeWebsites,
         ]);
     }
@@ -34,7 +34,7 @@ class MagentoCareersController extends Controller
      */
     public function getCareerByFilter(Request $request)
     {
-        $html = '';
+        $html    = '';
         $careers = Career::orderBy('created_at', 'desc');
         if (isset($request->location) && ! empty($request->location)) {
             $careers->where('magento_module_careers.location', 'Like', '%' . $request->location . '%');
@@ -106,7 +106,7 @@ class MagentoCareersController extends Controller
     {
         $career = Career::where('id', $request->careerId)->orderBy('created_at', 'desc')->first();
         if (! empty($career)) {
-            $jsonEncode = json_encode($career);
+            $jsonEncode   = json_encode($career);
             $responseData = ['success' => true, 'career-id' => $career->id, 'data-json' => $jsonEncode];
 
             return response()->json($responseData);
@@ -118,16 +118,16 @@ class MagentoCareersController extends Controller
      */
     public function createOrEdit(Request $request)
     {
-        $data = $request->all();
+        $data     = $request->all();
         $isCreate = true;
 
         try {
             $validator = Validator::make($data, [
                 'description' => 'required|max:10000',
-                'title' => 'max:255',
-                'type' => 'max:255',
-                'location' => 'max:255',
-                'is_active' => 'max:255',
+                'title'       => 'max:255',
+                'type'        => 'max:255',
+                'location'    => 'max:255',
+                'is_active'   => 'max:255',
             ]);
 
             if ($validator->fails()) {
@@ -135,7 +135,7 @@ class MagentoCareersController extends Controller
             }
 
             if (isset($data['id']) && Career::find($data['id'])) {
-                $career = Career::find($data['id']);
+                $career   = Career::find($data['id']);
                 $isCreate = false;
             } else {
                 $career = new Career();
@@ -151,28 +151,28 @@ class MagentoCareersController extends Controller
             $career->addStoreWebsites($data['store_websites'] ?? []);
 
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => sprintf('Career with id: %s was %s.', $career->getId(), $isCreate ? 'created' : 'edited'),
-                'career' => [
-                    Career::ID => $career->getId(),
-                    Career::TYPE => $career->getType(),
-                    Career::DESCRIPTION => $career->getDescription(),
-                    Career::LOCATION => $career->getLocation(),
-                    Career::IS_ACTIVE => $career->getIsActive(),
-                    Career::CREATED_AT => $career->getCreatedAt(),
-                    Career::TITLE => $career->getTitle(),
+                'career'  => [
+                    Career::ID               => $career->getId(),
+                    Career::TYPE             => $career->getType(),
+                    Career::DESCRIPTION      => $career->getDescription(),
+                    Career::LOCATION         => $career->getLocation(),
+                    Career::IS_ACTIVE        => $career->getIsActive(),
+                    Career::CREATED_AT       => $career->getCreatedAt(),
+                    Career::TITLE            => $career->getTitle(),
                     Career::STORE_WEBSITE_ID => array_map(fn ($item) => $item->title, $career->getStoreWebsites()),
                 ],
                 'career_json' => (string) json_encode($career),
             ]);
         } catch (ValidationException $validationException) {
             return response()->json([
-                'code' => 400,
+                'code'    => 400,
                 'message' => $validationException->getMessage(),
             ], 400);
         } catch (Exception $e) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => 'error',
             ], 500);
         }
@@ -206,7 +206,7 @@ class MagentoCareersController extends Controller
         $career = $career->get();
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'careers' => array_map(fn ($career) => $career->toArrayCareer(), (array) $career->getIterator()),
         ]);
     }

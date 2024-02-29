@@ -44,11 +44,11 @@ class VoucherCouponController extends Controller
         }
         $voucher = $voucher->orderBy('id', 'DESC')->paginate(25)->appends(request()->except('page'));
 
-        $platform = Platform::get()->pluck('name', 'id');
+        $platform         = Platform::get()->pluck('name', 'id');
         $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
-        $emails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
-        $coupontypes = CouponType::get()->pluck('name', 'id');
-        $status = VoucherCouponStatus::all();
+        $emails           = DB::table('email_addresses')->get()->pluck('id', 'from_address');
+        $coupontypes      = CouponType::get()->pluck('name', 'id');
+        $status           = VoucherCouponStatus::all();
 
         return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails', 'coupontypes', 'status'));
     }
@@ -59,7 +59,7 @@ class VoucherCouponController extends Controller
 
         $this->validate($request, [
             'voucher_coupons_id' => 'required',
-            'remark' => 'required',
+            'remark'             => 'required',
         ]);
 
         $input = $request->except(['_token']);
@@ -75,9 +75,9 @@ class VoucherCouponController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -85,9 +85,9 @@ class VoucherCouponController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = VoucherCouponStatus::find($key);
+            $bugstatus               = VoucherCouponStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
         }
@@ -98,7 +98,7 @@ class VoucherCouponController extends Controller
     public function statusCreate(Request $request)
     {
         try {
-            $status = new VoucherCouponStatus();
+            $status              = new VoucherCouponStatus();
             $status->status_name = $request->status_name;
             $status->save();
 
@@ -112,15 +112,15 @@ class VoucherCouponController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $voucherId = $request->input('voucherId');
+        $voucherId      = $request->input('voucherId');
         $selectedStatus = $request->input('selectedStatus');
 
-        $voucher = VoucherCoupon::find($voucherId);
-        $history = new VoucherCouponStatusHistory();
+        $voucher                     = VoucherCoupon::find($voucherId);
+        $history                     = new VoucherCouponStatusHistory();
         $history->voucher_coupons_id = $voucherId;
-        $history->old_value = $voucher->status_id;
-        $history->new_value = $selectedStatus;
-        $history->user_id = Auth::user()->id;
+        $history->old_value          = $voucher->status_id;
+        $history->new_value          = $selectedStatus;
+        $history->user_id            = Auth::user()->id;
         $history->save();
 
         $voucher->status_id = $selectedStatus;
@@ -137,9 +137,9 @@ class VoucherCouponController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -167,11 +167,11 @@ class VoucherCouponController extends Controller
             } else {
                 $plate = new VoucherCoupon();
             }
-            $plate->user_id = \Auth::user()->id ?? '';
-            $plate->platform_id = $request->plateform_id ?? '';
-            $plate->email_address_id = $request->email_id ?? '';
+            $plate->user_id            = \Auth::user()->id ?? '';
+            $plate->platform_id        = $request->plateform_id ?? '';
+            $plate->email_address_id   = $request->email_id ?? '';
             $plate->whatsapp_config_id = $request->whatsapp_config_id ?? '';
-            $plate->password = $request->password ?? '';
+            $plate->password           = $request->password ?? '';
             $plate->save();
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
@@ -183,7 +183,7 @@ class VoucherCouponController extends Controller
     public function plateformStore(Request $request)
     {
         try {
-            $plate = new Platform();
+            $plate       = new Platform();
             $plate->name = $request->plateform_name;
             $plate->save();
 
@@ -206,7 +206,8 @@ class VoucherCouponController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\VoucherCoupon  $voucherCoupon
+     * @param \App\VoucherCoupon $voucherCoupon
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -225,13 +226,15 @@ class VoucherCouponController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\VoucherCoupon  $voucherCoupon
+     * @param \App\VoucherCoupon $voucherCoupon
+     * @param mixed              $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         try {
-            $vou = VoucherCoupon::find($id);
+            $vou         = VoucherCoupon::find($id);
             $vou->remark = $request->remark;
             $vou->save();
 
@@ -244,7 +247,8 @@ class VoucherCouponController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\VoucherCoupon  $voucherCoupon
+     * @param \App\VoucherCoupon $voucherCoupon
+     *
      * @return \Illuminate\Http\Response
      */
     public function delete(Request $request)
@@ -267,12 +271,12 @@ class VoucherCouponController extends Controller
             } else {
                 $code = new VoucherCouponCode();
             }
-            $code->user_id = \Auth::user()->id ?? '';
+            $code->user_id            = \Auth::user()->id ?? '';
             $code->voucher_coupons_id = $request->voucher_coupons_id;
-            $code->coupon_code = $request->coupon_code ?? '';
-            $code->valid_date = date('Y-m-d', strtotime($request->valid_date)) ?? '';
-            $code->remark = $request->code_remark ?? '';
-            $code->coupon_type_id = $request->coupon_type_id ?? '';
+            $code->coupon_code        = $request->coupon_code ?? '';
+            $code->valid_date         = date('Y-m-d', strtotime($request->valid_date)) ?? '';
+            $code->remark             = $request->code_remark ?? '';
+            $code->coupon_type_id     = $request->coupon_type_id ?? '';
             $code->save();
 
             return response()->json(['code' => 200, 'message' => 'Coupon Code Added successfully!!!']);
@@ -320,15 +324,15 @@ class VoucherCouponController extends Controller
             } else {
                 $code = new VoucherCouponOrder();
             }
-            $code->user_id = \Auth::user()->id ?? '';
+            $code->user_id            = \Auth::user()->id ?? '';
             $code->voucher_coupons_id = $request->voucher_coupons_id;
-            $code->date_order_placed = date('Y-m-d', strtotime($request->date_order_placed)) ?? '';
-            $code->order_no = $request->order_no ?? '';
-            $code->order_amount = $request->order_amount ?? '';
-            $code->discount = $request->discount ?? '';
-            $code->final_amount = $request->final_amount ?? '';
-            $code->refund_amount = $request->refund_amount ?? '';
-            $code->remark = $request->code_remark ?? '';
+            $code->date_order_placed  = date('Y-m-d', strtotime($request->date_order_placed)) ?? '';
+            $code->order_no           = $request->order_no ?? '';
+            $code->order_amount       = $request->order_amount ?? '';
+            $code->discount           = $request->discount ?? '';
+            $code->final_amount       = $request->final_amount ?? '';
+            $code->refund_amount      = $request->refund_amount ?? '';
+            $code->remark             = $request->code_remark ?? '';
             $code->save();
 
             return response()->json(['code' => 200, 'message' => 'Coupon Code Order Added successfully!!!']);
@@ -365,15 +369,17 @@ class VoucherCouponController extends Controller
     /**
      * Store Remark the specified resource in storage.
      *
-     * @param  \App\VoucherCoupon  $voucherCouponId
+     * @param \App\VoucherCoupon $voucherCouponId
+     * @param mixed              $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function storeRemark(Request $request, $id)
     {
         try {
-            $voucherCouponRemark = new VoucherCouponRemark;
+            $voucherCouponRemark                     = new VoucherCouponRemark;
             $voucherCouponRemark->voucher_coupons_id = $id;
-            $voucherCouponRemark->remark = $request->remark;
+            $voucherCouponRemark->remark             = $request->remark;
             $voucherCouponRemark->save();
 
             return response()->json(['code' => 200, 'message' => 'Remark Updated successfully!!!']);
@@ -385,7 +391,7 @@ class VoucherCouponController extends Controller
     public function coupontypeStore(Request $request)
     {
         try {
-            $couponType = new CouponType();
+            $couponType       = new CouponType();
             $couponType->name = $request->coupon_type_name;
             $couponType->save();
 
@@ -398,7 +404,7 @@ class VoucherCouponController extends Controller
     public function couponTypeList()
     {
         try {
-            $perPage = 10;
+            $perPage         = 10;
             $couponTypeLists = new VoucherCouponCode();
 
             $couponTypeLists = $couponTypeLists->select('voucher_coupon_codes.*', 'users.name AS userName', 'vcp.name AS plateform_name', 'Vct.name AS couponType')

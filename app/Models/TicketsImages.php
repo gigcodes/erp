@@ -88,7 +88,9 @@ class TicketsImages extends Model
     }
 
     /**
-     * @param  \Illuminate\Http\UploadedFile  $file
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param ?string                       $fileName
+     *
      * @return $this
      */
     public function setFile($file, ?string $fileName = null): self
@@ -111,9 +113,9 @@ class TicketsImages extends Model
     public function jsonSerialize()
     {
         return [
-            self::TICKET_ID => $this->getTicketId(),
-            self::FILE_PATH => '/images/tickets' . DIRECTORY_SEPARATOR . $this->getFilePath(),
-            self::FILE_NAME => $this->getFileName(),
+            self::TICKET_ID  => $this->getTicketId(),
+            self::FILE_PATH  => '/images/tickets' . DIRECTORY_SEPARATOR . $this->getFilePath(),
+            self::FILE_NAME  => $this->getFileName(),
             self::CREATED_AT => $this->getCreatedAt(),
         ];
     }

@@ -56,24 +56,24 @@ class EmailAddressesController extends Controller
         }
 
         $emailAddress = $query->paginate(\App\Setting::get('pagination', 10))->appends(request()->query());
-        $allStores = StoreWebsite::all();
+        $allStores    = StoreWebsite::all();
         // Retrieve all email addresses
-        $emailAddresses = EmailAddress::all();
+        $emailAddresses    = EmailAddress::all();
         $runHistoriesCount = EmailRunHistories::count();
 
-        $allDriver = $emailAddresses->pluck('driver')->unique()->toArray();
+        $allDriver         = $emailAddresses->pluck('driver')->unique()->toArray();
         $allIncomingDriver = $emailAddresses->pluck('incoming_driver')->unique()->toArray();
-        $allPort = $emailAddresses->pluck('port')->unique()->toArray();
-        $allEncryption = $emailAddresses->pluck('encryption')->unique()->toArray();
+        $allPort           = $emailAddresses->pluck('port')->unique()->toArray();
+        $allEncryption     = $emailAddresses->pluck('encryption')->unique()->toArray();
 
         // default values for add form
-        $defaultDriver = 'smtp';
-        $defaultPort = '587';
+        $defaultDriver     = 'smtp';
+        $defaultPort       = '587';
         $defaultEncryption = 'tls';
-        $defaultHost = 'mail.mio-moda.com';
+        $defaultHost       = 'mail.mio-moda.com';
 
-        $users = User::orderBy('name', 'asc')->get()->toArray();
-        $userEmails = $emailAddresses->pluck('username')->unique()->toArray();
+        $users         = User::orderBy('name', 'asc')->get()->toArray();
+        $userEmails    = $emailAddresses->pluck('username')->unique()->toArray();
         $fromAddresses = $emailAddresses->pluck('from_address')->unique()->toArray();
 
         $ops = '';
@@ -82,38 +82,38 @@ class EmailAddressesController extends Controller
         }
         if ($request->ajax()) {
             return view('email-addresses.index_ajax', [
-                'emailAddress' => $emailAddress,
-                'allStores' => $allStores,
-                'allDriver' => $allDriver,
+                'emailAddress'      => $emailAddress,
+                'allStores'         => $allStores,
+                'allDriver'         => $allDriver,
                 'allIncomingDriver' => $allIncomingDriver,
-                'allPort' => $allPort,
-                'allEncryption' => $allEncryption,
-                'users' => $users,
-                'uops' => $ops,
-                'userEmails' => $userEmails,
-                'defaultDriver' => $defaultDriver,
-                'defaultPort' => $defaultPort,
+                'allPort'           => $allPort,
+                'allEncryption'     => $allEncryption,
+                'users'             => $users,
+                'uops'              => $ops,
+                'userEmails'        => $userEmails,
+                'defaultDriver'     => $defaultDriver,
+                'defaultPort'       => $defaultPort,
                 'defaultEncryption' => $defaultEncryption,
-                'defaultHost' => $defaultHost,
-                'fromAddresses' => $fromAddresses,
+                'defaultHost'       => $defaultHost,
+                'fromAddresses'     => $fromAddresses,
                 'runHistoriesCount' => $runHistoriesCount,
             ]);
         } else {
             return view('email-addresses.index', [
-                'emailAddress' => $emailAddress,
-                'allStores' => $allStores,
-                'allDriver' => $allDriver,
+                'emailAddress'      => $emailAddress,
+                'allStores'         => $allStores,
+                'allDriver'         => $allDriver,
                 'allIncomingDriver' => $allIncomingDriver,
-                'allPort' => $allPort,
-                'allEncryption' => $allEncryption,
-                'users' => $users,
-                'uops' => $ops,
-                'userEmails' => $userEmails,
-                'defaultDriver' => $defaultDriver,
-                'defaultPort' => $defaultPort,
+                'allPort'           => $allPort,
+                'allEncryption'     => $allEncryption,
+                'users'             => $users,
+                'uops'              => $ops,
+                'userEmails'        => $userEmails,
+                'defaultDriver'     => $defaultDriver,
+                'defaultPort'       => $defaultPort,
                 'defaultEncryption' => $defaultEncryption,
-                'defaultHost' => $defaultHost,
-                'fromAddresses' => $fromAddresses,
+                'defaultHost'       => $defaultHost,
+                'fromAddresses'     => $fromAddresses,
                 'runHistoriesCount' => $runHistoriesCount,
             ]);
         }
@@ -122,21 +122,21 @@ class EmailAddressesController extends Controller
     public function createAcknowledgement(Request $request)
     {
         $this->validate($request, [
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'ack_status' => 'required',
+            'start_date'  => 'required',
+            'end_date'    => 'required',
+            'ack_status'  => 'required',
             'ack_message' => 'required',
         ]);
 
-        $input = $request->all();
+        $input             = $request->all();
         $input['added_by'] = Auth::user()->id;
 
         $messageModel = EMailAcknowledgement::create($input);
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Your email acknowledgement has been created!',
             ]
         );
@@ -174,15 +174,15 @@ class EmailAddressesController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from_name' => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
+            'from_name'       => 'required|string|max:255',
+            'from_address'    => 'required|string|max:255',
             'incoming_driver' => 'required|string|max:255',
-            'driver' => 'required|string|max:255',
-            'host' => 'required|string|max:255',
-            'port' => 'required|string|max:255',
-            'encryption' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
+            'driver'          => 'required|string|max:255',
+            'host'            => 'required|string|max:255',
+            'port'            => 'required|string|max:255',
+            'encryption'      => 'required|string|max:255',
+            'username'        => 'required|string|max:255',
+            'password'        => 'required|string|max:255',
 
         ]);
 
@@ -190,7 +190,7 @@ class EmailAddressesController extends Controller
 
         $id = EmailAddress::insertGetId($data);
 
-        $signature_logo = $request->file('signature_logo');
+        $signature_logo  = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
 
         if ($signature_logo != '') {
@@ -210,7 +210,8 @@ class EmailAddressesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -221,21 +222,22 @@ class EmailAddressesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'from_name' => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
+            'from_name'       => 'required|string|max:255',
+            'from_address'    => 'required|string|max:255',
             'incoming_driver' => 'required|string|max:255',
-            'driver' => 'required|string|max:255',
-            'host' => 'required|string|max:255',
-            'port' => 'required|string|max:255',
-            'encryption' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
+            'driver'          => 'required|string|max:255',
+            'host'            => 'required|string|max:255',
+            'port'            => 'required|string|max:255',
+            'encryption'      => 'required|string|max:255',
+            'username'        => 'required|string|max:255',
+            'password'        => 'required|string|max:255',
 
         ]);
 
@@ -243,7 +245,7 @@ class EmailAddressesController extends Controller
 
         EmailAddress::find($id)->update($data);
 
-        $signature_logo = $request->file('signature_logo');
+        $signature_logo  = $request->file('signature_logo');
         $signature_image = $request->file('signature_image');
 
         if ($signature_logo != '') {
@@ -263,7 +265,8 @@ class EmailAddressesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -287,7 +290,7 @@ class EmailAddressesController extends Controller
         $history = '';
         if (count($EmailHistory) > 0) {
             foreach ($EmailHistory as $runHistory) {
-                $status = ($runHistory->is_success == 0) ? 'Failed' : 'Success';
+                $status  = ($runHistory->is_success == 0) ? 'Failed' : 'Success';
                 $message = empty($runHistory->message) ? '-' : $runHistory->message;
                 $history .= '<tr>
                 <td>' . $runHistory->id . '</td>
@@ -310,23 +313,23 @@ class EmailAddressesController extends Controller
 
     public function getRelatedAccount(Request $request)
     {
-        $adsAccounts = \App\GoogleAdsAccount::where('account_name', $request->id)->get();
+        $adsAccounts  = \App\GoogleAdsAccount::where('account_name', $request->id)->get();
         $translations = \App\googleTraslationSettings::where('email', $request->id)->get();
-        $analytics = \App\StoreWebsiteAnalytic::where('email', $request->id)->get();
+        $analytics    = \App\StoreWebsiteAnalytic::where('email', $request->id)->get();
 
         $accounts = [];
 
         if (! $adsAccounts->isEmpty()) {
             foreach ($adsAccounts as $adsAccount) {
                 $accounts[] = [
-                    'name' => $adsAccount->account_name,
-                    'email' => $adsAccount->account_name,
-                    'last_error' => $adsAccount->last_error,
+                    'name'          => $adsAccount->account_name,
+                    'email'         => $adsAccount->account_name,
+                    'last_error'    => $adsAccount->last_error,
                     'last_error_at' => $adsAccount->last_error_at,
-                    'credential' => $adsAccount->config_file_path,
+                    'credential'    => $adsAccount->config_file_path,
                     'store_website' => $adsAccount->store_websites,
-                    'status' => $adsAccount->status,
-                    'type' => 'Google Ads Account',
+                    'status'        => $adsAccount->status,
+                    'type'          => 'Google Ads Account',
                 ];
             }
         }
@@ -334,14 +337,14 @@ class EmailAddressesController extends Controller
         if (! $translations->isEmpty()) {
             foreach ($translations as $translation) {
                 $accounts[] = [
-                    'name' => $translation->email,
-                    'email' => $translation->email,
-                    'last_error' => $translation->last_note,
+                    'name'          => $translation->email,
+                    'email'         => $translation->email,
+                    'last_error'    => $translation->last_note,
                     'last_error_at' => $translation->last_error_at,
-                    'credential' => $translation->account_json,
+                    'credential'    => $translation->account_json,
                     'store_website' => 'N/A',
-                    'status' => $translation->status,
-                    'type' => 'Google Translation',
+                    'status'        => $translation->status,
+                    'type'          => 'Google Translation',
                 ];
             }
         }
@@ -349,14 +352,14 @@ class EmailAddressesController extends Controller
         if (! $analytics->isEmpty()) {
             foreach ($analytics as $analytic) {
                 $accounts[] = [
-                    'name' => $analytic->email,
-                    'email' => $analytic->email,
-                    'last_error' => $analytic->last_error,
+                    'name'          => $analytic->email,
+                    'email'         => $analytic->email,
+                    'last_error'    => $analytic->last_error,
                     'last_error_at' => $analytic->last_error_at,
-                    'credential' => $analytic->account_id . ' - ' . $analytic->view_id,
+                    'credential'    => $analytic->account_id . ' - ' . $analytic->view_id,
                     'store_website' => $analytic->website,
-                    'status' => 'N/A',
-                    'type' => 'Google Analytics',
+                    'status'        => 'N/A',
+                    'type'          => 'Google Analytics',
                 ];
             }
         }
@@ -381,7 +384,7 @@ class EmailAddressesController extends Controller
         if ($histories) {
             foreach ($histories as $row) {
                 if ($row->history_last_message) {
-                    $status = ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success';
+                    $status  = ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success';
                     $message = $row->history_last_message->message ?? '-';
                     $history .= '<tr>
                     <td>' . $row->history_last_message->id . '</td>
@@ -417,10 +420,10 @@ class EmailAddressesController extends Controller
         foreach ($histories as $row) {
             if ($row->history_last_message) {
                 $recordsArr[] = [
-                    'id' => $row->history_last_message->id,
-                    'from_name' => $row->from_name,
-                    'status' => ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success',
-                    'message' => $row->history_last_message->message ?? '-',
+                    'id'         => $row->history_last_message->id,
+                    'from_name'  => $row->from_name,
+                    'status'     => ($row->history_last_message->is_success == 0) ? 'Failed' : 'Success',
+                    'message'    => $row->history_last_message->message ?? '-',
                     'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
                 ];
             }
@@ -437,12 +440,12 @@ class EmailAddressesController extends Controller
         }
 
         $users = explode(',', $request->users);
-        $data = [];
+        $data  = [];
         foreach ($users as $key) {
             // Generate new password
             $newPassword = Str::random(12);
 
-            $user = EmailAddress::findorfail($key);
+            $user           = EmailAddress::findorfail($key);
             $user->password = $newPassword;
             $user->save();
             $data[$key] = $newPassword;
@@ -457,10 +460,10 @@ class EmailAddressesController extends Controller
 
     public function sendToWhatsApp(Request $request)
     {
-        $emailDetail = EmailAddress::find($request->id);
-        $user_id = $request->user_id;
-        $user = User::findorfail($user_id);
-        $number = $user->phone;
+        $emailDetail    = EmailAddress::find($request->id);
+        $user_id        = $request->user_id;
+        $user           = User::findorfail($user_id);
+        $number         = $user->phone;
         $whatsappnumber = '971502609192';
 
         $message = 'Password For ' . $emailDetail->username . 'is: ' . $emailDetail->password;
@@ -474,8 +477,8 @@ class EmailAddressesController extends Controller
 
     public function assignUsers(Request $request)
     {
-        $emailDetail = EmailAddress::find($request->email_id);
-        $data = [];
+        $emailDetail         = EmailAddress::find($request->email_id);
+        $data                = [];
         $clear_existing_data = \App\EmailAssign::where(['email_address_id' => $request->email_id])->delete();
         if (isset($request->users)) {
             foreach ($request->users as $_user) {
@@ -527,12 +530,12 @@ class EmailAddressesController extends Controller
     public function createEmail($id, $smtpHost, $user, $password): string
     {
         $mailHelper = new VirtualminHelper();
-        $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
-        $vmHost = isset($result['host']) ? $result['host'] : '';
-        $status = 'failure';
+        $result     = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
+        $vmHost     = isset($result['host']) ? $result['host'] : '';
+        $status     = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->createMail($smtpHost, $user, $password);
-            $status = 'failure';
+            $status   = 'failure';
             if ($response['code'] == 200) {
                 $status = $response['data']['status'];
                 EmailAddress::find($id)->update(['username' => $user . '@' . $smtpHost]);
@@ -546,15 +549,15 @@ class EmailAddressesController extends Controller
     public function updateEmailPassword($id, $smtpHost, $user, $password): string
     {
         $mailHelper = new VirtualminHelper();
-        $result = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
-        $vmHost = isset($result['host']) ? $result['host'] : '';
-        $status = 'failure';
+        $result     = parse_url(getenv('VIRTUALMIN_ENDPOINT'));
+        $vmHost     = isset($result['host']) ? $result['host'] : '';
+        $status     = 'failure';
         if ($smtpHost == $vmHost) {
             $response = $mailHelper->changeMailPassword($smtpHost, $user, $password);
-            $status = 'failure';
+            $status   = 'failure';
             if ($response['code'] == 200) {
                 $status = $response['data']['status'];
-                $parts = explode('@', $user);
+                $parts  = explode('@', $user);
                 EmailAddress::find($id)->update(['username' => $parts[0] . '@' . $smtpHost]);
             }
         }
@@ -568,15 +571,15 @@ class EmailAddressesController extends Controller
 
         $emailAddress = $emailAddresses;
         try {
-            $cm = new ClientManager();
+            $cm   = new ClientManager();
             $imap = $cm->make([
-                'host' => $emailAddress->host,
-                'port' => 993,
-                'encryption' => 'ssl',
+                'host'          => $emailAddress->host,
+                'port'          => 993,
+                'encryption'    => 'ssl',
                 'validate_cert' => false,
-                'username' => $emailAddress->username,
-                'password' => $emailAddress->password,
-                'protocol' => 'imap',
+                'username'      => $emailAddress->username,
+                'password'      => $emailAddress->password,
+                'protocol'      => 'imap',
             ]);
 
             $imap->connect();
@@ -584,13 +587,13 @@ class EmailAddressesController extends Controller
             $types = [
                 'inbox' => [
                     'inbox_name' => 'INBOX',
-                    'direction' => 'from',
-                    'type' => 'incoming',
+                    'direction'  => 'from',
+                    'type'       => 'incoming',
                 ],
                 'sent' => [
                     'inbox_name' => 'INBOX.Sent',
-                    'direction' => 'to',
-                    'type' => 'outgoing',
+                    'direction'  => 'to',
+                    'type'       => 'outgoing',
                 ],
             ];
 
@@ -622,7 +625,7 @@ class EmailAddressesController extends Controller
                     foreach ($emails as $email) {
                         try {
                             $reference_id = $email->references;
-                            $origin_id = $email->message_id;
+                            $origin_id    = $email->message_id;
 
                             // Skip if message is already stored
                             if (Email::where('origin_id', $origin_id)->count() > 0) {
@@ -642,8 +645,8 @@ class EmailAddressesController extends Controller
                             \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
                             $attachments_array = [];
-                            $attachments = $email->getAttachments();
-                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments       = $email->getAttachments();
+                            $fromThis          = $email->getFrom()[0]->mail;
                             $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
@@ -663,7 +666,7 @@ class EmailAddressesController extends Controller
                             });
 
                             $from = $email->getFrom()[0]->mail;
-                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            $to   = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                             // Model is sender if its incoming else its receiver if outgoing
                             if ($type['type'] == 'incoming') {
@@ -680,25 +683,25 @@ class EmailAddressesController extends Controller
                             if (isset($subject[1]) && ! empty($subject[1])) {
                                 $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
                                 if ($findTicket) {
-                                    $model_id = $findTicket->id;
+                                    $model_id   = $findTicket->id;
                                     $model_type = \App\Tickets::class;
                                 }
                             }
 
                             $params = [
-                                'model_id' => $model_id,
-                                'model_type' => $model_type,
-                                'origin_id' => $origin_id,
-                                'reference_id' => $reference_id,
-                                'type' => $type['type'],
-                                'seen' => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
-                                'from' => $email->getFrom()[0]->mail,
-                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                'subject' => $email->getSubject(),
-                                'message' => $content,
-                                'template' => 'customer-simple',
+                                'model_id'        => $model_id,
+                                'model_type'      => $model_type,
+                                'origin_id'       => $origin_id,
+                                'reference_id'    => $reference_id,
+                                'type'            => $type['type'],
+                                'seen'            => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
+                                'from'            => $email->getFrom()[0]->mail,
+                                'to'              => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject'         => $email->getSubject(),
+                                'message'         => $content,
+                                'template'        => 'customer-simple',
                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                'created_at' => $email->getDate(),
+                                'created_at'      => $email->getDate(),
                             ];
 
                             $email_id = Email::insertGetId($params);
@@ -722,22 +725,22 @@ class EmailAddressesController extends Controller
                                     if (! empty($customer)) {
                                         // store the main message
                                         $params = [
-                                            'number' => $customer->phone,
-                                            'message' => $reply,
-                                            'media_url' => null,
-                                            'approved' => 0,
-                                            'status' => 0,
-                                            'contact_id' => null,
-                                            'erp_user' => null,
+                                            'number'      => $customer->phone,
+                                            'message'     => $reply,
+                                            'media_url'   => null,
+                                            'approved'    => 0,
+                                            'status'      => 0,
+                                            'contact_id'  => null,
+                                            'erp_user'    => null,
                                             'supplier_id' => null,
-                                            'task_id' => null,
+                                            'task_id'     => null,
                                             'dubizzle_id' => null,
-                                            'vendor_id' => null,
+                                            'vendor_id'   => null,
                                             'customer_id' => $customer->id,
-                                            'is_email' => 1,
-                                            'from_email' => $from,
-                                            'to_email' => $to,
-                                            'email_id' => $email_id,
+                                            'is_email'    => 1,
+                                            'from_email'  => $from,
+                                            'to_email'    => $to,
+                                            'email_id'    => $email_id,
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
@@ -749,24 +752,24 @@ class EmailAddressesController extends Controller
                                         $vandor = \App\Vendor::where('email', $from)->first();
                                         if ($vandor) {
                                             $params = [
-                                                'number' => $vandor->phone,
-                                                'message' => $reply,
-                                                'media_url' => null,
-                                                'approved' => 0,
-                                                'status' => 0,
-                                                'contact_id' => null,
-                                                'erp_user' => null,
+                                                'number'      => $vandor->phone,
+                                                'message'     => $reply,
+                                                'media_url'   => null,
+                                                'approved'    => 0,
+                                                'status'      => 0,
+                                                'contact_id'  => null,
+                                                'erp_user'    => null,
                                                 'supplier_id' => null,
-                                                'task_id' => null,
+                                                'task_id'     => null,
                                                 'dubizzle_id' => null,
-                                                'vendor_id' => $vandor->id,
-                                                'is_email' => 1,
-                                                'from_email' => $from,
-                                                'to_email' => $to,
-                                                'email_id' => $email_id,
+                                                'vendor_id'   => $vandor->id,
+                                                'is_email'    => 1,
+                                                'from_email'  => $from,
+                                                'to_email'    => $to,
+                                                'email_id'    => $email_id,
                                             ];
                                             $messageModel = \App\ChatMessage::create($params);
-                                            $mailFound = true;
+                                            $mailFound    = true;
                                         }
                                     }
 
@@ -774,23 +777,23 @@ class EmailAddressesController extends Controller
                                         $supplier = \App\Supplier::where('email', $from)->first();
                                         if ($supplier) {
                                             $params = [
-                                                'number' => $supplier->phone,
-                                                'message' => $reply,
-                                                'media_url' => null,
-                                                'approved' => 0,
-                                                'status' => 0,
-                                                'contact_id' => null,
-                                                'erp_user' => null,
+                                                'number'      => $supplier->phone,
+                                                'message'     => $reply,
+                                                'media_url'   => null,
+                                                'approved'    => 0,
+                                                'status'      => 0,
+                                                'contact_id'  => null,
+                                                'erp_user'    => null,
                                                 'supplier_id' => $supplier->id,
-                                                'task_id' => null,
+                                                'task_id'     => null,
                                                 'dubizzle_id' => null,
-                                                'is_email' => 1,
-                                                'from_email' => $from,
-                                                'to_email' => $to,
-                                                'email_id' => $email_id,
+                                                'is_email'    => 1,
+                                                'from_email'  => $from,
+                                                'to_email'    => $to,
+                                                'email_id'    => $email_id,
                                             ];
                                             $messageModel = \App\ChatMessage::create($params);
-                                            $mailFound = true;
+                                            $mailFound    = true;
                                         }
                                     }
                                 }
@@ -799,8 +802,8 @@ class EmailAddressesController extends Controller
                             \Log::error('error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage());
                             $historyParam = [
                                 'email_address_id' => $emailAddress->id,
-                                'is_success' => 0,
-                                'message' => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
+                                'is_success'       => 0,
+                                'message'          => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
                             ];
                             EmailRunHistories::create($historyParam);
                         }
@@ -810,7 +813,7 @@ class EmailAddressesController extends Controller
 
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
-                'is_success' => 1,
+                'is_success'       => 1,
             ];
 
             EmailRunHistories::create($historyParam);
@@ -820,15 +823,15 @@ class EmailAddressesController extends Controller
             $exceptionMessage = $e->getMessage();
 
             if ($e->getPrevious() !== null) {
-                $previousMessage = $e->getPrevious()->getMessage();
+                $previousMessage  = $e->getPrevious()->getMessage();
                 $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
             }
 
             \Log::channel('customer')->info($exceptionMessage);
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
-                'is_success' => 0,
-                'message' => $exceptionMessage,
+                'is_success'       => 0,
+                'message'          => $exceptionMessage,
             ];
             EmailRunHistories::create($historyParam);
             \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
@@ -839,9 +842,9 @@ class EmailAddressesController extends Controller
     public function listEmailRunLogs(Request $request)
     {
         $searchMessage = $request->search_message;
-        $searchDate = $request->date;
-        $searchName = $request->search_name;
-        $searchStatus = $request->status ?? '';
+        $searchDate    = $request->date;
+        $searchName    = $request->search_name;
+        $searchStatus  = $request->status ?? '';
 
         $emailRunHistoryQuery = DB::table('email_run_histories')
             ->join('email_addresses', 'email_run_histories.email_address_id', '=', 'email_addresses.id')
@@ -877,8 +880,8 @@ class EmailAddressesController extends Controller
 
     public function setEmailAlert(Request $request)
     {
-        $emailAddressId = $request->id;
-        $emaiAddress = EmailAddress::findorfail($emailAddressId);
+        $emailAddressId           = $request->id;
+        $emaiAddress              = EmailAddress::findorfail($emailAddressId);
         $emaiAddress->email_alert = $request->email_alert == 'true' ? 1 : 0;
         $emaiAddress->save();
 

@@ -43,7 +43,7 @@ class SimplyDutyCountryWise extends Command
         return false;
 
         $report = CronJobReport::create([
-            'signature' => $this->signature,
+            'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
@@ -77,10 +77,10 @@ class SimplyDutyCountryWise extends Command
 
                 $hsn = new \App\Hubstaff\HubstaffActivityNotification;
                 $hsn->fill([
-                    'user_id' => $act->erp_user_id,
-                    'start_date' => $checkDate,
-                    'end_date' => $checkDate,
-                    'min_percentage' => (float) $act->min_activity_percentage,
+                    'user_id'           => $act->erp_user_id,
+                    'start_date'        => $checkDate,
+                    'end_date'          => $checkDate,
+                    'min_percentage'    => (float) $act->min_activity_percentage,
                     'actual_percentage' => (float) ($act->total_spent * 100) / $act->total_track,
                 ]);
                 $hsn->save();

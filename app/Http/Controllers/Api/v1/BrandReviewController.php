@@ -25,7 +25,7 @@ class BrandReviewController extends Controller
         if ($request->name) {
             ReviewBrandList::insert([
                 'name' => $request->name,
-                'url' => $request->url,
+                'url'  => $request->url,
             ]);
 
             return response()->json(['status' => '200']);
@@ -53,25 +53,25 @@ class BrandReviewController extends Controller
 
                 if (! $exists) {
                     DB::table('brand_reviews')->insert([
-                        'website' => $value['website'],
-                        'brand' => $value['brand'],
+                        'website'    => $value['website'],
+                        'brand'      => $value['brand'],
                         'review_url' => $value['review_url'],
-                        'username' => $value['username'],
-                        'title' => $value['title'],
-                        'body' => $value['body'],
-                        'stars' => $value['stars'],
+                        'username'   => $value['username'],
+                        'title'      => $value['title'],
+                        'body'       => $value['body'],
+                        'stars'      => $value['stars'],
                     ]);
                 }
             }
 
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Data have been updated successfully',
             ]);
         }
 
         return response()->json([
-            'code' => 500,
+            'code'    => 500,
             'message' => 'Error Occured, please try again later.',
         ]);
     }

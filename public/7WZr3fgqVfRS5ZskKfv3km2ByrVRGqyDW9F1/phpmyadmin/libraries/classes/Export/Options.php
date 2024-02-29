@@ -31,14 +31,14 @@ final class Options
 
     public function __construct(Relation $relation, TemplateModel $templateModel)
     {
-        $this->relation = $relation;
+        $this->relation      = $relation;
         $this->templateModel = $templateModel;
     }
 
     /**
      * Outputs appropriate checked statement for checkbox.
      *
-     * @param  string  $str option name
+     * @param string $str option name
      */
     private function checkboxCheck($str): bool
     {
@@ -49,7 +49,8 @@ final class Options
     /**
      * Prints Html For Export Selection Options
      *
-     * @param  string  $tmpSelect Tmp selected method of export
+     * @param string $tmpSelect Tmp selected method of export
+     *
      * @return array
      */
     public function getDatabasesForSelectOptions($tmpSelect = '')
@@ -84,7 +85,7 @@ final class Options
             }
 
             $databases[] = [
-                'name' => $currentDb,
+                'name'        => $currentDb,
                 'is_selected' => $isSelected,
             ];
         }
@@ -93,13 +94,14 @@ final class Options
     }
 
     /**
-     * @param  string  $exportType   export type: server|database|table
-     * @param  string  $db           selected DB
-     * @param  string  $table        selected table
-     * @param  string  $sqlQuery     SQL query
-     * @param  int|string  $numTables    number of tables
-     * @param  int|string  $unlimNumRows unlimited number of rows
-     * @param  ExportPlugin[]  $exportList
+     * @param string         $exportType   export type: server|database|table
+     * @param string         $db           selected DB
+     * @param string         $table        selected table
+     * @param string         $sqlQuery     SQL query
+     * @param int|string     $numTables    number of tables
+     * @param int|string     $unlimNumRows unlimited number of rows
+     * @param ExportPlugin[] $exportList
+     *
      * @return array<string, mixed>
      */
     public function getOptions(
@@ -128,25 +130,25 @@ final class Options
             $templates = is_array($templates) ? $templates : [];
         }
 
-        $default = isset($_GET['what']) ? (string) $_GET['what'] : Plugins::getDefault('Export', 'format');
-        $dropdown = Plugins::getChoice($exportList, $default);
+        $default     = isset($_GET['what']) ? (string) $_GET['what'] : Plugins::getDefault('Export', 'format');
+        $dropdown    = Plugins::getChoice($exportList, $default);
         $tableObject = new Table($table, $db);
-        $rows = [];
+        $rows        = [];
 
         if (strlen($table) > 0 && empty($numTables) && ! $tableObject->isMerge() && $exportType !== 'raw') {
             $rows = [
-                'allrows' => $_POST['allrows'] ?? null,
-                'limit_to' => $_POST['limit_to'] ?? null,
-                'limit_from' => $_POST['limit_from'] ?? null,
+                'allrows'        => $_POST['allrows'] ?? null,
+                'limit_to'       => $_POST['limit_to'] ?? null,
+                'limit_from'     => $_POST['limit_from'] ?? null,
                 'unlim_num_rows' => $unlimNumRows,
                 'number_of_rows' => $tableObject->countRecords(),
             ];
         }
 
         $hasAliases = isset($_SESSION['tmpval']['aliases']) && ! Core::emptyRecursive($_SESSION['tmpval']['aliases']);
-        $aliases = $_SESSION['tmpval']['aliases'] ?? [];
+        $aliases    = $_SESSION['tmpval']['aliases'] ?? [];
         unset($_SESSION['tmpval']['aliases']);
-        $filenameTemplate = $this->getFileNameTemplate($exportType, $_POST['filename_template'] ?? null);
+        $filenameTemplate    = $this->getFileNameTemplate($exportType, $_POST['filename_template'] ?? null);
         $isEncodingSupported = Encoding::isSupported();
         $selectedCompression = $_POST['compression'] ?? $cfg['Export']['compression'] ?? 'none';
 
@@ -155,11 +157,11 @@ final class Options
         }
 
         $hiddenInputs = [
-            'db' => $db,
-            'table' => $table,
-            'export_type' => $exportType,
+            'db'            => $db,
+            'table'         => $table,
+            'export_type'   => $exportType,
             'export_method' => $_POST['export_method'] ?? $cfg['Export']['method'] ?? 'quick',
-            'template_id' => $_POST['template_id'] ?? '',
+            'template_id'   => $_POST['template_id'] ?? '',
         ];
 
         if (! empty($GLOBALS['single_table'])) {
@@ -172,43 +174,43 @@ final class Options
 
         return [
             'export_type' => $exportType,
-            'db' => $db,
-            'table' => $table,
-            'templates' => [
+            'db'          => $db,
+            'table'       => $table,
+            'templates'   => [
                 'is_enabled' => $exportTemplatesFeature !== null,
-                'templates' => $templates,
-                'selected' => $_POST['template_id'] ?? null,
+                'templates'  => $templates,
+                'selected'   => $_POST['template_id'] ?? null,
             ],
-            'sql_query' => $sqlQuery,
-            'hidden_inputs' => $hiddenInputs,
-            'export_method' => $_POST['quick_or_custom'] ?? $cfg['Export']['method'] ?? '',
-            'plugins_choice' => $dropdown,
-            'options' => Plugins::getOptions('Export', $exportList),
-            'can_convert_kanji' => Encoding::canConvertKanji(),
-            'exec_time_limit' => $cfg['ExecTimeLimit'],
-            'rows' => $rows,
-            'has_save_dir' => isset($cfg['SaveDir']) && ! empty($cfg['SaveDir']),
-            'save_dir' => Util::userDir((string) ($cfg['SaveDir'] ?? '')),
-            'export_is_checked' => $this->checkboxCheck('quick_export_onserver'),
-            'export_overwrite_is_checked' => $this->checkboxCheck('quick_export_onserver_overwrite'),
-            'has_aliases' => $hasAliases,
-            'aliases' => $aliases,
-            'is_checked_lock_tables' => $this->checkboxCheck('lock_tables'),
-            'is_checked_asfile' => $this->checkboxCheck('asfile'),
-            'is_checked_as_separate_files' => $this->checkboxCheck('as_separate_files'),
-            'is_checked_export' => $this->checkboxCheck('onserver'),
-            'is_checked_export_overwrite' => $this->checkboxCheck('onserver_overwrite'),
+            'sql_query'                         => $sqlQuery,
+            'hidden_inputs'                     => $hiddenInputs,
+            'export_method'                     => $_POST['quick_or_custom'] ?? $cfg['Export']['method'] ?? '',
+            'plugins_choice'                    => $dropdown,
+            'options'                           => Plugins::getOptions('Export', $exportList),
+            'can_convert_kanji'                 => Encoding::canConvertKanji(),
+            'exec_time_limit'                   => $cfg['ExecTimeLimit'],
+            'rows'                              => $rows,
+            'has_save_dir'                      => isset($cfg['SaveDir']) && ! empty($cfg['SaveDir']),
+            'save_dir'                          => Util::userDir((string) ($cfg['SaveDir'] ?? '')),
+            'export_is_checked'                 => $this->checkboxCheck('quick_export_onserver'),
+            'export_overwrite_is_checked'       => $this->checkboxCheck('quick_export_onserver_overwrite'),
+            'has_aliases'                       => $hasAliases,
+            'aliases'                           => $aliases,
+            'is_checked_lock_tables'            => $this->checkboxCheck('lock_tables'),
+            'is_checked_asfile'                 => $this->checkboxCheck('asfile'),
+            'is_checked_as_separate_files'      => $this->checkboxCheck('as_separate_files'),
+            'is_checked_export'                 => $this->checkboxCheck('onserver'),
+            'is_checked_export_overwrite'       => $this->checkboxCheck('onserver_overwrite'),
             'is_checked_remember_file_template' => $this->checkboxCheck('remember_file_template'),
-            'repopulate' => isset($_POST['repopulate']),
-            'lock_tables' => isset($_POST['lock_tables']),
-            'is_encoding_supported' => $isEncodingSupported,
-            'encodings' => $isEncodingSupported ? Encoding::listEncodings() : [],
-            'export_charset' => $cfg['Export']['charset'],
-            'export_asfile' => $cfg['Export']['asfile'],
-            'has_zip' => $cfg['ZipDump'] && function_exists('gzcompress'),
-            'has_gzip' => $cfg['GZipDump'] && function_exists('gzencode'),
-            'selected_compression' => $selectedCompression,
-            'filename_template' => $filenameTemplate,
+            'repopulate'                        => isset($_POST['repopulate']),
+            'lock_tables'                       => isset($_POST['lock_tables']),
+            'is_encoding_supported'             => $isEncodingSupported,
+            'encodings'                         => $isEncodingSupported ? Encoding::listEncodings() : [],
+            'export_charset'                    => $cfg['Export']['charset'],
+            'export_asfile'                     => $cfg['Export']['asfile'],
+            'has_zip'                           => $cfg['ZipDump'] && function_exists('gzcompress'),
+            'has_gzip'                          => $cfg['GZipDump'] && function_exists('gzencode'),
+            'selected_compression'              => $selectedCompression,
+            'filename_template'                 => $filenameTemplate,
         ];
     }
 

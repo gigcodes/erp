@@ -55,7 +55,8 @@ class GisPolygon extends GisGeometry
     /**
      * Scales each row.
      *
-     * @param  string  $spatial spatial data of a row
+     * @param string $spatial spatial data of a row
+     *
      * @return array an array containing the min, max values for x and y coordinates
      */
     public function scaleRow($spatial)
@@ -69,7 +70,7 @@ class GisPolygon extends GisGeometry
         } else {
             // Separate outer ring and use it to determine min-max
             $parts = explode('),(', $polygon);
-            $ring = $parts[0];
+            $ring  = $parts[0];
         }
 
         return $this->setMinMax($ring, []);
@@ -78,10 +79,10 @@ class GisPolygon extends GisGeometry
     /**
      * Adds to the PNG image object, the data related to a row in the GIS dataset.
      *
-     * @param  string  $spatial    GIS POLYGON object
-     * @param  string|null  $label      Label for the GIS POLYGON object
-     * @param  string  $fill_color Color for the GIS POLYGON object
-     * @param  array  $scale_data Array containing data related to scaling
+     * @param string      $spatial    GIS POLYGON object
+     * @param string|null $label      Label for the GIS POLYGON object
+     * @param string      $fill_color Color for the GIS POLYGON object
+     * @param array       $scale_data Array containing data related to scaling
      */
     public function prepareRowAsPng(
         $spatial,
@@ -92,9 +93,9 @@ class GisPolygon extends GisGeometry
     ): ImageWrapper {
         // allocate colors
         $black = $image->colorAllocate(0, 0, 0);
-        $red = (int) hexdec(mb_substr($fill_color, 1, 2));
+        $red   = (int) hexdec(mb_substr($fill_color, 1, 2));
         $green = (int) hexdec(mb_substr($fill_color, 3, 2));
-        $blue = (int) hexdec(mb_substr($fill_color, 4, 2));
+        $blue  = (int) hexdec(mb_substr($fill_color, 4, 2));
         $color = $image->colorAllocate($red, $green, $blue);
 
         $label = trim($label ?? '');
@@ -140,19 +141,20 @@ class GisPolygon extends GisGeometry
     /**
      * Adds to the TCPDF instance, the data related to a row in the GIS dataset.
      *
-     * @param  string  $spatial    GIS POLYGON object
-     * @param  string|null  $label      Label for the GIS POLYGON object
-     * @param  string  $fill_color Color for the GIS POLYGON object
-     * @param  array  $scale_data Array containing data related to scaling
-     * @param  TCPDF  $pdf        TCPDF instance
+     * @param string      $spatial    GIS POLYGON object
+     * @param string|null $label      Label for the GIS POLYGON object
+     * @param string      $fill_color Color for the GIS POLYGON object
+     * @param array       $scale_data Array containing data related to scaling
+     * @param TCPDF       $pdf        TCPDF instance
+     *
      * @return TCPDF the modified TCPDF instance
      */
     public function prepareRowAsPdf($spatial, ?string $label, $fill_color, array $scale_data, $pdf)
     {
         // allocate colors
-        $red = hexdec(mb_substr($fill_color, 1, 2));
+        $red   = hexdec(mb_substr($fill_color, 1, 2));
         $green = hexdec(mb_substr($fill_color, 3, 2));
-        $blue = hexdec(mb_substr($fill_color, 4, 2));
+        $blue  = hexdec(mb_substr($fill_color, 4, 2));
         $color = [
             $red,
             $green,
@@ -198,22 +200,23 @@ class GisPolygon extends GisGeometry
     /**
      * Prepares and returns the code related to a row in the GIS dataset as SVG.
      *
-     * @param  string  $spatial    GIS POLYGON object
-     * @param  string  $label      Label for the GIS POLYGON object
-     * @param  string  $fill_color Color for the GIS POLYGON object
-     * @param  array  $scale_data Array containing data related to scaling
+     * @param string $spatial    GIS POLYGON object
+     * @param string $label      Label for the GIS POLYGON object
+     * @param string $fill_color Color for the GIS POLYGON object
+     * @param array  $scale_data Array containing data related to scaling
+     *
      * @return string the code related to a row in the GIS dataset
      */
     public function prepareRowAsSvg($spatial, $label, $fill_color, array $scale_data)
     {
         $polygon_options = [
-            'name' => $label,
-            'id' => $label . $this->getRandomId(),
-            'class' => 'polygon vector',
-            'stroke' => 'black',
+            'name'         => $label,
+            'id'           => $label . $this->getRandomId(),
+            'class'        => 'polygon vector',
+            'stroke'       => 'black',
             'stroke-width' => 0.5,
-            'fill' => $fill_color,
-            'fill-rule' => 'evenodd',
+            'fill'         => $fill_color,
+            'fill-rule'    => 'evenodd',
             'fill-opacity' => 0.8,
         ];
 
@@ -252,17 +255,18 @@ class GisPolygon extends GisGeometry
      * Prepares JavaScript related to a row in the GIS dataset
      * to visualize it with OpenLayers.
      *
-     * @param  string  $spatial    GIS POLYGON object
-     * @param  int  $srid       Spatial reference ID
-     * @param  string  $label      Label for the GIS POLYGON object
-     * @param  array  $fill_color Color for the GIS POLYGON object
-     * @param  array  $scale_data Array containing data related to scaling
+     * @param string $spatial    GIS POLYGON object
+     * @param int    $srid       Spatial reference ID
+     * @param string $label      Label for the GIS POLYGON object
+     * @param array  $fill_color Color for the GIS POLYGON object
+     * @param array  $scale_data Array containing data related to scaling
+     *
      * @return string JavaScript related to a row in the GIS dataset
      */
     public function prepareRowAsOl($spatial, int $srid, $label, $fill_color, array $scale_data)
     {
         $fill_color[] = 0.8;
-        $fill_style = ['color' => $fill_color];
+        $fill_style   = ['color' => $fill_color];
         $stroke_style = [
             'color' => [0, 0, 0],
             'width' => 0.5,
@@ -298,15 +302,16 @@ class GisPolygon extends GisGeometry
     /**
      * Draws a ring of the polygon using SVG path element.
      *
-     * @param  string  $polygon    The ring
-     * @param  array  $scale_data Array containing data related to scaling
+     * @param string $polygon    The ring
+     * @param array  $scale_data Array containing data related to scaling
+     *
      * @return string the code to draw the ring
      */
     private function drawPath($polygon, array $scale_data)
     {
         $points_arr = $this->extractPoints($polygon, $scale_data);
 
-        $row = ' M ' . $points_arr[0][0] . ', ' . $points_arr[0][1];
+        $row          = ' M ' . $points_arr[0][0] . ', ' . $points_arr[0][1];
         $other_points = array_slice($points_arr, 1, count($points_arr) - 2);
         foreach ($other_points as $point) {
             $row .= ' L ' . $point[0] . ', ' . $point[1];
@@ -320,9 +325,10 @@ class GisPolygon extends GisGeometry
     /**
      * Generate the WKT with the set of parameters passed by the GIS editor.
      *
-     * @param  array  $gis_data GIS data
-     * @param  int  $index    Index into the parameter object
-     * @param  string|null  $empty    Value for empty points
+     * @param array       $gis_data GIS data
+     * @param int         $index    Index into the parameter object
+     * @param string|null $empty    Value for empty points
+     *
      * @return string WKT with the set of parameters passed by the GIS editor
      */
     public function generateWkt(array $gis_data, $index, $empty = '')
@@ -361,7 +367,8 @@ class GisPolygon extends GisGeometry
     /**
      * Calculates the area of a closed simple polygon.
      *
-     * @param  array  $ring array of points forming the ring
+     * @param array $ring array of points forming the ring
+     *
      * @return float the area of a closed simple polygon
      *
      * @static
@@ -396,7 +403,7 @@ class GisPolygon extends GisGeometry
      * Determines whether a set of points represents an outer ring.
      * If points are in clockwise orientation then, they form an outer ring.
      *
-     * @param  array  $ring array of points forming the ring
+     * @param array $ring array of points forming the ring
      *
      * @static
      */
@@ -410,8 +417,8 @@ class GisPolygon extends GisGeometry
     /**
      * Determines whether a given point is inside a given polygon.
      *
-     * @param  array  $point   x, y coordinates of the point
-     * @param  array  $polygon array of points forming the ring
+     * @param array $point   x, y coordinates of the point
+     * @param array $polygon array of points forming the ring
      *
      * @static
      */
@@ -424,7 +431,7 @@ class GisPolygon extends GisGeometry
         }
 
         $no_of_points = count($polygon);
-        $counter = 0;
+        $counter      = 0;
 
         // Use ray casting algorithm
         $p1 = $polygon[0];
@@ -467,7 +474,8 @@ class GisPolygon extends GisGeometry
      * Returns a point that is guaranteed to be on the surface of the ring.
      * (for simple closed rings)
      *
-     * @param  array  $ring array of points forming the ring
+     * @param array $ring array of points forming the ring
+     *
      * @return array|false a point on the surface of the ring
      */
     public static function getPointOnSurface(array $ring)
@@ -496,10 +504,10 @@ class GisPolygon extends GisGeometry
         $y2 = ($y0 + $y1) / 2;
 
         // Always keep $epsilon < 1 to go with the reduction logic down here
-        $epsilon = 0.1;
+        $epsilon     = 0.1;
         $denominator = sqrt(($y1 - $y0) ** 2 + ($x0 - $x1) ** 2);
-        $pointA = [];
-        $pointB = [];
+        $pointA      = [];
+        $pointB      = [];
 
         while (true) {
             // Get the points on either sides of the line
@@ -532,33 +540,34 @@ class GisPolygon extends GisGeometry
     /**
      * Generate parameters for the GIS data editor from the value of the GIS column.
      *
-     * @param  string  $value Value of the GIS column
-     * @param  int  $index Index of the geometry
+     * @param string $value Value of the GIS column
+     * @param int    $index Index of the geometry
+     *
      * @return array params for the GIS data editor from the value of the GIS column
      */
     public function generateParams($value, $index = -1)
     {
         $params = [];
         if ($index == -1) {
-            $index = 0;
-            $data = GisGeometry::generateParams($value);
+            $index          = 0;
+            $data           = GisGeometry::generateParams($value);
             $params['srid'] = $data['srid'];
-            $wkt = $data['wkt'];
+            $wkt            = $data['wkt'];
         } else {
             $params[$index]['gis_type'] = 'POLYGON';
-            $wkt = $value;
+            $wkt                        = $value;
         }
 
         // Trim to remove leading 'POLYGON((' and trailing '))'
         $polygon = mb_substr($wkt, 9, -2);
         // Separate each linestring
-        $linerings = explode('),(', $polygon);
+        $linerings                                = explode('),(', $polygon);
         $params[$index]['POLYGON']['no_of_lines'] = count($linerings);
 
         $j = 0;
         foreach ($linerings as $linering) {
-            $points_arr = $this->extractPoints($linering, null);
-            $no_of_points = count($points_arr);
+            $points_arr                                    = $this->extractPoints($linering, null);
+            $no_of_points                                  = count($points_arr);
             $params[$index]['POLYGON'][$j]['no_of_points'] = $no_of_points;
             for ($i = 0; $i < $no_of_points; $i++) {
                 $params[$index]['POLYGON'][$j][$i]['x'] = $points_arr[$i][0];

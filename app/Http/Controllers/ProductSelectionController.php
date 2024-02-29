@@ -63,8 +63,8 @@ class ProductSelectionController extends Controller
 
         if ($request->get('category') != null && $request->get('category') != 1) {
             $category_children = [];
-            $category = $request->get('category');
-            $is_parent = Category::isParent($category);
+            $category          = $request->get('category');
+            $is_parent         = Category::isParent($category);
 
             if ($is_parent) {
                 $childs = Category::find($category)->childs()->get();
@@ -145,25 +145,25 @@ class ProductSelectionController extends Controller
     public function store(Request $request, Stage $stage)
     {
         $this->validate($request, [
-            'sku' => 'required|unique:products',
+            'sku'   => 'required|unique:products',
             'image' => 'required | mimes:jpeg,bmp,png,jpg',
         ]);
 
-        $productselection = new Product();
-        $productselection->sku = $request->input('sku');
-        $productselection->size = $request->input('size');
-        $productselection->size_eu = $request->input('size_eu');
-        $productselection->price = $request->input('price');
+        $productselection                = new Product();
+        $productselection->sku           = $request->input('sku');
+        $productselection->size          = $request->input('size');
+        $productselection->size_eu       = $request->input('size_eu');
+        $productselection->price         = $request->input('price');
         $productselection->supplier_link = $request->input('supplier_link');
-        $productselection->location = $request->input('location');
-        $productselection->brand = $request->input('brand');
+        $productselection->location      = $request->input('location');
+        $productselection->brand         = $request->input('brand');
         $productselection->last_selector = Auth::id();
 
         $productselection->stage = $stage->get('Selection');
         $productselection->stock = 1;
 
         if (! empty($productselection->brand) && ! empty($productselection->price)) {
-            $productselection->price_inr = $this->euroToInr($productselection->price, $productselection->brand);
+            $productselection->price_inr         = $this->euroToInr($productselection->price, $productselection->brand);
             $productselection->price_inr_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
         } else {
             $productselection->price_inr_special = $request->price_inr_special;
@@ -217,18 +217,18 @@ class ProductSelectionController extends Controller
 
         $this->validate($request, $validations);
 
-        $productselection->sku = $request->input('sku');
-        $productselection->size = $request->input('size');
-        $productselection->size_eu = $request->input('size_eu');
-        $productselection->price = $request->input('price');
-        $productselection->status_id = $request->input('status_id');
+        $productselection->sku           = $request->input('sku');
+        $productselection->size          = $request->input('size');
+        $productselection->size_eu       = $request->input('size_eu');
+        $productselection->price         = $request->input('price');
+        $productselection->status_id     = $request->input('status_id');
         $productselection->supplier_link = $request->input('supplier_link');
-        $productselection->location = $request->input('location');
-        $productselection->brand = $request->input('brand');
+        $productselection->location      = $request->input('location');
+        $productselection->brand         = $request->input('brand');
         $productselection->last_selector = Auth::id();
 
         if (! empty($productselection->brand) && ! empty($productselection->price)) {
-            $productselection->price_inr = $this->euroToInr($productselection->price, $productselection->brand);
+            $productselection->price_inr         = $this->euroToInr($productselection->price, $productselection->brand);
             $productselection->price_inr_special = $this->calculateSpecialDiscount($productselection->price_inr, $productselection->brand);
         } else {
             $productselection->price_inr_special = $request->price_inr_special;
@@ -299,7 +299,7 @@ class ProductSelectionController extends Controller
 
     public function emailTplSet(Request $request)
     {
-        $mail_tpl = $request->input('mail_tpl');
+        $mail_tpl    = $request->input('mail_tpl');
         $product_ids = $request->input('product_ids');
         $product_ids = explode(',', $product_ids);
 

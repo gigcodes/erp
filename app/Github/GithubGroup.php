@@ -45,9 +45,9 @@ class GithubGroup extends Model
         $users = $group->users;
 
         return [
-            'group' => $group,
+            'group'        => $group,
             'repositories' => $repositories,
-            'users' => $users,
+            'users'        => $users,
         ];
     }
 }

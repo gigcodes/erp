@@ -61,8 +61,8 @@ class RecentFavoriteTable
     /**
      * Creates a new instance of RecentFavoriteTable
      *
-     * @param  Template  $template Template object
-     * @param  string  $type     the table type
+     * @param Template $template Template object
+     * @param string   $type     the table type
      */
     private function __construct(Template $template, string $type)
     {
@@ -70,9 +70,9 @@ class RecentFavoriteTable
 
         global $dbi;
 
-        $this->relation = new Relation($dbi);
+        $this->relation  = new Relation($dbi);
         $this->tableType = $type;
-        $server_id = $GLOBALS['server'];
+        $server_id       = $GLOBALS['server'];
         if (! isset($_SESSION['tmpval'][$this->tableType . 'Tables'][$server_id])) {
             $_SESSION['tmpval'][$this->tableType . 'Tables'][$server_id] = $this->getPmaTable()
                 ? $this->getFromDb()
@@ -85,14 +85,14 @@ class RecentFavoriteTable
     /**
      * Returns class instance.
      *
-     * @param  string  $type the table type
+     * @param string $type the table type
      *
      * @psalm-param 'favorite'|'recent' $type
      */
     public static function getInstance(string $type): RecentFavoriteTable
     {
         if (! array_key_exists($type, self::$instances)) {
-            $template = new Template();
+            $template               = new Template();
             self::$instances[$type] = new RecentFavoriteTable($template, $type);
         }
 
@@ -140,7 +140,7 @@ class RecentFavoriteTable
     {
         global $dbi;
 
-        $username = $GLOBALS['cfg']['Server']['user'];
+        $username  = $GLOBALS['cfg']['Server']['user'];
         $sql_query = ' REPLACE INTO ' . $this->getPmaTable() . ' (`username`, `tables`)' .
                 " VALUES ('" . $dbi->escapeString($username) . "', '"
                 . $dbi->escapeString(
@@ -201,7 +201,7 @@ class RecentFavoriteTable
                 $tables = [];
                 foreach ($this->tables as $table) {
                     $tables[] = [
-                        'db' => $table['db'],
+                        'db'    => $table['db'],
                         'table' => $table['table'],
                     ];
                 }
@@ -212,20 +212,20 @@ class RecentFavoriteTable
             $tables = [];
             foreach ($this->tables as $table) {
                 $removeParameters = [
-                    'db' => $table['db'],
-                    'ajax_request' => true,
-                    'favorite_table' => $table['table'],
+                    'db'              => $table['db'],
+                    'ajax_request'    => true,
+                    'favorite_table'  => $table['table'],
                     'remove_favorite' => true,
                 ];
                 $tableParameters = [
-                    'db' => $table['db'],
+                    'db'    => $table['db'],
                     'table' => $table['table'],
-                    'md5' => md5($table['db'] . '.' . $table['table']),
+                    'md5'   => md5($table['db'] . '.' . $table['table']),
                 ];
 
                 $tables[] = [
                     'remove_parameters' => $removeParameters,
-                    'table_parameters' => $tableParameters,
+                    'table_parameters'  => $tableParameters,
                 ];
             }
 
@@ -259,8 +259,9 @@ class RecentFavoriteTable
     /**
      * Add recently used or favorite tables.
      *
-     * @param  string  $db    database name where the table is located
-     * @param  string  $table table name
+     * @param string $db    database name where the table is located
+     * @param string $table table name
+     *
      * @return true|Message True if success, Message if not
      */
     public function add($db, $table)
@@ -272,8 +273,8 @@ class RecentFavoriteTable
             return true;
         }
 
-        $table_arr = [];
-        $table_arr['db'] = $db;
+        $table_arr          = [];
+        $table_arr['db']    = $db;
         $table_arr['table'] = $table;
 
         // add only if this is new table
@@ -292,10 +293,11 @@ class RecentFavoriteTable
     /**
      * Removes recent/favorite tables that don't exist.
      *
-     * @param  string  $db    database
-     * @param  string  $table table
+     * @param string $db    database
+     * @param string $table table
+     *
      * @return bool|Message True if invalid and removed, False if not invalid,
-     * Message if error while removing
+     *                      Message if error while removing
      */
     public function removeIfInvalid($db, $table)
     {
@@ -318,8 +320,9 @@ class RecentFavoriteTable
     /**
      * Remove favorite tables.
      *
-     * @param  string  $db    database name where the table is located
-     * @param  string  $table table name
+     * @param string $db    database name where the table is located
+     * @param string $table table name
+     *
      * @return true|Message True if success, Message if not
      */
     public function remove($db, $table)
@@ -344,7 +347,7 @@ class RecentFavoriteTable
      */
     public function getHtmlSyncFavoriteTables(): string
     {
-        $retval = '';
+        $retval    = '';
         $server_id = $GLOBALS['server'];
         if ($server_id == 0) {
             return '';
@@ -357,8 +360,8 @@ class RecentFavoriteTable
             && ! isset($_SESSION['tmpval']['favorites_synced'][$server_id])
         ) {
             $url = Url::getFromRoute('/database/structure/favorite-table', [
-                'ajax_request' => true,
-                'favorite_table' => true,
+                'ajax_request'         => true,
+                'favorite_table'       => true,
                 'sync_favorite_tables' => true,
             ]);
             $retval = '<a class="hide" id="sync_favorite_tables"';

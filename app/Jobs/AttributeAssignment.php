@@ -19,6 +19,8 @@ class AttributeAssignment implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed $params
+     *
      * @return void
      */
     public function __construct($params)
@@ -47,20 +49,20 @@ class AttributeAssignment implements ShouldQueue
                     if (isset($this->data['replace_size']) && is_array($this->data['replace_size'])) {
                         $new_value = implode(',', $this->data['replace_size']);
                     }
-                    $fp_value->size = $new_value;
+                    $fp_value->size                         = $new_value;
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value,
-                        'new_value' => $new_value,
+                        'old_value'      => $old_value,
+                        'new_value'      => $new_value,
                         'attribute_name' => 'size',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -82,44 +84,44 @@ class AttributeAssignment implements ShouldQueue
                     $old_value_hmeasurement = $fp_value->hmeasurement;
                     $old_value_dmeasurement = $fp_value->dmeasurement;
 
-                    $fp_value->lmeasurement = $this->data['replace_lmeasurement'];
-                    $fp_value->hmeasurement = $this->data['replace_hmeasurement'];
-                    $fp_value->dmeasurement = $this->data['replace_dmeasurement'];
+                    $fp_value->lmeasurement                 = $this->data['replace_lmeasurement'];
+                    $fp_value->hmeasurement                 = $this->data['replace_hmeasurement'];
+                    $fp_value->dmeasurement                 = $this->data['replace_dmeasurement'];
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value_lmeasurement,
-                        'new_value' => $this->data['replace_lmeasurement'],
+                        'old_value'      => $old_value_lmeasurement,
+                        'new_value'      => $this->data['replace_lmeasurement'],
                         'attribute_name' => 'lmeasurement',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value_hmeasurement,
-                        'new_value' => $this->data['replace_hmeasurement'],
+                        'old_value'      => $old_value_hmeasurement,
+                        'new_value'      => $this->data['replace_hmeasurement'],
                         'attribute_name' => 'hmeasurement',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value_dmeasurement,
-                        'new_value' => $this->data['replace_dmeasurement'],
+                        'old_value'      => $old_value_dmeasurement,
+                        'new_value'      => $this->data['replace_dmeasurement'],
                         'attribute_name' => 'dmeasurement',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -135,21 +137,21 @@ class AttributeAssignment implements ShouldQueue
             $attribute_arr = [];
             if (isset($find_products) && ! empty($find_products)) {
                 foreach ($find_products as $fp_key => $fp_value) {
-                    $old_value = $fp_value->category;
-                    $fp_value->category = $this->data['replace_category'];
+                    $old_value                              = $fp_value->category;
+                    $fp_value->category                     = $this->data['replace_category'];
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value,
-                        'new_value' => $this->data['replace_category'],
+                        'old_value'      => $old_value,
+                        'new_value'      => $this->data['replace_category'],
                         'attribute_name' => 'category',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -171,22 +173,22 @@ class AttributeAssignment implements ShouldQueue
             $attribute_arr = [];
             if (isset($find_products) && ! empty($find_products)) {
                 foreach ($find_products as $fp_key => $fp_value) {
-                    $old_value = $fp_value->color;
-                    $new_value = ($this->data['replace_color'] != 'NULL') ? $this->data['replace_color'] : null;
-                    $fp_value->color = $new_value;
+                    $old_value                              = $fp_value->color;
+                    $new_value                              = ($this->data['replace_color'] != 'NULL') ? $this->data['replace_color'] : null;
+                    $fp_value->color                        = $new_value;
                     $fp_value->updated_attribute_job_status = 1;
                     $fp_value->updated_attribute_job_attempt_count += 1;
                     $fp_value->save();
 
                     $attribute_arr[] = [
-                        'old_value' => $old_value,
-                        'new_value' => $new_value,
+                        'old_value'      => $old_value,
+                        'new_value'      => $new_value,
                         'attribute_name' => 'color',
-                        'attribute_id' => $this->data['attribute_id'],
-                        'product_id' => $fp_value->id,
-                        'user_id' => $userId,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'attribute_id'   => $this->data['attribute_id'],
+                        'product_id'     => $fp_value->id,
+                        'user_id'        => $userId,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'updated_at'     => date('Y-m-d H:i:s'),
                     ];
                 }
             }

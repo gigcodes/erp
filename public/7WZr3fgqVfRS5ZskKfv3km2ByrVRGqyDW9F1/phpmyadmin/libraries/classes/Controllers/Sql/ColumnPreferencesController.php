@@ -31,9 +31,9 @@ final class ColumnPreferencesController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template);
-        $this->sql = $sql;
+        $this->sql                 = $sql;
         $this->checkUserPrivileges = $checkUserPrivileges;
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
     }
 
     public function __invoke(): void
@@ -43,7 +43,7 @@ final class ColumnPreferencesController extends AbstractController
         $this->checkUserPrivileges->getPrivileges();
 
         $tableObject = $this->dbi->getTable($db, $table);
-        $status = false;
+        $status      = false;
 
         // set column order
         if (isset($_POST['col_order'])) {

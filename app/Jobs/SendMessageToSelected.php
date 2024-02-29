@@ -21,6 +21,12 @@ class SendMessageToSelected implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protectedstring $number
+     * @param protectedarray  $content
+     * @param protectedint    $messageQueueId
+     * @param protectedstring $whatsAppNumber
+     * @param null|protected  $groupId
+     *
      * @return void
      */
     public function __construct(protected string $number, protected array $content, protected int $messageQueueId, protected string $whatsAppNumber, protected $groupId = null)
@@ -47,7 +53,7 @@ class SendMessageToSelected implements ShouldQueue
                 }
             }
 
-            $message_queue = MessageQueue::find($this->messageQueueId);
+            $message_queue       = MessageQueue::find($this->messageQueueId);
             $message_queue->sent = 1;
             $message_queue->save();
         } catch (\Exception $e) {

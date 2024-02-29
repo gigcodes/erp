@@ -246,15 +246,15 @@ final class FieldMetadata
     public function __construct(int $fieldType, int $fieldFlags, object $field)
     {
         $this->isMultipleKey = (bool) ($fieldFlags & MYSQLI_MULTIPLE_KEY_FLAG);
-        $this->isPrimaryKey = (bool) ($fieldFlags & MYSQLI_PRI_KEY_FLAG);
-        $this->isUniqueKey = (bool) ($fieldFlags & MYSQLI_UNIQUE_KEY_FLAG);
-        $this->isNotNull = (bool) ($fieldFlags & MYSQLI_NOT_NULL_FLAG);
-        $this->isUnsigned = (bool) ($fieldFlags & MYSQLI_UNSIGNED_FLAG);
-        $this->isZerofill = (bool) ($fieldFlags & MYSQLI_ZEROFILL_FLAG);
-        $this->isNumeric = (bool) ($fieldFlags & MYSQLI_NUM_FLAG);
-        $this->isBlob = (bool) ($fieldFlags & MYSQLI_BLOB_FLAG);
-        $this->isEnum = (bool) ($fieldFlags & MYSQLI_ENUM_FLAG);
-        $this->isSet = (bool) ($fieldFlags & MYSQLI_SET_FLAG);
+        $this->isPrimaryKey  = (bool) ($fieldFlags & MYSQLI_PRI_KEY_FLAG);
+        $this->isUniqueKey   = (bool) ($fieldFlags & MYSQLI_UNIQUE_KEY_FLAG);
+        $this->isNotNull     = (bool) ($fieldFlags & MYSQLI_NOT_NULL_FLAG);
+        $this->isUnsigned    = (bool) ($fieldFlags & MYSQLI_UNSIGNED_FLAG);
+        $this->isZerofill    = (bool) ($fieldFlags & MYSQLI_ZEROFILL_FLAG);
+        $this->isNumeric     = (bool) ($fieldFlags & MYSQLI_NUM_FLAG);
+        $this->isBlob        = (bool) ($fieldFlags & MYSQLI_BLOB_FLAG);
+        $this->isEnum        = (bool) ($fieldFlags & MYSQLI_ENUM_FLAG);
+        $this->isSet         = (bool) ($fieldFlags & MYSQLI_SET_FLAG);
 
         /*
             MYSQLI_PART_KEY_FLAG => 'part_key',
@@ -264,17 +264,17 @@ final class FieldMetadata
 
         $this->mappedType = $this->getTypeMap()[$fieldType] ?? null;
 
-        $this->isMappedTypeBit = $this->isType(self::TYPE_BIT);
-        $this->isMappedTypeGeometry = $this->isType(self::TYPE_GEOMETRY);
+        $this->isMappedTypeBit       = $this->isType(self::TYPE_BIT);
+        $this->isMappedTypeGeometry  = $this->isType(self::TYPE_GEOMETRY);
         $this->isMappedTypeTimestamp = $this->isType(self::TYPE_TIMESTAMP);
 
-        $this->name = property_exists($field, 'name') ? $field->name : '';
-        $this->orgname = property_exists($field, 'orgname') ? $field->orgname : '';
-        $this->table = property_exists($field, 'table') ? $field->table : '';
-        $this->orgtable = property_exists($field, 'orgtable') ? $field->orgtable : '';
+        $this->name      = property_exists($field, 'name') ? $field->name : '';
+        $this->orgname   = property_exists($field, 'orgname') ? $field->orgname : '';
+        $this->table     = property_exists($field, 'table') ? $field->table : '';
+        $this->orgtable  = property_exists($field, 'orgtable') ? $field->orgtable : '';
         $this->charsetnr = property_exists($field, 'charsetnr') ? $field->charsetnr : -1;
-        $this->decimals = property_exists($field, 'decimals') ? $field->decimals : 0;
-        $this->length = property_exists($field, 'length') ? $field->length : 0;
+        $this->decimals  = property_exists($field, 'decimals') ? $field->decimals : 0;
+        $this->length    = property_exists($field, 'length') ? $field->length : 0;
 
         // 63 is the number for the MySQL charset "binary"
         $this->isBinary = (
@@ -295,40 +295,40 @@ final class FieldMetadata
         }
 
         // Build an associative array for a type look up
-        $typeAr = [];
-        $typeAr[MYSQLI_TYPE_DECIMAL] = self::TYPE_REAL;
-        $typeAr[MYSQLI_TYPE_NEWDECIMAL] = self::TYPE_REAL;
-        $typeAr[MYSQLI_TYPE_BIT] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_TINY] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_SHORT] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_LONG] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_FLOAT] = self::TYPE_REAL;
-        $typeAr[MYSQLI_TYPE_DOUBLE] = self::TYPE_REAL;
-        $typeAr[MYSQLI_TYPE_NULL] = self::TYPE_NULL;
-        $typeAr[MYSQLI_TYPE_TIMESTAMP] = self::TYPE_TIMESTAMP;
-        $typeAr[MYSQLI_TYPE_LONGLONG] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_INT24] = self::TYPE_INT;
-        $typeAr[MYSQLI_TYPE_DATE] = self::TYPE_DATE;
-        $typeAr[MYSQLI_TYPE_TIME] = self::TYPE_TIME;
-        $typeAr[MYSQLI_TYPE_DATETIME] = self::TYPE_DATETIME;
-        $typeAr[MYSQLI_TYPE_YEAR] = self::TYPE_YEAR;
-        $typeAr[MYSQLI_TYPE_NEWDATE] = self::TYPE_DATE;
-        $typeAr[MYSQLI_TYPE_ENUM] = self::TYPE_UNKNOWN;
-        $typeAr[MYSQLI_TYPE_SET] = self::TYPE_UNKNOWN;
-        $typeAr[MYSQLI_TYPE_TINY_BLOB] = self::TYPE_BLOB;
+        $typeAr                          = [];
+        $typeAr[MYSQLI_TYPE_DECIMAL]     = self::TYPE_REAL;
+        $typeAr[MYSQLI_TYPE_NEWDECIMAL]  = self::TYPE_REAL;
+        $typeAr[MYSQLI_TYPE_BIT]         = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_TINY]        = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_SHORT]       = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_LONG]        = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_FLOAT]       = self::TYPE_REAL;
+        $typeAr[MYSQLI_TYPE_DOUBLE]      = self::TYPE_REAL;
+        $typeAr[MYSQLI_TYPE_NULL]        = self::TYPE_NULL;
+        $typeAr[MYSQLI_TYPE_TIMESTAMP]   = self::TYPE_TIMESTAMP;
+        $typeAr[MYSQLI_TYPE_LONGLONG]    = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_INT24]       = self::TYPE_INT;
+        $typeAr[MYSQLI_TYPE_DATE]        = self::TYPE_DATE;
+        $typeAr[MYSQLI_TYPE_TIME]        = self::TYPE_TIME;
+        $typeAr[MYSQLI_TYPE_DATETIME]    = self::TYPE_DATETIME;
+        $typeAr[MYSQLI_TYPE_YEAR]        = self::TYPE_YEAR;
+        $typeAr[MYSQLI_TYPE_NEWDATE]     = self::TYPE_DATE;
+        $typeAr[MYSQLI_TYPE_ENUM]        = self::TYPE_UNKNOWN;
+        $typeAr[MYSQLI_TYPE_SET]         = self::TYPE_UNKNOWN;
+        $typeAr[MYSQLI_TYPE_TINY_BLOB]   = self::TYPE_BLOB;
         $typeAr[MYSQLI_TYPE_MEDIUM_BLOB] = self::TYPE_BLOB;
-        $typeAr[MYSQLI_TYPE_LONG_BLOB] = self::TYPE_BLOB;
-        $typeAr[MYSQLI_TYPE_BLOB] = self::TYPE_BLOB;
-        $typeAr[MYSQLI_TYPE_VAR_STRING] = self::TYPE_STRING;
-        $typeAr[MYSQLI_TYPE_STRING] = self::TYPE_STRING;
+        $typeAr[MYSQLI_TYPE_LONG_BLOB]   = self::TYPE_BLOB;
+        $typeAr[MYSQLI_TYPE_BLOB]        = self::TYPE_BLOB;
+        $typeAr[MYSQLI_TYPE_VAR_STRING]  = self::TYPE_STRING;
+        $typeAr[MYSQLI_TYPE_STRING]      = self::TYPE_STRING;
         // MySQL returns MYSQLI_TYPE_STRING for CHAR
         // and MYSQLI_TYPE_CHAR === MYSQLI_TYPE_TINY
         // so this would override TINYINT and mark all TINYINT as string
         // see https://github.com/phpmyadmin/phpmyadmin/issues/8569
         //$typeAr[MYSQLI_TYPE_CHAR]        = self::TYPE_STRING;
         $typeAr[MYSQLI_TYPE_GEOMETRY] = self::TYPE_GEOMETRY;
-        $typeAr[MYSQLI_TYPE_BIT] = self::TYPE_BIT;
-        $typeAr[MYSQLI_TYPE_JSON] = self::TYPE_JSON;
+        $typeAr[MYSQLI_TYPE_BIT]      = self::TYPE_BIT;
+        $typeAr[MYSQLI_TYPE_JSON]     = self::TYPE_JSON;
 
         return $typeAr;
     }
@@ -425,20 +425,20 @@ final class FieldMetadata
     public function getMappedType(): string
     {
         $types = [
-            self::TYPE_GEOMETRY => 'geometry',
-            self::TYPE_BIT => 'bit',
-            self::TYPE_JSON => 'json',
-            self::TYPE_REAL => 'real',
-            self::TYPE_INT => 'int',
-            self::TYPE_BLOB => 'blob',
-            self::TYPE_UNKNOWN => 'unknown',
-            self::TYPE_NULL => 'null',
-            self::TYPE_STRING => 'string',
-            self::TYPE_DATE => 'date',
-            self::TYPE_TIME => 'time',
+            self::TYPE_GEOMETRY  => 'geometry',
+            self::TYPE_BIT       => 'bit',
+            self::TYPE_JSON      => 'json',
+            self::TYPE_REAL      => 'real',
+            self::TYPE_INT       => 'int',
+            self::TYPE_BLOB      => 'blob',
+            self::TYPE_UNKNOWN   => 'unknown',
+            self::TYPE_NULL      => 'null',
+            self::TYPE_STRING    => 'string',
+            self::TYPE_DATE      => 'date',
+            self::TYPE_TIME      => 'time',
             self::TYPE_TIMESTAMP => 'timestamp',
-            self::TYPE_DATETIME => 'datetime',
-            self::TYPE_YEAR => 'year',
+            self::TYPE_DATETIME  => 'datetime',
+            self::TYPE_YEAR      => 'year',
         ];
 
         return $types[$this->mappedType] ?? '';

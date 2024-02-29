@@ -16,13 +16,13 @@ class ProductsImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            $brand = trim($row['Brand']);
-            $gender = $row['Gender'];
+            $brand       = trim($row['Brand']);
+            $gender      = $row['Gender'];
             $originalSku = explode(' ', $row['Description'])[0];
-            $color = $row['Color'];
-            $category = $gender . ', Sunglass';
+            $color       = $row['Color'];
+            $category    = $gender . ', Sunglass';
             $composition = $row['composition'] . ', ' . $row['composition2'];
-            $unit_price = 0;
+            $unit_price  = 0;
 
             if ($brand == "TOD'S") {
                 $brand = 'TODS';
@@ -50,19 +50,19 @@ class ProductsImport implements ToCollection, WithHeadingRow
             }
 
             echo "$brand->name FOUND.. \n";
-            $scrapedProduct = new ScrapedProducts();
+            $scrapedProduct           = new ScrapedProducts();
             $scrapedProduct->brand_id = $brand->id;
-            $properties = [
-                'category' => $category,
-                'gender' => $gender,
-                'price' => $unit_price,
+            $properties               = [
+                'category'      => $category,
+                'gender'        => $gender,
+                'price'         => $unit_price,
                 'material_used' => $composition,
-                'color' => $color,
+                'color'         => $color,
             ];
-            $sku = str_replace([' ', '-', '/', '\\', '_'], '', $originalSku);
-            $scrapedProduct->sku = $sku;
+            $sku                          = str_replace([' ', '-', '/', '\\', '_'], '', $originalSku);
+            $scrapedProduct->sku          = $sku;
             $scrapedProduct->original_sku = $originalSku;
-            $scrapedProduct->properties = $properties;
+            $scrapedProduct->properties   = $properties;
             $scrapedProduct->save();
         }
     }

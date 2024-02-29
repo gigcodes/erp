@@ -12,10 +12,10 @@ class MagentoLocationController extends Controller
     public function __construct()
     {
         //view files
-        $this->index_view = 'magento_module_location.index';
+        $this->index_view  = 'magento_module_location.index';
         $this->create_view = 'Magento Module location.create';
         $this->detail_view = 'Magento Module location.details';
-        $this->edit_view = 'magento_module_location.edit';
+        $this->edit_view   = 'magento_module_location.edit';
     }
 
     /**
@@ -30,9 +30,9 @@ class MagentoLocationController extends Controller
 
             return datatables()->eloquent($items)->toJson();
         } else {
-            $title = 'Magento Module location';
+            $title            = 'Magento Module location';
             $module_locations = MagentoModuleLocation::pluck('magento_module_locations', 'id');
-            $task_statuses = TaskStatus::pluck('name', 'id');
+            $task_statuses    = TaskStatus::pluck('name', 'id');
 
             return view($this->index_view, compact('title', 'module_categories', 'task_statuses'));
         }
@@ -45,9 +45,9 @@ class MagentoLocationController extends Controller
      */
     public function create()
     {
-        $title = 'Magento Module location';
+        $title             = 'Magento Module location';
         $module_categories = MagentoModuleLocation::pluck('magento_module_locations', 'id');
-        $task_statuses = TaskStatus::pluck('name', 'id');
+        $task_statuses     = TaskStatus::pluck('name', 'id');
 
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses'));
     }
@@ -55,7 +55,8 @@ class MagentoLocationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(MagentoModuleLocationRequest $request)
@@ -66,15 +67,15 @@ class MagentoLocationController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }

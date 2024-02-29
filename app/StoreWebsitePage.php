@@ -11,7 +11,6 @@ class StoreWebsitePage extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="meta_title",type="string")

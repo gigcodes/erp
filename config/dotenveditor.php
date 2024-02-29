@@ -15,8 +15,8 @@ return [
     | Change the paths, so they fit your needs
     |
      */
-    'pathToEnv' => base_path('.env'),
-    'backupPath' => resource_path('backups/dotenv-editor/'),
+    'pathToEnv'       => base_path('.env'),
+    'backupPath'      => resource_path('backups/dotenv-editor/'),
     'filePermissions' => env('FILE_PERMISSIONS', 0755),
 
     /*
@@ -44,9 +44,9 @@ return [
 
     // Config route group
     'route' => [
-        'namespace' => 'Brotzka\DotenvEditor\Http\Controllers',
-        'prefix' => 'env-manager',
-        'as' => 'env-manager',
+        'namespace'  => 'Brotzka\DotenvEditor\Http\Controllers',
+        'prefix'     => 'env-manager',
+        'as'         => 'env-manager',
         'middleware' => ['web', 'auth'],
     ],
     //  'route' => '/enveditor',

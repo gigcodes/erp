@@ -63,10 +63,10 @@ class ReplyController extends Controller
      */
     public function create()
     {
-        $data['reply'] = '';
-        $data['model'] = '';
-        $data['category_id'] = '';
-        $data['modify'] = 0;
+        $data['reply']            = '';
+        $data['model']            = '';
+        $data['category_id']      = '';
+        $data['modify']           = 0;
         $data['reply_categories'] = ReplyCategory::all();
 
         return view('reply.form', $data);
@@ -80,9 +80,9 @@ class ReplyController extends Controller
     public function store(Request $request, Reply $reply)
     {
         $this->validate($request, [
-            'reply' => 'required|string',
+            'reply'       => 'required|string',
             'category_id' => 'required|numeric',
-            'model' => 'required',
+            'model'       => 'required',
         ]);
 
         $data = $request->except('_token', '_method');
@@ -103,8 +103,8 @@ class ReplyController extends Controller
     public function categorySetDefault(Request $request)
     {
         if ($request->has('model') && $request->has('cat_id')) {
-            $model = $request->model;
-            $cat_id = $request->cat_id;
+            $model         = $request->model;
+            $cat_id        = $request->cat_id;
             $ReplyCategory = \App\ReplyCategory::find($cat_id);
             if ($ReplyCategory) {
                 $ReplyCategory->default_for = $model;
@@ -125,7 +125,7 @@ class ReplyController extends Controller
             'name' => 'required|string',
         ]);
 
-        $category = new ReplyCategory;
+        $category       = new ReplyCategory;
         $category->name = $request->name;
         $category->save();
 
@@ -135,12 +135,12 @@ class ReplyController extends Controller
     public function subcategoryStore(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string',
+            'name'      => 'required|string',
             'parent_id' => 'required',
         ]);
 
-        $category = new ReplyCategory;
-        $category->name = $request->name;
+        $category            = new ReplyCategory;
+        $category->name      = $request->name;
         $category->parent_id = $request->parent_id;
         $category->save();
 
@@ -150,7 +150,8 @@ class ReplyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -161,13 +162,14 @@ class ReplyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Reply $reply)
     {
-        $data = $reply->toArray();
-        $data['modify'] = 1;
+        $data                     = $reply->toArray();
+        $data['modify']           = 1;
         $data['reply_categories'] = ReplyCategory::all();
 
         return view('reply.form', $data);
@@ -175,14 +177,14 @@ class ReplyController extends Controller
 
     public function editReply(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id         = $request->get('id', 0);
         $ReplyNotes = \App\Reply::where('id', $id)->first();
         if ($ReplyNotes) {
             $reply_categories = ReplyCategory::where('parent_id', 0)->get();
 
             $reply_sub_categories = ReplyCategory::where('parent_id', $request->c_id)->get();
 
-            $category_id = $request->c_id;
+            $category_id     = $request->c_id;
             $sub_category_id = $request->sc_id;
 
             return view('reply.edit', compact('ReplyNotes', 'reply_categories', 'category_id', 'sub_category_id', 'reply_sub_categories'));
@@ -201,7 +203,8 @@ class ReplyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Reply $reply)
@@ -224,7 +227,8 @@ class ReplyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Reply $reply, Request $request)
@@ -254,8 +258,8 @@ class ReplyController extends Controller
             return redirect()->back()->with('success', 'Remove Permission successfully');
         } else {
             $checkExists = QuickRepliesPermissions::where('user_id', $request->id)->get();
-            $edit_lang = [];
-            $view_lang = [];
+            $edit_lang   = [];
+            $view_lang   = [];
             foreach ($checkExists as $checkExist) {
                 if ($checkExist->action == 'edit') {
                     $edit_lang[] = $checkExist->lang_id;
@@ -268,7 +272,7 @@ class ReplyController extends Controller
             $data = [
                 'edit_lang' => $edit_lang,
                 'view_lang' => $view_lang,
-                'status' => '200',
+                'status'    => '200',
             ];
 
             return $data;
@@ -278,13 +282,13 @@ class ReplyController extends Controller
     public function chatBotQuestion(Request $request)
     {
         $this->validate($request, [
-            'intent_name' => 'required',
+            'intent_name'  => 'required',
             'intent_reply' => 'required',
-            'question' => 'required',
+            'question'     => 'required',
         ]);
 
         $ChatbotQuestion = null;
-        $example = ChatbotQuestionExample::where('question', $request->question)->first();
+        $example         = ChatbotQuestionExample::where('question', $request->question)->first();
         if ($example) {
             return response()->json(['message' => 'User intent is already available']);
         }
@@ -298,16 +302,16 @@ class ReplyController extends Controller
                 ]);
             }
         }
-        $ChatbotQuestion->suggested_reply = $request->intent_reply;
-        $ChatbotQuestion->category_id = $request->intent_category_id;
+        $ChatbotQuestion->suggested_reply     = $request->intent_reply;
+        $ChatbotQuestion->category_id         = $request->intent_category_id;
         $ChatbotQuestion->keyword_or_question = 'intent';
-        $ChatbotQuestion->is_active = 1;
-        $ChatbotQuestion->erp_or_watson = 'erp';
-        $ChatbotQuestion->auto_approve = 1;
+        $ChatbotQuestion->is_active           = 1;
+        $ChatbotQuestion->erp_or_watson       = 'erp';
+        $ChatbotQuestion->auto_approve        = 1;
         $ChatbotQuestion->save();
 
-        $ex = new ChatbotQuestionExample;
-        $ex->question = $request->question;
+        $ex                      = new ChatbotQuestionExample;
+        $ex->question            = $request->question;
         $ex->chatbot_question_id = $ChatbotQuestion->id;
         $ex->save();
 
@@ -318,8 +322,8 @@ class ReplyController extends Controller
         foreach ($wotson_account_website_ids as $id_) {
             $data_to_insert[] = [
                 'chatbot_question_id' => $ChatbotQuestion->id,
-                'store_website_id' => $id_,
-                'suggested_reply' => $request->intent_reply,
+                'store_website_id'    => $id_,
+                'suggested_reply'     => $request->intent_reply,
             ];
         }
 
@@ -331,17 +335,17 @@ class ReplyController extends Controller
 
     public function replyList(Request $request)
     {
-        $storeWebsite = $request->get('store_website_id');
-        $keyword = $request->get('keyword');
-        $parent_category = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
-        $category_ids = $request->get('category_ids') ? $request->get('category_ids') : [];
+        $storeWebsite     = $request->get('store_website_id');
+        $keyword          = $request->get('keyword');
+        $parent_category  = $request->get('parent_category_ids') ? $request->get('parent_category_ids') : [];
+        $category_ids     = $request->get('category_ids') ? $request->get('category_ids') : [];
         $sub_category_ids = $request->get('sub_category_ids') ? $request->get('sub_category_ids') : [];
 
         $categoryChildNode = [];
         if ($parent_category) {
             $parentNode = ReplyCategory::select(\DB::raw('group_concat(id) as ids'))->whereIn('id', $parent_category)->where('parent_id', '=', 0)->first();
             if ($parentNode) {
-                $subCatChild = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
+                $subCatChild       = ReplyCategory::whereIn('parent_id', explode(',', $parentNode->ids))->get()->pluck('id')->toArray();
                 $categoryChildNode = ReplyCategory::whereIn('parent_id', $subCatChild)->get()->pluck('id')->toArray();
             }
         }
@@ -386,15 +390,15 @@ class ReplyController extends Controller
 
         $replies = $replies->paginate(25);
         foreach ($replies as $key => $value) {
-            $subCat = explode('>', $value->parentList());
-            $replies[$key]['parent_first'] = isset($subCat[0]) ? $subCat[0] : '';
+            $subCat                          = explode('>', $value->parentList());
+            $replies[$key]['parent_first']   = isset($subCat[0]) ? $subCat[0] : '';
             $replies[$key]['parent_secound'] = isset($subCat[1]) ? $subCat[1] : '';
         }
 
         $parentCategory = $allSubCategory = [];
         $parentCategory = ReplyCategory::where('parent_id', 0)->get();
         $allSubCategory = ReplyCategory::where('parent_id', '!=', 0)->get();
-        $category = $subCategory = [];
+        $category       = $subCategory = [];
         foreach ($allSubCategory as $key => $value) {
             $categoryList = ReplyCategory::where('id', $value->parent_id)->first();
             if ($categoryList->parent_id == 0) {
@@ -409,7 +413,7 @@ class ReplyController extends Controller
 
     public function replyListDelete(Request $request)
     {
-        $id = $request->get('id');
+        $id     = $request->get('id');
         $record = \App\ReplyCategory::find($id);
 
         if ($record) {
@@ -427,29 +431,29 @@ class ReplyController extends Controller
 
     public function replyUpdate(Request $request)
     {
-        $id = $request->get('id');
+        $id    = $request->get('id');
         $reply = \App\Reply::find($id);
 
-        $replies = Reply::where('id', $id)->first();
-        $ReplyUpdateHistory = new ReplyUpdateHistory;
+        $replies                          = Reply::where('id', $id)->first();
+        $ReplyUpdateHistory               = new ReplyUpdateHistory;
         $ReplyUpdateHistory->last_message = $replies->reply;
-        $ReplyUpdateHistory->reply_id = $replies->id;
-        $ReplyUpdateHistory->user_id = Auth::id();
+        $ReplyUpdateHistory->reply_id     = $replies->id;
+        $ReplyUpdateHistory->user_id      = Auth::id();
         $ReplyUpdateHistory->save();
 
         if ($reply) {
-            $reply->reply = $request->reply;
+            $reply->reply            = $request->reply;
             $reply->pushed_to_watson = 0;
             $reply->save();
 
             $replyCategory = \App\ReplyCategory::find($reply->category_id);
 
             $replyCategories = $replyCategory->parentList();
-            $cats = explode('>', str_replace(' ', '', $replyCategories));
+            $cats            = explode('>', str_replace(' ', '', $replyCategories));
             if (isset($cats[0]) and $cats[0] == 'FAQ') {
                 $faqCat = \App\ReplyCategory::where('name', 'FAQ')->pluck('id')->first();
                 if ($faqCat != null) {
-                    $faqToPush = '<div class="cls_shipping_panelmain">';
+                    $faqToPush  = '<div class="cls_shipping_panelmain">';
                     $topParents = \App\ReplyCategory::where('parent_id', $faqCat)->get();
                     foreach ($topParents as $topParent) {
                         $faqToPush .= '<div class="cls_shipping_panelsub">
@@ -484,7 +488,7 @@ class ReplyController extends Controller
 
     public function getReplyedHistory(Request $request)
     {
-        $id = $request->id;
+        $id              = $request->id;
         $reply_histories = DB::select(DB::raw('SELECT reply_update_histories.id,reply_update_histories.reply_id,reply_update_histories.user_id,reply_update_histories.last_message,reply_update_histories.created_at,users.name FROM `reply_update_histories` JOIN `users` ON users.id = reply_update_histories.user_id where reply_update_histories.reply_id = ' . $id));
 
         return response()->json(['histories' => $reply_histories]);
@@ -492,7 +496,7 @@ class ReplyController extends Controller
 
     public function replyTranslate(Request $request)
     {
-        $id = $request->reply_id;
+        $id                 = $request->reply_id;
         $is_flagged_request = $request->is_flagged;
 
         if ($is_flagged_request == '1') {
@@ -514,7 +518,7 @@ class ReplyController extends Controller
 
             return response()->json(['code' => 400, 'data' => [], 'message' => 'There is a problem while translating']);
         } else {
-            $res_rec = \App\Reply::find($id);
+            $res_rec             = \App\Reply::find($id);
             $res_rec->is_flagged = 0;
             $res_rec->save();
 
@@ -525,13 +529,13 @@ class ReplyController extends Controller
     public function replyTranslateList(Request $request)
     {
         $storeWebsite = $request->get('store_website_id');
-        $language = $request->get('lang');
-        $keyword = $request->get('keyword');
-        $status = $request->get('status');
+        $language     = $request->get('lang');
+        $keyword      = $request->get('keyword');
+        $status       = $request->get('status');
 
-        $lang = [];
-        $original_text = [];
-        $ids = [];
+        $lang           = [];
+        $original_text  = [];
+        $ids            = [];
         $translate_text = [];
 
         $StatusResults = \App\TranslateReplies::select('translate_to', 'status', DB::raw('COUNT(*) as count'))->groupBy('translate_to', 'status')->orderby('translate_to', 'ASC')->get();
@@ -590,25 +594,25 @@ class ReplyController extends Controller
                 if (! in_array($replie->replies_id, $ids)) {
                     $ids[] = $replie->replies_id;
 
-                    $translate_text[$replie->replies_id]['id'] = $replie->id;
-                    $translate_text[$replie->replies_id]['website'] = $replie->website;
-                    $translate_text[$replie->replies_id]['category_name'] = $replie->category_name;
+                    $translate_text[$replie->replies_id]['id']             = $replie->id;
+                    $translate_text[$replie->replies_id]['website']        = $replie->website;
+                    $translate_text[$replie->replies_id]['category_name']  = $replie->category_name;
                     $translate_text[$replie->replies_id]['translate_from'] = $replie->translate_from;
-                    $translate_text[$replie->replies_id]['original_text'] = $replie->original_text;
+                    $translate_text[$replie->replies_id]['original_text']  = $replie->original_text;
 
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text']         = $replie->translate_text;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang']         = $replie->translate_to;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id']           = $replie->id;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status']       = $replie->status;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
 
                     $translate_text[$replie->replies_id]['created_at'] = $replie->created_at;
                     $translate_text[$replie->replies_id]['updated_at'] = $replie->updated_at;
                 } else {
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
-                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text']         = $replie->translate_text;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang']         = $replie->translate_to;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id']           = $replie->id;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status']       = $replie->status;
                     $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
                 }
 
@@ -619,8 +623,8 @@ class ReplyController extends Controller
         }
 
         $itemsPerPage = 25; // Define the number of items per page
-        $currentPage = $request->input('page', 1);
-        $offset = ($currentPage - 1) * $itemsPerPage;
+        $currentPage  = $request->input('page', 1);
+        $offset       = ($currentPage - 1) * $itemsPerPage;
 
         // Paginate the JSON-encoded data manually
         $totalItems = count($translate_text);
@@ -642,7 +646,7 @@ class ReplyController extends Controller
     public function quickRepliesPermissions(Request $request)
     {
         if ($request->ajax()) {
-            $data = $request->only('user_id', 'lang_id', 'action');
+            $data        = $request->only('user_id', 'lang_id', 'action');
             $checkExists = QuickRepliesPermissions::where('user_id', $data['user_id'])->where('lang_id', $data['lang_id'])->where('action', $data['action'])->first();
 
             if ($checkExists) {
@@ -658,21 +662,21 @@ class ReplyController extends Controller
 
     public function replyTranslateUpdate(Request $request)
     {
-        $record = TranslateReplies::find($request->record_id);
+        $record    = TranslateReplies::find($request->record_id);
         $oldRecord = $request->lang_id;
         if ($record) {
             $record->updated_by_user_id = ! empty($request->update_by_user_id) ? $request->update_by_user_id : '';
-            $record->translate_text = ! empty($request->update_record) ? $request->update_record : '';
-            $record->status = 'new';
+            $record->translate_text     = ! empty($request->update_record) ? $request->update_record : '';
+            $record->status             = 'new';
             $record->update();
 
-            $historyData = [];
+            $historyData                         = [];
             $historyData['translate_replies_id'] = $record->id;
-            $historyData['updated_by_user_id'] = $record->updated_by_user_id;
-            $historyData['translate_text'] = $request->update_record;
-            $historyData['status'] = 'new';
-            $historyData['lang'] = $oldRecord;
-            $historyData['created_at'] = \Carbon\Carbon::now();
+            $historyData['updated_by_user_id']   = $record->updated_by_user_id;
+            $historyData['translate_text']       = $request->update_record;
+            $historyData['status']               = 'new';
+            $historyData['lang']                 = $oldRecord;
+            $historyData['created_at']           = \Carbon\Carbon::now();
             RepliesTranslatorHistory::insert($historyData);
 
             return redirect()->back()->with(['success' => 'Successfully Updated']);
@@ -683,19 +687,19 @@ class ReplyController extends Controller
 
     public function replyTranslatehistory(Request $request)
     {
-        $key = $request->key;
+        $key      = $request->key;
         $language = $request->language;
         if ($request->type == 'all_view') {
             $history = RepliesTranslatorHistory::whereRaw('status is not null')->get();
         } else {
             $history = RepliesTranslatorHistory::where([
                 'translate_replies_id' => $request->id,
-                'lang' => $language,
+                'lang'                 => $language,
             ])->whereRaw('status is not null')->get();
         }
         if (count($history) > 0) {
             foreach ($history as $key => $historyData) {
-                $history[$key]['updater'] = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
+                $history[$key]['updater']  = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
                 $history[$key]['approver'] = User::where('id', $historyData['approved_by_user_id'])->pluck('name')->first();
             }
         }
@@ -729,13 +733,13 @@ class ReplyController extends Controller
 
     public function approvedByAdmin(Request $request)
     {
-        $record = TranslateReplies::where('id', $request->id)->first();
-        $record['status'] = $request->status;
+        $record                        = TranslateReplies::where('id', $request->id)->first();
+        $record['status']              = $request->status;
         $record['approved_by_user_id'] = \Auth::user()->id;
         $record->update();
 
-        $record_history = RepliesTranslatorHistory::where('translate_replies_id', $request->id)->where('lang', $request->lang)->orderBy('id', 'desc')->first();
-        $record_history['status'] = $request->status;
+        $record_history                        = RepliesTranslatorHistory::where('translate_replies_id', $request->id)->where('lang', $request->lang)->orderBy('id', 'desc')->first();
+        $record_history['status']              = $request->status;
         $record_history['approved_by_user_id'] = \Auth::user()->id;
         $record_history->update();
 
@@ -746,7 +750,7 @@ class ReplyController extends Controller
     {
         $data = $request->all();
 
-        $data = $ReplyLog->where('reply_id', $data['id'])->orderby('created_at', 'desc')->paginate(20);
+        $data         = $ReplyLog->where('reply_id', $data['id'])->orderby('created_at', 'desc')->paginate(20);
         $paginateHtml = $data->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Logs found']);
@@ -781,9 +785,9 @@ class ReplyController extends Controller
     public function statusColor(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $cronStatus = ReplyTranslatorStatus::find($key);
+            $cronStatus        = ReplyTranslatorStatus::find($key);
             $cronStatus->color = $value;
             $cronStatus->save();
         }

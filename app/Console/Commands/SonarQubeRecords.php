@@ -42,7 +42,7 @@ class SonarQubeRecords extends Command
     {
         try {
             Log::info('Start Sonar Qube');
-            $url = env('SONARQUBE_URL') . 'api/issues/search';
+            $url         = env('SONARQUBE_URL') . 'api/issues/search';
             $queryParams = [];
 
             $username = env('SONARQUBE_USERNAME');
@@ -60,14 +60,14 @@ class SonarQubeRecords extends Command
 
                 if ($total > 0) {
                     $pageSize = 100;
-                    $counter = 1;
+                    $counter  = 1;
 
                     while ($counter <= ceil($total / $pageSize)) {
                         Log::info($counter);
 
                         $queryParams = [
                             'ps' => $pageSize,
-                            'p' => $counter,
+                            'p'  => $counter,
                         ];
 
                         $responseDatasub = Http::withBasicAuth($username, $password)
@@ -80,29 +80,29 @@ class SonarQubeRecords extends Command
                                 Log::info($value['key']);
 
                                 $input = [
-                                    'key' => isset($value['key']) && ! empty($value['key']) ? $value['key'] : '',
-                                    'rule' => isset($value['rule']) && ! empty($value['rule']) ? $value['rule'] : '',
-                                    'severity' => isset($value['severity']) && ! empty($value['severity']) ? $value['severity'] : '',
-                                    'component' => isset($value['component']) && ! empty($value['component']) ? $value['component'] : '',
-                                    'project' => isset($value['project']) && ! empty($value['project']) ? $value['project'] : '',
-                                    'hash' => isset($value['hash']) && ! empty($value['hash']) ? $value['hash'] : '',
-                                    'resolution' => isset($value['resolution']) && ! empty($value['resolution']) ? $value['resolution'] : '',
-                                    'status' => isset($value['status']) && ! empty($value['status']) ? $value['status'] : '',
-                                    'message' => isset($value['message']) && ! empty($value['message']) ? $value['message'] : '',
-                                    'effort' => isset($value['effort']) && ! empty($value['effort']) ? $value['effort'] : '',
-                                    'debt' => isset($value['debt']) && ! empty($value['debt']) ? $value['debt'] : '',
-                                    'author' => isset($value['author']) && ! empty($value['author']) ? $value['author'] : '',
-                                    'creationDate' => isset($value['creationDate']) && ! empty($value['creationDate']) ? $value['creationDate'] : '',
-                                    'updateDate' => isset($value['updateDate']) && ! empty($value['updateDate']) ? $value['updateDate'] : '',
-                                    'closeDate' => isset($value['closeDate']) && ! empty($value['closeDate']) ? $value['closeDate'] : '',
-                                    'type' => isset($value['type']) && ! empty($value['type']) ? $value['type'] : '',
-                                    'scope' => isset($value['scope']) && ! empty($value['scope']) ? $value['scope'] : '',
-                                    'quickFixAvailable' => isset($value['quickFixAvailable']) && ! empty($value['quickFixAvailable']) ? $value['quickFixAvailable'] : '',
-                                    'textRange' => isset($value['textRange']) && ! empty($value['textRange']) ? json_encode($value['textRange']) : '',
-                                    'flows' => isset($value['flows']) && ! empty($value['flows']) ? json_encode($value['flows']) : '',
-                                    'tags' => isset($value['tags']) && ! empty($value['tags']) ? json_encode($value['tags']) : '',
+                                    'key'                => isset($value['key']) && ! empty($value['key']) ? $value['key'] : '',
+                                    'rule'               => isset($value['rule']) && ! empty($value['rule']) ? $value['rule'] : '',
+                                    'severity'           => isset($value['severity']) && ! empty($value['severity']) ? $value['severity'] : '',
+                                    'component'          => isset($value['component']) && ! empty($value['component']) ? $value['component'] : '',
+                                    'project'            => isset($value['project']) && ! empty($value['project']) ? $value['project'] : '',
+                                    'hash'               => isset($value['hash']) && ! empty($value['hash']) ? $value['hash'] : '',
+                                    'resolution'         => isset($value['resolution']) && ! empty($value['resolution']) ? $value['resolution'] : '',
+                                    'status'             => isset($value['status']) && ! empty($value['status']) ? $value['status'] : '',
+                                    'message'            => isset($value['message']) && ! empty($value['message']) ? $value['message'] : '',
+                                    'effort'             => isset($value['effort']) && ! empty($value['effort']) ? $value['effort'] : '',
+                                    'debt'               => isset($value['debt']) && ! empty($value['debt']) ? $value['debt'] : '',
+                                    'author'             => isset($value['author']) && ! empty($value['author']) ? $value['author'] : '',
+                                    'creationDate'       => isset($value['creationDate']) && ! empty($value['creationDate']) ? $value['creationDate'] : '',
+                                    'updateDate'         => isset($value['updateDate']) && ! empty($value['updateDate']) ? $value['updateDate'] : '',
+                                    'closeDate'          => isset($value['closeDate']) && ! empty($value['closeDate']) ? $value['closeDate'] : '',
+                                    'type'               => isset($value['type']) && ! empty($value['type']) ? $value['type'] : '',
+                                    'scope'              => isset($value['scope']) && ! empty($value['scope']) ? $value['scope'] : '',
+                                    'quickFixAvailable'  => isset($value['quickFixAvailable']) && ! empty($value['quickFixAvailable']) ? $value['quickFixAvailable'] : '',
+                                    'textRange'          => isset($value['textRange']) && ! empty($value['textRange']) ? json_encode($value['textRange']) : '',
+                                    'flows'              => isset($value['flows']) && ! empty($value['flows']) ? json_encode($value['flows']) : '',
+                                    'tags'               => isset($value['tags']) && ! empty($value['tags']) ? json_encode($value['tags']) : '',
                                     'messageFormattings' => isset($value['messageFormattings']) && ! empty($value['messageFormattings']) ? json_encode($value['messageFormattings']) : '',
-                                    'codeVariants' => isset($value['codeVariants']) && ! empty($value['codeVariants']) ? json_encode($value['codeVariants']) : '',
+                                    'codeVariants'       => isset($value['codeVariants']) && ! empty($value['codeVariants']) ? json_encode($value['codeVariants']) : '',
                                 ];
 
                                 $SonarQubeRecords = SonarQube::where('key', $value['key'])->first();

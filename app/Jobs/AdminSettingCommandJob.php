@@ -24,15 +24,18 @@ class AdminSettingCommandJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  null  $category
-     * @param  null  $log
-     * @param  null  $mode
+     * @param null  $category
+     * @param null  $log
+     * @param null  $mode
+     * @param mixed $selectedCheckboxes
+     * @param mixed $path
+     * @param mixed $value
      */
     public function __construct($selectedCheckboxes, $path, $value)
     {
         $this->_selectedCheckboxes = $selectedCheckboxes;
-        $this->_path = $path;
-        $this->_value = $value;
+        $this->_path               = $path;
+        $this->_value              = $value;
     }
 
     /**
@@ -52,7 +55,7 @@ class AdminSettingCommandJob implements ShouldQueue
 
             if (! empty($storeWebsiteData)) {
                 $requestData['server'] = $storeWebsiteData->server_ip;
-                $requestData['dir'] = $storeWebsiteData->working_directory;
+                $requestData['dir']    = $storeWebsiteData->working_directory;
             }
 
             if (! empty($requestData['command']) && ! empty($requestData['server']) && ! empty($requestData['dir'])) {

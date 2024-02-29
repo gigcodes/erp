@@ -11,7 +11,6 @@ class InventoryStatusHistory extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="in_stock",type="boolean")
      * @SWG\Property(property="product_id",type="integer")
@@ -46,7 +45,7 @@ class InventoryStatusHistory extends Model
     public function totalBrandsLink($date, $brandID = 0)
     {
         $supplier = $this->supplier;
-        $scps = [];
+        $scps     = [];
         if ($supplier) {
             $scrapers = $this->scrapers;
             if (! $scrapers->isEmpty()) {

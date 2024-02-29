@@ -27,14 +27,14 @@ class MonetaryAccountController extends Controller
     public function index(MonetaryAccount $monetary_account, Request $request)
     {
         $this->data['accounts'] = $monetary_account;
-        $order_by = 'DESC';
+        $order_by               = 'DESC';
         if ($request->orderby == '') {
             $order_by = 'ASC';
         }
 
-        $this->data['orderby'] = $order_by;
-        $this->data['accounts'] = $this->data['accounts']->paginate(50);
-        $this->data['currencies'] = Helpers::currencies();
+        $this->data['orderby']       = $order_by;
+        $this->data['accounts']      = $this->data['accounts']->paginate(50);
+        $this->data['currencies']    = Helpers::currencies();
         $this->data['account_types'] = ['cash' => 'Cash', 'bank' => 'Bank'];
 
         return view('monetary-account.index', $this->data);
@@ -58,21 +58,21 @@ class MonetaryAccountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name'     => 'required',
             'currency' => 'required',
-            'date' => 'required|date',
-            'amount' => 'required|numeric',
+            'date'     => 'required|date',
+            'amount'   => 'required|numeric',
         ]);
         $account = MonetaryAccount::create([
-            'name' => $request->get('name'),
-            'date' => $request->get('date'),
-            'currency' => $request->get('currency'),
-            'amount' => $request->get('amount'),
-            'type' => $request->get('type'),
-            'short_note' => $request->get('short_note'),
+            'name'        => $request->get('name'),
+            'date'        => $request->get('date'),
+            'currency'    => $request->get('currency'),
+            'amount'      => $request->get('amount'),
+            'type'        => $request->get('type'),
+            'short_note'  => $request->get('short_note'),
             'description' => $request->get('description'),
-            'created_by' => $request->user()->id,
-            'updated_by' => $request->user()->id,
+            'created_by'  => $request->user()->id,
+            'updated_by'  => $request->user()->id,
         ]);
 
         return redirect()->back()->withSuccess('Monetary Capital Successfully stored.');
@@ -81,7 +81,8 @@ class MonetaryAccountController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -92,7 +93,8 @@ class MonetaryAccountController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -103,27 +105,28 @@ class MonetaryAccountController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, MonetaryAccount $monetary_account)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name'     => 'required',
             'currency' => 'required',
-            'date' => 'required|date',
-            'amount' => 'required|numeric',
+            'date'     => 'required|date',
+            'amount'   => 'required|numeric',
         ]);
         $monetary_account->fill([
-            'name' => $request->get('name'),
-            'date' => $request->get('date'),
-            'currency' => $request->get('currency'),
-            'amount' => $request->get('amount'),
-            'type' => $request->get('type'),
-            'short_note' => $request->get('short_note'),
+            'name'        => $request->get('name'),
+            'date'        => $request->get('date'),
+            'currency'    => $request->get('currency'),
+            'amount'      => $request->get('amount'),
+            'type'        => $request->get('type'),
+            'short_note'  => $request->get('short_note'),
             'description' => $request->get('description'),
-            'created_by' => $request->user()->id,
-            'updated_by' => $request->user()->id,
+            'created_by'  => $request->user()->id,
+            'updated_by'  => $request->user()->id,
         ])->save();
 
         return redirect()->back()->withSuccess('Monetary Capital Successfully updated.');
@@ -132,7 +135,8 @@ class MonetaryAccountController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(MonetaryAccount $monetary_account)
@@ -150,15 +154,15 @@ class MonetaryAccountController extends Controller
     {
         $account = \App\MonetaryAccount::find($id);
         if ($account) {
-            $daterange = $request->daterange;
+            $daterange  = $request->daterange;
             $pricerange = $request->pricerange;
-            $search = $request->search;
-            $history = \App\MonetaryAccountHistory::where('monetary_account_id', $id);
-            $where = " monetary_account_id = $id ";
+            $search     = $request->search;
+            $history    = \App\MonetaryAccountHistory::where('monetary_account_id', $id);
+            $where      = " monetary_account_id = $id ";
             if ($daterange != '') {
-                $date = explode('-', $daterange);
+                $date     = explode('-', $daterange);
                 $datefrom = date('Y-m-d', strtotime($date[0]));
-                $dateto = date('Y-m-d', strtotime($date[1]));
+                $dateto   = date('Y-m-d', strtotime($date[1]));
                 $history->whereRaw("date(created_at) between date('$datefrom') and date('$dateto')");
             }
             if ($pricerange != '') {

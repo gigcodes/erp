@@ -30,14 +30,14 @@ class Index
     {
         if (! isset($_SESSION['messages']) || ! is_array($_SESSION['messages'])) {
             $_SESSION['messages'] = [
-                'error' => [],
+                'error'  => [],
                 'notice' => [],
             ];
         } else {
             // reset message states
             foreach ($_SESSION['messages'] as &$messages) {
                 foreach ($messages as &$msg) {
-                    $msg['fresh'] = false;
+                    $msg['fresh']  = false;
                     $msg['active'] = false;
                 }
             }
@@ -47,18 +47,18 @@ class Index
     /**
      * Adds a new message to message list
      *
-     * @param  string  $type    one of: notice, error
-     * @param  string  $msgId   unique message identifier
-     * @param  string  $title   language string id (in $str array)
-     * @param  string  $message message text
+     * @param string $type    one of: notice, error
+     * @param string $msgId   unique message identifier
+     * @param string $title   language string id (in $str array)
+     * @param string $message message text
      */
     public static function messagesSet($type, $msgId, $title, $message): void
     {
-        $fresh = ! isset($_SESSION['messages'][$type][$msgId]);
+        $fresh                               = ! isset($_SESSION['messages'][$type][$msgId]);
         $_SESSION['messages'][$type][$msgId] = [
-            'fresh' => $fresh,
-            'active' => true,
-            'title' => $title,
+            'fresh'   => $fresh,
+            'active'  => true,
+            'title'   => $title,
             'message' => $message,
         ];
     }
@@ -95,10 +95,10 @@ class Index
         foreach ($_SESSION['messages'] as $type => $messages) {
             foreach ($messages as $id => $msg) {
                 $return[] = [
-                    'id' => $id,
-                    'title' => $msg['title'],
-                    'type' => $type,
-                    'message' => $msg['message'],
+                    'id'        => $id,
+                    'title'     => $msg['title'],
+                    'type'      => $type,
+                    'message'   => $msg['message'],
                     'is_hidden' => ! $msg['fresh'] && $type !== 'error',
                 ];
             }
@@ -118,7 +118,7 @@ class Index
 
         // Fetch data
         $versionInformation = new VersionInformation();
-        $version_data = $versionInformation->getLatestVersion();
+        $version_data       = $versionInformation->getLatestVersion();
 
         if (empty($version_data)) {
             self::messagesSet(
@@ -133,14 +133,14 @@ class Index
             return;
         }
 
-        $releases = $version_data->releases;
+        $releases         = $version_data->releases;
         $latestCompatible = $versionInformation->getLatestCompatibleVersion($releases);
         if ($latestCompatible == null) {
             return;
         }
 
         $version = $latestCompatible['version'];
-        $date = $latestCompatible['date'];
+        $date    = $latestCompatible['date'];
 
         $version_upstream = $versionInformation->versionToInt($version);
         if ($version_upstream === false) {
@@ -168,7 +168,7 @@ class Index
 
         if ($version_upstream > $version_local) {
             $version = htmlspecialchars($version);
-            $date = htmlspecialchars($date);
+            $date    = htmlspecialchars($date);
             self::messagesSet(
                 'notice',
                 $message_id,

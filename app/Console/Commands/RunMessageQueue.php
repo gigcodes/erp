@@ -55,11 +55,11 @@ class RunMessageQueue extends Command
         return; // STOP ALL
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $time = Carbon::now();
+            $time    = Carbon::now();
             $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);
             $evening = Carbon::create($time->year, $time->month, $time->day, 17, 00, 0);
 
@@ -67,11 +67,11 @@ class RunMessageQueue extends Command
                 // Get groups
                 $groups = DB::table('message_queues')->groupBy('group_id')->select('group_id')->get(['group_id']);
 
-                $allWhatsappNo = config('apiwha.instances');
+                $allWhatsappNo         = config('apiwha.instances');
                 $this->waitingMessages = [];
                 if (! empty($allWhatsappNo)) {
                     foreach ($allWhatsappNo as $no => $dataInstance) {
-                        $waitingMessage = $this->waitingLimit($no);
+                        $waitingMessage             = $this->waitingLimit($no);
                         $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
@@ -93,7 +93,7 @@ class RunMessageQueue extends Command
 
                             if ($message->type == 'message_all') {
                                 $customer = Customer::find($message->customer_id);
-                                $number = ! empty($customer->whatsapp_number) ? (string) $customer->whatsapp_number : 0;
+                                $number   = ! empty($customer->whatsapp_number) ? (string) $customer->whatsapp_number : 0;
 
                                 // No number? Set to default
                                 if ($number == 0 || ! array_key_exists($number, $allWhatsappNo)) {
@@ -162,6 +162,8 @@ class RunMessageQueue extends Command
 
     /**
      * Check waiting is full for given number
+     *
+     * @param mixed $number
      */
     private function isWaitingFull($number)
     {
@@ -176,6 +178,8 @@ class RunMessageQueue extends Command
 
     /**
      * Get instance from whatsapp number
+     *
+     * @param null|mixed $number
      */
     private function getInstance($number = null)
     {
@@ -188,29 +192,31 @@ class RunMessageQueue extends Command
 
     /**
      * send request for find waiting message number
+     *
+     * @param null|mixed $number
      */
     private function waitingLimit($number = null)
     {
-        $instance = $this->getInstance($number);
+        $instance   = $this->getInstance($number);
         $instanceId = isset($instance['instance_id']) ? $instance['instance_id'] : 0;
-        $token = isset($instance['token']) ? $instance['token'] : 0;
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $token      = isset($instance['token']) ? $instance['token'] : 0;
+        $startTime  = date('Y-m-d H:i:s', LARAVEL_START);
 
         $waiting = 0;
 
         if (! empty($instanceId) && ! empty($token)) {
             // executing curl
             $curl = curl_init();
-            $url = "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
+            $url  = "https://api.chat-api.com/instance$instanceId/showMessagesQueue?token=$token";
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
+                CURLOPT_URL            => $url,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 300,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_HTTPHEADER => [
+                CURLOPT_ENCODING       => '',
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 300,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_HTTPHEADER     => [
                     'content-type: application/json',
                 ],
             ]);

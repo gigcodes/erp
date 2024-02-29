@@ -54,7 +54,8 @@ class HorizonClear extends Command
     /**
      * Get the queue name to clear.
      *
-     * @param  string  $connection
+     * @param string $connection
+     *
      * @return string
      */
     protected function getQueue($connection)

@@ -12,8 +12,8 @@ if (count($args) < 2) {
     errorOut("Please provide a language code as the first argument and a translation file name, or '--all', as the second (./format.php fr activities)");
 }
 
-$lang = formatLocale($args[0]);
-$fileName = explode('.', $args[1])[0];
+$lang      = formatLocale($args[0]);
+$fileName  = explode('.', $args[1])[0];
 $fileNames = [$fileName];
 if ($fileName === '--all') {
     $fileNames = getTranslationFileNames();
@@ -29,16 +29,16 @@ foreach ($fileNames as $fileName) {
  */
 function formatFileContents(string $lang, string $fileName): string
 {
-    $enLines = loadLangFileLines('en', $fileName);
+    $enLines     = loadLangFileLines('en', $fileName);
     $langContent = loadLang($lang, $fileName);
-    $enContent = loadLang('en', $fileName);
+    $enContent   = loadLang('en', $fileName);
 
     // Calculate the longest top-level key length
     $longestKeyLength = calculateKeyPadding($enContent);
 
     // Start formatted content
     $formatted = [];
-    $mode = 'header';
+    $mode      = 'header';
     $skipArray = false;
     $arrayKeys = [];
 
@@ -52,7 +52,7 @@ function formatFileContents(string $lang, string $fileName): string
         }
 
         if ($mode === 'body') {
-            $matches = [];
+            $matches       = [];
             $arrayEndMatch = preg_match('/]\s*,\s*$/', $trimLine);
 
             if ($skipArray) {
@@ -87,7 +87,7 @@ function formatFileContents(string $lang, string $fileName): string
 
                     continue;
                 }
-                $arrayKeys[] = $matches[1];
+                $arrayKeys[]       = $matches[1];
                 $formatted[$index] = str_repeat(' ', $indent * 4) . str_pad("'{$matches[1]}'", $longestKeyLength) . '=> [';
                 if ($arrayEndMatch !== 1) {
                     continue;
@@ -108,8 +108,8 @@ function formatFileContents(string $lang, string $fileName): string
             // Translation
             $translationMatch = preg_match('/^\'(.*)\'\s+?=>\s+?[\'"](.*)?[\'"].+?$/', $trimLine, $matches);
             if ($translationMatch === 1) {
-                $key = $matches[1];
-                $keys = array_merge($arrayKeys, [$key]);
+                $key     = $matches[1];
+                $keys    = array_merge($arrayKeys, [$key]);
                 $langVal = getTranslationByKeys($langContent, $keys);
                 if (empty($langVal)) {
                     continue;
@@ -180,7 +180,7 @@ function calculateKeyPadding(array $array): int
     $top = 0;
     foreach ($array as $key => $value) {
         $keyLen = strlen($key);
-        $top = max($top, $keyLen);
+        $top    = max($top, $keyLen);
     }
 
     return min(35, $top + 2);
@@ -223,7 +223,7 @@ function getTranslationByKeys(array $translations, array $keys)
  */
 function unsetArrayByKeys(array &$input, array $keys)
 {
-    $val = &$input;
+    $val       = &$input;
     $lastIndex = count($keys) - 1;
     foreach ($keys as $index => &$key) {
         if ($index === $lastIndex && is_array($val)) {
@@ -288,7 +288,7 @@ function getTranslationFileNames(): array
     if (! file_exists($dir)) {
         errorOut("Expected directory '{$dir}' does not exist");
     }
-    $files = scandir($dir);
+    $files     = scandir($dir);
     $fileNames = [];
     foreach ($files as $file) {
         if (substr($file, -4) === '.php') {
@@ -304,7 +304,7 @@ function getTranslationFileNames(): array
  */
 function formatLocale(string $lang): string
 {
-    $langParts = explode('_', strtoupper($lang));
+    $langParts    = explode('_', strtoupper($lang));
     $langParts[0] = strtolower($langParts[0]);
 
     return implode('_', $langParts);
@@ -312,6 +312,8 @@ function formatLocale(string $lang): string
 
 /**
  * Dump a variable then die.
+ *
+ * @param mixed $content
  */
 function dd($content)
 {
@@ -321,6 +323,8 @@ function dd($content)
 
 /**
  * Log out some information text in blue
+ *
+ * @param mixed $text
  */
 function info($text)
 {
@@ -329,6 +333,8 @@ function info($text)
 
 /**
  * Log out an error in red and exit.
+ *
+ * @param mixed $text
  */
 function errorOut($text)
 {

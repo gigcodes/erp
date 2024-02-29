@@ -37,7 +37,7 @@ class BlogController extends Controller
             }
             if ($request->get('keyword')) {
                 $keyword = request('keyword', '');
-                $blogs = $blogs->where(function ($q) use ($keyword) {
+                $blogs   = $blogs->where(function ($q) use ($keyword) {
                     $q->where('blogs.idea', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.keyword', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.header_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.title_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.canonical_url', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.meta_desc', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_structure', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_xml', 'LIKE', '%' . $keyword . '%');
                 });
             }
@@ -194,13 +194,13 @@ class BlogController extends Controller
                 ->make(true);
         }
 
-        $users = User::get();
-        $store_website = \App\StoreWebsite::all();
+        $users          = User::get();
+        $store_website  = \App\StoreWebsite::all();
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'blogs-listing')->first();
 
         $dynamicColumnsToShowb = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
         }
 
@@ -212,15 +212,15 @@ class BlogController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'blogs-listing')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'blogs-listing';
-            $column->column_name = json_encode($request->column_blogs);
+            $column->column_name  = json_encode($request->column_blogs);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'blogs-listing';
-            $column->column_name = json_encode($request->column_blogs);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_blogs);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -234,8 +234,8 @@ class BlogController extends Controller
      */
     public function create(Request $request)
     {
-        $users = User::get();
-        $allTag = Tag::get()->toArray();
+        $users   = User::get();
+        $allTag  = Tag::get()->toArray();
         $tagName = array_column($allTag, 'tag');
 
         $tagName = implode(',', $tagName);
@@ -304,19 +304,19 @@ class BlogController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'user_id' => 'required',
-            'idea' => 'nullable|max:524',
-            'content' => 'nullable',
-            'plaglarism' => 'nullable|max:8',
+            'user_id'       => 'required',
+            'idea'          => 'nullable|max:524',
+            'content'       => 'nullable',
+            'plaglarism'    => 'nullable|max:8',
             'internal_link' => 'nullable|max:524',
             'external_link' => 'nullable|max:524',
-            'meta_desc' => 'nullable|max:524',
+            'meta_desc'     => 'nullable|max:524',
             'url_structure' => 'nullable|max:524',
-            'facebook' => 'nullable|max:256',
-            'instagram' => 'nullable|max:524',
-            'twitter' => 'nullable|max:256',
-            'google' => 'nullable|max:256',
-            'bing' => 'nullable|max:256',
+            'facebook'      => 'nullable|max:256',
+            'instagram'     => 'nullable|max:524',
+            'twitter'       => 'nullable|max:256',
+            'google'        => 'nullable|max:256',
+            'bing'          => 'nullable|max:256',
         ]);
 
         $blog = Blog::create($request->all());
@@ -327,14 +327,14 @@ class BlogController extends Controller
             }
 
             $blogHistory = BlogHistory::create([
-                'blog_id' => $blog->id,
-                'plaglarism' => $blog->plaglarism,
-                'user_id' => ! empty(Auth::user()->id) ? Auth::user()->id : null,
+                'blog_id'       => $blog->id,
+                'plaglarism'    => $blog->plaglarism,
+                'user_id'       => ! empty(Auth::user()->id) ? Auth::user()->id : null,
                 'internal_link' => $blog->internal_link,
                 'external_link' => $blog->external_link,
-                'create_time' => Carbon::now()->format('Y-m-d'),
-                'no_index' => $blog->no_index,
-                'no_follow' => $blog->no_follow,
+                'create_time'   => Carbon::now()->format('Y-m-d'),
+                'no_index'      => $blog->no_index,
+                'no_follow'     => $blog->no_follow,
 
             ]);
 
@@ -369,7 +369,10 @@ class BlogController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $titleTags
+     * @param mixed $blogId
+     *
      * @return \Illuminate\Http\Response
      */
     public function titleTag($titleTags, $blogId)
@@ -384,14 +387,14 @@ class BlogController extends Controller
 
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'title_tag',
-                    'tag_id' => $tagAdd->id,
+                    'type'    => 'title_tag',
+                    'tag_id'  => $tagAdd->id,
                 ]);
             } else {
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'title_tag',
-                    'tag_id' => $checkTagExistsOrNot->id,
+                    'type'    => 'title_tag',
+                    'tag_id'  => $checkTagExistsOrNot->id,
                 ]);
             }
         }
@@ -411,14 +414,14 @@ class BlogController extends Controller
 
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'header_tag',
-                    'tag_id' => $tagAdd->id,
+                    'type'    => 'header_tag',
+                    'tag_id'  => $tagAdd->id,
                 ]);
             } else {
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'header_tag',
-                    'tag_id' => $checkTagExistsOrNot->id,
+                    'type'    => 'header_tag',
+                    'tag_id'  => $checkTagExistsOrNot->id,
                 ]);
             }
         }
@@ -438,14 +441,14 @@ class BlogController extends Controller
 
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'italic_tag',
-                    'tag_id' => $tagAdd->id,
+                    'type'    => 'italic_tag',
+                    'tag_id'  => $tagAdd->id,
                 ]);
             } else {
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'italic_tag',
-                    'tag_id' => $checkTagExistsOrNot->id,
+                    'type'    => 'italic_tag',
+                    'tag_id'  => $checkTagExistsOrNot->id,
                 ]);
             }
         }
@@ -465,14 +468,14 @@ class BlogController extends Controller
 
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'strong_tag',
-                    'tag_id' => $tagAdd->id,
+                    'type'    => 'strong_tag',
+                    'tag_id'  => $tagAdd->id,
                 ]);
             } else {
                 $blogTag = BlogTag::create([
                     'blog_id' => $blogId,
-                    'type' => 'strong_tag',
-                    'tag_id' => $checkTagExistsOrNot->id,
+                    'type'    => 'strong_tag',
+                    'tag_id'  => $checkTagExistsOrNot->id,
                 ]);
             }
         }
@@ -485,14 +488,14 @@ class BlogController extends Controller
         $blog = Blog::with('user', 'blogsTag')->where('id', $id)->first();
 
         if (! empty($blog)) {
-            $users = User::get();
-            $headerTags = $this->headerTagGetWhenEdit($id);
+            $users              = User::get();
+            $headerTags         = $this->headerTagGetWhenEdit($id);
             $headerTagEditValue = implode(',', $headerTags);
-            $titleTags = $this->titleTagGetWhenEdit($id);
-            $titleTagEditValue = implode(',', $titleTags);
-            $italicTags = $this->italicTagGetWhenEdit($id);
+            $titleTags          = $this->titleTagGetWhenEdit($id);
+            $titleTagEditValue  = implode(',', $titleTags);
+            $italicTags         = $this->italicTagGetWhenEdit($id);
             $italicTagEditValue = implode(',', $italicTags);
-            $strongTags = $this->strongTagGetWhenEdit($id);
+            $strongTags         = $this->strongTagGetWhenEdit($id);
             $strongTagEditValue = implode(',', $strongTags);
 
             return view('blogs.show', compact('blog', 'headerTagEditValue', 'titleTagEditValue', 'italicTagEditValue', 'strongTagEditValue', 'users'));
@@ -504,7 +507,8 @@ class BlogController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -514,7 +518,7 @@ class BlogController extends Controller
             $users = User::get();
 
             $store_website = \App\StoreWebsite::all();
-            $returnHTML = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->with('store_website', $store_website)->render();
+            $returnHTML    = view('blogs.editModal')->with('blog', $blog)->with('users', $users)->with('store_website', $store_website)->render();
 
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Blog'], 200);
         } else {
@@ -536,7 +540,7 @@ class BlogController extends Controller
 
     public function allTagsByTagType($type)
     {
-        $tags = [];
+        $tags        = [];
         $allTagsType = BlogTag::where('type', $type)->get();
         if (! empty($allTagsType)) {
             foreach ($allTagsType as $value) {
@@ -612,7 +616,8 @@ class BlogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -624,53 +629,53 @@ class BlogController extends Controller
         }
 
         $this->validate($request, [
-            'user_id' => 'required',
-            'idea' => 'nullable|max:524',
-            'content' => 'nullable',
-            'plaglarism' => 'nullable|max:8',
+            'user_id'       => 'required',
+            'idea'          => 'nullable|max:524',
+            'content'       => 'nullable',
+            'plaglarism'    => 'nullable|max:8',
             'internal_link' => 'nullable|max:524',
             'external_link' => 'nullable|max:524',
-            'meta_desc' => 'nullable|max:524',
+            'meta_desc'     => 'nullable|max:524',
             'url_structure' => 'nullable|max:524',
-            'facebook' => 'nullable|max:256',
-            'instagram' => 'nullable|max:524',
-            'twitter' => 'nullable|max:256',
-            'google' => 'nullable|max:256',
-            'bing' => 'nullable|max:256',
+            'facebook'      => 'nullable|max:256',
+            'instagram'     => 'nullable|max:524',
+            'twitter'       => 'nullable|max:256',
+            'google'        => 'nullable|max:256',
+            'bing'          => 'nullable|max:256',
 
         ]);
 
         $dataUpdate = [
-            'user_id' => $request->user_id,
-            'store_website_id' => $request->store_website_id,
-            'header_tag' => $request->header_tag,
-            'title_tag' => $request->title_tag,
-            'strong_tag' => $request->strong_tag,
-            'italic_tag' => $request->italic_tag,
-            'idea' => $request->idea,
-            'keyword' => $request->keyword,
-            'content' => $request->content,
-            'plaglarism' => $request->plaglarism,
-            'internal_link' => $request->internal_link,
-            'external_link' => $request->external_link,
-            'meta_desc' => $request->meta_desc,
-            'url_structure' => $request->url_structure,
-            'url_xml' => $request->url_xml,
-            'no_follow' => $request->no_follow,
-            'publish_blog_date' => ! empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d') : null,
-            'no_index' => $request->no_index,
-            'date' => $request->date,
-            'facebook' => $request->facebook,
-            'facebook_date' => $request->facebook_date,
-            'instagram' => $request->instagram,
-            'instagram_date' => $request->instagram_date,
-            'twitter' => $request->twitter,
-            'twitter_date' => $request->twitter_date,
-            'google' => $request->google,
-            'google_date' => $request->google_date,
-            'bing' => $request->bing,
-            'bing_date' => $request->bing_date,
-            'canonical_url' => $request->canonical_url,
+            'user_id'                  => $request->user_id,
+            'store_website_id'         => $request->store_website_id,
+            'header_tag'               => $request->header_tag,
+            'title_tag'                => $request->title_tag,
+            'strong_tag'               => $request->strong_tag,
+            'italic_tag'               => $request->italic_tag,
+            'idea'                     => $request->idea,
+            'keyword'                  => $request->keyword,
+            'content'                  => $request->content,
+            'plaglarism'               => $request->plaglarism,
+            'internal_link'            => $request->internal_link,
+            'external_link'            => $request->external_link,
+            'meta_desc'                => $request->meta_desc,
+            'url_structure'            => $request->url_structure,
+            'url_xml'                  => $request->url_xml,
+            'no_follow'                => $request->no_follow,
+            'publish_blog_date'        => ! empty($request->publish_blog_date) ? Carbon::parse($request->publish_blog_date)->format('Y-m-d') : null,
+            'no_index'                 => $request->no_index,
+            'date'                     => $request->date,
+            'facebook'                 => $request->facebook,
+            'facebook_date'            => $request->facebook_date,
+            'instagram'                => $request->instagram,
+            'instagram_date'           => $request->instagram_date,
+            'twitter'                  => $request->twitter,
+            'twitter_date'             => $request->twitter_date,
+            'google'                   => $request->google,
+            'google_date'              => $request->google_date,
+            'bing'                     => $request->bing,
+            'bing_date'                => $request->bing_date,
+            'canonical_url'            => $request->canonical_url,
             'checkmobile_friendliness' => $request->checkmobile_friendliness,
 
         ];
@@ -679,22 +684,22 @@ class BlogController extends Controller
 
         if ($blogUpdate) {
             $blogupdateData = Blog::where('id', $id)->first();
-            $oldXMlUrl = $blog->url_xml;
-            $newXmlUrl = $blogupdateData->url_xml;
+            $oldXMlUrl      = $blog->url_xml;
+            $newXmlUrl      = $blogupdateData->url_xml;
 
             if ($oldXMlUrl != $newXmlUrl) {
                 $this->createSitemap($blogupdateData->store_website_id);
             }
 
             BlogHistory::create([
-                'blog_id' => $id,
-                'plaglarism' => $request->plaglarism,
-                'user_id' => ! empty(Auth::user()->id) ? Auth::user()->id : null,
+                'blog_id'       => $id,
+                'plaglarism'    => $request->plaglarism,
+                'user_id'       => ! empty(Auth::user()->id) ? Auth::user()->id : null,
                 'internal_link' => $request->internal_link,
                 'external_link' => $request->external_link,
-                'create_time' => Carbon::now()->format('Y-m-d'),
-                'no_index' => $request->no_index,
-                'no_follow' => $request->no_follow,
+                'create_time'   => Carbon::now()->format('Y-m-d'),
+                'no_index'      => $request->no_index,
+                'no_follow'     => $request->no_follow,
 
             ]);
 
@@ -712,7 +717,8 @@ class BlogController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

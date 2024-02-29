@@ -34,7 +34,7 @@ use Modules\StoreWebsite\Http\Controllers\StoreWebsiteProductAttributeController
 */
 
 Route::group([
-    'prefix' => 'store-website',
+    'prefix'     => 'store-website',
     'middleware' => 'auth',
 ], function () {
     Route::get('/', [StoreWebsiteController::class, 'index'])->name('store-website.index');

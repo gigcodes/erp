@@ -51,8 +51,8 @@ class DevAPIReport extends Command
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'truncate all the records from google_developer_logs table']);
             }
 
-            $log = new GoogleDeveloperLogs();
-            $log->api = 'crash/anr';
+            $log          = new GoogleDeveloperLogs();
+            $log->api     = 'crash/anr';
             $redirect_uri = 'https://erpstage.theluxuryunlimited.com/google/developer-api/crash';
 
             $client = new Client();
@@ -61,7 +61,7 @@ class DevAPIReport extends Command
             $client->setClientId(env('GOOGLE_PLAY_STORE_CLIENT_ID'));
             $client->setClientSecret(env('GOOGLE_PLAY_STORE_CLIENT_SECRET'));
             $SERVICE_ACCOUNT_NAME = env('GOOGLE_PLAY_STORE_SERVICE_ACCOUNT');
-            $KEY_FILE = storage_path() . env('GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS');
+            $KEY_FILE             = storage_path() . env('GOOGLE_PLAY_STORE_SERVICE_CREDENTIALS');
             $client->setRedirectUri($redirect_uri);
             $client->setAuthConfig($KEY_FILE);
             $user_to_impersonate = env('GOOGLE_PLAY_STORE_SERVICE_ACCOUNT');
@@ -83,7 +83,7 @@ class DevAPIReport extends Command
             if (! $token && ! isset($_SESSION['token'])) {
                 $authUrl = $client->createAuthUrl();
 
-                $output = 'connect';
+                $output  = 'connect';
                 $output2 = $authUrl;
             } else {
                 $array_app = explode(',', env('GOOGLE_PLAY_STORE_APP'));
@@ -101,16 +101,16 @@ class DevAPIReport extends Command
                             }
                         }
                         if (isset($res['name'])) {
-                            $year = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
-                            $day = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
-                            $month = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
-                            $date = $year . '-' . $month . '-' . $day;
-                            $r = new GoogleDeveloper();
-                            $r->name = $res['name'];
+                            $year                  = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
+                            $day                   = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
+                            $month                 = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
+                            $date                  = $year . '-' . $month . '-' . $day;
+                            $r                     = new GoogleDeveloper();
+                            $r->name               = $res['name'];
                             $r->aggregation_period = $res['freshnessInfo']['freshnesses'][0]['aggregationPeriod'];
-                            $r->latestEndTime = $date;
-                            $r->timezone = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
-                            $r->report = 'crash';
+                            $r->latestEndTime      = $date;
+                            $r->timezone           = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
+                            $r->report             = 'crash';
                             $r->save();
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:' . $r->id]);
@@ -118,16 +118,16 @@ class DevAPIReport extends Command
                                 'timeline_spec' => ['aggregation_period' => 'DAILY', 'start_time' => ['year' => $year, 'month' => $month, 'day' => $day - 2], 'end_time' => ['year' => $year, 'month' => $month, 'day' => $day - 1]],
 
                                 'dimensions' => ['apiLevel'],
-                                'metrics' => ['crashRate', 'distinctUsers', 'crashRate28dUserWeighted'],
+                                'metrics'    => ['crashRate', 'distinctUsers', 'crashRate28dUserWeighted'],
                             ];
 
                             // Setup cURL
 
                             $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/crashRateMetricSet:query');
                             curl_setopt_array($ch, [
-                                CURLOPT_POST => true,
+                                CURLOPT_POST           => true,
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_HTTPHEADER => [
+                                CURLOPT_HTTPHEADER     => [
                                     'Authorization: OAuth ' . $at,
 
                                     'Content-Type: application/json',
@@ -136,11 +136,11 @@ class DevAPIReport extends Command
                             ]);
 
                             // Send the request
-                            $response = curl_exec($ch);
-                            $log = new GoogleDeveloperLogs();
-                            $log->api = 'crash report';
+                            $response      = curl_exec($ch);
+                            $log           = new GoogleDeveloperLogs();
+                            $log->api      = 'crash report';
                             $log->log_name = 'CRASH REPORT';
-                            $log->result = $response;
+                            $log->result   = $response;
                             $log->save();
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
@@ -149,9 +149,9 @@ class DevAPIReport extends Command
                     } else {
                         $log = new GoogleDeveloperLogs();
 
-                        $log->api = 'crash error';
+                        $log->api      = 'crash error';
                         $log->log_name = 'ERROR';
-                        $log->result = $res;
+                        $log->result   = $res;
                         $log->save();
                         echo 'crash report of ' . $app_value . ' failed';
 
@@ -171,16 +171,16 @@ class DevAPIReport extends Command
                             }
                         }
                         if (isset($res['name'])) {
-                            $year = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
-                            $day = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
-                            $month = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
-                            $date = $year . '-' . $month . '-' . $day;
-                            $r = new GoogleDeveloper();
-                            $r->name = $res['name'];
+                            $year                  = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['year'];
+                            $day                   = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['day'];
+                            $month                 = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['month'];
+                            $date                  = $year . '-' . $month . '-' . $day;
+                            $r                     = new GoogleDeveloper();
+                            $r->name               = $res['name'];
                             $r->aggregation_period = $res['freshnessInfo']['freshnesses'][0]['aggregationPeriod'];
-                            $r->latestEndTime = $date;
-                            $r->timezone = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
-                            $r->report = 'anr';
+                            $r->latestEndTime      = $date;
+                            $r->timezone           = $res['freshnessInfo']['freshnesses'][0]['latestEndTime']['timeZone']['id'];
+                            $r->report             = 'anr';
                             $r->save();
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer record by ID:' . $r->id]);
@@ -188,16 +188,16 @@ class DevAPIReport extends Command
                                 'timeline_spec' => ['aggregation_period' => 'DAILY', 'start_time' => ['year' => $year, 'month' => $month, 'day' => $day - 2], 'end_time' => ['year' => $year, 'month' => $month, 'day' => $day - 1]],
 
                                 'dimensions' => ['apiLevel'],
-                                'metrics' => ['distinctUsers'],
+                                'metrics'    => ['distinctUsers'],
                             ];
 
                             // Setup cURL
 
                             $ch = curl_init('https://playdeveloperreporting.googleapis.com/v1beta1/apps/' . $app_value . '/crashRateMetricSet:query');
                             curl_setopt_array($ch, [
-                                CURLOPT_POST => true,
+                                CURLOPT_POST           => true,
                                 CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_HTTPHEADER => [
+                                CURLOPT_HTTPHEADER     => [
                                     'Authorization: OAuth ' . $at,
 
                                     'Content-Type: application/json',
@@ -206,11 +206,11 @@ class DevAPIReport extends Command
                             ]);
 
                             // Send the request
-                            $response = curl_exec($ch);
-                            $log = new GoogleDeveloperLogs();
-                            $log->api = 'anr report';
+                            $response      = curl_exec($ch);
+                            $log           = new GoogleDeveloperLogs();
+                            $log->api      = 'anr report';
                             $log->log_name = 'ANR REPORT';
-                            $log->result = $response;
+                            $log->result   = $response;
                             $log->save();
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);
@@ -220,9 +220,9 @@ class DevAPIReport extends Command
                     } else {
                         $log = new GoogleDeveloperLogs();
 
-                        $log->api = 'anr error';
+                        $log->api      = 'anr error';
                         $log->log_name = 'ANR ERROR';
-                        $log->result = $res;
+                        $log->result   = $res;
                         $log->save();
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved google developer logs record by ID:' . $log->id]);

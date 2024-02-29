@@ -14,7 +14,7 @@ class ScrapLogsController extends Controller
 {
     public function index(Request $Request)
     {
-        $name = '';
+        $name    = '';
         $servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
 
         $scrapLogsStatus = \App\LogMessageStatus::all();
@@ -45,7 +45,7 @@ class ScrapLogsController extends Controller
         }
 
         $serverArray = [];
-        $servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
+        $servers     = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
         if ($request->server_id !== null) {
             $servers = \App\Scraper::select('server_id')->where('server_id', $request->server_id)->groupBy('server_id')->get();
         }
@@ -54,7 +54,7 @@ class ScrapLogsController extends Controller
         }
 
         $searchVal = $searchVal != 'null' ? $searchVal : '';
-        $dateVal = $dateVal != 'null' ? $dateVal : '';
+        $dateVal   = $dateVal != 'null' ? $dateVal : '';
         $file_list = [];
 
         $files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
@@ -63,8 +63,8 @@ class ScrapLogsController extends Controller
 
         $date = strlen($dateVal) == 1 ? "0$dateVal" : $dateVal;
 
-        $lines = [];
-        $log_status = '';
+        $lines        = [];
+        $log_status   = '';
         $status_lists = DB::table('scrapper_log_status')->get();
 
         foreach ($files as $key => $val) {
@@ -86,8 +86,8 @@ class ScrapLogsController extends Controller
                 }
 
                 $file_path_info = pathinfo($val->getFilename());
-                $file_name_str = $file_path_info['filename'];
-                $file_name_ss = $val->getFilename();
+                $file_name_str  = $file_path_info['filename'];
+                $file_name_ss   = $val->getFilename();
 
                 $lines[] = "=============== $file_name_ss log started from here ===============";
 
@@ -109,11 +109,11 @@ class ScrapLogsController extends Controller
                 $logStatus = \App\LogMessageStatus::firstOrCreate(['log_message' => $log_msg], ['log_message' => $log_msg]);
 
                 array_push($file_list, [
-                    'filename' => $file_name_ss,
+                    'filename'   => $file_name_ss,
                     'foldername' => $val->getRelativepath(),
-                    'log_msg' => $log_msg,
+                    'log_msg'    => $log_msg,
                     //	"status"=>$log_status,
-                    'status' => $logStatus['status'],
+                    'status'     => $logStatus['status'],
                     'scraper_id' => $file_name_str,
                 ]
                 );
@@ -122,9 +122,9 @@ class ScrapLogsController extends Controller
 
         //config
         if (strtolower(request('download')) == 'yes') {
-            $nameF = 'scraper-log-temp-file.txt';
+            $nameF    = 'scraper-log-temp-file.txt';
             $namefile = storage_path() . '/logs/' . $nameF;
-            $content = implode("\n", $lines);
+            $content  = implode("\n", $lines);
 
             //save file
             $file = fopen($namefile, 'w') or exit('Unable to open file!');
@@ -150,9 +150,9 @@ class ScrapLogsController extends Controller
     {
         $file_list = [];
         $searchVal = '';
-        $dateVal = '';
+        $dateVal   = '';
         $file_list = [];
-        $files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
+        $files     = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
         $date = empty($dateVal) ? Carbon::now()->format('d') : sprintf('%02d', $dateVal);
         if ($date == 01) {
@@ -164,7 +164,7 @@ class ScrapLogsController extends Controller
             if (Str::contains(end($day_of_file), sprintf('%02d', $date - 1)) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
-                $file = file($file_path_new);
+                $file    = file($file_path_new);
                 $log_msg = '';
                 for ($i = max(0, count($file) - 3); $i < count($file); $i++) {
                     $log_msg .= $file[$i];
@@ -176,7 +176,7 @@ class ScrapLogsController extends Controller
 
                 $search_scraper = substr($file_path_info['filename'], 0, -3);
                 $search_scraper = str_replace('-', '_', $search_scraper);
-                $scrapers_info = DB::table('scrapers')
+                $scrapers_info  = DB::table('scrapers')
                     ->select('id')
                     ->where('scraper_name', 'like', $search_scraper)
                     ->get();
@@ -193,9 +193,9 @@ class ScrapLogsController extends Controller
 
                 if (count($scrap_logs_info) == 0) {
                     $file_list_data = [
-                        'scraper_id' => $scrapers_id,
-                        'folder_name' => $val->getRelativepath(),
-                        'file_name' => $val->getFilename(),
+                        'scraper_id'   => $scrapers_id,
+                        'folder_name'  => $val->getRelativepath(),
+                        'file_name'    => $val->getFilename(),
                         'log_messages' => $log_msg,
                         'created_date' => date('Y-m-d H:i:s'),
                         'updated_date' => date('Y-m-d H:i:s'),
@@ -224,7 +224,7 @@ class ScrapLogsController extends Controller
 
         $scraper = \App\Scraper::where('scraper_name', $day_of_file[0])->first();
         if ($scraper) {
-            $toDate = date('Y-m-d', strtotime('+1 day'));
+            $toDate   = date('Y-m-d', strtotime('+1 day'));
             $fromDate = date('Y-m-d', strtotime('-7 days'));
             $fileLogs = \App\ScrapLog::where('scraper_id', $scraper->id)->whereBetween('created_at', [$fromDate, $toDate])->get();
         }
@@ -234,15 +234,15 @@ class ScrapLogsController extends Controller
 
     public function fetchlog()
     {
-        $file_list = [];
+        $file_list       = [];
         $scrap_logs_info = DB::table('scrap_logs')
             ->select('*')
             ->get();
         foreach ($scrap_logs_info as $row_log) {
             array_push($file_list, [
-                'filename' => $row_log->file_name,
+                'filename'   => $row_log->file_name,
                 'foldername' => $row_log->folder_name,
-                'log_msg' => $row_log->log_messages,
+                'log_msg'    => $row_log->log_messages,
                 'scraper_id' => $row_log->scraper_id,
             ]
             );
@@ -256,7 +256,7 @@ class ScrapLogsController extends Controller
         $day_of_file = explode('-', $request->filename);
         $day_of_file = str_replace('.log', '', $day_of_file);
 
-        $cdate = Carbon::now()->subDays(7);
+        $cdate     = Carbon::now()->subDays(7);
         $last7days = \App\ScrapRemark::where('scraper_name', 'like', $day_of_file[0])->where('created_at', '>=', $cdate)->get();
 
         return $last7days;
@@ -278,9 +278,9 @@ class ScrapLogsController extends Controller
 
     public function databaseLog(Request $request)
     {
-        $search = '';
+        $search       = '';
         $databaseLogs = DatabaseLog::orderBy('created_at', 'desc');
-        $logBtn = SlowLogsEnableDisable::orderBy('id', 'desc')->first();
+        $logBtn       = SlowLogsEnableDisable::orderBy('id', 'desc')->first();
         if ($request->search) {
             $databaseLogs = $databaseLogs->where('log_message', 'Like', '%' . $search . '%')->paginate(25);
         } else {
@@ -292,10 +292,10 @@ class ScrapLogsController extends Controller
 
     public function enableMysqlAccess(Request $request)
     {
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f enable';
-        $allOutput = [];
+        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f enable';
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result      = exec($cmd, $allOutput);
 
         if ($result == '') {
             $result = 'Not any response';
@@ -303,9 +303,9 @@ class ScrapLogsController extends Controller
             $result = is_array($result) ? json_encode($result, true) : $result;
         }
         SlowLogsEnableDisable::create([
-            'user_id' => \Auth::user()->id ?? '',
+            'user_id'  => \Auth::user()->id ?? '',
             'response' => $result,
-            'type' => 'Enable',
+            'type'     => 'Enable',
         ]);
 
         return redirect()->back()->with('success', 'Slow Logs enable successfully.');
@@ -313,10 +313,10 @@ class ScrapLogsController extends Controller
 
     public function disableMysqlAccess(Request $request)
     {
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f disable';
-        $allOutput = [];
+        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql-slowlogs.sh -f disable';
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result      = exec($cmd, $allOutput);
 
         if ($result == '') {
             $result = 'Not any response';
@@ -324,9 +324,9 @@ class ScrapLogsController extends Controller
             $result = is_array($result) ? json_encode($result, true) : $result;
         }
         SlowLogsEnableDisable::create([
-            'user_id' => \Auth::user()->id ?? '',
+            'user_id'  => \Auth::user()->id ?? '',
             'response' => $result,
-            'type' => 'Disable',
+            'type'     => 'Disable',
         ]);
 
         return redirect()->back()->with('success', 'Slow Logs disable successfully.');
@@ -364,7 +364,7 @@ class ScrapLogsController extends Controller
     public function store(Request $request)
     {
         $data = [
-            'text' => strtolower($request->errortext),
+            'text'   => strtolower($request->errortext),
             'status' => strtolower($request->errorstatus),
         ];
 

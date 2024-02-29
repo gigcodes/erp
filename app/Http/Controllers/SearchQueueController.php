@@ -33,6 +33,8 @@ class SearchQueueController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $type
      */
     public function index($type)
     {
@@ -48,10 +50,10 @@ class SearchQueueController extends Controller
         }
 
         try {
-            $list = \App\SearchQueue::paginate();
+            $list                = \App\SearchQueue::paginate();
             $response['success'] = true;
             $response['message'] = 'success';
-            $response['data'] = $list;
+            $response['data']    = $list;
 
             return response()->json($response, 200);
         } catch (\Exception $e) {
@@ -85,11 +87,11 @@ class SearchQueueController extends Controller
     {
         set_time_limit(0);
         $validator = Validator::make($request->all(), [
-            'list' => 'required|array|min:1',
-            'list.*.id' => 'required|exists:search_queues,id',
+            'list'               => 'required|array|min:1',
+            'list.*.id'          => 'required|exists:search_queues,id',
             'list.*.upload_path' => 'required|string|min:1',
-            'list.*.links' => 'required|array|min:1',
-            'list.*.links.*' => 'required|url',
+            'list.*.links'       => 'required|array|min:1',
+            'list.*.links.*'     => 'required|url',
         ]);
 
         if ($validator->fails()) {
@@ -112,14 +114,14 @@ class SearchQueueController extends Controller
                             $is_valid_type = $this->get_file_extension($link);
                             if ($is_valid_type != false) {
                                 $upload_filename = $queue->id . $key . '_' . time() . '.' . $is_valid_type;
-                                $upload_path = public_path() . '/' . $item['upload_path'];
+                                $upload_path     = public_path() . '/' . $item['upload_path'];
 
-                                $upload_image = new $queue->model_name;
+                                $upload_image    = new $queue->model_name;
                                 $upload_response = $upload_image->saveFromSearchQueues($upload_path, $link, $upload_filename);
                                 if ($upload_response == true) {
                                     //$upload_image->filename=$item['upload_path'].'/'.$upload_filename;
-                                    $upload_image->filename = $upload_filename;
-                                    $upload_image->status = 1;
+                                    $upload_image->filename   = $upload_filename;
+                                    $upload_image->status     = 1;
                                     $upload_image->created_at = $upload_image->updated_at = time();
                                     if ($upload_image->save()) {
                                         $count++;

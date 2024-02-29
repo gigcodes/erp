@@ -29,14 +29,14 @@ final class ChartingDataController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->monitor = $monitor;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
     {
         global $errorUrl;
 
-        $params = ['requiredData' => $_POST['requiredData'] ?? null];
+        $params   = ['requiredData' => $_POST['requiredData'] ?? null];
         $errorUrl = Url::getFromRoute('/');
 
         if ($this->dbi->isSuperUser()) {

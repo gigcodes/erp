@@ -9,8 +9,8 @@ class FlowLog extends Model
     public static function log($result)
     {
         // Log result to database
-        $flowlog = new FlowLog();
-        $flowlog->flow_id = $result['flow_id'];
+        $flowlog           = new FlowLog();
+        $flowlog->flow_id  = $result['flow_id'];
         $flowlog->messages = $result['messages'];
         $flowlog->save();
 

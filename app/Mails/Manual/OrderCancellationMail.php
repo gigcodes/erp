@@ -19,11 +19,13 @@ class OrderCancellationMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
-        $this->order = $data;
+        $this->order      = $data;
         $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
@@ -35,11 +37,11 @@ class OrderCancellationMail extends Mailable
     public function build()
     {
         $subject = 'Order # ' . $this->order->order_id . ' has been cancelled';
-        $order = $this->order;
+        $order   = $this->order;
 
-        $customer = $order->customer;
+        $customer       = $order->customer;
         $order_products = $order->order_products;
-        $email = $this->fromMailer;
+        $email          = $this->fromMailer;
 
         $content = 'Your order request has been cancelled';
 

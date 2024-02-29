@@ -44,8 +44,8 @@ class DatabaseBackupMonitoringController extends Controller
 
     public function dbErrorShow(Request $request)
     {
-        $id = $request->input('id');
-        $errorData = DatabaseBackupMonitoring::where('id', $id)->value('error');
+        $id          = $request->input('id');
+        $errorData   = DatabaseBackupMonitoring::where('id', $id)->value('error');
         $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
 
         return $htmlContent;
@@ -53,7 +53,7 @@ class DatabaseBackupMonitoringController extends Controller
 
     public function updateIsResolved(Request $request)
     {
-        $dbList = DatabaseBackupMonitoring::findOrFail($request->get('id'));
+        $dbList              = DatabaseBackupMonitoring::findOrFail($request->get('id'));
         $dbList->is_resolved = 1;
         $dbList->update();
 
@@ -63,14 +63,14 @@ class DatabaseBackupMonitoringController extends Controller
     public function storeDbStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:database_backup_monitoring_statuses,name',
+            'name'  => 'required|unique:database_backup_monitoring_statuses,name',
             'color' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
-                'message' => $validator->errors()->first(),
+                'status'      => false,
+                'message'     => $validator->errors()->first(),
                 'status_name' => 'error',
             ], 422);
         }
@@ -81,15 +81,15 @@ class DatabaseBackupMonitoringController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Status Created successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Status Created successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -98,9 +98,9 @@ class DatabaseBackupMonitoringController extends Controller
     public function statusDbColorUpdate(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoModuleVerifiedStatus = DatabaseBackupMonitoringStatus::find($key);
+            $magentoModuleVerifiedStatus        = DatabaseBackupMonitoringStatus::find($key);
             $magentoModuleVerifiedStatus->color = $value;
             $magentoModuleVerifiedStatus->save();
         }
@@ -111,7 +111,7 @@ class DatabaseBackupMonitoringController extends Controller
     public function dbUpdateStatus(Request $request)
     {
         try {
-            $dbMonitoring = DatabaseBackupMonitoring::findOrFail($request->db_backup_id);
+            $dbMonitoring               = DatabaseBackupMonitoring::findOrFail($request->db_backup_id);
             $dbMonitoring->db_status_id = $request->status;
             $dbMonitoring->save();
 
@@ -120,15 +120,15 @@ class DatabaseBackupMonitoringController extends Controller
 
             return response()->json(
                 [
-                    'status' => 'success',
-                    'message' => 'Status updated successfully',
+                    'status'     => 'success',
+                    'message'    => 'Status updated successfully',
                     'colourCode' => $statusColour,
                 ], 200
             );
         } catch(Exception $e) {
             return response()->json(
                 [
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Status not updated.',
                 ], 500
             );

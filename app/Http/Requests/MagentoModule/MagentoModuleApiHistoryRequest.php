@@ -25,15 +25,15 @@ class MagentoModuleApiHistoryRequest extends FormRequest
     {
         return [
             'magento_module_id' => 'required',
-            'resources' => 'required',
-            'frequency' => 'required',
+            'resources'         => 'required',
+            'frequency'         => 'required',
         ];
     }
 
     public function messages()
     {
         return [
-            'remark.required' => __('validation.required', ['attribute' => 'remark']),
+            'remark.required'            => __('validation.required', ['attribute' => 'remark']),
             'magento_module_id.required' => __('validation.required', ['attribute' => 'module']),
         ];
     }

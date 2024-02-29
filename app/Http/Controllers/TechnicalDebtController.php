@@ -12,7 +12,7 @@ class TechnicalDebtController extends Controller
     public function index(Request $request)
     {
         $data['frameworks'] = TechnicalFrameWork::select('id', 'name')->get();
-        $technicaldebt = new TechnicalDebt();
+        $technicaldebt      = new TechnicalDebt();
 
         if ($request->frameworks_ids) {
             $technicaldebt = $technicaldebt->WhereIn('technical_framework_id', $request->frameworks_ids);
@@ -47,7 +47,7 @@ class TechnicalDebtController extends Controller
 
     public function frameWorkStore(Request $request)
     {
-        $platform = new TechnicalFrameWork();
+        $platform       = new TechnicalFrameWork();
         $platform->name = $request->framework_name;
         $platform->save();
 
@@ -56,15 +56,15 @@ class TechnicalDebtController extends Controller
 
     public function technicalDeptStore(Request $request)
     {
-        $validated = new TechnicalDebt();
-        $validated->user_id = auth()->user()->id;
-        $validated->problem = $request->problem;
-        $validated->description = $request->description;
+        $validated                         = new TechnicalDebt();
+        $validated->user_id                = auth()->user()->id;
+        $validated->problem                = $request->problem;
+        $validated->description            = $request->description;
         $validated->estimate_investigation = $request->estimate_investigation;
-        $validated->approximate_estimate = $request->approximate_estimate;
-        $validated->status = $request->status;
+        $validated->approximate_estimate   = $request->approximate_estimate;
+        $validated->status                 = $request->status;
         $validated->technical_framework_id = $request->framework_id;
-        $validated->priority = $request->priority;
+        $validated->priority               = $request->priority;
         $validated->save();
 
         return back()->with('success', 'Code Shortcuts successfully saved.');
@@ -78,8 +78,8 @@ class TechnicalDebtController extends Controller
                 TechnicalRemark::create(
                     [
                         'technical_debt_id' => $request->technical_id,
-                        'updated_by' => \Auth::id(),
-                        'remark' => $request->remark,
+                        'updated_by'        => \Auth::id(),
+                        'remark'            => $request->remark,
                     ]
                 );
                 $msg = ' Created and ';
@@ -98,7 +98,7 @@ class TechnicalDebtController extends Controller
             }
 
             $input_html = '';
-            $i = 1;
+            $i          = 1;
             foreach ($technicalRemarkDatas as $technicalRemarkData) {
                 $input_html .= '<span class="td-password-remark" style="margin:0px;"> ' . $i . '.' . $technicalRemarkData->remark . '</span>';
                 $i++;

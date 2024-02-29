@@ -23,10 +23,10 @@ class ContactTableSeeder extends Seeder
         if (! empty($userIds)) {
             // Create 1000 contacts
             for ($i = 0; $i < 5000; $i++) {
-                $contact = new Contact();
+                $contact          = new Contact();
                 $contact->user_id = $userIds[array_rand($userIds, 1)];
-                $contact->name = $faker->name;
-                $contact->phone = $faker->phoneNumber;
+                $contact->name    = $faker->name;
+                $contact->phone   = $faker->phoneNumber;
                 $contact->save();
             }
         }

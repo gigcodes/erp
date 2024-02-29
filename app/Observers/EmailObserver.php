@@ -78,18 +78,18 @@ class EmailObserver
                 if ($json_configs) {
                     $configs = json_decode($json_configs);
                     if ($configs && $configs->cat) {
-                        $resourceimg = new ResourceImage();
-                        $resourceimg->cat_id = $configs->cat;
-                        $resourceimg->sub_cat_id = $configs->sub_cat ? $configs->sub_cat : 0;
-                        $resourceimg->images = '';
-                        $resourceimg->url = '';
+                        $resourceimg              = new ResourceImage();
+                        $resourceimg->cat_id      = $configs->cat;
+                        $resourceimg->sub_cat_id  = $configs->sub_cat ? $configs->sub_cat : 0;
+                        $resourceimg->images      = '';
+                        $resourceimg->url         = '';
                         $resourceimg->description = $email->message;
-                        $resourceimg->subject = $email->subject;
-                        $resourceimg->sender = $email->from;
-                        $resourceimg->created_at = date('Y-m-d H:i:s');
-                        $resourceimg->updated_at = date('Y-m-d H:i:s');
-                        $resourceimg->created_by = 'Email Receiver';
-                        $resourceimg->is_pending = 1;
+                        $resourceimg->subject     = $email->subject;
+                        $resourceimg->sender      = $email->from;
+                        $resourceimg->created_at  = date('Y-m-d H:i:s');
+                        $resourceimg->updated_at  = date('Y-m-d H:i:s');
+                        $resourceimg->created_by  = 'Email Receiver';
+                        $resourceimg->is_pending  = 1;
                         $resourceimg->save();
                     }
                 }
@@ -103,12 +103,12 @@ class EmailObserver
             if ($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
                 $centralBlog = new BlogCentralize();
 
-                $centralBlog->title = $email->subject;
-                $centralBlog->content = $email->message;
+                $centralBlog->title        = $email->subject;
+                $centralBlog->content      = $email->message;
                 $centralBlog->receive_from = $email->from;
-                $centralBlog->created_at = date('Y-m-d H:i:s');
-                $centralBlog->updated_at = date('Y-m-d H:i:s');
-                $centralBlog->created_by = 'Email Receiver';
+                $centralBlog->created_at   = date('Y-m-d H:i:s');
+                $centralBlog->updated_at   = date('Y-m-d H:i:s');
+                $centralBlog->created_by   = 'Email Receiver';
                 $centralBlog->save();
             }
 
@@ -119,26 +119,26 @@ class EmailObserver
 
     public function gmailData(Email $email)
     {
-        $receiver_email = $email->to;
+        $receiver_email           = $email->to;
         $content_management_email = ContentManageentEmail::first();
         if ($content_management_email) {
             if ($receiver_email == $content_management_email->email) {
-                $a = preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $email->message, $aTags);
+                $a   = preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $email->message, $aTags);
                 $img = preg_match_all('/<img[^>]+src=([\'"])(?<src>.+?)\1[^>]*>/i', $email->message, $imgTags);
 
                 if ($a > 0) {
-                    $gmail = new GmailDataList;
-                    $gmail->sender = $email->from;
-                    $gmail->domain = substr($email->from, strpos($email->from, '@') + 1);
+                    $gmail              = new GmailDataList;
+                    $gmail->sender      = $email->from;
+                    $gmail->domain      = substr($email->from, strpos($email->from, '@') + 1);
                     $gmail->received_at = $email->created_at->format('m/d/Y');
                     $gmail->save();
 
                     for ($i = 0; $i < count($imgTags[0]); $i++) {
                         if (file_get_contents($imgTags['src'][$i]) != '') {
-                            $gmail_media = new GmailDataMedia;
+                            $gmail_media                     = new GmailDataMedia;
                             $gmail_media->gmail_data_list_id = $gmail->id;
-                            $gmail_media->page_url = $aTags['href'][$i];
-                            $gmail_media->images = $imgTags['src'][$i];
+                            $gmail_media->page_url           = $aTags['href'][$i];
+                            $gmail_media->images             = $imgTags['src'][$i];
                             $gmail_media->save();
                         }
                     }

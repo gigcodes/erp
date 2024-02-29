@@ -37,8 +37,8 @@ class SqlController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->userPreferences = $userPreferences;
-        $this->relation = $relation;
-        $this->config = $config;
+        $this->relation        = $relation;
+        $this->config          = $config;
     }
 
     public function __invoke(): void
@@ -70,7 +70,7 @@ class SqlController extends AbstractController
                 // reload config
                 $this->config->loadUserPreferences();
                 $tabHash = $_POST['tab_hash'] ?? null;
-                $hash = ltrim($tabHash, '#');
+                $hash    = ltrim($tabHash, '#');
                 $this->userPreferences->redirect('index.php?route=/preferences/sql', null, $hash);
 
                 return;
@@ -84,8 +84,8 @@ class SqlController extends AbstractController
         $relationParameters = $this->relation->getRelationParameters();
 
         $this->render('preferences/header', [
-            'route' => $route,
-            'is_saved' => ! empty($_GET['saved']),
+            'route'              => $route,
+            'is_saved'           => ! empty($_GET['saved']),
             'has_config_storage' => $relationParameters->userPreferencesFeature !== null,
         ]);
 
@@ -94,10 +94,10 @@ class SqlController extends AbstractController
         }
 
         $this->render('preferences/forms/main', [
-            'error' => $error ? $error->getDisplay() : '',
+            'error'      => $error ? $error->getDisplay() : '',
             'has_errors' => $formDisplay->hasErrors(),
-            'errors' => $formErrors ?? null,
-            'form' => $formDisplay->getDisplay(
+            'errors'     => $formErrors ?? null,
+            'form'       => $formDisplay->getDisplay(
                 true,
                 Url::getFromRoute('/preferences/sql'),
                 ['server' => $server]

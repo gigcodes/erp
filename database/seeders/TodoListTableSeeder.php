@@ -27,13 +27,13 @@ class TodoListTableSeeder extends Seeder
         if (! empty($userIds)) {
             // Create 1000 contacts
             for ($i = 0; $i < 5000; $i++) {
-                $todoList = new TodoList();
-                $todoList->user_id = $userIds[array_rand($userIds, 1)];
-                $todoList->title = $faker->jobTitle;
-                $todoList->subject = $faker->name;
-                $todoList->status = 'Active';
-                $todoList->todo_date = Carbon::parse()->format('Y-m-d');
-                $todoList->remark = '-';
+                $todoList                   = new TodoList();
+                $todoList->user_id          = $userIds[array_rand($userIds, 1)];
+                $todoList->title            = $faker->jobTitle;
+                $todoList->subject          = $faker->name;
+                $todoList->status           = 'Active';
+                $todoList->todo_date        = Carbon::parse()->format('Y-m-d');
+                $todoList->remark           = '-';
                 $todoList->todo_category_id = $todoCategoryIds[array_rand($todoCategoryIds, 1)];
                 $todoList->save();
             }

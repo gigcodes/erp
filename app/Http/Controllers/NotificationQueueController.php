@@ -40,7 +40,7 @@ class NotificationQueueController extends Controller
 
     public static function createNewNotification($notificationArray)
     {
-        $startTime = date('Y-m-d H:i:s');
+        $startTime                    = date('Y-m-d H:i:s');
         $notificationArray['user_id'] = $notificationArray['user_id'] ?? \Auth::id();
 
         if (! empty($notificationArray['sent_to'])) {
@@ -61,7 +61,7 @@ class NotificationQueueController extends Controller
             // TEMP SOLUTION TO TURN OFF NOTIFICATIONS FOR ADMINS
         } else {
             foreach ($notificationArray['timestamps'] as $time) {
-                $data = $notificationArray;
+                $data                = $notificationArray;
                 $data['time_to_add'] = date('Y-m-d H:i:s', strtotime($time, strtotime($startTime)));
 
                 NotificationQueue::create($data);
@@ -164,12 +164,12 @@ class NotificationQueueController extends Controller
 
             foreach ($user_ids as $id) {
                 PushNotification::create([
-                    'message' => 'Input Activity for ' . $hrs,
-                    'role' => '',
-                    'user_id' => $id,
-                    'sent_to' => $id,
+                    'message'    => 'Input Activity for ' . $hrs,
+                    'role'       => '',
+                    'user_id'    => $id,
+                    'sent_to'    => $id,
                     'model_type' => 'User',
-                    'model_id' => $id,
+                    'model_id'   => $id,
                 ]);
             }
         }

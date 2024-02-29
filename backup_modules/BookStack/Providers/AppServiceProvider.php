@@ -66,9 +66,9 @@ class AppServiceProvider extends ServiceProvider
         // Set morph-map due to namespace changes
         Relation::morphMap([
             'BookStack\\Bookshelf' => Bookshelf::class,
-            'BookStack\\Book' => Book::class,
-            'BookStack\\Chapter' => Chapter::class,
-            'BookStack\\Page' => Page::class,
+            'BookStack\\Book'      => Book::class,
+            'BookStack\\Chapter'   => Chapter::class,
+            'BookStack\\Page'      => Page::class,
         ]);
 
         $this->mergeConfigFrom(

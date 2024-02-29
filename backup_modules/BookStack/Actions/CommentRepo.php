@@ -17,7 +17,7 @@ class CommentRepo
     /**
      * CommentRepo constructor.
      *
-     * @param  \BookStack\Actions\Comment  $comment
+     * @param \BookStack\Actions\Comment $comment
      */
     public function __construct(Comment $comment)
     {
@@ -26,6 +26,8 @@ class CommentRepo
 
     /**
      * Get a comment by ID.
+     *
+     * @param mixed $id
      *
      * @return \BookStack\Actions\Comment|\Illuminate\Database\Eloquent\Model
      */
@@ -37,17 +39,18 @@ class CommentRepo
     /**
      * Create a new comment on an entity.
      *
-     * @param  \BookStack\Entities\Entity  $entity
-     * @param  array  $data
+     * @param \BookStack\Entities\Entity $entity
+     * @param array                      $data
+     *
      * @return \BookStack\Actions\Comment
      */
     public function create(Entity $entity, $data = [])
     {
-        $userId = user()->id;
-        $comment = $this->comment->newInstance($data);
+        $userId              = user()->id;
+        $comment             = $this->comment->newInstance($data);
         $comment->created_by = $userId;
         $comment->updated_by = $userId;
-        $comment->local_id = $this->getNextLocalId($entity);
+        $comment->local_id   = $this->getNextLocalId($entity);
         $entity->comments()->save($comment);
 
         return $comment;
@@ -56,8 +59,9 @@ class CommentRepo
     /**
      * Update an existing comment.
      *
-     * @param  \BookStack\Actions\Comment  $comment
-     * @param  array  $input
+     * @param \BookStack\Actions\Comment $comment
+     * @param array                      $input
+     *
      * @return mixed
      */
     public function update($comment, $input)
@@ -71,7 +75,8 @@ class CommentRepo
     /**
      * Delete a comment from the system.
      *
-     * @param  \BookStack\Actions\Comment  $comment
+     * @param \BookStack\Actions\Comment $comment
+     *
      * @return mixed
      */
     public function delete($comment)
@@ -82,7 +87,8 @@ class CommentRepo
     /**
      * Get the next local ID relative to the linked entity.
      *
-     * @param  \BookStack\Entities\Entity  $entity
+     * @param \BookStack\Entities\Entity $entity
+     *
      * @return int
      */
     protected function getNextLocalId(Entity $entity)

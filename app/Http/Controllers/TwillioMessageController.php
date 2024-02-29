@@ -18,7 +18,7 @@ class TwillioMessageController extends Controller
     public function index(Request $request)
     {
         $inputs = $request->input();
-        $data = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
+        $data   = MessagingGroup::leftJoin('sms_service', 'sms_service.id', '=', 'messaging_groups.service_id')
             ->leftJoin('store_websites', 'store_websites.id', '=', 'messaging_groups.store_website_id')
             ->leftJoin('marketing_messages', 'marketing_messages.message_group_id', '=', 'messaging_groups.id')
             ->select('messaging_groups.*', 'marketing_messages.title', 'marketing_messages.is_sent', 'marketing_messages.scheduled_at',
@@ -38,7 +38,7 @@ class TwillioMessageController extends Controller
         if (isset($inputs['title'])) {
             $data = $data->where('marketing_messages.title', 'like', '%' . $inputs['title'] . '%');
         }
-        $data = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
+        $data     = $data->orderBy('messaging_groups.id', 'desc')->paginate(15);
         $websites = ['' => 'Select Website'] + StoreWebsite::pluck('title', 'id')->toArray();
         $services = ['' => 'Select Service'] + SmsService::pluck('name', 'id')->toArray();
 
@@ -68,7 +68,7 @@ class TwillioMessageController extends Controller
             $data = $data->where('message_date', 'LIKE', '%' . $request->date . '%');
         }
 
-        $data = $data->latest()->paginate(15);
+        $data   = $data->latest()->paginate(15);
         $inputs = $request->input();
 
         return view('twillio_sms.errors', compact('data', 'inputs'));
@@ -77,14 +77,14 @@ class TwillioMessageController extends Controller
     public function createMessagingGroup(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name'             => 'required',
             'store_website_id' => 'required',
-            'service_id' => 'required',
+            'service_id'       => 'required',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -94,9 +94,9 @@ class TwillioMessageController extends Controller
         }
 
         $data = MessagingGroup::create([
-            'name' => $request->name,
+            'name'             => $request->name,
             'store_website_id' => $request->store_website_id,
-            'service_id' => $request->service_id,
+            'service_id'       => $request->service_id,
         ]);
 
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'MessagingGroup Created successfully']);
@@ -109,8 +109,8 @@ class TwillioMessageController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -119,7 +119,7 @@ class TwillioMessageController extends Controller
             return response()->json(['status' => 'failed', 'statusCode' => 500, 'message' => $message]);
         }
         $input = $request->input();
-        $data = SmsService::firstOrCreate(['name' => $input['name']], ['name' => $input['name']]);
+        $data  = SmsService::firstOrCreate(['name' => $input['name']], ['name' => $input['name']]);
 
         return response()->json(['status' => 'success', 'statusCode' => 200, 'message' => 'Service Created successfully']);
     }
@@ -127,10 +127,10 @@ class TwillioMessageController extends Controller
     public function showCustomerList($messageGroupId)
     {
         $messageGroupDetails = MessagingGroup::find($messageGroupId);
-        $customers = Customer::where('store_website_id', $messageGroupDetails['store_website_id'])->get();
-        $customerAdded = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
+        $customers           = Customer::where('store_website_id', $messageGroupDetails['store_website_id'])->get();
+        $customerAdded       = MessagingGroupCustomer::leftJoin('customers', 'customers.id', '=', 'messaging_group_customers.customer_id')
             ->where('messaging_group_customers.message_group_id', $messageGroupId)->pluck('customers.id')->toArray();
-        $marketing_messageId = MarketingMessage::where('message_group_id', $messageGroupId)->pluck('id')->first();
+        $marketing_messageId    = MarketingMessage::where('message_group_id', $messageGroupId)->pluck('id')->first();
         $messageSentToCustomers = [];
         if ($marketing_messageId != null) {
             $messageSentToCustomers = MarketingMessageCustomer::where(['marketing_message_id' => $marketing_messageId])->where('is_sent', 1)->pluck('customer_id')->toArray();
@@ -141,7 +141,7 @@ class TwillioMessageController extends Controller
 
     public function removeCustomer(Request $request)
     {
-        $customerId = $request->id;
+        $customerId           = $request->id;
         $messageGroupCustomer = MessagingGroupCustomer::where('id', $customerId)->first();
         if ($messageGroupCustomer != null) {
             $marketing_message = MarketingMessage::where('message_group_id', $messageGroupCustomer['message_group_id'])->first();
@@ -157,9 +157,9 @@ class TwillioMessageController extends Controller
     public function deleteMessageGroup(Request $request)
     {
         $messageGroupId = $request->id;
-        $messageGroup = MessagingGroup::where('id', $request->id)->first();
+        $messageGroup   = MessagingGroup::where('id', $request->id)->first();
         if ($messageGroup != null) {
-            $customers = MessagingGroupCustomer::where('message_group_id', $request->id)->delete();
+            $customers         = MessagingGroupCustomer::where('message_group_id', $request->id)->delete();
             $marketing_message = MarketingMessage::where('message_group_id', $messageGroupId)->first();
             if ($marketing_message != null) {
                 MarketingMessageCustomer::where('marketing_message_id', $marketing_message->id)->delete();
@@ -173,7 +173,7 @@ class TwillioMessageController extends Controller
 
     public function deleteTwilioError(Request $request)
     {
-        $ID = $request->id;
+        $ID    = $request->id;
         $error = \App\TwilioError::where('id', $ID)->delete();
 
         return response()->json(['code' => 200, 'message' => 'Twilio error deleted successfully']);
@@ -181,7 +181,7 @@ class TwillioMessageController extends Controller
 
     public function fetchCustomers(Request $request)
     {
-        $q = $request->q;
+        $q         = $request->q;
         $customers = Customer::where('email', 'like', '%' . $q . '%')->select('id', 'email')->get();
 
         return json_encode($customers);
@@ -190,13 +190,13 @@ class TwillioMessageController extends Controller
     public function addCustomer(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'customer_id' => 'required',
+            'customer_id'      => 'required',
             'message_group_id' => 'required',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -219,13 +219,13 @@ class TwillioMessageController extends Controller
     public function createMarketingMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
+            'title'        => 'required',
             'scheduled_at' => 'required',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -235,9 +235,9 @@ class TwillioMessageController extends Controller
         }
 
         $data = MarketingMessage::updateOrCreate(['id' => $request->id], [
-            'title' => $request->title,
-            'scheduled_at' => $request->scheduled_at,
-            'is_sent' => 0,
+            'title'            => $request->title,
+            'scheduled_at'     => $request->scheduled_at,
+            'is_sent'          => 0,
             'message_group_id' => $request->message_group_id,
         ]);
         $customers = MessagingGroupCustomer::where('message_group_id', $request->message_group_id)->get();
@@ -253,9 +253,9 @@ class TwillioMessageController extends Controller
     {
         $details = MarketingMessage::where('message_group_id', $messageGroupId)->first();
         if ($details == null) {
-            $details['id'] = null;
-            $details['title'] = null;
-            $details['scheduled_at'] = null;
+            $details['id']               = null;
+            $details['title']            = null;
+            $details['scheduled_at']     = null;
             $details['message_group_id'] = $messageGroupId;
         }
 

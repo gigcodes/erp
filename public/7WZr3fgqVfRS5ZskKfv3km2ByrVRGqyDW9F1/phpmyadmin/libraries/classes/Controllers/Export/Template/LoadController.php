@@ -27,7 +27,7 @@ final class LoadController extends AbstractController
         Relation $relation
     ) {
         parent::__construct($response, $template);
-        $this->model = $model;
+        $this->model    = $model;
         $this->relation = $relation;
     }
 

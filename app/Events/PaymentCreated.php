@@ -14,6 +14,8 @@ class PaymentCreated
     /**
      * Create a new event instance.
      *
+     * @param publicPayment $payment
+     *
      * @return void
      */
     public function __construct(public Payment $payment)

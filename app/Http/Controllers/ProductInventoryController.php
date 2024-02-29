@@ -37,7 +37,7 @@ class ProductInventoryController extends Controller
             ->select(['id', 'name', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at', 'category', 'color']);
 
         $products_count = $products->count();
-        $products = $products->paginate(Setting::get('pagination'));
+        $products       = $products->paginate(Setting::get('pagination'));
 
         $roletype = 'Inventory';
 
@@ -48,10 +48,10 @@ class ProductInventoryController extends Controller
         $categoryAll = Category::where('parent_id', 0)->get();
         foreach ($categoryAll as $category) {
             $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
-            $childs = Category::where('parent_id', $category->id)->get();
+            $childs          = Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' ' . $child->title];
-                $grandChilds = Category::where('parent_id', $child->id)->get();
+                $grandChilds     = Category::where('parent_id', $child->id)->get();
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title];
@@ -115,7 +115,7 @@ class ProductInventoryController extends Controller
             $category_tree[$category_id] = $flattened_subcategories;
         }
 
-        $brands_array = Brand::getAll();
+        $brands_array    = Brand::getAll();
         $products_brands = Product::latest()
             ->where('stage', '>=', $stage->get('Approver'))
             ->whereNull('dnf')
@@ -132,7 +132,7 @@ class ProductInventoryController extends Controller
 
         foreach ($products_brands as $brand_name => $suppliers) {
             foreach ($suppliers as $supplier_name => $categories) {
-                $tree = [];
+                $tree                                        = [];
                 $inventory_data[$brand_name][$supplier_name] = $category_tree;
 
                 foreach ($categories as $category_id => $products) {
@@ -150,7 +150,7 @@ class ProductInventoryController extends Controller
         }
 
         $categories_array = [];
-        $categories = Category::all();
+        $categories       = Category::all();
 
         foreach ($categories as $category) {
             $categories_array[$category->id] = $category->title;
@@ -171,7 +171,7 @@ class ProductInventoryController extends Controller
             'stock' => 'required|numeric|min:0',
         ]);
 
-        $result = $this->magentoSoapUpdateStock($product, $request->input('stock'));
+        $result         = $this->magentoSoapUpdateStock($product, $request->input('stock'));
         $product->stock = $request->input('stock');
         $product->stage = $stage->get('Inventory');
         $product->save();
@@ -187,23 +187,23 @@ class ProductInventoryController extends Controller
 
     public function instock(Request $request)
     {
-        $data = [];
-        $term = $request->input('term');
+        $data         = [];
+        $term         = $request->input('term');
         $data['term'] = $term;
 
         $productQuery = Product::latest()->with(['brands', 'product_category']);
 
         if (isset($request->brand) && $request->brand[0] != null) {
-            $productQuery = $productQuery->whereIn('brand', $request->brand);
+            $productQuery  = $productQuery->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
         }
         if (isset($request->color) && is_array($request->color) && $request->color[0] != null) {
-            $productQuery = $productQuery->whereIn('color', $request->color);
+            $productQuery  = $productQuery->whereIn('color', $request->color);
             $data['color'] = $request->color;
         }
 
         if (! empty($request->category) && $request->category[0] != 1) {
-            $category = Category::with('childs.childLevelSencond')->find($request->category[0]);
+            $category          = Category::with('childs.childLevelSencond')->find($request->category[0]);
             $category_children = [];
             if ($category->childs->count()) {
                 $childs = $category->childs;
@@ -246,7 +246,7 @@ class ProductInventoryController extends Controller
                     })
                     ->orWhere(function ($q) use ($term) {
                         $arr_id = Product::STOCK_STATUS;
-                        $key = array_search(ucwords($term), $arr_id);
+                        $key    = array_search(ucwords($term), $arr_id);
                         $q->where('stock_status', $key);
                     });
             });
@@ -283,15 +283,15 @@ class ProductInventoryController extends Controller
             $data['products'] = $productQuery->whereRaw("(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))")->paginate(Setting::get('pagination'));
         }
 
-        $data['date'] = $request->date ? $request->date : '';
-        $data['type'] = $request->type ? $request->type : '';
+        $data['date']        = $request->date ? $request->date : '';
+        $data['type']        = $request->type ? $request->type : '';
         $data['customer_id'] = $request->customer_id ? $request->customer_id : '';
-        $data['locations'] = (new \App\ProductLocation())->pluck('name')->toArray() + ['In-Transit' => 'In-Transit'];
+        $data['locations']   = (new \App\ProductLocation())->pluck('name')->toArray() + ['In-Transit' => 'In-Transit'];
 
         $data['new_category_selection'] = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])
             ->renderAsDropdown();
 
-        $data['category_tree'] = [];
+        $data['category_tree']    = [];
         $data['categories_array'] = [];
 
         foreach (Category::with('parent')->get() as $category) {
@@ -326,23 +326,23 @@ class ProductInventoryController extends Controller
 
     public function inDelivered(Request $request)
     {
-        $data = [];
-        $term = $request->input('term');
+        $data         = [];
+        $term         = $request->input('term');
         $data['term'] = $term;
 
         $productQuery = (new Product())->newQuery()->latest();
         if ($request->brand[0] != null) {
-            $productQuery = $productQuery->whereIn('brand', $request->brand);
+            $productQuery  = $productQuery->whereIn('brand', $request->brand);
             $data['brand'] = $request->brand[0];
         }
 
         if ($request->color[0] != null) {
-            $productQuery = $productQuery->whereIn('color', $request->color);
+            $productQuery  = $productQuery->whereIn('color', $request->color);
             $data['color'] = $request->color[0];
         }
 
         if (isset($request->category) && $request->category[0] != 1) {
-            $is_parent = Category::isParent($request->category[0]);
+            $is_parent         = Category::isParent($request->category[0]);
             $category_children = [];
 
             if ($is_parent) {
@@ -372,8 +372,8 @@ class ProductInventoryController extends Controller
 
         if (isset($request->price) && $request->price != null) {
             $exploded = explode(',', $request->price);
-            $min = $exploded[0];
-            $max = $exploded[1];
+            $min      = $exploded[0];
+            $max      = $exploded[1];
 
             if ($min != '0' || $max != '10000000') {
                 $productQuery = $productQuery->whereBetween('price_inr_special', [$min, $max]);
@@ -396,14 +396,14 @@ class ProductInventoryController extends Controller
             }
 
             if (Brand::where('name', 'LIKE', "%$term%")->first()) {
-                $brand_id = Brand::where('name', 'LIKE', "%$term%")->first()->id;
+                $brand_id     = Brand::where('name', 'LIKE', "%$term%")->first()->id;
                 $productQuery = $productQuery->where(function ($query) use ($brand_id) {
                     return $query->orWhere('brand', 'LIKE', "%$brand_id%");
                 });
             }
 
             if ($category = Category::where('title', 'LIKE', "%$term%")->first()) {
-                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
+                $category_id  = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
                 $productQuery = $productQuery->where(function ($query) use ($term) {
                     return $query->orWhere('category', CategoryController::getCategoryIdByName($term));
                 });
@@ -428,15 +428,15 @@ class ProductInventoryController extends Controller
     public function magentoSoapUpdateStock($product, $stockQty)
     {
         $options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $proxy     = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('
 		api.user'), config('magentoapi.password'));
 
-        $sku = $product->sku . $product->color;
+        $sku    = $product->sku . $product->color;
         $result = false;
 
         if (! empty($product->size)) {
@@ -447,7 +447,7 @@ class ProductInventoryController extends Controller
 
                 try {
                     $result = $proxy->catalogInventoryStockItemUpdate($sessionId, $sku . '-' . $size, [
-                        'qty' => $stockQty,
+                        'qty'         => $stockQty,
                         'is_in_stock' => $stockQty ? 1 : 0,
                     ]);
                 } catch (\Exception $e) {
@@ -456,7 +456,7 @@ class ProductInventoryController extends Controller
 
                 if ($error_message == 'Product not exists.') {
                     $product->isUploaded = 0;
-                    $product->isFinal = 0;
+                    $product->isFinal    = 0;
                     $product->save();
                 }
             }
@@ -472,7 +472,7 @@ class ProductInventoryController extends Controller
 
             if ($error_message == 'Product not exists.') {
                 $product->isUploaded = 0;
-                $product->isFinal = 0;
+                $product->isFinal    = 0;
                 $product->save();
             }
         } else {
@@ -480,7 +480,7 @@ class ProductInventoryController extends Controller
 
             try {
                 $result = $proxy->catalogInventoryStockItemUpdate($sessionId, $sku, [
-                    'qty' => $stockQty,
+                    'qty'         => $stockQty,
                     'is_in_stock' => $stockQty ? 1 : 0,
                 ]);
             } catch (\Exception $e) {
@@ -489,7 +489,7 @@ class ProductInventoryController extends Controller
 
             if ($error_message == 'Product not exists.') {
                 $product->isUploaded = 0;
-                $product->isFinal = 0;
+                $product->isFinal    = 0;
                 $product->save();
             }
         }
@@ -505,7 +505,7 @@ class ProductInventoryController extends Controller
 
         $array = (new InventoryImport)->toArray($request->file('file'));
 
-        $new_array = [];
+        $new_array    = [];
         $brands_array = Helpers::getUserArray(Brand::all());
 
         foreach ($array[0] as $key => $item) {
@@ -518,10 +518,10 @@ class ProductInventoryController extends Controller
             if ($product = Product::where('sku', $formatted_sku)->first()) {
                 if (in_array($items[0]['brand'], $brands_array)) {
                     if (count($items) > 1) {
-                        $sizes = '';
-                        $product->stock = 1;
+                        $sizes                = '';
+                        $product->stock       = 1;
                         $product->import_date = Carbon::now();
-                        $product->status = 3; // Import Update status
+                        $product->status      = 3; // Import Update status
 
                         foreach ($items as $key => $item) {
                             $size = str_replace('½', '.5', $item['taglia']);
@@ -539,9 +539,9 @@ class ProductInventoryController extends Controller
 
                         $product->save();
                     } else {
-                        $product->stock = 1;
+                        $product->stock       = 1;
                         $product->import_date = Carbon::now();
-                        $product->status = 3; // Import Update status
+                        $product->status      = 3; // Import Update status
 
                         foreach ($items as $key => $item) {
                             $size = str_replace('½', '.5', $item['taglia']);
@@ -557,14 +557,14 @@ class ProductInventoryController extends Controller
             } else {
                 if (in_array($items[0]['brand'], $brands_array)) {
                     if (count($items) > 1) {
-                        $sizes = '';
-                        $product = new Product;
-                        $product->sku = $formatted_sku;
-                        $product->brand = array_search($items[0]['brand'], $brands_array);
-                        $product->stage = 3;
-                        $product->stock = 1;
+                        $sizes                = '';
+                        $product              = new Product;
+                        $product->sku         = $formatted_sku;
+                        $product->brand       = array_search($items[0]['brand'], $brands_array);
+                        $product->stage       = 3;
+                        $product->stock       = 1;
                         $product->import_date = Carbon::now();
-                        $product->status = 2; // Import Create status
+                        $product->status      = 2; // Import Create status
 
                         foreach ($items as $key => $item) {
                             $size = str_replace('½', '.5', $item['taglia']);
@@ -582,13 +582,13 @@ class ProductInventoryController extends Controller
 
                         $product->save();
                     } else {
-                        $product = new Product;
-                        $product->sku = $formatted_sku;
-                        $product->brand = array_search($items[0]['brand'], $brands_array);
-                        $product->stage = 3;
-                        $product->stock = 1;
+                        $product              = new Product;
+                        $product->sku         = $formatted_sku;
+                        $product->brand       = array_search($items[0]['brand'], $brands_array);
+                        $product->stage       = 3;
+                        $product->stock       = 1;
                         $product->import_date = Carbon::now();
-                        $product->status = 2; // Import Create status
+                        $product->status      = 2; // Import Create status
 
                         foreach ($items as $key => $item) {
                             $size = str_replace('½', '.5', $item['taglia']);
@@ -610,11 +610,11 @@ class ProductInventoryController extends Controller
     public function instructionCreate()
     {
         $productId = request()->get('product_id', 0);
-        $users = \App\User::all()->pluck('name', 'id');
-        $product = \App\Product::where('id', $productId)->first();
+        $users     = \App\User::all()->pluck('name', 'id');
+        $product   = \App\Product::where('id', $productId)->first();
         $locations = \App\ProductLocation::all()->pluck('name', 'name');
-        $couriers = \App\Courier::all()->pluck('name', 'name');
-        $order = [];
+        $couriers  = \App\Courier::all()->pluck('name', 'name');
+        $order     = [];
         if ($product) {
             $order = \App\OrderProduct::where('product_id', $product->id)
                 ->join('orders as o', 'o.id', 'order_products.order_id')
@@ -633,13 +633,13 @@ class ProductInventoryController extends Controller
         // validate incoming request
 
         $validator = Validator::make($params, [
-            'product_id' => 'required',
-            'location_name' => 'required',
-            'instruction_type' => 'required',
+            'product_id'          => 'required',
+            'location_name'       => 'required',
+            'instruction_type'    => 'required',
             'instruction_message' => 'required',
-            'courier_name' => 'required',
-            'courier_details' => 'required',
-            'date_time' => 'required',
+            'courier_name'        => 'required',
+            'courier_details'     => 'required',
+            'date_time'           => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -647,7 +647,7 @@ class ProductInventoryController extends Controller
         }
 
         // start to store first location as per the request
-        $product = \App\Product::where('id', $params['product_id'])->first();
+        $product     = \App\Product::where('id', $params['product_id'])->first();
         $instruction = new \App\Instruction();
 
         if ($params['instruction_type'] == 'dispatch') {
@@ -656,8 +656,8 @@ class ProductInventoryController extends Controller
                 $order = \App\Order::where('id', $params['order_id'])->first();
                 if ($order) {
                     $instruction->customer_id = $order->customer_id;
-                    $order->order_status = 'Delivered';
-                    $order->order_status_id = \App\Helpers\OrderHelper::$delivered;
+                    $order->order_status      = 'Delivered';
+                    $order->order_status_id   = \App\Helpers\OrderHelper::$delivered;
                     $order->save();
 
                     if ($order->customer) {
@@ -696,9 +696,9 @@ class ProductInventoryController extends Controller
                 ]);
 
                 $params['approved'] = 1;
-                $params['message'] = $messageData;
-                $params['status'] = 2;
-                $params['user_id'] = $user->id;
+                $params['message']  = $messageData;
+                $params['status']   = 2;
+                $params['user_id']  = $user->id;
 
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                 $chat_message = \App\ChatMessage::create($params);
@@ -720,7 +720,7 @@ class ProductInventoryController extends Controller
                 if ($user) {
                     // send location message
                     $pendingAmount = (! empty($params['pending_amount'])) ? ' and Pending amount : ' . $params['pending_amount'] : '';
-                    $messageData = implode("\n", [
+                    $messageData   = implode("\n", [
                         "Pls. Despatch {$product->name} to " . $params['location_name'] . $pendingAmount,
                         $params['instruction_message'],
                         $params['courier_name'],
@@ -728,9 +728,9 @@ class ProductInventoryController extends Controller
                     ]);
 
                     $params['approved'] = 1;
-                    $params['message'] = $messageData;
-                    $params['status'] = 2;
-                    $params['user_id'] = $user->id;
+                    $params['message']  = $messageData;
+                    $params['status']   = 2;
+                    $params['user_id']  = $user->id;
 
                     app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
                     $chat_message = \App\ChatMessage::create($params);
@@ -744,17 +744,17 @@ class ProductInventoryController extends Controller
             }
         }
 
-        $instruction->category_id = 7;
-        $instruction->instruction = $params['instruction_message'];
+        $instruction->category_id   = 7;
+        $instruction->instruction   = $params['instruction_message'];
         $instruction->assigned_from = \Auth::user()->id;
-        $instruction->assigned_to = $params['assign_to'];
-        $instruction->product_id = $params['product_id'];
-        $instruction->order_id = isset($params['order_id']) ? $params['order_id'] : null;
+        $instruction->assigned_to   = $params['assign_to'];
+        $instruction->product_id    = $params['product_id'];
+        $instruction->order_id      = isset($params['order_id']) ? $params['order_id'] : null;
         $instruction->save();
 
         $productHistory = new \App\ProductLocationHistory();
         $productHistory->fill($params);
-        $productHistory->created_by = \Auth::user()->id;
+        $productHistory->created_by          = \Auth::user()->id;
         $productHistory->instruction_message = $params['instruction_message'];
         $productHistory->save();
 
@@ -765,8 +765,8 @@ class ProductInventoryController extends Controller
     {
         $productId = request()->get('product_id', 0);
         $locations = (new \App\ProductLocation())->pluck('name')->toArray();
-        $product = \App\Product::where('id', $productId)->First();
-        $history = \App\ProductLocationHistory::where('product_id', $productId)
+        $product   = \App\Product::where('id', $productId)->First();
+        $history   = \App\ProductLocationHistory::where('product_id', $productId)
             ->orderBy('date_time', 'desc')
             ->get();
 
@@ -783,11 +783,11 @@ class ProductInventoryController extends Controller
     public function dispatchStore(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
+            'product_id'      => 'required',
             'modeof_shipment' => 'required',
             'delivery_person' => 'required',
-            'awb' => 'required',
-            'eta' => 'required',
+            'awb'             => 'required',
+            'eta'             => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -813,9 +813,9 @@ class ProductInventoryController extends Controller
         }
 
         if ($request->get('product_id') > 0) {
-            $product = \App\Product::where('id', $request->get('product_id'))->first();
+            $product                  = \App\Product::where('id', $request->get('product_id'))->first();
             $product->purchase_status = 'Delivered';
-            $product->location = null;
+            $product->location        = null;
             $product->save();
             $instruction = \App\Instruction::where('product_id', $request->get('product_id'))->where('customer_id', '>', '0')->orderBy('id', 'desc')->first();
             if ($instruction) {
@@ -823,18 +823,18 @@ class ProductInventoryController extends Controller
 
                 // if customer object found then send message
                 if (! empty($customer)) {
-                    $params = [];
+                    $params      = [];
                     $messageData = implode("\n", [
                         "We have Despatched your {$product->name} by {$productDispatch->delivery_person}",
                         "AWB : {$request->awb}",
                         "Mode Of Shipment  : {$request->modeof_shipment}",
                     ]);
 
-                    $params['approved'] = 1;
-                    $params['message'] = $messageData;
-                    $params['status'] = 2;
+                    $params['approved']    = 1;
+                    $params['message']     = $messageData;
+                    $params['status']      = 2;
                     $params['customer_id'] = $customer->id;
-                    $chat_message = \App\ChatMessage::create($params);
+                    $chat_message          = \App\ChatMessage::create($params);
 
                     // if product has image then send message with image otherwise send with photo
                     if ($productDispatch->hasMedia(config('constants.media_tags'))) {
@@ -864,10 +864,10 @@ class ProductInventoryController extends Controller
             $product->save();
 
             $productHistory = new \App\ProductLocationHistory();
-            $params = [
+            $params         = [
                 'location_name' => $product->location,
-                'product_id' => $product->id,
-                'date_time' => date('Y-m-d H:i:s'),
+                'product_id'    => $product->id,
+                'date_time'     => date('Y-m-d H:i:s'),
             ];
             $productHistory->fill($params);
             $productHistory->created_by = \Auth::user()->id;
@@ -879,8 +879,8 @@ class ProductInventoryController extends Controller
 
     public function updateField(Request $request)
     {
-        $id = $request->get('id');
-        $fieldName = $request->get('field_name', '');
+        $id         = $request->get('id');
+        $fieldName  = $request->get('field_name', '');
         $fieldValue = $request->get('field_value', '');
 
         if ($id > 0 && ! empty($fieldValue) && ! empty($fieldName)) {
@@ -899,7 +899,7 @@ class ProductInventoryController extends Controller
     public function inventoryList(Request $request)
     {
         ini_set('memory_limit', -1);
-        $filter_data = $request->input();
+        $filter_data    = $request->input();
         $inventory_data = \App\Product::getProducts($filter_data);
 
         // started to update status request
@@ -966,13 +966,13 @@ class ProductInventoryController extends Controller
             ->where('p.website', '<>', '');
         $scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
-        $scrappedReportData = $scrapped_query->get();
+        $scrappedReportData   = $scrapped_query->get();
         $inventory_data_count = $inventory_data->total();
-        $status_list = \App\Helpers\StatusHelper::getStatus();
+        $status_list          = \App\Helpers\StatusHelper::getStatus();
 
         foreach ($inventory_data as $product) {
             $product['medias'] = \App\Mediables::getMediasFromProductId($product['id']);
-            $product_history = $product->productstatushistory;
+            $product_history   = $product->productstatushistory;
 
             foreach ($product_history as $each) {
                 $each['old_status'] = isset($status_list[$each['old_status']]) ? $status_list[$each['old_status']] : 0;
@@ -983,12 +983,12 @@ class ProductInventoryController extends Controller
 
         //for filter
 
-        $sku = [];
-        $pname = [];
+        $sku         = [];
+        $pname       = [];
         $brandsArray = [];
-        $arr = DB::table('products')->select('name', 'sku')->get();
+        $arr         = DB::table('products')->select('name', 'sku')->get();
         foreach ($arr as $a) {
-            $sku[$a->sku] = $a->sku;
+            $sku[$a->sku]    = $a->sku;
             $pname[$a->name] = $a->name;
         }
 
@@ -1006,19 +1006,19 @@ class ProductInventoryController extends Controller
         $selected_categories = null;
         $selected_categories = Category::select('id', 'title')->get();
 
-        $brands_names = $brandsArray;
+        $brands_names   = $brandsArray;
         $products_names = $pname;
-        $products_sku = $sku;
+        $products_sku   = $sku;
 
         asort($products_names);
         asort($products_sku);
 
         $products_categories = [];
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'inventory-list')->first();
+        $datatableModel      = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'inventory-list')->first();
 
         $dynamicColumnsToShowPi = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns            = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPi = json_decode($hideColumns, true);
         }
 
@@ -1032,32 +1032,33 @@ class ProductInventoryController extends Controller
     public function columnVisbilityUpdate(Request $request)
     {
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
-        $result = null;
+        $result    = null;
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'inventory-list';
-            $column->column_name = json_encode($request->column_pi);
-            $result = $column->save();
+            $column->column_name  = json_encode($request->column_pi);
+            $result               = $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'inventory-list';
-            $column->column_name = json_encode($request->column_pi);
-            $column->user_id = auth()->user()->id;
-            $result = $column->save();
+            $column->column_name  = json_encode($request->column_pi);
+            $column->user_id      = auth()->user()->id;
+            $result               = $column->save();
         }
 
         if (request()->ajax()) {
             return response()->json(['code' => 200, 'data' => $result, 'message' => 'Column Visibility Updated Successfully!']);
         }
 
-        return redirect()->back()->with('success', 'Column Visibility Updated Successfully!');    }
+        return redirect()->back()->with('success', 'Column Visibility Updated Successfully!');
+    }
 
     public function inventoryListNew(Request $request)
     {
-        $filter_data = $request->input();
+        $filter_data    = $request->input();
         $selected_brand = null;
-        $term = '';
+        $term           = '';
         $inventory_data = \App\Product::join('store_website_product_attributes as swp', 'swp.product_id', 'products.id');
         if ($request->start_date != '') {
             $inventory_data->whereDate('products.created_at', '>=', $request->start_date);
@@ -1077,7 +1078,7 @@ class ProductInventoryController extends Controller
         }
 
         if (isset($request->term)) {
-            $term = $request->term;
+            $term           = $request->term;
             $inventory_data = $inventory_data->where(function ($q) use ($term) {
                 $q->where('products.name', 'LIKE', "%$term%")
                     ->orWhere('products.sku', 'LIKE', "%$term%")
@@ -1101,8 +1102,8 @@ class ProductInventoryController extends Controller
         $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
 
         $noofProductInStock = \App\Product::where('stock', '>', 0)->count();
-        $productUpdated = \App\InventoryStatusHistory::whereDate('date', '=', date('Y-m-d'))->select(\DB::raw('count(distinct product_id) as total'))->first();
-        $productUpdated = ($productUpdated) ? $productUpdated->total : 0;
+        $productUpdated     = \App\InventoryStatusHistory::whereDate('date', '=', date('Y-m-d'))->select(\DB::raw('count(distinct product_id) as total'))->first();
+        $productUpdated     = ($productUpdated) ? $productUpdated->total : 0;
 
         $history = \App\InventoryHistory::orderBy('date', 'DESC')->limit(7)->get();
 
@@ -1197,7 +1198,7 @@ class ProductInventoryController extends Controller
     public function getProductImages($id)
     {
         $product = Product::find($id);
-        $urls = [];
+        $urls    = [];
         if ($product) {
             $medias = \App\Mediables::getMediasFromProductId($id);
             $medias = $product->getMedia(config('constants.attach_image_tag'));
@@ -1212,9 +1213,9 @@ class ProductInventoryController extends Controller
     public function getProductRejectedImages($id)
     {
         $product = Product::find($id);
-        $urls = [];
+        $urls    = [];
         if ($product) {
-            $medias = \App\RejectedImages::getRejectedMediasFromProductId($id);
+            $medias      = \App\RejectedImages::getRejectedMediasFromProductId($id);
             $site_medias = $medias->groupBy('title');
             if ($site_medias->count()) {
                 $view = view('product-inventory.inventory-list-partials.rejected-images', ['site_medias' => $site_medias]);
@@ -1231,9 +1232,9 @@ class ProductInventoryController extends Controller
 
     public function changeSizeSystem(Request $request)
     {
-        $product_ids = $request->get('product_ids');
-        $size_system = $request->get('size_system');
-        $messages = [];
+        $product_ids   = $request->get('product_ids');
+        $size_system   = $request->get('size_system');
+        $messages      = [];
         $errorMessages = [];
         if (! empty($size_system) && ! empty($product_ids)) {
             $products = \App\Product::whereIn('id', $product_ids)->get();
@@ -1242,12 +1243,12 @@ class ProductInventoryController extends Controller
                     $productSupplier = \App\ProductSupplier::where('product_id', $product->id)->where('supplier_id', $product->supplier_id)->first();
                     if ($productSupplier) {
                         $productSupplier->size_system = $size_system;
-                        $allSize = explode(',', $product->size);
-                        $euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $productSupplier->size_system);
-                        $product->size_eu = implode(',', $euSize);
+                        $allSize                      = explode(',', $product->size);
+                        $euSize                       = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $productSupplier->size_system);
+                        $product->size_eu             = implode(',', $euSize);
                         if (empty($euSize)) {
                             $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-                            $errorMessages[] = "$product->sku has issue with size";
+                            $errorMessages[]    = "$product->sku has issue with size";
                         } else {
                             $messages[] = "$product->sku updated successfully";
                             foreach ($euSize as $es) {
@@ -1270,17 +1271,17 @@ class ProductInventoryController extends Controller
 
     public function changeErpSize(Request $request)
     {
-        $sizes = $request->sizes;
-        $erpSizes = $request->erp_size;
+        $sizes         = $request->sizes;
+        $erpSizes      = $request->erp_size;
         $sizeSystemStr = $request->size_system;
-        $categoryId = $request->category_id;
+        $categoryId    = $request->category_id;
 
         if (! empty($sizes) && ! empty($erpSizes) && ! empty($sizeSystemStr)) {
             /// check first size system exist or not
             $sizeSystem = \App\SystemSize::where('name', $sizeSystemStr)->first();
 
             if (! $sizeSystem) {
-                $sizeSystem = new \App\SystemSize;
+                $sizeSystem       = new \App\SystemSize;
                 $sizeSystem->name = $sizeSystem;
                 $sizeSystem->save();
             }
@@ -1291,10 +1292,10 @@ class ProductInventoryController extends Controller
                     $existSize = \App\SystemSizeManager::where('category_id', $categoryId)->where('erp_size', $epSize)->first();
 
                     if (! $existSize) {
-                        $existSize = new \App\SystemSizeManager;
+                        $existSize              = new \App\SystemSizeManager;
                         $existSize->category_id = $categoryId;
-                        $existSize->erp_size = $epSize;
-                        $existSize->status = 1;
+                        $existSize->erp_size    = $epSize;
+                        $existSize->status      = 1;
                         $existSize->save();
                     }
 
@@ -1305,10 +1306,10 @@ class ProductInventoryController extends Controller
                             ->first();
 
                         if (! $checkMainSize) {
-                            $checkMainSize = new \App\SystemSizeRelation;
+                            $checkMainSize                         = new \App\SystemSizeRelation;
                             $checkMainSize->system_size_manager_id = $existSize->id;
-                            $checkMainSize->system_size = $sizeSystem->id;
-                            $checkMainSize->size = $sizes[$k];
+                            $checkMainSize->system_size            = $sizeSystem->id;
+                            $checkMainSize->size                   = $sizes[$k];
                             $checkMainSize->save();
                         }
                     }
@@ -1326,10 +1327,10 @@ class ProductInventoryController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $product_ids = $request->get('product_ids');
+        $product_ids    = $request->get('product_ids');
         $product_status = $request->get('product_status');
 
-        $messages = [];
+        $messages      = [];
         $errorMessages = [];
         if (! empty($product_status) && ! empty($product_ids)) {
             $products = \App\Product::whereIn('id', $product_ids)->get();
@@ -1380,19 +1381,19 @@ class ProductInventoryController extends Controller
 
     public function supplierProductHistory(Request $request)
     {
-        $total_rows = 25;
+        $total_rows         = 25;
         $supplier_droupdown = Supplier::select('id', 'supplier')->get();
-        $suppliers = Supplier::query();
+        $suppliers          = Supplier::query();
         if ($request->supplier) {
             $suppliers = $suppliers->where('id', $request->supplier);
         }
-        $suppliers = $suppliers->paginate($total_rows);
+        $suppliers  = $suppliers->paginate($total_rows);
         $allHistory = [];
         $columnData = [];
         $start_date = new \DateTime(date('Y-m-d', strtotime('-7 days')));
-        $end_date = new \DateTime(date('Y-m-d'));
-        $interval = new \DateInterval('P1D');
-        $range = new \DatePeriod($start_date, $interval, $end_date);
+        $end_date   = new \DateTime(date('Y-m-d'));
+        $interval   = new \DateInterval('P1D');
+        $range      = new \DatePeriod($start_date, $interval, $end_date);
 
         if ($request->ajax()) {
             return response()->json([
@@ -1416,7 +1417,7 @@ class ProductInventoryController extends Controller
 
     public function supplierProductHistoryWithView(Request $request)
     {
-        $suppliers = \App\Supplier::pluck('supplier', 'id')->toArray();
+        $suppliers    = \App\Supplier::pluck('supplier', 'id')->toArray();
         $selectedDate = Carbon::now()->subDays(7);
         $dataToInsert = [];
         for ($date = $selectedDate; $date < Carbon::now(); Carbon::parse($date)->addDays(1)) {
@@ -1431,19 +1432,19 @@ class ProductInventoryController extends Controller
                     $inventory = $inventory->where('inventory_status_histories.supplier_id', $request->supplier);
                 }
 
-                $inventory = $inventory->orderBy('product_count_count', 'desc')->paginate(2); //dd($inventory);
+                $inventory  = $inventory->orderBy('product_count_count', 'desc')->paginate(2); //dd($inventory);
                 $total_rows = $inventory->total();
                 $allHistory = [];
-                $date = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
+                $date       = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
                 $extraDates = $date;
                 $columnData = [];
                 for ($i = 1; $i < 8; $i++) {
                     $columnData[] = $extraDates;
-                    $extraDates = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+                    $extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
                 }
 
                 foreach ($inventory as $key => $row) {
-                    $newRow = [];
+                    $newRow                  = [];
                     $newRow['supplier_name'] = '';
                     if (isset($suppliers[$row->supplier_id])) {
                         $newRow['supplier_name'] = $suppliers[$row->supplier_id];
@@ -1456,9 +1457,9 @@ class ProductInventoryController extends Controller
                         ->get()
                         ->count();
 
-                    $newRow['brands'] = $brandCount;
-                    $newRow['products'] = $row->product_count_count;
-                    $newRow['supplier_id'] = $row->supplier_id;
+                    $newRow['brands']           = $brandCount;
+                    $newRow['products']         = $row->product_count_count;
+                    $newRow['supplier_id']      = $row->supplier_id;
                     $newRow['last_scrapped_on'] = $row->last_completed_at;
 
                     foreach ($columnData as $c) {
@@ -1503,19 +1504,19 @@ class ProductInventoryController extends Controller
             $inventory = $inventory->where('inventory_status_histories.supplier_id', $request->supplier);
         }
 
-        $inventory = $inventory->orderBy('product_count_count', 'desc')->paginate(1); //dd($inventory);
+        $inventory  = $inventory->orderBy('product_count_count', 'desc')->paginate(1); //dd($inventory);
         $total_rows = $inventory->total();
         $allHistory = [];
-        $date = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
+        $date       = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 day'));
         $extraDates = $date;
         $columnData = [];
         for ($i = 1; $i < 8; $i++) {
             $columnData[] = $extraDates;
-            $extraDates = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+            $extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
         }
 
         foreach ($inventory as $key => $row) {
-            $newRow = [];
+            $newRow                  = [];
             $newRow['supplier_name'] = '';
             if (isset($suppliers[$row->supplier_id])) {
                 $newRow['supplier_name'] = $suppliers[$row->supplier_id];
@@ -1528,13 +1529,13 @@ class ProductInventoryController extends Controller
                 ->get()
                 ->count();
 
-            $newRow['brands'] = $brandCount;
-            $newRow['products'] = $row->product_count_count;
-            $newRow['supplier_id'] = $row->supplier_id;
+            $newRow['brands']           = $brandCount;
+            $newRow['products']         = $row->product_count_count;
+            $newRow['supplier_id']      = $row->supplier_id;
             $newRow['last_scrapped_on'] = $row->last_completed_at;
 
             foreach ($columnData as $c) {
-                $totalProduct = \App\InventoryStatusHistory::whereDate('created_at', $c)->where('supplier_id', $row->supplier_id)->select(\DB::raw('count(distinct product_id) as total_product'))->first();
+                $totalProduct        = \App\InventoryStatusHistory::whereDate('created_at', $c)->where('supplier_id', $row->supplier_id)->select(\DB::raw('count(distinct product_id) as total_product'))->first();
                 $newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
             }
             array_push($allHistory, $newRow);
@@ -1564,7 +1565,7 @@ class ProductInventoryController extends Controller
 
     public function mergeScrapBrand(Request $request)
     {
-        $scraperBrand = $request->get('scraper_brand');
+        $scraperBrand  = $request->get('scraper_brand');
         $originalBrand = $request->get('product_brand');
 
         if (! empty($scraperBrand) && ! empty($originalBrand)) {
@@ -1597,7 +1598,7 @@ class ProductInventoryController extends Controller
         $rows = $rows->paginate(30);
 
         $brand_data = \App\SupplierBrandDiscount::distinct()->get(['brand_id']);
-        $id = $request->id;
+        $id         = $request->id;
         $excel_data = ProductDiscountExcelFile::join('users', 'users.id', 'product_discount_excel_files.user_id')->select('product_discount_excel_files.*', 'users.name')->get();
 
         return view('product-inventory.discount-files', compact('suppliers', 'rows', 'brand_data', 'request', 'excel_data'));
@@ -1612,8 +1613,8 @@ class ProductInventoryController extends Controller
 
     public function discountlogHistory(Request $request)
     {
-        $users = User::get();
-        $id = $request->id;
+        $users  = User::get();
+        $id     = $request->id;
         $header = $request->header;
 
         $discount_log = SupplierDiscountLogHistory::join('users', 'users.id', 'supplier_discount_log_history.user_id')->where('supplier_brand_discounts_id', $id)->where('header_name', $header)->select('supplier_discount_log_history.*', 'users.name')->get();
@@ -1645,10 +1646,10 @@ class ProductInventoryController extends Controller
             $ogfilename = $file->getClientOriginalName();
 
             $fileName_array = rtrim($ogfilename, '.xlsx');
-            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
+            $fileName       = ($fileName_array) . '_' . time() . '.' . $file->extension();
 
             $params_file['excel_name'] = $fileName;
-            $params_file['user_id'] = \Auth::user()->id;
+            $params_file['user_id']    = \Auth::user()->id;
 
             $spreadsheet = $reader->load($file->getPathname());
 
@@ -1672,7 +1673,7 @@ class ProductInventoryController extends Controller
                         $brand = Brand::create($params_brand);
                     }
 
-                    $discount = new SupplierBrandDiscount();
+                    $discount  = new SupplierBrandDiscount();
                     $exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->first();
                     if ($row[4] != '') {
                         $segments = CategorySegment::where('status', 1)->get();
@@ -1684,10 +1685,10 @@ class ProductInventoryController extends Controller
                                     $csd->save();
                                 } else {
                                     \App\CategorySegmentDiscount::create([
-                                        'brand_id' => $brand->id,
+                                        'brand_id'            => $brand->id,
                                         'category_segment_id' => $segment->id,
-                                        'amount' => $row[4],
-                                        'amount_type' => 'percentage',
+                                        'amount'              => $row[4],
+                                        'amount_type'         => 'percentage',
                                     ]);
                                 }
                             }
@@ -1699,10 +1700,10 @@ class ProductInventoryController extends Controller
                             $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $row[4]]);
 
                             $params['supplier_brand_discounts_id'] = $exist_row->id;
-                            $params['header_name'] = 'condition_from_retail';
-                            $params['old_value'] = $exist_row->condition_from_retail;
-                            $params['new_value'] = $row[4];
-                            $params['user_id'] = \Auth::user()->id;
+                            $params['header_name']                 = 'condition_from_retail';
+                            $params['old_value']                   = $exist_row->condition_from_retail;
+                            $params['new_value']                   = $row[4];
+                            $params['user_id']                     = \Auth::user()->id;
 
                             $log_history = \App\SupplierDiscountLogHistory::create($params);
                         }
@@ -1711,39 +1712,39 @@ class ProductInventoryController extends Controller
                             $updaterow5 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $row[5]]);
 
                             $params['supplier_brand_discounts_id'] = $exist_row->id;
-                            $params['header_name'] = 'condition_from_retail_exceptions';
-                            $params['old_value'] = $exist_row->condition_from_retail_exceptions;
-                            $params['new_value'] = $row[5];
-                            $params['user_id'] = \Auth::user()->id;
+                            $params['header_name']                 = 'condition_from_retail_exceptions';
+                            $params['old_value']                   = $exist_row->condition_from_retail_exceptions;
+                            $params['new_value']                   = $row[5];
+                            $params['user_id']                     = \Auth::user()->id;
 
                             $log_history1 = \App\SupplierDiscountLogHistory::create($params);
                         }
                     } else {
-                        $discount->supplier_id = $request->supplier;
-                        $discount->brand_id = $brand->id;
-                        $discount->gender = $row[1];
-                        $discount->category = $row[2];
-                        $discount->exceptions = $row[3];
-                        $discount->condition_from_retail = $row[4];
+                        $discount->supplier_id                      = $request->supplier;
+                        $discount->brand_id                         = $brand->id;
+                        $discount->gender                           = $row[1];
+                        $discount->category                         = $row[2];
+                        $discount->exceptions                       = $row[3];
+                        $discount->condition_from_retail            = $row[4];
                         $discount->condition_from_retail_exceptions = $row[5];
                         $discount->save();
 
                         if ($row[4] != null) {
                             $params['supplier_brand_discounts_id'] = $discount->id;
-                            $params['header_name'] = 'condition_from_retail';
-                            $params['old_value'] = '-';
-                            $params['new_value'] = $row[4];
-                            $params['user_id'] = \Auth::user()->id;
-                            $log_history = \App\SupplierDiscountLogHistory::create($params);
+                            $params['header_name']                 = 'condition_from_retail';
+                            $params['old_value']                   = '-';
+                            $params['new_value']                   = $row[4];
+                            $params['user_id']                     = \Auth::user()->id;
+                            $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                         }
 
                         if ($row[5] != null) {
                             $params['supplier_brand_discounts_id'] = $discount->id;
-                            $params['header_name'] = 'condition_from_retail_exceptions';
-                            $params['old_value'] = '-';
-                            $params['new_value'] = $row[5];
-                            $params['user_id'] = \Auth::user()->id;
-                            $log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            $params['header_name']                 = 'condition_from_retail_exceptions';
+                            $params['old_value']                   = '-';
+                            $params['new_value']                   = $row[5];
+                            $params['user_id']                     = \Auth::user()->id;
+                            $log_history1                          = \App\SupplierDiscountLogHistory::create($params);
                         }
                     }
                 }
@@ -1755,9 +1756,9 @@ class ProductInventoryController extends Controller
             }
             // ------------------------------------------------------------------ SS21---------------------------------------------------------------------------
             if ($rows[0][1] == 'SS21') {
-                $array1 = $array2 = [];
+                $array1      = $array2 = [];
                 $first_time1 = 1;
-                $first_row = $rows[0][1];
+                $first_row   = $rows[0][1];
                 foreach ($rows as $key => $row) {
                     if ($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2) {
                         continue;
@@ -1768,14 +1769,14 @@ class ProductInventoryController extends Controller
                 }
 
                 $categories = [];
-                $cat = [];
+                $cat        = [];
                 foreach ($array1 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -1783,14 +1784,14 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $cat = [];
+                $cat          = [];
                 foreach ($array2 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -1798,7 +1799,7 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $total = 1;
+                $total        = 1;
                 foreach ($categories as $key_ => $cats) {
                     if (isset($cats[0])) {
                         array_unshift($cats, []);
@@ -1808,7 +1809,7 @@ class ProductInventoryController extends Controller
                         if ($key == 1) {
                             $category = trim($cat[0]);
 
-                            $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : (strpos($category, 'MAN') !== false ? 'MAN' : '');
+                            $gender   = strpos($category, 'WOMAN') !== false ? 'WOMAN' : (strpos($category, 'MAN') !== false ? 'MAN' : '');
                             $category = str_replace(' + ACC', '', $category);
 
                             continue;
@@ -1824,7 +1825,7 @@ class ProductInventoryController extends Controller
 
                             continue;
                         } elseif ($key == 3) {
-                            $exceptions = $cat[0];
+                            $exceptions                       = $cat[0];
                             $condition_from_retail_exceptions = trim(str_replace('EXCEPTIONS', '', $exceptions));
                             $condition_from_retail_exceptions = str_replace('+', '', $condition_from_retail_exceptions);
 
@@ -1859,10 +1860,10 @@ class ProductInventoryController extends Controller
                                             $csd->save();
                                         } else {
                                             \App\CategorySegmentDiscount::create([
-                                                'brand_id' => $brand->id,
+                                                'brand_id'            => $brand->id,
                                                 'category_segment_id' => $segment->id,
-                                                'amount' => $condition_from_retail,
-                                                'amount_type' => 'percentage',
+                                                'amount'              => $condition_from_retail,
+                                                'amount_type'         => 'percentage',
                                             ]);
                                         }
                                     }
@@ -1880,10 +1881,10 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = $updaterow4->where('category', $category)->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $condition_from_retail]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = $exist_row->condition_from_retail;
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = $exist_row->condition_from_retail;
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
@@ -1894,10 +1895,10 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price_data]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = $exist_row->generic_price;
-                                    $params['new_value'] = $generic_price_data;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = $exist_row->generic_price;
+                                    $params['new_value']                   = $generic_price_data;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
@@ -1906,50 +1907,50 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $condition_from_retail_exceptions]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'condition_from_retail_exceptions';
-                                    $params['old_value'] = $exist_row->condition_from_retail_exceptions;
-                                    $params['new_value'] = $condition_from_retail_exceptions;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'condition_from_retail_exceptions';
+                                    $params['old_value']                   = $exist_row->condition_from_retail_exceptions;
+                                    $params['new_value']                   = $condition_from_retail_exceptions;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             } else {
                                 $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
-                                $discount->supplier_id = $request->supplier;
-                                $discount->brand_id = $brand->id;
-                                $discount->gender = $gender;
-                                $discount->category = $category;
-                                $discount->generic_price = $generic_price_data;
-                                $discount->condition_from_retail = $condition_from_retail;
+                                $discount->supplier_id                      = $request->supplier;
+                                $discount->brand_id                         = $brand->id;
+                                $discount->gender                           = $gender;
+                                $discount->category                         = $category;
+                                $discount->generic_price                    = $generic_price_data;
+                                $discount->condition_from_retail            = $condition_from_retail;
                                 $discount->condition_from_retail_exceptions = $condition_from_retail_exceptions;
                                 $discount->save();
 
                                 if ($condition_from_retail != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
                                 if ($generic_price != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $generic_price_data;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $generic_price_data;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
                                 if ($condition_from_retail_exceptions != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'condition_from_retail_exceptions';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $condition_from_retail_exceptions;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'condition_from_retail_exceptions';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $condition_from_retail_exceptions;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             }
                         }
@@ -1963,9 +1964,9 @@ class ProductInventoryController extends Controller
             }
             // -------------------------------------------------------------------------FW21-----------------------------------------------------------------------
             if ($rows[0][1] == 'FW21') {
-                $array1 = $array2 = [];
+                $array1      = $array2 = [];
                 $first_time1 = 1;
-                $first_row = $rows[0][1];
+                $first_row   = $rows[0][1];
                 foreach ($rows as $key => $row) {
                     if ($row[1] == 'FW21' || $row[1] == 'ST' || $key == 2) {
                         continue;
@@ -1976,14 +1977,14 @@ class ProductInventoryController extends Controller
                 }
 
                 $categories = [];
-                $cat = [];
+                $cat        = [];
                 foreach ($array1 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -1991,14 +1992,14 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $cat = [];
+                $cat          = [];
                 foreach ($array2 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -2006,7 +2007,7 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $total = 1;
+                $total        = 1;
                 foreach ($categories as $key_ => $cats) {
                     if (isset($cats[0])) {
                         array_unshift($cats, []);
@@ -2015,7 +2016,7 @@ class ProductInventoryController extends Controller
                     foreach ($cats as $key => $cat) {
                         if ($key == 1) {
                             $category = trim($cat[0]);
-                            $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : (strpos($category, 'MAN') !== false ? 'MAN' : '');
+                            $gender   = strpos($category, 'WOMAN') !== false ? 'WOMAN' : (strpos($category, 'MAN') !== false ? 'MAN' : '');
                             $category = str_replace(' + ACC', '', $category);
 
                             continue;
@@ -2031,7 +2032,7 @@ class ProductInventoryController extends Controller
 
                             continue;
                         } elseif ($key == 3) {
-                            $exceptions = $cat[0];
+                            $exceptions                       = $cat[0];
                             $condition_from_retail_exceptions = trim(str_replace('EXCEPTIONS', '', $exceptions));
                             $condition_from_retail_exceptions = str_replace('+', '', $condition_from_retail_exceptions);
 
@@ -2042,7 +2043,7 @@ class ProductInventoryController extends Controller
                             $brand_name = $cat[0];
 
                             $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
-                            $brand = Brand::where('name', $brand_name)->first();
+                            $brand                 = Brand::where('name', $brand_name)->first();
 
                             if (! $brand) {
                                 $params_brand = [
@@ -2061,10 +2062,10 @@ class ProductInventoryController extends Controller
                                             $csd->save();
                                         } else {
                                             \App\CategorySegmentDiscount::create([
-                                                'brand_id' => $brand->id,
+                                                'brand_id'            => $brand->id,
                                                 'category_segment_id' => $segment->id,
-                                                'amount' => $condition_from_retail,
-                                                'amount_type' => 'percentage',
+                                                'amount'              => $condition_from_retail,
+                                                'amount_type'         => 'percentage',
                                             ]);
                                         }
                                     }
@@ -2086,10 +2087,10 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = $updaterow4->where('gender', $gender)->where('category', $category)->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $condition_from_retail]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = $exist_row->condition_from_retail;
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = $exist_row->condition_from_retail;
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
@@ -2100,10 +2101,10 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price_data]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = $exist_row->generic_price;
-                                    $params['new_value'] = $generic_price_data;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = $exist_row->generic_price;
+                                    $params['new_value']                   = $generic_price_data;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
@@ -2112,50 +2113,50 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $condition_from_retail_exceptions]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'condition_from_retail_exceptions';
-                                    $params['old_value'] = $exist_row->condition_from_retail_exceptions;
-                                    $params['new_value'] = $condition_from_retail_exceptions;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'condition_from_retail_exceptions';
+                                    $params['old_value']                   = $exist_row->condition_from_retail_exceptions;
+                                    $params['new_value']                   = $condition_from_retail_exceptions;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             } else {
                                 $generic_price_data = (isset($generic_price) && $generic_price != '' ? $generic_price : (isset($brand->deduction_percentage) ? $brand->deduction_percentage . '%' : ''));
 
-                                $discount->supplier_id = $request->supplier;
-                                $discount->brand_id = $brand->id;
-                                $discount->gender = $gender;
-                                $discount->category = $category;
-                                $discount->generic_price = $generic_price_data;
-                                $discount->condition_from_retail = $condition_from_retail;
+                                $discount->supplier_id                      = $request->supplier;
+                                $discount->brand_id                         = $brand->id;
+                                $discount->gender                           = $gender;
+                                $discount->category                         = $category;
+                                $discount->generic_price                    = $generic_price_data;
+                                $discount->condition_from_retail            = $condition_from_retail;
                                 $discount->condition_from_retail_exceptions = $condition_from_retail_exceptions;
                                 $discount->save();
 
                                 if ($condition_from_retail != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
                                 if ($generic_price != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $generic_price_data;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $generic_price_data;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
                                 if ($condition_from_retail_exceptions != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'condition_from_retail_exceptions';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $condition_from_retail_exceptions;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'condition_from_retail_exceptions';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $condition_from_retail_exceptions;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             }
                         }
@@ -2169,9 +2170,9 @@ class ProductInventoryController extends Controller
             }
 
             if ($rows[0][1] == 'FW20') {
-                $array1 = $array2 = [];
+                $array1      = $array2 = [];
                 $first_time1 = 1;
-                $first_row = $rows[0][1];
+                $first_row   = $rows[0][1];
                 foreach ($rows as $key => $row) {
                     if ($row[1] == 'FW20' || $row[1] == 'ST' || $key == 2) {
                         continue;
@@ -2187,14 +2188,14 @@ class ProductInventoryController extends Controller
                     $array2[] = [$row_4, $row_5];
                 }
                 $categories = [];
-                $cat = [];
+                $cat        = [];
                 foreach ($array1 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -2202,14 +2203,14 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $cat = [];
+                $cat          = [];
                 foreach ($array2 as $key => $row) {
                     if ($row[0] == null && $row[1] == null) {
                         if ($cat[0][0] == null && $cat[0][1] == null) {
                             unset($cat[0]);
                         }
                         $categories[] = $cat;
-                        $cat = [];
+                        $cat          = [];
                     }
                     $cat[] = $row;
                 }
@@ -2217,7 +2218,7 @@ class ProductInventoryController extends Controller
                     unset($cat[0]);
                 }
                 $categories[] = $cat;
-                $total = 1;
+                $total        = 1;
                 foreach ($categories as $key_ => $cats) {
                     if (isset($cats[0])) {
                         array_unshift($cats, []);
@@ -2225,7 +2226,7 @@ class ProductInventoryController extends Controller
                     foreach ($cats as $key => $cat) {
                         if ($key == 1) {
                             $category = trim($cat[0]);
-                            $gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
+                            $gender   = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
                             $category = str_replace(' + ACC', '', $category);
 
                             continue;
@@ -2244,7 +2245,7 @@ class ProductInventoryController extends Controller
                         } elseif ($key == 3 || $key == 0) {
                             continue;
                         } else {
-                            $brand_name = trim($cat[0]);
+                            $brand_name            = trim($cat[0]);
                             $condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
 
                             $brand = Brand::where('name', 'like', '%' . $brand_name . '%')->first();
@@ -2265,10 +2266,10 @@ class ProductInventoryController extends Controller
                                             $csd->save();
                                         } else {
                                             \App\CategorySegmentDiscount::create([
-                                                'brand_id' => $brand->id,
+                                                'brand_id'            => $brand->id,
                                                 'category_segment_id' => $segment->id,
-                                                'amount' => $condition_from_retail,
-                                                'amount_type' => 'percentage',
+                                                'amount'              => $condition_from_retail,
+                                                'amount_type'         => 'percentage',
                                             ]);
                                         }
                                     }
@@ -2283,10 +2284,10 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $condition_from_retail]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = $exist_row->condition_from_retail;
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = $exist_row->condition_from_retail;
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
@@ -2295,38 +2296,38 @@ class ProductInventoryController extends Controller
                                     $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $generic_price]);
 
                                     $params['supplier_brand_discounts_id'] = $exist_row->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = $exist_row->generic_price;
-                                    $params['new_value'] = $generic_price;
-                                    $params['user_id'] = \Auth::user()->id;
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = $exist_row->generic_price;
+                                    $params['new_value']                   = $generic_price;
+                                    $params['user_id']                     = \Auth::user()->id;
 
                                     $log_history = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             } else {
-                                $discount->supplier_id = $request->supplier;
-                                $discount->brand_id = $brand->id;
-                                $discount->gender = $gender;
-                                $discount->category = $category;
-                                $discount->generic_price = $generic_price;
+                                $discount->supplier_id           = $request->supplier;
+                                $discount->brand_id              = $brand->id;
+                                $discount->gender                = $gender;
+                                $discount->category              = $category;
+                                $discount->generic_price         = $generic_price;
                                 $discount->condition_from_retail = $condition_from_retail;
                                 $discount->save();
 
                                 if ($condition_from_retail != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'condition_from_retail';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $condition_from_retail;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'condition_from_retail';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $condition_from_retail;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
 
                                 if ($generic_price != null) {
                                     $params['supplier_brand_discounts_id'] = $discount->id;
-                                    $params['header_name'] = 'generic_price';
-                                    $params['old_value'] = '-';
-                                    $params['new_value'] = $generic_price;
-                                    $params['user_id'] = \Auth::user()->id;
-                                    $log_history = \App\SupplierDiscountLogHistory::create($params);
+                                    $params['header_name']                 = 'generic_price';
+                                    $params['old_value']                   = '-';
+                                    $params['new_value']                   = $generic_price;
+                                    $params['user_id']                     = \Auth::user()->id;
+                                    $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                                 }
                             }
                         }
@@ -2362,19 +2363,19 @@ class ProductInventoryController extends Controller
         }
 
         try {
-            $ogfilename = $file->getClientOriginalName();
-            $fileName_array = rtrim($ogfilename, '.xlsx');
-            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
+            $ogfilename                = $file->getClientOriginalName();
+            $fileName_array            = rtrim($ogfilename, '.xlsx');
+            $fileName                  = ($fileName_array) . '_' . time() . '.' . $file->extension();
             $params_file['excel_name'] = $fileName;
-            $params_file['user_id'] = \Auth::user()->id;
+            $params_file['user_id']    = \Auth::user()->id;
 
             $spreadsheet = $reader->load($file->getPathname());
 
             $rows = $spreadsheet->getActiveSheet()->toArray();
-            $i = 0;
+            $i    = 0;
             foreach ($rows as $row) {
                 if ($row[$i] != '' && $row[$i + 1] != '' && $row[$i + 2] != '') {
-                    $data = $row;
+                    $data         = $row;
                     $column_index = $i;
                     break;
                 }
@@ -2402,22 +2403,22 @@ class ProductInventoryController extends Controller
         }
 
         try {
-            $brand_index = $request->brand_dropdown;
-            $gender_index = $request->gender_dropdown;
-            $category_index = $request->category_dropdown;
-            $exceptions_index = $request->exceptions_dropdown;
-            $generice_price_index = $request->generice_price_dropdown;
-            $condition_from_retail_index = $request->condition_from_retail_dropdown;
+            $brand_index                     = $request->brand_dropdown;
+            $gender_index                    = $request->gender_dropdown;
+            $category_index                  = $request->category_dropdown;
+            $exceptions_index                = $request->exceptions_dropdown;
+            $generice_price_index            = $request->generice_price_dropdown;
+            $condition_from_retail_index     = $request->condition_from_retail_dropdown;
             $condition_from_exceptions_index = $request->condition_from_exceptions_dropdown;
-            $column_index = $request->column_index;
+            $column_index                    = $request->column_index;
 
             $ogfilename = $file->getClientOriginalName();
 
             $fileName_array = rtrim($ogfilename, '.xlsx');
-            $fileName = ($fileName_array) . '_' . time() . '.' . $file->extension();
+            $fileName       = ($fileName_array) . '_' . time() . '.' . $file->extension();
 
             $params_file['excel_name'] = $fileName;
-            $params_file['user_id'] = \Auth::user()->id;
+            $params_file['user_id']    = \Auth::user()->id;
 
             $spreadsheet = $reader->load($file->getPathname());
 
@@ -2454,10 +2455,10 @@ class ProductInventoryController extends Controller
                                     $csd->save();
                                 } else {
                                     \App\CategorySegmentDiscount::create([
-                                        'brand_id' => $brand->id,
+                                        'brand_id'            => $brand->id,
                                         'category_segment_id' => $segment->id,
-                                        'amount' => $row[$condition_from_retail_index],
-                                        'amount_type' => 'percentage',
+                                        'amount'              => $row[$condition_from_retail_index],
+                                        'amount_type'         => 'percentage',
                                     ]);
                                 }
                             }
@@ -2472,10 +2473,10 @@ class ProductInventoryController extends Controller
                             $updaterow3 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('generic_price', $exist_row->generic_price)->update(['generic_price' => $row[$generice_price_index]]);
 
                             $params['supplier_brand_discounts_id'] = $exist_row->id;
-                            $params['header_name'] = 'generic_price';
-                            $params['old_value'] = $exist_row->generic_price;
-                            $params['new_value'] = $row[$generice_price_index];
-                            $params['user_id'] = \Auth::user()->id;
+                            $params['header_name']                 = 'generic_price';
+                            $params['old_value']                   = $exist_row->generic_price;
+                            $params['new_value']                   = $row[$generice_price_index];
+                            $params['user_id']                     = \Auth::user()->id;
 
                             $log_history = \App\SupplierDiscountLogHistory::create($params);
                         }
@@ -2484,10 +2485,10 @@ class ProductInventoryController extends Controller
                             $updaterow4 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $exist_row->condition_from_retail)->update(['condition_from_retail' => $row[$condition_from_retail_index]]);
 
                             $params['supplier_brand_discounts_id'] = $exist_row->id;
-                            $params['header_name'] = 'condition_from_retail';
-                            $params['old_value'] = $exist_row->condition_from_retail;
-                            $params['new_value'] = $row[$condition_from_retail_index];
-                            $params['user_id'] = \Auth::user()->id;
+                            $params['header_name']                 = 'condition_from_retail';
+                            $params['old_value']                   = $exist_row->condition_from_retail;
+                            $params['new_value']                   = $row[$condition_from_retail_index];
+                            $params['user_id']                     = \Auth::user()->id;
 
                             $log_history = \App\SupplierDiscountLogHistory::create($params);
                         }
@@ -2496,49 +2497,49 @@ class ProductInventoryController extends Controller
                             $updaterow5 = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[$gender_index])->where('category', $row[$category_index])->where('condition_from_retail', $row[$condition_from_retail_index])->where('condition_from_retail_exceptions', $exist_row->condition_from_retail_exceptions)->update(['condition_from_retail_exceptions' => $row[$condition_from_exceptions_index]]);
 
                             $params['supplier_brand_discounts_id'] = $exist_row->id;
-                            $params['header_name'] = 'condition_from_retail_exceptions';
-                            $params['old_value'] = $exist_row->condition_from_retail_exceptions;
-                            $params['new_value'] = $row[$condition_from_exceptions_index];
-                            $params['user_id'] = \Auth::user()->id;
+                            $params['header_name']                 = 'condition_from_retail_exceptions';
+                            $params['old_value']                   = $exist_row->condition_from_retail_exceptions;
+                            $params['new_value']                   = $row[$condition_from_exceptions_index];
+                            $params['user_id']                     = \Auth::user()->id;
 
                             $log_history1 = \App\SupplierDiscountLogHistory::create($params);
                         }
                     } else {
-                        $discount->supplier_id = $request->supplier;
-                        $discount->brand_id = $brand->id;
-                        $discount->gender = $row[$gender_index];
-                        $discount->category = $row[$category_index];
-                        $discount->generic_price = ($generice_price_index != null ? $row[$generice_price_index] : null);
-                        $discount->exceptions = ($exceptions_index != null ? $row[$exceptions_index] : null);
-                        $discount->condition_from_retail = ($condition_from_retail_index != null ? $row[$condition_from_retail_index] : null);
+                        $discount->supplier_id                      = $request->supplier;
+                        $discount->brand_id                         = $brand->id;
+                        $discount->gender                           = $row[$gender_index];
+                        $discount->category                         = $row[$category_index];
+                        $discount->generic_price                    = ($generice_price_index != null ? $row[$generice_price_index] : null);
+                        $discount->exceptions                       = ($exceptions_index != null ? $row[$exceptions_index] : null);
+                        $discount->condition_from_retail            = ($condition_from_retail_index != null ? $row[$condition_from_retail_index] : null);
                         $discount->condition_from_retail_exceptions = ($condition_from_exceptions_index ? $row[$condition_from_exceptions_index] : null);
                         $discount->save();
 
                         if ($generice_price_index != null && $row[$generice_price_index] != null) {
                             $params['supplier_brand_discounts_id'] = $discount->id;
-                            $params['header_name'] = 'generic_price';
-                            $params['old_value'] = '-';
-                            $params['new_value'] = $row[$generice_price_index];
-                            $params['user_id'] = \Auth::user()->id;
-                            $log_history = \App\SupplierDiscountLogHistory::create($params);
+                            $params['header_name']                 = 'generic_price';
+                            $params['old_value']                   = '-';
+                            $params['new_value']                   = $row[$generice_price_index];
+                            $params['user_id']                     = \Auth::user()->id;
+                            $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                         }
 
                         if ($condition_from_retail_index != null && $row[$condition_from_retail_index] != null) {
                             $params['supplier_brand_discounts_id'] = $discount->id;
-                            $params['header_name'] = 'condition_from_retail';
-                            $params['old_value'] = '-';
-                            $params['new_value'] = $row[$condition_from_retail_index];
-                            $params['user_id'] = \Auth::user()->id;
-                            $log_history = \App\SupplierDiscountLogHistory::create($params);
+                            $params['header_name']                 = 'condition_from_retail';
+                            $params['old_value']                   = '-';
+                            $params['new_value']                   = $row[$condition_from_retail_index];
+                            $params['user_id']                     = \Auth::user()->id;
+                            $log_history                           = \App\SupplierDiscountLogHistory::create($params);
                         }
 
                         if ($condition_from_exceptions_index != null && $row[$condition_from_exceptions_index] != null) {
                             $params['supplier_brand_discounts_id'] = $discount->id;
-                            $params['header_name'] = 'condition_from_retail_exceptions';
-                            $params['old_value'] = '-';
-                            $params['new_value'] = $row[$condition_from_exceptions_index];
-                            $params['user_id'] = \Auth::user()->id;
-                            $log_history1 = \App\SupplierDiscountLogHistory::create($params);
+                            $params['header_name']                 = 'condition_from_retail_exceptions';
+                            $params['old_value']                   = '-';
+                            $params['new_value']                   = $row[$condition_from_exceptions_index];
+                            $params['user_id']                     = \Auth::user()->id;
+                            $log_history1                          = \App\SupplierDiscountLogHistory::create($params);
                         }
                     }
                 }
@@ -2558,16 +2559,16 @@ class ProductInventoryController extends Controller
     public function updategenericprice(Request $request)
     {
         $generic_price_data = $request->generic_price_data;
-        $id = $request->generic_id;
+        $id                 = $request->generic_id;
 
         $brand_disc = SupplierBrandDiscount::find($id);
 
-        $brand_disc_history = new SupplierDiscountLogHistory;
+        $brand_disc_history                              = new SupplierDiscountLogHistory;
         $brand_disc_history->supplier_brand_discounts_id = $id;
-        $brand_disc_history->header_name = 'generic_price';
-        $brand_disc_history->old_value = $brand_disc->generic_price;
-        $brand_disc_history->new_value = $generic_price_data;
-        $brand_disc_history->user_id = \Auth::id();
+        $brand_disc_history->header_name                 = 'generic_price';
+        $brand_disc_history->old_value                   = $brand_disc->generic_price;
+        $brand_disc_history->new_value                   = $generic_price_data;
+        $brand_disc_history->user_id                     = \Auth::id();
 
         $brand_disc_history->save();
 
@@ -2582,16 +2583,16 @@ class ProductInventoryController extends Controller
     public function conditionprice(Request $request)
     {
         $condition_from_retail_data = $request->condition_from_retail_data;
-        $id = $request->condition_id;
+        $id                         = $request->condition_id;
 
         $condition_disc = SupplierBrandDiscount::find($id);
 
-        $condition_disc_history = new SupplierDiscountLogHistory;
+        $condition_disc_history                              = new SupplierDiscountLogHistory;
         $condition_disc_history->supplier_brand_discounts_id = $id;
-        $condition_disc_history->header_name = 'condition_from_retail';
-        $condition_disc_history->old_value = $condition_disc->condition_from_retail;
-        $condition_disc_history->new_value = $condition_from_retail_data;
-        $condition_disc_history->user_id = \Auth::id();
+        $condition_disc_history->header_name                 = 'condition_from_retail';
+        $condition_disc_history->old_value                   = $condition_disc->condition_from_retail;
+        $condition_disc_history->new_value                   = $condition_from_retail_data;
+        $condition_disc_history->user_id                     = \Auth::id();
 
         $condition_disc_history->save();
 
@@ -2606,16 +2607,16 @@ class ProductInventoryController extends Controller
     public function exceptionsprice(Request $request)
     {
         $condition_from_retail_exceptions_data = $request->condition_from_retail_exceptions_data;
-        $id = $request->condition_exceptions_id;
+        $id                                    = $request->condition_exceptions_id;
 
         $exceptions_discount = SupplierBrandDiscount::find($id);
 
-        $exceptions_discount_his = new SupplierDiscountLogHistory;
+        $exceptions_discount_his                              = new SupplierDiscountLogHistory;
         $exceptions_discount_his->supplier_brand_discounts_id = $id;
-        $exceptions_discount_his->header_name = 'condition_from_retail_exceptions';
-        $exceptions_discount_his->old_value = $exceptions_discount->condition_from_retail_exceptions;
-        $exceptions_discount_his->new_value = $condition_from_retail_exceptions_data;
-        $exceptions_discount_his->user_id = \Auth::id();
+        $exceptions_discount_his->header_name                 = 'condition_from_retail_exceptions';
+        $exceptions_discount_his->old_value                   = $exceptions_discount->condition_from_retail_exceptions;
+        $exceptions_discount_his->new_value                   = $condition_from_retail_exceptions_data;
+        $exceptions_discount_his->user_id                     = \Auth::id();
 
         $exceptions_discount_his->save();
 
@@ -2633,7 +2634,7 @@ class ProductInventoryController extends Controller
 
         $logs = DB::table('scraped_product_missing_log');
 
-        $logs = $logs->paginate(Setting::get('pagination'));
+        $logs        = $logs->paginate(Setting::get('pagination'));
         $total_count = $logs->total();
         // Show results
         if ($request->ajax()) {
@@ -2698,8 +2699,8 @@ class ProductInventoryController extends Controller
         if ($product) {
             $productsLog = \App\InventoryStatusHistory::with('product', 'supplier')->where(['in_stock' => 1, 'product_id' => $request->product])->get();
             $productName = $productsLog[0]->product ? $productsLog[0]->product->name : 'N/A';
-            $productSku = $productsLog[0]->product ? $productsLog[0]->product->sku : 'N/A';
-            $response = (string) view('product-inventory.out-of-stock-product-log', compact('productsLog'));
+            $productSku  = $productsLog[0]->product ? $productsLog[0]->product->sku : 'N/A';
+            $response    = (string) view('product-inventory.out-of-stock-product-log', compact('productsLog'));
 
             return response()->json(['success' => true, 'msg' => 'Product logs found successfully.', 'data' => $response, 'productName' => $productName, 'productSku' => $productSku]);
         } else {

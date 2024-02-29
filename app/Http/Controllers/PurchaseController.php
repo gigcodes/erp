@@ -125,8 +125,8 @@ class PurchaseController extends Controller
 
         $purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'supplier_id', 'status', 'created_at'])->get()->toArray();
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = 10;
         $currentItems = array_slice($purchases_array, $perPage * ($currentPage - 1), $perPage);
 
         $purchases_array = new LengthAwarePaginator($currentItems, count($purchases_array), $perPage, $currentPage, [
@@ -168,8 +168,8 @@ class PurchaseController extends Controller
             }
         }
 
-        $suppliers = Supplier::select(['id', 'supplier'])->get();
-        $agents = Agent::where('model_type', \App\Supplier::class)->get();
+        $suppliers    = Supplier::select(['id', 'supplier'])->get();
+        $agents       = Agent::where('model_type', \App\Supplier::class)->get();
         $agents_array = [];
 
         foreach ($agents as $agent) {
@@ -190,24 +190,24 @@ class PurchaseController extends Controller
         $purchases = Db::select('select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id');
 
         $not_include_products = [];
-        $includedPurchases = [];
+        $includedPurchases    = [];
         foreach ((array) $purchases as $product) {
             if ($product->order_product_id > 0) {
                 $not_include_products[] = $product->order_product_id;
-                $includedPurchases[] = $product->id;
+                $includedPurchases[]    = $product->id;
             }
         }
 
         $skuNeed = Db::select('select p.id from order_products as op join products as p on p.id = op.product_id left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku');
         $skuNeed = collect($skuNeed)->pluck('id')->toArray();
 
-        $ignoreSku = array_diff($includedPurchases, $skuNeed);
+        $ignoreSku  = array_diff($includedPurchases, $skuNeed);
         $customerId = request()->get('customer_id', 0);
 
         if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
-            $status = $request->status;
+            $status      = $request->status;
             $status_list = implode("','", $request->status ?? []);
-            $orders = OrderProduct::join('orders as o', 'o.id', 'order_products.order_id')
+            $orders      = OrderProduct::join('orders as o', 'o.id', 'order_products.order_id')
                 ->join('products as p', 'p.id', 'order_products.product_id')
                 ->whereIn('o.order_status', $status)
                 ->where('qty', '>=', 1);
@@ -221,7 +221,7 @@ class PurchaseController extends Controller
         $status_list = implode("','", $request->status ?? []);
 
         if ($request->supplier[0] != null) {
-            $supplier = $request->supplier[0];
+            $supplier      = $request->supplier[0];
             $supplier_list = implode(',', $request->supplier);
 
             if ($request->status[0] != null) {
@@ -393,15 +393,15 @@ class PurchaseController extends Controller
             $orders = $orders->get();
         }
 
-        $new_orders = [];
+        $new_orders     = [];
         $includedOrders = [];
         foreach ($orders as $order) {
             array_push($new_orders, $order['id']);
             array_push($includedOrders, $order['order_id']);
         }
 
-        $color = $request->get('color');
-        $size = $request->get('size');
+        $color    = $request->get('color');
+        $size     = $request->get('size');
         $products = Product::with([
             'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders, $color, $size) {
                 if ($page != 'ordered') {
@@ -435,10 +435,10 @@ class PurchaseController extends Controller
             $products = $products->whereNotIn('id', $ignoreSku);
         }
 
-        $term = $request->input('term');
-        $status = isset($status) ? $status : '';
-        $supplier = isset($supplier) ? $supplier : '';
-        $brand = isset($brand) ? $brand : '';
+        $term         = $request->input('term');
+        $status       = isset($status) ? $status : '';
+        $supplier     = isset($supplier) ? $supplier : '';
+        $brand        = isset($brand) ? $brand : '';
         $order_status = (new OrderStatus)->all();
 
         foreach ($order_status as $key => $value) {
@@ -509,17 +509,17 @@ class PurchaseController extends Controller
         }
 
         $new_products = [];
-        $products = $products->select(['id', 'sku', 'supplier', 'brand', 'category', 'price', 'price_inr'])->get()->sortBy('supplier');
-        $count = 0;
-        $productIds = [];
+        $products     = $products->select(['id', 'sku', 'supplier', 'brand', 'category', 'price', 'price_inr'])->get()->sortBy('supplier');
+        $count        = 0;
+        $productIds   = [];
         foreach ($products as $key => $product) {
-            $supplier_list = '';
+            $supplier_list   = '';
             $single_supplier = '';
 
             $customer_names = '';
-            $customers = [];
-            $orderCount = 0;
-            $sizeArr = [];
+            $customers      = [];
+            $orderCount     = 0;
+            $sizeArr        = [];
             foreach ($product->orderproducts as $key => $order_product) {
                 if ($order_product->order && $order_product->order->customer) {
                     $customers[] = $order_product->order->customer;
@@ -555,34 +555,34 @@ class PurchaseController extends Controller
 
                 if (! empty($value->chat_messages_id)) {
                     $supplier_msg_data[$value->id]['chat_messages'][] = [
-                        'message' => $value->message,
+                        'message'    => $value->message,
                         'created_at' => $value->created_at,
                     ];
                 }
             }
             $productIds[] = $product->id;
 
-            $new_products[$count]['id'] = $product->id;
-            $new_products[$count]['sku'] = $product->sku;
-            $new_products[$count]['price'] = $product->price;
-            $new_products[$count]['price_inr'] = $product->price_inr;
-            $new_products[$count]['supplier'] = $product->supplier;
-            $new_products[$count]['supplier_list'] = $supplier_list;
+            $new_products[$count]['id']              = $product->id;
+            $new_products[$count]['sku']             = $product->sku;
+            $new_products[$count]['price']           = $product->price;
+            $new_products[$count]['price_inr']       = $product->price_inr;
+            $new_products[$count]['supplier']        = $product->supplier;
+            $new_products[$count]['supplier_list']   = $supplier_list;
             $new_products[$count]['single_supplier'] = $single_supplier;
-            $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
-            $new_products[$count]['brand_id'] = $product->brands ? $product->brands->id : '';
-            $new_products[$count]['category'] = $product->category;
-            $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
-            $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-            $new_products[$count]['customer_id'] = ! empty($product->orderproducts->first()->order) ? (! empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
-            $new_products[$count]['customers'] = $customers;
-            $new_products[$count]['customer_names'] = '';
-            $new_products[$count]['order_products'] = $product->orderproducts;
-            $new_products[$count]['order_price'] = ! empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
-            $new_products[$count]['order_date'] = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
-            $new_products[$count]['order_advance'] = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
-            $new_products[$count]['supplier_msg'] = $supplier_msg_data;
-            $new_products[$count]['size'] = implode(',', array_unique($sizeArr));
+            $new_products[$count]['brand']           = $product->brands ? $product->brands->name : 'No Brand';
+            $new_products[$count]['brand_id']        = $product->brands ? $product->brands->id : '';
+            $new_products[$count]['category']        = $product->category;
+            $new_products[$count]['image']           = $product->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($product->getMedia(config('constants.media_tags'))->first()) : '';
+            $new_products[$count]['abs_img_url']     = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+            $new_products[$count]['customer_id']     = ! empty($product->orderproducts->first()->order) ? (! empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+            $new_products[$count]['customers']       = $customers;
+            $new_products[$count]['customer_names']  = '';
+            $new_products[$count]['order_products']  = $product->orderproducts;
+            $new_products[$count]['order_price']     = ! empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
+            $new_products[$count]['order_date']      = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
+            $new_products[$count]['order_advance']   = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+            $new_products[$count]['supplier_msg']    = $supplier_msg_data;
+            $new_products[$count]['size']            = implode(',', array_unique($sizeArr));
 
             $count++;
         }
@@ -593,7 +593,7 @@ class PurchaseController extends Controller
 
         $new_products = array_reverse($new_products);
 
-        $suppliers_all = [];
+        $suppliers_all  = [];
         $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp
             join scrapers sc on sc.scraper_name =  sp.website
             JOIN suppliers s ON s.id=sc.supplier_id 
@@ -621,16 +621,16 @@ class PurchaseController extends Controller
             set_time_limit(0);
 
             $html = view('purchase.purchase-grid-pdf')->with([
-                'products' => $new_products,
-                'order_status' => $order_status,
-                'supplier_list' => $supplier_list,
+                'products'        => $new_products,
+                'order_status'    => $order_status,
+                'supplier_list'   => $supplier_list,
                 'suppliers_array' => $suppliers_array,
-                'suppliers_all' => $suppliers_all,
-                'term' => $term,
-                'status' => $status,
-                'supplier' => $supplier,
-                'brand' => $brand,
-                'page' => $page,
+                'suppliers_all'   => $suppliers_all,
+                'term'            => $term,
+                'status'          => $status,
+                'supplier'        => $supplier,
+                'brand'           => $brand,
+                'page'            => $page,
             ]);
 
             $pdf = new Dompdf();
@@ -641,36 +641,36 @@ class PurchaseController extends Controller
             return;
         }
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
         $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
-        $totalSku = count($new_products);
+        $totalSku     = count($new_products);
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         $category_selection = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2'])->selected(1)->renderAsDropdown();
-        $categoryFilter = \App\Category::attr(['name' => 'category_id', 'class' => 'form-control select-multiple2'])->selected(request()->get('category_id', 1))->renderAsDropdown();
+        $categoryFilter     = \App\Category::attr(['name' => 'category_id', 'class' => 'form-control select-multiple2'])->selected(request()->get('category_id', 1))->renderAsDropdown();
 
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         return view('purchase.purchase-grid')->with([
-            'products' => $new_products,
-            'order_status' => $order_status,
-            'supplier_list' => $supplier_list,
-            'suppliers_array' => $suppliers_array,
-            'suppliers_all' => $suppliers_all,
-            'term' => $term,
-            'status' => $status,
-            'supplier' => $supplier,
-            'brand' => $brand,
-            'page' => $page,
+            'products'           => $new_products,
+            'order_status'       => $order_status,
+            'supplier_list'      => $supplier_list,
+            'suppliers_array'    => $suppliers_array,
+            'suppliers_all'      => $suppliers_all,
+            'term'               => $term,
+            'status'             => $status,
+            'supplier'           => $supplier,
+            'brand'              => $brand,
+            'page'               => $page,
             'category_selection' => $category_selection,
-            'activSuppliers' => $activSuppliers,
-            'categoryFilter' => $categoryFilter,
-            'suppliers' => $suppliers,
-            'totalSku' => $totalSku,
+            'activSuppliers'     => $activSuppliers,
+            'categoryFilter'     => $categoryFilter,
+            'suppliers'          => $suppliers,
+            'totalSku'           => $totalSku,
         ]);
     }
 
@@ -689,7 +689,7 @@ class PurchaseController extends Controller
         $selected_purchases = json_decode($request->selected_purchases);
 
         foreach ($selected_purchases as $purchase_id) {
-            $purchase = Purchase::find($purchase_id);
+            $purchase         = Purchase::find($purchase_id);
             $purchase->status = 'Request Sent to Supplier';
             $purchase->save();
         }
@@ -703,7 +703,7 @@ class PurchaseController extends Controller
 
     public function sendExport(Request $request)
     {
-        $path = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
+        $path     = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
         $filename = Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
 
         if ($request->hasFile('file')) {
@@ -712,7 +712,7 @@ class PurchaseController extends Controller
         }
 
         $first_agent_email = '';
-        $cc_agents_emails = [];
+        $cc_agents_emails  = [];
         foreach ($request->agent_id as $key => $agent_id) {
             $agent = Agent::find($agent_id);
 
@@ -725,22 +725,22 @@ class PurchaseController extends Controller
 
         $emailClass = (new PurchaseExport($path, $request->subject, $request->message))->build();
         $from_email = \App\Helpers::getFromEmail();
-        $email = Email::create([
-            'model_id' => $request->supplier_id,
-            'model_type' => Supplier::class,
-            'from' => $from_email,
-            'to' => $first_agent_email,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'template' => 'purchase-simple',
+        $email      = Email::create([
+            'model_id'        => $request->supplier_id,
+            'model_type'      => Supplier::class,
+            'from'            => $from_email,
+            'to'              => $first_agent_email,
+            'subject'         => $request->subject,
+            'message'         => $request->message,
+            'template'        => 'purchase-simple',
             'additional_data' => json_encode(['attachment' => $path]),
-            'status' => 'pre-send',
+            'status'          => 'pre-send',
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -771,20 +771,20 @@ class PurchaseController extends Controller
                 $merging_purchase = Purchase::find($purchase_id);
 
                 if ($main_purchase->transaction_amount == '' || $main_purchase->shipment_cost == '') {
-                    $main_purchase->transaction_id = $merging_purchase->transaction_id;
-                    $main_purchase->transaction_date = $merging_purchase->transaction_date;
+                    $main_purchase->transaction_id     = $merging_purchase->transaction_id;
+                    $main_purchase->transaction_date   = $merging_purchase->transaction_date;
                     $main_purchase->transaction_amount = $merging_purchase->transaction_amount;
-                    $main_purchase->bill_number = $merging_purchase->bill_number;
-                    $main_purchase->shipper = $merging_purchase->shipper;
-                    $main_purchase->shipment_status = $merging_purchase->shipment_status;
-                    $main_purchase->shipment_cost = $merging_purchase->shipment_cost;
+                    $main_purchase->bill_number        = $merging_purchase->bill_number;
+                    $main_purchase->shipper            = $merging_purchase->shipper;
+                    $main_purchase->shipment_status    = $merging_purchase->shipment_status;
+                    $main_purchase->shipment_cost      = $merging_purchase->shipment_cost;
                     $main_purchase->save();
                 }
 
                 foreach ($merging_purchase->purchaseProducts as $product) {
-                    $purchaseProducts = new \App\PurchaseProduct;
-                    $purchaseProducts->purchase_id = $main_purchase->id;
-                    $purchaseProducts->product_id = $product->product_id;
+                    $purchaseProducts                   = new \App\PurchaseProduct;
+                    $purchaseProducts->purchase_id      = $main_purchase->id;
+                    $purchaseProducts->product_id       = $product->product_id;
                     $purchaseProducts->order_product_id = $product->order_product_id;
                     $purchaseProducts->save();
                 }
@@ -820,7 +820,7 @@ class PurchaseController extends Controller
             foreach ($purchase->products as $product) {
                 if ($product->orderproducts) {
                     foreach ($product->orderproducts as $order_product) {
-                        $order_product->purchase_id = $id;
+                        $order_product->purchase_id  = $id;
                         $order_product->batch_number = '';
                         $order_product->save();
                     }
@@ -837,15 +837,15 @@ class PurchaseController extends Controller
 
         if ($max_batch_number) {
             foreach (json_decode($request->order_products) as $order_product_id) {
-                $order_product = OrderProduct::find($order_product_id);
-                $order_product->purchase_id = $id;
+                $order_product               = OrderProduct::find($order_product_id);
+                $order_product->purchase_id  = $id;
                 $order_product->batch_number = (int) $max_batch_number->batch_number + 1;
                 $order_product->save();
             }
         } else {
             foreach (json_decode($request->order_products) as $order_product_id) {
-                $order_product = OrderProduct::find($order_product_id);
-                $order_product->purchase_id = $id;
+                $order_product               = OrderProduct::find($order_product_id);
+                $order_product->purchase_id  = $id;
                 $order_product->batch_number = 1;
                 $order_product->save();
             }
@@ -856,20 +856,20 @@ class PurchaseController extends Controller
 
     public function calendar()
     {
-        $purchases = Purchase::whereNotNull('shipment_date')->get();
+        $purchases      = Purchase::whereNotNull('shipment_date')->get();
         $order_products = OrderProduct::whereNotNull('shipment_date')->get();
-        $purchase_data = [];
+        $purchase_data  = [];
 
         foreach ($order_products as $order_product) {
             if ($order_product->order && $order_product->order->customer) {
                 $purchase_data[] = [
-                    'customer_id' => $order_product->order->customer->id,
-                    'order_product_id' => $order_product->id,
-                    'customer_name' => $order_product->order->customer->name,
-                    'customer_city' => $order_product->order->customer->city,
-                    'shipment_date' => $order_product->shipment_date,
-                    'product_name' => $order_product->product->name,
-                    'reschedule_count' => $order_product->reschedule_count,
+                    'customer_id'       => $order_product->order->customer->id,
+                    'order_product_id'  => $order_product->id,
+                    'customer_name'     => $order_product->order->customer->name,
+                    'customer_city'     => $order_product->order->customer->city,
+                    'shipment_date'     => $order_product->shipment_date,
+                    'product_name'      => $order_product->product->name,
+                    'reschedule_count'  => $order_product->reschedule_count,
                     'is_order_priority' => $order_product->order->is_priority,
                 ];
             }
@@ -889,17 +889,17 @@ class PurchaseController extends Controller
     {
         $this->validate($request, [
             'purchase_handler' => 'required',
-            'order_products' => 'required',
+            'order_products'   => 'required',
         ]);
 
-        $supllierWise = [];
-        $postOP = json_decode($request->order_products, true);
+        $supllierWise         = [];
+        $postOP               = json_decode($request->order_products, true);
         $supplierWiseProducts = [];
 
         if (! empty($postOP)) {
             foreach ($postOP as $post) {
-                @[$opId, $supplierId] = explode('#', $post);
-                $supplierId = ! empty($supplierId) ? $supplierId : 0;
+                @[$opId, $supplierId]                = explode('#', $post);
+                $supplierId                          = ! empty($supplierId) ? $supplierId : 0;
                 $supplierWiseProducts[$supplierId][] = $opId;
             }
         }
@@ -907,10 +907,10 @@ class PurchaseController extends Controller
         if (! empty($supplierWiseProducts)) {
             foreach ($supplierWiseProducts as $productList) {
                 // assing purchase supllier wise
-                $purchase = new Purchase;
+                $purchase                   = new Purchase;
                 $purchase->purchase_handler = $request->purchase_handler;
-                $purchase->supplier_id = $request->supplier_id;
-                $purchase->status = 'Pending Purchase';
+                $purchase->supplier_id      = $request->supplier_id;
+                $purchase->status           = 'Pending Purchase';
 
                 // now store the order products
                 if ($purchase->save()) {
@@ -920,8 +920,8 @@ class PurchaseController extends Controller
                     if (! $orderProducts->isEmpty()) {
                         foreach ($orderProducts as $orderProduct) {
                             \App\PurchaseProduct::insert([
-                                'purchase_id' => $purchase->id,
-                                'product_id' => $orderProduct->product->id,
+                                'purchase_id'      => $purchase->id,
+                                'product_id'       => $orderProduct->product->id,
                                 'order_product_id' => $orderProduct->id,
                             ]);
 
@@ -939,8 +939,8 @@ class PurchaseController extends Controller
 
     public function updateDelivery(Request $request, $id)
     {
-        $order_product = OrderProduct::find($id);
-        $old_shipment_date = $order_product->shipment_date;
+        $order_product                = OrderProduct::find($id);
+        $old_shipment_date            = $order_product->shipment_date;
         $order_product->shipment_date = $request->shipment_date;
         $order_product->reschedule_count += 1;
         $order_product->save();
@@ -948,26 +948,26 @@ class PurchaseController extends Controller
         if (! $order_product->is_delivery_date_changed()) {
             // Customer Message
             $params = [
-                'number' => null,
-                'user_id' => Auth::id(),
+                'number'   => null,
+                'user_id'  => Auth::id(),
                 'approved' => 0,
-                'status' => 1,
+                'status'   => 1,
             ];
 
             if ($order_product->private_view) {
-                $delivery_date = Carbon::parse($order_product->shipment_date)->format('d \of\ F');
-                $product_name = $order_product->product->name;
+                $delivery_date         = Carbon::parse($order_product->shipment_date)->format('d \of\ F');
+                $product_name          = $order_product->product->name;
                 $params['customer_id'] = $order_product->private_view->customer_id;
-                $params['message'] = "Your product $product_name delivery time has been rescheduled. It will be delivered on $delivery_date";
+                $params['message']     = "Your product $product_name delivery time has been rescheduled. It will be delivered on $delivery_date";
 
                 $chat_message = ChatMessage::create($params);
             }
 
             CommunicationHistory::create([
-                'model_id' => $order_product->id,
+                'model_id'   => $order_product->id,
                 'model_type' => OrderProduct::class,
-                'type' => 'order-delivery-date-changed',
-                'method' => 'whatsapp',
+                'type'       => 'order-delivery-date-changed',
+                'method'     => 'whatsapp',
             ]);
         }
 
@@ -977,24 +977,25 @@ class PurchaseController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $purchase = Purchase::find($id);
-        $data['emails'] = [];
+        $purchase         = Purchase::find($id);
+        $data['emails']   = [];
         $data['comments'] = Comment::with('user')->where('subject_id', $purchase->id)
             ->where('subject_type', '=', Order::class)->get();
-        $data['users'] = User::all()->toArray();
-        $messages = Message::all()->where('moduleid', $purchase->id)->where('moduletype', '=', 'purchase')->sortByDesc('created_at')->take(10)->toArray();
-        $data['messages'] = $messages;
-        $data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
-        $data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
-        $data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
-        $data['purchase_status'] = (new PurchaseStatus)->all();
-        $data['reply_categories'] = ReplyCategory::all();
-        $data['suppliers'] = Supplier::all();
+        $data['users']              = User::all()->toArray();
+        $messages                   = Message::all()->where('moduleid', $purchase->id)->where('moduletype', '=', 'purchase')->sortByDesc('created_at')->take(10)->toArray();
+        $data['messages']           = $messages;
+        $data['tasks']              = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
+        $data['approval_replies']   = Reply::where('model', 'Approval Purchase')->get();
+        $data['internal_replies']   = Reply::where('model', 'Internal Purchase')->get();
+        $data['purchase_status']    = (new PurchaseStatus)->all();
+        $data['reply_categories']   = ReplyCategory::all();
+        $data['suppliers']          = Supplier::all();
         $data['purchase_discounts'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->take(3)->get()->groupBy([
             function ($query) {
                 return Carbon::parse($query->created_at)->format('Y-m-d H:i:s');
@@ -1010,7 +1011,7 @@ class PurchaseController extends Controller
         ]);
 
         $data['agents_array'] = [];
-        $agents = Agent::all();
+        $agents               = Agent::all();
 
         foreach ($agents as $agent) {
             $data['agents_array'][$agent->model_id][$agent->id] = $agent->name . ' - ' . $agent->email;
@@ -1023,12 +1024,12 @@ class PurchaseController extends Controller
     {
         $product = Product::find($id);
 
-        $data['users'] = User::all()->toArray();
-        $messages = Message::all()->where('moduleid', $product->id)->where('moduletype', '=', 'product')->sortByDesc('created_at')->take(10)->toArray();
-        $data['messages'] = $messages;
+        $data['users']            = User::all()->toArray();
+        $messages                 = Message::all()->where('moduleid', $product->id)->where('moduletype', '=', 'product')->sortByDesc('created_at')->take(10)->toArray();
+        $data['messages']         = $messages;
         $data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
         $data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
-        $data['order_details'] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
+        $data['order_details']    = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
 
         return view('purchase.product-show', $data)->withProduct($product);
     }
@@ -1044,13 +1045,13 @@ class PurchaseController extends Controller
         }
 
         foreach ($old_product->orderproducts as $order_product) {
-            $new_order = new OrderProduct;
-            $new_order->order_id = $order_product->order_id;
-            $new_order->sku = $new_product->sku;
-            $new_order->product_id = $new_product->id;
-            $new_order->product_price = $new_product->price_inr_special;
-            $new_order->size = $order_product->size;
-            $new_order->color = $order_product->color;
+            $new_order                  = new OrderProduct;
+            $new_order->order_id        = $order_product->order_id;
+            $new_order->sku             = $new_product->sku;
+            $new_order->product_id      = $new_product->id;
+            $new_order->product_price   = $new_product->price_inr_special;
+            $new_order->size            = $order_product->size;
+            $new_order->color           = $order_product->color;
             $new_order->purchase_status = 'Pending Purchase';
             $new_order->save();
 
@@ -1065,7 +1066,7 @@ class PurchaseController extends Controller
 
     public function productRemove(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product  = Product::find($id);
         $purchase = Purchase::find($request->purchase_id);
 
         $purchase->products()->detach($product);
@@ -1083,13 +1084,13 @@ class PurchaseController extends Controller
 
         $product = new Product;
 
-        $product->name = $request->name;
-        $product->sku = $request->sku;
-        $product->size = $request->size;
-        $product->brand = $request->brand;
-        $product->color = $request->color;
+        $product->name     = $request->name;
+        $product->sku      = $request->sku;
+        $product->size     = $request->size;
+        $product->brand    = $request->brand;
+        $product->color    = $request->color;
         $product->supplier = $request->supplier;
-        $product->price = $request->price;
+        $product->price    = $request->price;
 
         $brand = Brand::find($request->brand);
 
@@ -1100,7 +1101,7 @@ class PurchaseController extends Controller
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr = round($product->price_inr, -3);
+            $product->price_inr         = round($product->price_inr, -3);
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);
@@ -1122,12 +1123,12 @@ class PurchaseController extends Controller
         }
 
         foreach ($old_product->orderproducts as $order_product) {
-            $new_order = new OrderProduct;
-            $new_order->order_id = $order_product->order_id;
-            $new_order->sku = $product->sku;
-            $new_order->product_price = $product->price_inr_special;
-            $new_order->size = $order_product->size;
-            $new_order->color = $order_product->color;
+            $new_order                  = new OrderProduct;
+            $new_order->order_id        = $order_product->order_id;
+            $new_order->sku             = $product->sku;
+            $new_order->product_price   = $product->price_inr_special;
+            $new_order->size            = $order_product->size;
+            $new_order->color           = $order_product->color;
             $new_order->purchase_status = 'Pending Purchase';
             $new_order->save();
 
@@ -1143,7 +1144,8 @@ class PurchaseController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -1154,7 +1156,8 @@ class PurchaseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -1167,11 +1170,11 @@ class PurchaseController extends Controller
         $purchase = Purchase::find($id);
 
         StatusChange::create([
-            'model_id' => $purchase->id,
-            'model_type' => Purchase::class,
-            'user_id' => Auth::id(),
+            'model_id'    => $purchase->id,
+            'model_type'  => Purchase::class,
+            'user_id'     => Auth::id(),
             'from_status' => $purchase->status,
-            'to_status' => $request->status,
+            'to_status'   => $request->status,
         ]);
 
         $purchase->status = $request->status;
@@ -1200,9 +1203,9 @@ class PurchaseController extends Controller
                     'task_subject' => 'Shipment to India',
                     'task_details' => "Please arrange shipment for India - ID $purchase->id",
                     'is_statutory' => 0,
-                    'assign_from' => Auth::id(),
-                    'assign_to' => 6,
-                    'category' => 12,
+                    'assign_from'  => Auth::id(),
+                    'assign_to'    => 6,
+                    'category'     => 12,
                 ];
 
                 $task = Task::create($data);
@@ -1211,11 +1214,11 @@ class PurchaseController extends Controller
 
                 // Message to Carier
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => "These pcs: $product_names are available for shipment to India - confirm if urgency needed to drop for faster transit",
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => "These pcs: $product_names are available for shipment to India - confirm if urgency needed to drop for faster transit",
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -1226,7 +1229,7 @@ class PurchaseController extends Controller
 
                 foreach ($stock_coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1234,21 +1237,21 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
 
                 CommunicationHistory::create([
-                    'model_id' => $purchase->id,
+                    'model_id'   => $purchase->id,
                     'model_type' => Purchase::class,
-                    'type' => 'purchase-in-dubai',
-                    'method' => 'whatsapp',
+                    'type'       => 'purchase-in-dubai',
+                    'method'     => 'whatsapp',
                 ]);
             }
         }
 
         $product_information = '';
-        $letters_array = [
+        $letters_array       = [
             '1' => 'A',
             '2' => 'B',
             '3' => 'C',
@@ -1287,18 +1290,18 @@ class PurchaseController extends Controller
 
                 // Message to Stock Coordinator
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => "These pcs: $product_names are expected to arrive in India - x + 2 days -pls. coordinate and arrange collection",
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => "These pcs: $product_names are expected to arrive in India - x + 2 days -pls. coordinate and arrange collection",
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $stock_coordinators = User::role('Stock Coordinator')->get();
 
                 foreach ($stock_coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1306,24 +1309,24 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
 
                 // Message to Delivery Coordinator
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => "This: $product_information are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => "This: $product_information are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1331,15 +1334,15 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
 
                 CommunicationHistory::create([
-                    'model_id' => $purchase->id,
+                    'model_id'   => $purchase->id,
                     'model_type' => Purchase::class,
-                    'type' => 'purchase-dubai-to-india',
-                    'method' => 'whatsapp',
+                    'type'       => 'purchase-dubai-to-india',
+                    'method'     => 'whatsapp',
                 ]);
             }
         }
@@ -1356,11 +1359,11 @@ class PurchaseController extends Controller
 
                     if ($product->orderproducts) {
                         $params = [
-                            'number' => null,
-                            'user_id' => Auth::id(),
+                            'number'   => null,
+                            'user_id'  => Auth::id(),
                             'approved' => 0,
-                            'status' => 1,
-                            'message' => 'Your Order is received in India',
+                            'status'   => 1,
+                            'message'  => 'Your Order is received in India',
                         ];
 
                         foreach ($product->orderproducts as $order_product) {
@@ -1370,9 +1373,9 @@ class PurchaseController extends Controller
                                 ChatMessage::create($params);
 
                                 // Creating inventory for Aliya
-                                $private_view = new PrivateView;
+                                $private_view              = new PrivateView;
                                 $private_view->customer_id = $order_product->order->customer->id;
-                                $private_view->date = Carbon::now()->addDays(3);
+                                $private_view->date        = Carbon::now()->addDays(3);
                                 $private_view->save();
 
                                 $private_view->products()->attach($product);
@@ -1382,26 +1385,26 @@ class PurchaseController extends Controller
                 }
 
                 CommunicationHistory::create([
-                    'model_id' => $purchase->id,
+                    'model_id'   => $purchase->id,
                     'model_type' => Purchase::class,
-                    'type' => 'purchase-in-mumbai',
-                    'method' => 'whatsapp',
+                    'type'       => 'purchase-in-mumbai',
+                    'method'     => 'whatsapp',
                 ]);
 
                 // Message to Aliya about time ?
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => 'Orders are in India, please coordinate',
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => 'Orders are in India, please coordinate',
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1409,24 +1412,24 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
 
                 // Message to Stock Holder
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => 'Confirm Aliyas time if it is ok to hand over the products',
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => 'Confirm Aliyas time if it is ok to hand over the products',
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $stock_coordinators = User::role('Stock Coordinator')->get();
 
                 foreach ($stock_coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1434,7 +1437,7 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
             }
@@ -1444,11 +1447,11 @@ class PurchaseController extends Controller
             foreach ($product->orderproducts as $order_product) {
                 if ($request->status != $order_product->purchase_status) {
                     StatusChange::create([
-                        'model_id' => $order_product->id,
-                        'model_type' => OrderProduct::class,
-                        'user_id' => Auth::id(),
+                        'model_id'    => $order_product->id,
+                        'model_type'  => OrderProduct::class,
+                        'user_id'     => Auth::id(),
                         'from_status' => $order_product->purchase_status,
-                        'to_status' => $request->status,
+                        'to_status'   => $request->status,
                     ]);
                 }
 
@@ -1465,16 +1468,16 @@ class PurchaseController extends Controller
 
     public function updateProductStatus(Request $request, $id)
     {
-        $product = Product::find($request->product_id);
+        $product                  = Product::find($request->product_id);
         $product->purchase_status = $request->status;
         $product->save();
 
         $params = [
-            'number' => null,
-            'user_id' => Auth::id(),
+            'number'   => null,
+            'user_id'  => Auth::id(),
             'approved' => 0,
-            'status' => 1,
-            'message' => 'Your Product is not available with the Supplier. Please choose alternative',
+            'status'   => 1,
+            'message'  => 'Your Product is not available with the Supplier. Please choose alternative',
         ];
 
         foreach ($product->purchases as $purchase) {
@@ -1499,20 +1502,20 @@ class PurchaseController extends Controller
     public function updatePercentage(Request $request, $id)
     {
         foreach ($request->percentages as $percentage) {
-            $product = Product::find($percentage[0]);
+            $product             = Product::find($percentage[0]);
             $product->percentage = $percentage[1];
             $product->save();
 
             PurchaseDiscount::create([
                 'purchase_id' => $request->purchase_id,
-                'product_id' => $percentage[0],
-                'percentage' => $percentage[1],
-                'amount' => $request->amount,
-                'type' => $request->type,
+                'product_id'  => $percentage[0],
+                'percentage'  => $percentage[1],
+                'amount'      => $request->amount,
+                'type'        => $request->type,
             ]);
         }
 
-        $purchase = Purchase::find($request->purchase_id);
+        $purchase         = Purchase::find($request->purchase_id);
         $purchase->status = 'Price under Negotiation';
         $purchase->save();
 
@@ -1521,19 +1524,19 @@ class PurchaseController extends Controller
 
     public function saveBill(Request $request, $id)
     {
-        $purchase = Purchase::find($id);
-        $purchase->supplier_id = $request->supplier;
-        $purchase->agent_id = $request->agent_id;
-        $purchase->transaction_id = $request->transaction_id;
-        $purchase->transaction_date = $request->transaction_date;
+        $purchase                     = Purchase::find($id);
+        $purchase->supplier_id        = $request->supplier;
+        $purchase->agent_id           = $request->agent_id;
+        $purchase->transaction_id     = $request->transaction_id;
+        $purchase->transaction_date   = $request->transaction_date;
         $purchase->transaction_amount = $request->transaction_amount;
-        $purchase->bill_number = $request->bill_number;
-        $purchase->shipper = $request->shipper;
-        $purchase->shipment_cost = $request->shipment_cost;
-        $purchase->shipment_date = $request->shipment_date;
-        $purchase->shipment_status = $request->shipment_status;
-        $purchase->supplier_phone = $request->supplier_phone;
-        $purchase->whatsapp_number = $request->whatsapp_number;
+        $purchase->bill_number        = $request->bill_number;
+        $purchase->shipper            = $request->shipper;
+        $purchase->shipment_cost      = $request->shipment_cost;
+        $purchase->shipment_date      = $request->shipment_date;
+        $purchase->shipment_status    = $request->shipment_status;
+        $purchase->supplier_phone     = $request->supplier_phone;
+        $purchase->whatsapp_number    = $request->whatsapp_number;
 
         if ($request->bill_number != '') {
             $purchase->status = 'AWB Details Received';
@@ -1546,9 +1549,9 @@ class PurchaseController extends Controller
                     'task_subject' => 'Purchase Delivery',
                     'task_details' => "Please Follow up with Purchase Delivery - ID $purchase->id",
                     'is_statutory' => 0,
-                    'assign_from' => Auth::id(),
-                    'assign_to' => 7,
-                    'category' => 12,
+                    'assign_from'  => Auth::id(),
+                    'assign_to'    => 7,
+                    'category'     => 12,
                 ];
 
                 $task = Task::create($data);
@@ -1557,23 +1560,23 @@ class PurchaseController extends Controller
 
                 // Message to Yogesh
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
                     'approved' => 1,
-                    'status' => 2,
+                    'status'   => 2,
                     'erp_user' => 6,
-                    'message' => "Products from Purchase ID $purchase->id are in transit",
+                    'message'  => "Products from Purchase ID $purchase->id are in transit",
                 ];
 
                 $chat_message = ChatMessage::create($params);
-                $yogesh = User::find(6);
+                $yogesh       = User::find(6);
 
                 // Customer Message
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $delivery_information = '';
@@ -1585,9 +1588,9 @@ class PurchaseController extends Controller
                             $order_product->save();
 
                             if ($order_product->order && $order_product->order->customer) {
-                                $shipment_days = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now());
+                                $shipment_days         = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now());
                                 $params['customer_id'] = $order_product->order->customer->id;
-                                $params['message'] = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
+                                $params['message']     = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
 
                                 $chat_message = ChatMessage::create($params);
 
@@ -1597,10 +1600,10 @@ class PurchaseController extends Controller
                                 $delivery_information .= "$customer_city - $product->name for $customer_name; ";
 
                                 // Creating inventory for Aliya
-                                $private_view = new PrivateView;
-                                $private_view->customer_id = $order_product->order->customer->id;
+                                $private_view                   = new PrivateView;
+                                $private_view->customer_id      = $order_product->order->customer->id;
                                 $private_view->order_product_id = $order_product->id;
-                                $private_view->date = Carbon::parse($order_product->shipment_date)->addDays(10);
+                                $private_view->date             = Carbon::parse($order_product->shipment_date)->addDays(10);
                                 $private_view->save();
 
                                 $private_view->products()->attach($product);
@@ -1612,18 +1615,18 @@ class PurchaseController extends Controller
                 // throw new \Exception($delivery_information);
 
                 $params = [
-                    'number' => null,
-                    'user_id' => Auth::id(),
-                    'message' => "These are the shipments that need to be delivered in the next 12 days and please ensure office boys are allocated and all travel bookings are made $delivery_information",
+                    'number'   => null,
+                    'user_id'  => Auth::id(),
+                    'message'  => "These are the shipments that need to be delivered in the next 12 days and please ensure office boys are allocated and all travel bookings are made $delivery_information",
                     'approved' => 0,
-                    'status' => 1,
+                    'status'   => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -1633,15 +1636,15 @@ class PurchaseController extends Controller
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
 
                 CommunicationHistory::create([
-                    'model_id' => $id,
+                    'model_id'   => $id,
                     'model_type' => Purchase::class,
-                    'type' => 'purchase-awb-generated',
-                    'method' => 'whatsapp',
+                    'type'       => 'purchase-awb-generated',
+                    'method'     => 'whatsapp',
                 ]);
             }
         }
@@ -1651,16 +1654,16 @@ class PurchaseController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 $original_name = $file->getClientOriginalName();
-                $filename = pathinfo($original_name, PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
+                $filename      = pathinfo($original_name, PATHINFO_FILENAME);
+                $extension     = $file->getClientOriginalExtension();
 
                 $full_name = $filename . '.' . $extension;
 
                 $file->storeAs('files', $full_name, 'files');
 
-                $new_file = new File;
-                $new_file->filename = $full_name;
-                $new_file->model_id = $id;
+                $new_file             = new File;
+                $new_file->filename   = $full_name;
+                $new_file->model_id   = $id;
                 $new_file->model_type = Purchase::class;
                 $new_file->save();
             }
@@ -1671,13 +1674,13 @@ class PurchaseController extends Controller
 
     public function confirmProforma(Request $request, $id)
     {
-        $purchase = Purchase::find($id);
-        $matched = 0;
+        $purchase     = Purchase::find($id);
+        $matched      = 0;
         $total_amount = 0;
         foreach ($request->proformas as $data) {
-            $product = Product::find($data[0]);
+            $product          = Product::find($data[0]);
             $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22);
-            $proforma = $data[1];
+            $proforma         = $data[1];
             $total_amount += $proforma;
             if (($proforma - $discounted_price) < 10) {
                 $matched++;
@@ -1685,8 +1688,8 @@ class PurchaseController extends Controller
         }
         if ($matched == count($request->proformas)) {
             $purchase->proforma_confirmed = 1;
-            $purchase->proforma_id = $request->proforma_id;
-            $purchase->proforma_date = $request->proforma_date;
+            $purchase->proforma_id        = $request->proforma_id;
+            $purchase->proforma_date      = $request->proforma_date;
 
             $purchase->status = 'Price Confirmed - Payment in Process';
             $purchase->save();
@@ -1701,7 +1704,8 @@ class PurchaseController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -1726,7 +1730,7 @@ class PurchaseController extends Controller
     public function getOrderProductsWithProductData($order_id)
     {
         $orderProducts = OrderProduct::where('order_id', '=', $order_id)->get()->toArray();
-        $temp = [];
+        $temp          = [];
         foreach ($orderProducts as $key => $value) {
             if (! empty($orderProducts[$key]['color'])) {
                 $temp = Product::where('sku', '=', $orderProducts[$key]['sku'])
@@ -1738,7 +1742,7 @@ class PurchaseController extends Controller
             }
 
             if (! empty($temp)) {
-                $orderProducts[$key]['product'] = $temp;
+                $orderProducts[$key]['product']          = $temp;
                 $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? getMediaUrl($temp->getMedia(config('constants.media_tags'))->first()) : '';
             }
         }
@@ -1751,15 +1755,15 @@ class PurchaseController extends Controller
     public function emailInbox(Request $request)
     {
         try {
-            $cm = new ClientManager();
+            $cm   = new ClientManager();
             $imap = $cm->make([
-                'host' => env('IMAP_HOST_PURCHASE'),
-                'port' => env('IMAP_PORT_PURCHASE'),
-                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+                'host'          => env('IMAP_HOST_PURCHASE'),
+                'port'          => env('IMAP_PORT_PURCHASE'),
+                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username' => env('IMAP_USERNAME_PURCHASE'),
-                'password' => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+                'username'      => env('IMAP_USERNAME_PURCHASE'),
+                'password'      => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();
@@ -1768,12 +1772,12 @@ class PurchaseController extends Controller
 
                 if ($request->type == 'inbox') {
                     $inbox_name = 'INBOX';
-                    $direction = 'from';
-                    $type = 'incoming';
+                    $direction  = 'from';
+                    $type       = 'incoming';
                 } else {
                     $inbox_name = 'INBOX.Sent';
-                    $direction = 'to';
-                    $type = 'outgoing';
+                    $direction  = 'to';
+                    $type       = 'outgoing';
                 }
 
                 $inbox = $imap->getFolder($inbox_name);
@@ -1818,11 +1822,11 @@ class PurchaseController extends Controller
                 $db_emails = $supplier->emails()->with('model')->where('type', $type)->get();
 
                 $emails_array = [];
-                $count = 0;
+                $count        = 0;
                 foreach ($db_emails as $key2 => $email) {
                     $dateCreated = $email->created_at->format('D, d M Y');
                     $timeCreated = $email->created_at->format('H:i');
-                    $userName = null;
+                    $userName    = null;
                     if ($email->model instanceof Supplier) {
                         $userName = $email->model->supplier;
                     } elseif ($email->model instanceof Customer) {
@@ -1856,17 +1860,17 @@ class PurchaseController extends Controller
                     if (! isset($alert)) {
                         $alert = [];
                     }
-                    $emails_array[$count + $key2]['id'] = $email->id;
-                    $emails_array[$count + $key2]['subject'] = $email->subject;
-                    $emails_array[$count + $key2]['seen'] = $email->seen;
-                    $emails_array[$count + $key2]['type'] = $email->type;
-                    $emails_array[$count + $key2]['date'] = $email->created_at;
-                    $emails_array[$count + $key2]['from'] = $email->from;
-                    $emails_array[$count + $key2]['to'] = $email->to;
-                    $emails_array[$count + $key2]['message'] = $email->message;
-                    $emails_array[$count + $key2]['cc'] = $email->cc;
-                    $emails_array[$count + $key2]['bcc'] = $email->bcc;
-                    $emails_array[$count + $key2]['alert'] = $alert;
+                    $emails_array[$count + $key2]['id']        = $email->id;
+                    $emails_array[$count + $key2]['subject']   = $email->subject;
+                    $emails_array[$count + $key2]['seen']      = $email->seen;
+                    $emails_array[$count + $key2]['type']      = $email->type;
+                    $emails_array[$count + $key2]['date']      = $email->created_at;
+                    $emails_array[$count + $key2]['from']      = $email->from;
+                    $emails_array[$count + $key2]['to']        = $email->to;
+                    $emails_array[$count + $key2]['message']   = $email->message;
+                    $emails_array[$count + $key2]['cc']        = $email->cc;
+                    $emails_array[$count + $key2]['bcc']       = $email->bcc;
+                    $emails_array[$count + $key2]['alert']     = $alert;
                     $emails_array[$count + $key2]['replyInfo'] = "On {
                 $dateCreated} at {
                 $timeCreated}, $userName <{
@@ -1881,10 +1885,10 @@ class PurchaseController extends Controller
 
                 $emails_array = array_reverse($emails_array);
 
-                $perPage = 10;
-                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $perPage      = 10;
+                $currentPage  = LengthAwarePaginator::resolveCurrentPage();
                 $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-                $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+                $emails       = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
 
                 $view = view('purchase.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
@@ -1904,26 +1908,26 @@ class PurchaseController extends Controller
 
             if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
                 $attachments_array = [];
-                $attachments = $email->getAttachments();
+                $attachments       = $email->getAttachments();
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                    $path = 'email-attachments/' . $attachment->name;
+                    $path                = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
                 $params = [
-                    'model_id' => $supplier->id,
-                    'model_type' => Supplier::class,
-                    'type' => $type,
-                    'seen' => $email->getFlags()['seen'],
-                    'from' => $email->getFrom()[0]->mail,
-                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                    'subject' => $email->getSubject(),
-                    'message' => $content,
-                    'template' => 'customer-simple',
+                    'model_id'        => $supplier->id,
+                    'model_type'      => Supplier::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $attachments_array]),
-                    'created_at' => $email->getDate(),
+                    'created_at'      => $email->getDate(),
                 ];
 
                 Email::create($params);
@@ -1934,13 +1938,13 @@ class PurchaseController extends Controller
     public function emailFetch(Request $request)
     {
         $imap = new Client([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+            'host'          => env('IMAP_HOST_PURCHASE'),
+            'port'          => env('IMAP_PORT_PURCHASE'),
+            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            'username'      => env('IMAP_USERNAME_PURCHASE'),
+            'password'      => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -1961,7 +1965,7 @@ class PurchaseController extends Controller
             }
 
             $attachments_array = [];
-            $attachments = $email->getAttachments();
+            $attachments       = $email->getAttachments();
 
             $attachments->each(function ($attachment) use (&$content) {
                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
@@ -1969,12 +1973,12 @@ class PurchaseController extends Controller
                 $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $path . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
             });
         } else {
-            $email = Email::find($request->uid);
+            $email       = Email::find($request->uid);
             $email->seen = 1;
             $email->save();
 
             $to_email = $email->to;
-            $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
+            $array    = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
             if (array_key_exists('attachment', $array)) {
                 $attachment = json_decode($email->additional_data, true)['attachment'];
@@ -2015,7 +2019,7 @@ class PurchaseController extends Controller
         }
 
         return response()->json([
-            'email' => $content,
+            'email'    => $content,
             'to_email' => isset($to_email) ? $to_email : '',
         ]);
     }
@@ -2026,8 +2030,8 @@ class PurchaseController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'email.*' => 'required|email',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         $supplier = Supplier::find($request->supplier_id);
@@ -2045,7 +2049,7 @@ class PurchaseController extends Controller
                 }
             }
 
-            $cc = $bcc = [];
+            $cc     = $bcc = [];
             $emails = $request->email;
 
             if ($request->has('cc')) {
@@ -2073,18 +2077,18 @@ class PurchaseController extends Controller
                 return redirect()->back()->withErrors('Please select an email');
             }
             $from_email = \App\Helpers::getFromEmail();
-            $params = [
-                'model_id' => $supplier->id,
-                'model_type' => Supplier::class,
-                'from' => $from_email,
-                'to' => $request->email[0],
-                'seen' => 1,
-                'subject' => $request->subject,
-                'message' => $request->message,
-                'template' => 'customer-simple',
+            $params     = [
+                'model_id'        => $supplier->id,
+                'model_type'      => Supplier::class,
+                'from'            => $from_email,
+                'to'              => $request->email[0],
+                'seen'            => 1,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null,
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -2099,21 +2103,21 @@ class PurchaseController extends Controller
     {
         $this->validate($request, [
             'purchase_id' => 'required|numeric',
-            'email_id' => 'required|numeric',
-            'recipient' => 'required|email',
+            'email_id'    => 'required|numeric',
+            'recipient'   => 'required|email',
         ]);
 
         $attachment = [];
-        $purchase = Purchase::find($request->purchase_id);
+        $purchase   = Purchase::find($request->purchase_id);
 
         $imap = new Client([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+            'host'          => env('IMAP_HOST_PURCHASE'),
+            'port'          => env('IMAP_PORT_PURCHASE'),
+            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            'username'      => env('IMAP_USERNAME_PURCHASE'),
+            'password'      => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -2136,14 +2140,14 @@ class PurchaseController extends Controller
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->getSubject(), $content, $attachment));
             $from_email = \App\Helpers::getFromEmail();
-            $params = [
-                'model_id' => $purchase->id,
-                'model_type' => Purchase::class,
-                'from' => $from_email,
-                'to' => $request->recipient,
-                'subject' => 'Resent: ' . $email->getSubject(),
-                'message' => $content,
-                'template' => 'customer-simple',
+            $params     = [
+                'model_id'        => $purchase->id,
+                'model_type'      => Purchase::class,
+                'from'            => $from_email,
+                'to'              => $request->recipient,
+                'subject'         => 'Resent: ' . $email->getSubject(),
+                'message'         => $content,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $attachment]),
             ];
         } else {
@@ -2163,14 +2167,14 @@ class PurchaseController extends Controller
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
             $from_email = \App\Helpers::getFromEmail();
-            $params = [
-                'model_id' => $purchase->id,
-                'model_type' => Purchase::class,
-                'from' => $from_email,
-                'to' => $request->recipient,
-                'subject' => "Resent: $email->subject",
-                'message' => $email->message,
-                'template' => 'customer-simple',
+            $params     = [
+                'model_id'        => $purchase->id,
+                'model_type'      => Purchase::class,
+                'from'            => $from_email,
+                'to'              => $request->recipient,
+                'subject'         => "Resent: $email->subject",
+                'message'         => $email->message,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $attachment]),
             ];
         }
@@ -2208,7 +2212,7 @@ class PurchaseController extends Controller
         }
 
         $forwardEmail = Email::findOrFail($request->forward_email_id);
-        $forwardTo = array_filter($request->to);
+        $forwardTo    = array_filter($request->to);
 
         foreach ($forwardTo as $to) {
             Mail::to($to)->send(new ForwardEmail($forwardEmail, $request->message));
@@ -2221,7 +2225,7 @@ class PurchaseController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'supplier_id' => 'required',
-            'message' => 'required',
+            'message'     => 'required',
         ]);
         $supplier_id = json_decode($request->input('supplier_id'));
 
@@ -2233,13 +2237,13 @@ class PurchaseController extends Controller
             ->get();
         if (count($suppliers_all) > 0) {
             // Get product
-            $media = '';
+            $media   = '';
             $product = Product::find($id);
             if ($product && $product->hasMedia(config('constants.media_tags'))) {
                 $media = getMediaUrl($product->getMedia(config('constants.media_tags'))->first());
             }
 
-            $sku = isset($product->sku) ? $product->sku : '';
+            $sku  = isset($product->sku) ? $product->sku : '';
             $size = ! empty($request->get('size')) ? ' size ' . $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
@@ -2252,12 +2256,12 @@ class PurchaseController extends Controller
                         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $message, isset($media) && ! empty($media) ? $media : null);
 
                         $params = [
-                            'number' => $supplier->phone,
-                            'user_id' => Auth::id(),
+                            'number'      => $supplier->phone,
+                            'user_id'     => Auth::id(),
                             'supplier_id' => $supplier->id,
-                            'message' => $message,
-                            'approved' => 0,
-                            'status' => 1,
+                            'message'     => $message,
+                            'approved'    => 0,
+                            'status'      => 1,
                         ];
 
                         $chat_message = ChatMessage::create($params);
@@ -2294,7 +2298,7 @@ class PurchaseController extends Controller
 
             if (! empty($value->chat_messages_id)) {
                 $data[$value->id]['chat_messages'][] = [
-                    'message' => $value->message,
+                    'message'    => $value->message,
                     'created_at' => $value->created_at,
                 ];
             }
@@ -2308,8 +2312,8 @@ class PurchaseController extends Controller
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         if ($request->suppliers) {
@@ -2368,18 +2372,18 @@ class PurchaseController extends Controller
 
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
             $from_email = \App\Helpers::getFromEmail();
-            $params = [
-                'model_id' => $supplier->id,
-                'model_type' => Supplier::class,
-                'from' => $from_email,
-                'seen' => 1,
-                'to' => $supplier->default_email ?? $supplier->email,
-                'subject' => $request->subject,
-                'message' => $request->message,
-                'template' => 'customer-simple',
+            $params     = [
+                'model_id'        => $supplier->id,
+                'model_type'      => Supplier::class,
+                'from'            => $from_email,
+                'seen'            => 1,
+                'to'              => $supplier->default_email ?? $supplier->email,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null,
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
             ];
 
             Email::create($params);

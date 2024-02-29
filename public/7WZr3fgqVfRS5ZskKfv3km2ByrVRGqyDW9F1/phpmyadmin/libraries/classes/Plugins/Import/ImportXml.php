@@ -54,7 +54,8 @@ class ImportXml extends ImportPlugin
     /**
      * Handles the whole import logic
      *
-     * @param  array  $sql_data 2-element array with sql data
+     * @param array $sql_data     2-element array with sql data
+     * @param ?File $importHandle
      */
     public function doImport(?File $importHandle = null, array &$sql_data = []): void
     {
@@ -128,7 +129,7 @@ class ImportXml extends ImportPlugin
         /**
          * Temp arrays
          */
-        $tempRow = [];
+        $tempRow   = [];
         $tempCells = [];
 
         /**
@@ -148,10 +149,10 @@ class ImportXml extends ImportPlugin
             ->{'structure_schemas'}->{'database'};
 
         if ($db_attr instanceof SimpleXMLElement) {
-            $db_attr = $db_attr->attributes();
-            $db_name = (string) $db_attr['name'];
+            $db_attr   = $db_attr->attributes();
+            $db_name   = (string) $db_attr['name'];
             $collation = (string) $db_attr['collation'];
-            $charset = (string) $db_attr['charset'];
+            $charset   = (string) $db_attr['charset'];
         } else {
             /**
              * If the structure section is not present
@@ -159,9 +160,9 @@ class ImportXml extends ImportPlugin
              */
             $db_attr = $xml->children()
                 ->attributes();
-            $db_name = (string) $db_attr['name'];
+            $db_name   = (string) $db_attr['name'];
             $collation = null;
-            $charset = null;
+            $charset   = null;
         }
 
         /**
@@ -200,14 +201,14 @@ class ImportXml extends ImportPlugin
                      * @todo    Generating a USE here blocks importing of a table
                      *          into another database.
                      */
-                    $attrs = $val2->attributes();
+                    $attrs    = $val2->attributes();
                     $create[] = 'USE ' . Util::backquote((string) $attrs['name']);
 
                     foreach ($val2 as $val3) {
                         /**
                          * Remove the extra cosmetic spacing
                          */
-                        $val3 = str_replace('                ', '', (string) $val3);
+                        $val3     = str_replace('                ', '', (string) $val3);
                         $create[] = $val3;
                     }
                 }
@@ -266,7 +267,7 @@ class ImportXml extends ImportPlugin
                     $tempCells,
                 ];
 
-                $tempRow = [];
+                $tempRow   = [];
                 $tempCells = [];
             }
 
@@ -344,7 +345,7 @@ class ImportXml extends ImportPlugin
             /* Set database collation/charset */
             $options = [
                 'db_collation' => $collation,
-                'db_charset' => $charset,
+                'db_charset'   => $charset,
             ];
         }
 

@@ -47,11 +47,11 @@ class BloggerProductController extends Controller
 
     public function show(BloggerProduct $blogger_product, Blogger $blogger, Brand $brand)
     {
-        $this->data['bloggers'] = $blogger->pluck('name', 'id');
-        $this->data['brands'] = $brand->pluck('name', 'id');
-        $this->data['blogger_product'] = $blogger_product;
+        $this->data['bloggers']         = $blogger->pluck('name', 'id');
+        $this->data['brands']           = $brand->pluck('name', 'id');
+        $this->data['blogger_product']  = $blogger_product;
         $this->data['reply_categories'] = ReplyCategory::all();
-        $this->data['users_array'] = Helpers::getUserArray(User::all());
+        $this->data['users_array']      = Helpers::getUserArray(User::all());
 
         return view('blogger.show', $this->data);
     }

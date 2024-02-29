@@ -44,9 +44,9 @@ class UpdateProductInformationFromCsv extends Command
      */
     public function handle()
     {
-        $row = 0;
-        $arr_id = [];
-        $is_file_exists = null;
+        $row                = 0;
+        $arr_id             = [];
+        $is_file_exists     = null;
         $prodcutInformation = WebsiteProductCsv::pluck('path', 'store_website_id');
 
         foreach ($prodcutInformation as $store_website_id => $file_url) {
@@ -55,7 +55,7 @@ class UpdateProductInformationFromCsv extends Command
                 $this->error('Please add url');
             } else {
                 try {
-                    $promise = $client->request('GET', $file_url);
+                    $promise        = $client->request('GET', $file_url);
                     $is_file_exists = true;
                 } catch (ClientException $e) {
                     $is_file_exists = false;
@@ -70,20 +70,20 @@ class UpdateProductInformationFromCsv extends Command
                             $row++;
                             if ($row > 1) {
                                 $availableProduct = Product::where('sku', $data[1])->first();
-                                $real_product_id = null;
+                                $real_product_id  = null;
                                 if ($availableProduct) {
                                     $real_product_id = $availableProduct->id ?? null;
                                 }
 
                                 $updated = ProductPushInformation::updateOrCreate(
                                     ['product_id' => $data[0], 'store_website_id' => $store_website_id], [
-                                        'sku' => $data[1],
-                                        'status' => $data[2],
-                                        'quantity' => $data[3],
-                                        'stock_status' => $data[4],
+                                        'sku'               => $data[1],
+                                        'status'            => $data[2],
+                                        'quantity'          => $data[3],
+                                        'stock_status'      => $data[4],
                                         'is_added_from_csv' => 1,
-                                        'real_product_id' => $real_product_id,
-                                        'is_available' => 1,
+                                        'real_product_id'   => $real_product_id,
+                                        'is_available'      => 1,
 
                                     ]);
                                 $arr_id[] = $updated->product_id;
@@ -109,9 +109,9 @@ class UpdateProductInformationFromCsv extends Command
 
         foreach ($summuryOfProducts as $summery) {
             ProductPushInformationSummery::create([
-                'brand_id' => $summery->brand_id,
-                'category_id' => $summery->customer_id,
-                'store_website_id' => $summery->store_website_id,
+                'brand_id'           => $summery->brand_id,
+                'category_id'        => $summery->customer_id,
+                'store_website_id'   => $summery->store_website_id,
                 'product_push_count' => $summery->total_product_count,
             ]);
         }

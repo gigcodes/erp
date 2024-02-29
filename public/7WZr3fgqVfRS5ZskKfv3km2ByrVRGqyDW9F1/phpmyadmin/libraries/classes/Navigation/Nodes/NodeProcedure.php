@@ -17,26 +17,26 @@ class NodeProcedure extends NodeDatabaseChild
     /**
      * Initialises the class
      *
-     * @param  string  $name    An identifier for the new node
-     * @param  int  $type    Type of node, may be one of CONTAINER or OBJECT
-     * @param  bool  $isGroup Whether this object has been created
+     * @param string $name    An identifier for the new node
+     * @param int    $type    Type of node, may be one of CONTAINER or OBJECT
+     * @param bool   $isGroup Whether this object has been created
      *                        while grouping nodes
      */
     public function __construct($name, $type = Node::OBJECT, $isGroup = false)
     {
         parent::__construct($name, $type, $isGroup);
-        $this->icon = ['image' => 'b_routines', 'title' => __('Procedure')];
+        $this->icon  = ['image' => 'b_routines', 'title' => __('Procedure')];
         $this->links = [
             'text' => [
-                'route' => '/database/routines',
+                'route'  => '/database/routines',
                 'params' => ['item_type' => 'PROCEDURE', 'edit_item' => 1, 'db' => null, 'item_name' => null],
             ],
             'icon' => [
-                'route' => '/database/routines',
+                'route'  => '/database/routines',
                 'params' => ['item_type' => 'PROCEDURE', 'execute_dialog' => 1, 'db' => null, 'item_name' => null],
             ],
         ];
-        $this->classes = 'procedure';
+        $this->classes      = 'procedure';
         $this->urlParamName = 'item_name';
     }
 

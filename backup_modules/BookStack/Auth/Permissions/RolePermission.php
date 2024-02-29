@@ -20,6 +20,8 @@ class RolePermission extends Model
     /**
      * Get the permission object by name.
      *
+     * @param mixed $name
+     *
      * @return mixed
      */
     public static function getByName($name)

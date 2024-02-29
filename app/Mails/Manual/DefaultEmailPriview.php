@@ -20,18 +20,26 @@ class DefaultEmailPriview extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $email
+     * @param mixed $template
+     * @param mixed $dataArr
+     * @param mixed $fromMailer
+     *
      * @return void
      */
     public function __construct($email, $template, $dataArr, $fromMailer)
     {
-        $this->email = $email;
-        $this->template = $template;
-        $this->dataArr = $dataArr;
+        $this->email      = $email;
+        $this->template   = $template;
+        $this->dataArr    = $dataArr;
         $this->fromMailer = $fromMailer;
     }
 
     /**
      * Build the message.
+     *
+     * @param mixed $order
+     * @param mixed $htmlData
      *
      * @return $this
      */
@@ -42,8 +50,8 @@ class DefaultEmailPriview extends Mailable
             $matches = $matches[0];
             foreach ($matches as $match) {
                 $matchString = str_replace(['{{', '}}'], '', $match);
-                $value = Arr::get($order, trim($matchString));
-                $htmlData = str_replace($match, $value, $htmlData);
+                $value       = Arr::get($order, trim($matchString));
+                $htmlData    = str_replace($match, $value, $htmlData);
             }
         }
 
@@ -53,12 +61,12 @@ class DefaultEmailPriview extends Mailable
     public function build()
     {
         try {
-            $email = $this->email;
+            $email   = $this->email;
             $content = $this->template; //$email->message;
 
             if ($this->template != '') {
                 $htmlData = $this->template;
-                $re = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
+                $re       = '/<loop-(.*?)>((.|\n)*?)<\/loop-(.*?)>/m';
                 preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
                 if (count($matches) != 0) {
                     foreach ($matches as $index => $match) {

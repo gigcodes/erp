@@ -22,7 +22,7 @@ class FaqPushController extends Controller
 
         try {
             //Add the data for queue
-            $insertArray = [];
+            $insertArray   = [];
             $insertArray[] = $data['id'];
 
             $replyInfo = Reply::find($data['id']);
@@ -72,7 +72,7 @@ class FaqPushController extends Controller
         if (! empty($replyInfo)) {
             foreach ($replyInfo as $key => $value) {
                 $insertArray = $value->pluck('id');
-                $reqType = 'pushFaqAll';
+                $reqType     = 'pushFaqAll';
                 ProceesPushFaq::dispatch($insertArray->toArray(), $reqType)->onQueue('faq');
             }
         }
@@ -96,9 +96,9 @@ class FaqPushController extends Controller
 
         try {
             foreach ($replyIdsArray as $replyId) {
-                $insertArray = [];
+                $insertArray   = [];
                 $insertArray[] = $replyId;
-                $replyInfo = Reply::find($replyId);
+                $replyInfo     = Reply::find($replyId);
                 if (! empty($replyInfo->is_translate)) {
                     ProceesPushFaq::dispatch($insertArray)->onQueue('faq');
                 } elseif ($replyInfo) {

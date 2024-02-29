@@ -46,7 +46,7 @@ class SubmitSiteToGoogleWebmaster extends Command
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -59,21 +59,21 @@ class SubmitSiteToGoogleWebmaster extends Command
                 ->get()->toArray();
 
             foreach ($fetchStores as $key => $value) {
-                $websiter = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
+                $websiter      = urlencode(utf8_encode($value['website'] . '/' . $value['code']));
                 $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $websiter;
-                $token = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
+                $token         = \config('google.GOOGLE_CLIENT_ACCESS_TOKEN');
 
                 $curl = curl_init();
                 //replace website name with code coming form site list
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $url_for_sites,
+                    CURLOPT_URL            => $url_for_sites,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'PUT',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 30,
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'PUT',
+                    CURLOPT_HTTPHEADER     => [
                         'Accept: application/json',
                         'Content-length: 0',
                         'authorization: Bearer ' . $token,
@@ -96,7 +96,7 @@ class SubmitSiteToGoogleWebmaster extends Command
                 if (! empty($response)) {
                     $history = [
                         'website_store_views_id' => $value['id'],
-                        'log' => isset($response->error->message) ? $response->error->message : 'Error',
+                        'log'                    => isset($response->error->message) ? $response->error->message : 'Error',
                     ];
 
                     WebsiteStoreViewsWebmasterHistory::insert($history);
@@ -107,9 +107,9 @@ class SubmitSiteToGoogleWebmaster extends Command
                 } else {
                     \App\WebmasterLog::create([
                         'user_name' => Auth::user()->name,
-                        'name' => 'Resubmit Site',
-                        'status' => 'Success',
-                        'message' => 'Site submit successfully Website Store View id is ' . $value['id'],
+                        'name'      => 'Resubmit Site',
+                        'status'    => 'Success',
+                        'message'   => 'Site submit successfully Website Store View id is ' . $value['id'],
                     ]);
 
                     WebsiteStoreView::where('id', $value['id'])->update(['site_submit_webmaster' => 1]);

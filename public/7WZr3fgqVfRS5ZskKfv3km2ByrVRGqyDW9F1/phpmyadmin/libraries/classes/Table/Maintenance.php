@@ -26,7 +26,8 @@ final class Maintenance
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
+     *
      * @return array<int, array<string, Message[]>|string>
      *
      * @psalm-return array{array<string, Message[]>, string}
@@ -46,7 +47,7 @@ final class Maintenance
 
         $rows = [];
         foreach ($result as $row) {
-            $message = Message::fromArray($row);
+            $message                 = Message::fromArray($row);
             $rows[$message->table][] = $message;
         }
 
@@ -54,7 +55,8 @@ final class Maintenance
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
+     *
      * @return array<int, array<string, Message[]>|string>
      *
      * @psalm-return array{array<string, Message[]>, string}
@@ -74,7 +76,7 @@ final class Maintenance
 
         $rows = [];
         foreach ($result as $row) {
-            $message = Message::fromArray($row);
+            $message                 = Message::fromArray($row);
             $rows[$message->table][] = $message;
         }
 
@@ -82,7 +84,8 @@ final class Maintenance
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
+     *
      * @return array<int, array<string, array<int, array<string, string|null>>>|string>
      *
      * @psalm-return array{array<int, array<string, string|null>>, string, Warning[]}
@@ -98,14 +101,14 @@ final class Maintenance
 
         $this->dbi->selectDb($db);
         /** @var array<int, array<string, string|null>> $rows */
-        $rows = $this->dbi->fetchResult($query);
+        $rows     = $this->dbi->fetchResult($query);
         $warnings = $this->dbi->getWarnings();
 
         return [$rows, $query, $warnings];
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
      */
     public function getIndexesProblems(DatabaseName $db, array $tables): string
     {
@@ -126,7 +129,8 @@ final class Maintenance
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
+     *
      * @return array<int, array<string, Message[]>|string>
      *
      * @psalm-return array{array<string, Message[]>, string}
@@ -146,7 +150,7 @@ final class Maintenance
 
         $rows = [];
         foreach ($result as $row) {
-            $message = Message::fromArray($row);
+            $message                 = Message::fromArray($row);
             $rows[$message->table][] = $message;
         }
 
@@ -154,7 +158,8 @@ final class Maintenance
     }
 
     /**
-     * @param  TableName[]  $tables
+     * @param TableName[] $tables
+     *
      * @return array<int, array<string, Message[]>|string>
      *
      * @psalm-return array{array<string, Message[]>, string}
@@ -174,7 +179,7 @@ final class Maintenance
 
         $rows = [];
         foreach ($result as $row) {
-            $message = Message::fromArray($row);
+            $message                 = Message::fromArray($row);
             $rows[$message->table][] = $message;
         }
 

@@ -26,14 +26,15 @@ class PushProductOnlyJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  StoreWebsite  $website
-     * @param  null  $log
-     * @param  null  $mode
+     * @param StoreWebsite $website
+     * @param null         $log
+     * @param null         $mode
+     * @param protected    $details
      */
     public function __construct(Product $product, protected $details)
     {
         // Set product and website
-        $this->_product = $product;
+        $this->_product      = $product;
         $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index'] : 0;
         $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product'] : 0;
     }
@@ -65,9 +66,9 @@ class PushProductOnlyJob implements ShouldQueue
                     try {
                         PushToMagento::dispatch($product, $website, $log, null, $this->details)->onQueue($log->queue);
                     } catch (\Exception $e) {
-                        $error_msg = 'First Job failed: ' . $e->getMessage();
+                        $error_msg        = 'First Job failed: ' . $e->getMessage();
                         $log->sync_status = 'error';
-                        $log->message = $error_msg;
+                        $log->message     = $error_msg;
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
                     }

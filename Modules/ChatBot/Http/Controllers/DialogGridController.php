@@ -33,7 +33,7 @@ class DialogGridController extends Controller
 
     public function save(Request $request)
     {
-        $params = $request->all();
+        $params         = $request->all();
         $params['name'] = str_replace(' ', '_', $params['name']);
 
         $validator = Validator::make($params, [
@@ -91,9 +91,9 @@ class DialogGridController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $chatbotDialog = ChatbotDialog::where('id', $id)->first();
-        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck('value', 'value')->toArray();
-        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck('keyword', 'keyword')->toArray();
+        $chatbotDialog       = ChatbotDialog::where('id', $id)->first();
+        $question            = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck('value', 'value')->toArray();
+        $keywords            = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck('keyword', 'keyword')->toArray();
         $allSuggestedOptions = $keywords + $question;
 
         return view('chatbot::dialog.edit', compact('chatbotDialog', 'allSuggestedOptions'));
@@ -101,8 +101,8 @@ class DialogGridController extends Controller
 
     public function update(Request $request, $id)
     {
-        $params = $request->all();
-        $params['name'] = str_replace(' ', '_', $params['name']);
+        $params                      = $request->all();
+        $params['name']              = str_replace(' ', '_', $params['name']);
         $params['chatbot_dialog_id'] = $id;
 
         $chatbotDialog = ChatbotDialog::where('id', $id)->first();
@@ -112,7 +112,7 @@ class DialogGridController extends Controller
             $chatbotDialog->save();
 
             if (! empty($params['value'])) {
-                $params['response_type'] = 'text';
+                $params['response_type']          = 'text';
                 $params['message_to_human_agent'] = 1;
 
                 $chatbotDialogResponse = new ChatbotDialogResponse;
@@ -139,17 +139,17 @@ class DialogGridController extends Controller
 
     public function saveAjax(Request $request)
     {
-        $params = $request->all();
-        $params['name'] = str_replace(' ', '_', $params['title']);
-        $responseType = $request->get('response_type', false);
+        $params          = $request->all();
+        $params['name']  = str_replace(' ', '_', $params['title']);
+        $responseType    = $request->get('response_type', false);
         $previousSibling = $request->get('previous_sibling', false);
-        $parentId = $request->get('parent_id', 0);
+        $parentId        = $request->get('parent_id', 0);
 
         $matchCondition = implode(' ', $request->get('conditions'));
 
-        $id = $request->get('id', 0);
+        $id               = $request->get('id', 0);
         $multipleResponse = $request->get('response_condition', []);
-        $notToDelete = [];
+        $notToDelete      = [];
 
         if (! empty($multipleResponse)) {
             foreach ($multipleResponse as $k => $idStore) {
@@ -180,10 +180,10 @@ class DialogGridController extends Controller
             // delete old values and send new again end
         }
 
-        $chatbotDialog->metadata = '';
-        $chatbotDialog->response_type = 'standard';
-        $chatbotDialog->name = $params['name'];
-        $chatbotDialog->title = $params['title'];
+        $chatbotDialog->metadata        = '';
+        $chatbotDialog->response_type   = 'standard';
+        $chatbotDialog->name            = $params['name'];
+        $chatbotDialog->title           = $params['title'];
         $chatbotDialog->match_condition = $matchCondition;
         if ($parentId > 0) {
             $chatbotDialog->parent_id = $parentId;
@@ -197,7 +197,7 @@ class DialogGridController extends Controller
             foreach ($multipleResponse as $k => $mResponse) {
                 $chatbotDialogE = ChatbotDialog::where('id', $k)->first();
                 if (! $chatbotDialogE) {
-                    $chatbotDialogE = new ChatbotDialog;
+                    $chatbotDialogE       = new ChatbotDialog;
                     $chatbotDialogE->name = 'response_' . time() . '_' . rand();
                 }
 
@@ -219,25 +219,25 @@ class DialogGridController extends Controller
                     }
                 }
 
-                $chatbotDialogE->response_type = 'response_condition';
-                $chatbotDialogE->title = $params['title'];
-                $chatbotDialogE->parent_id = $chatbotDialog->id;
+                $chatbotDialogE->response_type   = 'response_condition';
+                $chatbotDialogE->title           = $params['title'];
+                $chatbotDialogE->parent_id       = $chatbotDialog->id;
                 $chatbotDialogE->match_condition = $condition;
                 $chatbotDialogE->save();
 
-                $chatbotDialogResponse = new ChatbotDialogResponse;
-                $chatbotDialogResponse->response_type = 'text';
-                $chatbotDialogResponse->value = ! empty($mResponse['value']) ? $mResponse['value'] : '';
-                $chatbotDialogResponse->chatbot_dialog_id = $chatbotDialogE->id;
+                $chatbotDialogResponse                         = new ChatbotDialogResponse;
+                $chatbotDialogResponse->response_type          = 'text';
+                $chatbotDialogResponse->value                  = ! empty($mResponse['value']) ? $mResponse['value'] : '';
+                $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialogE->id;
                 $chatbotDialogResponse->message_to_human_agent = 1;
                 $chatbotDialogResponse->save();
             }
         } else {
-            $response = reset($multipleResponse);
-            $chatbotDialogResponse = new ChatbotDialogResponse;
-            $chatbotDialogResponse->response_type = 'text';
-            $chatbotDialogResponse->value = isset($response['value']) ? $response['value'] : '';
-            $chatbotDialogResponse->chatbot_dialog_id = $chatbotDialog->id;
+            $response                                      = reset($multipleResponse);
+            $chatbotDialogResponse                         = new ChatbotDialogResponse;
+            $chatbotDialogResponse->response_type          = 'text';
+            $chatbotDialogResponse->value                  = isset($response['value']) ? $response['value'] : '';
+            $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialog->id;
             $chatbotDialogResponse->message_to_human_agent = 1;
             $chatbotDialogResponse->save();
         }
@@ -268,23 +268,23 @@ class DialogGridController extends Controller
 
     public function restDetails(Request $request, $id)
     {
-        $details = [];
-        $dialog = ChatbotDialog::find($id);
-        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck('value', 'value')->toArray();
-        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck('keyword', 'keyword')->toArray();
+        $details                        = [];
+        $dialog                         = ChatbotDialog::find($id);
+        $question                       = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck('value', 'value')->toArray();
+        $keywords                       = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck('keyword', 'keyword')->toArray();
         $details['allSuggestedOptions'] = $keywords + $question;
 
         if (! empty($dialog)) {
             $details['dialog'][] = [
-                'id' => $dialog->id,
+                'id'   => $dialog->id,
                 'name' => $dialog->name,
             ];
 
-            $details['id'] = $dialog->id;
-            $details['parent_id'] = $dialog->parent_id;
-            $details['name'] = $dialog->name;
-            $details['title'] = $dialog->title;
-            $details['dialog_type'] = $dialog->dialog_type;
+            $details['id']                 = $dialog->id;
+            $details['parent_id']          = $dialog->parent_id;
+            $details['name']               = $dialog->name;
+            $details['title']              = $dialog->title;
+            $details['dialog_type']        = $dialog->dialog_type;
             $details['response_condition'] = ! empty($dialog->metadata) ? true : false;
 
             $matchCondition = explode(' ', $dialog->match_condition);
@@ -293,7 +293,7 @@ class DialogGridController extends Controller
             if (count($matchCondition) > 1) {
                 unset($matchCondition[0]);
                 $extraConditions = [];
-                $i = 0;
+                $i               = 0;
                 foreach ($matchCondition as $key => $condition) {
                     if (isset($extraConditions[$i]) && count($extraConditions[$i]) == 2) {
                         $i++;
@@ -309,7 +309,7 @@ class DialogGridController extends Controller
                 $parentResponse = $dialog->parentResponse;
                 if (! $parentResponse->isEmpty()) {
                     foreach ($parentResponse as $pResponse) {
-                        $findMatch = false;
+                        $findMatch       = false;
                         $explodeMatchCnd = [];
                         if (strpos($pResponse->match_condition, ':') !== false) {
                             $findMatch = ':';
@@ -322,7 +322,7 @@ class DialogGridController extends Controller
                         }
 
                         if ($findMatch) {
-                            $hasString = explode(':', str_replace(['"', '(', ')'], '', $pResponse->match_condition));
+                            $hasString       = explode(':', str_replace(['"', '(', ')'], '', $pResponse->match_condition));
                             $explodeMatchCnd = [
                                 ! empty($hasString[0]) ? $hasString[0] : '',
                                 ':',
@@ -331,21 +331,21 @@ class DialogGridController extends Controller
                         }
                         //$explodeMatchCnd   = explode(" ", str_replace('"', '', $pResponse->match_condition));
                         $assistantReport[] = [
-                            'id' => $pResponse->id,
-                            'condition' => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : '',
-                            'condition_sign' => isset($explodeMatchCnd[1]) ? $explodeMatchCnd[1] : '',
+                            'id'              => $pResponse->id,
+                            'condition'       => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : '',
+                            'condition_sign'  => isset($explodeMatchCnd[1]) ? $explodeMatchCnd[1] : '',
                             'condition_value' => isset($explodeMatchCnd[2]) ? $explodeMatchCnd[2] : '',
-                            'response' => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : '',
+                            'response'        => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : '',
                         ];
                     }
                 }
             } else {
                 $assistantReport[] = [
-                    'id' => $dialog->id,
-                    'condition' => '',
-                    'condition_sign' => '',
+                    'id'              => $dialog->id,
+                    'condition'       => '',
+                    'condition_sign'  => '',
                     'condition_value' => '',
-                    'response' => ($dialog->singleResponse) ? $dialog->singleResponse->value : '',
+                    'response'        => ($dialog->singleResponse) ? $dialog->singleResponse->value : '',
                 ];
             }
 
@@ -358,8 +358,8 @@ class DialogGridController extends Controller
     public function restCreate(Request $request)
     {
         $params = [
-            'name' => $request->get('dialog_type', 'node') == 'node' ? 'solo_' . time() : 'solo_project_' . time(),
-            'parent_id' => $request->get('parent_id', 0),
+            'name'        => $request->get('dialog_type', 'node') == 'node' ? 'solo_' . time() : 'solo_project_' . time(),
+            'parent_id'   => $request->get('parent_id', 0),
             'dialog_type' => $request->get('dialog_type', 'node'),
         ];
         $previousNode = $request->get('previous_node', 0);
@@ -408,7 +408,7 @@ class DialogGridController extends Controller
         $chatDialog = $chatDialog->get();
         // $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
         $chatDialogArray = $chatDialog->toArray();
-        $chatDialog = [];
+        $chatDialog      = [];
         if (! empty($chatDialogArray)) {
             foreach ($chatDialogArray as $k => $chatDlg) {
                 // if ($k == 0) {
@@ -430,11 +430,11 @@ class DialogGridController extends Controller
         $allSuggestedOptions = $keywords + $question;
 
         foreach ($chatDialog as $k => $dialogNode) {
-            $childNodeCount = ChatbotDialog::where('parent_id', $dialogNode['id'])->get();
+            $childNodeCount               = ChatbotDialog::where('parent_id', $dialogNode['id'])->get();
             $chatDialog[$k]['childCount'] = count($childNodeCount);
         }
         $data = [
-            'chatDialog' => $chatDialog,
+            'chatDialog'          => $chatDialog,
             'allSuggestedOptions' => $allSuggestedOptions,
         ];
 
@@ -481,7 +481,7 @@ class DialogGridController extends Controller
 
     public function search(Request $request)
     {
-        $keyword = request('term', '');
+        $keyword  = request('term', '');
         $parentId = request('parent_id', 0);
 
         $allDialog = ChatbotDialog::where('name', 'like', '%' . $keyword . '%');

@@ -20,7 +20,7 @@ class BulkCustomerRepliesController extends Controller
     public function index(Request $request)
     {
         set_time_limit(0);
-        $keywords = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
+        $keywords     = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
         $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)
             ->whereNotIn('value', [
                 'test', 'have', 'sent', 'the', 'please', 'pls', 'through', 'using', 'solo', 'that',
@@ -57,21 +57,21 @@ class BulkCustomerRepliesController extends Controller
             $customers = $customers->orderBy('max_id', 'desc')->paginate(20);
         }
 
-        $groups = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
-        $pdfList = [];
-        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $pdfList          = [];
+        $nextActionArr    = DB::table('customer_next_actions')->pluck('name', 'id');
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
         $settingShortCuts = [
-            'image_shortcut' => \App\Setting::get('image_shortcut'),
-            'price_shortcut' => \App\Setting::get('price_shortcut'),
-            'call_shortcut' => \App\Setting::get('call_shortcut'),
+            'image_shortcut'      => \App\Setting::get('image_shortcut'),
+            'price_shortcut'      => \App\Setting::get('price_shortcut'),
+            'call_shortcut'       => \App\Setting::get('call_shortcut'),
             'screenshot_shortcut' => \App\Setting::get('screenshot_shortcut'),
-            'details_shortcut' => \App\Setting::get('details_shortcut'),
-            'purchase_shortcut' => \App\Setting::get('purchase_shortcut'),
+            'details_shortcut'    => \App\Setting::get('details_shortcut'),
+            'purchase_shortcut'   => \App\Setting::get('purchase_shortcut'),
         ];
         $users_array = Helpers::getUserArray(\App\User::all());
 
-        $whatsappNos = getInstanceNo();
+        $whatsappNos     = getInstanceNo();
         $chatbotKeywords = \App\ChatbotKeyword::all();
 
         return view('bulk-customer-replies.index', compact('customers', 'keywords', 'autoKeywords', 'searchedKeyword', 'nextActionArr', 'groups', 'pdfList', 'reply_categories', 'settingShortCuts', 'users_array', 'whatsappNos', 'chatbotKeywords'));
@@ -79,12 +79,12 @@ class BulkCustomerRepliesController extends Controller
 
     public function updateWhatsappNo(Request $request)
     {
-        $no = $request->get('whatsapp_no');
+        $no        = $request->get('whatsapp_no');
         $customers = explode(',', $request->get('customers', ''));
-        $total = 0;
+        $total     = 0;
         if (! empty($no) && is_array(array_filter($customers))) {
             $lCustomer = array_filter($customers);
-            $total = count($lCustomer);
+            $total     = count($lCustomer);
             $customers = \App\Customer::whereIn('id', $lCustomer)->update(['whatsapp_number' => $no]);
         }
 
@@ -97,7 +97,7 @@ class BulkCustomerRepliesController extends Controller
             'keyword' => 'required',
         ]);
 
-        $type = 'keyword';
+        $type        = 'keyword';
         $numOfSpaces = count(explode(' ', $request->get('keyword')));
         if ($numOfSpaces > 1 && $numOfSpaces < 4) {
             $type = 'phrase';
@@ -105,11 +105,11 @@ class BulkCustomerRepliesController extends Controller
             $type = 'sentence';
         }
 
-        $keyword = new BulkCustomerRepliesKeyword();
-        $keyword->value = $request->get('keyword');
+        $keyword            = new BulkCustomerRepliesKeyword();
+        $keyword->value     = $request->get('keyword');
         $keyword->text_type = $type;
         $keyword->is_manual = 1;
-        $keyword->count = 0;
+        $keyword->count     = 0;
         $keyword->save();
 
         return redirect()->back()->with('message', Str::title($type) . ' added successfully!');
@@ -123,9 +123,9 @@ class BulkCustomerRepliesController extends Controller
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $request->get('message_bulk'),
+                'message'     => $request->get('message_bulk'),
                 'customer_id' => $customer,
-                'status' => 1,
+                'status'      => 1,
             ]);
 
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($myRequest, 'customer');
@@ -157,7 +157,8 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -168,7 +169,8 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -179,7 +181,8 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -190,7 +193,8 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -205,7 +209,7 @@ class BulkCustomerRepliesController extends Controller
         if ($exist == null) {
             CustomerBulkMessageDND::create([
                 'customer_id' => $request->customer_id,
-                'filter' => $request->filter ? $request->filter['keyword_filter'] : null,
+                'filter'      => $request->filter ? $request->filter['keyword_filter'] : null,
             ]);
         }
 

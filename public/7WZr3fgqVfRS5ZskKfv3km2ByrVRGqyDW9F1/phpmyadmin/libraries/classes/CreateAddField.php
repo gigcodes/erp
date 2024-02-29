@@ -24,7 +24,7 @@ class CreateAddField
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi DatabaseInterface interface
+     * @param DatabaseInterface $dbi DatabaseInterface interface
      */
     public function __construct(DatabaseInterface $dbi)
     {
@@ -40,12 +40,12 @@ class CreateAddField
      */
     private function getIndexedColumns(): array
     {
-        $fieldCount = count($_POST['field_name']);
-        $fieldPrimary = json_decode($_POST['primary_indexes'], true);
-        $fieldIndex = json_decode($_POST['indexes'], true);
-        $fieldUnique = json_decode($_POST['unique_indexes'], true);
+        $fieldCount    = count($_POST['field_name']);
+        $fieldPrimary  = json_decode($_POST['primary_indexes'], true);
+        $fieldIndex    = json_decode($_POST['indexes'], true);
+        $fieldUnique   = json_decode($_POST['unique_indexes'], true);
         $fieldFullText = json_decode($_POST['fulltext_indexes'], true);
-        $fieldSpatial = json_decode($_POST['spatial_indexes'], true);
+        $fieldSpatial  = json_decode($_POST['spatial_indexes'], true);
 
         return [
             $fieldCount,
@@ -61,17 +61,18 @@ class CreateAddField
      * Initiate the column creation statement according to the table creation or
      * add columns to a existing table
      *
-     * @param  int  $fieldCount    number of columns
-     * @param  bool  $isCreateTable true if requirement is to get the statement
+     * @param int  $fieldCount    number of columns
+     * @param bool $isCreateTable true if requirement is to get the statement
      *                            for table creation
+     *
      * @return array An array of initial sql statements
-     *                             according to the request
+     *               according to the request
      */
     private function buildColumnCreationStatement(
         int $fieldCount,
         bool $isCreateTable = true
     ): array {
-        $definitions = [];
+        $definitions   = [];
         $previousField = -1;
         for ($i = 0; $i < $fieldCount; $i++) {
             // '0' is also empty for php :-(
@@ -106,9 +107,10 @@ class CreateAddField
     /**
      * Set column creation suffix according to requested position of the new column
      *
-     * @param  int  $previousField previous field for ALTER statement
-     * @param  bool  $isCreateTable true if requirement is to get the statement
+     * @param int  $previousField previous field for ALTER statement
+     * @param bool $isCreateTable true if requirement is to get the statement
      *                            for table creation
+     *
      * @return string suffix
      */
     private function setColumnCreationStatementSuffix(
@@ -144,11 +146,12 @@ class CreateAddField
     /**
      * Create relevant index statements
      *
-     * @param  array  $index         an array of index columns
-     * @param  string  $indexChoice   index choice that which represents
+     * @param array  $index         an array of index columns
+     * @param string $indexChoice   index choice that which represents
      *                              the index type of $indexed_fields
-     * @param  bool  $isCreateTable true if requirement is to get the statement
+     * @param bool   $isCreateTable true if requirement is to get the statement
      *                              for table creation
+     *
      * @return string sql statement for indexes
      */
     private function buildIndexStatement(
@@ -206,8 +209,9 @@ class CreateAddField
     /**
      * Statement prefix for the buildColumnCreationStatement()
      *
-     * @param  bool  $isCreateTable true if requirement is to get the statement
+     * @param bool $isCreateTable true if requirement is to get the statement
      *                            for table creation
+     *
      * @return string prefix
      */
     private function getStatementPrefix(bool $isCreateTable = true): string
@@ -219,8 +223,9 @@ class CreateAddField
      * Returns sql statement according to the column and index specifications as
      * requested
      *
-     * @param  bool  $isCreateTable true if requirement is to get the statement
+     * @param bool $isCreateTable true if requirement is to get the statement
      *                            for table creation
+     *
      * @return string sql statement
      */
     private function getColumnCreationStatements(bool $isCreateTable = true): string
@@ -233,7 +238,7 @@ class CreateAddField
             $fieldUnique,
             $fieldFullText,
             $fieldSpatial,
-        ] = $this->getIndexedColumns();
+        ]            = $this->getIndexedColumns();
         $definitions = $this->buildColumnCreationStatement($fieldCount, $isCreateTable);
 
         // Builds the PRIMARY KEY statements
@@ -313,8 +318,9 @@ class CreateAddField
     /**
      * Returns the definition of a partition/subpartition
      *
-     * @param  array  $partition      array of partition/subpartition details
-     * @param  bool  $isSubPartition whether a subpartition
+     * @param array $partition      array of partition/subpartition details
+     * @param bool  $isSubPartition whether a subpartition
+     *
      * @return string partition/subpartition definition
      */
     private function getPartitionDefinition(
@@ -379,8 +385,8 @@ class CreateAddField
     /**
      * Function to get table creation sql query
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
+     * @param string $db    database name
+     * @param string $table table name
      */
     public function getTableCreationQuery(string $db, string $table): string
     {
@@ -447,7 +453,7 @@ class CreateAddField
     /**
      * Function to get the column creation statement
      *
-     * @param  string  $table current table
+     * @param string $table current table
      */
     public function getColumnCreationQuery(
         string $table
@@ -467,9 +473,9 @@ class CreateAddField
     /**
      * Function to execute the column creation statement
      *
-     * @param  string  $db       current database
-     * @param  string  $sqlQuery the query to run
-     * @param  string  $errorUrl error page url
+     * @param string $db       current database
+     * @param string $sqlQuery the query to run
+     * @param string $errorUrl error page url
      */
     public function tryColumnCreationQuery(
         string $db,

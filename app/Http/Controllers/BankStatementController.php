@@ -37,12 +37,12 @@ class BankStatementController extends Controller
         $path = $request->file('excel_file')->storeAs('files/bank_statements', $originalName);
 
         BankStatementFile::create([
-            'filename' => $originalName,
-            'path' => $path,
+            'filename'       => $originalName,
+            'path'           => $path,
             'mapping_fields' => '',
-            'status' => 'uploaded',
-            'created_by' => \Auth::id(),
-            'created_at' => date('Y-m-d H:i:s'),
+            'status'         => 'uploaded',
+            'created_by'     => \Auth::id(),
+            'created_at'     => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()->back()->with('success', 'File imported successfully.');
@@ -68,11 +68,11 @@ class BankStatementController extends Controller
 
         // Get the columns of the database table
         $dbFields = [
-            'transaction_date' => 'Transaction Date',
+            'transaction_date'         => 'Transaction Date',
             'transaction_reference_no' => 'Transaction Reference Number',
-            'debit_amount' => 'Debit Amount',
-            'credit_amount' => 'Credit Amount',
-            'balance' => 'Balance',
+            'debit_amount'             => 'Debit Amount',
+            'credit_amount'            => 'Credit Amount',
+            'balance'                  => 'Balance',
         ];
 
         $row_count = count($data[0]);
@@ -83,9 +83,9 @@ class BankStatementController extends Controller
     public function map_import(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatementFile = BankStatementFile::find($id);
-        $filePath = Storage::url('files' . $bankStatementFile->path);
+        $filePath          = Storage::url('files' . $bankStatementFile->path);
 
-        $data = Excel::toArray([], $filePath);
+        $data   = Excel::toArray([], $filePath);
         $number = $heading_row_number - 1;
         if ($number <= 0) {
             $number = 0;
@@ -110,14 +110,14 @@ class BankStatementController extends Controller
         ];
 
         $data_array_new = [];
-        $inputes = $request->all();
+        $inputes        = $request->all();
         foreach ($data_array as $k => $v) {
             $data_array_new_1 = [];
             foreach ($fields_db as $k1 => $v1) {
                 $data_array_new_1[trim($v1)] = @$v[trim($inputes[$v1])];
             }
             $data_array_new_1['bank_statement_file_id'] = $id;
-            $data_array_new_1['created_at'] = date('Y-m-d H:i:s');
+            $data_array_new_1['created_at']             = date('Y-m-d H:i:s');
             foreach ($data_array_new_1 as $k2 => $v2) {
                 if ($v2 == null || trim($v2) == '') {
                     $data_array_new_1[$k2] = '-';
@@ -136,7 +136,7 @@ class BankStatementController extends Controller
 
     public function mapped_data($id, Request $request)
     {
-        $data = BankStatement::where(['bank_statement_file_id' => $id])->with('user')->paginate(25);
+        $data              = BankStatement::where(['bank_statement_file_id' => $id])->with('user')->paginate(25);
         $bankStatementFile = BankStatementFile::find($id);
 
         return View('bank-statement.mapped',

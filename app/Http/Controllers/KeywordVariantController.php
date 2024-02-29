@@ -14,7 +14,7 @@ class KeywordVariantController extends Controller
     public function create(Request $request)
     {
         if ($request->ajax()) {
-            $variant = new KeywordSearchVariants();
+            $variant          = new KeywordSearchVariants();
             $variant->keyword = $request->keyword;
             $variant->save();
             $this->generateHashTagKeywords();
@@ -47,7 +47,7 @@ class KeywordVariantController extends Controller
 
     public function generateHashTagKeywords()
     {
-        $brandList = Brand::getAll();
+        $brandList    = Brand::getAll();
         $categoryList = Category::select('title', 'id')->get()->toArray();
 
         /* Initialize queue for add hashtags */

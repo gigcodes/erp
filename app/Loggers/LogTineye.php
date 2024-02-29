@@ -11,10 +11,10 @@ class LogTineye extends Model
     public static function log($url, $result)
     {
         // Log result to database
-        $logTineye = new LogTineye();
+        $logTineye            = new LogTineye();
         $logTineye->image_url = $url;
-        $logTineye->md5 = md5(file_get_contents($url));
-        $logTineye->response = $result;
+        $logTineye->md5       = md5(file_get_contents($url));
+        $logTineye->response  = $result;
         $logTineye->save();
     }
 }

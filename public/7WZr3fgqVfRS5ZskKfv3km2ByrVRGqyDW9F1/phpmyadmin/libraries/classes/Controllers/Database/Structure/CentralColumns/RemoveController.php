@@ -29,7 +29,7 @@ final class RemoveController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -47,7 +47,7 @@ final class RemoveController extends AbstractController
         }
 
         $centralColumns = new CentralColumns($this->dbi);
-        $error = $centralColumns->deleteColumnsFromList($_POST['db'], $selected);
+        $error          = $centralColumns->deleteColumnsFromList($_POST['db'], $selected);
 
         $message = $error instanceof Message ? $error : Message::success(__('Success!'));
 

@@ -162,7 +162,7 @@ class CreateController extends AbstractController
 
             $column_map = $this->dbi->getColumnMapFromSql($_POST['view']['as'], $view_columns);
 
-            $systemDb = $this->dbi->getSystemDatabase();
+            $systemDb                = $this->dbi->getSystemDatabase();
             $pma_transformation_data = $systemDb->getExistingTransformationData($db);
 
             if ($pma_transformation_data !== false) {
@@ -205,15 +205,15 @@ class CreateController extends AbstractController
 
         // prefill values if not already filled from former submission
         $view = [
-            'operation' => 'create',
-            'or_replace' => '',
-            'algorithm' => '',
-            'definer' => '',
+            'operation'    => 'create',
+            'or_replace'   => '',
+            'algorithm'    => '',
+            'definer'      => '',
             'sql_security' => '',
-            'name' => '',
+            'name'         => '',
             'column_names' => '',
-            'as' => $sql_query,
-            'with' => '',
+            'as'           => $sql_query,
+            'with'         => '',
         ];
 
         // Used to prefill the fields when editing a view
@@ -233,16 +233,16 @@ class CreateController extends AbstractController
                 ->showCreate();
 
             // CREATE ALGORITHM=<ALGORITHM> DE...
-            $parts = explode(' ', substr($createView, 17));
+            $parts             = explode(' ', substr($createView, 17));
             $item['ALGORITHM'] = $parts[0];
 
-            $view['operation'] = 'alter';
-            $view['definer'] = $item['DEFINER'];
+            $view['operation']    = 'alter';
+            $view['definer']      = $item['DEFINER'];
             $view['sql_security'] = $item['SECURITY_TYPE'];
-            $view['name'] = $_GET['table'];
-            $view['as'] = $item['VIEW_DEFINITION'];
-            $view['with'] = $item['CHECK_OPTION'];
-            $view['algorithm'] = $item['ALGORITHM'];
+            $view['name']         = $_GET['table'];
+            $view['as']           = $item['VIEW_DEFINITION'];
+            $view['with']         = $item['CHECK_OPTION'];
+            $view['algorithm']    = $item['ALGORITHM'];
 
             // MySQL 8.0+ - issue #16194
             if (empty($view['as']) && is_string($createView)) {
@@ -250,7 +250,7 @@ class CreateController extends AbstractController
                 /**
                  * @var CreateStatement $stmt
                  */
-                $stmt = $parser->statements[0];
+                $stmt       = $parser->statements[0];
                 $view['as'] = isset($stmt->body) ? TokensList::build($stmt->body) : $view['as'];
             }
         }
@@ -259,17 +259,17 @@ class CreateController extends AbstractController
             $view = array_merge($view, $_POST['view']);
         }
 
-        $urlParams['db'] = $db;
+        $urlParams['db']     = $db;
         $urlParams['reload'] = 1;
 
         echo $this->template->render('view_create', [
-            'ajax_dialog' => isset($_POST['ajax_dialog']),
-            'text_dir' => $text_dir,
-            'url_params' => $urlParams,
-            'view' => $view,
+            'ajax_dialog'            => isset($_POST['ajax_dialog']),
+            'text_dir'               => $text_dir,
+            'url_params'             => $urlParams,
+            'view'                   => $view,
             'view_algorithm_options' => $view_algorithm_options,
-            'view_with_options' => $view_with_options,
-            'view_security_options' => $view_security_options,
+            'view_with_options'      => $view_with_options,
+            'view_security_options'  => $view_security_options,
         ]);
     }
 }

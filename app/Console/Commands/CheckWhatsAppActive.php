@@ -60,7 +60,7 @@ class CheckWhatsAppActive extends Command
                     if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
                         continue;
                     }
-                    $phones = ['+971569119192', '+31629987287'];
+                    $phones  = ['+971569119192', '+31629987287'];
                     $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
 
                     foreach ($phones as $phone) {

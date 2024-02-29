@@ -42,7 +42,7 @@ class DialogFlowService
     public function createIntent($parameters, $updateId = null)
     {
         if (! $updateId) {
-            $intents = $this->listIntents();
+            $intents    = $this->listIntents();
             $findIntent = array_search($parameters['name'], array_column($intents, 'display_name'));
             if ($findIntent) {
                 $updateId = $intents[$findIntent]['id'];
@@ -59,15 +59,15 @@ class DialogFlowService
         // Training Phrase
         $trainingPhrases = [];
         foreach ($parameters['questions'] as $question) {
-            $part = (new Part())->setText($question);
-            $trainingPhrase = (new TrainingPhrase())->setParts([$part]);
+            $part              = (new Part())->setText($question);
+            $trainingPhrase    = (new TrainingPhrase())->setParts([$part]);
             $trainingPhrases[] = $trainingPhrase;
         }
 
         // Prepare message for intent
         $messages = [];
         foreach ($parameters['reply'] as $reply) {
-            $text = (new Text())->setText([$reply]);
+            $text       = (new Text())->setText([$reply]);
             $messages[] = (new Message())->setText($text);
         }
 
@@ -79,7 +79,7 @@ class DialogFlowService
         if (isset($parameters['parent']) && ! empty($parameters['parent'])) {
             $parentQuestion = ChatbotQuestion::find($parameters['parent']);
             if ($parentQuestion && $parentQuestion->google_response_id) {
-                $parentClient = new IntentsClient($this->credentials);
+                $parentClient       = new IntentsClient($this->credentials);
                 $parentFollowupName = $parentClient->intentName($this->googleAccount->project_id, $parentQuestion->google_response_id);
                 $intent->setParentFollowupIntentName($parentFollowupName);
             }
@@ -99,10 +99,10 @@ class DialogFlowService
     public function deleteIntent($parameters)
     {
         $intentsClient = new IntentsClient($this->credentials);
-        $projectId = $this->googleAccount->project_id;
-        $intentId = $parameters['intent_id'];
-        $intentName = $intentsClient->intentName($projectId, $intentId);
-        $response = $intentsClient->deleteIntent($intentName);
+        $projectId     = $this->googleAccount->project_id;
+        $intentId      = $parameters['intent_id'];
+        $intentName    = $intentsClient->intentName($projectId, $intentId);
+        $response      = $intentsClient->deleteIntent($intentName);
         $intentsClient->close();
 
         return $response;
@@ -111,13 +111,13 @@ class DialogFlowService
     public function listIntents()
     {
         $intentsClient = new IntentsClient($this->credentials);
-        $parent = $intentsClient->agentName($this->googleAccount->project_id);
-        $response = $intentsClient->listIntents($parent, ['pageSize' => 1000]);
+        $parent        = $intentsClient->agentName($this->googleAccount->project_id);
+        $response      = $intentsClient->listIntents($parent, ['pageSize' => 1000]);
 
         $intents = [];
         foreach ($response->iterateAllElements() as $intent) {
-            $name = explode('/', $intent->getName());
-            $name = $name[count($name) - 1];
+            $name      = explode('/', $intent->getName());
+            $name      = $name[count($name) - 1];
             $intents[] = ['display_name' => $intent->getDisplayName(), 'id' => $name];
         }
 
@@ -133,7 +133,7 @@ class DialogFlowService
         }
 
         $entityTypesClient = new EntityTypesClient($this->credentials);
-        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
+        $parent            = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
 
         // prepare entity
         $entity = new Entity();
@@ -156,7 +156,7 @@ class DialogFlowService
         }
 
         $entityTypesClient = new EntityTypesClient($this->credentials);
-        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
+        $parent            = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
 
         // prepare entity
         $entity = new Entity();
@@ -173,8 +173,8 @@ class DialogFlowService
     public function deleteEntity($entityTypeId, $entityValue)
     {
         $entityTypesClient = new EntityTypesClient($this->credentials);
-        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
-        $response = $entityTypesClient->batchDeleteEntities($parent, [$entityValue]);
+        $parent            = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
+        $response          = $entityTypesClient->batchDeleteEntities($parent, [$entityValue]);
         $entityTypesClient->close();
 
         return $response;
@@ -185,7 +185,7 @@ class DialogFlowService
         $entityTypesClient = new EntityTypesClient($this->credentials);
 
         // prepare entity type
-        $parent = $entityTypesClient->agentName($this->googleAccount->project_id);
+        $parent     = $entityTypesClient->agentName($this->googleAccount->project_id);
         $entityType = new EntityType();
         $entityType->setDisplayName(preg_replace('/\s+/', '_', $displayName));
         $entityType->setKind($kind);
@@ -200,8 +200,8 @@ class DialogFlowService
     public function deleteEntityType($entityTypeId)
     {
         $entityTypesClient = new EntityTypesClient($this->credentials);
-        $parent = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
-        $response = $entityTypesClient->deleteEntityType($parent);
+        $parent            = $entityTypesClient->entityTypeName($this->googleAccount->project_id, $entityTypeId);
+        $response          = $entityTypesClient->deleteEntityType($parent);
         $entityTypesClient->close();
 
         return $response;
@@ -210,7 +210,7 @@ class DialogFlowService
     public function detectIntent($sessionId, $text)
     {
         $sessionsClient = new SessionsClient($this->credentials);
-        $session = $sessionsClient->sessionName($this->googleAccount->project_id, $sessionId ?: uniqid());
+        $session        = $sessionsClient->sessionName($this->googleAccount->project_id, $sessionId ?: uniqid());
 
         $textInput = new TextInput();
         $textInput->setText($text);
@@ -228,8 +228,8 @@ class DialogFlowService
     public function trainAgent()
     {
         $agentsClient = new AgentsClient($this->credentials);
-        $parent = $agentsClient->projectName($this->googleAccount->project_id);
-        $response = $agentsClient->trainAgent($parent);
+        $parent       = $agentsClient->projectName($this->googleAccount->project_id);
+        $response     = $agentsClient->trainAgent($parent);
         $agentsClient->close();
 
         return $response;
@@ -275,7 +275,7 @@ class DialogFlowService
 
     public function getReplacement($text, $variable, $customer, $orderId = null, $refundId = null)
     {
-        $lastOrder = null;
+        $lastOrder    = null;
         $latestRefund = null;
         if ($customer) {
             if ($orderId) {

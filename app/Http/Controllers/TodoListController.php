@@ -21,11 +21,11 @@ class TodoListController extends Controller
     public function index(Request $request)
     {
         try {
-            $search_title = request('search_title') ?? '';
-            $search_status = request('search_status') ?? '';
-            $search_date = request('search_date') ?? '';
+            $search_title            = request('search_title') ?? '';
+            $search_status           = request('search_status') ?? '';
+            $search_date             = request('search_date') ?? '';
             $search_todo_category_id = request('search_todo_category_id') ?? '';
-            $todolists = TodoList::with('username');
+            $todolists               = TodoList::with('username');
 
             if ($s = $search_title) {
                 $todolists->where('title', 'like', '%' . $s . '%');
@@ -47,7 +47,7 @@ class TodoListController extends Controller
 
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
-            $statuses = TodoStatus::all()->toArray();
+            $statuses       = TodoStatus::all()->toArray();
             $todoCategories = TodoCategory::get();
             if ($request->ajax()) {
                 return response()->json([
@@ -80,13 +80,13 @@ class TodoListController extends Controller
     public function store(Request $request)
     {
         try {
-            $todolists = new TodoList();
-            $todolists->user_id = Auth::user()->id ?? '';
-            $todolists->title = $request->title;
-            $todolists->subject = $request->subject;
-            $todolists->status = $request->status ?? '';
-            $todolists->todo_date = $request->todo_date;
-            $todolists->remark = $request->remark;
+            $todolists                   = new TodoList();
+            $todolists->user_id          = Auth::user()->id ?? '';
+            $todolists->title            = $request->title;
+            $todolists->subject          = $request->subject;
+            $todolists->status           = $request->status ?? '';
+            $todolists->todo_date        = $request->todo_date;
+            $todolists->remark           = $request->remark;
             $todolists->todo_category_id = $request->todo_category_id ?? '';
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
@@ -102,27 +102,27 @@ class TodoListController extends Controller
         if (! $request->title || $request->subject == '' || $request->status == '' || $request->todo_date == '' || $request->todo_category_id == '') {
             return response()->json(
                 [
-                    'code' => 500,
-                    'data' => [],
+                    'code'    => 500,
+                    'data'    => [],
                     'message' => 'Please enter all required details.',
                 ]
             );
         }
 
         try {
-            $todolists = new TodoList();
-            $todolists->user_id = Auth::user()->id ?? '';
-            $todolists->title = $request->title;
-            $todolists->subject = $request->subject;
-            $todolists->status = $request->status ?? '';
+            $todolists            = new TodoList();
+            $todolists->user_id   = Auth::user()->id ?? '';
+            $todolists->title     = $request->title;
+            $todolists->subject   = $request->subject;
+            $todolists->status    = $request->status ?? '';
             $todolists->todo_date = $request->todo_date;
-            $todolists->remark = $request->remark ?? '-';
+            $todolists->remark    = $request->remark ?? '-';
 
             if ($request->todo_category_id > 0) {
                 $todolists->todo_category_id = $request->todo_category_id ?? '';
             } else {
-                $todoCategory = new TodoCategory();
-                $todoCategory->name = $request->other;
+                $todoCategory         = new TodoCategory();
+                $todoCategory->name   = $request->other;
                 $todoCategory->status = 1;
                 $todoCategory->save();
                 $todolists->todo_category_id = $todoCategory->id;
@@ -155,7 +155,7 @@ class TodoListController extends Controller
     public function edit(TodoList $todoList)
     {
         try {
-            $id = request('id') ?? '';
+            $id        = request('id') ?? '';
             $todolists = TodoList::with('username');
             if ($s = $id) {
                 $todolists->where('id', $s);
@@ -176,13 +176,13 @@ class TodoListController extends Controller
     public function update(Request $request, TodoList $todoList)
     {
         try {
-            $todolists = TodoList::findorfail($request->id);
-            $todolists->user_id = Auth::user()->id ?? '';
-            $todolists->title = $request->title;
-            $todolists->subject = $request->subject;
-            $todolists->status = $request->status;
+            $todolists            = TodoList::findorfail($request->id);
+            $todolists->user_id   = Auth::user()->id ?? '';
+            $todolists->title     = $request->title;
+            $todolists->subject   = $request->subject;
+            $todolists->status    = $request->status;
             $todolists->todo_date = $request->todo_date;
-            $todolists->remark = $request->remark;
+            $todolists->remark    = $request->remark;
             $todolists->save();
             if ($request->remark != $request->old_remark) {
                 $this->createTodolistRemarkHistory($request, $todolists->id);
@@ -197,6 +197,8 @@ class TodoListController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -209,11 +211,11 @@ class TodoListController extends Controller
     public function createTodolistRemarkHistory($request, $id)
     {
         try {
-            $todoRemark = new ToDoListRemarkHistoryLog();
-            $todoRemark->user_id = Auth::user()->id;
+            $todoRemark               = new ToDoListRemarkHistoryLog();
+            $todoRemark->user_id      = Auth::user()->id;
             $todoRemark->todo_list_id = $id;
-            $todoRemark->remark = $request->remark;
-            $todoRemark->old_remark = $request->old_remark ?? '';
+            $todoRemark->remark       = $request->remark;
+            $todoRemark->old_remark   = $request->old_remark ?? '';
             $todoRemark->save();
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage());
@@ -234,8 +236,8 @@ class TodoListController extends Controller
     public function storeStatus(Request $request)
     {
         try {
-            $todoStatus = new TodoStatus();
-            $todoStatus->name = $request->status_name;
+            $todoStatus        = new TodoStatus();
+            $todoStatus->name  = $request->status_name;
             $todoStatus->color = $request->status_color;
             $todoStatus->save();
 
@@ -247,7 +249,7 @@ class TodoListController extends Controller
 
     public function statusUpdate(Request $request)
     {
-        $todolists = TodoList::findorfail($request->id);
+        $todolists         = TodoList::findorfail($request->id);
         $todolists->status = $request->status;
         $todolists->save();
 
@@ -257,7 +259,7 @@ class TodoListController extends Controller
     public function todoCategoryUpdate(Request $request)
     {
         try {
-            $todolists = TodoList::findorfail($request->id);
+            $todolists                   = TodoList::findorfail($request->id);
             $todolists->todo_category_id = $request->todo_category_id;
             $todolists->save();
 
@@ -270,7 +272,7 @@ class TodoListController extends Controller
     public function storeTodoCategory(Request $request)
     {
         try {
-            $todoStatus = new TodoCategory();
+            $todoStatus       = new TodoCategory();
             $todoStatus->name = $request->todo_category_name;
             $todoStatus->save();
 
@@ -283,9 +285,9 @@ class TodoListController extends Controller
     public function StatusColorUpdate(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoModuleVerifiedStatus = TodoStatus::find($key);
+            $magentoModuleVerifiedStatus        = TodoStatus::find($key);
             $magentoModuleVerifiedStatus->color = $value;
             $magentoModuleVerifiedStatus->save();
         }
@@ -296,11 +298,11 @@ class TodoListController extends Controller
     public function indexJson(Request $request)
     {
         try {
-            $search_title = request('search_title') ?? '';
-            $search_status = request('search_status') ?? '';
-            $search_date = request('search_date') ?? '';
+            $search_title            = request('search_title') ?? '';
+            $search_status           = request('search_status') ?? '';
+            $search_date             = request('search_date') ?? '';
             $search_todo_category_id = request('search_todo_category_id') ?? '';
-            $todolists = TodoList::with('username');
+            $todolists               = TodoList::with('username');
 
             if ($s = $search_title) {
                 $todolists->where('title', 'like', '%' . $s . '%');
@@ -320,12 +322,12 @@ class TodoListController extends Controller
 
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
-            $statuses = TodoStatus::all()->toArray();
+            $statuses       = TodoStatus::all()->toArray();
             $todoCategories = TodoCategory::get();
 
             return response()->json([
                 'items' => (array) $todolists->getIterator(),
-                'page' => $todolists->currentPage(),
+                'page'  => $todolists->currentPage(),
                 'total' => $todolists->total(),
             ]);
         } catch (\Exception $e) {
@@ -379,8 +381,8 @@ class TodoListController extends Controller
         try {
             $remarks = ToDoListRemarkHistoryLog::create(
                 [
-                    'user_id' => Auth::user()->id,
-                    'remark' => $request->remarks,
+                    'user_id'      => Auth::user()->id,
+                    'remark'       => $request->remarks,
                     'todo_list_id' => $request->todo_list_id,
                 ]
             );
@@ -412,7 +414,7 @@ class TodoListController extends Controller
 
         return view('todolist.menu-todata', [
             'todoLists' => $todoLists,
-            'statuses' => $statuses,
+            'statuses'  => $statuses,
         ]);
     }
 }

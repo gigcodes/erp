@@ -20,9 +20,9 @@ class ZabbixTaskController extends Controller
         // Validation Part
         $this->validate(
             $request, [
-                'task_name' => 'required',
+                'task_name'               => 'required',
                 'zabbix_webhook_data_ids' => 'required',
-                'assign_to' => 'required',
+                'assign_to'               => 'required',
             ]
         );
 
@@ -31,11 +31,11 @@ class ZabbixTaskController extends Controller
         // Create task directly in tasks table instead of zabbix_tasks(this is not need now) table.
         $task = Task::where('task_subject', $data['task_name'])->where('assign_to', $data['assign_to'])->first();
         if (! $task) {
-            $data['assign_from'] = Auth::id();
+            $data['assign_from']  = Auth::id();
             $data['is_statutory'] = 0;
             $data['task_details'] = $data['task_name'];
             $data['task_subject'] = $data['task_name'];
-            $data['assign_to'] = $data['assign_to'];
+            $data['assign_to']    = $data['assign_to'];
 
             $task = Task::create($data);
 
@@ -50,8 +50,8 @@ class ZabbixTaskController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Zabbix task has been created!',
             ]
         );
@@ -62,9 +62,9 @@ class ZabbixTaskController extends Controller
         $assigneeHistories = ZabbixTaskAssigneeHistory::with(['user', 'newAssignee'])->where('zabbix_task_id', $zabbix_task)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $assigneeHistories,
-            'message' => 'Assignee Histories get successfully',
+            'status'      => true,
+            'data'        => $assigneeHistories,
+            'message'     => 'Assignee Histories get successfully',
             'status_name' => 'success',
         ], 200);
     }

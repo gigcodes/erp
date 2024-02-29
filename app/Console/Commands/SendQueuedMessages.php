@@ -81,29 +81,29 @@ class SendQueuedMessages extends Command
             }
 
             if (isset($twilio_cred) and $twilio_cred != null) {
-                $account_sid = $twilio_cred->a_sid;
-                $auth_token = $twilio_cred->auth_token;
+                $account_sid   = $twilio_cred->a_sid;
+                $auth_token    = $twilio_cred->auth_token;
                 $twilio_number = $twilio_cred->phone_number;
             } else {
-                $account_sid = 'AC23d37fbaf2f8a851f850aa526464ee7d';
-                $auth_token = '51e2bf471c33a48332ea365ae47a6517';
+                $account_sid   = 'AC23d37fbaf2f8a851f850aa526464ee7d';
+                $auth_token    = '51e2bf471c33a48332ea365ae47a6517';
                 $twilio_number = '+18318880662';
             }
             try {
                 $receiverNumber = '+' . $value['phone'];
 
                 $message = $value['message'];
-                $client = new Client($account_sid, $auth_token);
+                $client  = new Client($account_sid, $auth_token);
                 $client->messages->create($receiverNumber, [
                     'from' => $twilio_number,
                     'body' => $message,
                 ]);
                 ChatMessage::where('id', $value['id'])->update([
-                    'send_by' => $twilio_number,
-                    'user_id' => \Auth::id(),
-                    'approved' => 1,
+                    'send_by'      => $twilio_number,
+                    'user_id'      => \Auth::id(),
+                    'approved'     => 1,
                     'is_delivered' => 1,
-                    'is_queue' => 0,
+                    'is_queue'     => 0,
                 ]);
             } catch (Exception $e) {
                 \Log::info('Sending SMS issue #2215 ->' . $e->getMessage());

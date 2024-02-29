@@ -35,6 +35,8 @@ class MessageController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param null|mixed $isElastic
+     *
      * @return Response
      */
     public function index(Request $request, $isElastic = null)
@@ -43,7 +45,7 @@ class MessageController extends Controller
          * Elastic
          */
         $elastic = new Elasticsearch();
-        $sizeof = $elastic->count(Messages::INDEX_NAME);
+        $sizeof  = $elastic->count(Messages::INDEX_NAME);
 
         if (! $isElastic) {
             $isElastic = false;
@@ -51,8 +53,8 @@ class MessageController extends Controller
             return $this->indexDB($request, $isElastic);
         }
 
-        $search = request('search');
-        $status = request('status');
+        $search        = request('search');
+        $status        = request('status');
         $unreplied_msg = request('unreplied_msg'); //Purpose : get unreplied message value - DEVATSK=4350
 
         $queryParam = [];
@@ -133,12 +135,12 @@ class MessageController extends Controller
         $response = Elasticsearch::search(
             [
                 'index' => Messages::INDEX_NAME,
-                'from' => ($currentPage - 1) * 20,
-                'size' => 20,
-                'body' => [
+                'from'  => ($currentPage - 1) * 20,
+                'size'  => 20,
+                'body'  => [
                     'query' => [
                         'bool' => [
-                            'must' => $body,
+                            'must'   => $body,
                             'should' => [
                                 ['exists' => ['field' => 'vendor_id']],
                                 ['exists' => ['field' => 'customer_id']],
@@ -154,49 +156,49 @@ class MessageController extends Controller
                         'group_by_customer' => [
                             'terms' => [
                                 'field' => 'customer_id',
-                                'size' => 1,
+                                'size'  => 1,
                             ],
                             'aggs' => [
                                 'group_by_user' => [
                                     'terms' => [
                                         'field' => 'user_id',
-                                        'size' => 1,
+                                        'size'  => 1,
                                     ],
                                     'aggs' => [
                                         'group_by_vendor' => [
                                             'terms' => [
                                                 'field' => 'vendor_id',
-                                                'size' => 1,
+                                                'size'  => 1,
                                             ],
                                             'aggs' => [
                                                 'group_by_supplier' => [
                                                     'terms' => [
                                                         'field' => 'supplier_id',
-                                                        'size' => 1,
+                                                        'size'  => 1,
                                                     ],
                                                     'aggs' => [
                                                         'group_by_task' => [
                                                             'terms' => [
                                                                 'field' => 'task_id',
-                                                                'size' => 1,
+                                                                'size'  => 1,
                                                             ],
                                                             'aggs' => [
                                                                 'group_by_developer_task' => [
                                                                     'terms' => [
                                                                         'field' => 'developer_task_id',
-                                                                        'size' => 1,
+                                                                        'size'  => 1,
                                                                     ],
                                                                     'aggs' => [
                                                                         'group_by_bug' => [
                                                                             'terms' => [
                                                                                 'field' => 'bug_id',
-                                                                                'size' => 1,
+                                                                                'size'  => 1,
                                                                             ],
                                                                             'aggs' => [
                                                                                 'group_by_email' => [
                                                                                     'terms' => [
                                                                                         'field' => 'email_id',
-                                                                                        'size' => 1,
+                                                                                        'size'  => 1,
                                                                                     ],
                                                                                     'aggs' => [
                                                                                         'max_number' => [
@@ -228,31 +230,31 @@ class MessageController extends Controller
             ]);
 
         $allItems = $response['hits']['hits'] ?? [];
-        $total = $response['hits']['total']['value'] ?? 0;
+        $total    = $response['hits']['total']['value'] ?? 0;
 
         $pendingApprovalMsg = array_map(fn ($item) => (new \App\ChatMessage())->setRawAttributes($item['_source']),
             $allItems
         );
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
-            'items' => $pendingApprovalMsg,
-            'total' => $total,
-            'perPage' => 20,
+            'items'       => $pendingApprovalMsg,
+            'total'       => $total,
+            'perPage'     => 20,
             'currentPage' => $currentPage,
-            'options' => [
-                'path' => Paginator::resolveCurrentPath(),
+            'options'     => [
+                'path'     => Paginator::resolveCurrentPath(),
                 'pageName' => 'page',
             ],
         ]);
 
-        $allCategory = ChatbotCategory::all();
+        $allCategory     = ChatbotCategory::all();
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $currentPage;
+        $page             = $currentPage;
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
@@ -262,7 +264,7 @@ class MessageController extends Controller
         }
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
-        $variables = DialogFlowService::VARIABLES;
+        $variables     = DialogFlowService::VARIABLES;
         $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id', '>', 0)
             ->pluck('value', 'id')->toArray();
 
@@ -270,7 +272,7 @@ class MessageController extends Controller
 
         $dynamicColumnsToShowPostman = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns                 = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
@@ -298,7 +300,7 @@ class MessageController extends Controller
     public function todayMessagesCheck(Request $request)
     {
         $last_message_id = $request->cmid;
-        $tml = '';
+        $tml             = '';
         if ($last_message_id) {
         }
 
@@ -327,7 +329,7 @@ class MessageController extends Controller
         AND developer_task_id IS NULL
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
-        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $currentPage        = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
@@ -347,11 +349,11 @@ class MessageController extends Controller
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $pendingApprovalMsg->currentPage();
+        $page             = $pendingApprovalMsg->currentPage();
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
-        $variables = DialogFlowService::VARIABLES;
+        $variables     = DialogFlowService::VARIABLES;
         $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id', '>', 0)
             ->pluck('value', 'id')->toArray();
         $totalpage = $pendingApprovalMsg->lastPage();
@@ -395,7 +397,7 @@ class MessageController extends Controller
             } elseif ($chatMEssage->customer_id > 0) {
                 $type = 'customer';
             } elseif ($chatMEssage->message_type == 'email') {
-                $type = 'email';
+                $type      = 'email';
                 $messageId = $id;
             }
 
@@ -429,10 +431,10 @@ class MessageController extends Controller
     public function uploadAudio(Request $request)
     {
         if ($request->hasFile('audio_data')) {
-            $audio_data = $request->file('audio_data');
+            $audio_data       = $request->file('audio_data');
             $fileOriginalName = $audio_data->getClientOriginalName();
-            $path = Storage::disk('s3')->putFileAs('audio-message', $audio_data, $fileOriginalName);
-            $exists_file = Storage::disk('s3')->exists($path);
+            $path             = Storage::disk('s3')->putFileAs('audio-message', $audio_data, $fileOriginalName);
+            $exists_file      = Storage::disk('s3')->exists($path);
             if ($exists_file) {
                 $path = Storage::disk('s3')->url($path);
 
@@ -449,8 +451,8 @@ class MessageController extends Controller
     {
         $id = $request->get('chat_id', 0);
 
-        $data = [];
-        $ids = [];
+        $data   = [];
+        $ids    = [];
         $images = [];
 
         if ($id > 0) {
@@ -460,11 +462,11 @@ class MessageController extends Controller
             if ($chatMessages) {
                 $chatsuggestion = $chatMessages->suggestion;
                 if ($chatsuggestion) {
-                    $data = SuggestedProduct::attachMoreProducts($chatsuggestion);
-                    $code = 500;
+                    $data    = SuggestedProduct::attachMoreProducts($chatsuggestion);
+                    $code    = 500;
                     $message = 'Sorry no images found!';
                     if (count($data) > 0) {
-                        $code = 200;
+                        $code    = 200;
                         $message = 'More images attached Successfully';
                     }
 
@@ -481,17 +483,17 @@ class MessageController extends Controller
     public function forwardToCustomer(Request $request)
     {
         $customer = $request->get('customer');
-        $images = $request->get('images');
+        $images   = $request->get('images');
 
         if ($customer > 0 && ! empty($images)) {
-            $params = request()->all();
-            $params['user_id'] = \Auth::id();
-            $params['is_queue'] = 0;
-            $params['status'] = \App\ChatMessage::CHAT_MESSAGE_APPROVED;
+            $params                 = request()->all();
+            $params['user_id']      = \Auth::id();
+            $params['is_queue']     = 0;
+            $params['status']       = \App\ChatMessage::CHAT_MESSAGE_APPROVED;
             $params['customer_ids'] = is_array($customer) ? $customer : [$customer];
-            $groupId = \DB::table('chat_messages')->max('group_id');
-            $params['group_id'] = ($groupId > 0) ? $groupId + 1 : 1;
-            $params['images'] = $images;
+            $groupId                = \DB::table('chat_messages')->max('group_id');
+            $params['group_id']     = ($groupId > 0) ? $groupId + 1 : 1;
+            $params['images']       = $images;
 
             \App\Jobs\SendMessageToCustomer::dispatch($params);
         }
@@ -513,13 +515,13 @@ class MessageController extends Controller
                     \App\Helpers\MessageHelper::whatsAppSend($customer, $chatMessage->message, null, $chatMessage);
 
                     $data = [
-                        'model' => \App\Customer::class,
-                        'model_id' => $customer->id,
+                        'model'           => \App\Customer::class,
+                        'model_id'        => $customer->id,
                         'chat_message_id' => $chatId,
-                        'message' => $chatMessage->message,
-                        'status' => 'started',
+                        'message'         => $chatMessage->message,
+                        'status'          => 'started',
                     ];
-                    $chat_message_log_id = \App\ChatbotMessageLog::generateLog($data);
+                    $chat_message_log_id           = \App\ChatbotMessageLog::generateLog($data);
                     $params['chat_message_log_id'] = $chat_message_log_id;
                     \App\Helpers\MessageHelper::sendwatson($customer, $chatMessage->message, null, $chatMessage, $params, false, 'customer');
 
@@ -534,7 +536,7 @@ class MessageController extends Controller
     public function updateReadStatus(Request $request)
     {
         $chatId = $request->get('chat_id');
-        $value = $request->get('value');
+        $value  = $request->get('value');
 
         $reply = \App\ChatbotReply::find($chatId);
 
@@ -552,7 +554,7 @@ class MessageController extends Controller
 
     public function stopReminder(Request $request)
     {
-        $id = $request->get('id');
+        $id   = $request->get('id');
         $type = $request->get('type');
 
         if ($type == 'developer_task') {
@@ -573,10 +575,10 @@ class MessageController extends Controller
 
     public function updateEmailAddress(Request $request)
     {
-        $chat_id = $request->chat_id;
+        $chat_id   = $request->chat_id;
         $fromemail = $request->fromemail;
-        $toemail = $request->toemail;
-        $ccemail = $request->ccemail;
+        $toemail   = $request->toemail;
+        $ccemail   = $request->ccemail;
         if ($chat_id > 0) {
             ChatMessage::where('id', $chat_id)
                 ->update(['from_email' => $fromemail, 'to_email' => $toemail, 'cc_email' => $ccemail]);
@@ -590,14 +592,14 @@ class MessageController extends Controller
     public function updateSimulator(Request $request)
     {
         $requestMessage = \Request::create('/', 'GET', [
-            'limit' => 1,
-            'object' => $request->object,
-            'object_id' => $request->objectId,
-            'order' => 'asc',
+            'limit'         => 1,
+            'object'        => $request->object,
+            'object_id'     => $request->objectId,
+            'order'         => 'asc',
             'for_simulator' => true,
         ]);
         $response = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
-        $id = $request->objectId;
+        $id       = $request->objectId;
         if ($id > 0) {
             if ($request->object == 'customer') {
                 $update_simulator = Customer::where('id', $id)->update(['is_auto_simulator' => $request->auto_simulator]);
@@ -616,10 +618,10 @@ class MessageController extends Controller
     public function chatBotReplayList(Request $request)
     {
         $requestMessage = \Request::create('/', 'GET', [
-            'limit' => 20,
-            'object' => $request->object,
-            'object_id' => $request->object_id,
-            'order' => 'asc',
+            'limit'         => 20,
+            'object'        => $request->object,
+            'object_id'     => $request->object_id,
+            'order'         => 'asc',
             'plan_response' => true,
         ]);
         $message_list = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
@@ -630,8 +632,8 @@ class MessageController extends Controller
     public function sendSuggestedMessage(Request $request): \Illuminate\Http\JsonResponse
     {
         $tmp_replay_id = $request->get('tmp_reply_id');
-        $value = $request->get('value');
-        $reply = TmpReplay::find($tmp_replay_id);
+        $value         = $request->get('value');
+        $reply         = TmpReplay::find($tmp_replay_id);
         if ($reply) {
             if ($value == 1) {
                 $reply['is_approved'] = 1;
@@ -641,15 +643,15 @@ class MessageController extends Controller
             $reply->save();
             if ($value == 1) {
                 $requestMessage = \Request::create('/', 'GET', [
-                    'limit' => 1,
-                    'object' => $reply->type,
-                    'object_id' => $reply->type_id,
+                    'limit'         => 1,
+                    'object'        => $reply->type,
+                    'object_id'     => $reply->type_id,
                     'plan_response' => true,
                 ]);
                 $lastMessage = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
                 $requestData = [
-                    'chat_id' => $reply->chat_message_id,
-                    'status' => 2,
+                    'chat_id'          => $reply->chat_message_id,
+                    'status'           => 2,
                     'add_autocomplete' => false,
                 ];
                 if ($lastMessage[0]['type'] === 'email') {
@@ -671,7 +673,7 @@ class MessageController extends Controller
                     $requestData['developer_task_id'] = $lastMessage[0]['object_type_id'];
                 }
                 $requestData['message'] = $reply->suggested_replay;
-                $requestData = \Request::create('/', 'POST', $requestData);
+                $requestData            = \Request::create('/', 'POST', $requestData);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, $reply->type);
             }
             $status = ($value == 1) ? 'send message Successfully' : 'Suggested message rejected';
@@ -684,22 +686,22 @@ class MessageController extends Controller
 
     public function simulatorMessageList(Request $request, $object, $objectId)
     {
-        $object = $request->has('object') ? $request->get('object') : $object;
-        $objectId = $request->has('object_id') ? $request->get('object_id') : $objectId;
+        $object     = $request->has('object') ? $request->get('object') : $object;
+        $objectId   = $request->has('object_id') ? $request->get('object_id') : $objectId;
         $objectData = [];
         if ($object == 'customer') {
-            $customer = Customer::find($objectId);
+            $customer           = Customer::find($objectId);
             $objectData['type'] = $object;
             $objectData['name'] = $customer['name'];
-            $google_accounts = GoogleDialogAccount::with('storeWebsite')->where('site_id', $customer->store_website_id)->first();
-            $objectData['url'] = $google_accounts['storeWebsite']['website'];
+            $google_accounts    = GoogleDialogAccount::with('storeWebsite')->where('site_id', $customer->store_website_id)->first();
+            $objectData['url']  = $google_accounts['storeWebsite']['website'];
         } else {
             if ($object == 'vendor') {
-                $vendor = Vendor::find($objectId);
+                $vendor             = Vendor::find($objectId);
                 $objectData['type'] = $object;
                 $objectData['name'] = $vendor['name'];
             } elseif ($object == 'supplier') {
-                $supplier = Supplier::find($objectId);
+                $supplier           = Supplier::find($objectId);
                 $objectData['type'] = $object;
                 $objectData['name'] = $supplier['name'];
             }
@@ -710,20 +712,20 @@ class MessageController extends Controller
             $objectData['url'] = $google_accounts ? $google_accounts['storeWebsite']['website'] : '';
         }
         $requestMessage = \Request::create('/', 'GET', [
-            'limit' => 1,
-            'object' => $object,
-            'object_id' => $objectId,
-            'order' => 'asc',
+            'limit'         => 1,
+            'object'        => $object,
+            'object_id'     => $objectId,
+            'order'         => 'asc',
             'plan_response' => true,
-            'page' => $request->page_no,
+            'page'          => $request->page_no,
         ]);
         $message = app('App\Http\Controllers\ChatMessagesController')->loadMoreMessages($requestMessage);
 
         //        if (!isset($message[0])) {
 //            return response()->json(['code' => 200, 'data' => null, 'messages' => 'Message completed']);
 //        }
-        $intent = '';
-        $type = '';
+        $intent        = '';
+        $type          = '';
         $chatQuestions = [];
 
         if (! empty($message)) {
@@ -752,15 +754,15 @@ class MessageController extends Controller
 
             if ($chatQuestions) {
                 $intent = $chatQuestions['value'];
-                $type = 'Database';
+                $type   = 'Database';
             } else {
                 $dialogFlowService = new DialogFlowService($google_accounts);
-                $response = $dialogFlowService->detectIntent(null, $message[0]['message']);
-                $intent = $response->getIntent()->getDisplayName();
-                $intentName = $response->getIntent()->getName();
-                $intentName = explode('/', $intentName);
-                $intentName = $intentName[count($intentName) - 1];
-                $chatQuestions = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
+                $response          = $dialogFlowService->detectIntent(null, $message[0]['message']);
+                $intent            = $response->getIntent()->getDisplayName();
+                $intentName        = $response->getIntent()->getName();
+                $intentName        = explode('/', $intentName);
+                $intentName        = $intentName[count($intentName) - 1];
+                $chatQuestions     = ChatbotQuestion::leftJoin('chatbot_question_examples as cqe', 'cqe.chatbot_question_id', 'chatbot_questions.id')
                     ->leftJoin('chatbot_categories as cc', 'cc.id', 'chatbot_questions.category_id')
                     ->leftJoin('google_dialog_accounts as ga', 'ga.id', 'chatbot_questions.google_account_id')
                     ->select('chatbot_questions.*', 'ga.*', \DB::raw('group_concat(cqe.question) as `questions`'), 'cc.name as category_name')
@@ -789,14 +791,14 @@ class MessageController extends Controller
     {
         if ($request->question_id > 0) {
             $chatBotQuestion = ChatbotQuestion::where('id', $request->question_id)->first();
-            $questionArr = [];
+            $questionArr     = [];
             if ($chatBotQuestion) {
                 foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
                     $questionArr[] = $question->question;
                 }
-                $googleAccount = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
-                $storeQuestion = new ChatbotQuestionExample();
-                $storeQuestion->question = $request->value;
+                $googleAccount                      = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
+                $storeQuestion                      = new ChatbotQuestionExample();
+                $storeQuestion->question            = $request->value;
                 $storeQuestion->chatbot_question_id = $chatBotQuestion['id'];
                 $storeQuestion->save();
                 $questionArr[] = $request->value;
@@ -804,19 +806,19 @@ class MessageController extends Controller
                 try {
                     $response = $dialogService->createIntent([
                         'questions' => $questionArr,
-                        'reply' => explode(',', $chatBotQuestion['suggested_reply']),
-                        'name' => $chatBotQuestion['value'],
-                        'parent' => $chatBotQuestion['parent'],
+                        'reply'     => explode(',', $chatBotQuestion['suggested_reply']),
+                        'name'      => $chatBotQuestion['value'],
+                        'parent'    => $chatBotQuestion['parent'],
                     ], $chatBotQuestion->google_response_id ?: null);
                     if ($response) {
                         $chatBotQuestion->google_status = 'google sended';
                         $chatBotQuestion->save();
 
-                        $name = explode('/', $response);
-                        $store_response = new GoogleResponseId();
-                        $store_response->google_response_id = $name[count($name) - 1];
+                        $name                                     = explode('/', $response);
+                        $store_response                           = new GoogleResponseId();
+                        $store_response->google_response_id       = $name[count($name) - 1];
                         $store_response->google_dialog_account_id = $googleAccount->id;
-                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->chatbot_question_id      = $chatBotQuestion->id;
                         $store_response->save();
                     }
 
@@ -829,7 +831,7 @@ class MessageController extends Controller
                 }
             } else {
                 if ($request->object === 'customer') {
-                    $customer = Customer::find($request->object_id);
+                    $customer      = Customer::find($request->object_id);
                     $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
                 } else {
                     $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
@@ -839,17 +841,17 @@ class MessageController extends Controller
                 }
                 $chatBotQuestion = ChatbotQuestion::where('value', $request->question_id)->first();
                 if (! $chatBotQuestion) {
-                    $chatBotQuestion = new ChatbotQuestion();
+                    $chatBotQuestion                      = new ChatbotQuestion();
                     $chatBotQuestion->keyword_or_question = 'intent';
-                    $chatBotQuestion->value = $request->question_id;
-                    $chatBotQuestion->auto_approve = 0;
-                    $chatBotQuestion->suggested_reply = $request->value;
-                    $chatBotQuestion->google_account_id = $googleAccount->id;
-                    $chatBotQuestion->is_active = 1;
+                    $chatBotQuestion->value               = $request->question_id;
+                    $chatBotQuestion->auto_approve        = 0;
+                    $chatBotQuestion->suggested_reply     = $request->value;
+                    $chatBotQuestion->google_account_id   = $googleAccount->id;
+                    $chatBotQuestion->is_active           = 1;
                     $chatBotQuestion->save();
                 }
-                $storeQuestion = new ChatbotQuestionExample();
-                $storeQuestion->question = $request->value;
+                $storeQuestion                      = new ChatbotQuestionExample();
+                $storeQuestion->question            = $request->value;
                 $storeQuestion->chatbot_question_id = $chatBotQuestion->id;
                 $storeQuestion->save();
                 $questionArr[] = $request->value;
@@ -857,20 +859,20 @@ class MessageController extends Controller
                 try {
                     $response = $dialogService->createIntent([
                         'questions' => $questionArr,
-                        'reply' => explode(',', $chatBotQuestion->suggested_reply),
-                        'name' => $chatBotQuestion->value,
-                        'parent' => $chatBotQuestion->parent,
+                        'reply'     => explode(',', $chatBotQuestion->suggested_reply),
+                        'name'      => $chatBotQuestion->value,
+                        'parent'    => $chatBotQuestion->parent,
                     ], $chatBotQuestion->google_response_id ?: null);
 
                     if ($response) {
-                        $name = explode('/', $response);
+                        $name                           = explode('/', $response);
                         $chatBotQuestion->google_status = 'google sended';
                         $chatBotQuestion->save();
 
-                        $store_response = new GoogleResponseId();
-                        $store_response->google_response_id = $name[count($name) - 1];
+                        $store_response                           = new GoogleResponseId();
+                        $store_response->google_response_id       = $name[count($name) - 1];
                         $store_response->google_dialog_account_id = $googleAccount->id;
-                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->chatbot_question_id      = $chatBotQuestion->id;
                         $store_response->save();
                     }
 
@@ -890,7 +892,7 @@ class MessageController extends Controller
     public function storeReplay(Request $request)
     {
         if ($request->object === 'customer') {
-            $customer = Customer::find($request->object_id);
+            $customer      = Customer::find($request->object_id);
             $googleAccount = GoogleDialogAccount::where('id', $customer->store_website_id)->first();
         } else {
             $googleAccount = GoogleDialogAccount::where('default_selected', 1)->first();
@@ -899,8 +901,8 @@ class MessageController extends Controller
             }
         }
         $chatBotQuestion = ChatbotQuestion::where('id', $request->question_id)->first();
-        $questionArr = [];
-        $replyArr = [];
+        $questionArr     = [];
+        $replyArr        = [];
         if ($chatBotQuestion) {
             foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
                 $questionArr[] = $question->question;
@@ -909,30 +911,30 @@ class MessageController extends Controller
             foreach ($chatBotQuestion->chatbotQuestionReplies as $reply) {
                 $replyArr[] = $reply->suggested_reply;
             }
-            $googleAccount = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
-            $chatRply = new  ChatbotQuestionReply();
-            $chatRply->suggested_reply = $request->value;
-            $chatRply->store_website_id = $googleAccount->site_id;
+            $googleAccount                 = GoogleDialogAccount::where('id', $chatBotQuestion->google_account_id)->first();
+            $chatRply                      = new  ChatbotQuestionReply();
+            $chatRply->suggested_reply     = $request->value;
+            $chatRply->store_website_id    = $googleAccount->site_id;
             $chatRply->chatbot_question_id = $chatBotQuestion->id;
             $chatRply->save();
-            $replyArr[] = $request->value;
+            $replyArr[]    = $request->value;
             $dialogService = new DialogFlowService($googleAccount);
             try {
                 $response = $dialogService->createIntent([
                     'questions' => $questionArr,
-                    'reply' => $replyArr,
-                    'name' => $chatBotQuestion['value'],
-                    'parent' => $chatBotQuestion['parent'],
+                    'reply'     => $replyArr,
+                    'name'      => $chatBotQuestion['value'],
+                    'parent'    => $chatBotQuestion['parent'],
                 ], $chatBotQuestion->google_response_id ?: null);
                 if ($response) {
-                    $name = explode('/', $response);
+                    $name                           = explode('/', $response);
                     $chatBotQuestion->google_status = 'google sended';
                     $chatBotQuestion->save();
 
-                    $store_response = new GoogleResponseId();
-                    $store_response->google_response_id = $name[count($name) - 1];
+                    $store_response                           = new GoogleResponseId();
+                    $store_response->google_response_id       = $name[count($name) - 1];
                     $store_response->google_dialog_account_id = $googleAccount->id;
-                    $store_response->chatbot_question_id = $chatBotQuestion->id;
+                    $store_response->chatbot_question_id      = $chatBotQuestion->id;
                     $store_response->save();
                 }
 
@@ -953,15 +955,15 @@ class MessageController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'chatbot-messages')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'chatbot-messages';
-            $column->column_name = json_encode($request->column_chatbox);
+            $column->column_name  = json_encode($request->column_chatbox);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'chatbot-messages';
-            $column->column_name = json_encode($request->column_chatbox);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_chatbox);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -970,8 +972,8 @@ class MessageController extends Controller
 
     public function messagesJson(Request $request)
     {
-        $search = request('search');
-        $status = request('status');
+        $search        = request('search');
+        $status        = request('status');
         $unreplied_msg = request('unreplied_msg'); //Purpose : get unreplied message value - DEVATSK=4350
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
@@ -1065,14 +1067,14 @@ class MessageController extends Controller
             ->paginate(20);
         // dd($pendingApprovalMsg);
 
-        $allCategory = ChatbotCategory::all();
+        $allCategory     = ChatbotCategory::all();
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $pendingApprovalMsg->currentPage();
+        $page             = $pendingApprovalMsg->currentPage();
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         return response()->json(['code' => 200, 'items' => (array) $pendingApprovalMsg->getIterator(), 'page' => $page]);
@@ -1080,8 +1082,8 @@ class MessageController extends Controller
 
     public function indexDB(Request $request, $isElastic)
     {
-        $search = request('search');
-        $status = request('status');
+        $search        = request('search');
+        $status        = request('status');
         $unreplied_msg = request('unreplied_msg'); //Purpose : get unreplied message value - DEVATSK=4350
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
@@ -1167,7 +1169,7 @@ class MessageController extends Controller
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
         $currentPage = Paginator::resolveCurrentPage();
-        $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
+        $select      = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
             'c.is_auto_simulator as customer_auto_simulator',
             'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'];
@@ -1182,24 +1184,24 @@ class MessageController extends Controller
         $messages = $pendingApprovalMsg->select([...$select])->get($select);
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
-            'items' => $messages,
-            'total' => $total,
-            'perPage' => 20,
+            'items'       => $messages,
+            'total'       => $total,
+            'perPage'     => 20,
             'currentPage' => $currentPage,
-            'options' => [
-                'path' => Paginator::resolveCurrentPath(),
+            'options'     => [
+                'path'     => Paginator::resolveCurrentPath(),
                 'pageName' => 'page',
             ],
         ]);
 
-        $allCategory = ChatbotCategory::all();
+        $allCategory     = ChatbotCategory::all();
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $currentPage;
+        $page             = $currentPage;
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
@@ -1209,7 +1211,7 @@ class MessageController extends Controller
         }
 
         $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
-        $variables = DialogFlowService::VARIABLES;
+        $variables     = DialogFlowService::VARIABLES;
         $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id', '>', 0)
             ->pluck('value', 'id')->toArray();
 

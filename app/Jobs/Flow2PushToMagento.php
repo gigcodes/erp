@@ -26,14 +26,15 @@ class Flow2PushToMagento implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  null  $category
-     * @param  null  $log
-     * @param  null  $mode
+     * @param null      $category
+     * @param null      $log
+     * @param null      $mode
+     * @param protected $details
      */
     public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null, protected $details = [])
     {
-        $this->_product = $product;
-        $this->_website = $website;
+        $this->_product      = $product;
+        $this->_website      = $website;
         $this->product_index = (isset($details) && isset($details['product_index'])) ? $details['product_index'] : 0;
         $this->no_of_product = (isset($details) && isset($details['no_of_product'])) ? $details['no_of_product'] : 0;
     }

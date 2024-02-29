@@ -36,18 +36,18 @@ final class Warning implements Stringable
 
     private function __construct(string $level, int $code, string $message)
     {
-        $this->level = in_array($level, ['Note', 'Warning', 'Error'], true) ? $level : '?';
-        $this->code = $code >= 1 ? $code : 0;
+        $this->level   = in_array($level, ['Note', 'Warning', 'Error'], true) ? $level : '?';
+        $this->code    = $code >= 1 ? $code : 0;
         $this->message = $message;
     }
 
     /**
-     * @param  mixed[]  $row
+     * @param mixed[] $row
      */
     public static function fromArray(array $row): self
     {
-        $level = '';
-        $code = 0;
+        $level   = '';
+        $code    = 0;
         $message = '';
 
         if (isset($row['Level']) && is_string($row['Level'])) {

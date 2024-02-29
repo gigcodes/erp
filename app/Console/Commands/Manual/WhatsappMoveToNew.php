@@ -43,13 +43,13 @@ class WhatsappMoveToNew extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // Set variables
             $newNumber = '971545889192';
-            $days = 60;
+            $days      = 60;
 
             // Query to find all customers of $number
             $sql = '
@@ -76,7 +76,7 @@ class WhatsappMoveToNew extends Command
             if ($rs !== null) {
                 foreach ($rs as $result) {
                     // Find customer
-                    $customer = Customer::find($result->customer_id);
+                    $customer                  = Customer::find($result->customer_id);
                     $customer->whatsapp_number = $newNumber;
                     $customer->save();
 

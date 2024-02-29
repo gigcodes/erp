@@ -39,7 +39,7 @@ class ErrorReportController extends AbstractController
         ErrorHandler $errorHandler
     ) {
         parent::__construct($response, $template);
-        $this->errorReport = $errorReport;
+        $this->errorReport  = $errorReport;
         $this->errorHandler = $errorHandler;
     }
 
@@ -76,11 +76,11 @@ class ErrorReportController extends AbstractController
                     && ($_SESSION['prev_error_subm_time'] - time()) <= 3000
                 ) {
                     $_SESSION['error_subm_count'] = 0;
-                    $_SESSION['prev_errors'] = '';
+                    $_SESSION['prev_errors']      = '';
                     $this->response->addJSON('stopErrorReportLoop', '1');
                 } else {
                     $_SESSION['prev_error_subm_time'] = time();
-                    $_SESSION['error_subm_count'] = isset($_SESSION['error_subm_count'])
+                    $_SESSION['error_subm_count']     = isset($_SESSION['error_subm_count'])
                         ? $_SESSION['error_subm_count'] + 1
                         : 0;
                 }
@@ -94,7 +94,7 @@ class ErrorReportController extends AbstractController
                     $success = false;
                 } else {
                     $decoded_response = json_decode($server_response, true);
-                    $success = ! empty($decoded_response) ?
+                    $success          = ! empty($decoded_response) ?
                         $decoded_response['success'] : false;
                 }
 

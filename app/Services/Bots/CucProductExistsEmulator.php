@@ -21,7 +21,7 @@ class CucProductExistsEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-            'ip' => '123.136.62.162',
+            'ip'   => '123.136.62.162',
             'port' => '8080',
         ];
     }
@@ -31,7 +31,7 @@ class CucProductExistsEmulator
     public function emulate($command, $url, $commands, $product)
     {
         $this->data = false;
-        $self = $this;
+        $self       = $this;
         try {
             $this->manager->browse($command, static function ($browser) use ($url, $self, $product) {
                 try {
@@ -64,7 +64,7 @@ class CucProductExistsEmulator
                     $price = explode(',', $price);
                     $price = str_replace('.', ',', $price[0]) . '.' . $price[1];
 
-                    $brand = $detailsHTML->filter('h1 a span')->getInnerHtml();
+                    $brand    = $detailsHTML->filter('h1 a span')->getInnerHtml();
                     $category = $detailsHTML->filter('h2 a span')->getInnerHtml();
 
                     if ($sku || $price || $brand || $category) {

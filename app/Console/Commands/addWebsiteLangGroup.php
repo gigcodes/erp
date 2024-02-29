@@ -45,14 +45,14 @@ class addWebsiteLangGroup extends Command
             $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
 
             $postData = [
-                'name' => $v->name . '_' . $v->code,
+                'name'             => $v->name . '_' . $v->code,
                 'agent_priorities' => [
                     'buying@amourint.com' => 'normal',
                 ],
             ];
 
             $postData = json_encode($postData, true);
-            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             if ($result['err']) {
                 dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
             } else {

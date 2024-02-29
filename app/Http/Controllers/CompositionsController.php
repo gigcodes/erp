@@ -15,7 +15,7 @@ class CompositionsController extends Controller
      */
     public function index(Request $request)
     {
-        $users = $matchedArray = [];
+        $users        = $matchedArray = [];
         $compositions = Compositions::withCount('productCounts');
 
         $users = User::query();
@@ -24,7 +24,7 @@ class CompositionsController extends Controller
             //getting search results based on two words
             $comps = $compositions->where('name', 'LIKE', "%{$request->term}%")->get();
             foreach ($comps as $comp) {
-                $searchWord = $request->keyword;
+                $searchWord      = $request->keyword;
                 $searchWordArray = explode(' ', $searchWord);
                 if (count($searchWordArray) != 0) {
                     $isMatched = 1;
@@ -48,17 +48,17 @@ class CompositionsController extends Controller
             if ($request->start_date && $request->end_date) {
                 $matchedArray = \App\UserUpdatedAttributeHistory::where([
                     'attribute_name' => 'compositions',
-                    'user_id' => $request->user_id,
+                    'user_id'        => $request->user_id,
                 ])->whereBetween('created_at', [$request->start_date, $request->end_date])->pluck('attribute_id');
                 $compositions = $compositions->whereIn('id', $matchedArray);
-                $users = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
+                $users        = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
             } else {
                 $matchedArray = \App\UserUpdatedAttributeHistory::where([
                     'attribute_name' => 'compositions',
-                    'user_id' => $request->user_id,
+                    'user_id'        => $request->user_id,
                 ])->pluck('attribute_id');
                 $compositions = $compositions->whereIn('id', $matchedArray);
-                $users = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
+                $users        = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
             }
         }
 
@@ -92,7 +92,7 @@ class CompositionsController extends Controller
 
     public function compositionsGroupBy(Request $request, $threshold)
     {
-        $name = $request->search;
+        $name         = $request->search;
         $compositions = Compositions::withCount('productCounts')->where('replace_with', '')->get()->filter(function ($composition) use ($name, $threshold) {
             similar_text(strtolower($composition->name), strtolower($name), $percentage);
 
@@ -129,7 +129,7 @@ class CompositionsController extends Controller
     {
         //
         $this->validate($request, [
-            'name' => 'required',
+            'name'         => 'required',
             'replace_with' => 'required',
         ]);
 
@@ -161,6 +161,8 @@ class CompositionsController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Compositions $compositions, $id)
@@ -181,7 +183,7 @@ class CompositionsController extends Controller
     public function updateName(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'id' => 'required',
+            'id'   => 'required',
             'name' => 'required',
         ]);
 
@@ -212,6 +214,8 @@ class CompositionsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Compositions $compositions, $id)
@@ -227,7 +231,7 @@ class CompositionsController extends Controller
 
         if ($compositions) {
             // check the type and then
-            $name = '"' . $compositions->name . '"';
+            $name     = '"' . $compositions->name . '"';
             $products = \App\ScrapedProducts::where('properties', 'like', '%' . $name . '%')->latest()->limit(5)->get();
 
             $view = (string) view('compositions.preview-products', compact('products'));
@@ -241,11 +245,11 @@ class CompositionsController extends Controller
     public function affectedProduct(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q = '"' . $from . '"';
+            $q     = '"' . $from . '"';
             $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
                 ->join('products as p', 'p.sku', 'scraped_products.sku')
                 ->where('p.composition', '')
@@ -260,15 +264,15 @@ class CompositionsController extends Controller
 
     public function updateComposition(Request $request)
     {
-        $from = $request->from;
-        $to = $request->to;
+        $from   = $request->from;
+        $to     = $request->to;
         $userId = \Auth::user()->id;
 
         $updateWithProduct = $request->with_product;
         if ($updateWithProduct == 'yes') {
             \App\Jobs\UpdateProductCompositionFromErp::dispatch([
-                'from' => $from,
-                'to' => $to,
+                'from'    => $from,
+                'to'      => $to,
                 'user_id' => $userId,
             ])->onQueue('supplier_products');
         }
@@ -278,11 +282,11 @@ class CompositionsController extends Controller
             foreach ($c as $b) {
                 //once it is save let's store to the user updated attributes table as well
                 $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                    'old_value' => $b->replace_with,
-                    'new_value' => $to,
+                    'old_value'      => $b->replace_with,
+                    'new_value'      => $to,
                     'attribute_name' => 'compositions',
-                    'attribute_id' => $b->id,
-                    'user_id' => $userId,
+                    'attribute_id'   => $b->id,
+                    'user_id'        => $userId,
                 ]);
 
                 $b->replace_with = $to;
@@ -295,26 +299,26 @@ class CompositionsController extends Controller
 
     public function updateMultipleComposition(Request $request)
     {
-        $from = $request->from;
-        $to = $request->to;
+        $from   = $request->from;
+        $to     = $request->to;
         $userId = \Auth::user()->id;
         if (! empty($from) && is_array($from)) {
             foreach ($from as $f) {
                 $c = Compositions::find($f);
                 if ($c) {
                     \App\Jobs\UpdateProductCompositionFromErp::dispatch([
-                        'from' => $c->name,
-                        'to' => $to,
+                        'from'    => $c->name,
+                        'to'      => $to,
                         'user_id' => \Auth::user()->id,
                     ])->onQueue('supplier_products');
 
                     //once it is save let's store to the user updated attributes table as well
                     $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $c->replace_with,
-                        'new_value' => $to,
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to,
                         'attribute_name' => 'compositions',
-                        'attribute_id' => $c->id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $c->id,
+                        'user_id'        => $userId,
                     ]);
 
                     $c->replace_with = $to;
@@ -329,7 +333,7 @@ class CompositionsController extends Controller
     public function updateAllComposition(Request $request)
     {
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
 
         if (! empty($from) && is_array($from)) {
             foreach ($from as $key => $f) {
@@ -340,18 +344,18 @@ class CompositionsController extends Controller
                 $c = Compositions::find($f);
                 if ($c) {
                     \App\Jobs\UpdateProductCompositionFromErp::dispatch([
-                        'from' => $c->name,
-                        'to' => $to[$key],
+                        'from'    => $c->name,
+                        'to'      => $to[$key],
                         'user_id' => \Auth::user()->id,
                     ])->onQueue('supplier_products');
 
                     //once it is save let's store to the user updated attributes table as well
                     $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $c->replace_with,
-                        'new_value' => $to[$key],
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to[$key],
                         'attribute_name' => 'compositions',
-                        'attribute_id' => $c->id,
-                        'user_id' => \Auth::user()->id,
+                        'attribute_id'   => $c->id,
+                        'user_id'        => \Auth::user()->id,
                     ]);
 
                     $c->replace_with = $to[$key];
@@ -369,29 +373,29 @@ class CompositionsController extends Controller
         set_time_limit(0);
 
         $from = $request->name;
-        $to = $request->replace_with;
+        $to   = $request->replace_with;
         if (! empty($from) && ! empty($to)) {
             // remove here the word
             $compositionList = \App\Compositions::where('replace_with', 'like', '%' . $from . '%')->orWhere('name', 'like', '%' . $from . '%')->get();
             if (! $compositionList->isEmpty()) {
                 foreach ($compositionList as $cl) {
                     $cl->replace_with = str_ireplace($from, $to, $cl->replace_with);
-                    $cl->name = str_ireplace($from, $to, $cl->name);
+                    $cl->name         = str_ireplace($from, $to, $cl->name);
                     $cl->save();
                 }
             }
 
             $products = \App\Product::where('composition', 'LIKE', '%' . $from . '%')->get();
-            $user = \Auth::user();
+            $user     = \Auth::user();
 
             if ($products) {
                 foreach ($products as $product) {
-                    $composition = $product->composition;
-                    $replaceWords = [];
-                    $replaceWords[] = ucwords($from);
-                    $replaceWords[] = strtoupper($from);
-                    $replaceWords[] = strtolower($from);
-                    $newComposition = str_replace($replaceWords, $to, $composition);
+                    $composition          = $product->composition;
+                    $replaceWords         = [];
+                    $replaceWords[]       = ucwords($from);
+                    $replaceWords[]       = strtoupper($from);
+                    $replaceWords[]       = strtolower($from);
+                    $newComposition       = str_replace($replaceWords, $to, $composition);
                     $product->composition = $newComposition;
                     $product->update();
                 }
@@ -400,29 +404,29 @@ class CompositionsController extends Controller
                 if ($c) {
                     //once it is save let's store to the user updated attributes table as well
                     $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                        'old_value' => $c->replace_with,
-                        'new_value' => $to,
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to,
                         'attribute_name' => 'compositions',
-                        'attribute_id' => $c->id,
-                        'user_id' => $user->id,
+                        'attribute_id'   => $c->id,
+                        'user_id'        => $user->id,
                     ]);
 
                     $c->replace_with = $to;
                     $c->save();
                 } else {
                     if (! empty($from)) {
-                        $comp = new Compositions();
-                        $comp->name = $from;
+                        $comp               = new Compositions();
+                        $comp->name         = $from;
                         $comp->replace_with = $to;
                         $comp->save();
 
                         //once it is save let's store to the user updated attributes table as well
                         $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                            'old_value' => null,
-                            'new_value' => $to,
+                            'old_value'      => null,
+                            'new_value'      => $to,
                             'attribute_name' => 'compositions',
-                            'attribute_id' => $comp->id,
-                            'user_id' => $user->id,
+                            'attribute_id'   => $comp->id,
+                            'user_id'        => $user->id,
                         ]);
                     }
                 }

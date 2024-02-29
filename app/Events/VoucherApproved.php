@@ -15,6 +15,8 @@ class VoucherApproved
     /**
      * Create a new event instance.
      *
+     * @param publicVoucher $voucher
+     *
      * @return void
      */
     public function __construct(public Voucher $voucher)

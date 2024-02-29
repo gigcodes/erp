@@ -78,14 +78,15 @@ class Relation
             return RelationParameters::fromArray($_SESSION['relation'][$server]);
         }
 
-        $relationParameters = RelationParameters::fromArray($this->checkRelationsParam());
+        $relationParameters            = RelationParameters::fromArray($this->checkRelationsParam());
         $_SESSION['relation'][$server] = $relationParameters->toArray();
 
         return $relationParameters;
     }
 
     /**
-     * @param  array<string, bool|string|null>  $relationParams
+     * @param array<string, bool|string|null> $relationParams
+     *
      * @return array<string, bool|string|null>
      */
     private function checkTableAccess(array $relationParams): array
@@ -122,19 +123,19 @@ class Relation
         }
 
         $settings = [
-            'export_templates' => 'exporttemplateswork',
+            'export_templates'  => 'exporttemplateswork',
             'designer_settings' => 'designersettingswork',
-            'central_columns' => 'centralcolumnswork',
-            'savedsearches' => 'savedsearcheswork',
-            'navigationhiding' => 'navwork',
-            'bookmark' => 'bookmarkwork',
-            'userconfig' => 'userconfigwork',
-            'tracking' => 'trackingwork',
-            'table_uiprefs' => 'uiprefswork',
-            'favorite' => 'favoritework',
-            'recent' => 'recentwork',
-            'history' => 'historywork',
-            'relation' => 'relwork',
+            'central_columns'   => 'centralcolumnswork',
+            'savedsearches'     => 'savedsearcheswork',
+            'navigationhiding'  => 'navwork',
+            'bookmark'          => 'bookmarkwork',
+            'userconfig'        => 'userconfigwork',
+            'tracking'          => 'trackingwork',
+            'table_uiprefs'     => 'uiprefswork',
+            'favorite'          => 'favoritework',
+            'recent'            => 'recentwork',
+            'history'           => 'historywork',
+            'relation'          => 'relwork',
         ];
 
         foreach ($settings as $setingName => $worksKey) {
@@ -153,7 +154,8 @@ class Relation
     }
 
     /**
-     * @param  array<string, bool|string|null>  $relationParams
+     * @param array<string, bool|string|null> $relationParams
+     *
      * @return array<string, bool|string|null>|null
      */
     private function fillRelationParamsWithTableNames(array $relationParams): ?array
@@ -219,37 +221,37 @@ class Relation
      */
     private function checkRelationsParam(): array
     {
-        $relationParams = [];
+        $relationParams            = [];
         $relationParams['version'] = Version::VERSION;
 
         $workToTable = [
-            'relwork' => 'relation',
+            'relwork'     => 'relation',
             'displaywork' => [
                 'relation',
                 'table_info',
             ],
             'bookmarkwork' => 'bookmarktable',
-            'pdfwork' => [
+            'pdfwork'      => [
                 'table_coords',
                 'pdf_pages',
             ],
-            'commwork' => 'column_info',
-            'mimework' => 'column_info',
-            'historywork' => 'history',
-            'recentwork' => 'recent',
-            'favoritework' => 'favorite',
-            'uiprefswork' => 'table_uiprefs',
-            'trackingwork' => 'tracking',
+            'commwork'       => 'column_info',
+            'mimework'       => 'column_info',
+            'historywork'    => 'history',
+            'recentwork'     => 'recent',
+            'favoritework'   => 'favorite',
+            'uiprefswork'    => 'table_uiprefs',
+            'trackingwork'   => 'tracking',
             'userconfigwork' => 'userconfig',
-            'menuswork' => [
+            'menuswork'      => [
                 'users',
                 'usergroups',
             ],
-            'navwork' => 'navigationhiding',
-            'savedsearcheswork' => 'savedsearches',
-            'centralcolumnswork' => 'central_columns',
+            'navwork'              => 'navigationhiding',
+            'savedsearcheswork'    => 'savedsearches',
+            'centralcolumnswork'   => 'central_columns',
             'designersettingswork' => 'designer_settings',
-            'exporttemplateswork' => 'export_templates',
+            'exporttemplateswork'  => 'export_templates',
         ];
 
         foreach (array_keys($workToTable) as $work) {
@@ -257,8 +259,8 @@ class Relation
         }
 
         $relationParams['allworks'] = false;
-        $relationParams['user'] = null;
-        $relationParams['db'] = null;
+        $relationParams['user']     = null;
+        $relationParams['db']       = null;
 
         if (
             $GLOBALS['server'] == 0
@@ -274,7 +276,7 @@ class Relation
         }
 
         $relationParams['user'] = $GLOBALS['cfg']['Server']['user'];
-        $relationParams['db'] = $GLOBALS['cfg']['Server']['pmadb'];
+        $relationParams['db']   = $GLOBALS['cfg']['Server']['pmadb'];
 
         //  Now I just check if all tables that i need are present so I can for
         //  example enable relations but not pdf...
@@ -329,7 +331,7 @@ class Relation
     /**
      * Check if the table is accessible
      *
-     * @param  string  $tableDbName The table or table.db
+     * @param string $tableDbName The table or table.db
      */
     public function canAccessStorageTable(string $tableDbName): bool
     {
@@ -406,16 +408,17 @@ class Relation
      * Gets all Relations to foreign tables for a given table or
      * optionally a given column in a table
      *
-     * @param  string  $db     the name of the db to check for
-     * @param  string  $table  the name of the table to check for
-     * @param  string  $column the name of the column to check for
-     * @param  string  $source the source for foreign key information
-     * @return array    db,table,column
+     * @param string $db     the name of the db to check for
+     * @param string $table  the name of the table to check for
+     * @param string $column the name of the column to check for
+     * @param string $source the source for foreign key information
+     *
+     * @return array db,table,column
      */
     public function getForeigners($db, $table, $column = '', $source = 'both')
     {
         $relationFeature = $this->getRelationParameters()->relationFeature;
-        $foreign = [];
+        $foreign         = [];
 
         if ($relationFeature !== null && ($source === 'both' || $source === 'internal')) {
             $rel_query = 'SELECT `master_field`, `foreign_db`, '
@@ -433,11 +436,11 @@ class Relation
         }
 
         if (($source === 'both' || $source === 'foreign') && strlen($table) > 0) {
-            $tableObj = new Table($table, $db);
+            $tableObj          = new Table($table, $db);
             $show_create_table = $tableObj->showCreate();
             if ($show_create_table) {
-                $parser = new Parser($show_create_table);
-                $stmt = $parser->statements[0];
+                $parser                       = new Parser($show_create_table);
+                $stmt                         = $parser->statements[0];
                 $foreign['foreign_keys_data'] = [];
                 if ($stmt instanceof CreateStatement) {
                     $foreign['foreign_keys_data'] = TableUtils::getForeignKeys($stmt);
@@ -449,7 +452,7 @@ class Relation
          * Emulating relations for some information_schema tables
          */
         $isInformationSchema = mb_strtolower($db) === 'information_schema';
-        $isMysql = mb_strtolower($db) === 'mysql';
+        $isMysql             = mb_strtolower($db) === 'mysql';
         if (($isInformationSchema || $isMysql) && ($source === 'internal' || $source === 'both')) {
             if ($isInformationSchema) {
                 $internalRelations = InternalRelations::getInformationSchema();
@@ -478,8 +481,9 @@ class Relation
     /**
      * Gets the display field of a table
      *
-     * @param  string  $db    the name of the db to check for
-     * @param  string  $table the name of the table to check for
+     * @param string $db    the name of the db to check for
+     * @param string $table the name of the table to check for
+     *
      * @return string|false field name or false
      */
     public function getDisplayField($db, $table)
@@ -535,9 +539,10 @@ class Relation
     /**
      * Gets the comments for all columns of a table or the db itself
      *
-     * @param  string  $db    the name of the db to check for
-     * @param  string  $table the name of the table to check for
-     * @return array    [column_name] = comment
+     * @param string $db    the name of the db to check for
+     * @param string $table the name of the table to check for
+     *
+     * @return array [column_name] = comment
      */
     public function getComments($db, $table = ''): array
     {
@@ -563,7 +568,7 @@ class Relation
     /**
      * Gets the comment for a db
      *
-     * @param  string  $db the name of the db to check for
+     * @param string $db the name of the db to check for
      */
     public function getDbComment(string $db): string
     {
@@ -616,8 +621,8 @@ class Relation
     /**
      * Set a database comment to a certain value.
      *
-     * @param  string  $db      the name of the db
-     * @param  string  $comment the value of the column
+     * @param string $db      the name of the db
+     * @param string $comment the value of the column
      */
     public function setDbComment($db, $comment = ''): bool
     {
@@ -654,10 +659,10 @@ class Relation
     /**
      * Set a SQL history entry
      *
-     * @param  string  $db       the name of the db
-     * @param  string  $table    the name of the table
-     * @param  string  $username the username
-     * @param  string  $sqlquery the sql query
+     * @param string $db       the name of the db
+     * @param string $table    the name of the table
+     * @param string $username the username
+     * @param string $sqlquery the sql query
      */
     public function setHistory($db, $table, $username, $sqlquery): void
     {
@@ -674,8 +679,8 @@ class Relation
         }
 
         $_SESSION['sql_history'][] = [
-            'db' => $db,
-            'table' => $table,
+            'db'       => $db,
+            'table'    => $table,
             'sqlquery' => $sqlquery,
         ];
 
@@ -711,7 +716,8 @@ class Relation
     /**
      * Gets a SQL history entry
      *
-     * @param  string  $username the username
+     * @param string $username the username
+     *
      * @return array|bool list of history items
      */
     public function getHistory($username)
@@ -752,7 +758,7 @@ class Relation
      * deletes entries that exceeds $cfg['QueryHistoryMax'], oldest first, for the
      * given user
      *
-     * @param  string  $username the username
+     * @param string $username the username
      */
     public function purgeHistory($username): void
     {
@@ -788,9 +794,10 @@ class Relation
     /**
      * Prepares the dropdown for one mode
      *
-     * @param  array  $foreign the keys and values for foreigns
-     * @param  string  $data    the current data of the dropdown
-     * @param  string  $mode    the needed mode
+     * @param array  $foreign the keys and values for foreigns
+     * @param string $data    the current data of the dropdown
+     * @param string $mode    the needed mode
+     *
      * @return string[] the <option value=""><option>s
      */
     public function buildForeignDropdown(array $foreign, $data, $mode): array
@@ -816,9 +823,9 @@ class Relation
         }
 
         foreach ($foreign as $key => $value) {
-            $key = (string) $key;
+            $key   = (string) $key;
             $value = (string) $value;
-            $data = (string) $data;
+            $data  = (string) $data;
 
             if (mb_check_encoding($key, 'utf-8') && ! preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', $key)) {
                 $selected = ($key == $data);
@@ -878,12 +885,13 @@ class Relation
     /**
      * Outputs dropdown with values of foreign fields
      *
-     * @param  array[]  $disp_row        array of the displayed row
-     * @param  string  $foreign_field   the foreign field
-     * @param  string  $foreign_display the foreign field to display
-     * @param  string  $data            the current data of the dropdown (field in row)
-     * @param  int|null  $max             maximum number of items in the dropdown
-     * @return string   the <option value=""><option>s
+     * @param array[]  $disp_row        array of the displayed row
+     * @param string   $foreign_field   the foreign field
+     * @param string   $foreign_display the foreign field to display
+     * @param string   $data            the current data of the dropdown (field in row)
+     * @param int|null $max             maximum number of items in the dropdown
+     *
+     * @return string the <option value=""><option>s
      */
     public function foreignDropdown(
         array $disp_row,
@@ -913,7 +921,7 @@ class Relation
         }
 
         // put the dropdown sections in correct order
-        $top = [];
+        $top    = [];
         $bottom = [];
         if ($foreign_display) {
             if (
@@ -944,7 +952,7 @@ class Relation
                     );
                 }
             } else {
-                $top = $this->buildForeignDropdown($foreign, $data, 'id-content');
+                $top    = $this->buildForeignDropdown($foreign, $data, 'id-content');
                 $bottom = $this->buildForeignDropdown($foreign, $data, 'content-id');
             }
         } else {
@@ -952,7 +960,7 @@ class Relation
         }
 
         // beginning of dropdown
-        $ret = '<option value="">&nbsp;</option>';
+        $ret       = '<option value="">&nbsp;</option>';
         $top_count = count($top);
         if ($max == -1 || $top_count < $max) {
             $ret .= implode('', $top);
@@ -973,15 +981,16 @@ class Relation
     /**
      * Gets foreign keys in preparation for a drop-down selector
      *
-     * @param  array|bool  $foreigners     array of the foreign keys
-     * @param  string  $field          the foreign field name
-     * @param  bool  $override_total whether to override the total
-     * @param  string  $foreign_filter a possible filter
-     * @param  string  $foreign_limit  a possible LIMIT clause
-     * @param  bool  $get_total      optional, whether to get total num of rows
+     * @param array|bool $foreigners     array of the foreign keys
+     * @param string     $field          the foreign field name
+     * @param bool       $override_total whether to override the total
+     * @param string     $foreign_filter a possible filter
+     * @param string     $foreign_limit  a possible LIMIT clause
+     * @param bool       $get_total      optional, whether to get total num of rows
      *                                   in $foreignData['the_total;]
      *                                   (has an effect of performance)
-     * @return array<string, mixed>    data about the foreign keys
+     *
+     * @return array<string, mixed> data about the foreign keys
      *
      * @psalm-return array{
      *     foreign_link: bool,
@@ -1002,7 +1011,7 @@ class Relation
         // we always show the foreign field in the drop-down; if a display
         // field is defined, we show it besides the foreign field
         $foreign_link = false;
-        $disp_row = $foreign_display = $the_total = $foreign_field = null;
+        $disp_row     = $foreign_display = $the_total = $foreign_field = null;
         do {
             if (! $foreigners) {
                 break;
@@ -1013,7 +1022,7 @@ class Relation
                 break;
             }
 
-            $foreign_db = $foreigner['foreign_db'];
+            $foreign_db    = $foreigner['foreign_db'];
             $foreign_table = $foreigner['foreign_table'];
             $foreign_field = $foreigner['foreign_field'];
 
@@ -1079,11 +1088,11 @@ class Relation
                     // Either no data in the foreign table or
                     // user does not have select permission to foreign table/field
                     // Show an input field with a 'Browse foreign values' link
-                    $disp_row = null;
+                    $disp_row     = null;
                     $foreign_link = true;
                 }
             } else {
-                $disp_row = null;
+                $disp_row     = null;
                 $foreign_link = true;
             }
         } while (false);
@@ -1094,11 +1103,11 @@ class Relation
         }
 
         return [
-            'foreign_link' => $foreign_link,
-            'the_total' => $the_total,
+            'foreign_link'    => $foreign_link,
+            'the_total'       => $the_total,
             'foreign_display' => $foreign_display ?: '',
-            'disp_row' => $disp_row,
-            'foreign_field' => $foreign_field,
+            'disp_row'        => $disp_row,
+            'foreign_field'   => $foreign_field,
         ];
     }
 
@@ -1107,10 +1116,10 @@ class Relation
      *
      * usually called after a column in a table was renamed
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $field    old field name
-     * @param  string  $new_name new field name
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $field    old field name
+     * @param string $new_name new field name
      */
     public function renameField($db, $table, $field, $new_name): void
     {
@@ -1162,12 +1171,12 @@ class Relation
     /**
      * Performs SQL query used for renaming table.
      *
-     * @param  string  $source_db    Source database name
-     * @param  string  $target_db    Target database name
-     * @param  string  $source_table Source table name
-     * @param  string  $target_table Target table name
-     * @param  string  $db_field     Name of database field
-     * @param  string  $table_field  Name of table field
+     * @param string $source_db    Source database name
+     * @param string $target_db    Target database name
+     * @param string $source_table Source table name
+     * @param string $target_table Target table name
+     * @param string $db_field     Name of database field
+     * @param string $table_field  Name of table field
      */
     public function renameSingleTable(
         DatabaseName $configStorageDatabase,
@@ -1200,10 +1209,10 @@ class Relation
      *
      * usually called after table has been moved
      *
-     * @param  string  $source_db    Source database name
-     * @param  string  $target_db    Target database name
-     * @param  string  $source_table Source table name
-     * @param  string  $target_table Target table name
+     * @param string $source_db    Source database name
+     * @param string $target_db    Target database name
+     * @param string $source_table Source table name
+     * @param string $target_table Target table name
      */
     public function renameTable($source_db, $target_db, $source_table, $target_table): void
     {
@@ -1337,8 +1346,8 @@ class Relation
     /**
      * Create a PDF page
      *
-     * @param  string|null  $newpage name of the new PDF page
-     * @param  string  $db      database name
+     * @param string|null $newpage name of the new PDF page
+     * @param string      $db      database name
      */
     public function createPage(?string $newpage, PdfFeature $pdfFeature, $db): int
     {
@@ -1358,9 +1367,9 @@ class Relation
      * Get child table references for a table column.
      * This works only if 'DisableIS' is false. An empty array is returned otherwise.
      *
-     * @param  string  $db     name of master table db.
-     * @param  string  $table  name of master table.
-     * @param  string  $column name of master table column.
+     * @param string $db     name of master table db.
+     * @param string $table  name of master table.
+     * @param string $column name of master table column.
      */
     public function getChildReferences($db, $table, $column = ''): array
     {
@@ -1392,11 +1401,12 @@ class Relation
     /**
      * Check child table references and foreign key for a table column.
      *
-     * @param  string  $db                    name of master table db.
-     * @param  string  $table                 name of master table.
-     * @param  string  $column                name of master table column.
-     * @param  array|null  $foreigners_full       foreigners array for the whole table.
-     * @param  array|null  $child_references_full child references for the whole table.
+     * @param string     $db                    name of master table db.
+     * @param string     $table                 name of master table.
+     * @param string     $column                name of master table column.
+     * @param array|null $foreigners_full       foreigners array for the whole table.
+     * @param array|null $child_references_full child references for the whole table.
+     *
      * @return array<string, mixed> telling about references if foreign key.
      *
      * @psalm-return array{isEditable: bool, isForeignKey: bool, isReferenced: bool, references: string[]}
@@ -1409,10 +1419,10 @@ class Relation
         $child_references_full = null
     ): array {
         $column_status = [
-            'isEditable' => true,
+            'isEditable'   => true,
             'isReferenced' => false,
             'isForeignKey' => false,
-            'references' => [],
+            'references'   => [],
         ];
 
         $foreigners = [];
@@ -1460,8 +1470,9 @@ class Relation
     /**
      * Search a table column in foreign data.
      *
-     * @param  array  $foreigners Table Foreign data
-     * @param  string  $column     Column name
+     * @param array  $foreigners Table Foreign data
+     * @param string $column     Column name
+     *
      * @return array|false
      */
     public function searchColumnInForeigners(array $foreigners, $column)
@@ -1479,11 +1490,11 @@ class Relation
             $column_index = array_search($column, $one_key['index_list']);
             if ($column_index !== false) {
                 $foreigner['foreign_field'] = $one_key['ref_index_list'][$column_index];
-                $foreigner['foreign_db'] = $one_key['ref_db_name'] ?? $GLOBALS['db'];
+                $foreigner['foreign_db']    = $one_key['ref_db_name'] ?? $GLOBALS['db'];
                 $foreigner['foreign_table'] = $one_key['ref_table_name'];
-                $foreigner['constraint'] = $one_key['constraint'];
-                $foreigner['on_update'] = $one_key['on_update'] ?? 'RESTRICT';
-                $foreigner['on_delete'] = $one_key['on_delete'] ?? 'RESTRICT';
+                $foreigner['constraint']    = $one_key['constraint'];
+                $foreigner['on_update']     = $one_key['on_update'] ?? 'RESTRICT';
+                $foreigner['on_delete']     = $one_key['on_delete'] ?? 'RESTRICT';
 
                 return $foreigner;
             }
@@ -1499,7 +1510,7 @@ class Relation
      */
     public function getDefaultPmaTableNames(array $tableNameReplacements): array
     {
-        $pma_tables = [];
+        $pma_tables         = [];
         $create_tables_file = (string) file_get_contents(SQL_DIR . 'create_tables.sql');
 
         $queries = explode(';', $create_tables_file);
@@ -1563,31 +1574,31 @@ class Relation
     /**
      * Creates PMA tables in the given db, updates if already exists.
      *
-     * @param  string  $db     database
-     * @param  bool  $create whether to create tables if they don't exist.
+     * @param string $db     database
+     * @param bool   $create whether to create tables if they don't exist.
      */
     public function fixPmaTables($db, $create = true): void
     {
         $tablesToFeatures = [
-            'pma__bookmark' => 'bookmarktable',
-            'pma__relation' => 'relation',
-            'pma__table_info' => 'table_info',
-            'pma__table_coords' => 'table_coords',
-            'pma__pdf_pages' => 'pdf_pages',
-            'pma__column_info' => 'column_info',
-            'pma__history' => 'history',
-            'pma__recent' => 'recent',
-            'pma__favorite' => 'favorite',
-            'pma__table_uiprefs' => 'table_uiprefs',
-            'pma__tracking' => 'tracking',
-            'pma__userconfig' => 'userconfig',
-            'pma__users' => 'users',
-            'pma__usergroups' => 'usergroups',
-            'pma__navigationhiding' => 'navigationhiding',
-            'pma__savedsearches' => 'savedsearches',
-            'pma__central_columns' => 'central_columns',
+            'pma__bookmark'          => 'bookmarktable',
+            'pma__relation'          => 'relation',
+            'pma__table_info'        => 'table_info',
+            'pma__table_coords'      => 'table_coords',
+            'pma__pdf_pages'         => 'pdf_pages',
+            'pma__column_info'       => 'column_info',
+            'pma__history'           => 'history',
+            'pma__recent'            => 'recent',
+            'pma__favorite'          => 'favorite',
+            'pma__table_uiprefs'     => 'table_uiprefs',
+            'pma__tracking'          => 'tracking',
+            'pma__userconfig'        => 'userconfig',
+            'pma__users'             => 'users',
+            'pma__usergroups'        => 'usergroups',
+            'pma__navigationhiding'  => 'navigationhiding',
+            'pma__savedsearches'     => 'savedsearches',
+            'pma__central_columns'   => 'central_columns',
             'pma__designer_settings' => 'designer_settings',
-            'pma__export_templates' => 'export_templates',
+            'pma__export_templates'  => 'export_templates',
         ];
 
         $existingTables = $this->dbi->getTables($db, DatabaseInterface::CONNECT_CONTROL);
@@ -1612,7 +1623,7 @@ class Relation
         }
 
         $createQueries = null;
-        $foundOne = false;
+        $foundOne      = false;
         foreach ($tablesToFeatures as $table => $feature) {
             // Check if the table already exists
             // use the possible replaced name first and fallback on the table name
@@ -1671,12 +1682,12 @@ class Relation
         // re-initialize the favorite and recent tables stored in the
         // session from the current configuration storage.
         if ($relationParameters->favoriteTablesFeature !== null) {
-            $fav_tables = RecentFavoriteTable::getInstance('favorite');
+            $fav_tables                                               = RecentFavoriteTable::getInstance('favorite');
             $_SESSION['tmpval']['favoriteTables'][$GLOBALS['server']] = $fav_tables->getFromDb();
         }
 
         if ($relationParameters->recentlyUsedTablesFeature !== null) {
-            $recent_tables = RecentFavoriteTable::getInstance('recent');
+            $recent_tables                                          = RecentFavoriteTable::getInstance('recent');
             $_SESSION['tmpval']['recentTables'][$GLOBALS['server']] = $recent_tables->getFromDb();
         }
 
@@ -1687,9 +1698,10 @@ class Relation
     /**
      * Gets the relations info and status, depending on the condition
      *
-     * @param  bool  $condition whether to look for foreigners or not
-     * @param  string  $db        database name
-     * @param  string  $table     table name
+     * @param bool   $condition whether to look for foreigners or not
+     * @param string $db        database name
+     * @param string $table     table name
+     *
      * @return array ($res_rel, $have_rel)
      *
      * @psalm-return array{array, bool}
@@ -1697,7 +1709,7 @@ class Relation
     public function getRelationsAndStatus(bool $condition, $db, $table)
     {
         $have_rel = false;
-        $res_rel = [];
+        $res_rel  = [];
         if ($condition) {
             // Find which tables are related with the current one and write it in
             // an array
@@ -1741,13 +1753,14 @@ class Relation
     /**
      * Get tables for foreign key constraint
      *
-     * @param  string  $foreignDb        Database name
-     * @param  string  $tblStorageEngine Table storage engine
+     * @param string $foreignDb        Database name
+     * @param string $tblStorageEngine Table storage engine
+     *
      * @return array Table names
      */
     public function getTables($foreignDb, $tblStorageEngine)
     {
-        $tables = [];
+        $tables     = [];
         $tablesRows = $this->dbi->query('SHOW TABLE STATUS FROM ' . Util::backquote($foreignDb));
         while ($row = $tablesRows->fetchRow()) {
             if (! isset($row[1]) || mb_strtoupper($row[1]) != $tblStorageEngine) {

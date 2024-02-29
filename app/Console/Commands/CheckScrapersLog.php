@@ -44,7 +44,7 @@ class CheckScrapersLog extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $yesterdayDate = date('d', strtotime('-1 days'));
-            $root = config('env.SCRAP_LOGS_FOLDER');
+            $root          = config('env.SCRAP_LOGS_FOLDER');
 
             $counter = 0;
             foreach (File::allFiles($root) as $file) {
@@ -53,7 +53,7 @@ class CheckScrapersLog extends Command
                     $day = explode('.', $needed[1]);
                     if ($day[0] === $yesterdayDate) {
                         $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
-                        $result = File::get($filePath);
+                        $result   = File::get($filePath);
                         if (empty($result) ||
                             (strpos($result, 'exception') || strpos($result, 'Exception')) ||
                             (strpos($result, 'error') || strpos($result, 'Error'))) {
@@ -64,17 +64,17 @@ class CheckScrapersLog extends Command
                                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'User query finished.']);
                                 if (! is_null($user)) {
                                     $whatsappNumber = $user->phone;
-                                    $message = 'scraper log file ' . $filePath . ' has issue.';
-                                    $data = [
+                                    $message        = 'scraper log file ' . $filePath . ' has issue.';
+                                    $data           = [
                                         'phone' => $whatsappNumber, // Receivers phone
-                                        'body' => $message, // Message
+                                        'body'  => $message, // Message
                                     ];
                                     ChatApi::sendMessage($data);
                                     ScrapRemark::create([
                                         'scraper_name' => $suplier->scraper_name,
-                                        'scrap_id' => 0,
-                                        'module_type' => '',
-                                        'remark' => $message,
+                                        'scrap_id'     => 0,
+                                        'module_type'  => '',
+                                        'remark'       => $message,
                                     ]);
                                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scrap remark was added.']);
                                 }

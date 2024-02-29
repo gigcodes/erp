@@ -47,7 +47,7 @@ class VendorCategoryController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -102,7 +102,8 @@ class VendorCategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -113,7 +114,8 @@ class VendorCategoryController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -129,7 +131,8 @@ class VendorCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -140,7 +143,8 @@ class VendorCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -151,7 +155,8 @@ class VendorCategoryController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -173,7 +178,7 @@ class VendorCategoryController extends Controller
 
     public function mergeCategory(Request $request)
     {
-        $toCategory = $request->get('to_category');
+        $toCategory   = $request->get('to_category');
         $fromCategory = $request->get('from_category');
 
         if (empty($toCategory)) {
@@ -188,7 +193,7 @@ class VendorCategoryController extends Controller
             return response()->json(['code' => 500, 'error' => 'Merge category can not be same']);
         }
 
-        $category = \App\VendorCategory::where('id', $toCategory)->first();
+        $category         = \App\VendorCategory::where('id', $toCategory)->first();
         $allMergeCategory = \App\Vendor::whereIn('category_id', $fromCategory)->get();
 
         if ($category) {
@@ -208,7 +213,7 @@ class VendorCategoryController extends Controller
 
     public function usersPermission(Request $request)
     {
-        $users = User::where('is_active', 1)->orderBy('name', 'asc')->with('vendorCategoryPermission')->paginate(25);
+        $users      = User::where('is_active', 1)->orderBy('name', 'asc')->with('vendorCategoryPermission')->paginate(25);
         $categories = VendorCategory::orderBy('title', 'asc')->get();
 
         return view('vendors.category-permission', compact('users', 'categories'))->with('i', ($request->input('page', 1) - 1) * 10);
@@ -216,10 +221,10 @@ class VendorCategoryController extends Controller
 
     public function updatePermission(Request $request)
     {
-        $user_id = $request->user_id;
+        $user_id     = $request->user_id;
         $category_id = $request->category_id;
-        $check = $request->check;
-        $user = User::findorfail($user_id);
+        $check       = $request->check;
+        $user        = User::findorfail($user_id);
         //ADD PERMISSION
         if ($check == 1) {
             $user->vendorCategoryPermission()->attach($category_id);

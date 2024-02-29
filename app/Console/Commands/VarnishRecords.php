@@ -73,7 +73,7 @@ class VarnishRecords extends Command
                             \Log::info('store return_var:' . $return_var);
 
                             VarnishStatsLogs::create([
-                                'request_data' => $cmd,
+                                'request_data'  => $cmd,
                                 'response_data' => json_encode($result),
                             ]);
                         }

@@ -39,7 +39,7 @@ class ChangeSizeErpWise extends Command
     public function handle()
     {
         $deleteby = 'supplier'; //$this->ask('Change size product by ?');
-        $ids = $this->ask('Enter Ids');
+        $ids      = $this->ask('Enter Ids');
 
         if (! empty($deleteby) && ($deleteby == 'supplier' || $deleteby == 'product' || $deleteby == 'soldout')) {
             $products = \App\Product::join('product_suppliers as ps', 'ps.product_id', 'products.id')
@@ -61,10 +61,10 @@ class ChangeSizeErpWise extends Command
                             $allSize = [];
                             foreach ($sizeExplode as $sizeE) {
                                 $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
-                                $allSize[] = $helperSize;
+                                $allSize[]  = $helperSize;
                                 //find the eu size and update into the field
                             }
-                            $euSize = ProductHelper::getEuSize($p, $allSize, $supplierModel->size_system_id);
+                            $euSize     = ProductHelper::getEuSize($p, $allSize, $supplierModel->size_system_id);
                             $p->size_eu = implode(',', $euSize);
                             if (empty($euSize)) {
                                 $p->status_id = \App\Helpers\StatusHelper::$unknownSize;

@@ -70,14 +70,14 @@ class CreateShipmentResponse extends ResponseAbstract
     public function getReceipt()
     {
         $packageResult = $this->getPackageResult();
-        $label = $this->getLabel();
+        $label         = $this->getLabel();
         // check if service is not empty then
         $resCharges = [];
 
         if (! empty($packageResult) && ! empty($label)) {
             $resCharges['tracking_number'] = (string) $packageResult->TrackingNumber;
-            $resCharges['label_image'] = (string) $label->GraphicImage;
-            $resCharges['label_format'] = (string) $label->LabelImageFormat;
+            $resCharges['label_image']     = (string) $label->GraphicImage;
+            $resCharges['label_format']    = (string) $label->LabelImageFormat;
             $resCharges['tracking_number'] = $this->getIdentificationNumber();
         }
 

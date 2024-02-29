@@ -118,12 +118,12 @@ final class CacheWarmupCommand extends Command
         global $cfg, $config, $dbi;
 
         $output->writeln('Warming up the twig cache', OutputInterface::VERBOSITY_VERBOSE);
-        $config = new Config(CONFIG_FILE);
+        $config             = new Config(CONFIG_FILE);
         $cfg['environment'] = $environment;
         $config->set('environment', $cfg['environment']);
-        $dbi = new DatabaseInterface(new DbiDummy());
+        $dbi    = new DatabaseInterface(new DbiDummy());
         $tmpDir = ROOT_PATH . 'twig-templates';
-        $twig = Template::getTwigEnvironment($tmpDir);
+        $twig   = Template::getTwigEnvironment($tmpDir);
 
         $output->writeln('Searching for files...', OutputInterface::VERBOSITY_VERY_VERBOSE);
 
@@ -133,7 +133,7 @@ final class CacheWarmupCommand extends Command
         );
 
         /** @var CacheInterface $twigCache */
-        $twigCache = $twig->getCache(false);
+        $twigCache    = $twig->getCache(false);
         $replacements = [];
         $output->writeln(
             'Twig debug is: ' . ($twig->isDebug() ? 'enabled' : 'disabled'),
@@ -165,7 +165,7 @@ final class CacheWarmupCommand extends Command
             /** @psalm-suppress InternalMethod */
             $cacheFilename = $twigCache->generateKey($name, $twig->getTemplateClass($name));
             $template_file = 'templates/' . $name;
-            $cache_file = str_replace($tmpDir, 'twig-templates', $cacheFilename);
+            $cache_file    = str_replace($tmpDir, 'twig-templates', $cacheFilename);
             /** @psalm-suppress InternalMethod */
             $replacements[$cache_file] = [$template_file, $template->getDebugInfo()];
         }

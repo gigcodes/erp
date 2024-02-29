@@ -69,8 +69,8 @@ class SendQueuePendingChatMessages extends Command
     {
         if ((! env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
-            $queueEndTime = \App\ChatMessage::getEndTime();
-            $queueTime = \App\ChatMessage::getQueueTime();
+            $queueEndTime   = \App\ChatMessage::getEndTime();
+            $queueTime      = \App\ChatMessage::getQueueTime();
             // check if time both is not empty then run the cron
             if (! empty($queueStartTime) && ! empty($queueEndTime)) {
                 if (! empty($queueTime)) {
@@ -79,7 +79,7 @@ class SendQueuePendingChatMessages extends Command
                             $now = Carbon::now()->format('Y-m-d H:i:s');
                             try {
                                 $report = \App\CronJobReport::create([
-                                    'signature' => $this->signature,
+                                    'signature'  => $this->signature,
                                     'start_time' => Carbon::now(),
                                 ]);
 
@@ -87,7 +87,7 @@ class SendQueuePendingChatMessages extends Command
 
                                 // get the status for approval
                                 $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-                                $limit = ChatMessage::getQueueLimit();
+                                $limit          = ChatMessage::getQueueLimit();
 
                                 // if message is approve then only need to run the queue
                                 if ($approveMessage == 1) {
@@ -96,8 +96,8 @@ class SendQueuePendingChatMessages extends Command
                                     $this->waitingMessages = [];
                                     if (! empty($numberList)) {
                                         foreach ($numberList as $no) {
-                                            $chatApi = new ChatApi;
-                                            $waitingMessage = $chatApi->waitingLimit($no);
+                                            $chatApi                    = new ChatApi;
+                                            $waitingMessage             = $chatApi->waitingLimit($no);
                                             $this->waitingMessages[$no] = $waitingMessage;
                                         }
                                     }
@@ -126,22 +126,22 @@ class SendQueuePendingChatMessages extends Command
                                                         if ($images = $value->getMedia(config('constants.media_tags'))) {
                                                             foreach ($images as $k => $image) {
                                                                 \App\ImQueue::create([
-                                                                    'im_client' => 'whatsapp',
-                                                                    'number_to' => $value->customer->phone,
-                                                                    'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                                                    'text' => ($k == 0) ? $value->message : '',
-                                                                    'image' => getMediaUrl($image),
-                                                                    'priority' => self::BROADCAST_PRIORITY,
+                                                                    'im_client'                 => 'whatsapp',
+                                                                    'number_to'                 => $value->customer->phone,
+                                                                    'number_from'               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                                                    'text'                      => ($k == 0) ? $value->message : '',
+                                                                    'image'                     => getMediaUrl($image),
+                                                                    'priority'                  => self::BROADCAST_PRIORITY,
                                                                     'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                                 ]);
                                                             }
                                                         } else {
                                                             \App\ImQueue::create([
-                                                                'im_client' => 'whatsapp',
-                                                                'number_to' => $value->customer->phone,
-                                                                'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                                                'text' => $value->message,
-                                                                'priority' => self::BROADCAST_PRIORITY,
+                                                                'im_client'                 => 'whatsapp',
+                                                                'number_to'                 => $value->customer->phone,
+                                                                'number_from'               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                                                'text'                      => $value->message,
+                                                                'priority'                  => self::BROADCAST_PRIORITY,
                                                                 'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                             ]);
                                                         }
@@ -151,10 +151,10 @@ class SendQueuePendingChatMessages extends Command
 
                                                         $dataInsert = [
                                                             'counter' => $sendLimit,
-                                                            'number' => $number,
-                                                            'type' => 'individual',
+                                                            'number'  => $number,
+                                                            'type'    => 'individual',
                                                             'user_id' => $value->customer_id,
-                                                            'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'time'    => Carbon::now()->format('Y-m-d H:i:s'),
                                                         ];
                                                         MessageQueueHistory::insert($dataInsert);
                                                     } else {
@@ -173,10 +173,10 @@ class SendQueuePendingChatMessages extends Command
 
                                                         $dataInsert = [
                                                             'counter' => $sendLimit,
-                                                            'number' => $number,
-                                                            'type' => 'individual',
+                                                            'number'  => $number,
+                                                            'type'    => 'individual',
                                                             'user_id' => $value->customer_id,
-                                                            'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                            'time'    => Carbon::now()->format('Y-m-d H:i:s'),
                                                         ];
                                                         MessageQueueHistory::insert($dataInsert);
                                                     }
@@ -191,8 +191,8 @@ class SendQueuePendingChatMessages extends Command
 
                                 if (! empty($numberList)) {
                                     foreach ($numberList as $no) {
-                                        $chatApi = new ChatApi;
-                                        $waitingMessage = $chatApi->waitingLimit($no);
+                                        $chatApi                    = new ChatApi;
+                                        $waitingMessage             = $chatApi->waitingLimit($no);
                                         $this->waitingMessages[$no] = $waitingMessage;
                                     }
                                 }
@@ -216,22 +216,22 @@ class SendQueuePendingChatMessages extends Command
                                                     if ($images = $value->getMedia(config('constants.media_tags'))) {
                                                         foreach ($images as $k => $image) {
                                                             \App\ImQueue::create([
-                                                                'im_client' => 'whatsapp',
-                                                                'number_to' => $value->vendor->phone,
-                                                                'number_from' => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
-                                                                'text' => ($k == 0) ? $value->message : '',
-                                                                'image' => getMediaUrl($image),
-                                                                'priority' => self::BROADCAST_PRIORITY,
+                                                                'im_client'                 => 'whatsapp',
+                                                                'number_to'                 => $value->vendor->phone,
+                                                                'number_from'               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                                                'text'                      => ($k == 0) ? $value->message : '',
+                                                                'image'                     => getMediaUrl($image),
+                                                                'priority'                  => self::BROADCAST_PRIORITY,
                                                                 'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                             ]);
                                                         }
                                                     } else {
                                                         \App\ImQueue::create([
-                                                            'im_client' => 'whatsapp',
-                                                            'number_to' => $value->vendor->phone,
-                                                            'number_from' => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
-                                                            'text' => $value->message,
-                                                            'priority' => self::BROADCAST_PRIORITY,
+                                                            'im_client'                 => 'whatsapp',
+                                                            'number_to'                 => $value->vendor->phone,
+                                                            'number_from'               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                                            'text'                      => $value->message,
+                                                            'priority'                  => self::BROADCAST_PRIORITY,
                                                             'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                         ]);
                                                     }

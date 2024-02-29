@@ -12,12 +12,12 @@ class AppointmentRequestController extends Controller
     {
         $title = 'Appointment Request';
 
-        $records = AppointmentRequest::select('*')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
+        $records       = AppointmentRequest::select('*')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
         $records_count = $records->count();
 
         return view(
             'appointment-request.index', [
-                'title' => $title,
+                'title'         => $title,
                 'records_count' => $records_count,
             ]
         );
@@ -27,7 +27,7 @@ class AppointmentRequestController extends Controller
     {
         $records = AppointmentRequest::with('user', 'userrequest')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->select('*')->orderBy('id', 'DESC');
 
-        $records = $records->take(25)->get();
+        $records       = $records->take(25)->get();
         $records_count = $records->count();
 
         $records = $records->map(
@@ -40,8 +40,8 @@ class AppointmentRequestController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => $records,
+                'code'  => 200,
+                'data'  => $records,
                 'total' => $records_count,
             ]
         );
@@ -50,8 +50,8 @@ class AppointmentRequestController extends Controller
     public function recordAppointmentRequestAjax(Request $request)
     {
         $title = 'Appointment Request';
-        $page = $_REQUEST['page'];
-        $page = $page * 25;
+        $page  = $_REQUEST['page'];
+        $page  = $page * 25;
 
         $records = AppointmentRequest::with('user', 'userrequest')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->select('*')->orderBy('id', 'DESC')->offset($page)->limit(25);
 
@@ -68,7 +68,7 @@ class AppointmentRequestController extends Controller
         return view(
             'appointment-request.index-ajax', [
                 'title' => $title,
-                'data' => $records,
+                'data'  => $records,
                 'total' => count($records),
             ]
         );
@@ -79,9 +79,9 @@ class AppointmentRequestController extends Controller
         $AppointmentRequest = AppointmentRequest::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $AppointmentRequest,
-            'message' => 'Data get successfully',
+            'status'      => true,
+            'data'        => $AppointmentRequest,
+            'message'     => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }

@@ -19,7 +19,7 @@ class AffiliateProvider extends Seeder
             AffiliateProviders::create(
                 [
                     'provider_name' => 'Tapfiliate',
-                    'status' => 1,
+                    'status'        => 1,
                 ]
             );
         }

@@ -47,31 +47,31 @@ class ZabbixProblemImport extends Command
             foreach ($problems as $key => $val) {
                 foreach ($val as $problem) {
                     $check_if_exists = Problem::where('eventid', $problem->eventid)->first();
-                    $host = Host::where('hostid', $problem->host_id)->first();
+                    $host            = Host::where('hostid', $problem->host_id)->first();
                     if (! is_null($check_if_exists)) {
                         $array = [
-                            'objectid' => $problem->objectid,
-                            'name' => $problem->name,
-                            'hostname' => $host->host,
-                            'datetime' => $problem->clock,
+                            'objectid'      => $problem->objectid,
+                            'name'          => $problem->name,
+                            'hostname'      => $host->host,
+                            'datetime'      => $problem->clock,
                             'recovery_time' => $problem->r_clock,
-                            'severity' => $problem->severity,
+                            'severity'      => $problem->severity,
                             'time_duration' => $problem->ns,
-                            'acknowledged' => (bool) $problem->acknowledged,
+                            'acknowledged'  => (bool) $problem->acknowledged,
                         ];
 
                         Problem::where('eventid', $problem->eventid)->update($array);
                     } else {
                         $array = [
-                            'eventid' => $problem->eventid,
-                            'objectid' => $problem->objectid,
-                            'name' => $problem->name,
-                            'hostname' => $host->host,
-                            'datetime' => $problem->clock,
+                            'eventid'       => $problem->eventid,
+                            'objectid'      => $problem->objectid,
+                            'name'          => $problem->name,
+                            'hostname'      => $host->host,
+                            'datetime'      => $problem->clock,
                             'recovery_time' => $problem->r_clock,
-                            'severity' => $problem->severity,
+                            'severity'      => $problem->severity,
                             'time_duration' => $problem->ns,
-                            'acknowledged' => (bool) $problem->acknowledged,
+                            'acknowledged'  => (bool) $problem->acknowledged,
                         ];
                         Problem::create($array);
                     }
@@ -84,12 +84,12 @@ class ZabbixProblemImport extends Command
     {
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
-        $curl = curl_init($url);
-        $data = [
+        $url       = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl      = curl_init($url);
+        $data      = [
             'jsonrpc' => '2.0',
-            'method' => 'user.login',
-            'params' => [
+            'method'  => 'user.login',
+            'params'  => [
                 'username' => env('ZABBIX_USERNAME'),
                 'password' => env('ZABBIX_PASSWORD'),
             ],
@@ -100,7 +100,7 @@ class ZabbixProblemImport extends Command
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
+        $result   = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
@@ -124,28 +124,28 @@ class ZabbixProblemImport extends Command
     public function problem_api($auth_key)
     {
         //Get API ENDPOINT response
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
-        $hostIds = \App\Host::pluck('hostid');
+        $startTime  = date('Y-m-d H:i:s', LARAVEL_START);
+        $url        = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $hostIds    = \App\Host::pluck('hostid');
         $errorArray = [];
         foreach ($hostIds as $val) {
             $curl = curl_init($url);
             $data = [
                 'jsonrpc' => '2.0',
-                'method' => 'problem.get',
-                'params' => [
+                'method'  => 'problem.get',
+                'params'  => [
                     'hostids' => $val,
                 ],
                 'auth' => $auth_key,
-                'id' => 1,
+                'id'   => 1,
             ];
             $datas = json_encode([$data]);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $result = curl_exec($curl);
+            $result   = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $result = json_decode($result); //response decode
+            $result   = json_decode($result); //response decode
             LogRequest::log($startTime, $url, 'POST', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixProblemImport::class, 'login_api');
 
             if (isset($result) && is_array($result)) {

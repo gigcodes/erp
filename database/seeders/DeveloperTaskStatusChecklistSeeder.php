@@ -17,35 +17,35 @@ class DeveloperTaskStatusChecklistSeeder extends Seeder
         $checklist = [
             [
                 'task_status' => 'User Complete',
-                'name' => 'Validate the migrations',
+                'name'        => 'Validate the migrations',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Code optimized',
+                'name'        => 'Code optimized',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Added menu item',
+                'name'        => 'Added menu item',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Recorded the working video',
+                'name'        => 'Recorded the working video',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Added a user guide',
+                'name'        => 'Added a user guide',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Added a code guide',
+                'name'        => 'Added a code guide',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'Check the coding standards',
+                'name'        => 'Check the coding standards',
             ],
             [
                 'task_status' => 'User Complete',
-                'name' => 'PR Link',
+                'name'        => 'PR Link',
             ],
         ];
         foreach ($checklist as $list) {

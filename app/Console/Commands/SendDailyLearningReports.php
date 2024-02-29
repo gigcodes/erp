@@ -43,11 +43,11 @@ class SendDailyLearningReports extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now = Carbon::now();
+            $now  = Carbon::now();
             $date = Carbon::now()->format('Y-m-d');
 
             $daily_activities = DailyActivity::whereNotNull('repeat_type')->where('for_date', $date)->where('type', 'learning')->get();
@@ -60,11 +60,11 @@ class SendDailyLearningReports extends Command
                 }
 
                 $start_date = Carbon::parse($date);
-                $end_date = Carbon::parse($key->repeat_end_date);
+                $end_date   = Carbon::parse($key->repeat_end_date);
 
                 if ($key->repeat_type == 'daily') {
                     $selected = DailyActivity::find($key->id);
-                    $copy = $selected->replicate()->fill(
+                    $copy     = $selected->replicate()->fill(
                         [
                             'for_date' => Carbon::now()->addDays(8),
                         ]
@@ -73,65 +73,65 @@ class SendDailyLearningReports extends Command
 
                     $today = Carbon::today()->toDateString();
                     for ($i = 0; $i < 7; $i++) {
-                        $today = Carbon::parse($today)->addDay()->toDateString();
-                        $newLearning = $learning_record->replicate();
-                        $newLearning->created_at = Carbon::now();
+                        $today                         = Carbon::parse($today)->addDay()->toDateString();
+                        $newLearning                   = $learning_record->replicate();
+                        $newLearning->created_at       = Carbon::now();
                         $newLearning->learning_duedate = $today;
                         $newLearning->save();
                     }
                 } elseif ($key->repeat_type == 'weekly') {
                     if ($key->repeat_end == 'on' && $now->between($start_date, $end_date)) {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]
                         );
                         $copy->save();
 
-                        $newLearning = $learning_record->replicate();
-                        $newLearning->created_at = Carbon::now();
+                        $newLearning                   = $learning_record->replicate();
+                        $newLearning->created_at       = Carbon::now();
                         $newLearning->learning_duedate = Carbon::now();
                         $newLearning->save();
                     } elseif ($key->repeat_end == 'never') {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]
                         );
                         $copy->save();
 
-                        $newLearning = $learning_record->replicate();
-                        $newLearning->created_at = Carbon::now();
+                        $newLearning                   = $learning_record->replicate();
+                        $newLearning->created_at       = Carbon::now();
                         $newLearning->learning_duedate = Carbon::now();
                         $newLearning->save();
                     }
                 } elseif ($key->repeat_type == 'monthly') {
                     if ($key->repeat_end == 'on' && $now->between($start_date, $end_date)) {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse($key->for_date)->addMonth(),
                             ]
                         );
                         $copy->save();
 
-                        $newLearning = $learning_record->replicate();
-                        $newLearning->created_at = Carbon::now();
+                        $newLearning                   = $learning_record->replicate();
+                        $newLearning->created_at       = Carbon::now();
                         $newLearning->learning_duedate = Carbon::now();
                         $newLearning->save();
                     } elseif ($key->repeat_end == 'never') {
                         $selected = DailyActivity::find($key->id);
-                        $copy = $selected->replicate()->fill(
+                        $copy     = $selected->replicate()->fill(
                             [
                                 'for_date' => Carbon::parse("next $key->repeat_on")->toDateString(),
                             ]
                         );
                         $copy->save();
 
-                        $newLearning = $learning_record->replicate();
-                        $newLearning->created_at = Carbon::now();
+                        $newLearning                   = $learning_record->replicate();
+                        $newLearning->created_at       = Carbon::now();
                         $newLearning->learning_duedate = Carbon::now();
                         $newLearning->save();
                     }

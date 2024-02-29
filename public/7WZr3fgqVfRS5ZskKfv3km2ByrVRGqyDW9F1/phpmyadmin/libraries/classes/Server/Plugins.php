@@ -13,7 +13,7 @@ class Plugins
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi DatabaseInterface instance
+     * @param DatabaseInterface $dbi DatabaseInterface instance
      */
     public function __construct(DatabaseInterface $dbi)
     {
@@ -32,7 +32,7 @@ class Plugins
             $sql = 'SELECT * FROM information_schema.PLUGINS ORDER BY PLUGIN_TYPE, PLUGIN_NAME';
         }
 
-        $result = $this->dbi->query($sql);
+        $result  = $this->dbi->query($sql);
         $plugins = [];
         while ($row = $result->fetchAssoc()) {
             $plugins[] = $this->mapRowToPlugin($row);
@@ -91,24 +91,24 @@ class Plugins
     }
 
     /**
-     * @param  array  $row Row fetched from database
+     * @param array $row Row fetched from database
      */
     private function mapRowToPlugin(array $row): Plugin
     {
         return Plugin::fromState([
-            'name' => $row['PLUGIN_NAME'] ?? $row['Name'],
-            'version' => $row['PLUGIN_VERSION'] ?? null,
-            'status' => $row['PLUGIN_STATUS'] ?? $row['Status'],
-            'type' => $row['PLUGIN_TYPE'] ?? $row['Type'],
-            'typeVersion' => $row['PLUGIN_TYPE_VERSION'] ?? null,
-            'library' => $row['PLUGIN_LIBRARY'] ?? $row['Library'] ?? null,
+            'name'           => $row['PLUGIN_NAME'] ?? $row['Name'],
+            'version'        => $row['PLUGIN_VERSION'] ?? null,
+            'status'         => $row['PLUGIN_STATUS'] ?? $row['Status'],
+            'type'           => $row['PLUGIN_TYPE'] ?? $row['Type'],
+            'typeVersion'    => $row['PLUGIN_TYPE_VERSION'] ?? null,
+            'library'        => $row['PLUGIN_LIBRARY'] ?? $row['Library'] ?? null,
             'libraryVersion' => $row['PLUGIN_LIBRARY_VERSION'] ?? null,
-            'author' => $row['PLUGIN_AUTHOR'] ?? null,
-            'description' => $row['PLUGIN_DESCRIPTION'] ?? null,
-            'license' => $row['PLUGIN_LICENSE'] ?? $row['License'],
-            'loadOption' => $row['LOAD_OPTION'] ?? null,
-            'maturity' => $row['PLUGIN_MATURITY'] ?? null,
-            'authVersion' => $row['PLUGIN_AUTH_VERSION'] ?? null,
+            'author'         => $row['PLUGIN_AUTHOR'] ?? null,
+            'description'    => $row['PLUGIN_DESCRIPTION'] ?? null,
+            'license'        => $row['PLUGIN_LICENSE'] ?? $row['License'],
+            'loadOption'     => $row['LOAD_OPTION'] ?? null,
+            'maturity'       => $row['PLUGIN_MATURITY'] ?? null,
+            'authVersion'    => $row['PLUGIN_AUTH_VERSION'] ?? null,
         ]);
     }
 }

@@ -46,7 +46,7 @@ class LoadBranchState extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -54,8 +54,8 @@ class LoadBranchState extends Command
 
             foreach ($organizations as $organization) {
                 $organizationId = $organization->name;
-                $userName = $organization->username;
-                $token = $organization->token;
+                $userName       = $organization->username;
+                $token          = $organization->token;
 
                 $repositoryIds = $this->getAllRepositoriesIds($organizationId, $userName, $token);
 
@@ -73,9 +73,9 @@ class LoadBranchState extends Command
                     foreach ($branches as $branch) {
                         $this->info($branch);
                         $comparison = $this->compareRepoBranches($userName, $token, $repoId, $branch);
-                        $filters = [
+                        $filters    = [
                             'state' => 'all',
-                            'head' => $organizationId . ':' . $branch,
+                            'head'  => $organizationId . ':' . $branch,
                         ];
                         $pullRequests = $this->pullRequests($userName, $token, $repoId, $filters);
                         if (! empty($pullRequests) && count($pullRequests) > 0) {
@@ -92,17 +92,17 @@ class LoadBranchState extends Command
                         GithubBranchState::updateOrCreate(
                             [
                                 'repository_id' => $repoId,
-                                'branch_name' => $branchName,
+                                'branch_name'   => $branchName,
                             ],
                             [
-                                'github_organization_id' => $organization->id,
-                                'repository_id' => $repoId,
-                                'branch_name' => $branchName,
-                                'ahead_by' => $comparison['ahead_by'],
-                                'behind_by' => $comparison['behind_by'],
-                                'status' => ! empty($pullRequest[$repoId]) && ! empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : '',
+                                'github_organization_id'      => $organization->id,
+                                'repository_id'               => $repoId,
+                                'branch_name'                 => $branchName,
+                                'ahead_by'                    => $comparison['ahead_by'],
+                                'behind_by'                   => $comparison['behind_by'],
+                                'status'                      => ! empty($pullRequest[$repoId]) && ! empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : '',
                                 'last_commit_author_username' => $comparison['last_commit_author_username'],
-                                'last_commit_time' => $comparison['last_commit_time'],
+                                'last_commit_time'            => $comparison['last_commit_time'],
                             ]
                         );
                         $branchNames[] = $branchName;
@@ -174,7 +174,7 @@ class LoadBranchState extends Command
             $this->info(json_encode($linkHeader));
             if (count($linkHeader) > 0) {
                 $lastLink = null;
-                $links = explode(',', $linkHeader[0]);
+                $links    = explode(',', $linkHeader[0]);
                 foreach ($links as $link) {
                     if (strpos($link, 'rel="last"') !== false) {
                         $lastLink = $link;

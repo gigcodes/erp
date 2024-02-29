@@ -47,8 +47,8 @@ class ProductStatus extends Model
         }
 
         $productStatus->product_id = $product_id;
-        $productStatus->name = $name;
-        $productStatus->value = $value;
+        $productStatus->name       = $name;
+        $productStatus->value      = $value;
         $productStatus->save();
         // end for save product status history
     }

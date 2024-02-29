@@ -29,15 +29,15 @@ class CountryDutyController extends Controller
     {
         // validation report generator
         $validator = Validator::make($request->all(), [
-            'hs_code' => 'required',
-            'origin_country' => 'required',
+            'hs_code'               => 'required',
+            'origin_country'        => 'required',
             'destination_country.*' => 'required',
-            'item_value' => 'required',
+            'item_value'            => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -47,17 +47,17 @@ class CountryDutyController extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $hscode = $request->hs_code;
-        $origin = $request->origin_country;
-        $value = $request->item_value;
+        $hscode      = $request->hs_code;
+        $origin      = $request->origin_country;
+        $value       = $request->item_value;
         $destination = $request->destination_country;
 
-        $simplyDuty = new SimplyDuty;
+        $simplyDuty   = new SimplyDuty;
         $errorMessage = [];
-        $response = [];
+        $response     = [];
         if ($destination != null) {
             foreach (explode(',', $destination) as $dest) {
-                $dest = strtoupper($dest);
+                $dest   = strtoupper($dest);
                 $result = $simplyDuty->calculate(
                     $origin,
                     $dest,
@@ -71,10 +71,10 @@ class CountryDutyController extends Controller
 
                     continue;
                 } else {
-                    $result = json_decode(json_encode($result), true);
-                    $result['Origin'] = $origin;
+                    $result                = json_decode(json_encode($result), true);
+                    $result['Origin']      = $origin;
                     $result['Destination'] = $dest;
-                    $response[] = $result;
+                    $response[]            = $result;
                 }
             }
         }
@@ -86,13 +86,13 @@ class CountryDutyController extends Controller
     {
         // validation report generator
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name'     => 'required',
             'groups.*' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -102,7 +102,7 @@ class CountryDutyController extends Controller
             return response()->json(['code' => 500, 'message' => $outputString]);
         }
 
-        $rates = [];
+        $rates  = [];
         $groups = $request->groups;
 
         foreach ($groups as $k => $g) {
@@ -114,25 +114,25 @@ class CountryDutyController extends Controller
         if (isset($k[0]) && ! empty($groups[$k[0]])) {
             $key = $k[0];
             // first create a group and then assing country to that group
-            $group = new \App\DutyGroup;
-            $group->name = $request->name;
+            $group          = new \App\DutyGroup;
+            $group->name    = $request->name;
             $group->hs_code = $groups[$key]['hs-code'];
-            $group->vat = $groups[$key]['vat-rate'];
-            $group->duty = $groups[$key]['duty-rate'];
+            $group->vat     = $groups[$key]['vat-rate'];
+            $group->duty    = $groups[$key]['duty-rate'];
 
             if ($group->save()) {
                 foreach ($groups as $gM) {
-                    $countryDuty = new \App\CountryDuty;
-                    $countryDuty->hs_code = $gM['hs-code'];
-                    $countryDuty->origin = $gM['origin'];
-                    $countryDuty->destination = $gM['destination'];
-                    $countryDuty->currency = $gM['currency-origin'];
-                    $countryDuty->price = $gM['total'];
-                    $countryDuty->duty = $gM['duty-val'];
-                    $countryDuty->vat = $gM['vat-val'];
+                    $countryDuty                  = new \App\CountryDuty;
+                    $countryDuty->hs_code         = $gM['hs-code'];
+                    $countryDuty->origin          = $gM['origin'];
+                    $countryDuty->destination     = $gM['destination'];
+                    $countryDuty->currency        = $gM['currency-origin'];
+                    $countryDuty->price           = $gM['total'];
+                    $countryDuty->duty            = $gM['duty-val'];
+                    $countryDuty->vat             = $gM['vat-val'];
                     $countryDuty->duty_percentage = $gM['duty-rate'];
-                    $countryDuty->vat_percentage = $gM['vat-rate'];
-                    $countryDuty->duty_group_id = $group->id;
+                    $countryDuty->vat_percentage  = $gM['vat-rate'];
+                    $countryDuty->duty_group_id   = $group->id;
                     if ($countryDuty->save()) {
                     }
                 }
@@ -177,7 +177,8 @@ class CountryDutyController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -193,7 +194,8 @@ class CountryDutyController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {

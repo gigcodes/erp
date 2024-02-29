@@ -45,13 +45,13 @@ class VersionInformation
             isset($_SESSION['cache']['version_check'])
             && time() < $_SESSION['cache']['version_check']['timestamp'] + 3600 * 6
         ) {
-            $save = false;
+            $save     = false;
             $response = $_SESSION['cache']['version_check']['response'];
         } else {
-            $save = true;
-            $file = 'https://www.phpmyadmin.net/home_page/version.json';
+            $save        = true;
+            $file        = 'https://www.phpmyadmin.net/home_page/version.json';
             $httpRequest = new HttpRequest();
-            $response = $httpRequest->create($file, 'GET');
+            $response    = $httpRequest->create($file, 'GET');
         }
 
         $response = $response ?: '{}';
@@ -65,7 +65,7 @@ class VersionInformation
 
         if ($save) {
             $_SESSION['cache']['version_check'] = [
-                'response' => $response,
+                'response'  => $response,
                 'timestamp' => time(),
             ];
         }
@@ -76,7 +76,8 @@ class VersionInformation
     /**
      * Calculates numerical equivalent of phpMyAdmin version string
      *
-     * @param  string  $version version
+     * @param string $version version
+     *
      * @return mixed false on failure, integer on success
      */
     public function versionToInt($version)
@@ -143,7 +144,8 @@ class VersionInformation
      * Returns the version and date of the latest phpMyAdmin version compatible
      * with the available PHP and MySQL versions
      *
-     * @param  array  $releases array of information related to each version
+     * @param array $releases array of information related to each version
+     *
      * @return array|null containing the version and date of latest compatible version
      */
     public function getLatestCompatibleVersion(array $releases)
@@ -152,7 +154,7 @@ class VersionInformation
         $latestRelease = null;
         foreach ($releases as $release) {
             // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-            $phpVersions = $release->php_versions;
+            $phpVersions   = $release->php_versions;
             $phpConditions = explode(',', $phpVersions);
             foreach ($phpConditions as $phpCondition) {
                 if (! $this->evaluateVersionCondition('PHP', $phpCondition)) {
@@ -164,7 +166,7 @@ class VersionInformation
             // one server configured.
             if (count($GLOBALS['cfg']['Servers']) === 1) {
                 // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-                $mysqlVersions = $release->mysql_versions;
+                $mysqlVersions   = $release->mysql_versions;
                 $mysqlConditions = explode(',', $mysqlVersions);
                 foreach ($mysqlConditions as $mysqlCondition) {
                     if (! $this->evaluateVersionCondition('MySQL', $mysqlCondition)) {
@@ -180,7 +182,7 @@ class VersionInformation
 
             $latestRelease = [
                 'version' => $release->version,
-                'date' => $release->date,
+                'date'    => $release->date,
             ];
         }
 
@@ -191,14 +193,15 @@ class VersionInformation
     /**
      * Checks whether PHP or MySQL version meets supplied version condition
      *
-     * @param  string  $type      PHP or MySQL
-     * @param  string  $condition version condition
+     * @param string $type      PHP or MySQL
+     * @param string $condition version condition
+     *
      * @return bool whether the condition is met
      */
     public function evaluateVersionCondition(string $type, string $condition)
     {
-        $operator = null;
-        $version = null;
+        $operator  = null;
+        $version   = null;
         $operators = [
             '<=',
             '>=',
@@ -211,7 +214,7 @@ class VersionInformation
         foreach ($operators as $oneOperator) {
             if (strpos($condition, $oneOperator) === 0) {
                 $operator = $oneOperator;
-                $version = substr($condition, strlen($oneOperator));
+                $version  = substr($condition, strlen($oneOperator));
                 break;
             }
         }

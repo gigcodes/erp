@@ -15,7 +15,7 @@ class CustomApiAuthMiddleware extends Middleware
         }
 
         try {
-            $bearerToken = $request->bearerToken();
+            $bearerToken      = $request->bearerToken();
             $bearerTokenModel = new BearerAccessTokens();
 
             if ($bearerAccessToken = $bearerTokenModel->getByToken($bearerToken)) {

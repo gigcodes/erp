@@ -22,8 +22,8 @@ class ShowMagentoCronDataController extends Controller
 
     public function MagentoCron(Request $request)
     {
-        $status = CronStatus::all();
-        $website = StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $status              = CronStatus::all();
+        $website             = StoreWebsite::all()->pluck('website', 'id')->toArray();
         $magentoCronWebsites = MagentoCronData::whereNotNull('website')->where('website', '!=', 'NULL')->groupby('website')->pluck('website');
         $magentoCronJobCodes = MagentoCronData::whereNotNull('job_code')->where('job_code', '!=', 'NULL')->groupby('job_code')->pluck('job_code');
 
@@ -42,10 +42,10 @@ class ShowMagentoCronDataController extends Controller
         }
 
         if (isset($request->create_at)) {
-            $date = explode('-', $request->create_at);
+            $date     = explode('-', $request->create_at);
             $datefrom = date('Y-m-d', strtotime($date[0]));
-            $dateto = date('Y-m-d', strtotime($date[1]));
-            $data = $data->whereRaw("date(cron_created_at) between date('$datefrom') and date('$dateto')");
+            $dateto   = date('Y-m-d', strtotime($date[1]));
+            $data     = $data->whereRaw("date(cron_created_at) between date('$datefrom') and date('$dateto')");
         }
 
         if (isset($request->jobcode)) {
@@ -89,7 +89,7 @@ class ShowMagentoCronDataController extends Controller
 
         if ($request->ajax()) {
             $count = $request->count;
-            $view = view('magento_cron_data.index_ajax', compact('data'))->render();
+            $view  = view('magento_cron_data.index_ajax', compact('data'))->render();
 
             return response()->json(['html' => $view, 'page' => $request->page, 'count' => $count]);
         }
@@ -117,7 +117,7 @@ class ShowMagentoCronDataController extends Controller
             }
             foreach ($commands as $command) {
                 $command_id = $command->id;
-                $comd = \Artisan::call('command:MagentoCreatRunCommand', ['id' => $command_id]);
+                $comd       = \Artisan::call('command:MagentoCreatRunCommand', ['id' => $command_id]);
             }
 
             return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully! Please check command logs']);
@@ -131,9 +131,9 @@ class ShowMagentoCronDataController extends Controller
     public function statusColor(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $cronStatus = CronStatus::find($key);
+            $cronStatus        = CronStatus::find($key);
             $cronStatus->color = $value;
             $cronStatus->save();
         }
@@ -187,9 +187,9 @@ class ShowMagentoCronDataController extends Controller
 
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         $client_id = $assetsmanager->client_id;
-                        $job_id = $logs->job_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $job_id    = $logs->job_id;
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
                         $ch = curl_init();
@@ -198,13 +198,13 @@ class ShowMagentoCronDataController extends Controller
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                         $result = curl_exec($ch);
 
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $httpcode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         $parameters = [];
                         LogRequest::log($startTime, $url, 'GET', json_encode($parameters), json_decode($result), $httpcode, \App\Http\Controllers\Cron\ShowMagentoCronDataController::class, 'callApi');
 
@@ -212,7 +212,7 @@ class ShowMagentoCronDataController extends Controller
                         }
                         $response = json_decode($result);
                         if (isset($response->data) && isset($response->data->result)) {
-                            $result = $response->data->result;
+                            $result  = $response->data->result;
                             $message = '';
                             if (isset($result->stdout) && $result->stdout != '') {
                                 $message .= 'Output: ' . $result->stdout;
@@ -244,7 +244,7 @@ class ShowMagentoCronDataController extends Controller
     public function showMagentoCronErrorList()
     {
         $magentoCronErrorLists = new MagentoCronData();
-        $perPage = 25;
+        $perPage               = 25;
         $magentoCronErrorLists = $magentoCronErrorLists->where('cronstatus', '=', 'error')->latest()
             ->paginate($perPage);
 

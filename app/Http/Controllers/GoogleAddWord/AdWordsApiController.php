@@ -48,7 +48,7 @@ class AdWordsApiController extends Controller
             'AdGroupStatus',
             'CampaignId',
         ],
-        'AD_PERFORMANCE_REPORT' => ['AdGroupId', 'AdGroupName', 'Id', 'AdType'],
+        'AD_PERFORMANCE_REPORT'      => ['AdGroupId', 'AdGroupName', 'Id', 'AdType'],
         'ACCOUNT_PERFORMANCE_REPORT' => [
             'AccountDescriptiveName',
             'ExternalCustomerId',
@@ -75,7 +75,7 @@ class AdWordsApiController extends Controller
                 )
             );
             $clientCustomerId = $request->input('clientCustomerId');
-            $entriesPerPage = $request->input('entriesPerPage');
+            $entriesPerPage   = $request->input('entriesPerPage');
 
             // Construct an API session configured from a properties file and
             // the OAuth2 credentials above.
@@ -91,10 +91,10 @@ class AdWordsApiController extends Controller
         } else {
             $selectedFields = $request->session()->get('selectedFields');
             $entriesPerPage = $request->session()->get('entriesPerPage');
-            $session = $request->session()->get('session');
+            $session        = $request->session()->get('session');
         }
 
-        $pageNo = $request->input('page') ?: 1;
+        $pageNo     = $request->input('page') ?: 1;
         $collection = self::fetchCampaigns(
             $request,
             $adWordsServices->get($session, CampaignService::class),
@@ -120,9 +120,10 @@ class AdWordsApiController extends Controller
      * Fetch campaigns using the provided campaign service, selected fields, the
      * number of entries per page and the specified page number.
      *
-     * @param  string[]  $selectedFields
-     * @param  int  $entriesPerPage
-     * @param  int  $pageNo
+     * @param string[] $selectedFields
+     * @param int      $entriesPerPage
+     * @param int      $pageNo
+     *
      * @return Collection
      */
     private function fetchCampaigns(
@@ -141,12 +142,12 @@ class AdWordsApiController extends Controller
             )->build();
 
         $totalNumEntries = 0;
-        $results = [];
+        $results         = [];
 
         $page = $campaignService->query("$query");
         if (! empty($page->getEntries())) {
             $totalNumEntries = $page->getTotalNumEntries();
-            $results = $page->getEntries();
+            $results         = $page->getEntries();
         }
 
         $request->session()->put('totalNumEntries', $totalNumEntries);
@@ -168,9 +169,9 @@ class AdWordsApiController extends Controller
     ) {
         if ($request->method() === 'POST') {
             $clientCustomerId = $request->input('clientCustomerId');
-            $reportType = $request->input('reportType');
-            $reportRange = $request->input('reportRange');
-            $entriesPerPage = $request->input('entriesPerPage');
+            $reportType       = $request->input('reportType');
+            $reportRange      = $request->input('reportRange');
+            $entriesPerPage   = $request->input('entriesPerPage');
 
             $selectedFields = array_values(
                 $request->except(
@@ -214,7 +215,7 @@ class AdWordsApiController extends Controller
         } else {
             $selectedFields = $request->session()->get('selectedFields');
             $entriesPerPage = $request->session()->get('entriesPerPage');
-            $collection = $request->session()->get('collection');
+            $collection     = $request->session()->get('collection');
         }
 
         $pageNo = $request->input('page') ?: 1;
@@ -239,9 +240,10 @@ class AdWordsApiController extends Controller
      * Download a report of the specified report type and date range, selected
      * fields, and the number of entries per page.
      *
-     * @param  string  $reportType
-     * @param  string  $reportRange
-     * @param  string[]  $selectedFields
+     * @param string   $reportType
+     * @param string   $reportRange
+     * @param string[] $selectedFields
+     *
      * @return Collection
      */
     private function downloadReport(

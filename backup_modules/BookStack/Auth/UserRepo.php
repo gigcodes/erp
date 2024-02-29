@@ -24,13 +24,14 @@ class UserRepo
      */
     public function __construct(User $user, Role $role, EntityRepo $entityRepo)
     {
-        $this->user = $user;
-        $this->role = $role;
+        $this->user       = $user;
+        $this->role       = $role;
         $this->entityRepo = $entityRepo;
     }
 
     /**
-     * @param  string  $email
+     * @param string $email
+     *
      * @return User|null
      */
     public function getByEmail($email)
@@ -39,7 +40,8 @@ class UserRepo
     }
 
     /**
-     * @param  int  $id
+     * @param int $id
+     *
      * @return User
      */
     public function getById($id)
@@ -60,7 +62,9 @@ class UserRepo
     /**
      * Get all the users with their permissions in a paginated format.
      *
-     * @param  int  $count
+     * @param int   $count
+     * @param mixed $sortData
+     *
      * @return Builder|static
      */
     public function getAllUsersPaginatedAndSorted($count, $sortData)
@@ -81,7 +85,8 @@ class UserRepo
     /**
      * Creates a new user and attaches a role to them.
      *
-     * @param  bool  $verifyEmail
+     * @param bool $verifyEmail
+     *
      * @return \BookStack\Auth\User
      */
     public function registerNew(array $data, $verifyEmail = false)
@@ -108,6 +113,8 @@ class UserRepo
      * Assign a user to a system-level role.
      *
      *
+     * @param mixed $systemRoleName
+     *
      * @throws NotFoundException
      */
     public function attachSystemRole(User $user, $systemRoleName)
@@ -122,7 +129,8 @@ class UserRepo
     /**
      * Checks if the give user is the only admin.
      *
-     * @param  \BookStack\Auth\User  $user
+     * @param \BookStack\Auth\User $user
+     *
      * @return bool
      */
     public function isOnlyAdmin(User $user)
@@ -173,15 +181,16 @@ class UserRepo
     /**
      * Create a new basic instance of user.
      *
-     * @param  bool  $verifyEmail
+     * @param bool $verifyEmail
+     *
      * @return \BookStack\Auth\User
      */
     public function create(array $data, $verifyEmail = false)
     {
         return $this->user->forceCreate([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'name'            => $data['name'],
+            'email'           => $data['email'],
+            'password'        => bcrypt($data['password']),
             'email_confirmed' => $verifyEmail,
         ]);
     }
@@ -189,7 +198,7 @@ class UserRepo
     /**
      * Remove the given user from storage, Delete all related content.
      *
-     * @param  \BookStack\Auth\User  $user
+     * @param \BookStack\Auth\User $user
      *
      * @throws Exception
      */
@@ -208,9 +217,10 @@ class UserRepo
     /**
      * Get the latest activity for a user.
      *
-     * @param  \BookStack\Auth\User  $user
-     * @param  int  $count
-     * @param  int  $page
+     * @param \BookStack\Auth\User $user
+     * @param int                  $count
+     * @param int                  $page
+     *
      * @return array
      */
     public function getActivity(User $user, $count = 20, $page = 0)
@@ -221,8 +231,9 @@ class UserRepo
     /**
      * Get the recently created content for this given user.
      *
-     * @param  \BookStack\Auth\User  $user
-     * @param  int  $count
+     * @param \BookStack\Auth\User $user
+     * @param int                  $count
+     *
      * @return mixed
      */
     public function getRecentlyCreated(User $user, $count = 20)
@@ -232,26 +243,27 @@ class UserRepo
         };
 
         return [
-            'pages' => $this->entityRepo->getRecentlyCreated('page', $count, 0, $createdByUserQuery),
+            'pages'    => $this->entityRepo->getRecentlyCreated('page', $count, 0, $createdByUserQuery),
             'chapters' => $this->entityRepo->getRecentlyCreated('chapter', $count, 0, $createdByUserQuery),
-            'books' => $this->entityRepo->getRecentlyCreated('book', $count, 0, $createdByUserQuery),
-            'shelves' => $this->entityRepo->getRecentlyCreated('bookshelf', $count, 0, $createdByUserQuery),
+            'books'    => $this->entityRepo->getRecentlyCreated('book', $count, 0, $createdByUserQuery),
+            'shelves'  => $this->entityRepo->getRecentlyCreated('bookshelf', $count, 0, $createdByUserQuery),
         ];
     }
 
     /**
      * Get asset created counts for the give user.
      *
-     * @param  \BookStack\Auth\User  $user
+     * @param \BookStack\Auth\User $user
+     *
      * @return array
      */
     public function getAssetCounts(User $user)
     {
         return [
-            'pages' => $this->entityRepo->getUserTotalCreated('page', $user),
+            'pages'    => $this->entityRepo->getUserTotalCreated('page', $user),
             'chapters' => $this->entityRepo->getUserTotalCreated('chapter', $user),
-            'books' => $this->entityRepo->getUserTotalCreated('book', $user),
-            'shelves' => $this->entityRepo->getUserTotalCreated('bookshelf', $user),
+            'books'    => $this->entityRepo->getUserTotalCreated('book', $user),
+            'shelves'  => $this->entityRepo->getUserTotalCreated('bookshelf', $user),
         ];
     }
 

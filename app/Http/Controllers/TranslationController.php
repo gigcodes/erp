@@ -38,7 +38,7 @@ class TranslationController extends Controller
         $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
 
         $from = Translations::groupBy('from')->get();
-        $to = Translations::groupBy('to')->get();
+        $to   = Translations::groupBy('to')->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -60,8 +60,8 @@ class TranslationController extends Controller
     public function create()
     {
         $translation = Translations::all();
-        $from = Translations::groupBy('from')->get();
-        $to = Translations::groupBy('to')->get();
+        $from        = Translations::groupBy('from')->get();
+        $to          = Translations::groupBy('to')->get();
 
         return view('translation.create', compact('translation', 'from', 'to'));
     }
@@ -74,10 +74,10 @@ class TranslationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from' => 'required',
-            'to' => 'required',
+            'from'          => 'required',
+            'to'            => 'required',
             'text_original' => 'required',
-            'text' => 'required',
+            'text'          => 'required',
         ]);
         $insert = Translations::create($request->except('_token'));
 
@@ -87,7 +87,8 @@ class TranslationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -98,14 +99,15 @@ class TranslationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         $translation = Translations::where('id', $id)->first();
-        $from = Translations::groupBy('from')->get();
-        $to = Translations::groupBy('to')->get();
+        $from        = Translations::groupBy('from')->get();
+        $to          = Translations::groupBy('to')->get();
 
         return view('translation.edit', compact('translation', 'from', 'to'));
     }
@@ -113,18 +115,19 @@ class TranslationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $this->validate($request, [
-            'from' => 'required',
-            'to' => 'required',
+            'from'          => 'required',
+            'to'            => 'required',
             'text_original' => 'required',
-            'text' => 'required',
+            'text'          => 'required',
         ]);
-        $id = $request->input('id');
+        $id     = $request->input('id');
         $insert = Translations::where('id', $id)->update($request->except('_token'));
 
         return redirect()->back()->with('success', 'Translation updated successfully');
@@ -133,7 +136,8 @@ class TranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

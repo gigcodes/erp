@@ -51,7 +51,7 @@ final class Ajax
             $check = $plugin . 'Check';
 
             if (self::$check()) {
-                $upload_class = 'PhpMyAdmin\Plugins\Import\Upload\Upload' . ucwords($plugin);
+                $upload_class                      = 'PhpMyAdmin\Plugins\Import\Upload\Upload' . ucwords($plugin);
                 $_SESSION[$SESSION_KEY]['handler'] = $upload_class;
                 break;
             }
@@ -96,7 +96,7 @@ final class Ajax
      * The function outputs json encoded status of uploaded.
      * It uses PMA_getUploadStatus, which is defined in plugin's file.
      *
-     * @param  string  $id ID of transfer, usually $upload_id
+     * @param string $id ID of transfer, usually $upload_id
      */
     public static function status($id): void
     {

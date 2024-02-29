@@ -85,19 +85,19 @@ class ActivityConroller extends Controller
     {
         // Set range start and range end
         $range_start = $request->input('range_start');
-        $range_end = $request->input('range_end');
+        $range_end   = $request->input('range_end');
 
         // Set empty AI activity
         $aiActivity = [];
 
         // Get total row count for products
-        $aiActivity['total'] = 0;
+        $aiActivity['total']       = 0;
         $aiActivity['total_range'] = 0;
 
         // Get ai activity
-        $logScraperVsAi = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->get();
-        $aiActivity['ai'] = $logScraperVsAi->count();
-        $logScraperVsAi = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
+        $logScraperVsAi         = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->get();
+        $aiActivity['ai']       = $logScraperVsAi->count();
+        $logScraperVsAi         = LogScraperVsAi::selectRaw('DISTINCT(product_id) AS product_id')->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
         $aiActivity['ai_range'] = $logScraperVsAi->count();
 
         // Free up memory by unsetting unused variables
@@ -133,18 +133,18 @@ class ActivityConroller extends Controller
             ->where('is_crop_being_verified', 0)
             ->whereDoesntHave('amends')->count();
 
-        $productStats = StatusHelper::getStatusCount();
+        $productStats          = StatusHelper::getStatusCount();
         $productStatsDateRange = StatusHelper::getStatusCountByDateRange($range_start, $range_end);
 
         if (is_array($request->get('selected_user'))) {
             $activity = $activity->whereIn('user_id', $request->get('selected_user'));
         }
 
-        $users = $this->getUserArray();
+        $users         = $this->getUserArray();
         $selected_user = $request->input('selected_user');
 
-        $scrapCount = new ScrapedProducts();
-        $inventoryCount = new ScrapedProducts();
+        $scrapCount            = new ScrapedProducts();
+        $inventoryCount        = new ScrapedProducts();
         $rejectedListingsCount = Product::where('is_listing_rejected', 1);
 
         // Get total number of scraped products
@@ -174,19 +174,19 @@ class ActivityConroller extends Controller
                 $query->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             });
 
-            $allActivity = $allActivity->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
-            $scrapCount = $scrapCount->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
-            $inventoryCount = $inventoryCount->whereBetween('last_inventory_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $allActivity           = $allActivity->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $scrapCount            = $scrapCount->whereBetween('created_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $inventoryCount        = $inventoryCount->whereBetween('last_inventory_at', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $rejectedListingsCount = $rejectedListingsCount->whereBetween('listing_rejected_on', [$range_start . ' 00:00', $range_end . ' 23:59']);
         }
 
         if (! $range_start || ! $range_end) {
             $inventoryCount = $inventoryCount->whereRaw('TIMESTAMPDIFF(HOUR, last_inventory_at, NOW())<= 48');
-            $scrapCount = $scrapCount->where('created_at', 'LIKE', '%' . date('Y-m-d') . '%');
+            $scrapCount     = $scrapCount->where('created_at', 'LIKE', '%' . date('Y-m-d') . '%');
         }
 
-        $scrapCount = $scrapCount->count();
-        $inventoryCount = $inventoryCount->count();
+        $scrapCount            = $scrapCount->count();
+        $inventoryCount        = $inventoryCount->count();
         $rejectedListingsCount = $rejectedListingsCount->count();
 
         $allActivity = $allActivity->first();
@@ -202,13 +202,13 @@ class ActivityConroller extends Controller
     {
         $data['date_type'] = $request->input('date_type') ?? 'week';
 
-        $data['week_range'] = $request->input('week_range') ?? date('Y-\WW');
+        $data['week_range']  = $request->input('week_range') ?? date('Y-\WW');
         $data['month_range'] = $request->input('month_range') ?? date('Y-m');
 
         if ($data['date_type'] == 'week') {
             $weekRange = $this->getStartAndEndDateByWeek($data['week_range']);
-            $start = $weekRange['start_date'];
-            $end = $weekRange['end_date'];
+            $start     = $weekRange['start_date'];
+            $end       = $weekRange['end_date'];
 
             $workDoneResult = Activity::where('description', 'create')
                 ->whereBetween('created_at', [$start, $end])
@@ -223,7 +223,7 @@ class ActivityConroller extends Controller
                 ->get();
 
             $workDone = [];
-            $dowMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            $dowMap   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
             foreach ($workDoneResult as $item) {
                 $workDone[$dowMap[$item->xaxis]] = $item->total;
@@ -236,8 +236,8 @@ class ActivityConroller extends Controller
             }
         } else {
             $monthRange = $this->getStartAndEndDateByMonth($data['month_range']);
-            $start = $monthRange['start_date'];
-            $end = $monthRange['end_date'];
+            $start      = $monthRange['start_date'];
+            $end        = $monthRange['end_date'];
 
             $workDoneResult = Activity::where('description', 'create')
                 ->whereBetween('created_at', [$start, $end])
@@ -261,24 +261,24 @@ class ActivityConroller extends Controller
         }
 
         $data['benchmark'] = $benchmark ?? [];
-        $data['workDone'] = $workDone ?? [];
+        $data['workDone']  = $workDone ?? [];
 
         return view('activity.graph', $data);
     }
 
     public function showUserGraph(Request $request)
     {
-        $data['users'] = $this->getUserArray();
+        $data['users']         = $this->getUserArray();
         $data['selected_user'] = $request->input('selected_user') ?? 3;
 
         $data['date_type'] = $request->input('date_type') ?? 'day';
 
-        $data['day_range'] = $request->input('day_range') ?? date('Y-m-d');
+        $data['day_range']   = $request->input('day_range') ?? date('Y-m-d');
         $data['month_range'] = $request->input('month_range') ?? date('Y-m');
 
         if ($data['date_type'] == 'day') {
             $start = $data['day_range'] . ' 00:00:00.000000';
-            $end = $data['day_range'] . ' 23:59:59.000000';
+            $end   = $data['day_range'] . ' 23:59:59.000000';
 
             $workDoneResult = DB::select('
 									SELECT HOUR(created_at) as xaxis,subject_type ,COUNT(*) AS total FROM
@@ -304,8 +304,8 @@ class ActivityConroller extends Controller
             }
         } else {
             $monthRange = $this->getStartAndEndDateByMonth($data['month_range']);
-            $start = $monthRange['start_date'];
-            $end = $monthRange['end_date'];
+            $start      = $monthRange['start_date'];
+            $end        = $monthRange['end_date'];
 
             $workDoneResult = DB::select('
 									SELECT DAYOFMONTH(created_at) as xaxis,subject_type ,COUNT(*) AS total FROM
@@ -331,7 +331,7 @@ class ActivityConroller extends Controller
             }
         }
 
-        $data['workDone'] = $workDone ?? [];
+        $data['workDone']  = $workDone ?? [];
         $data['dataLabel'] = $data['date_type'] == 'day' ? $this->dataLabelDay : $this->dataLabelMonth;
 
         return view('activity.graph-user', $data);
@@ -374,7 +374,7 @@ class ActivityConroller extends Controller
     {
         $arr = explode('-', $month_range);
 
-        $year = $arr[0];
+        $year  = $arr[0];
         $month = $arr[1];
 
         $dateTime = new \DateTime();

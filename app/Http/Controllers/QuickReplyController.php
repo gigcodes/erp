@@ -44,7 +44,7 @@ class QuickReplyController extends Controller
             'text' => 'required',
         ]);
 
-        $r = new QuickReply();
+        $r       = new QuickReply();
         $r->text = $request->get('text');
         $r->save();
 
@@ -54,7 +54,9 @@ class QuickReplyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\QuickReply  $quickReply
+     * @param \App\QuickReply $quickReply
+     * @param mixed           $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -99,11 +101,11 @@ class QuickReplyController extends Controller
     public function quickReplies(Request $request)
     {
         try {
-            $subcat = '';
+            $subcat         = '';
             $all_categories = ReplyCategory::where('parent_id', 0);
 
             if ($request->sub_category) {
-                $subcat = $request->sub_category;
+                $subcat    = $request->sub_category;
                 $parent_id = ReplyCategory::find($request->sub_category);
                 $all_categories->where('id', $parent_id->parent_id);
             }
@@ -112,7 +114,7 @@ class QuickReplyController extends Controller
             $sub_categories = ['' => 'Select Sub Category'] + ReplyCategory::where('parent_id', '!=', 0)->pluck('name', 'id')->toArray();
             $website_length = count($store_websites);
 
-            $all_replies = Reply::whereNotNull('store_website_id')->select('id', 'category_id', 'reply', 'store_website_id')->get();
+            $all_replies         = Reply::whereNotNull('store_website_id')->select('id', 'category_id', 'reply', 'store_website_id')->get();
             $category_wise_reply = [];
             foreach ($all_replies as $replies) {
                 if (! empty($replies->store_website_id)) {
@@ -126,12 +128,12 @@ class QuickReplyController extends Controller
                     if ($request->sub_category) {
                         $childs->where('id', $request->sub_category);
                     }
-                    $childs = $childs->get();
+                    $childs                       = $childs->get();
                     $all_categories[$k]['childs'] = $childs;
                     if ($childs) {
                         foreach ($all_categories[$k]['childs'] as $c => $_child) {
-                            $subchilds = ReplyCategory::where('parent_id', $_child->id);
-                            $subchilds = $subchilds->get();
+                            $subchilds                                     = ReplyCategory::where('parent_id', $_child->id);
+                            $subchilds                                     = $subchilds->get();
                             $all_categories[$k]['childs'][$c]['subchilds'] = $subchilds;
                         }
                     }
@@ -163,17 +165,17 @@ class QuickReplyController extends Controller
             if (isset($request->reply_id)) {
                 //update reply
                 Reply::where('id', '=', $request->reply_id)->update([
-                    'reply' => $request->reply,
+                    'reply'            => $request->reply,
                     'pushed_to_watson' => 0,
                 ]);
 
                 return response()->json(['status' => 1, 'data' => $request->reply, 'message' => 'Reply updated successfully']);
             } else {
                 Reply::create([
-                    'category_id' => $request->category_id,
+                    'category_id'      => $request->category_id,
                     'store_website_id' => $request->store_website_id,
-                    'reply' => $request->reply,
-                    'model' => 'Store Website',
+                    'reply'            => $request->reply,
+                    'model'            => 'Store Website',
                     'pushed_to_watson' => 0,
                 ]);
 
@@ -189,7 +191,7 @@ class QuickReplyController extends Controller
         $data = $request->all();
 
         $this->validate($request, [
-            'reply_id' => 'required',
+            'reply_id'         => 'required',
             'website_store_id' => 'required',
         ]);
 
@@ -197,10 +199,10 @@ class QuickReplyController extends Controller
             $replyContent = Reply::find($data['reply_id']);
 
             Reply::create([
-                'category_id' => $replyContent->category_id,
+                'category_id'      => $replyContent->category_id,
                 'store_website_id' => $data['website_store_id'],
-                'reply' => $replyContent->reply,
-                'model' => 'Store Website',
+                'reply'            => $replyContent->reply,
+                'model'            => 'Store Website',
                 'pushed_to_watson' => 0,
             ]);
 
@@ -218,9 +220,9 @@ class QuickReplyController extends Controller
                 $replyCategory = ReplyCategory::find($request->sub_id);
                 if ($replyCategory != null and $replyCategory['name'] != $request->name) {
                     ReplyCategory::where('id', '=', $request->sub_id)->update([
-                        'name' => $request->name,
-                        'intent_id' => 0,
-                        'dialog_id' => 0,
+                        'name'             => $request->name,
+                        'intent_id'        => 0,
+                        'dialog_id'        => 0,
                         'pushed_to_watson' => 0,
                     ]);
                 }
@@ -228,7 +230,7 @@ class QuickReplyController extends Controller
                 return new JsonResponse(['status' => 1, 'data' => $request->name, 'message' => 'Category updated successfully']);
             } else {
                 ReplyCategory::create([
-                    'name' => $request->reply,
+                    'name'      => $request->reply,
                     'parent_id' => $request->category_id,
                 ]);
 

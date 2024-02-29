@@ -17,7 +17,7 @@ class KeywordReport extends Model
 
     public function keywordReportSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'keyword_overview_all_database' => 'https://api.semrush.com/?type=phrase_all&key=' . $key . '&phrase=seo&export_columns=Dt,Db,Ph,Nq,Cp,Co,Nr',
 
@@ -149,7 +149,7 @@ seo;78.35',
 
     public function keywordReportAhrefsApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'keyword_overview_all_database' => '',
 

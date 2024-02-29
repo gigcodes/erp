@@ -73,10 +73,10 @@ class ParseLog extends Command
                         //Check if already exist and update the time
                         $loggedBefore = LaravelLog::where('log', $value)->first();
                         if (empty($loggedBefore)) {
-                            $log = new LaravelLog();
+                            $log              = new LaravelLog();
                             $log->log_created = $dateTime;
-                            $log->filename = $filename;
-                            $log->log = $value;
+                            $log->filename    = $filename;
+                            $log->log         = $value;
                             $log->save();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Laravel log added.']);
                         } else {

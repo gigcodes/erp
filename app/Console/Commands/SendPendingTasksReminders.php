@@ -45,7 +45,7 @@ class SendPendingTasksReminders extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
@@ -57,7 +57,7 @@ class SendPendingTasksReminders extends Command
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'User query finished.']);
 
                 if ($user) {
-                    $count = count($data);
+                    $count   = count($data);
                     $message = "Today You have $count pending tasks.";
 
                     dump("$user_id - $user->name has $count pending tasks");

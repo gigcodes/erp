@@ -42,8 +42,8 @@ class AdsController extends Controller
 {
     public function index(Request $request)
     {
-        $title = 'Ads';
-        $campigns = AdCampaign::select('id', 'campaign_name')->get();
+        $title      = 'Ads';
+        $campigns   = AdCampaign::select('id', 'campaign_name')->get();
         $adaccounts = AdAccount::where('status', 'ENABLED')->get();
 
         return view('ads.index', compact('title', 'campigns', 'adaccounts'));
@@ -75,22 +75,22 @@ class AdsController extends Controller
     {
         $this->validate($request, [
             'account_name' => 'required',
-            'config_file' => 'required',
-            'status' => 'required',
+            'config_file'  => 'required',
+            'status'       => 'required',
         ]);
 
         $accountArray = [
             'account_name' => $request->account_name,
-            'note' => $request->note,
-            'status' => $request->status,
+            'note'         => $request->note,
+            'status'       => $request->status,
         ];
         $googleadsAc = AdAccount::create($accountArray);
-        $account_id = $googleadsAc->id;
+        $account_id  = $googleadsAc->id;
         if ($request->file('config_file')) {
             $uploadfile = MediaUploader::fromSource($request->file('config_file'))
                 ->toDestination('adsapi', $account_id)
                 ->upload();
-            $getfilename = $uploadfile->filename . '.' . $uploadfile->extension;
+            $getfilename              = $uploadfile->filename . '.' . $uploadfile->extension;
             $googleadsAc->config_file = $getfilename;
             $googleadsAc->save();
         }
@@ -101,22 +101,22 @@ class AdsController extends Controller
     //Ad Account functions end
     public function savecampaign(Request $request)
     {
-        $adAccount = AdAccount::find($request->account_id);
-        $budgetAmount = isset($request->data['budget_and_bidding']['budget']) ? $request->data['budget_and_bidding']['budget'] * 1000000 : 0;
-        $campaignName = isset($request->camp_name) ? $request->camp_name : '';
-        $channel_type = isset($request->data['type']) ? strtouper($request->data['type']) : 'SEARCH';
-        $budgetName = isset($request->data['budget_and_bidding']['name']) ? $request->data['budget_and_bidding']['name'] : '';
+        $adAccount             = AdAccount::find($request->account_id);
+        $budgetAmount          = isset($request->data['budget_and_bidding']['budget']) ? $request->data['budget_and_bidding']['budget'] * 1000000 : 0;
+        $campaignName          = isset($request->camp_name) ? $request->camp_name : '';
+        $channel_type          = isset($request->data['type']) ? strtouper($request->data['type']) : 'SEARCH';
+        $budgetName            = isset($request->data['budget_and_bidding']['name']) ? $request->data['budget_and_bidding']['name'] : '';
         $bidding_strategy_type = isset($request->data['budget_and_bidding']['bidding']['focus']) ? $request->data['budget_and_bidding']['bidding']['focus'] : '';
-        $txt_target_cpa = isset($request->data['budget_and_bidding']['bidding']['cpa']) ? $request->data['budget_and_bidding']['bidding']['cpa'] : '';
-        $txt_target_roas = isset($request->data['budget_and_bidding']['bidding']['roas']) ? $request->data['budget_and_bidding']['bidding']['roas'] : '';
-        $maximize_clicks = isset($request->data['budget_and_bidding']['bidding']['cpc']) ? $request->data['budget_and_bidding']['bidding']['cpc'] : '';
+        $txt_target_cpa        = isset($request->data['budget_and_bidding']['bidding']['cpa']) ? $request->data['budget_and_bidding']['bidding']['cpa'] : '';
+        $txt_target_roas       = isset($request->data['budget_and_bidding']['bidding']['roas']) ? $request->data['budget_and_bidding']['bidding']['roas'] : '';
+        $maximize_clicks       = isset($request->data['budget_and_bidding']['bidding']['cpc']) ? $request->data['budget_and_bidding']['bidding']['cpc'] : '';
 
-        $campaign_start_date = (isset($request->data['start_end_dated']['startdate']) && ! empty($request->data['start_end_dated']['startdate'])) ? $request->data['start_end_dated']['startdate'] : Carbon::now()->format('Y-m-d');
-        $campaign_end_date = isset($request->data['start_end_dated']['enddate']) ? $request->data['start_end_dated']['enddate'] : '';
+        $campaign_start_date   = (isset($request->data['start_end_dated']['startdate']) && ! empty($request->data['start_end_dated']['startdate'])) ? $request->data['start_end_dated']['startdate'] : Carbon::now()->format('Y-m-d');
+        $campaign_end_date     = isset($request->data['start_end_dated']['enddate']) ? $request->data['start_end_dated']['enddate'] : '';
         $tracking_template_url = isset($request->data['campaign_url']['tracking_tamplate']) ? $request->data['campaign_url']['tracking_tamplate'] : '';
-        $final_url_suffix = isset($request->data['campaign_url']['final_url_suffix']) ? $request->data['campaign_url']['final_url_suffix'] : '';
+        $final_url_suffix      = isset($request->data['campaign_url']['final_url_suffix']) ? $request->data['campaign_url']['final_url_suffix'] : '';
 
-        $configFile = storage_path('app/adsapi/' . $request->account_id . '/' . $adAccount->config_file);
+        $configFile       = storage_path('app/adsapi/' . $request->account_id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($configFile)
             ->build();
@@ -199,19 +199,19 @@ class AdsController extends Controller
         $operation->setOperator(Operator::ADD);
         $operations[] = $operation;
 
-        $result = $campaignService->mutate($operations);
-        $addedCampaign = $result->getValue();
+        $result          = $campaignService->mutate($operations);
+        $addedCampaign   = $result->getValue();
         $addedCampaignId = $addedCampaign[0]->getId();
 
-        $newCapaign = new AdCampaign();
-        $newCapaign->ad_account_id = $request->account_id;
-        $newCapaign->goal = $request->goal;
-        $newCapaign->type = $request->type;
-        $newCapaign->campaign_name = $request->camp_name;
-        $newCapaign->data = json_encode($request->data);
+        $newCapaign                     = new AdCampaign();
+        $newCapaign->ad_account_id      = $request->account_id;
+        $newCapaign->goal               = $request->goal;
+        $newCapaign->type               = $request->type;
+        $newCapaign->campaign_name      = $request->camp_name;
+        $newCapaign->data               = json_encode($request->data);
         $newCapaign->campaign_budget_id = $budget_id;
-        $newCapaign->campaign_id = $addedCampaignId;
-        $newCapaign->campaign_response = json_encode($addedCampaign);
+        $newCapaign->campaign_id        = $addedCampaignId;
+        $newCapaign->campaign_response  = json_encode($addedCampaign);
         $newCapaign->save();
 
         return redirect()->to('/ads')->with('actSuccess', 'Campaign details added successfully');
@@ -220,9 +220,9 @@ class AdsController extends Controller
     public function savegroup(Request $request)
     {
         $adCampaign = AdCampaign::find($request->campaign);
-        $adAccount = AdAccount::find($adCampaign->ad_account_id);
+        $adAccount  = AdAccount::find($adCampaign->ad_account_id);
 
-        $storagepath = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
+        $storagepath      = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -239,7 +239,7 @@ class AdsController extends Controller
                 $adGroup->setName($value['name'] . mt_rand());
 
                 // Set bids (required).
-                $bid = new CpcBid();
+                $bid   = new CpcBid();
                 $money = new Money();
                 $money->setMicroAmount($microAmount);
                 $bid->setBid($money);
@@ -257,19 +257,19 @@ class AdsController extends Controller
                 $operation->setOperator(Operator::ADD);
                 $operations[] = $operation;
 
-                $result = $adGroupService->mutate($operations);
-                $addedGroup = $result->getValue();
+                $result       = $adGroupService->mutate($operations);
+                $addedGroup   = $result->getValue();
                 $addedGroupId = $addedGroup[0]->getId();
 
-                $newGroup = new AdGroup();
-                $newGroup->campaign_id = $request->campaign;
-                $newGroup->google_campaign_id = $adCampaign->campaign_id;
-                $newGroup->type = $request->type;
-                $newGroup->group_name = $value['name'];
-                $newGroup->url = $value['url'];
-                $newGroup->keywords = $value['keywords'];
-                $newGroup->budget = $value['budget'];
-                $newGroup->google_ad_group_id = $addedGroupId;
+                $newGroup                           = new AdGroup();
+                $newGroup->campaign_id              = $request->campaign;
+                $newGroup->google_campaign_id       = $adCampaign->campaign_id;
+                $newGroup->type                     = $request->type;
+                $newGroup->group_name               = $value['name'];
+                $newGroup->url                      = $value['url'];
+                $newGroup->keywords                 = $value['keywords'];
+                $newGroup->budget                   = $value['budget'];
+                $newGroup->google_ad_group_id       = $addedGroupId;
                 $newGroup->google_ad_group_response = json_encode($addedGroup[0]);
                 $newGroup->save();
             }
@@ -289,11 +289,11 @@ class AdsController extends Controller
 
     public function adsstore(Request $request)
     {
-        $adGroupp = AdGroup::find($request->adgroup);
+        $adGroupp   = AdGroup::find($request->adgroup);
         $adCampaign = AdCampaign::find($adGroupp->campaign_id);
-        $adAccount = AdAccount::find($adCampaign->ad_account_id);
+        $adAccount  = AdAccount::find($adCampaign->ad_account_id);
 
-        $storagepath = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
+        $storagepath      = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -327,24 +327,24 @@ class AdsController extends Controller
         $operations[] = $operation;
 
         // Add expanded text ads on the server.
-        $result = $adGroupAdService->mutate($operations);
-        $addedAds = $result->getValue();
+        $result     = $adGroupAdService->mutate($operations);
+        $addedAds   = $result->getValue();
         $addedAdsId = $addedAds[0]->getAd()->getId();
 
-        $newAd = new Ad();
-        $newAd->campaign_id = $request->campaign;
-        $newAd->adgroup_id = $request->adgroup;
-        $newAd->finalurl = $request->finalurl;
-        $newAd->displayurl = $request->displayurl;
-        $newAd->headlines = isset($request->headlines) ? json_encode($request->headlines) : '[]';
-        $newAd->descriptions = isset($request->descriptions) ? json_encode($request->descriptions) : '[]';
-        $newAd->tracking_tamplate = $request->tracking_tamplate;
-        $newAd->final_url_suffix = $request->final_url_suffix;
-        $newAd->customparam = isset($request->customparam) ? json_encode($request->customparam) : '[]';
+        $newAd                       = new Ad();
+        $newAd->campaign_id          = $request->campaign;
+        $newAd->adgroup_id           = $request->adgroup;
+        $newAd->finalurl             = $request->finalurl;
+        $newAd->displayurl           = $request->displayurl;
+        $newAd->headlines            = isset($request->headlines) ? json_encode($request->headlines) : '[]';
+        $newAd->descriptions         = isset($request->descriptions) ? json_encode($request->descriptions) : '[]';
+        $newAd->tracking_tamplate    = $request->tracking_tamplate;
+        $newAd->final_url_suffix     = $request->final_url_suffix;
+        $newAd->customparam          = isset($request->customparam) ? json_encode($request->customparam) : '[]';
         $newAd->different_url_mobile = $request->different_url_mobile;
-        $newAd->mobile_final_url = $request->mobile_final_url;
-        $newAd->ad_id = $addedAdsId;
-        $newAd->ad_response = json_encode($addedAds[0]);
+        $newAd->mobile_final_url     = $request->mobile_final_url;
+        $newAd->ad_id                = $addedAdsId;
+        $newAd->ad_response          = json_encode($addedAds[0]);
         $newAd->save();
 
         return redirect()->to('/ads')->with('actSuccess', 'Ads details added successfully');

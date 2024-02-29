@@ -48,7 +48,7 @@ class ProductSupplierData extends Command
         $product_suppliers_data = ProductSupplier::get();
 
         $supplier_data = Supplier::get();
-        $supplier_arr = [];
+        $supplier_arr  = [];
         foreach ($supplier_data as $key => $value) {
             $supplier_arr[$value->id] = $value->supplier;
         }
@@ -59,33 +59,33 @@ class ProductSupplierData extends Command
         }
 
         $product_not_available_product_supplier_table = [];
-        $supplier_exist_product_supplier_table = [];
-        $supplier_not_exist_product_supplier_table = [];
+        $supplier_exist_product_supplier_table        = [];
+        $supplier_not_exist_product_supplier_table    = [];
 
         foreach ($product_data as $key => $value) {
             if ($value->supplier_id != '' && $value->supplier_id != null) {
                 $supplier_id = $value->supplier_id;
-                $product_id = $value->id;
+                $product_id  = $value->id;
                 if (array_key_exists($product_id, $product_suppliers_arr)) {
                     if (array_key_exists($supplier_id, $product_suppliers_arr[$product_id])) {
-                        $supplier_exist_product_supplier_table[$key]['product_id'] = $product_id;
-                        $supplier_exist_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
-                        $supplier_exist_product_supplier_table[$key]['supplier_id'] = $supplier_id;
+                        $supplier_exist_product_supplier_table[$key]['product_id']    = $product_id;
+                        $supplier_exist_product_supplier_table[$key]['product_name']  = ($value->name ?? '');
+                        $supplier_exist_product_supplier_table[$key]['supplier_id']   = $supplier_id;
                         $supplier_exist_product_supplier_table[$key]['supplier_name'] = ($product_suppliers_arr[$product_id][$supplier_id] ?? '-');
                     } else {
-                        $supplier_not_exist_product_supplier_table[$key]['product_id'] = $product_id;
+                        $supplier_not_exist_product_supplier_table[$key]['product_id']   = $product_id;
                         $supplier_not_exist_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
-                        $supplier_not_exist_product_supplier_table[$key]['supplier_id'] = $supplier_id;
+                        $supplier_not_exist_product_supplier_table[$key]['supplier_id']  = $supplier_id;
                     }
                 } else {
-                    $product_not_available_product_supplier_table[$key]['product_id'] = $product_id;
+                    $product_not_available_product_supplier_table[$key]['product_id']   = $product_id;
                     $product_not_available_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
                 }
             }
         }
 
         $filename = Carbon::now()->format('Y-m-d-H-m-s') . '_not_mapping_supplier.xlsx';
-        $path = 'not_mapping_product_supplier/' . $filename;
+        $path     = 'not_mapping_product_supplier/' . $filename;
 
         Excel::store(new ProductSupplierExport($supplier_not_exist_product_supplier_table, $path), $path, 'files');
 

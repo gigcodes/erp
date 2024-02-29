@@ -26,12 +26,14 @@ class UpdateProductCategoryFromErp implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param public $params
+     *
      * @return void
      */
     public function __construct(public $params)
     {
-        $this->from = $params['from'];
-        $this->to = $params['to'];
+        $this->from    = $params['from'];
+        $this->to      = $params['to'];
         $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
     }
 
@@ -56,16 +58,16 @@ class UpdateProductCategoryFromErp implements ShouldQueue
 
             if (! empty($affectedProducts)) {
                 foreach ($affectedProducts as $affectedProduct) {
-                    $oldCat = $affectedProduct->category;
+                    $oldCat                    = $affectedProduct->category;
                     $affectedProduct->category = $this->to;
                     $affectedProduct->save();
 
                     // do entry for the history as well
-                    $productCatHis = new \App\ProductCategoryHistory;
-                    $productCatHis->user_id = ($this->user_id) ? $this->user_id : 6;
-                    $productCatHis->category_id = ! empty($this->to) ? $this->to : '';
+                    $productCatHis                  = new \App\ProductCategoryHistory;
+                    $productCatHis->user_id         = ($this->user_id) ? $this->user_id : 6;
+                    $productCatHis->category_id     = ! empty($this->to) ? $this->to : '';
                     $productCatHis->old_category_id = ! empty($oldCat) ? $oldCat : '';
-                    $productCatHis->product_id = $affectedProduct->id;
+                    $productCatHis->product_id      = $affectedProduct->id;
                     $productCatHis->save();
                 }
             }

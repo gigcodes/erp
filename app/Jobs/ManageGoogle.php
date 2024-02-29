@@ -19,6 +19,9 @@ class ManageGoogle implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected      $questionId
+     * @param protectedarray $storeParams
+     *
      * @return void
      */
     public function __construct(protected $questionId, protected array $storeParams)
@@ -36,7 +39,7 @@ class ManageGoogle implements ShouldQueue
         $chatBotQuestion = ChatbotQuestion::where('id', $this->questionId)->first();
         if ($chatBotQuestion) {
             $questionArr = [];
-            $replyArr = [];
+            $replyArr    = [];
             foreach ($chatBotQuestion->chatbotQuestionExamples as $question) {
                 $questionArr[] = $question->question;
             }
@@ -49,15 +52,15 @@ class ManageGoogle implements ShouldQueue
                 try {
                     $response = $dialogService->createIntent([
                         'questions' => $questionArr,
-                        'reply' => $replyArr,
-                        'name' => $chatBotQuestion['value'],
-                        'parent' => $chatBotQuestion['parent']]);
+                        'reply'     => $replyArr,
+                        'name'      => $chatBotQuestion['value'],
+                        'parent'    => $chatBotQuestion['parent']]);
                     if ($response) {
-                        $name = explode('/', $response);
-                        $store_response = new GoogleResponseId();
-                        $store_response->google_response_id = $name[count($name) - 1];
+                        $name                                     = explode('/', $response);
+                        $store_response                           = new GoogleResponseId();
+                        $store_response->google_response_id       = $name[count($name) - 1];
                         $store_response->google_dialog_account_id = $google_account->id;
-                        $store_response->chatbot_question_id = $chatBotQuestion->id;
+                        $store_response->chatbot_question_id      = $chatBotQuestion->id;
                         $store_response->save();
                     }
                 } catch (\Exception $e) {

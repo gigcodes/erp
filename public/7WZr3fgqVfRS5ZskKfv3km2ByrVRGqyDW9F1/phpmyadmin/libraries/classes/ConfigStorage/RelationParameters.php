@@ -100,6 +100,27 @@ final class RelationParameters
 
     /**
      * @psalm-param non-empty-string|null $user
+     *
+     * @param ?string                             $user
+     * @param ?DatabaseName                       $db
+     * @param ?BookmarkFeature                    $bookmarkFeature
+     * @param ?BrowserTransformationFeature       $browserTransformationFeature
+     * @param ?CentralColumnsFeature              $centralColumnsFeature
+     * @param ?ColumnCommentsFeature              $columnCommentsFeature
+     * @param ?ConfigurableMenusFeature           $configurableMenusFeature
+     * @param ?DatabaseDesignerSettingsFeature    $databaseDesignerSettingsFeature
+     * @param ?DisplayFeature                     $displayFeature
+     * @param ?ExportTemplatesFeature             $exportTemplatesFeature
+     * @param ?FavoriteTablesFeature              $favoriteTablesFeature
+     * @param ?NavigationItemsHidingFeature       $navigationItemsHidingFeature
+     * @param ?PdfFeature                         $pdfFeature
+     * @param ?RecentlyUsedTablesFeature          $recentlyUsedTablesFeature
+     * @param ?RelationFeature                    $relationFeature
+     * @param ?SavedQueryByExampleSearchesFeature $savedQueryByExampleSearchesFeature
+     * @param ?SqlHistoryFeature                  $sqlHistoryFeature
+     * @param ?TrackingFeature                    $trackingFeature
+     * @param ?UiPreferencesFeature               $uiPreferencesFeature
+     * @param ?UserPreferencesFeature             $userPreferencesFeature
      */
     public function __construct(
         ?string $user,
@@ -123,30 +144,30 @@ final class RelationParameters
         ?UiPreferencesFeature $uiPreferencesFeature = null,
         ?UserPreferencesFeature $userPreferencesFeature = null
     ) {
-        $this->user = $user;
-        $this->db = $db;
-        $this->bookmarkFeature = $bookmarkFeature;
-        $this->browserTransformationFeature = $browserTransformationFeature;
-        $this->centralColumnsFeature = $centralColumnsFeature;
-        $this->columnCommentsFeature = $columnCommentsFeature;
-        $this->configurableMenusFeature = $configurableMenusFeature;
-        $this->databaseDesignerSettingsFeature = $databaseDesignerSettingsFeature;
-        $this->displayFeature = $displayFeature;
-        $this->exportTemplatesFeature = $exportTemplatesFeature;
-        $this->favoriteTablesFeature = $favoriteTablesFeature;
-        $this->navigationItemsHidingFeature = $navigationItemsHidingFeature;
-        $this->pdfFeature = $pdfFeature;
-        $this->recentlyUsedTablesFeature = $recentlyUsedTablesFeature;
-        $this->relationFeature = $relationFeature;
+        $this->user                               = $user;
+        $this->db                                 = $db;
+        $this->bookmarkFeature                    = $bookmarkFeature;
+        $this->browserTransformationFeature       = $browserTransformationFeature;
+        $this->centralColumnsFeature              = $centralColumnsFeature;
+        $this->columnCommentsFeature              = $columnCommentsFeature;
+        $this->configurableMenusFeature           = $configurableMenusFeature;
+        $this->databaseDesignerSettingsFeature    = $databaseDesignerSettingsFeature;
+        $this->displayFeature                     = $displayFeature;
+        $this->exportTemplatesFeature             = $exportTemplatesFeature;
+        $this->favoriteTablesFeature              = $favoriteTablesFeature;
+        $this->navigationItemsHidingFeature       = $navigationItemsHidingFeature;
+        $this->pdfFeature                         = $pdfFeature;
+        $this->recentlyUsedTablesFeature          = $recentlyUsedTablesFeature;
+        $this->relationFeature                    = $relationFeature;
         $this->savedQueryByExampleSearchesFeature = $savedQueryByExampleSearchesFeature;
-        $this->sqlHistoryFeature = $sqlHistoryFeature;
-        $this->trackingFeature = $trackingFeature;
-        $this->uiPreferencesFeature = $uiPreferencesFeature;
-        $this->userPreferencesFeature = $userPreferencesFeature;
+        $this->sqlHistoryFeature                  = $sqlHistoryFeature;
+        $this->trackingFeature                    = $trackingFeature;
+        $this->uiPreferencesFeature               = $uiPreferencesFeature;
+        $this->userPreferencesFeature             = $userPreferencesFeature;
     }
 
     /**
-     * @param  mixed[]  $params
+     * @param mixed[] $params
      */
     public static function fromArray(array $params): self
     {
@@ -170,7 +191,7 @@ final class RelationParameters
             }
         }
 
-        $columnInfo = self::getTableName($params['column_info'] ?? null);
+        $columnInfo                   = self::getTableName($params['column_info'] ?? null);
         $browserTransformationFeature = null;
         if (isset($params['mimework']) && $params['mimework'] && $columnInfo !== null) {
             $browserTransformationFeature = new BrowserTransformationFeature($db, $columnInfo);
@@ -192,7 +213,7 @@ final class RelationParameters
         $configurableMenusFeature = null;
         if (isset($params['menuswork'], $params['usergroups'], $params['users']) && $params['menuswork']) {
             $userGroups = self::getTableName($params['usergroups']);
-            $users = self::getTableName($params['users']);
+            $users      = self::getTableName($params['users']);
             if ($userGroups !== null && $users !== null) {
                 $configurableMenusFeature = new ConfigurableMenusFeature($db, $userGroups, $users);
             }
@@ -206,7 +227,7 @@ final class RelationParameters
             }
         }
 
-        $relation = self::getTableName($params['relation'] ?? null);
+        $relation       = self::getTableName($params['relation'] ?? null);
         $displayFeature = null;
         if (isset($params['displaywork'], $params['table_info']) && $params['displaywork'] && $relation !== null) {
             $tableInfo = self::getTableName($params['table_info']);
@@ -241,7 +262,7 @@ final class RelationParameters
 
         $pdfFeature = null;
         if (isset($params['pdfwork'], $params['pdf_pages'], $params['table_coords']) && $params['pdfwork']) {
-            $pdfPages = self::getTableName($params['pdf_pages']);
+            $pdfPages    = self::getTableName($params['pdf_pages']);
             $tableCoords = self::getTableName($params['table_coords']);
             if ($pdfPages !== null && $tableCoords !== null) {
                 $pdfFeature = new PdfFeature($db, $pdfPages, $tableCoords);
@@ -389,14 +410,14 @@ final class RelationParameters
         }
 
         return [
-            'version' => Version::VERSION,
-            'user' => $this->user,
-            'db' => $this->db !== null ? $this->db->getName() : null,
-            'bookmark' => $this->bookmarkFeature !== null ? $this->bookmarkFeature->bookmark->getName() : null,
+            'version'         => Version::VERSION,
+            'user'            => $this->user,
+            'db'              => $this->db !== null ? $this->db->getName() : null,
+            'bookmark'        => $this->bookmarkFeature !== null ? $this->bookmarkFeature->bookmark->getName() : null,
             'central_columns' => $this->centralColumnsFeature !== null
                 ? $this->centralColumnsFeature->centralColumns->getName()
                 : null,
-            'column_info' => $columnInfo,
+            'column_info'       => $columnInfo,
             'designer_settings' => $this->databaseDesignerSettingsFeature !== null
                 ? $this->databaseDesignerSettingsFeature->designerSettings->getName()
                 : null,
@@ -406,24 +427,24 @@ final class RelationParameters
             'favorite' => $this->favoriteTablesFeature !== null
                 ? $this->favoriteTablesFeature->favorite->getName()
                 : null,
-            'history' => $this->sqlHistoryFeature !== null ? $this->sqlHistoryFeature->history->getName() : null,
+            'history'          => $this->sqlHistoryFeature !== null ? $this->sqlHistoryFeature->history->getName() : null,
             'navigationhiding' => $this->navigationItemsHidingFeature !== null
                 ? $this->navigationItemsHidingFeature->navigationHiding->getName()
                 : null,
             'pdf_pages' => $this->pdfFeature !== null ? $this->pdfFeature->pdfPages->getName() : null,
-            'recent' => $this->recentlyUsedTablesFeature !== null
+            'recent'    => $this->recentlyUsedTablesFeature !== null
                 ? $this->recentlyUsedTablesFeature->recent->getName()
                 : null,
-            'relation' => $relation,
+            'relation'      => $relation,
             'savedsearches' => $this->savedQueryByExampleSearchesFeature !== null
                 ? $this->savedQueryByExampleSearchesFeature->savedSearches->getName()
                 : null,
-            'table_coords' => $this->pdfFeature !== null ? $this->pdfFeature->tableCoords->getName() : null,
-            'table_info' => $this->displayFeature !== null ? $this->displayFeature->tableInfo->getName() : null,
+            'table_coords'  => $this->pdfFeature !== null ? $this->pdfFeature->tableCoords->getName() : null,
+            'table_info'    => $this->displayFeature !== null ? $this->displayFeature->tableInfo->getName() : null,
             'table_uiprefs' => $this->uiPreferencesFeature !== null
                 ? $this->uiPreferencesFeature->tableUiPrefs->getName()
                 : null,
-            'tracking' => $this->trackingFeature !== null ? $this->trackingFeature->tracking->getName() : null,
+            'tracking'   => $this->trackingFeature !== null ? $this->trackingFeature->tracking->getName() : null,
             'userconfig' => $this->userPreferencesFeature !== null
                 ? $this->userPreferencesFeature->userConfig->getName()
                 : null,
@@ -433,25 +454,25 @@ final class RelationParameters
             'users' => $this->configurableMenusFeature !== null
                 ? $this->configurableMenusFeature->users->getName()
                 : null,
-            'bookmarkwork' => $this->bookmarkFeature !== null,
-            'mimework' => $this->browserTransformationFeature !== null,
-            'centralcolumnswork' => $this->centralColumnsFeature !== null,
-            'commwork' => $this->columnCommentsFeature !== null,
-            'menuswork' => $this->configurableMenusFeature !== null,
+            'bookmarkwork'         => $this->bookmarkFeature !== null,
+            'mimework'             => $this->browserTransformationFeature !== null,
+            'centralcolumnswork'   => $this->centralColumnsFeature !== null,
+            'commwork'             => $this->columnCommentsFeature !== null,
+            'menuswork'            => $this->configurableMenusFeature !== null,
             'designersettingswork' => $this->databaseDesignerSettingsFeature !== null,
-            'displaywork' => $this->displayFeature !== null,
-            'exporttemplateswork' => $this->exportTemplatesFeature !== null,
-            'favoritework' => $this->favoriteTablesFeature !== null,
-            'navwork' => $this->navigationItemsHidingFeature !== null,
-            'pdfwork' => $this->pdfFeature !== null,
-            'recentwork' => $this->recentlyUsedTablesFeature !== null,
-            'relwork' => $this->relationFeature !== null,
-            'savedsearcheswork' => $this->savedQueryByExampleSearchesFeature !== null,
-            'historywork' => $this->sqlHistoryFeature !== null,
-            'trackingwork' => $this->trackingFeature !== null,
-            'uiprefswork' => $this->uiPreferencesFeature !== null,
-            'userconfigwork' => $this->userPreferencesFeature !== null,
-            'allworks' => $this->hasAllFeatures(),
+            'displaywork'          => $this->displayFeature !== null,
+            'exporttemplateswork'  => $this->exportTemplatesFeature !== null,
+            'favoritework'         => $this->favoriteTablesFeature !== null,
+            'navwork'              => $this->navigationItemsHidingFeature !== null,
+            'pdfwork'              => $this->pdfFeature !== null,
+            'recentwork'           => $this->recentlyUsedTablesFeature !== null,
+            'relwork'              => $this->relationFeature !== null,
+            'savedsearcheswork'    => $this->savedQueryByExampleSearchesFeature !== null,
+            'historywork'          => $this->sqlHistoryFeature !== null,
+            'trackingwork'         => $this->trackingFeature !== null,
+            'uiprefswork'          => $this->uiPreferencesFeature !== null,
+            'userconfigwork'       => $this->userPreferencesFeature !== null,
+            'allworks'             => $this->hasAllFeatures(),
         ];
     }
 
@@ -478,7 +499,7 @@ final class RelationParameters
     }
 
     /**
-     * @param  mixed  $tableName
+     * @param mixed $tableName
      */
     private static function getTableName($tableName): ?TableName
     {

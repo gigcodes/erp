@@ -37,14 +37,15 @@ use PhpMyAdmin\Partitioning\TablePartitionDefinition;
 final class ColumnsDefinition
 {
     /**
-     * @param  Transformations  $transformations Transformations
-     * @param  Relation  $relation        Relation
-     * @param  DatabaseInterface  $dbi             Database Interface instance
-     * @param  string  $action          Action
-     * @param  int  $num_fields      The number of fields
-     * @param  string|null  $regenerate      Use regeneration
-     * @param  array|null  $selected        Selected
-     * @param  array|null  $fields_meta     Fields meta
+     * @param Transformations   $transformations Transformations
+     * @param Relation          $relation        Relation
+     * @param DatabaseInterface $dbi             Database Interface instance
+     * @param string            $action          Action
+     * @param int               $num_fields      The number of fields
+     * @param string|null       $regenerate      Use regeneration
+     * @param array|null        $selected        Selected
+     * @param array|null        $fields_meta     Fields meta
+     *
      * @return array<string, mixed>
      */
     public static function displayForm(
@@ -68,8 +69,8 @@ final class ColumnsDefinition
         ]);
 
         $length_values_input_size = 8;
-        $content_cells = [];
-        $form_params = ['db' => $db];
+        $content_cells            = [];
+        $form_params              = ['db' => $db];
 
         if ($action == Url::getFromRoute('/table/create')) {
             $form_params['reload'] = 1;
@@ -119,7 +120,7 @@ final class ColumnsDefinition
 
         $available_mime = [];
         if ($relationParameters->browserTransformationFeature !== null && $cfg['BrowseMIME']) {
-            $mime_map = $transformations->getMime($db, $table);
+            $mime_map       = $transformations->getMime($db, $table);
             $available_mime = $transformations->getAvailableMimeTypes();
         }
 
@@ -145,7 +146,7 @@ final class ColumnsDefinition
             $regenerate = 1;
         }
 
-        $foreigners = $relation->getForeigners($db, $table, '', 'foreign');
+        $foreigners       = $relation->getForeigners($db, $table, '', 'foreign');
         $child_references = null;
         // From MySQL 5.6.6 onwards columns with foreign keys can be renamed.
         // Hence, no need to get child references
@@ -154,10 +155,10 @@ final class ColumnsDefinition
         }
 
         for ($columnNumber = 0; $columnNumber < $num_fields; $columnNumber++) {
-            $type = '';
-            $length = '';
-            $columnMeta = [];
-            $submit_attribute = null;
+            $type                 = '';
+            $length               = '';
+            $columnMeta           = [];
+            $submit_attribute     = null;
             $extracted_columnspec = [];
 
             if (! empty($regenerate)) {
@@ -213,7 +214,7 @@ final class ColumnsDefinition
                 );
 
                 $columnMeta['Key'] = '';
-                $parts = explode(
+                $parts             = explode(
                     '_',
                     Util::getValueByKey($_POST, "field_key.${columnNumber}", ''),
                     2
@@ -221,11 +222,11 @@ final class ColumnsDefinition
                 if (count($parts) === 2 && $parts[1] == $columnNumber) {
                     $columnMeta['Key'] = Util::getValueByKey(
                         [
-                            'primary' => 'PRI',
-                            'index' => 'MUL',
-                            'unique' => 'UNI',
+                            'primary'  => 'PRI',
+                            'index'    => 'MUL',
+                            'unique'   => 'UNI',
                             'fulltext' => 'FULLTEXT',
-                            'spatial' => 'SPATIAL',
+                            'spatial'  => 'SPATIAL',
                         ],
                         $parts[0],
                         ''
@@ -248,14 +249,14 @@ final class ColumnsDefinition
                         break;
                 }
 
-                $length = Util::getValueByKey($_POST, "field_length.${columnNumber}", $length);
-                $submit_attribute = Util::getValueByKey($_POST, "field_attribute.${columnNumber}", false);
+                $length                             = Util::getValueByKey($_POST, "field_length.${columnNumber}", $length);
+                $submit_attribute                   = Util::getValueByKey($_POST, "field_attribute.${columnNumber}", false);
                 $comments_map[$columnMeta['Field']] = Util::getValueByKey($_POST, "field_comments.${columnNumber}");
 
                 $mime_map[$columnMeta['Field']] = array_merge(
                     $mime_map[$columnMeta['Field']] ?? [],
                     [
-                        'mimetype' => Util::getValueByKey($_POST, "field_mimetype.${columnNumber}"),
+                        'mimetype'       => Util::getValueByKey($_POST, "field_mimetype.${columnNumber}"),
                         'transformation' => Util::getValueByKey(
                             $_POST,
                             "field_transformation.${columnNumber}"
@@ -268,15 +269,15 @@ final class ColumnsDefinition
                 );
             } elseif (isset($fields_meta[$columnNumber])) {
                 $columnMeta = $fields_meta[$columnNumber];
-                $virtual = [
+                $virtual    = [
                     'VIRTUAL',
                     'PERSISTENT',
                     'VIRTUAL GENERATED',
                     'STORED GENERATED',
                 ];
                 if (in_array($columnMeta['Extra'], $virtual)) {
-                    $tableObj = new Table($table, $db);
-                    $expressions = $tableObj->getColumnGenerationExpression($columnMeta['Field']);
+                    $tableObj                 = new Table($table, $db);
+                    $expressions              = $tableObj->getColumnGenerationExpression($columnMeta['Field']);
                     $columnMeta['Expression'] = is_array($expressions) ? $expressions[$columnMeta['Field']] : null;
                 }
 
@@ -284,29 +285,29 @@ final class ColumnsDefinition
                     case null:
                         if ($columnMeta['Default'] === null) {
                             if ($columnMeta['Null'] === 'YES') {
-                                $columnMeta['DefaultType'] = 'NULL';
+                                $columnMeta['DefaultType']  = 'NULL';
                                 $columnMeta['DefaultValue'] = '';
                             } else {
-                                $columnMeta['DefaultType'] = 'NONE';
+                                $columnMeta['DefaultType']  = 'NONE';
                                 $columnMeta['DefaultValue'] = '';
                             }
                         } else { // empty
-                            $columnMeta['DefaultType'] = 'USER_DEFINED';
+                            $columnMeta['DefaultType']  = 'USER_DEFINED';
                             $columnMeta['DefaultValue'] = $columnMeta['Default'];
                         }
 
                         break;
                     case 'CURRENT_TIMESTAMP':
                     case 'current_timestamp()':
-                        $columnMeta['DefaultType'] = 'CURRENT_TIMESTAMP';
+                        $columnMeta['DefaultType']  = 'CURRENT_TIMESTAMP';
                         $columnMeta['DefaultValue'] = '';
                         break;
                     default:
-                        $columnMeta['DefaultType'] = 'USER_DEFINED';
+                        $columnMeta['DefaultType']  = 'USER_DEFINED';
                         $columnMeta['DefaultValue'] = $columnMeta['Default'];
 
                         if (substr($columnMeta['Type'], -4) === 'text') {
-                            $textDefault = substr($columnMeta['Default'], 1, -1);
+                            $textDefault           = substr($columnMeta['Default'], 1, -1);
                             $columnMeta['Default'] = stripcslashes($textDefault);
                         }
 
@@ -429,7 +430,7 @@ final class ColumnsDefinition
             }
 
             $default_value = '';
-            $type_upper = mb_strtoupper($type);
+            $type_upper    = mb_strtoupper($type);
 
             // For a TIMESTAMP, do not show the string "CURRENT_TIMESTAMP" as a default value
             if (isset($columnMeta['DefaultValue'])) {
@@ -443,81 +444,81 @@ final class ColumnsDefinition
             }
 
             $content_cells[$columnNumber] = [
-                'column_number' => $columnNumber,
-                'column_meta' => $columnMeta,
-                'type_upper' => $type_upper,
-                'default_value' => $default_value,
+                'column_number'            => $columnNumber,
+                'column_meta'              => $columnMeta,
+                'type_upper'               => $type_upper,
+                'default_value'            => $default_value,
                 'length_values_input_size' => $length_values_input_size,
-                'length' => $length,
-                'extracted_columnspec' => $extracted_columnspec,
-                'submit_attribute' => $submit_attribute,
-                'comments_map' => $comments_map,
-                'fields_meta' => $fields_meta ?? null,
-                'is_backup' => $is_backup,
-                'move_columns' => $move_columns,
-                'available_mime' => $available_mime,
-                'mime_map' => $mime_map ?? [],
+                'length'                   => $length,
+                'extracted_columnspec'     => $extracted_columnspec,
+                'submit_attribute'         => $submit_attribute,
+                'comments_map'             => $comments_map,
+                'fields_meta'              => $fields_meta ?? null,
+                'is_backup'                => $is_backup,
+                'move_columns'             => $move_columns,
+                'available_mime'           => $available_mime,
+                'mime_map'                 => $mime_map ?? [],
             ];
         }
 
         $partitionDetails = TablePartitionDefinition::getDetails();
 
-        $charsets = Charsets::getCharsets($dbi, $cfg['Server']['DisableIS']);
-        $collations = Charsets::getCollations($dbi, $cfg['Server']['DisableIS']);
+        $charsets     = Charsets::getCharsets($dbi, $cfg['Server']['DisableIS']);
+        $collations   = Charsets::getCollations($dbi, $cfg['Server']['DisableIS']);
         $charsetsList = [];
         foreach ($charsets as $charset) {
             $collationsList = [];
             foreach ($collations[$charset->getName()] as $collation) {
                 $collationsList[] = [
-                    'name' => $collation->getName(),
+                    'name'        => $collation->getName(),
                     'description' => $collation->getDescription(),
                 ];
             }
 
             $charsetsList[] = [
-                'name' => $charset->getName(),
+                'name'        => $charset->getName(),
                 'description' => $charset->getDescription(),
-                'collations' => $collationsList,
+                'collations'  => $collationsList,
             ];
         }
 
-        $storageEngines = StorageEngine::getArray();
+        $storageEngines             = StorageEngine::getArray();
         $isIntegersLengthRestricted = Compatibility::isIntegersLengthRestricted($dbi);
 
         return [
-            'is_backup' => $is_backup,
-            'fields_meta' => $fields_meta ?? null,
-            'relation_parameters' => $relationParameters,
-            'action' => $action,
-            'form_params' => $form_params,
-            'content_cells' => $content_cells,
-            'partition_details' => $partitionDetails,
-            'primary_indexes' => $_POST['primary_indexes'] ?? null,
-            'unique_indexes' => $_POST['unique_indexes'] ?? null,
-            'indexes' => $_POST['indexes'] ?? null,
-            'fulltext_indexes' => $_POST['fulltext_indexes'] ?? null,
-            'spatial_indexes' => $_POST['spatial_indexes'] ?? null,
-            'table' => $_POST['table'] ?? null,
-            'comment' => $_POST['comment'] ?? null,
-            'tbl_collation' => $_POST['tbl_collation'] ?? null,
-            'charsets' => $charsetsList,
-            'tbl_storage_engine' => $_POST['tbl_storage_engine'] ?? null,
-            'storage_engines' => $storageEngines,
-            'connection' => $_POST['connection'] ?? null,
-            'change_column' => $_POST['change_column'] ?? $_GET['change_column'] ?? null,
-            'is_virtual_columns_supported' => Compatibility::isVirtualColumnsSupported($dbi->getVersion()),
+            'is_backup'                     => $is_backup,
+            'fields_meta'                   => $fields_meta ?? null,
+            'relation_parameters'           => $relationParameters,
+            'action'                        => $action,
+            'form_params'                   => $form_params,
+            'content_cells'                 => $content_cells,
+            'partition_details'             => $partitionDetails,
+            'primary_indexes'               => $_POST['primary_indexes'] ?? null,
+            'unique_indexes'                => $_POST['unique_indexes'] ?? null,
+            'indexes'                       => $_POST['indexes'] ?? null,
+            'fulltext_indexes'              => $_POST['fulltext_indexes'] ?? null,
+            'spatial_indexes'               => $_POST['spatial_indexes'] ?? null,
+            'table'                         => $_POST['table'] ?? null,
+            'comment'                       => $_POST['comment'] ?? null,
+            'tbl_collation'                 => $_POST['tbl_collation'] ?? null,
+            'charsets'                      => $charsetsList,
+            'tbl_storage_engine'            => $_POST['tbl_storage_engine'] ?? null,
+            'storage_engines'               => $storageEngines,
+            'connection'                    => $_POST['connection'] ?? null,
+            'change_column'                 => $_POST['change_column'] ?? $_GET['change_column'] ?? null,
+            'is_virtual_columns_supported'  => Compatibility::isVirtualColumnsSupported($dbi->getVersion()),
             'is_integers_length_restricted' => $isIntegersLengthRestricted,
-            'browse_mime' => $cfg['BrowseMIME'] ?? null,
-            'supports_stored_keyword' => Compatibility::supportsStoredKeywordForVirtualColumns($dbi->getVersion()),
-            'server_version' => $dbi->getVersion(),
-            'max_rows' => intval($cfg['MaxRows']),
-            'char_editing' => $cfg['CharEditing'] ?? null,
-            'attribute_types' => $dbi->types->getAttributes(),
-            'privs_available' => ($col_priv ?? false) && ($is_reload_priv ?? false),
-            'max_length' => $dbi->getVersion() >= 50503 ? 1024 : 255,
-            'have_partitioning' => Partition::havePartitioning(),
-            'dbi' => $dbi,
-            'disable_is' => $cfg['Server']['DisableIS'],
+            'browse_mime'                   => $cfg['BrowseMIME'] ?? null,
+            'supports_stored_keyword'       => Compatibility::supportsStoredKeywordForVirtualColumns($dbi->getVersion()),
+            'server_version'                => $dbi->getVersion(),
+            'max_rows'                      => intval($cfg['MaxRows']),
+            'char_editing'                  => $cfg['CharEditing'] ?? null,
+            'attribute_types'               => $dbi->types->getAttributes(),
+            'privs_available'               => ($col_priv ?? false) && ($is_reload_priv ?? false),
+            'max_length'                    => $dbi->getVersion() >= 50503 ? 1024 : 255,
+            'have_partitioning'             => Partition::havePartitioning(),
+            'dbi'                           => $dbi,
+            'disable_is'                    => $cfg['Server']['DisableIS'],
         ];
     }
 }

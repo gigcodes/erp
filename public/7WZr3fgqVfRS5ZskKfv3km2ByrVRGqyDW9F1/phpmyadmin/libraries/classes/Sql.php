@@ -69,21 +69,21 @@ class Sql
         Transformations $transformations,
         Template $template
     ) {
-        $this->dbi = $dbi;
-        $this->relation = $relation;
+        $this->dbi             = $dbi;
+        $this->relation        = $relation;
         $this->relationCleanup = $relationCleanup;
-        $this->operations = $operations;
+        $this->operations      = $operations;
         $this->transformations = $transformations;
-        $this->template = $template;
+        $this->template        = $template;
     }
 
     /**
      * Handle remembered sorting order, only for single table query
      *
-     * @param  string  $db                 database name
-     * @param  string  $table              table name
-     * @param  array  $analyzedSqlResults the analyzed query results
-     * @param  string  $fullSqlQuery       SQL query
+     * @param string $db                 database name
+     * @param string $table              table name
+     * @param array  $analyzedSqlResults the analyzed query results
+     * @param string $fullSqlQuery       SQL query
      */
     private function handleSortOrder(
         $db,
@@ -132,7 +132,8 @@ class Sql
     /**
      * Append limit clause to SQL query
      *
-     * @param  array  $analyzedSqlResults the analyzed query results
+     * @param array $analyzedSqlResults the analyzed query results
+     *
      * @return string limit clause appended SQL query
      */
     private function getSqlWithLimitClause(array $analyzedSqlResults)
@@ -148,12 +149,12 @@ class Sql
     /**
      * Verify whether the result set has columns from just one table
      *
-     * @param  array  $fieldsMeta meta fields
+     * @param array $fieldsMeta meta fields
      */
     private function resultSetHasJustOneTable(array $fieldsMeta): bool
     {
         $justOneTable = true;
-        $prevTable = '';
+        $prevTable    = '';
         foreach ($fieldsMeta as $oneFieldMeta) {
             if ($oneFieldMeta->table != '' && $prevTable != '' && $oneFieldMeta->table != $prevTable) {
                 $justOneTable = false;
@@ -173,13 +174,13 @@ class Sql
      * Verify whether the result set contains all the columns
      * of at least one unique key
      *
-     * @param  string  $db         database name
-     * @param  string  $table      table name
-     * @param  array  $fieldsMeta meta fields
+     * @param string $db         database name
+     * @param string $table      table name
+     * @param array  $fieldsMeta meta fields
      */
     private function resultSetContainsUniqueKey(string $db, string $table, array $fieldsMeta): bool
     {
-        $columns = $this->dbi->getColumns($db, $table);
+        $columns              = $this->dbi->getColumns($db, $table);
         $resultSetColumnNames = [];
         foreach ($fieldsMeta as $oneMeta) {
             $resultSetColumnNames[] = $oneMeta->name;
@@ -191,7 +192,7 @@ class Sql
             }
 
             $indexColumns = $index->getColumns();
-            $numberFound = 0;
+            $numberFound  = 0;
             foreach (array_keys($indexColumns) as $indexColumnName) {
                 if (
                     ! in_array($indexColumnName, $resultSetColumnNames)
@@ -217,10 +218,11 @@ class Sql
      * During grid edit, if we have a relational field, returns the html for the
      * dropdown
      *
-     * @param  string  $db           current database
-     * @param  string  $table        current table
-     * @param  string  $column       current column
-     * @param  string  $currentValue current selected value
+     * @param string $db           current database
+     * @param string $table        current table
+     * @param string $column       current column
+     * @param string $currentValue current selected value
+     *
      * @return string html for the dropdown
      */
     public function getHtmlForRelationalColumnDropdown($db, $table, $column, $currentValue)
@@ -233,14 +235,14 @@ class Sql
             //Handle the case when number of values
             //is more than $cfg['ForeignKeyMaxLimit']
             $urlParams = [
-                'db' => $db,
+                'db'    => $db,
                 'table' => $table,
                 'field' => $column,
             ];
 
             $dropdown = $this->template->render('sql/relational_column_dropdown', [
                 'current_value' => $_POST['curr_value'],
-                'params' => $urlParams,
+                'params'        => $urlParams,
             ]);
         } else {
             $dropdown = $this->relation->foreignDropdown(
@@ -261,24 +263,24 @@ class Sql
     {
         $profiling = [
             'total_time' => 0,
-            'states' => [],
-            'chart' => [],
-            'profile' => [],
+            'states'     => [],
+            'chart'      => [],
+            'profile'    => [],
         ];
 
         foreach ($profilingResults as $oneResult) {
             $status = ucwords($oneResult['Status']);
             $profiling['total_time'] += $oneResult['Duration'];
             $profiling['profile'][] = [
-                'status' => $status,
-                'duration' => Util::formatNumber($oneResult['Duration'], 3, 1),
+                'status'       => $status,
+                'duration'     => Util::formatNumber($oneResult['Duration'], 3, 1),
                 'duration_raw' => $oneResult['Duration'],
             ];
 
             if (! isset($profiling['states'][$status])) {
                 $profiling['states'][$status] = [
                     'total_time' => $oneResult['Duration'],
-                    'calls' => 1,
+                    'calls'      => 1,
                 ];
                 $profiling['chart'][$status] = $oneResult['Duration'];
             } else {
@@ -317,9 +319,10 @@ class Sql
     /**
      * Get all the values for a enum column or set column in a table
      *
-     * @param  string  $db     current database
-     * @param  string  $table  current table
-     * @param  string  $column current column
+     * @param string $db     current database
+     * @param string $table  current table
+     * @param string $column current column
+     *
      * @return array|null array containing the value list for the column, null on failure
      */
     public function getValuesForColumn(string $db, string $table, string $column): ?array
@@ -338,8 +341,8 @@ class Sql
     /**
      * Function to check whether to remember the sorting order or not
      *
-     * @param  array  $analyzedSqlResults the analyzed query and other variables set
-     *                                    after analyzing the query
+     * @param array $analyzedSqlResults the analyzed query and other variables set
+     *                                  after analyzing the query
      */
     private function isRememberSortingOrder(array $analyzedSqlResults): bool
     {
@@ -359,8 +362,8 @@ class Sql
     /**
      * Function to check whether the LIMIT clause should be appended or not
      *
-     * @param  array  $analyzedSqlResults the analyzed query and other variables set
-     *                                    after analyzing the query
+     * @param array $analyzedSqlResults the analyzed query and other variables set
+     *                                  after analyzing the query
      */
     private function isAppendLimitClause(array $analyzedSqlResults): bool
     {
@@ -381,9 +384,9 @@ class Sql
     /**
      * Function to check whether this query is for just browsing
      *
-     * @param  array<string, mixed>  $analyzedSqlResults the analyzed query and other variables set
-     *                                                   after analyzing the query
-     * @param  bool|null  $findRealEnd        whether the real end should be found
+     * @param array<string, mixed> $analyzedSqlResults the analyzed query and other variables set
+     *                                                 after analyzing the query
+     * @param bool|null            $findRealEnd        whether the real end should be found
      */
     public static function isJustBrowsing(array $analyzedSqlResults, ?bool $findRealEnd): bool
     {
@@ -406,8 +409,8 @@ class Sql
     /**
      * Function to check whether the related transformation information should be deleted
      *
-     * @param  array  $analyzedSqlResults the analyzed query and other variables set
-     *                                    after analyzing the query
+     * @param array $analyzedSqlResults the analyzed query and other variables set
+     *                                  after analyzing the query
      */
     private function isDeleteTransformationInfo(array $analyzedSqlResults): bool
     {
@@ -419,10 +422,10 @@ class Sql
     /**
      * Function to check whether the user has rights to drop the database
      *
-     * @param  array  $analyzedSqlResults    the analyzed query and other variables set
-     *                                       after analyzing the query
-     * @param  bool  $allowUserDropDatabase whether the user is allowed to drop db
-     * @param  bool  $isSuperUser           whether this user is a superuser
+     * @param array $analyzedSqlResults    the analyzed query and other variables set
+     *                                     after analyzing the query
+     * @param bool  $allowUserDropDatabase whether the user is allowed to drop db
+     * @param bool  $isSuperUser           whether this user is a superuser
      */
     public function hasNoRightsToDropDatabase(
         array $analyzedSqlResults,
@@ -438,8 +441,9 @@ class Sql
     /**
      * Function to set a column property
      *
-     * @param  Table  $table        Table instance
-     * @param  string  $requestIndex col_order|col_visib
+     * @param Table  $table        Table instance
+     * @param string $requestIndex col_order|col_visib
+     *
      * @return bool|Message
      */
     public function setColumnProperty(Table $table, string $requestIndex)
@@ -462,13 +466,14 @@ class Sql
     /**
      * Function to find the real end of rows
      *
-     * @param  string  $db    the current database
-     * @param  string  $table the current table
+     * @param string $db    the current database
+     * @param string $table the current table
+     *
      * @return mixed the number of rows if "retain" param is true, otherwise true
      */
     public function findRealEndOfRows($db, $table)
     {
-        $unlimNumRows = $this->dbi->getTable($db, $table)->countRecords(true);
+        $unlimNumRows              = $this->dbi->getTable($db, $table)->countRecords(true);
         $_SESSION['tmpval']['pos'] = $this->getStartPosToDisplayRow($unlimNumRows);
 
         return $unlimNumRows;
@@ -477,8 +482,9 @@ class Sql
     /**
      * Function to get the default sql query for browsing page
      *
-     * @param  string  $db    the current database
-     * @param  string  $table the current table
+     * @param string $db    the current database
+     * @param string $table the current table
+     *
      * @return string the default $sql_query for browse page
      */
     public function getDefaultSqlQueryForBrowse($db, $table): string
@@ -504,7 +510,7 @@ class Sql
             && ($GLOBALS['cfg']['TablePrimaryKeyOrder'] !== 'NONE')
         ) {
             $primaryKey = null;
-            $primary = Index::getPrimary($table, $db);
+            $primary    = Index::getPrimary($table, $db);
 
             if ($primary !== false) {
                 $primarycols = $primary->getColumns();
@@ -529,14 +535,14 @@ class Sql
     /**
      * Responds an error when an error happens when executing the query
      *
-     * @param  bool  $isGotoFile   whether goto file or not
-     * @param  string  $error        error after executing the query
-     * @param  string  $fullSqlQuery full sql query
+     * @param bool   $isGotoFile   whether goto file or not
+     * @param string $error        error after executing the query
+     * @param string $fullSqlQuery full sql query
      */
     private function handleQueryExecuteError($isGotoFile, $error, $fullSqlQuery): void
     {
         if ($isGotoFile) {
-            $message = Message::rawError($error);
+            $message  = Message::rawError($error);
             $response = ResponseRenderer::getInstance();
             $response->setRequestStatus(false);
             $response->addJSON('message', $message);
@@ -550,11 +556,12 @@ class Sql
     /**
      * Function to store the query as a bookmark
      *
-     * @param  string  $db                  the current database
-     * @param  string  $bookmarkUser        the bookmarking user
-     * @param  string  $sqlQueryForBookmark the query to be stored in bookmark
-     * @param  string  $bookmarkLabel       bookmark label
-     * @param  bool  $bookmarkReplace     whether to replace existing bookmarks
+     * @param string           $db                  the current database
+     * @param string           $bookmarkUser        the bookmarking user
+     * @param string           $sqlQueryForBookmark the query to be stored in bookmark
+     * @param string           $bookmarkLabel       bookmark label
+     * @param bool             $bookmarkReplace     whether to replace existing bookmarks
+     * @param ?BookmarkFeature $bookmarkFeature
      */
     public function storeTheQueryAsBookmark(
         ?BookmarkFeature $bookmarkFeature,
@@ -565,10 +572,10 @@ class Sql
         bool $bookmarkReplace
     ): void {
         $bfields = [
-            'bkm_database' => $db,
-            'bkm_user' => $bookmarkUser,
+            'bkm_database'  => $db,
+            'bkm_user'      => $bookmarkUser,
             'bkm_sql_query' => $sqlQueryForBookmark,
-            'bkm_label' => $bookmarkLabel,
+            'bkm_label'     => $bookmarkLabel,
         ];
 
         // Should we replace bookmark?
@@ -599,8 +606,9 @@ class Sql
     /**
      * Function to get the affected or changed number of rows after executing a query
      *
-     * @param  bool  $isAffected whether the query affected a table
-     * @param  ResultInterface|false  $result     results of executing the query
+     * @param bool                  $isAffected whether the query affected a table
+     * @param ResultInterface|false $result     results of executing the query
+     *
      * @return int|string number of rows affected or changed
      *
      * @psalm-return int|numeric-string
@@ -622,7 +630,8 @@ class Sql
      * Checks if the current database has changed
      * This could happen if the user sends a query like "USE `database`;"
      *
-     * @param  string  $db the database in the query
+     * @param string $db the database in the query
+     *
      * @return bool whether to reload the navigation(1) or not(0)
      */
     private function hasCurrentDbChanged(string $db): bool
@@ -640,10 +649,10 @@ class Sql
     /**
      * If a table, database or column gets dropped, clean comments.
      *
-     * @param  string  $db     current database
-     * @param  string  $table  current table
-     * @param  string|null  $column current column
-     * @param  bool  $purge  whether purge set or not
+     * @param string      $db     current database
+     * @param string      $table  current table
+     * @param string|null $column current column
+     * @param bool        $purge  whether purge set or not
      */
     private function cleanupRelations(string $db, string $table, ?string $column, bool $purge): void
     {
@@ -666,11 +675,11 @@ class Sql
      * Function to count the total number of rows for the same 'SELECT' query without
      * the 'LIMIT' clause that may have been programmatically added
      *
-     * @param  int|string  $numRows            number of rows affected/changed by the query
-     * @param  bool  $justBrowsing       whether just browsing or not
-     * @param  string  $db                 the current database
-     * @param  string  $table              the current table
-     * @param  array  $analyzedSqlResults the analyzed query and other variables set after analyzing the query
+     * @param int|string $numRows            number of rows affected/changed by the query
+     * @param bool       $justBrowsing       whether just browsing or not
+     * @param string     $db                 the current database
+     * @param string     $table              the current table
+     * @param array      $analyzedSqlResults the analyzed query and other variables set after analyzing the query
      *
      * @psalm-param int|numeric-string $numRows
      *
@@ -731,7 +740,7 @@ class Sql
             } else {
                 $statement = $analyzedSqlResults['statement'];
                 $tokenList = $analyzedSqlResults['parser']->list;
-                $replaces = [
+                $replaces  = [
                     // Remove ORDER BY to decrease unnecessary sorting time
                     [
                         'ORDER BY',
@@ -763,14 +772,14 @@ class Sql
     /**
      * Function to handle all aspects relating to executing the query
      *
-     * @param  array  $analyzedSqlResults  analyzed sql results
-     * @param  string  $fullSqlQuery        full sql query
-     * @param  bool  $isGotoFile          whether to go to a file
-     * @param  string  $db                  current database
-     * @param  string|null  $table               current table
-     * @param  bool|null  $findRealEnd         whether to find the real end
-     * @param  string|null  $sqlQueryForBookmark sql query to be stored as bookmark
-     * @param  array|null  $extraData           extra data
+     * @param array       $analyzedSqlResults  analyzed sql results
+     * @param string      $fullSqlQuery        full sql query
+     * @param bool        $isGotoFile          whether to go to a file
+     * @param string      $db                  current database
+     * @param string|null $table               current table
+     * @param bool|null   $findRealEnd         whether to find the real end
+     * @param string|null $sqlQueryForBookmark sql query to be stored as bookmark
+     * @param array|null  $extraData           extra data
      *
      * @psalm-return array{
      *  ResultInterface|false|null,
@@ -795,9 +804,9 @@ class Sql
 
         // Only if we ask to see the php code
         if (isset($GLOBALS['show_as_php'])) {
-            $result = null;
-            $numRows = 0;
-            $unlimNumRows = 0;
+            $result           = null;
+            $numRows          = 0;
+            $unlimNumRows     = 0;
             $profilingResults = null;
         } else { // If we don't ask to see the php code
             Profiling::enable($this->dbi);
@@ -807,7 +816,7 @@ class Sql
                 session_write_close();
             }
 
-            $result = $this->dbi->tryQuery($fullSqlQuery);
+            $result               = $this->dbi->tryQuery($fullSqlQuery);
             $GLOBALS['querytime'] = $this->dbi->lastQueryExecutionTime;
 
             if (! defined('TESTSUITE')) {
@@ -856,13 +865,13 @@ class Sql
             ) {
                 // to refresh the list of indexes (Ajax mode)
 
-                $indexes = Index::getFromTable($table, $db);
+                $indexes           = Index::getFromTable($table, $db);
                 $indexesDuplicates = Index::findDuplicates($table, $db);
-                $template = new Template();
+                $template          = new Template();
 
                 $extraData['indexes_list'] = $template->render('indexes', [
-                    'url_params' => $GLOBALS['urlParams'],
-                    'indexes' => $indexes,
+                    'url_params'         => $GLOBALS['urlParams'],
+                    'indexes'            => $indexes,
                     'indexes_duplicates' => $indexesDuplicates,
                 ]);
             }
@@ -880,9 +889,9 @@ class Sql
     /**
      * Delete related transformation information
      *
-     * @param  string  $db                 current database
-     * @param  string  $table              current table
-     * @param  array  $analyzedSqlResults analyzed sql results
+     * @param string $db                 current database
+     * @param string $table              current table
+     * @param array  $analyzedSqlResults analyzed sql results
      */
     private function deleteTransformationInfo(string $db, string $table, array $analyzedSqlResults): void
     {
@@ -907,9 +916,9 @@ class Sql
     /**
      * Function to get the message for the no rows returned case
      *
-     * @param  string|null  $messageToShow      message to show
-     * @param  array  $analyzedSqlResults analyzed sql results
-     * @param  int|string  $numRows            number of rows
+     * @param string|null $messageToShow      message to show
+     * @param array       $analyzedSqlResults analyzed sql results
+     * @param int|string  $numRows            number of rows
      */
     private function getMessageForNoRowsReturned(
         ?string $messageToShow,
@@ -989,17 +998,17 @@ class Sql
      * 6-> When searching using the SEARCH tab which returns zero results
      * 7-> When changing the structure of the table except change operation
      *
-     * @param  array  $analyzedSqlResults   analyzed sql results
-     * @param  string  $db                   current database
-     * @param  string|null  $table                current table
-     * @param  string|null  $messageToShow        message to show
-     * @param  int|string  $numRows              number of rows
-     * @param  DisplayResults  $displayResultsObject DisplayResult instance
-     * @param  array|null  $extraData            extra data
-     * @param  array|null  $profilingResults     profiling results
-     * @param  ResultInterface|false|null  $result               executed query results
-     * @param  string  $sqlQuery             sql query
-     * @param  string|null  $completeQuery        complete sql query
+     * @param array                      $analyzedSqlResults   analyzed sql results
+     * @param string                     $db                   current database
+     * @param string|null                $table                current table
+     * @param string|null                $messageToShow        message to show
+     * @param int|string                 $numRows              number of rows
+     * @param DisplayResults             $displayResultsObject DisplayResult instance
+     * @param array|null                 $extraData            extra data
+     * @param array|null                 $profilingResults     profiling results
+     * @param ResultInterface|false|null $result               executed query results
+     * @param string                     $sqlQuery             sql query
+     * @param string|null                $completeQuery        complete sql query
      *
      * @psalm-param int|numeric-string $numRows
      *
@@ -1036,7 +1045,7 @@ class Sql
 
         if (! empty($GLOBALS['reload'])) {
             $extraData['reload'] = 1;
-            $extraData['db'] = $GLOBALS['db'];
+            $extraData['db']     = $GLOBALS['db'];
         }
 
         // For ajax requests add message and sql_query as JSON
@@ -1055,12 +1064,12 @@ class Sql
         }
 
         $displayParts = [
-            'edit_lnk' => null,
-            'del_lnk' => null,
-            'sort_lnk' => '1',
-            'nav_bar' => '0',
-            'bkm_form' => '1',
-            'text_btn' => '1',
+            'edit_lnk'  => null,
+            'del_lnk'   => null,
+            'sort_lnk'  => '1',
+            'nav_bar'   => '0',
+            'bkm_form'  => '1',
+            'text_btn'  => '1',
             'pview_lnk' => '1',
         ];
 
@@ -1078,15 +1087,15 @@ class Sql
 
         $profilingChart = '';
         if ($profilingResults !== null) {
-            $header = $response->getHeader();
+            $header  = $response->getHeader();
             $scripts = $header->getScripts();
             $scripts->addFile('sql.js');
 
-            $profiling = $this->getDetailedProfilingStats($profilingResults);
+            $profiling      = $this->getDetailedProfilingStats($profilingResults);
             $profilingChart = $this->template->render('sql/profiling_chart', ['profiling' => $profiling]);
         }
 
-        $bookmark = '';
+        $bookmark        = '';
         $bookmarkFeature = $this->relation->getRelationParameters()->bookmarkFeature;
         if (
             $bookmarkFeature !== null
@@ -1094,38 +1103,38 @@ class Sql
             && $sqlQuery
         ) {
             $bookmark = $this->template->render('sql/bookmark', [
-                'db' => $db,
+                'db'   => $db,
                 'goto' => Url::getFromRoute('/sql', [
-                    'db' => $db,
-                    'table' => $table,
-                    'sql_query' => $sqlQuery,
+                    'db'          => $db,
+                    'table'       => $table,
+                    'sql_query'   => $sqlQuery,
                     'id_bookmark' => 1,
                 ]),
-                'user' => $GLOBALS['cfg']['Server']['user'],
+                'user'      => $GLOBALS['cfg']['Server']['user'],
                 'sql_query' => $completeQuery ?? $sqlQuery,
             ]);
         }
 
         return $this->template->render('sql/no_results_returned', [
-            'message' => $queryMessage,
+            'message'                 => $queryMessage,
             'sql_query_results_table' => $sqlQueryResultsTable,
-            'profiling_chart' => $profilingChart,
-            'bookmark' => $bookmark,
-            'db' => $db,
-            'table' => $table,
-            'sql_query' => $sqlQuery,
-            'is_procedure' => ! empty($analyzedSqlResults['procedure']),
+            'profiling_chart'         => $profilingChart,
+            'bookmark'                => $bookmark,
+            'db'                      => $db,
+            'table'                   => $table,
+            'sql_query'               => $sqlQuery,
+            'is_procedure'            => ! empty($analyzedSqlResults['procedure']),
         ]);
     }
 
     /**
      * Function to send response for ajax grid edit
      *
-     * @param  ResultInterface  $result result of the executed query
+     * @param ResultInterface $result result of the executed query
      */
     private function getResponseForGridEdit(ResultInterface $result): void
     {
-        $row = $result->fetchRow();
+        $row        = $result->fetchRow();
         $fieldsMeta = $this->dbi->getFieldsMeta($result);
 
         if (isset($fieldsMeta[0]) && $fieldsMeta[0]->isBinary()) {
@@ -1157,16 +1166,16 @@ class Sql
     /**
      * Function to get html for the sql query results table
      *
-     * @param  DisplayResults  $displayResultsObject instance of DisplayResult
-     * @param  array  $displayParts         the parts to display
-     * @param  bool  $editable             whether the result table is
+     * @param DisplayResults             $displayResultsObject instance of DisplayResult
+     * @param array                      $displayParts         the parts to display
+     * @param bool                       $editable             whether the result table is
      *                                                         editable or not
-     * @param  int|string  $unlimNumRows         unlimited number of rows
-     * @param  int|string  $numRows              number of rows
-     * @param  array|null  $showTable            table definitions
-     * @param  ResultInterface|false|null  $result               result of the executed query
-     * @param  array  $analyzedSqlResults   analyzed sql results
-     * @param  bool  $isLimitedDisplay     Show only limited operations or not
+     * @param int|string                 $unlimNumRows         unlimited number of rows
+     * @param int|string                 $numRows              number of rows
+     * @param array|null                 $showTable            table definitions
+     * @param ResultInterface|false|null $result               result of the executed query
+     * @param array                      $analyzedSqlResults   analyzed sql results
+     * @param bool                       $isLimitedDisplay     Show only limited operations or not
      *
      * @psalm-param int|numeric-string $unlimNumRows
      * @psalm-param int|numeric-string $numRows
@@ -1182,8 +1191,8 @@ class Sql
         array $analyzedSqlResults,
         $isLimitedDisplay = false
     ): string {
-        $printView = isset($_POST['printview']) && $_POST['printview'] == '1' ? '1' : null;
-        $tableHtml = '';
+        $printView        = isset($_POST['printview']) && $_POST['printview'] == '1' ? '1' : null;
+        $tableHtml        = '';
         $isBrowseDistinct = ! empty($_POST['is_browse_distinct']);
 
         if ($analyzedSqlResults['is_procedure']) {
@@ -1201,7 +1210,7 @@ class Sql
                 $numRows = $result->numRows();
 
                 if ($numRows > 0) {
-                    $fieldsMeta = $this->dbi->getFieldsMeta($result);
+                    $fieldsMeta  = $this->dbi->getFieldsMeta($result);
                     $fieldsCount = count($fieldsMeta);
 
                     $displayResultsObject->setProperties(
@@ -1225,12 +1234,12 @@ class Sql
                     );
 
                     $displayParts = [
-                        'edit_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                        'del_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                        'sort_lnk' => '1',
-                        'nav_bar' => '1',
-                        'bkm_form' => '1',
-                        'text_btn' => '1',
+                        'edit_lnk'  => $displayResultsObject::NO_EDIT_OR_DELETE,
+                        'del_lnk'   => $displayResultsObject::NO_EDIT_OR_DELETE,
+                        'sort_lnk'  => '1',
+                        'nav_bar'   => '1',
+                        'bkm_form'  => '1',
+                        'text_btn'  => '1',
                         'pview_lnk' => '1',
                     ];
 
@@ -1250,7 +1259,7 @@ class Sql
                 $fieldsMeta = $this->dbi->getFieldsMeta($result);
             }
 
-            $fieldsCount = count($fieldsMeta);
+            $fieldsCount                = count($fieldsMeta);
             $_SESSION['is_multi_query'] = false;
             $displayResultsObject->setProperties(
                 $unlimNumRows,
@@ -1288,10 +1297,10 @@ class Sql
     /**
      * Function to get html for the previous query if there is such.
      *
-     * @param  string|null  $displayQuery   display query
-     * @param  bool  $showSql        whether to show sql
-     * @param  array  $sqlData        sql data
-     * @param  Message|string  $displayMessage display message
+     * @param string|null    $displayQuery   display query
+     * @param bool           $showSql        whether to show sql
+     * @param array          $sqlData        sql data
+     * @param Message|string $displayMessage display message
      */
     private function getHtmlForPreviousUpdateQuery(
         ?string $displayQuery,
@@ -1310,10 +1319,10 @@ class Sql
     /**
      * To get the message if a column index is missing. If not will return null
      *
-     * @param  string|null  $table        current table
-     * @param  string  $database     current database
-     * @param  bool  $editable     whether the results table can be editable or not
-     * @param  bool  $hasUniqueKey whether there is a unique key
+     * @param string|null $table        current table
+     * @param string      $database     current database
+     * @param bool        $editable     whether the results table can be editable or not
+     * @param bool        $hasUniqueKey whether there is a unique key
      */
     private function getMessageIfMissingColumnIndex(
         ?string $table,
@@ -1362,19 +1371,19 @@ class Sql
     /**
      * Function to display results when the executed query returns non empty results
      *
-     * @param  ResultInterface|false|null  $result               executed query results
-     * @param  array  $analyzedSqlResults   analysed sql results
-     * @param  string  $db                   current database
-     * @param  string|null  $table                current table
-     * @param  array|null  $sqlData              sql data
-     * @param  DisplayResults  $displayResultsObject Instance of DisplayResults
-     * @param  int|string  $unlimNumRows         unlimited number of rows
-     * @param  int|string  $numRows              number of rows
-     * @param  string|null  $dispQuery            display query
-     * @param  Message|string|null  $dispMessage          display message
-     * @param  array|null  $profilingResults     profiling results
-     * @param  string  $sqlQuery             sql query
-     * @param  string|null  $completeQuery        complete sql query
+     * @param ResultInterface|false|null $result               executed query results
+     * @param array                      $analyzedSqlResults   analysed sql results
+     * @param string                     $db                   current database
+     * @param string|null                $table                current table
+     * @param array|null                 $sqlData              sql data
+     * @param DisplayResults             $displayResultsObject Instance of DisplayResults
+     * @param int|string                 $unlimNumRows         unlimited number of rows
+     * @param int|string                 $numRows              number of rows
+     * @param string|null                $dispQuery            display query
+     * @param Message|string|null        $dispMessage          display message
+     * @param array|null                 $profilingResults     profiling results
+     * @param string                     $sqlQuery             sql query
+     * @param string|null                $completeQuery        complete sql query
      *
      * @psalm-param int|numeric-string $unlimNumRows
      * @psalm-param int|numeric-string $numRows
@@ -1417,8 +1426,8 @@ class Sql
         }
 
         $response = ResponseRenderer::getInstance();
-        $header = $response->getHeader();
-        $scripts = $header->getScripts();
+        $header   = $response->getHeader();
+        $scripts  = $header->getScripts();
 
         $justOneTable = $this->resultSetHasJustOneTable($fieldsMeta);
 
@@ -1433,7 +1442,7 @@ class Sql
         $statement = $analyzedSqlResults['statement'] ?? null;
         if ($statement instanceof SelectStatement) {
             if ($statement->expr && $statement->expr[0]->expr === '*' && $table) {
-                $_table = new Table($table, $db);
+                $_table        = new Table($table, $db);
                 $updatableView = $_table->isUpdatableView();
             }
 
@@ -1457,35 +1466,35 @@ class Sql
         $_SESSION['tmpval']['possible_as_geometry'] = $editable;
 
         $displayParts = [
-            'edit_lnk' => $displayResultsObject::UPDATE_ROW,
-            'del_lnk' => $displayResultsObject::DELETE_ROW,
-            'sort_lnk' => '1',
-            'nav_bar' => '1',
-            'bkm_form' => '1',
-            'text_btn' => '0',
+            'edit_lnk'  => $displayResultsObject::UPDATE_ROW,
+            'del_lnk'   => $displayResultsObject::DELETE_ROW,
+            'sort_lnk'  => '1',
+            'nav_bar'   => '1',
+            'bkm_form'  => '1',
+            'text_btn'  => '0',
             'pview_lnk' => '1',
         ];
 
         if (! $editable) {
             $displayParts = [
-                'edit_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                'del_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                'sort_lnk' => '1',
-                'nav_bar' => '1',
-                'bkm_form' => '1',
-                'text_btn' => '1',
+                'edit_lnk'  => $displayResultsObject::NO_EDIT_OR_DELETE,
+                'del_lnk'   => $displayResultsObject::NO_EDIT_OR_DELETE,
+                'sort_lnk'  => '1',
+                'nav_bar'   => '1',
+                'bkm_form'  => '1',
+                'text_btn'  => '1',
                 'pview_lnk' => '1',
             ];
         }
 
         if (isset($_POST['printview']) && $_POST['printview'] == '1') {
             $displayParts = [
-                'edit_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                'del_lnk' => $displayResultsObject::NO_EDIT_OR_DELETE,
-                'sort_lnk' => '0',
-                'nav_bar' => '0',
-                'bkm_form' => '0',
-                'text_btn' => '0',
+                'edit_lnk'  => $displayResultsObject::NO_EDIT_OR_DELETE,
+                'del_lnk'   => $displayResultsObject::NO_EDIT_OR_DELETE,
+                'sort_lnk'  => '0',
+                'nav_bar'   => '0',
+                'bkm_form'  => '0',
+                'text_btn'  => '0',
                 'pview_lnk' => '0',
             ];
         }
@@ -1508,7 +1517,7 @@ class Sql
 
         $profilingChartHtml = '';
         if ($profilingResults) {
-            $profiling = $this->getDetailedProfilingStats($profilingResults);
+            $profiling          = $this->getDetailedProfilingStats($profilingResults);
             $profilingChartHtml = $this->template->render('sql/profiling_chart', ['profiling' => $profiling]);
         }
 
@@ -1528,7 +1537,7 @@ class Sql
         );
 
         $bookmarkSupportHtml = '';
-        $bookmarkFeature = $this->relation->getRelationParameters()->bookmarkFeature;
+        $bookmarkFeature     = $this->relation->getRelationParameters()->bookmarkFeature;
         if (
             $bookmarkFeature !== null
             && $displayParts['bkm_form'] == '1'
@@ -1536,45 +1545,45 @@ class Sql
             && $sqlQuery
         ) {
             $bookmarkSupportHtml = $this->template->render('sql/bookmark', [
-                'db' => $db,
+                'db'   => $db,
                 'goto' => Url::getFromRoute('/sql', [
-                    'db' => $db,
-                    'table' => $table,
-                    'sql_query' => $sqlQuery,
+                    'db'          => $db,
+                    'table'       => $table,
+                    'sql_query'   => $sqlQuery,
                     'id_bookmark' => 1,
                 ]),
-                'user' => $GLOBALS['cfg']['Server']['user'],
+                'user'      => $GLOBALS['cfg']['Server']['user'],
                 'sql_query' => $completeQuery ?? $sqlQuery,
             ]);
         }
 
         return $this->template->render('sql/sql_query_results', [
-            'previous_update_query' => $previousUpdateQueryHtml,
-            'profiling_chart' => $profilingChartHtml,
+            'previous_update_query'         => $previousUpdateQueryHtml,
+            'profiling_chart'               => $profilingChartHtml,
             'missing_unique_column_message' => $missingUniqueColumnMessage,
-            'bookmark_created_message' => $bookmarkCreatedMessage,
-            'table' => $tableHtml,
-            'bookmark_support' => $bookmarkSupportHtml,
+            'bookmark_created_message'      => $bookmarkCreatedMessage,
+            'table'                         => $tableHtml,
+            'bookmark_support'              => $bookmarkSupportHtml,
         ]);
     }
 
     /**
      * Function to execute the query and send the response
      *
-     * @param  array|null  $analyzedSqlResults  analysed sql results
-     * @param  bool  $isGotoFile          whether goto file or not
-     * @param  string  $db                  current database
-     * @param  string|null  $table               current table
-     * @param  bool|null  $findRealEnd         whether to find real end or not
-     * @param  string|null  $sqlQueryForBookmark the sql query to be stored as bookmark
-     * @param  array|null  $extraData           extra data
-     * @param  string|null  $messageToShow       message to show
-     * @param  array|null  $sqlData             sql data
-     * @param  string  $goto                goto page url
-     * @param  string|null  $dispQuery           display query
-     * @param  Message|string|null  $dispMessage         display message
-     * @param  string  $sqlQuery            sql query
-     * @param  string|null  $completeQuery       complete query
+     * @param array|null          $analyzedSqlResults  analysed sql results
+     * @param bool                $isGotoFile          whether goto file or not
+     * @param string              $db                  current database
+     * @param string|null         $table               current table
+     * @param bool|null           $findRealEnd         whether to find real end or not
+     * @param string|null         $sqlQueryForBookmark the sql query to be stored as bookmark
+     * @param array|null          $extraData           extra data
+     * @param string|null         $messageToShow       message to show
+     * @param array|null          $sqlData             sql data
+     * @param string              $goto                goto page url
+     * @param string|null         $dispQuery           display query
+     * @param Message|string|null $dispMessage         display message
+     * @param string              $sqlQuery            sql query
+     * @param string|null         $completeQuery       complete query
      */
     public function executeQueryAndSendQueryResponse(
         $analyzedSqlResults,
@@ -1624,20 +1633,21 @@ class Sql
     /**
      * Function to execute the query and send the response
      *
-     * @param  array  $analyzedSqlResults  analysed sql results
-     * @param  bool  $isGotoFile          whether goto file or not
-     * @param  string  $db                  current database
-     * @param  string|null  $table               current table
-     * @param  bool|null  $findRealEnd         whether to find real end or not
-     * @param  string|null  $sqlQueryForBookmark the sql query to be stored as bookmark
-     * @param  array|null  $extraData           extra data
-     * @param  string|null  $messageToShow       message to show
-     * @param  array|null  $sqlData             sql data
-     * @param  string  $goto                goto page url
-     * @param  string|null  $dispQuery           display query
-     * @param  Message|string|null  $dispMessage         display message
-     * @param  string  $sqlQuery            sql query
-     * @param  string|null  $completeQuery       complete query
+     * @param array               $analyzedSqlResults  analysed sql results
+     * @param bool                $isGotoFile          whether goto file or not
+     * @param string              $db                  current database
+     * @param string|null         $table               current table
+     * @param bool|null           $findRealEnd         whether to find real end or not
+     * @param string|null         $sqlQueryForBookmark the sql query to be stored as bookmark
+     * @param array|null          $extraData           extra data
+     * @param string|null         $messageToShow       message to show
+     * @param array|null          $sqlData             sql data
+     * @param string              $goto                goto page url
+     * @param string|null         $dispQuery           display query
+     * @param Message|string|null $dispMessage         display message
+     * @param string              $sqlQuery            sql query
+     * @param string|null         $completeQuery       complete query
+     *
      * @return string html
      */
     public function executeQueryAndGetQueryResponse(
@@ -1769,7 +1779,8 @@ class Sql
     /**
      * Function to define pos to display a row
      *
-     * @param  int  $numberOfLine Number of the line to display
+     * @param int $numberOfLine Number of the line to display
+     *
      * @return int Start position to display the line
      */
     private function getStartPosToDisplayRow($numberOfLine)
@@ -1783,9 +1794,10 @@ class Sql
      * Function to calculate new pos if pos is higher than number of rows
      * of displayed table
      *
-     * @param  string  $db    Database name
-     * @param  string  $table Table name
-     * @param  int|null  $pos   Initial position
+     * @param string   $db    Database name
+     * @param string   $table Table name
+     * @param int|null $pos   Initial position
+     *
      * @return int Number of pos to display last page
      */
     public function calculatePosForLastPage($db, $table, $pos)
@@ -1794,7 +1806,7 @@ class Sql
             $pos = $_SESSION['tmpval']['pos'];
         }
 
-        $tableObject = new Table($table, $db);
+        $tableObject  = new Table($table, $db);
         $unlimNumRows = $tableObject->countRecords(true);
         //If position is higher than number of rows
         if ($unlimNumRows <= $pos && $pos != 0) {

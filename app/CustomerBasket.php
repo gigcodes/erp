@@ -11,7 +11,6 @@ class CustomerBasket extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="customer_name",type="string")

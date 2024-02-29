@@ -33,12 +33,12 @@ class ArticleController extends Controller
      */
     public function updateTitle(Request $request)
     {
-        $article = Article::findOrFail($request['id']);
+        $article        = Article::findOrFail($request['id']);
         $article->title = $request['article_title'];
         $article->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Title Updated',
         ]);
     }
@@ -51,12 +51,12 @@ class ArticleController extends Controller
      */
     public function updateDescription(Request $request)
     {
-        $article = Article::findOrFail($request['id']);
+        $article              = Article::findOrFail($request['id']);
         $article->description = $request['article_desc'];
         $article->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Description Updated',
         ]);
     }

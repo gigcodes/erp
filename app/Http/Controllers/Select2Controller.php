@@ -39,12 +39,12 @@ class Select2Controller extends Controller
 
         $customers = $customers->paginate(30);
 
-        $result['total_count'] = $customers->total();
+        $result['total_count']        = $customers->total();
         $result['incomplete_results'] = $customers->nextPageUrl() !== null;
 
         foreach ($customers as $customer) {
             $result['items'][] = [
-                'id' => $customer->id,
+                'id'   => $customer->id,
                 'text' => $customer->name,
             ];
         }
@@ -62,13 +62,13 @@ class Select2Controller extends Controller
                     ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
         }
-        $suppliers = $suppliers->paginate(30);
-        $result['total_count'] = $suppliers->total();
+        $suppliers                    = $suppliers->paginate(30);
+        $result['total_count']        = $suppliers->total();
         $result['incomplete_results'] = $suppliers->nextPageUrl() !== null;
 
         foreach ($suppliers as $supplier) {
             $result['items'][] = [
-                'id' => $supplier->id,
+                'id'   => $supplier->id,
                 'text' => $supplier->supplier,
             ];
         }
@@ -79,7 +79,7 @@ class Select2Controller extends Controller
     public function scrapedBrand(Request $request)
     {
         $scrapedBrandsRaw = Supplier::selectRaw('scraped_brands_raw')->whereNotNull('scraped_brands_raw')->get();
-        $rawBrands = [];
+        $rawBrands        = [];
 
         foreach ($scrapedBrandsRaw as $key => $value) {
             array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
@@ -99,7 +99,7 @@ class Select2Controller extends Controller
         foreach ($finalBrands as $key => $supplier) {
             if (strip_tags($supplier)) {
                 $result['items'][] = [
-                    'id' => strip_tags($supplier),
+                    'id'   => strip_tags($supplier),
                     'text' => strip_tags($supplier),
                 ];
             }
@@ -115,12 +115,12 @@ class Select2Controller extends Controller
 
         $suppliers = $suppliers->paginate(30);
 
-        $result['total_count'] = $suppliers->total();
+        $result['total_count']        = $suppliers->total();
         $result['incomplete_results'] = $suppliers->nextPageUrl() !== null;
 
         foreach ($suppliers as $supplier) {
             $result['items'][] = [
-                'id' => $supplier->id,
+                'id'   => $supplier->id,
                 'text' => $supplier->name,
             ];
         }
@@ -141,7 +141,7 @@ class Select2Controller extends Controller
 
         $users = $users->orderBy('name', 'asc')->paginate(30);
 
-        $result['total_count'] = $users->total();
+        $result['total_count']        = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
 
         foreach ($users as $user) {
@@ -152,7 +152,7 @@ class Select2Controller extends Controller
             }
 
             $result['items'][] = [
-                'id' => $user->id,
+                'id'   => $user->id,
                 'text' => $text,
             ];
         }
@@ -173,7 +173,7 @@ class Select2Controller extends Controller
 
         $users = $users->orderBy('name', 'asc')->paginate(30);
 
-        $result['total_count'] = $users->total();
+        $result['total_count']        = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
 
         foreach ($users as $user) {
@@ -184,7 +184,7 @@ class Select2Controller extends Controller
             }
 
             $result['items'][] = [
-                'id' => $user->id,
+                'id'   => $user->id,
                 'text' => $text,
             ];
         }
@@ -198,7 +198,7 @@ class Select2Controller extends Controller
         }
         $vendors = $vendors->paginate(30);
 
-        $result_vendors['vendors_total_count'] = $vendors->total();
+        $result_vendors['vendors_total_count']        = $vendors->total();
         $result_vendors['vendors_incomplete_results'] = $vendors->nextPageUrl() !== null;
 
         foreach ($vendors as $user) {
@@ -209,7 +209,7 @@ class Select2Controller extends Controller
             }
 
             $result_vendors['items'][] = [
-                'id' => $user->id,
+                'id'   => $user->id,
                 'text' => $text,
             ];
         }
@@ -235,12 +235,12 @@ class Select2Controller extends Controller
 
         $brands = $brands->paginate(30);
 
-        $result['total_count'] = $brands->total();
+        $result['total_count']        = $brands->total();
         $result['incomplete_results'] = $brands->nextPageUrl() !== null;
 
         foreach ($brands as $brand) {
             $result['items'][] = [
-                'id' => $brand->id,
+                'id'   => $brand->id,
                 'text' => $brand->name,
             ];
         }
@@ -277,12 +277,12 @@ class Select2Controller extends Controller
             }
             $tasks = $tasks->paginate(30);
         }
-        $result['total_count'] = $tasks->total();
+        $result['total_count']        = $tasks->total();
         $result['incomplete_results'] = $tasks->nextPageUrl() !== null;
 
         foreach ($tasks as $task) {
             $result['items'][] = [
-                'id' => $task->id,
+                'id'   => $task->id,
                 'text' => get_class($task) == \App\DeveloperTask::class ? '#DEVTASK-' . $task->id . '-' . $task->subject : '#TASK-' . $task->id . '-' . $task->task_subject,
             ];
         }
@@ -302,12 +302,12 @@ class Select2Controller extends Controller
 
         $category = $category->paginate(30);
 
-        $result['total_count'] = $category->total();
+        $result['total_count']        = $category->total();
         $result['incomplete_results'] = $category->nextPageUrl() !== null;
 
         foreach ($category as $cat) {
             $result['items'][] = [
-                'id' => $cat->id,
+                'id'   => $cat->id,
                 'text' => $cat->title,
             ];
         }
@@ -317,17 +317,17 @@ class Select2Controller extends Controller
 
     public function customersByMultiple(Request $request)
     {
-        $term = request()->get('q', null);
+        $term      = request()->get('q', null);
         $customers = \App\Customer::select('id', 'name', 'phone')->where('name', 'like', "%{$term}%")->orWhere('phone', 'like', "%{$term}%")->orWhere('id', 'like', "%{$term}%");
 
         $customers = $customers->paginate(30);
 
-        $result['total_count'] = $customers->total();
+        $result['total_count']        = $customers->total();
         $result['incomplete_results'] = $customers->nextPageUrl() !== null;
 
         foreach ($customers as $customer) {
             $result['items'][] = [
-                'id' => $customer->id,
+                'id'   => $customer->id,
                 'text' => '<strong>Name</strong>: ' . $customer->name . ' <strong>Phone</strong>: ' . $customer->phone,
             ];
         }
@@ -337,17 +337,17 @@ class Select2Controller extends Controller
 
     public function allWebsites(Request $request)
     {
-        $term = request()->get('q', null);
+        $term     = request()->get('q', null);
         $websites = \App\StoreWebsite::select('id', 'title');
 
         $websites = $websites->paginate(30);
 
-        $result['total_count'] = $websites->total();
+        $result['total_count']        = $websites->total();
         $result['incomplete_results'] = $websites->nextPageUrl() !== null;
 
         foreach ($websites as $website) {
             $result['items'][] = [
-                'id' => $website->id,
+                'id'   => $website->id,
                 'text' => $website->title,
             ];
         }
@@ -367,14 +367,14 @@ class Select2Controller extends Controller
 
         $time_doctor_accounts = $time_doctor_accounts->orderBy('time_doctor_email', 'asc')->paginate(30);
 
-        $result['total_count'] = $time_doctor_accounts->total();
+        $result['total_count']        = $time_doctor_accounts->total();
         $result['incomplete_results'] = $time_doctor_accounts->nextPageUrl() !== null;
 
         foreach ($time_doctor_accounts as $account) {
             $text = $account->time_doctor_email;
 
             $result['items'][] = [
-                'id' => $account->id,
+                'id'   => $account->id,
                 'text' => $text,
             ];
         }
@@ -408,14 +408,14 @@ class Select2Controller extends Controller
 
         $time_doctor_accounts = $time_doctor_accounts->orderBy('time_doctor_email', 'asc')->paginate(30);
 
-        $result['total_count'] = $time_doctor_accounts->total();
+        $result['total_count']        = $time_doctor_accounts->total();
         $result['incomplete_results'] = $time_doctor_accounts->nextPageUrl() !== null;
 
         foreach ($time_doctor_accounts as $account) {
             $text = $account->time_doctor_email;
 
             $result['items'][] = [
-                'id' => $account->id,
+                'id'   => $account->id,
                 'text' => $text,
             ];
         }
@@ -438,14 +438,14 @@ class Select2Controller extends Controller
 
         $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->paginate(30);
 
-        $result['total_count'] = $time_doctor_projects->total();
+        $result['total_count']        = $time_doctor_projects->total();
         $result['incomplete_results'] = $time_doctor_projects->nextPageUrl() !== null;
 
         foreach ($time_doctor_projects as $project) {
             $text = $project->time_doctor_project_name;
 
             $result['items'][] = [
-                'id' => $project->time_doctor_project_id,
+                'id'   => $project->time_doctor_project_id,
                 'text' => $text,
             ];
         }
@@ -467,7 +467,7 @@ class Select2Controller extends Controller
         }
 
         $time_doctor_projects = $time_doctor_projects->orderBy('time_doctor_project_id', 'asc')->get();
-        $response_str = "<option value=''>Select Project</option>";
+        $response_str         = "<option value=''>Select Project</option>";
         foreach ($time_doctor_projects as $project) {
             $response_str .= "<option value='" . $project->time_doctor_project_id . "'>" . $project->time_doctor_project_name . '</option>';
         }
@@ -494,13 +494,13 @@ class Select2Controller extends Controller
 
         if (empty($taskCategories)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Category not available',
             ];
         } else {
             foreach ($taskCategories as $cat) {
                 $result['items'][] = [
-                    'id' => $cat['id'],
+                    'id'   => $cat['id'],
                     'text' => $cat['title'],
                 ];
             }
@@ -523,7 +523,7 @@ class Select2Controller extends Controller
 
         foreach ($zabbixWebhookDatas as $zabbixWebhookData) {
             $result['items'][] = [
-                'id' => $zabbixWebhookData->id,
+                'id'   => $zabbixWebhookData->id,
                 'text' => $zabbixWebhookData->subject,
             ];
         }
@@ -545,7 +545,7 @@ class Select2Controller extends Controller
 
         foreach ($sopCategories as $sopCategory) {
             $result['items'][] = [
-                'id' => $sopCategory->id,
+                'id'   => $sopCategory->id,
                 'text' => $sopCategory->category_name,
             ];
         }
@@ -567,13 +567,13 @@ class Select2Controller extends Controller
 
         if (empty($dataPlatforms)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Supplier not available',
             ];
         } else {
             foreach ($dataPlatforms as $dataPlatform) {
                 $result['items'][] = [
-                    'id' => $dataPlatform->id,
+                    'id'   => $dataPlatform->id,
                     'text' => $dataPlatform->name,
                 ];
             }
@@ -596,13 +596,13 @@ class Select2Controller extends Controller
 
         if (empty($dataSuppliers)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Supplier not available',
             ];
         } else {
             foreach ($dataSuppliers as $dataSupplier) {
                 $result['items'][] = [
-                    'id' => $dataSupplier->id,
+                    'id'   => $dataSupplier->id,
                     'text' => $dataSupplier->supplier,
                 ];
             }
@@ -625,13 +625,13 @@ class Select2Controller extends Controller
 
         if (empty($dataFolderNames)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'FolderName not available',
             ];
         } else {
             foreach ($dataFolderNames as $dataFolderName) {
                 $result['items'][] = [
-                    'id' => $dataFolderName->id,
+                    'id'   => $dataFolderName->id,
                     'text' => $dataFolderName->name,
                 ];
             }
@@ -654,13 +654,13 @@ class Select2Controller extends Controller
 
         if ($uniqueColors->isEmpty()) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Supplier not available',
             ];
         } else {
             foreach ($uniqueColors as $uniqueColor) {
                 $result['items'][] = [
-                    'id' => $uniqueColor,
+                    'id'   => $uniqueColor,
                     'text' => $uniqueColor,
                 ];
             }
@@ -683,13 +683,13 @@ class Select2Controller extends Controller
 
         if ($uniqueSizeSystems->isEmpty()) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Supplier not available',
             ];
         } else {
             foreach ($uniqueSizeSystems as $uniqueSizeSystem) {
                 $result['items'][] = [
-                    'id' => $uniqueSizeSystem,
+                    'id'   => $uniqueSizeSystem,
                     'text' => $uniqueSizeSystem,
                 ];
             }
@@ -712,13 +712,13 @@ class Select2Controller extends Controller
 
         if (empty($categories)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'category not available',
             ];
         } else {
             foreach ($categories as $category) {
                 $result['items'][] = [
-                    'id' => $category->id,
+                    'id'   => $category->id,
                     'text' => $category->name,
                 ];
             }
@@ -743,13 +743,13 @@ class Select2Controller extends Controller
 
         if (empty($platforms)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'platforms not available',
             ];
         } else {
             foreach ($platforms as $key => $plat) {
                 $result['items'][] = [
-                    'id' => $key,
+                    'id'   => $key,
                     'text' => $plat,
                 ];
             }
@@ -774,13 +774,13 @@ class Select2Controller extends Controller
 
         if (empty($vocherEmails)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Emails not available',
             ];
         } else {
             foreach ($vocherEmails as $key => $email) {
                 $result['items'][] = [
-                    'id' => $email,
+                    'id'   => $email,
                     'text' => $key,
                 ];
             }
@@ -805,13 +805,13 @@ class Select2Controller extends Controller
 
         if (empty($whatsapp_configs)) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Whatsapp number not available',
             ];
         } else {
             foreach ($whatsapp_configs as $key => $number) {
                 $result['items'][] = [
-                    'id' => $key,
+                    'id'   => $key,
                     'text' => $number,
                 ];
             }
@@ -829,17 +829,17 @@ class Select2Controller extends Controller
         }
 
         $magnetoCategories = $magnetoCategories->pluck('title', 'id');
-        $result = [];
+        $result            = [];
 
         if ($magnetoCategories->isEmpty()) {
             $result['items'][] = [
-                'id' => '',
+                'id'   => '',
                 'text' => 'Categories not available',
             ];
         } else {
             foreach ($magnetoCategories as $key => $title) {
                 $result['items'][] = [
-                    'id' => $key,
+                    'id'   => $key,
                     'text' => $title,
                 ];
             }

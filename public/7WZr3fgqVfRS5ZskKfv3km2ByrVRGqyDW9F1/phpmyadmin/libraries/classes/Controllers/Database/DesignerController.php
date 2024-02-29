@@ -32,7 +32,7 @@ class DesignerController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->databaseDesigner = $databaseDesigner;
-        $this->designerCommon = $designerCommon;
+        $this->designerCommon   = $designerCommon;
     }
 
     public function __invoke(): void
@@ -53,9 +53,9 @@ class DesignerController extends AbstractController
                 $html = $this->databaseDesigner->getHtmlForSchemaExport($_POST['db'], $_POST['selected_page']);
             } elseif ($_POST['dialog'] === 'add_table') {
                 // Pass the db and table to the getTablesInfo so we only have the table we asked for
-                $script_display_field = $this->designerCommon->getTablesInfo($_POST['db'], $_POST['table']);
-                $tab_column = $this->designerCommon->getColumnsInfo($script_display_field);
-                $tables_all_keys = $this->designerCommon->getAllKeys($script_display_field);
+                $script_display_field     = $this->designerCommon->getTablesInfo($_POST['db'], $_POST['table']);
+                $tab_column               = $this->designerCommon->getColumnsInfo($script_display_field);
+                $tables_all_keys          = $this->designerCommon->getAllKeys($script_display_field);
                 $tables_pk_or_unique_keys = $this->designerCommon->getPkOrUniqueKeys($script_display_field);
 
                 $html = $this->databaseDesigner->getDatabaseTables(
@@ -151,7 +151,7 @@ class DesignerController extends AbstractController
 
         $script_display_field = $this->designerCommon->getTablesInfo();
 
-        $display_page = -1;
+        $display_page  = -1;
         $selected_page = null;
 
         $visualBuilderMode = isset($_GET['query']);
@@ -187,11 +187,11 @@ class DesignerController extends AbstractController
             }
         }
 
-        $tab_column = $this->designerCommon->getColumnsInfo($script_display_field);
-        $script_tables = $this->designerCommon->getScriptTabs($script_display_field);
+        $tab_column               = $this->designerCommon->getColumnsInfo($script_display_field);
+        $script_tables            = $this->designerCommon->getScriptTabs($script_display_field);
         $tables_pk_or_unique_keys = $this->designerCommon->getPkOrUniqueKeys($script_display_field);
-        $tables_all_keys = $this->designerCommon->getAllKeys($script_display_field);
-        $classes_side_menu = $this->databaseDesigner->returnClassNamesFromMenuButtons();
+        $tables_all_keys          = $this->designerCommon->getAllKeys($script_display_field);
+        $classes_side_menu        = $this->databaseDesigner->returnClassNamesFromMenuButtons();
 
         $script_contr = $this->designerCommon->getScriptContr($script_display_field);
 

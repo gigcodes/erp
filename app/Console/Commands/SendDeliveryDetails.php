@@ -45,20 +45,20 @@ class SendDeliveryDetails extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $params = [
-                'number' => null,
-                'user_id' => 6,
+                'number'   => null,
+                'user_id'  => 6,
                 'approved' => 0,
-                'status' => 1,
+                'status'   => 1,
             ];
 
-            $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
+            $tomorrow      = Carbon::now()->addDay()->format('Y-m-d');
             $private_views = PrivateView::where('date', 'LIKE', "%$tomorrow%")->get();
-            $coordinators = User::role('Delivery Coordinator')->get();
+            $coordinators  = User::role('Delivery Coordinator')->get();
 
             foreach ($private_views as $private_view) {
                 dump('Private Viewing');
@@ -87,7 +87,7 @@ class SendDeliveryDetails extends Command
                 foreach ($coordinators as $coordinator) {
                     dump('Sending Message to Coordinator ' . $coordinator->name);
                     $params['erp_user'] = $coordinator->id;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message       = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -99,7 +99,7 @@ class SendDeliveryDetails extends Command
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2,
+                        'status'   => 2,
                     ]);
                 }
             }

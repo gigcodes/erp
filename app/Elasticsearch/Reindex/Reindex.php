@@ -28,8 +28,8 @@ class Reindex
                 $indexer->addLog('Reindex started.');
 
                 try {
-                    $pId = getmypid();
-                    $settings = $indexer->getSettings() ?? [];
+                    $pId                   = getmypid();
+                    $settings              = $indexer->getSettings() ?? [];
                     $settings['processId'] = $pId;
                     $indexer->setSettings($settings);
                 } catch (\Exception $e) {
@@ -70,7 +70,7 @@ class Reindex
     {
         Elasticsearch::deleteByQuery([
             'index' => $index,
-            'body' => [
+            'body'  => [
                 'query' => [
                     'match_all' => (object) [],
                 ],

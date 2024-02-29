@@ -41,7 +41,7 @@ class GoogleServerController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'key' => 'required|string|max:255',
+            'key'  => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
@@ -54,7 +54,8 @@ class GoogleServerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -65,14 +66,15 @@ class GoogleServerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'key' => 'required|string|max:255',
+            'key'  => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
@@ -85,7 +87,8 @@ class GoogleServerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -99,17 +102,17 @@ class GoogleServerController extends Controller
 
     public function logGoogleCse(Request $request)
     {
-        $url = $request->url;
-        $keyword = $request->keyword;
+        $url      = $request->url;
+        $keyword  = $request->keyword;
         $response = $request->response;
-        $count = $request->count;
+        $count    = $request->count;
 
         $responseString = 'Link: ' . $response[$count]['link'] . '\n Display Link: ' . $response[$count]['displayLink'] . '\n Title : ' . $response[$count]['title'] . '\n Image Details: ' . $response[$count]['image']['contextLink'] . ' Height:' . $response[$count]['image']['height'] . ' Width : ' . $response[$count]['image']['width'] . '\n ThumbnailLink ' . $response[$count]['image']['thumbnailLink'];
 
-        $log = new LogGoogleCse();
+        $log            = new LogGoogleCse();
         $log->image_url = $url;
-        $log->keyword = $keyword;
-        $log->response = $responseString;
+        $log->keyword   = $keyword;
+        $log->response  = $responseString;
         $log->save();
     }
 }

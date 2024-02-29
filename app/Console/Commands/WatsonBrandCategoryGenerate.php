@@ -51,7 +51,7 @@ class WatsonBrandCategoryGenerate extends Command
 
                     foreach ($Query as $key => $value) {
                         $chatQueArr[] = [
-                            'question' => ucwords($value->brand . ' ' . $value->main_category . ' ' . $value->sub_category . ' ' . $value->title),
+                            'question'            => ucwords($value->brand . ' ' . $value->main_category . ' ' . $value->sub_category . ' ' . $value->title),
                             'chatbot_question_id' => 117,
                         ];
                     }

@@ -43,7 +43,7 @@ class DeleteTempImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $file_types = [
@@ -55,7 +55,7 @@ class DeleteTempImages extends Command
             ];
 
             $directory = public_path('tmp_images');
-            $files = File::allFiles($directory);
+            $files     = File::allFiles($directory);
 
             foreach ($files as $file) {
                 $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));

@@ -40,11 +40,11 @@ class MoveToNewStatusFieldOrder extends Command
     public function handle()
     {
         $order_status_ids = self::getStatusID();
-        $orders = Order::where('order_status', '!=', '')->whereNull('order_status_id')->get();
+        $orders           = Order::where('order_status', '!=', '')->whereNull('order_status_id')->get();
         if (! $orders->isEmpty()) {
             foreach ($orders as $order) {
                 $selStatus = strtolower($order->order_status);
-                $statusId = isset($order_status_ids[$selStatus]) ? $order_status_ids[$selStatus] : 0;
+                $statusId  = isset($order_status_ids[$selStatus]) ? $order_status_ids[$selStatus] : 0;
                 if ($statusId > 0) {
                     $order->order_status_id = $statusId;
                     $order->save();

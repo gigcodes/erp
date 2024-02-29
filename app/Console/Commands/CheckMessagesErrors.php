@@ -43,12 +43,12 @@ class CheckMessagesErrors extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $hour_ago = Carbon::now()->subHour();
-            $two_ago = Carbon::now()->subHours(2);
+            $two_ago  = Carbon::now()->subHours(2);
 
             $data = ChatMessage::whereNull('number')->where('approved', 1)->where('status', 2)->where('sent', 0)->whereBetween('created_at', [$two_ago, $hour_ago])->where(function ($query) {
                 $query->where('error_status', 0)->orWhere('error_status', 1);
@@ -90,7 +90,7 @@ class CheckMessagesErrors extends Command
 
                     $chat_message->update([
                         'error_status' => $error,
-                        'created_at' => Carbon::now(),
+                        'created_at'   => Carbon::now(),
                     ]);
                 }
             }

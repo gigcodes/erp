@@ -64,7 +64,7 @@ class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAu
                         'bold' => true,
                     ],
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => [
                             'argb' => 'FFFF00',
                         ],

@@ -62,19 +62,20 @@ class EntityRepo
         TagRepo $tagRepo,
         SearchService $searchService
     ) {
-        $this->entityProvider = $entityProvider;
-        $this->viewService = $viewService;
+        $this->entityProvider    = $entityProvider;
+        $this->viewService       = $viewService;
         $this->permissionService = $permissionService;
-        $this->tagRepo = $tagRepo;
-        $this->searchService = $searchService;
+        $this->tagRepo           = $tagRepo;
+        $this->searchService     = $searchService;
     }
 
     /**
      * Base query for searching entities via permission system
      *
-     * @param  string  $type
-     * @param  bool  $allowDrafts
-     * @param  string  $permission
+     * @param string $type
+     * @param bool   $allowDrafts
+     * @param string $permission
+     *
      * @return \Illuminate\Database\Query\Builder
      */
     protected function entityQuery($type, $allowDrafts = false, $permission = 'view')
@@ -90,6 +91,9 @@ class EntityRepo
     /**
      * Check if an entity with the given id exists.
      *
+     * @param mixed $type
+     * @param mixed $id
+     *
      * @return bool
      */
     public function exists($type, $id)
@@ -100,10 +104,11 @@ class EntityRepo
     /**
      * Get an entity by ID
      *
-     * @param  string  $type
-     * @param  int  $id
-     * @param  bool  $allowDrafts
-     * @param  bool  $ignorePermissions
+     * @param string $type
+     * @param int    $id
+     * @param bool   $allowDrafts
+     * @param bool   $ignorePermissions
+     *
      * @return Entity
      */
     public function getById($type, $id, $allowDrafts = false, $ignorePermissions = false)
@@ -118,10 +123,11 @@ class EntityRepo
     }
 
     /**
-     * @param  string  $type
+     * @param string $type
      * @param []int $ids
-     * @param  bool  $allowDrafts
-     * @param  bool  $ignorePermissions
+     * @param bool $allowDrafts
+     * @param bool $ignorePermissions
+     *
      * @return Builder[]|\Illuminate\Database\Eloquent\Collection|Collection
      */
     public function getManyById($type, $ids, $allowDrafts = false, $ignorePermissions = false)
@@ -138,9 +144,10 @@ class EntityRepo
     /**
      * Get an entity by its url slug.
      *
-     * @param  string  $type
-     * @param  string  $slug
-     * @param  string|bool  $bookSlug
+     * @param string      $type
+     * @param string      $slug
+     * @param string|bool $bookSlug
+     *
      * @return Entity
      *
      * @throws NotFoundException
@@ -167,9 +174,10 @@ class EntityRepo
     /**
      * Get all entities of a type with the given permission, limited by count unless count is false.
      *
-     * @param  string  $type
-     * @param  int|bool  $count
-     * @param  string  $permission
+     * @param string   $type
+     * @param int|bool $count
+     * @param string   $permission
+     *
      * @return Collection
      */
     public function getAll($type, $count = 20, $permission = 'view')
@@ -185,7 +193,9 @@ class EntityRepo
     /**
      * Get all entities in a paginated format
      *
-     * @param  null|callable  $queryAddition
+     * @param null|callable $queryAddition
+     * @param mixed         $type
+     *
      * @return LengthAwarePaginator
      */
     public function getAllPaginated($type, int $count = 10, string $sort = 'name', string $order = 'asc', $queryAddition = null)
@@ -206,7 +216,7 @@ class EntityRepo
      */
     protected function addSortToQuery(Builder $query, string $sort = 'name', string $order = 'asc')
     {
-        $order = ($order === 'asc') ? 'asc' : 'desc';
+        $order         = ($order === 'asc') ? 'asc' : 'desc';
         $propertySorts = ['name', 'created_at', 'updated_at'];
 
         if (in_array($sort, $propertySorts)) {
@@ -219,10 +229,11 @@ class EntityRepo
     /**
      * Get the most recently created entities of the given type.
      *
-     * @param  string  $type
-     * @param  int  $count
-     * @param  int  $page
-     * @param  bool|callable  $additionalQuery
+     * @param string        $type
+     * @param int           $count
+     * @param int           $page
+     * @param bool|callable $additionalQuery
+     *
      * @return Collection
      */
     public function getRecentlyCreated($type, $count = 20, $page = 0, $additionalQuery = false)
@@ -242,10 +253,11 @@ class EntityRepo
     /**
      * Get the most recently updated entities of the given type.
      *
-     * @param  string  $type
-     * @param  int  $count
-     * @param  int  $page
-     * @param  bool|callable  $additionalQuery
+     * @param string        $type
+     * @param int           $count
+     * @param int           $page
+     * @param bool|callable $additionalQuery
+     *
      * @return Collection
      */
     public function getRecentlyUpdated($type, $count = 20, $page = 0, $additionalQuery = false)
@@ -265,9 +277,10 @@ class EntityRepo
     /**
      * Get the most recently viewed entities.
      *
-     * @param  string|bool  $type
-     * @param  int  $count
-     * @param  int  $page
+     * @param string|bool $type
+     * @param int         $count
+     * @param int         $page
+     *
      * @return mixed
      */
     public function getRecentlyViewed($type, $count = 10, $page = 0)
@@ -280,8 +293,9 @@ class EntityRepo
     /**
      * Get the latest pages added to the system with pagination.
      *
-     * @param  string  $type
-     * @param  int  $count
+     * @param string $type
+     * @param int    $count
+     *
      * @return mixed
      */
     public function getRecentlyCreatedPaginated($type, $count = 20)
@@ -292,8 +306,9 @@ class EntityRepo
     /**
      * Get the latest pages added to the system with pagination.
      *
-     * @param  string  $type
-     * @param  int  $count
+     * @param string $type
+     * @param int    $count
+     *
      * @return mixed
      */
     public function getRecentlyUpdatedPaginated($type, $count = 20)
@@ -314,8 +329,9 @@ class EntityRepo
     /**
      * Get draft pages owned by the current user.
      *
-     * @param  int  $count
-     * @param  int  $page
+     * @param int $count
+     * @param int $page
+     *
      * @return Collection
      */
     public function getUserDraftPages($count = 20, $page = 0)
@@ -355,7 +371,7 @@ class EntityRepo
      */
     public function getBookDirectChildren(Book $book)
     {
-        $pages = $this->permissionService->enforceEntityRestrictions('page', $book->directPages())->get();
+        $pages    = $this->permissionService->enforceEntityRestrictions('page', $book->directPages())->get();
         $chapters = $this->permissionService->enforceEntityRestrictions('chapters', $book->chapters())->get();
 
         return collect()->concat($pages)->concat($chapters)->sortBy('priority')->sortByDesc('draft');
@@ -366,16 +382,17 @@ class EntityRepo
      * Returns a sorted collection of Pages and Chapters.
      * Loads the book slug onto child elements to prevent access database access for getting the slug.
      *
-     * @param  bool  $filterDrafts
-     * @param  bool  $renderPages
+     * @param bool $filterDrafts
+     * @param bool $renderPages
+     *
      * @return mixed
      */
     public function getBookChildren(Book $book, $filterDrafts = false, $renderPages = false)
     {
-        $q = $this->permissionService->bookChildrenQuery($book->id, $filterDrafts, $renderPages)->get();
+        $q        = $this->permissionService->bookChildrenQuery($book->id, $filterDrafts, $renderPages)->get();
         $entities = [];
-        $parents = [];
-        $tree = [];
+        $parents  = [];
+        $tree     = [];
 
         foreach ($q as $index => $rawEntity) {
             if ($rawEntity->entity_type === $this->entityProvider->page->getMorphClass()) {
@@ -386,8 +403,8 @@ class EntityRepo
                 }
             } elseif ($rawEntity->entity_type === $this->entityProvider->chapter->getMorphClass()) {
                 $entities[$index] = $this->entityProvider->chapter->newFromBuilder($rawEntity);
-                $key = $entities[$index]->entity_type . ':' . $entities[$index]->id;
-                $parents[$key] = $entities[$index];
+                $key              = $entities[$index]->entity_type . ':' . $entities[$index]->id;
+                $parents[$key]    = $entities[$index];
                 $parents[$key]->setAttribute('pages', collect());
             }
             if ($entities[$index]->chapter_id === 0 || $entities[$index]->chapter_id === '0') {
@@ -452,10 +469,11 @@ class EntityRepo
     /**
      * Find a suitable slug for an entity.
      *
-     * @param  string  $type
-     * @param  string  $name
-     * @param  bool|int  $currentId
-     * @param  bool|int  $bookId Only pass if type is not a book
+     * @param string   $type
+     * @param string   $name
+     * @param bool|int $currentId
+     * @param bool|int $bookId    Only pass if type is not a book
+     *
      * @return string
      */
     public function findSuitableSlug($type, $name, $currentId = false, $bookId = false)
@@ -471,10 +489,11 @@ class EntityRepo
     /**
      * Check if a slug already exists in the database.
      *
-     * @param  string  $type
-     * @param  string  $slug
-     * @param  bool|int  $currentId
-     * @param  bool|int  $bookId
+     * @param string   $type
+     * @param string   $slug
+     * @param bool|int $currentId
+     * @param bool|int $bookId
+     *
      * @return bool
      */
     protected function slugExists($type, $slug, $currentId = false, $bookId = false)
@@ -506,7 +525,7 @@ class EntityRepo
                 foreach ($restrictions as $action => $value) {
                     $entity->permissions()->create([
                         'role_id' => $roleId,
-                        'action' => strtolower($action),
+                        'action'  => strtolower($action),
                     ]);
                 }
             }
@@ -520,16 +539,17 @@ class EntityRepo
      * Create a new entity from request input.
      * Used for books and chapters.
      *
-     * @param  string  $type
-     * @param  array  $input
-     * @param  bool|Book  $book
+     * @param string    $type
+     * @param array     $input
+     * @param bool|Book $book
+     *
      * @return Entity
      */
     public function createFromInput($type, $input = [], $book = false)
     {
-        $isChapter = strtolower($type) === 'chapter';
-        $entityModel = $this->entityProvider->get($type)->newInstance($input);
-        $entityModel->slug = $this->findSuitableSlug($type, $entityModel->name, false, $isChapter ? $book->id : false);
+        $isChapter               = strtolower($type) === 'chapter';
+        $entityModel             = $this->entityProvider->get($type)->newInstance($input);
+        $entityModel->slug       = $this->findSuitableSlug($type, $entityModel->name, false, $isChapter ? $book->id : false);
         $entityModel->created_by = user()->id;
         $entityModel->updated_by = user()->id;
         $isChapter ? $book->chapters()->save($entityModel) : $entityModel->save();
@@ -548,8 +568,9 @@ class EntityRepo
      * Update entity details from request input.
      * Used for books and chapters
      *
-     * @param  string  $type
-     * @param  array  $input
+     * @param string $type
+     * @param array  $input
+     *
      * @return Entity
      */
     public function updateFromInput($type, Entity $entityModel, $input = [])
@@ -580,7 +601,7 @@ class EntityRepo
         $ids = explode(',', $books);
 
         // Check books exist and match ordering
-        $bookIds = $this->entityQuery('book')->whereIn('id', $ids)->get(['id'])->pluck('id');
+        $bookIds  = $this->entityQuery('book')->whereIn('id', $ids)->get(['id'])->pluck('id');
         $syncData = [];
         foreach ($ids as $index => $id) {
             if ($bookIds->contains($id)) {
@@ -607,9 +628,10 @@ class EntityRepo
     /**
      * Change the book that an entity belongs to.
      *
-     * @param  string  $type
-     * @param  int  $newBookId
-     * @param  bool  $rebuildPermissions
+     * @param string $type
+     * @param int    $newBookId
+     * @param bool   $rebuildPermissions
+     *
      * @return Entity
      */
     public function changeBook($type, $newBookId, Entity $entity, $rebuildPermissions = false)
@@ -649,6 +671,8 @@ class EntityRepo
 
     /**
      * Format a name as a url slug.
+     *
+     * @param mixed $name
      *
      * @return string
      */
@@ -705,7 +729,7 @@ class EntityRepo
         $topLevelTags = ['table', 'ul', 'ol'];
         foreach ($matches[1] as $index => $includeId) {
             $splitInclude = explode('#', $includeId, 2);
-            $pageId = intval($splitInclude[0]);
+            $pageId       = intval($splitInclude[0]);
             if (is_nan($pageId)) {
                 continue;
             }
@@ -733,7 +757,7 @@ class EntityRepo
                 continue;
             }
             $innerContent = '';
-            $isTopLevel = in_array(strtolower($matchingElem->nodeName), $topLevelTags);
+            $isTopLevel   = in_array(strtolower($matchingElem->nodeName), $topLevelTags);
             if ($isTopLevel) {
                 $innerContent .= $doc->saveHTML($matchingElem);
             } else {
@@ -782,7 +806,7 @@ class EntityRepo
             $attr->parentNode->removeAttribute($attrName);
         }
 
-        $html = '';
+        $html     = '';
         $topElems = $doc->documentElement->childNodes->item(0)->childNodes;
         foreach ($topElems as $child) {
             $html .= $doc->saveHTML($child);
@@ -794,13 +818,15 @@ class EntityRepo
     /**
      * Search for image usage within page content.
      *
+     * @param mixed $imageString
+     *
      * @return mixed
      */
     public function searchForImage($imageString)
     {
         $pages = $this->entityQuery('page')->where('html', 'like', '%' . $imageString . '%')->get(['id', 'name', 'slug', 'book_id']);
         foreach ($pages as $page) {
-            $page->url = $page->getUrl();
+            $page->url  = $page->getUrl();
             $page->html = '';
             $page->text = '';
         }
@@ -914,7 +940,7 @@ class EntityRepo
     public function copyBookshelfPermissions(Bookshelf $bookshelf)
     {
         $shelfPermissions = $bookshelf->permissions()->get(['role_id', 'action'])->toArray();
-        $shelfBooks = $bookshelf->books()->get();
+        $shelfBooks       = $bookshelf->books()->get();
         $updatedBookCount = 0;
 
         foreach ($shelfBooks as $book) {

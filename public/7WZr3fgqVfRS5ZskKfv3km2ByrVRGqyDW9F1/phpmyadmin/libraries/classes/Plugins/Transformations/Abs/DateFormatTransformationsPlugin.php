@@ -50,16 +50,17 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
     {
         $buffer = (string) $buffer;
         // possibly use a global transform and feed it with special options
-        $cfg = $GLOBALS['cfg'];
+        $cfg     = $GLOBALS['cfg'];
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['DateFormat']);
 
         // further operations on $buffer using the $options[] array.
@@ -93,11 +94,11 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
                     $offset = 2;
                 }
 
-                $aDate = [];
-                $aDate['year'] = (int) mb_substr($buffer, 0, $offset);
-                $aDate['month'] = (int) mb_substr($buffer, $offset, 2);
-                $aDate['day'] = (int) mb_substr($buffer, $offset + 2, 2);
-                $aDate['hour'] = (int) mb_substr($buffer, $offset + 4, 2);
+                $aDate           = [];
+                $aDate['year']   = (int) mb_substr($buffer, 0, $offset);
+                $aDate['month']  = (int) mb_substr($buffer, $offset, 2);
+                $aDate['day']    = (int) mb_substr($buffer, $offset + 2, 2);
+                $aDate['hour']   = (int) mb_substr($buffer, $offset + 4, 2);
                 $aDate['minute'] = (int) mb_substr($buffer, $offset + 6, 2);
                 $aDate['second'] = (int) mb_substr($buffer, $offset + 8, 2);
 

@@ -11,11 +11,11 @@ class HourlyReportsExport implements WithMultipleSheets
     public function sheets(): array
     {
         $sheets = [];
-        $now = Carbon::now();
-        $date = Carbon::now()->format('Y-m-d');
-        $nine = Carbon::parse('09:00');
-        $one = Carbon::parse('13:00');
-        $four = Carbon::parse('16:00');
+        $now    = Carbon::now();
+        $date   = Carbon::now()->format('Y-m-d');
+        $nine   = Carbon::parse('09:00');
+        $one    = Carbon::parse('13:00');
+        $four   = Carbon::parse('16:00');
 
         if ($now->between($nine, $one)) {
             $time_slots = [

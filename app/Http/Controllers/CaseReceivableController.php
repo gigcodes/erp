@@ -16,19 +16,19 @@ class CaseReceivableController extends Controller
 
         return view('case.receivables', [
             'receivables' => $receivables,
-            'case' => $case,
-            'currencies' => Helpers::currencies(),
+            'case'        => $case,
+            'currencies'  => Helpers::currencies(),
         ]);
     }
 
     public function store(LegalCase $case, Request $request)
     {
         $this->validate($request, [
-            'currency' => 'required|numeric',
-            'receivable_date' => 'required|date',
+            'currency'          => 'required|numeric',
+            'receivable_date'   => 'required|date',
             'receivable_amount' => 'required|numeric',
-            'received_date' => 'sometimes|nullable|date',
-            'received_amount' => 'sometimes|nullable|numeric',
+            'received_date'     => 'sometimes|nullable|date',
+            'received_amount'   => 'sometimes|nullable|numeric',
         ]);
         try {
             $status = 0;
@@ -36,13 +36,13 @@ class CaseReceivableController extends Controller
                 $status = 1;
             }
             $case_receivable = $case->receivables()->create([
-                'receivable_date' => $request->get('receivable_date'),
+                'receivable_date'   => $request->get('receivable_date'),
                 'receivable_amount' => $request->get('receivable_amount'),
-                'received_date' => $request->get('received_date'),
-                'received_amount' => $request->get('received_amount'),
-                'description' => $request->get('description'),
-                'currency' => $request->get('currency'),
-                'status' => $status,
+                'received_date'     => $request->get('received_date'),
+                'received_amount'   => $request->get('received_amount'),
+                'description'       => $request->get('description'),
+                'currency'          => $request->get('currency'),
+                'status'            => $status,
             ]);
             event(new CaseReceivableCreated($case, $case_receivable, $status));
         } catch (\Exception $exception) {
@@ -55,26 +55,26 @@ class CaseReceivableController extends Controller
     public function update(LegalCase $case, CaseReceivable $case_receivable, Request $request)
     {
         $this->validate($request, [
-            'currency' => 'required|numeric',
-            'receivable_date' => 'required|date',
+            'currency'          => 'required|numeric',
+            'receivable_date'   => 'required|date',
             'receivable_amount' => 'required|numeric',
-            'received_date' => 'sometimes|nullable|date',
-            'received_amount' => 'sometimes|nullable|numeric',
+            'received_date'     => 'sometimes|nullable|date',
+            'received_amount'   => 'sometimes|nullable|numeric',
         ]);
         try {
             $receivable = $case->receivables()->where('id', $case_receivable->id)->first();
-            $status = 0;
+            $status     = 0;
             if ($request->get('received_date') && $request->get('received_amount')) {
                 $status = 1;
             }
             $receivable->fill([
-                'receivable_date' => $request->get('receivable_date'),
+                'receivable_date'   => $request->get('receivable_date'),
                 'receivable_amount' => $request->get('receivable_amount'),
-                'received_date' => $request->get('received_date'),
-                'received_amount' => $request->get('received_amount'),
-                'description' => $request->get('description'),
-                'currency' => $request->get('currency'),
-                'status' => $status,
+                'received_date'     => $request->get('received_date'),
+                'received_amount'   => $request->get('received_amount'),
+                'description'       => $request->get('description'),
+                'currency'          => $request->get('currency'),
+                'status'            => $status,
             ])->save();
             event(new CaseReceivableCreated($case, $case_receivable, $status));
         } catch (\Exception $exception) {

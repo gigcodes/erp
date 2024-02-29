@@ -23,6 +23,8 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param mixed $id
+     *
      * @return Response
      */
     public function index(Request $request, $id)
@@ -39,10 +41,10 @@ class BrandController extends Controller
                 ->get();
 
             return response()->json([
-                'code' => 200,
+                'code'             => 200,
                 'store_website_id' => $id,
-                'data' => $storeWebsite,
-                'brands' => $brands,
+                'data'             => $storeWebsite,
+                'brands'           => $brands,
             ]);
         }
 
@@ -55,17 +57,17 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $storeWebsiteId = $request->get('store_website_id');
-        $post = $request->all();
+        $post           = $request->all();
 
         $validator = Validator::make($post, [
             'store_website_id' => 'required',
-            'markup' => 'required',
-            'brand_id' => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
+            'markup'           => 'required',
+            'brand_id'         => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -95,11 +97,11 @@ class BrandController extends Controller
     public function createPushBrandsLog($request, $error_type, $error)
     {
         try {
-            $recLog = new PushBrandsLog();
+            $recLog                  = new PushBrandsLog();
             $recLog->store_webite_id = $request->store_website_id;
-            $recLog->user_id = (auth()->user()) ? auth()->user()->id : 6;
-            $recLog->error_type = $error_type;
-            $recLog->error = $error;
+            $recLog->user_id         = (auth()->user()) ? auth()->user()->id : 6;
+            $recLog->error_type      = $error_type;
+            $recLog->error           = $error;
             $recLog->save();
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -128,8 +130,8 @@ class BrandController extends Controller
                             if (! empty($magentoBrandId)) {
                                 $brandStore = StoreWebsiteBrand::where('brand_id', $brand->id)->where('store_website_id', $storeWeb->id)->first();
                                 if (! $brandStore) {
-                                    $brandStore = new \App\StoreWebsiteBrand;
-                                    $brandStore->brand_id = $brand->id;
+                                    $brandStore                   = new \App\StoreWebsiteBrand;
+                                    $brandStore->brand_id         = $brand->id;
                                     $brandStore->store_website_id = $storeWeb->id;
                                 }
                                 $brandStore->magento_value = $magentoBrandId;
@@ -176,23 +178,23 @@ class BrandController extends Controller
 
         $appliedQ = StoreWebsiteBrand::all();
 
-        $apppliedResult = [];
+        $apppliedResult      = [];
         $apppliedResultCount = [];
 
         if (! $appliedQ->isEmpty()) {
             foreach ($appliedQ as $raw) {
-                $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
+                $apppliedResult[$raw->brand_id][]              = $raw->store_website_id;
                 $apppliedResultCount[$raw->store_website_id][] = $raw->brand_id;
             }
         }
-        $brandsCount = $query->get()->toArray();
+        $brandsCount    = $query->get()->toArray();
         $brandsCountIds = [];
         foreach ($brandsCount as $brandCount) {
             array_push($brandsCountIds, $brandCount['id']);
         }
         foreach ($apppliedResultCount as $k => $v) {
-            $diff = array_diff($v, $brandsCountIds);
-            $result = (array_diff($v, $diff));
+            $diff                    = array_diff($v, $brandsCountIds);
+            $result                  = (array_diff($v, $diff));
             $apppliedResultCount[$k] = $result;
         }
 
@@ -214,7 +216,7 @@ class BrandController extends Controller
 
         $dynamicColumnsToShow = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns          = $datatableModel->column_name ?? '';
             $dynamicColumnsToShow = json_decode($hideColumns, true);
         }
 
@@ -238,18 +240,18 @@ class BrandController extends Controller
         if ($request->brand != null && $request->store != null) {
             try {
                 $brandStore = StoreWebsiteBrand::where('brand_id', $request->brand)->where('store_website_id', $request->store)->first();
-                $websites = \App\StoreWebsite::where('parent_id', '=', $request->store)->orWhere('id', '=', $request->store)->get();
+                $websites   = \App\StoreWebsite::where('parent_id', '=', $request->store)->orWhere('id', '=', $request->store)->get();
                 if (count($websites) > 0) {
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        $response = null;
-                        $brand = \App\Brand::find($request->brand);
+                        $response      = null;
+                        $brand         = \App\Brand::find($request->brand);
                         $storeWebsites = [];
                         foreach ($websites as $key => $website) {
                             $storeWebsites[] = $website->id;
                             if (! $brandStore) {
                                 $magentoBrandId = MagentoHelper::addBrand($brand, $website);
                                 if ($magentoBrandId) {
-                                    $brandStore = new StoreWebsiteBrand;
+                                    $brandStore           = new StoreWebsiteBrand;
                                     $brandStore->brand_id = $request->brand;
                                     if (isset($magentoBrandId)) {
                                         $brandStore->magento_value = $magentoBrandId;
@@ -305,11 +307,11 @@ class BrandController extends Controller
     public function createWebsiteBrandHistory($brand_id, $store_website_id, $type, $created_by, $message)
     {
         StoreWebsiteBrandHistory::create([
-            'brand_id' => $brand_id,
+            'brand_id'         => $brand_id,
             'store_website_id' => $store_website_id,
-            'type' => $type,
-            'created_by' => $created_by,
-            'message' => $message,
+            'type'             => $type,
+            'created_by'       => $created_by,
+            'message'          => $message,
         ]);
     }
 
@@ -344,17 +346,17 @@ class BrandController extends Controller
 
     public function liveBrands(Request $request)
     {
-        $heading = 'Live Brands';
+        $heading      = 'Live Brands';
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if ($storeWebsite && $storeWebsite->magento_url) {
-            $client = new Client();
+            $client   = new Client();
             $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
 
                 ],
             ]);
-            $brands = (string) $response->getBody()->getContents();
-            $brands = json_decode($brands, true);
+            $brands     = (string) $response->getBody()->getContents();
+            $brands     = json_decode($brands, true);
             $mangetoIds = [];
 
             if (! empty($brands)) {
@@ -381,17 +383,17 @@ class BrandController extends Controller
 
     public function missingBrands(Request $request)
     {
-        $heading = 'Missing Brands';
+        $heading      = 'Missing Brands';
         $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
         if ($storeWebsite && $storeWebsite->magento_url) {
-            $client = new Client();
+            $client   = new Client();
             $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                 'form_params' => [
 
                 ],
             ]);
-            $brands = (string) $response->getBody()->getContents();
-            $brands = json_decode($brands, true);
+            $brands     = (string) $response->getBody()->getContents();
+            $brands     = json_decode($brands, true);
             $mangetoIds = [];
 
             if (! empty($brands)) {
@@ -418,11 +420,11 @@ class BrandController extends Controller
     public function reconsileBrandsLog($request, $error_type, $error)
     {
         try {
-            $recLog = new ReconsileBrandsLog();
+            $recLog                  = new ReconsileBrandsLog();
             $recLog->store_webite_id = $request->store_website_id;
-            $recLog->user_id = (auth()->user()) ? auth()->user()->id : 6;
-            $recLog->error_type = $error_type;
-            $recLog->error = $error;
+            $recLog->user_id         = (auth()->user()) ? auth()->user()->id : 6;
+            $recLog->error_type      = $error_type;
+            $recLog->error           = $error;
             $recLog->save();
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
@@ -436,14 +438,14 @@ class BrandController extends Controller
             ini_set('memory_limit', '-1');
             $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
             if ($storeWebsite) {
-                $client = new Client();
+                $client   = new Client();
                 $response = $client->request('GET', $storeWebsite->magento_url . '/rest/V1/brands/list', [
                     'form_params' => [
                     ],
                 ]);
 
-                $brands = (string) $response->getBody()->getContents();
-                $brands = json_decode($brands, true);
+                $brands     = (string) $response->getBody()->getContents();
+                $brands     = json_decode($brands, true);
                 $mangetoIds = [];
                 if (! empty($brands)) {
                     foreach ($brands as $brand) {
@@ -504,11 +506,11 @@ class BrandController extends Controller
                             $brandStore = $assingedBrands[$ndr];
                             $brandStore->delete();
                             StoreWebsiteBrandHistory::create([
-                                'brand_id' => $brandStore->brand_id,
+                                'brand_id'         => $brandStore->brand_id,
                                 'store_website_id' => $brandStore->store_website_id,
-                                'type' => 'remove',
-                                'created_by' => $userId,
-                                'message' => "{$brandStore->name} removed from {$storeWebsite->title} store.",
+                                'type'             => 'remove',
+                                'created_by'       => $userId,
+                                'message'          => "{$brandStore->name} removed from {$storeWebsite->title} store.",
                             ]);
                         } else {
                             $this->reconsileBrandsLog($request, 'Delete brand', 'Brand check for delete ' . $ndr);
@@ -532,8 +534,8 @@ class BrandController extends Controller
                         if (! empty($magentoBrandId)) {
                             $brandStore = StoreWebsiteBrand::where('brand_id', $avb->id)->where('store_website_id', $storeWebsite->id)->first();
                             if (! $brandStore) {
-                                $brandStore = new \App\StoreWebsiteBrand;
-                                $brandStore->brand_id = $avb->id;
+                                $brandStore                   = new \App\StoreWebsiteBrand;
+                                $brandStore->brand_id         = $avb->id;
                                 $brandStore->store_website_id = $storeWebsite->id;
                             }
                             $brandStore->magento_value = $magentoBrandId;
@@ -568,21 +570,21 @@ class BrandController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'store-website_brand')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'store-website_brand';
-            $column->column_name = json_encode($request->columns);
+            $column->column_name  = json_encode($request->columns);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'store-website_brand';
-            $column->column_name = json_encode($request->columns);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->columns);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
         return response()->json([
-            'status' => true,
-            'message' => ' column visiblity Added Successfully',
+            'status'      => true,
+            'message'     => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }

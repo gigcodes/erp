@@ -43,7 +43,7 @@ class ManualFixBrand extends Command
             $brands = \App\Brand::where('name', $sb->brand_name)->whereNotIn('id', [$sb->brand_id])->get();
             if (! $brands->isEmpty()) {
                 foreach ($brands as $brand) {
-                    $products = \App\Product::where('brand', $brand->id)->update(['brand' => $sb->brand_id]);
+                    $products        = \App\Product::where('brand', $brand->id)->update(['brand' => $sb->brand_id]);
                     $scrapedProducts = \App\ScrapedProducts::where('brand_id', $brand->id)->update(['brand_id' => $sb->brand_id]);
                     $brand->delete();
                     \Log::channel('productUpdates')->info(sprintf('Brand id %s updated with brand id %s', $brand->id, $sb->brand_id));

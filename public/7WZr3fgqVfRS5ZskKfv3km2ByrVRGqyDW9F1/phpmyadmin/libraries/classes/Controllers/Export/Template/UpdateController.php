@@ -27,7 +27,7 @@ final class UpdateController extends AbstractController
         Relation $relation
     ) {
         parent::__construct($response, $template);
-        $this->model = $model;
+        $this->model    = $model;
         $this->relation = $relation;
     }
 
@@ -45,9 +45,9 @@ final class UpdateController extends AbstractController
         }
 
         $template = ExportTemplate::fromArray([
-            'id' => $templateId,
+            'id'       => $templateId,
             'username' => $cfg['Server']['user'],
-            'data' => $templateData,
+            'data'     => $templateData,
         ]);
         $result = $this->model->update(
             $exportTemplatesFeature->database,

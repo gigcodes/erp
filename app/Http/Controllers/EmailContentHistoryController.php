@@ -16,9 +16,9 @@ class EmailContentHistoryController extends Controller
         }
 
         $history->mailinglist_templates_id = $_request->mail_list_id;
-        $history->content = $_request->content;
-        $history->date = ! empty($_request->date) ? $_request->date : date('Y-m-d');
-        $history->updated_by = auth()->user()->id;
+        $history->content                  = $_request->content;
+        $history->date                     = ! empty($_request->date) ? $_request->date : date('Y-m-d');
+        $history->updated_by               = auth()->user()->id;
         if ($history->save()) {
             \Session::flash('message', 'Contenet successfully added');
             \Session::flash('alert-class', 'alert-success');

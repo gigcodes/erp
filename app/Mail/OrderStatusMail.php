@@ -21,12 +21,14 @@ class OrderStatusMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
         $this->subject = isset($data['subject']) ?: '';
-        $this->body = isset($data['static_template']) ?: '';
+        $this->body    = isset($data['static_template']) ?: '';
         if (isset($data['from'])) {
             $this->sendFrom = $data['from'];
         } else {

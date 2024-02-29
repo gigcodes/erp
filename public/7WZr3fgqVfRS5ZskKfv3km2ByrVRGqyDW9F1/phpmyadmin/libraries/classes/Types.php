@@ -27,7 +27,7 @@ class Types
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi Database interface instance
+     * @param DatabaseInterface $dbi Database interface instance
      */
     public function __construct($dbi)
     {
@@ -52,7 +52,7 @@ class Types
     /**
      * Check whether operator is unary.
      *
-     * @param  string  $op operator name
+     * @param string $op operator name
      */
     public function isUnaryOperator($op): bool
     {
@@ -139,13 +139,14 @@ class Types
     /**
      * Returns operators for given type
      *
-     * @param  string  $type Type of field
-     * @param  bool  $null Whether field can be NULL
+     * @param string $type Type of field
+     * @param bool   $null Whether field can be NULL
+     *
      * @return string[]
      */
     public function getTypeOperators($type, $null)
     {
-        $ret = [];
+        $ret   = [];
         $class = $this->getTypeClass($type);
 
         if (strncasecmp($type, 'enum', 4) == 0) {
@@ -166,9 +167,10 @@ class Types
     /**
      * Returns operators for given type as html options
      *
-     * @param  string  $type             Type of field
-     * @param  bool  $null             Whether field can be NULL
-     * @param  string  $selectedOperator Option to be selected
+     * @param string $type             Type of field
+     * @param bool   $null             Whether field can be NULL
+     * @param string $selectedOperator Option to be selected
+     *
      * @return string Generated Html
      */
     public function getTypeOperatorsHtml($type, $null, $selectedOperator = null)
@@ -193,7 +195,8 @@ class Types
     /**
      * Returns the data type description.
      *
-     * @param  string  $type The data type to get a description.
+     * @param string $type The data type to get a description.
+     *
      * @return string
      */
     public function getTypeDescription($type)
@@ -422,7 +425,8 @@ class Types
      * Returns class of a type, used for functions available for type
      * or default values.
      *
-     * @param  string  $type The data type to get a class.
+     * @param string $type The data type to get a class.
+     *
      * @return string
      */
     public function getTypeClass($type)
@@ -487,12 +491,13 @@ class Types
     /**
      * Returns array of functions available for a class.
      *
-     * @param  string  $class The class to get function list.
+     * @param string $class The class to get function list.
+     *
      * @return string[]
      */
     public function getFunctionsClass($class)
     {
-        $isMariaDB = $this->dbi->isMariaDB();
+        $isMariaDB     = $this->dbi->isMariaDB();
         $serverVersion = $this->dbi->getVersion();
 
         switch ($class) {
@@ -672,7 +677,8 @@ class Types
     /**
      * Returns array of functions available for a type.
      *
-     * @param  string  $type The data type to get function list.
+     * @param string $type The data type to get function list.
+     *
      * @return string[]
      */
     public function getFunctions($type)
@@ -724,7 +730,7 @@ class Types
      */
     public function getColumns(): array
     {
-        $isMariaDB = $this->dbi->isMariaDB();
+        $isMariaDB     = $this->dbi->isMariaDB();
         $serverVersion = $this->dbi->getVersion();
 
         // most used types
@@ -826,8 +832,9 @@ class Types
     /**
      * Returns the min and max values of a given integer type
      *
-     * @param  string  $type   integer type
-     * @param  bool  $signed whether signed
+     * @param string $type   integer type
+     * @param bool   $signed whether signed
+     *
      * @return string[] min and max values
      */
     public function getIntegerRange($type, $signed = true)

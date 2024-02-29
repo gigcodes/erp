@@ -24,7 +24,7 @@ class SendIssueCredit extends Mailable
 
     public function __construct(Customer $customer)
     {
-        $this->customer = $customer;
+        $this->customer   = $customer;
         $this->fromMailer = \App\Helpers::getFromEmail($this->customer->id);
     }
 
@@ -35,7 +35,7 @@ class SendIssueCredit extends Mailable
      */
     public function build()
     {
-        $subject = 'Customer Credit Issued';
+        $subject  = 'Customer Credit Issued';
         $customer = $this->customer;
 
         $this->subject = $subject;
@@ -78,8 +78,8 @@ class SendIssueCredit extends Mailable
         } catch (\Exception $e) {
             $post = [
                 'customer-id' => $customer->id,
-                'subject' => $subject,
-                'from' => $this->fromMailer,
+                'subject'     => $subject,
+                'from'        => $this->fromMailer,
             ];
             \App\CreditLog::create(['customer_id' => $customer->id, 'request' => json_encode($post), 'response' => $e->getMessage(), 'status' => 'failure']);
         }

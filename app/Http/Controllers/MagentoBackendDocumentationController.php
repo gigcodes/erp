@@ -17,8 +17,8 @@ class MagentoBackendDocumentationController extends Controller
     public function magentoBackendeDocs(Request $request)
     {
         $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
-        $postManAPi = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
-        $magentoModules = MagentoModule::select('module', 'id')->groupBy('module')->get();
+        $postManAPi      = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
+        $magentoModules  = MagentoModule::select('module', 'id')->groupBy('module')->get();
 
         if ($request->ajax()) {
             $items = MagentoBackendDocumentation::with('siteDevelopementCategory', 'postmamRequest', 'magentoModule', 'user')
@@ -73,46 +73,46 @@ class MagentoBackendDocumentationController extends Controller
     public function getBackendDropdownDatas(Request $request)
     {
         $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
-        $postManAPi = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
-        $magentoModules = MagentoModule::select('module', 'id')->groupBy('module')->get();
+        $postManAPi      = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
+        $magentoModules  = MagentoModule::select('module', 'id')->groupBy('module')->get();
 
         return response()->json(['storecategories' => $storecategories, 'postManAPi' => $postManAPi, 'magentoModules' => $magentoModules]);
     }
 
     public function magentoBackendStore(Request $request)
     {
-        $magentobackenddoc = new MagentoBackendDocumentation();
+        $magentobackenddoc                               = new MagentoBackendDocumentation();
         $magentobackenddoc->site_development_category_id = $request->site_development_category;
-        $magentobackenddoc->post_man_api_id = $request->post_man_api_id;
-        $magentobackenddoc->mageneto_module_id = $request->mageneto_module_id;
-        $magentobackenddoc->features = $request->features;
-        $magentobackenddoc->bug = $request->bug;
-        $magentobackenddoc->bug_details = $request->bug_details;
-        $magentobackenddoc->bug_resolution = $request->bug_resolution;
-        $magentobackenddoc->template_file = $request->template_file;
-        $magentobackenddoc->read = $request->read ? implode(',', $request->read) : null;
-        $magentobackenddoc->write = $request->write ? implode(',', $request->write) : null;
+        $magentobackenddoc->post_man_api_id              = $request->post_man_api_id;
+        $magentobackenddoc->mageneto_module_id           = $request->mageneto_module_id;
+        $magentobackenddoc->features                     = $request->features;
+        $magentobackenddoc->bug                          = $request->bug;
+        $magentobackenddoc->bug_details                  = $request->bug_details;
+        $magentobackenddoc->bug_resolution               = $request->bug_resolution;
+        $magentobackenddoc->template_file                = $request->template_file;
+        $magentobackenddoc->read                         = $request->read ? implode(',', $request->read) : null;
+        $magentobackenddoc->write                        = $request->write ? implode(',', $request->write) : null;
 
         $magentobackenddoc->updated_by = Auth::id();
         $magentobackenddoc->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $magentobackenddoc,
-            'message' => 'Magento Backend Documentation created successfully',
+            'status'      => true,
+            'data'        => $magentobackenddoc,
+            'message'     => 'Magento Backend Documentation created successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function magentoBackendOptions(Request $request)
     {
-        $oldData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
+        $oldData             = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoBackendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data, 'updated_by' => \Auth::id()]);
-        $newData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
+        $newData             = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
 
         $columnname = $request->columnName;
-        $newData = $request->data;
-        $backendId = $request->id;
+        $newData    = $request->data;
+        $backendId  = $request->id;
 
         if ($request->columnName == 'site_development_category_id') {
             $oldId = $oldData->site_development_category_id;
@@ -128,15 +128,15 @@ class MagentoBackendDocumentationController extends Controller
 
         if ($updateMagentoModule) {
             return response()->json([
-                'status' => true,
-                'message' => 'Updated successfully',
+                'status'      => true,
+                'message'     => 'Updated successfully',
                 'status_name' => 'success',
-                'code' => 200,
+                'code'        => 200,
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Updated unsuccessfully',
+                'status'      => false,
+                'message'     => 'Updated unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -149,9 +149,9 @@ class MagentoBackendDocumentationController extends Controller
             ->Where('column_name', $request->column)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -163,9 +163,9 @@ class MagentoBackendDocumentationController extends Controller
             ->Where('column_name', $request->column)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -177,36 +177,36 @@ class MagentoBackendDocumentationController extends Controller
             ->Where('column_name', $request->column)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
 
     public function magentobackendstoreRemark(Request $request)
     {
-        $magentobackendremark = MagentoBackendDocumentation::find($request->magento_back_end_id);
-        $oldId = $magentobackendremark->api_remark;
+        $magentobackendremark             = MagentoBackendDocumentation::find($request->magento_back_end_id);
+        $oldId                            = $magentobackendremark->api_remark;
         $magentobackendremark->api_remark = $request->remark;
         $magentobackendremark->save();
 
-        $backendId = $request->magento_back_end_id;
-        $newData = $request->remark;
+        $backendId  = $request->magento_back_end_id;
+        $newData    = $request->remark;
         $columnname = 'api_remark';
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->old_value = $oldId;
-        $magnetohistory->new_value = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->old_value               = $oldId;
+        $magnetohistory->new_value               = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $magentobackendremark,
-            'message' => 'magneto backend Remark Added succesfully',
+            'status'      => true,
+            'data'        => $magentobackendremark,
+            'message'     => 'magneto backend Remark Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -218,9 +218,9 @@ class MagentoBackendDocumentationController extends Controller
             ->Where('column_name', $request->column)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -234,9 +234,9 @@ class MagentoBackendDocumentationController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -248,63 +248,63 @@ class MagentoBackendDocumentationController extends Controller
             ->Where('column_name', $request->column)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
 
     public function magentoStorebackendFolder(Request $request)
     {
-        $magentofrontendremark = MagentoBackendDocumentation::find($request->magento_back_end_id);
-        $oldId = $magentofrontendremark->description;
+        $magentofrontendremark              = MagentoBackendDocumentation::find($request->magento_back_end_id);
+        $oldId                              = $magentofrontendremark->description;
         $magentofrontendremark->description = $request->description;
         $magentofrontendremark->save();
 
-        $backendId = $request->magento_back_end_id;
-        $newData = $request->description;
+        $backendId  = $request->magento_back_end_id;
+        $newData    = $request->description;
         $columnname = 'description';
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->old_value = $oldId;
-        $magnetohistory->new_value = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->old_value               = $oldId;
+        $magnetohistory->new_value               = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $magentofrontendremark,
-            'message' => 'magneto backend description Added succesfully',
+            'status'      => true,
+            'data'        => $magentofrontendremark,
+            'message'     => 'magneto backend description Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function magentoStorebackendadminConfig(Request $request)
     {
-        $magentofrontendremark = MagentoBackendDocumentation::find($request->magento_back_end_id);
-        $oldId = $magentofrontendremark->admin_configuration;
+        $magentofrontendremark                      = MagentoBackendDocumentation::find($request->magento_back_end_id);
+        $oldId                                      = $magentofrontendremark->admin_configuration;
         $magentofrontendremark->admin_configuration = $request->adminconfig;
         $magentofrontendremark->save();
 
-        $backendId = $request->magento_back_end_id;
-        $newData = $request->adminconfig;
+        $backendId  = $request->magento_back_end_id;
+        $newData    = $request->adminconfig;
         $columnname = 'admin_configuration';
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->old_value = $oldId;
-        $magnetohistory->new_value = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->old_value               = $oldId;
+        $magnetohistory->new_value               = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $magentofrontendremark,
-            'message' => 'magneto backend admin_configuration Added succesfully',
+            'status'      => true,
+            'data'        => $magentofrontendremark,
+            'message'     => 'magneto backend admin_configuration Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -312,7 +312,7 @@ class MagentoBackendDocumentationController extends Controller
     public function magentoBackendDescriptionUpload(Request $request)
     {
         $validationRules = [
-            'upload_description' => ['required'],
+            'upload_description'   => ['required'],
             'upload_description.*' => ['required'],
         ];
 
@@ -320,15 +320,15 @@ class MagentoBackendDocumentationController extends Controller
 
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
 
-        $backendId = $request->magento_backend_id;
-        $newData = $magentobackenddoc->google_drive_file_id;
+        $backendId  = $request->magento_backend_id;
+        $newData    = $magentobackenddoc->google_drive_file_id;
         $columnname = 'description';
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->new_value = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->new_value               = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         if ($request->hasFile('upload_description')) {
@@ -340,7 +340,7 @@ class MagentoBackendDocumentationController extends Controller
 
                 MagnetoGoogledriveUpload::dispatchNow($magentobackenddoc, $file);
 
-                $magnetohistory = MagentoBackendDocumentationHistory::find($magnetohistory->id);
+                $magnetohistory            = MagentoBackendDocumentationHistory::find($magnetohistory->id);
                 $magnetohistory->new_value = $magentobackenddoc->google_drive_file_id;
                 $magnetohistory->file_name = $file->getClientOriginalName();
                 $magnetohistory->save();
@@ -348,8 +348,8 @@ class MagentoBackendDocumentationController extends Controller
         }
 
         return response()->json([
-            'status' => true,
-            'message' => 'magneto backend Added succesfully',
+            'status'      => true,
+            'message'     => 'magneto backend Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -357,7 +357,7 @@ class MagentoBackendDocumentationController extends Controller
     public function magentoBackendadminConfigUpload(Request $request)
     {
         $validationRules = [
-            'admin_config_image' => ['required'],
+            'admin_config_image'   => ['required'],
             'admin_config_image.*' => ['required'],
         ];
 
@@ -365,15 +365,15 @@ class MagentoBackendDocumentationController extends Controller
 
         $magentobackenddoc = MagentoBackendDocumentation::find($request->magento_backend_id);
 
-        $backendId = $request->magento_backend_id;
-        $newData = $magentobackenddoc->google_drive_file_id;
+        $backendId  = $request->magento_backend_id;
+        $newData    = $magentobackenddoc->google_drive_file_id;
         $columnname = 'admin_configuration';
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->new_value = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->new_value               = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         if ($request->hasFile('admin_config_image')) {
@@ -392,8 +392,8 @@ class MagentoBackendDocumentationController extends Controller
         }
 
         return response()->json([
-            'status' => true,
-            'message' => 'magneto backend Updated succesfully',
+            'status'      => true,
+            'message'     => 'magneto backend Updated succesfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -413,10 +413,10 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoBackendEdit($id)
     {
-        $magento_module = MagentoBackendDocumentation::find($id);
+        $magento_module  = MagentoBackendDocumentation::find($id);
         $storecategories = SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
-        $postManAPi = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
-        $magentoModules = MagentoModule::select('module', 'id')->groupBy('module')->get();
+        $postManAPi      = PostmanRequestCreate::select('request_url', 'id')->groupBy('request_url')->get();
+        $magentoModules  = MagentoModule::select('module', 'id')->groupBy('module')->get();
 
         if ($magento_module) {
             return response()->json(['code' => 200, 'data' => $magento_module, 'storecategories' => $storecategories, 'postManAPi' => $postManAPi, 'magentoModules' => $magentoModules]);
@@ -427,41 +427,41 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoBackendUpdate(Request $request)
     {
-        $oldData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
-        $oldfeatures = $oldData->features;
-        $old_bug_details = $oldData->bug_details;
-        $old_template_file = $oldData->template_file;
-        $old_bug_resolution = $oldData->bug_resolution;
-        $old_description = $oldData->description;
+        $oldData                = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
+        $oldfeatures            = $oldData->features;
+        $old_bug_details        = $oldData->bug_details;
+        $old_template_file      = $oldData->template_file;
+        $old_bug_resolution     = $oldData->bug_resolution;
+        $old_description        = $oldData->description;
         $old_adminConfiguration = $oldData->admin_configuration;
 
-        $oldData->features = $request->features;
-        $oldData->bug_details = $request->bug_details;
-        $oldData->template_file = $request->template_file;
-        $oldData->bug_resolution = $request->bug_resolution;
-        $oldData->description = $request->description;
+        $oldData->features            = $request->features;
+        $oldData->bug_details         = $request->bug_details;
+        $oldData->template_file       = $request->template_file;
+        $oldData->bug_resolution      = $request->bug_resolution;
+        $oldData->description         = $request->description;
         $oldData->admin_configuration = $request->admin_configuration;
-        $oldData->updated_by = \Auth::id();
+        $oldData->updated_by          = \Auth::id();
         $oldData->save();
 
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $oldData->id;
-        $magnetohistory->new_template_file = $request->template_file;
-        $magnetohistory->new_features = $request->features;
-        $magnetohistory->new_bug_details = $request->bug_details;
-        $magnetohistory->new_bug_solutions = $request->bug_resolution;
-        $magnetohistory->new_value = $request->admin_configuration;
+        $magnetohistory->new_template_file       = $request->template_file;
+        $magnetohistory->new_features            = $request->features;
+        $magnetohistory->new_bug_details         = $request->bug_details;
+        $magnetohistory->new_bug_solutions       = $request->bug_resolution;
+        $magnetohistory->new_value               = $request->admin_configuration;
 
         $magnetohistory->user_id = \Auth::id();
 
         if ($old_adminConfiguration != $request->admin_configuration) {
-            $magnetohistory->old_value = $old_adminConfiguration;
+            $magnetohistory->old_value   = $old_adminConfiguration;
             $magnetohistory->column_name = 'admin_configuration';
             $magnetohistory->save();
         }
 
         if ($old_description != $request->description) {
-            $magnetohistory->old_value = $old_description;
+            $magnetohistory->old_value   = $old_description;
             $magnetohistory->column_name = 'description';
             $magnetohistory->save();
         }
@@ -474,18 +474,18 @@ class MagentoBackendDocumentationController extends Controller
 
         if ($old_bug_details != $request->bug_details) {
             $magnetohistory->old_bug_details = $old_bug_details;
-            $magnetohistory->old_bug_type = 'BugDeatils';
+            $magnetohistory->old_bug_type    = 'BugDeatils';
             $magnetohistory->save();
         }
 
         if ($old_template_file != $request->template_file) {
-            $magnetohistory->old_template_file = $old_template_file;
+            $magnetohistory->old_template_file  = $old_template_file;
             $magnetohistory->template_file_type = 'TemplateFile';
             $magnetohistory->save();
         }
 
         if ($old_bug_resolution != $request->bug_resolution) {
-            $magnetohistory->old_bug_solutions = $old_bug_resolution;
+            $magnetohistory->old_bug_solutions      = $old_bug_resolution;
             $magnetohistory->old_bug_solutuion_type = 'BugResolution';
             $magnetohistory->save();
         }
@@ -493,10 +493,10 @@ class MagentoBackendDocumentationController extends Controller
         $magnetohistory->save();
 
         return response()->json([
-            'status' => true,
-            'message' => 'Updated successfully',
+            'status'      => true,
+            'message'     => 'Updated successfully',
             'status_name' => 'success',
-            'code' => 200,
+            'code'        => 200,
         ], 200);
     }
 
@@ -505,9 +505,9 @@ class MagentoBackendDocumentationController extends Controller
         $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('feature_type', $request->type)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -517,9 +517,9 @@ class MagentoBackendDocumentationController extends Controller
         $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('template_file_type', $request->type)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -529,9 +529,9 @@ class MagentoBackendDocumentationController extends Controller
         $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_type', $request->type)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -541,9 +541,9 @@ class MagentoBackendDocumentationController extends Controller
         $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_solutuion_type', $request->type)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -578,18 +578,18 @@ class MagentoBackendDocumentationController extends Controller
 
     private function magentoBackendHistorysave($backendId, $oldId, $newData, $columnname)
     {
-        $magnetohistory = new MagentoBackendDocumentationHistory();
+        $magnetohistory                          = new MagentoBackendDocumentationHistory();
         $magnetohistory->magento_backend_docs_id = $backendId;
-        $magnetohistory->column_name = $columnname;
-        $magnetohistory->old_id = $oldId;
-        $magnetohistory->new_id = $newData;
-        $magnetohistory->user_id = \Auth::id();
+        $magnetohistory->column_name             = $columnname;
+        $magnetohistory->old_id                  = $oldId;
+        $magnetohistory->new_id                  = $newData;
+        $magnetohistory->user_id                 = \Auth::id();
         $magnetohistory->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $magnetohistory,
-            'message' => 'Magento Bcakend Documentation created successfully',
+            'status'      => true,
+            'data'        => $magnetohistory,
+            'message'     => 'Magento Bcakend Documentation created successfully',
             'status_name' => 'success',
         ], 200);
     }

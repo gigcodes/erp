@@ -80,15 +80,15 @@ class StoreWebsiteController extends Controller
      */
     public function index(WebsiteStoreTag $WebsiteStoreTag)
     {
-        $title = 'List | Store Website';
+        $title    = 'List | Store Website';
         $services = Service::get();
 
         $tags = $WebsiteStoreTag->get();
 
-        $assetManager = AssetsManager::whereNotNull('ip');
+        $assetManager  = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
-        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
-        $projects = WebsiteStoreProject::orderBy('name')->get()->toArray();
+        $storeCodes    = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        $projects      = WebsiteStoreProject::orderBy('name')->get()->toArray();
 
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
@@ -97,7 +97,7 @@ class StoreWebsiteController extends Controller
 
     public function builderApiKey()
     {
-        $title = 'Builder Api Key | Store Website';
+        $title         = 'Builder Api Key | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
 
         return view('storewebsite::index-builder-api-key', compact('title', 'storeWebsites'));
@@ -105,18 +105,18 @@ class StoreWebsiteController extends Controller
 
     public function updateBuilderApiKey(Request $request, $id)
     {
-        $website = StoreWebsite::findOrFail($id);
-        $old = $website->builder_io_api_key;
+        $website                     = StoreWebsite::findOrFail($id);
+        $old                         = $website->builder_io_api_key;
         $website->builder_io_api_key = $request->input('builder_io_api_key');
         $website->save();
 
         // Maintain history in table
         if ($old != $request->input('builder_io_api_key')) {
-            $history = new StoreWebsiteBuilderApiKeyHistory();
+            $history                   = new StoreWebsiteBuilderApiKeyHistory();
             $history->store_website_id = $website->id;
-            $history->old = $old;
-            $history->new = $request->input('builder_io_api_key');
-            $history->updated_by = Auth::user()->id;
+            $history->old              = $old;
+            $history->new              = $request->input('builder_io_api_key');
+            $history->updated_by       = Auth::user()->id;
             $history->save();
         }
 
@@ -131,17 +131,17 @@ class StoreWebsiteController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function apiToken()
     {
-        $title = 'Api Token | Store Website';
-        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $title             = 'Api Token | Store Website';
+        $storeWebsites     = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
         return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
@@ -159,7 +159,7 @@ class StoreWebsiteController extends Controller
 
         $storeWebsiteUsers = $storeWebsiteUsers->get();
 
-        $title = 'Admin Password | Store Website';
+        $title         = 'Admin Password | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
@@ -168,7 +168,7 @@ class StoreWebsiteController extends Controller
 
     public function adminUrls(Request $request)
     {
-        $title = 'Admin Urls | Store Website';
+        $title         = 'Admin Urls | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
@@ -240,8 +240,8 @@ class StoreWebsiteController extends Controller
         }
         $storeWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
         if ($storeWebsite) {
-            $magento_url = $storeWebsite->magento_url;
-            $api_token = $storeWebsite->api_token;
+            $magento_url      = $storeWebsite->magento_url;
+            $api_token        = $storeWebsite->api_token;
             $storeWebsiteCode = $storeWebsite->storeCode;
             if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                 $response = Http::withBody(json_encode([
@@ -249,38 +249,38 @@ class StoreWebsiteController extends Controller
                         'name' => 'Default Category',
                     ],
                 ]), 'application/json')->withHeaders([
-                    'Content-Type' => 'application/json',
+                    'Content-Type'  => 'application/json',
                     'Authorization' => 'Bearer ' . $api_token,
                 ])->get(rtrim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/categories?fields=id,parent_id,name");
 
                 if ($response->ok()) {
                     StoreWebsitesApiTokenLog::create([
-                        'user_id' => Auth::id(),
+                        'user_id'          => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
-                        'response' => 'API Token Test:- ' . $response->body(),
-                        'status_code' => $response->status(),
-                        'status' => 'Success',
+                        'response'         => 'API Token Test:- ' . $response->body(),
+                        'status_code'      => $response->status(),
+                        'status'           => 'Success',
                     ]);
 
                     return response()->json(['success' => true, 'message' => 'API Token Test Success!']);
                 } else {
                     StoreWebsitesApiTokenLog::create([
-                        'user_id' => Auth::id(),
+                        'user_id'          => Auth::id(),
                         'store_website_id' => $storeWebsite->id,
-                        'response' => 'API Token Test:- ' . $response->json('message'),
-                        'status_code' => $response->status(),
-                        'status' => 'Error',
+                        'response'         => 'API Token Test:- ' . $response->json('message'),
+                        'status_code'      => $response->status(),
+                        'status'           => 'Error',
                     ]);
 
                     return response()->json(['success' => false, 'message' => 'API Token Test failed. Please check logs for more details']);
                 }
             }
             StoreWebsitesApiTokenLog::create([
-                'user_id' => Auth::id(),
+                'user_id'          => Auth::id(),
                 'store_website_id' => $storeWebsite->id,
-                'response' => 'The store website URL or Store Code is not found.',
-                'status_code' => '404',
-                'status' => 'Error',
+                'response'         => 'The store website URL or Store Code is not found.',
+                'status_code'      => '404',
+                'status'           => 'Error',
             ]);
 
             return response()->json(['success' => false, 'message' => 'The store website URL  or Store Code is not found.']);
@@ -297,12 +297,12 @@ class StoreWebsiteController extends Controller
         if ($request->has('store_website_users_id') && $request->store_website_users_id == '') {
             return response()->json(['success' => false, 'message' => 'The request parameter store_website_users_id is missing']);
         }
-        $storeWebsite = StoreWebsite::where('id', $request->store_website_id)->first();
-        $oldWebsiteApi = $storeWebsite->api_token;
+        $storeWebsite     = StoreWebsite::where('id', $request->store_website_id)->first();
+        $oldWebsiteApi    = $storeWebsite->api_token;
         $StoreWebsiteUser = StoreWebsiteUsers::where('id', $request->store_website_users_id)->first();
         if ($storeWebsite && $StoreWebsiteUser) {
             $storeWebsiteCode = $storeWebsite->storeCode;
-            $magento_url = $storeWebsite->magento_url;
+            $magento_url      = $storeWebsite->magento_url;
             if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                 //$url=$magento_url."/rest/V1/integration/admin/token";
 
@@ -312,47 +312,47 @@ class StoreWebsiteController extends Controller
                 ]);
 
                 if ($token_response->ok()) {
-                    $generated_token = trim($token_response->body(), '"');
+                    $generated_token         = trim($token_response->body(), '"');
                     $storeWebsite->api_token = $generated_token;
                     $storeWebsite->save();
 
-                    $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+                    $storeWebsiteHistory                    = new StoreWebsiteApiTokenHistory();
                     $storeWebsiteHistory->store_websites_id = $storeWebsite->id;
-                    $storeWebsiteHistory->old_api_token = $oldWebsiteApi;
-                    $storeWebsiteHistory->new_api_token = $generated_token;
-                    $storeWebsiteHistory->updatedBy = Auth::id();
+                    $storeWebsiteHistory->old_api_token     = $oldWebsiteApi;
+                    $storeWebsiteHistory->new_api_token     = $generated_token;
+                    $storeWebsiteHistory->updatedBy         = Auth::id();
                     $storeWebsiteHistory->save();
 
                     StoreWebsitesApiTokenLog::create([
-                        'user_id' => Auth::id(),
-                        'store_website_id' => $storeWebsite->id,
+                        'user_id'                => Auth::id(),
+                        'store_website_id'       => $storeWebsite->id,
                         'store_website_users_id' => $StoreWebsiteUser->id,
-                        'response' => 'API Token updated successfully!',
-                        'status_code' => $token_response->status(),
-                        'status' => 'Success',
+                        'response'               => 'API Token updated successfully!',
+                        'status_code'            => $token_response->status(),
+                        'status'                 => 'Success',
                     ]);
 
                     return response()->json(['success' => true, 'message' => 'API Token updated successfully!', 'token' => $generated_token]);
                 } else {
                     StoreWebsitesApiTokenLog::create([
-                        'user_id' => Auth::id(),
-                        'store_website_id' => $storeWebsite->id,
+                        'user_id'                => Auth::id(),
+                        'store_website_id'       => $storeWebsite->id,
                         'store_website_users_id' => $StoreWebsiteUser->id,
-                        'response' => $token_response->json('message'),
-                        'status_code' => $token_response->status(),
-                        'status' => 'Error',
+                        'response'               => $token_response->json('message'),
+                        'status_code'            => $token_response->status(),
+                        'status'                 => 'Error',
                     ]);
 
                     return response()->json(['success' => false, 'message' => $token_response->json('message')]);
                 }
             }
             StoreWebsitesApiTokenLog::create([
-                'user_id' => Auth::id(),
-                'store_website_id' => $storeWebsite->id,
+                'user_id'                => Auth::id(),
+                'store_website_id'       => $storeWebsite->id,
                 'store_website_users_id' => $StoreWebsiteUser->id,
-                'response' => 'The store website URL or Store Code is not found.',
-                'status_code' => '404',
-                'status' => 'Error',
+                'response'               => 'The store website URL or Store Code is not found.',
+                'status_code'            => '404',
+                'status'                 => 'Error',
             ]);
 
             return response()->json(['success' => false, 'message' => 'The store website URL or Store Code is not found.']);
@@ -368,13 +368,13 @@ class StoreWebsiteController extends Controller
         }
 
         foreach ($request->ids as $storeWebsiteId) {
-            $storeWebsite = StoreWebsite::where('id', $storeWebsiteId)->first();
-            $oldWebsiteApi = $storeWebsite->api_token;
+            $storeWebsite     = StoreWebsite::where('id', $storeWebsiteId)->first();
+            $oldWebsiteApi    = $storeWebsite->api_token;
             $StoreWebsiteUser = StoreWebsiteUsers::where('store_website_id', $storeWebsiteId)->where('email', 'apiuser@theluxuryunlimited.com')->first();
 
             if ($storeWebsite && $StoreWebsiteUser) {
                 $storeWebsiteCode = $storeWebsite->storeCode;
-                $magento_url = $storeWebsite->magento_url;
+                $magento_url      = $storeWebsite->magento_url;
                 if (! empty($magento_url) && ! empty($storeWebsiteCode)) {
                     $token_response = Http::post(rtrim($magento_url, '/') . "/{$storeWebsiteCode->code}/rest/V1/integration/admin/token", [
                         'username' => $StoreWebsiteUser->username,
@@ -382,44 +382,44 @@ class StoreWebsiteController extends Controller
                     ]);
 
                     if ($token_response->ok()) {
-                        $generated_token = trim($token_response->body(), '"');
+                        $generated_token         = trim($token_response->body(), '"');
                         $storeWebsite->api_token = $generated_token;
                         $storeWebsite->save();
-                        $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+                        $storeWebsiteHistory                    = new StoreWebsiteApiTokenHistory();
                         $storeWebsiteHistory->store_websites_id = $storeWebsite->id;
-                        $storeWebsiteHistory->old_api_token = $oldWebsiteApi;
-                        $storeWebsiteHistory->new_api_token = $generated_token;
-                        $storeWebsiteHistory->updatedBy = Auth::id();
+                        $storeWebsiteHistory->old_api_token     = $oldWebsiteApi;
+                        $storeWebsiteHistory->new_api_token     = $generated_token;
+                        $storeWebsiteHistory->updatedBy         = Auth::id();
                         $storeWebsiteHistory->save();
 
                         StoreWebsitesApiTokenLog::create([
-                            'user_id' => Auth::id(),
-                            'store_website_id' => $storeWebsite->id,
+                            'user_id'                => Auth::id(),
+                            'store_website_id'       => $storeWebsite->id,
                             'store_website_users_id' => $StoreWebsiteUser->id,
-                            'response' => 'API Token updated successfully!',
-                            'status_code' => $token_response->status(),
-                            'status' => 'Success',
+                            'response'               => 'API Token updated successfully!',
+                            'status_code'            => $token_response->status(),
+                            'status'                 => 'Success',
                         ]);
                     // return response()->json(['success' => true, 'message' =>'API Token updated successfully!','token'=>$generated_token ]);
                     } else {
                         StoreWebsitesApiTokenLog::create([
-                            'user_id' => Auth::id(),
-                            'store_website_id' => $storeWebsite->id,
+                            'user_id'                => Auth::id(),
+                            'store_website_id'       => $storeWebsite->id,
                             'store_website_users_id' => $StoreWebsiteUser->id,
-                            'response' => $token_response->json('message'),
-                            'status_code' => $token_response->status(),
-                            'status' => 'Error',
+                            'response'               => $token_response->json('message'),
+                            'status_code'            => $token_response->status(),
+                            'status'                 => 'Error',
                         ]);
                         // return response()->json(['success' => false, 'message' => $token_response->json('message')]);
                     }
                 } else {
                     StoreWebsitesApiTokenLog::create([
-                        'user_id' => Auth::id(),
-                        'store_website_id' => $storeWebsite->id,
+                        'user_id'                => Auth::id(),
+                        'store_website_id'       => $storeWebsite->id,
                         'store_website_users_id' => $StoreWebsiteUser->id,
-                        'response' => 'The store website URL or Store Code is not found.',
-                        'status_code' => '404',
-                        'status' => 'Error',
+                        'response'               => 'The store website URL or Store Code is not found.',
+                        'status_code'            => '404',
+                        'status'                 => 'Error',
                     ]);
                     // return response()->json(['success' => false, 'message' => 'The store website URL or Store Code is not found.']);
                 }
@@ -431,7 +431,7 @@ class StoreWebsiteController extends Controller
 
     public function logWebsiteUsers($id)
     {
-        $title = 'List | Store Website User Logs';
+        $title               = 'List | Store Website User Logs';
         $logstorewebsiteuser = LogStoreWebsiteUser::where('store_website_id', $id)->orderBy('id', 'DESC')->get();
 
         return view('storewebsite::log_store_website_users', compact('title', 'logstorewebsiteuser'));
@@ -447,15 +447,15 @@ class StoreWebsiteController extends Controller
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function records(Request $request)
     {
         $records = StoreWebsite::whereNull('deleted_at')
         ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
         ->select(['store_websites.*', 'svcsm.code as store_code_name', 'svcsm.id as store_code_id']);
-        $keyword = request('keyword');
-        $country = request('country');
+        $keyword            = request('keyword');
+        $country            = request('country');
         $mailing_service_id = request('mailing_service_id');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -484,20 +484,20 @@ class StoreWebsiteController extends Controller
 
     public function saveCancellation(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id               = $request->get('id', 0);
         $checkCacellation = ProductCancellationPolicie::find($id);
         if ($checkCacellation != null) {
             $checkCacellation->store_website_id = $request->store_website_id;
             $checkCacellation->days_cancelation = $request->days_cancelation;
-            $checkCacellation->days_refund = $request->days_refund;
-            $checkCacellation->percentage = $request->percentage;
+            $checkCacellation->days_refund      = $request->days_refund;
+            $checkCacellation->percentage       = $request->percentage;
             $checkCacellation->update();
         } else {
-            $checkCacellation = new ProductCancellationPolicie();
+            $checkCacellation                   = new ProductCancellationPolicie();
             $checkCacellation->store_website_id = $request->store_website_id;
             $checkCacellation->days_cancelation = $request->days_cancelation;
-            $checkCacellation->days_refund = $request->days_refund;
-            $checkCacellation->percentage = $request->percentage;
+            $checkCacellation->days_refund      = $request->days_refund;
+            $checkCacellation->percentage       = $request->percentage;
             $checkCacellation->save();
         }
 
@@ -506,37 +506,37 @@ class StoreWebsiteController extends Controller
 
     public function savelogwebsiteuser($log_case_id, $id, $username, $userEmail, $firstName, $lastName, $password, $website_mode, $msg)
     {
-        $log = new LogStoreWebsiteUser();
-        $log->log_case_id = $log_case_id;
+        $log                   = new LogStoreWebsiteUser();
+        $log->log_case_id      = $log_case_id;
         $log->store_website_id = $id;
-        $log->username = $username;
-        $log->username = $username;
-        $log->useremail = $userEmail;
-        $log->first_name = $firstName;
-        $log->last_name = $lastName;
-        $log->password = $password;
-        $log->website_mode = $website_mode;
-        $log->log_msg = $msg;
+        $log->username         = $username;
+        $log->username         = $username;
+        $log->useremail        = $userEmail;
+        $log->first_name       = $firstName;
+        $log->last_name        = $lastName;
+        $log->password         = $password;
+        $log->website_mode     = $website_mode;
+        $log->log_msg          = $msg;
         $log->save();
     }
 
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function save(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'title' => 'required',
-            'website' => 'required',
+            'title'          => 'required',
+            'website'        => 'required',
             'product_markup' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -570,7 +570,7 @@ class StoreWebsiteController extends Controller
             if (! file_exists($keyPath)) {
                 mkdir($keyPath, 0777, true);
             }
-            $file = $request->file('key_file_path1');
+            $file        = $request->file('key_file_path1');
             $keyPathName = uniqid() . strtotime(date('YmdHis')) . '_' . trim($file->getClientOriginalName());
             $file->move($keyPath, $keyPathName);
             $post['key_file_path'] = $keyPathName;
@@ -586,33 +586,33 @@ class StoreWebsiteController extends Controller
             $this->savelogwebsiteuser('#1', $post['id'], $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['website_mode'], 'For this Website ' . $post['id'] . ' ,A new user has been created.');
         }
         if ($request->staging_username && $request->staging_password) {
-            $message = 'Staging Username: ' . $request->staging_username . ', Staging Password is: ' . $request->staging_password;
+            $message           = 'Staging Username: ' . $request->staging_username . ', Staging Password is: ' . $request->staging_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
-            $chat_message = ChatMessage::create($params);
+            $chat_message      = ChatMessage::create($params);
         }
 
         if ($request->mysql_username && $request->mysql_password) {
-            $message = 'Mysql Username: ' . $request->mysql_username . ', Mysql Password is: ' . $request->mysql_password;
+            $message           = 'Mysql Username: ' . $request->mysql_username . ', Mysql Password is: ' . $request->mysql_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
-            $chat_message = ChatMessage::create($params);
+            $chat_message      = ChatMessage::create($params);
         }
 
         if ($request->mysql_staging_username && $request->mysql_staging_password) {
-            $message = 'Mysql Staging Username: ' . $request->mysql_staging_username . ', Mysql Staging Password is: ' . $request->mysql_staging_password;
+            $message           = 'Mysql Staging Username: ' . $request->mysql_staging_username . ', Mysql Staging Password is: ' . $request->mysql_staging_password;
             $params['user_id'] = Auth::id();
             $params['message'] = $message;
-            $chat_message = ChatMessage::create($params);
+            $chat_message      = ChatMessage::create($params);
         }
 
         if ($id == 0) {
             $siteDevelopmentCategories = SiteDevelopmentCategory::all();
             foreach ($siteDevelopmentCategories as $develop) {
-                $site = new SiteDevelopment;
-                $site->site_development_category_id = $develop->id;
+                $site                                      = new SiteDevelopment;
+                $site->site_development_category_id        = $develop->id;
                 $site->site_development_master_category_id = $develop->master_category_id;
-                $site->website_id = $records->id;
+                $site->website_id                          = $records->id;
                 $site->save();
             }
         }
@@ -623,7 +623,8 @@ class StoreWebsiteController extends Controller
     /**
      * Creates store website from an existing store website and insert necessary data to the corresponding tables
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     *
      * @return \Illuminate\Http\JsonResponse|void
      */
     public function saveDuplicateStore(Request $request)
@@ -634,12 +635,12 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'error' => 'Number of duplicates must be 1 or more!']);
         }
 
-        $storeWebsiteId = $request->get('id');
-        $storeWebsite = StoreWebsite::find($storeWebsiteId);
+        $storeWebsiteId         = $request->get('id');
+        $storeWebsite           = StoreWebsite::find($storeWebsiteId);
         $existingDuplicateCount = StoreWebsite::where('parent_id', '=', $storeWebsiteId)->count();
-        $numberOfDuplicates = $numberOfDuplicates + $existingDuplicateCount;
-        $serverId = 1;
-        $response = $this->updateStoreViewServer($storeWebsiteId, $serverId);
+        $numberOfDuplicates     = $numberOfDuplicates + $existingDuplicateCount;
+        $serverId               = 1;
+        $response               = $this->updateStoreViewServer($storeWebsiteId, $serverId);
         if (! $response) {
             return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server!']);
         }
@@ -650,10 +651,10 @@ class StoreWebsiteController extends Controller
 
         for ($i = $existingDuplicateCount + 1; $i <= $numberOfDuplicates; $i++) {
             $copyStoreWebsite = $storeWebsite->replicate();
-            $title = $copyStoreWebsite->title;
+            $title            = $copyStoreWebsite->title;
             unset($copyStoreWebsite->id);
             unset($copyStoreWebsite->title);
-            $copyStoreWebsite->title = $title . ' ' . $i;
+            $copyStoreWebsite->title     = $title . ' ' . $i;
             $copyStoreWebsite->parent_id = $storeWebsiteId;
             $copyStoreWebsite->save();
 
@@ -670,14 +671,17 @@ class StoreWebsiteController extends Controller
     /**
      * Function to update store view server mapping of a store website
      *
+     * @param mixed $storeWebsiteId
+     * @param mixed $serverId
+     *
      * @return \Illuminate\Http\JsonResponse
      * @return bool
      */
     public function updateStoreViewServer($storeWebsiteId, $serverId)
     {
-        $servers = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('code')->toArray();
+        $servers    = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('code')->toArray();
         $storeViews = WebsiteStoreView::whereIn('code', $servers)->get();
-        $count = 0;
+        $count      = 0;
         foreach ($storeViews as $key => $view) {
             $storeView = WebsiteStoreView::find($view->id);
             if (! $storeView->websiteStore) {
@@ -685,10 +689,10 @@ class StoreWebsiteController extends Controller
             } elseif (! $storeView->websiteStore->website) {
                 \Log::error('Website not found for ' . $view->id . '!');
             } else {
-                $websiteId = $view->websiteStore->website->id;
-                $website = Website::find($websiteId);
+                $websiteId                 = $view->websiteStore->website->id;
+                $website                   = Website::find($websiteId);
                 $website->store_website_id = $storeWebsiteId;
-                $response = $website->save();
+                $response                  = $website->save();
             }
             $count++;
         }
@@ -704,19 +708,19 @@ class StoreWebsiteController extends Controller
 
     public function saveUserInMagento(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'username' => 'required',
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'userEmail' => 'required',
-            'password' => 'required',
+            'username'    => 'required',
+            'firstName'   => 'required',
+            'lastName'    => 'required',
+            'userEmail'   => 'required',
+            'password'    => 'required',
             'websitemode' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -727,7 +731,7 @@ class StoreWebsiteController extends Controller
         }
 
         $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
-        $count = 0;
+        $count         = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
             $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
 
@@ -757,22 +761,22 @@ class StoreWebsiteController extends Controller
             }
 
             if (! empty($post['store_website_userid'])) {
-                $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
-                $getUser->first_name = $post['firstName'];
-                $getUser->last_name = $post['lastName'];
-                $getUser->email = $post['userEmail'];
-                $getUser->password = $post['password'];
+                $getUser               = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+                $getUser->first_name   = $post['firstName'];
+                $getUser->last_name    = $post['lastName'];
+                $getUser->email        = $post['userEmail'];
+                $getUser->password     = $post['password'];
                 $getUser->website_mode = $post['websitemode'];
                 $getUser->save();
 
                 StoreWebsiteUserHistory::create([
-                    'store_website_id' => $getUser->store_website_id,
+                    'store_website_id'      => $getUser->store_website_id,
                     'store_website_user_id' => $getUser->id,
-                    'model' => \App\StoreWebsiteUsers::class,
-                    'attribute' => 'username_password',
-                    'old_value' => 'updated',
-                    'new_value' => 'updated',
-                    'user_id' => Auth::id(),
+                    'model'                 => \App\StoreWebsiteUsers::class,
+                    'attribute'             => 'username_password',
+                    'old_value'             => 'updated',
+                    'new_value'             => 'updated',
+                    'user_id'               => Auth::id(),
                 ]);
 
                 if ($getUser->is_deleted == 0) {
@@ -780,18 +784,18 @@ class StoreWebsiteController extends Controller
                     $magentoHelper->updateMagentouser($storeWebsite, $post);
                 }
             } else {
-                $params['username'] = $post['username'];
-                $params['first_name'] = $post['firstName'];
-                $params['last_name'] = $post['lastName'];
-                $params['email'] = $post['userEmail'];
-                $params['password'] = $post['password'];
+                $params['username']         = $post['username'];
+                $params['first_name']       = $post['firstName'];
+                $params['last_name']        = $post['lastName'];
+                $params['email']            = $post['userEmail'];
+                $params['password']         = $post['password'];
                 $params['store_website_id'] = $storeWebsite->id;
-                $params['website_mode'] = $post['websitemode'];
+                $params['website_mode']     = $post['websitemode'];
 
                 $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
                 if ($post['userEmail'] && $post['password']) {
-                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $message           = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
                     $params['user_id'] = Auth::id();
                     $params['message'] = $message;
                     ChatMessage::create($params);
@@ -801,13 +805,13 @@ class StoreWebsiteController extends Controller
                 $magentoHelper->addMagentouser($storeWebsite, $post);
 
                 StoreWebsiteUserHistory::create([
-                    'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                    'store_website_id'      => $StoreWebsiteUsersid->store_website_id,
                     'store_website_user_id' => $StoreWebsiteUsersid->id,
-                    'model' => \App\StoreWebsiteUsers::class,
-                    'attribute' => 'username_password',
-                    'old_value' => 'new_added',
-                    'new_value' => 'new_added',
-                    'user_id' => Auth::id(),
+                    'model'                 => \App\StoreWebsiteUsers::class,
+                    'attribute'             => 'username_password',
+                    'old_value'             => 'new_added',
+                    'new_value'             => 'new_added',
+                    'user_id'               => Auth::id(),
                 ]);
             }
             $count++;
@@ -821,19 +825,19 @@ class StoreWebsiteController extends Controller
 
     public function saveUserInMagentoAdminPassword(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'username' => 'required',
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'userEmail' => 'required',
-            'password' => 'required',
+            'username'    => 'required',
+            'firstName'   => 'required',
+            'lastName'    => 'required',
+            'userEmail'   => 'required',
+            'password'    => 'required',
             'websitemode' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -844,7 +848,7 @@ class StoreWebsiteController extends Controller
         }
 
         $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
-        $count = 0;
+        $count         = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
             $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
 
@@ -874,22 +878,22 @@ class StoreWebsiteController extends Controller
             }
 
             if (! empty($post['store_website_userid'])) {
-                $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
-                $getUser->first_name = $post['firstName'];
-                $getUser->last_name = $post['lastName'];
-                $getUser->email = $post['userEmail'];
-                $getUser->password = $post['password'];
+                $getUser               = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+                $getUser->first_name   = $post['firstName'];
+                $getUser->last_name    = $post['lastName'];
+                $getUser->email        = $post['userEmail'];
+                $getUser->password     = $post['password'];
                 $getUser->website_mode = $post['websitemode'];
                 $getUser->save();
 
                 StoreWebsiteUserHistory::create([
-                    'store_website_id' => $getUser->store_website_id,
+                    'store_website_id'      => $getUser->store_website_id,
                     'store_website_user_id' => $getUser->id,
-                    'model' => \App\StoreWebsiteUsers::class,
-                    'attribute' => 'username_password',
-                    'old_value' => 'updated',
-                    'new_value' => 'updated',
-                    'user_id' => Auth::id(),
+                    'model'                 => \App\StoreWebsiteUsers::class,
+                    'attribute'             => 'username_password',
+                    'old_value'             => 'updated',
+                    'new_value'             => 'updated',
+                    'user_id'               => Auth::id(),
                 ]);
 
                 if ($getUser->is_deleted == 0) {
@@ -897,18 +901,18 @@ class StoreWebsiteController extends Controller
                     $magentoHelper->updateMagentouser($storeWebsite, $post, $getUser->id);
                 }
             } else {
-                $params['username'] = $post['username'];
-                $params['first_name'] = $post['firstName'];
-                $params['last_name'] = $post['lastName'];
-                $params['email'] = $post['userEmail'];
-                $params['password'] = $post['password'];
+                $params['username']         = $post['username'];
+                $params['first_name']       = $post['firstName'];
+                $params['last_name']        = $post['lastName'];
+                $params['email']            = $post['userEmail'];
+                $params['password']         = $post['password'];
                 $params['store_website_id'] = $storeWebsite->id;
-                $params['website_mode'] = $post['websitemode'];
+                $params['website_mode']     = $post['websitemode'];
 
                 $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
                 if ($post['userEmail'] && $post['password']) {
-                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $message           = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
                     $params['user_id'] = Auth::id();
                     $params['message'] = $message;
                     ChatMessage::create($params);
@@ -918,13 +922,13 @@ class StoreWebsiteController extends Controller
                 $magentoHelper->addMagentouser($storeWebsite, $post, $StoreWebsiteUsersid->id);
 
                 StoreWebsiteUserHistory::create([
-                    'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                    'store_website_id'      => $StoreWebsiteUsersid->store_website_id,
                     'store_website_user_id' => $StoreWebsiteUsersid->id,
-                    'model' => \App\StoreWebsiteUsers::class,
-                    'attribute' => 'username_password',
-                    'old_value' => 'new_added',
-                    'new_value' => 'new_added',
-                    'user_id' => Auth::id(),
+                    'model'                 => \App\StoreWebsiteUsers::class,
+                    'attribute'             => 'username_password',
+                    'old_value'             => 'new_added',
+                    'new_value'             => 'new_added',
+                    'user_id'               => Auth::id(),
                 ]);
             }
             $count++;
@@ -938,9 +942,9 @@ class StoreWebsiteController extends Controller
 
     public function deleteUserInMagento(Request $request)
     {
-        $post = $request->all();
-        $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
-        $username = $getUser->username;
+        $post                = $request->all();
+        $getUser             = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+        $username            = $getUser->username;
         $getUser->is_deleted = 1;
         $getUser->save();
 
@@ -949,16 +953,16 @@ class StoreWebsiteController extends Controller
         $storeWebsite = StoreWebsite::find($getUser->store_website_id);
 
         $magentoHelper = new MagentoHelperv2();
-        $result = $magentoHelper->deleteMagentouser($storeWebsite, $username);
+        $result        = $magentoHelper->deleteMagentouser($storeWebsite, $username);
 
         StoreWebsiteUserHistory::create([
-            'store_website_id' => $getUser->store_website_id,
+            'store_website_id'      => $getUser->store_website_id,
             'store_website_user_id' => $getUser->id,
-            'model' => \App\StoreWebsiteUsers::class,
-            'attribute' => 'username_password',
-            'old_value' => 'delete',
-            'new_value' => 'delete',
-            'user_id' => Auth::id(),
+            'model'                 => \App\StoreWebsiteUsers::class,
+            'attribute'             => 'username_password',
+            'old_value'             => 'delete',
+            'new_value'             => 'delete',
+            'user_id'               => Auth::id(),
         ]);
 
         return response()->json(['code' => 200, 'messages' => 'User Deleted Sucessfully']);
@@ -967,12 +971,13 @@ class StoreWebsiteController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where('id', $id)->first();
-        $services = Service::get();
+        $services     = Service::get();
         //->where('is_deleted',0)
 
         $storewebsiteusers = StoreWebsiteUsers::where('store_website_id', $id)->get();
@@ -981,12 +986,12 @@ class StoreWebsiteController extends Controller
 
         if ($storeWebsite) {
             return response()->json([
-                'code' => 200,
-                'data' => $storeWebsite,
-                'userdata' => $storewebsiteusers,
+                'code'          => 200,
+                'data'          => $storeWebsite,
+                'userdata'      => $storewebsiteusers,
                 'last_adminurl' => $storewebsiteadminurl,
-                'services' => $services,
-                'totaluser' => count($storewebsiteusers), ]
+                'services'      => $services,
+                'totaluser'     => count($storewebsiteusers), ]
             );
         }
 
@@ -1007,7 +1012,8 @@ class StoreWebsiteController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -1085,7 +1091,7 @@ class StoreWebsiteController extends Controller
 
     public function socialStrategy($id, Request $request)
     {
-        $website = StoreWebsite::find($id);
+        $website  = StoreWebsite::find($id);
         $subjects = SocialStrategySubject::orderBy('id', 'desc');
 
         if ($request->k != null) {
@@ -1114,7 +1120,7 @@ class StoreWebsiteController extends Controller
             $subjectCheck = SocialStrategySubject::where('title', $request->text)->first();
 
             if (empty($subjectCheck)) {
-                $subject = new SocialStrategySubject;
+                $subject        = new SocialStrategySubject;
                 $subject->title = $request->text;
                 $subject->save();
 
@@ -1147,7 +1153,7 @@ class StoreWebsiteController extends Controller
         }
 
         $store_strategy->social_strategy_subject_id = $request->subject;
-        $store_strategy->website_id = $request->site;
+        $store_strategy->website_id                 = $request->site;
 
         $store_strategy->save();
 
@@ -1168,14 +1174,14 @@ class StoreWebsiteController extends Controller
         $file->move($path, $name);
 
         return response()->json([
-            'name' => $name,
+            'name'          => $name,
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
 
     public function saveDocuments(Request $request)
     {
-        $strategy = null;
+        $strategy  = null;
         $documents = $request->input('document', []);
         if (! empty($documents)) {
             if ($request->id) {
@@ -1183,15 +1189,15 @@ class StoreWebsiteController extends Controller
             }
 
             if (! $strategy || $request->id == null) {
-                $strategy = new SocialStrategy;
-                $strategy->description = '';
-                $strategy->website_id = $request->store_website_id;
+                $strategy                             = new SocialStrategy;
+                $strategy->description                = '';
+                $strategy->website_id                 = $request->store_website_id;
                 $strategy->social_strategy_subject_id = $request->site_development_subject_id;
                 $strategy->save();
             }
 
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/' . $file);
+                $path  = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('site-development/' . floor($strategy->id / config('constants.image_per_folder')))
                     ->upload();
@@ -1230,9 +1236,9 @@ class StoreWebsiteController extends Controller
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
-                        'id' => $media->id,
-                        'url' => getMediaUrl($media),
-                        'site_id' => $site->id,
+                        'id'        => $media->id,
+                        'url'       => getMediaUrl($media),
+                        'site_id'   => $site->id,
                         'user_list' => $usrSelectBox,
                     ];
                 }
@@ -1260,7 +1266,7 @@ class StoreWebsiteController extends Controller
     {
         if ($request->id != null && $request->site_id != null && $request->user_id != null) {
             $media = \Plank\Mediable\Media::find($request->id);
-            $user = \App\User::find($request->user_id);
+            $user  = \App\User::find($request->user_id);
             if ($user) {
                 if ($media) {
                     \App\ChatMessage::sendWithChatApi(
@@ -1293,9 +1299,9 @@ class StoreWebsiteController extends Controller
     public function saveRemarks(Request $request, $id)
     {
         \App\SocialStrategyRemark::create([
-            'remarks' => $request->remark,
+            'remarks'            => $request->remark,
             'social_strategy_id' => $request->id,
-            'user_id' => \Auth::user()->id,
+            'user_id'            => \Auth::user()->id,
         ]);
 
         $response = \App\SocialStrategyRemark::join('users as u', 'u.id', 'social_strategy_remarks.user_id')->where('social_strategy_id', $request->id)
@@ -1315,7 +1321,7 @@ class StoreWebsiteController extends Controller
 
     public function submitSubjectChange(Request $request, $id)
     {
-        $subject = SocialStrategySubject::find($request->id);
+        $subject        = SocialStrategySubject::find($request->id);
         $subject->title = $request->subject_title;
         $subject->save();
 
@@ -1328,9 +1334,9 @@ class StoreWebsiteController extends Controller
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh ' . $server . ' 2>&1';
 
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result      = exec($cmd, $allOutput);
 
         \Log::info(print_r($allOutput, true));
 
@@ -1339,7 +1345,7 @@ class StoreWebsiteController extends Controller
             $continuetoFill = false;
             foreach ($allOutput as $ao) {
                 if ($ao == '-----BEGIN RSA PRIVATE KEY-----' || $continuetoFill) {
-                    $string[] = $ao;
+                    $string[]       = $ao;
                     $continuetoFill = true;
                 }
             }
@@ -1379,12 +1385,12 @@ class StoreWebsiteController extends Controller
 
         foreach ($histories as $history) {
             $resultArray[] = [
-                'date' => $history->created_at->format('Y-m-d H:i:s'),
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
                 'website_mode' => $history->websiteuser->website_mode,
-                'username' => $history->websiteuser->username,
-                'first_name' => $history->websiteuser->first_name,
-                'last_name' => $history->websiteuser->last_name,
-                'action' => $history->new_value,
+                'username'     => $history->websiteuser->username,
+                'first_name'   => $history->websiteuser->first_name,
+                'last_name'    => $history->websiteuser->last_name,
+                'action'       => $history->new_value,
             ];
         }
 
@@ -1393,8 +1399,8 @@ class StoreWebsiteController extends Controller
 
     public function storeReindexHistory(Request $request)
     {
-        $website = StoreWebsite::find($request->id);
-        $date = Carbon::now()->subDays(7);
+        $website   = StoreWebsite::find($request->id);
+        $date      = Carbon::now()->subDays(7);
         $histories = StoreReIndexHistory::where('server_name', $website->title)->where('created_at', '>=', $date)
             ->latest()
             ->get();
@@ -1403,10 +1409,10 @@ class StoreWebsiteController extends Controller
 
         foreach ($histories as $history) {
             $resultArray[] = [
-                'date' => $history->created_at->format('Y-m-d H:i:s'),
+                'date'        => $history->created_at->format('Y-m-d H:i:s'),
                 'server_name' => $history->server_name,
-                'username' => $history->username,
-                'action' => $history->action,
+                'username'    => $history->username,
+                'action'      => $history->action,
             ];
         }
 
@@ -1416,7 +1422,8 @@ class StoreWebsiteController extends Controller
     /**
      * Build Process Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function buildProcess(Request $request, $id)
     {
@@ -1436,13 +1443,13 @@ class StoreWebsiteController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'reference' => 'required',
+            'reference'  => 'required',
             'repository' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -1458,22 +1465,22 @@ class StoreWebsiteController extends Controller
             if ($StoreWebsite != null) {
                 $StoreWebsite->build_name = $request->repository;
                 $StoreWebsite->repository = $request->repository;
-                $StoreWebsite->reference = $request->reference;
+                $StoreWebsite->reference  = $request->reference;
                 $StoreWebsite->update();
 
                 if ($StoreWebsite) {
-                    $jobName = $request->repository;
+                    $jobName    = $request->repository;
                     $repository = $request->repository;
-                    $ref = $request->reference;
-                    $staticdep = 1;
+                    $ref        = $request->reference;
+                    $staticdep  = 1;
 
                     $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
                     $jenkins->launchJob($jobName, ['repository' => $repository, 'ref' => $ref, 'staticdep' => 0]);
                     if ($jenkins->getJob($jobName)) {
-                        $job = $jenkins->getJob($jobName);
-                        $builds = $job->getBuilds();
+                        $job         = $jenkins->getJob($jobName);
+                        $builds      = $job->getBuilds();
                         $buildDetail = 'Build Name: ' . $jobName . '<br> Build Repository: ' . $repository . '<br> Reference: ' . $ref;
-                        $record = ['store_website_id' => $request->store_website_id, 'created_by' => Auth::id(), 'text' => $buildDetail, 'build_name' => $jobName, 'build_number' => $builds[0]->getNumber()];
+                        $record      = ['store_website_id' => $request->store_website_id, 'created_by' => Auth::id(), 'text' => $buildDetail, 'build_name' => $jobName, 'build_number' => $builds[0]->getNumber()];
                         BuildProcessHistory::create($record);
 
                         return response()->json(['code' => 200, 'error' => 'Process builed complete successfully.']);
@@ -1490,7 +1497,8 @@ class StoreWebsiteController extends Controller
     /**
      * This function is use to add company website address.
      *
-     * @param  int  $store_website_id
+     * @param int $store_website_id
+     *
      * @return JsonResponce
      */
     public function addCompanyWebsiteAddress(Request $request, $store_website_id)
@@ -1522,7 +1530,7 @@ class StoreWebsiteController extends Controller
     public function getDownloadDbEnvLogs(Request $request, $store_website_id)
     {
         try {
-            $perPage = 25;
+            $perPage     = 25;
             $responseLog = \App\DownloadDatabaseEnvLogs::where('store_website_id', $store_website_id)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
@@ -1549,7 +1557,7 @@ class StoreWebsiteController extends Controller
                     </td>';
                     $html .= '<td>' . $res->created_at . '</td>';
                     if ($res->download_url) {
-                        $filename = basename($res->download_url);
+                        $filename      = basename($res->download_url);
                         $downloadRoute = route('store-website.downloadFile', $filename);
 
                         $html .= '<td><a href="' . $downloadRoute . '" class="btn btn-primary" download>Download</a></td>';
@@ -1560,9 +1568,9 @@ class StoreWebsiteController extends Controller
                 }
 
                 return response()->json([
-                    'code' => 200,
-                    'data' => $html,
-                    'message' => '',
+                    'code'       => 200,
+                    'data'       => $html,
+                    'message'    => '',
                     'pagination' => $responseLog,
                 ]);
             }
@@ -1594,8 +1602,8 @@ class StoreWebsiteController extends Controller
                 }
 
                 return response()->json([
-                    'code' => 200,
-                    'data' => $html,
+                    'code'    => 200,
+                    'data'    => $html,
                     'message' => 'Magento setting updated successfully!!!',
                 ]);
             }
@@ -1641,8 +1649,8 @@ class StoreWebsiteController extends Controller
                 }
 
                 return response()->json([
-                    'code' => 200,
-                    'data' => $html,
+                    'code'    => 200,
+                    'data'    => $html,
                     'message' => 'Magento setting updated successfully!!!',
                 ]);
             }
@@ -1662,14 +1670,14 @@ class StoreWebsiteController extends Controller
      */
     public function updateCompanyWebsiteAddress(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
             'website_address' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -1698,10 +1706,10 @@ class StoreWebsiteController extends Controller
         if ($websiteDetails != null and $websiteDetails['server_ip'] != null and $websiteDetails['repository_id'] != null) {
             $repo = GithubRepository::where('id', $websiteDetails['repository_id'])->pluck('name')->first();
             if ($repo != null) {
-                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r ' . $repo . ' -s ' . $websiteDetails['server_ip'];
-                $allOutput = [];
+                $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'sync-staticfiles.sh -r ' . $repo . ' -s ' . $websiteDetails['server_ip'];
+                $allOutput   = [];
                 $allOutput[] = $cmd;
-                $result = exec($cmd, $allOutput); //Execute command
+                $result      = exec($cmd, $allOutput); //Execute command
                 \Log::info(print_r(['Command Output', $allOutput], true));
 
                 return response()->json(['code' => 200, 'message' => 'Command executed']);
@@ -1717,9 +1725,9 @@ class StoreWebsiteController extends Controller
     {
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-debug.sh --server ' . $website->server_ip . ' --debug ' . ($website->is_debug_true ? 'true' : 'false') . ' 2>&1';
         \Log::info('[SatyamTest] ' . $cmd);
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
+        $result      = exec($cmd, $allOutput);
         \Log::info(print_r($allOutput, true));
 
         return $result;
@@ -1727,9 +1735,9 @@ class StoreWebsiteController extends Controller
 
     public function checkMagentoToken(Request $request)
     {
-        $token = $request->id;
+        $token         = $request->id;
         $magentoHelper = new MagentoHelperv2();
-        $result = $magentoHelper->checkToken($token, $request->url);
+        $result        = $magentoHelper->checkToken($token, $request->url);
         if ($result) {
             return response()->json(['code' => 200, 'message' => 'Token is valid']);
         } else {
@@ -1739,12 +1747,12 @@ class StoreWebsiteController extends Controller
 
     public function generateApiToken(Request $request)
     {
-        $storeId = current(array_filter($request->update_website_api_id));
-        $oldStoreWebsite = StoreWebsite::find($storeId);
-        $storeWebsiteHistory = new StoreWebsiteApiTokenHistory();
+        $storeId                                = current(array_filter($request->update_website_api_id));
+        $oldStoreWebsite                        = StoreWebsite::find($storeId);
+        $storeWebsiteHistory                    = new StoreWebsiteApiTokenHistory();
         $storeWebsiteHistory->store_websites_id = $oldStoreWebsite->id;
-        $storeWebsiteHistory->old_api_token = $oldStoreWebsite->api_token;
-        $storeWebsiteHistory->updatedBy = Auth::id();
+        $storeWebsiteHistory->old_api_token     = $oldStoreWebsite->api_token;
+        $storeWebsiteHistory->updatedBy         = Auth::id();
 
         $apiTokens = $request->api_token;
 
@@ -1752,7 +1760,7 @@ class StoreWebsiteController extends Controller
             foreach ($apiTokens as $key => $apiToken) {
                 StoreWebsite::where('id', $key)->update(['api_token' => $apiToken, 'server_ip' => $request->server_ip[$key]]);
             }
-            $newStoreWebsite = StoreWebsite::find($storeId);
+            $newStoreWebsite                    = StoreWebsite::find($storeId);
             $storeWebsiteHistory->new_api_token = $newStoreWebsite->api_token;
             $storeWebsiteHistory->save();
 
@@ -1768,7 +1776,7 @@ class StoreWebsiteController extends Controller
 
     public function getApiToken(Request $request)
     {
-        $search = $request->search;
+        $search    = $request->search;
         $store_ids = $request->store_ids;
 
         $storeWebsites = StoreWebsite::whereNull('deleted_at');
@@ -1789,7 +1797,7 @@ class StoreWebsiteController extends Controller
     public function deleteStoreViews($serverId)
     {
         set_time_limit(0);
-        $storeServers = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('id')->toArray();
+        $storeServers    = StoreViewCodeServerMap::where('server_id', '=', $serverId)->pluck('id')->toArray();
         $storeWebsiteIds = StoreWebsite::WhereIn('store_code_id', $storeServers)->pluck('id')->toArray();
 
         if (count($storeWebsiteIds) == 0) {
@@ -1803,11 +1811,11 @@ class StoreWebsiteController extends Controller
 
         $serverCodesPartials = [];
         foreach ($serverCodes as $code) {
-            $codeArray = explode('-', $code->code);
+            $codeArray             = explode('-', $code->code);
             $serverCodesPartials[] = $codeArray[0];
         }
         $serverCodesPartials = array_unique($serverCodesPartials);
-        $noWebsiteIds = [];
+        $noWebsiteIds        = [];
         foreach ($storeWebsiteIds as $storeWebsiteId) {
             $websites = Website::whereIn('code', $serverCodesPartials)->where('store_website_id', '=', $storeWebsiteId)
                 ->groupBy('code')->orderBy('id', 'asc')->pluck('id');
@@ -1850,7 +1858,7 @@ class StoreWebsiteController extends Controller
 
         foreach ($swIds as $swId) {
             \Log::info('Target store website id: ' . $swId);
-            $websitesToBeRemoved = Website::where('store_website_id', '=', $swId)->pluck('id');
+            $websitesToBeRemoved      = Website::where('store_website_id', '=', $swId)->pluck('id');
             $websiteStoresToBeRemoved = WebsiteStore::whereIn('website_id', $websitesToBeRemoved)->pluck('id');
             WebsiteStoreView::whereIn('website_store_id', $websiteStoresToBeRemoved)->delete();
             \Log::info('Deleted the following store views: ' . json_encode($websiteStoresToBeRemoved));
@@ -1866,26 +1874,26 @@ class StoreWebsiteController extends Controller
             \Log::info('Copying started from website : ' . $website->title);
             $websiteStore = WebsiteStore::where('website_id', '=', $website->id)->get();
             foreach ($swIds as $row) {
-                $dataRow['name'] = $website->name;
-                $dataRow['code'] = $website->code;
-                $dataRow['platform_id'] = $website->platform_id;
+                $dataRow['name']             = $website->name;
+                $dataRow['code']             = $website->code;
+                $dataRow['platform_id']      = $website->platform_id;
                 $dataRow['store_website_id'] = $row;
-                $lastRow = Website::create($dataRow);
+                $lastRow                     = Website::create($dataRow);
 
                 foreach ($websiteStore as $wsRow) {
-                    $websiteStoreViews = WebsiteStoreView::where('website_store_id', '=', $wsRow->id)->get();
-                    $wsData['name'] = $wsRow->name;
-                    $wsData['code'] = $wsRow->code;
+                    $websiteStoreViews     = WebsiteStoreView::where('website_store_id', '=', $wsRow->id)->get();
+                    $wsData['name']        = $wsRow->name;
+                    $wsData['code']        = $wsRow->code;
                     $wsData['platform_id'] = $wsRow->platform_id;
-                    $wsData['website_id'] = $lastRow->id;
-                    $lastWsRow = WebsiteStore::create($wsData);
+                    $wsData['website_id']  = $lastRow->id;
+                    $lastWsRow             = WebsiteStore::create($wsData);
 
                     foreach ($websiteStoreViews as $websiteStoreView) {
-                        $wsvData['name'] = $websiteStoreView->name;
-                        $wsvData['code'] = $websiteStoreView->code;
-                        $wsvData['platform_id'] = $websiteStoreView->platform_id;
-                        $wsvData['website_store_id'] = $lastWsRow->id;
-                        $wsvData['store_group_id'] = $websiteStoreView->store_group_id;
+                        $wsvData['name']               = $websiteStoreView->name;
+                        $wsvData['code']               = $websiteStoreView->code;
+                        $wsvData['platform_id']        = $websiteStoreView->platform_id;
+                        $wsvData['website_store_id']   = $lastWsRow->id;
+                        $wsvData['store_group_id']     = $websiteStoreView->store_group_id;
                         $wsvData['ref_theme_group_id'] = $websiteStoreView->ref_theme_group_id;
                         WebsiteStoreView::create($wsvData);
                     }
@@ -1919,7 +1927,7 @@ class StoreWebsiteController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -1943,13 +1951,13 @@ class StoreWebsiteController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'store_id' => 'required',
+            'store_id'     => 'required',
             'tag_attached' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -1988,7 +1996,7 @@ class StoreWebsiteController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -2026,8 +2034,8 @@ class StoreWebsiteController extends Controller
                 } else {
                     // check
                     if ($request->store_website_id[$key]) {
-                        $params['username'] = $username;
-                        $params['password'] = $request->password[$key];
+                        $params['username']         = $username;
+                        $params['password']         = $request->password[$key];
                         $params['store_website_id'] = $request->store_website_id[$key];
 
                         // new
@@ -2047,8 +2055,8 @@ class StoreWebsiteController extends Controller
 
     public function getAdminPassword(Request $request)
     {
-        $search = $request->search;
-        $storeWebsites = StoreWebsite::whereNull('deleted_at')->get();
+        $search            = $request->search;
+        $storeWebsites     = StoreWebsite::whereNull('deleted_at')->get();
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
         if ($search != null) {
             $storeWebsiteUsers = $storeWebsiteUsers->where('username', 'Like', '%' . $search . '%')->orWhere('password', 'Like', '%' . $search . '%');
@@ -2093,11 +2101,11 @@ class StoreWebsiteController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Store Website instance number is not found!']);
         }
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' 2>&1';
+        $cmd      = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' 2>&1';
         $filename = 'env.php'; // because from command it returns env.php in url. So need to use same filename.
         if ($type == 'db') {
             $filename = $storeWebsite->database_name . '.sql';
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' -d ' . $storeWebsite->database_name . ' 2>&1';
+            $cmd      = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'donwload-dev-db.sh -t ' . $type . ' -s ' . $storeWebsite->server_ip . ' -n ' . $storeWebsite->instance_number . ' -d ' . $storeWebsite->database_name . ' 2>&1';
         }
 
         \Log::info('Start Download DB/ENV');
@@ -2124,10 +2132,10 @@ class StoreWebsiteController extends Controller
             if (file_exists($path)) {
                 // return response()->download($path)->deleteFileAfterSend(true);
                 $response = [
-                    'status' => 'success',
-                    'message' => 'Download successfully!',
+                    'status'       => 'success',
+                    'message'      => 'Download successfully!',
                     'download_url' => $path, // Add the download URL to the response,
-                    'filename' => $filename,
+                    'filename'     => $filename,
                 ];
 
                 // Update the log entry with the download_url
@@ -2159,7 +2167,7 @@ class StoreWebsiteController extends Controller
         if (file_exists($filePath)) {
             // Set the appropriate headers for the download response
             $headers = [
-                'Content-Type' => 'application/octet-stream',
+                'Content-Type'        => 'application/octet-stream',
                 'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
             ];
 
@@ -2177,8 +2185,8 @@ class StoreWebsiteController extends Controller
         if (! $storeWebsite) {
             return response()->json(['code' => 500, 'message' => 'Store Website is not found!']);
         }
-        $website = $storeWebsite->website;
-        $server_ip = $storeWebsite->server_ip;
+        $website           = $storeWebsite->website;
+        $server_ip         = $storeWebsite->server_ip;
         $working_directory = $storeWebsite->working_directory;
         if ($server_ip == '') {
             return response()->json(['code' => 500, 'message' => 'Store Website server ip not found!']);
@@ -2205,7 +2213,7 @@ class StoreWebsiteController extends Controller
         }
         $magento_url = $storeWebsite->magento_url;
         $domain_name = parse_url($magento_url, PHP_URL_HOST);
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'cloudflare_cache_clear.sh -d=' . $domain_name . ' 2>&1';
+        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'cloudflare_cache_clear.sh -d=' . $domain_name . ' 2>&1';
         \Log::info('Start run Clear Cloudflare Caches');
         $result = exec($cmd, $output, $return_var);
         \Log::info('command:' . $cmd);
@@ -2218,7 +2226,7 @@ class StoreWebsiteController extends Controller
 
     public function userPermission(Request $request)
     {
-        $storeWebsite = StoreWebsite::find($request->store_website_id);
+        $storeWebsite           = StoreWebsite::find($request->store_website_id);
         $storeWebsite->users_id = $request->users_id;
         $storeWebsite->save();
 
@@ -2233,9 +2241,9 @@ class StoreWebsiteController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -2249,9 +2257,9 @@ class StoreWebsiteController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -2325,24 +2333,24 @@ class StoreWebsiteController extends Controller
 
     public function runCsvSinglePushCommand(Request $request)
     {
-        $storewebsite = StoreWebsite::find($request->input('id'));
-        $action = 'push';
-        $storeWebsiteId = $request->input('id');
-        $serverName = $storewebsite->server_ip;
-        $websiteName = $storewebsite->title;
+        $storewebsite     = StoreWebsite::find($request->input('id'));
+        $action           = 'push';
+        $storeWebsiteId   = $request->input('id');
+        $serverName       = $storewebsite->server_ip;
+        $websiteName      = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
-        $storeCode = 'gb-en';
+        $storeCode        = 'gb-en';
 
         //get filename
         $fileName = basename($request->input('filename'));
 
         // Construct and execute the command
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-        $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
+        $command     = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
 
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $command;
-        $result = exec($command, $allOutput);
+        $result      = exec($command, $allOutput);
 
         //  $allOutput = [
         //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
@@ -2355,33 +2363,33 @@ class StoreWebsiteController extends Controller
         \Log::info('response:' . print_r($response, true));
 
         if (is_array($response)) {
-            $status = $response['status'];
+            $status  = $response['status'];
             $message = $response['message'];
-            $path = $response['path'];
+            $path    = $response['path'];
 
             if ($status === 'success') {
                 StoreWebsiteCsvFile::create([
                     'storewebsite_id' => $storeWebsiteId,
-                    'status' => $status,
-                    'message' => $message,
-                    'action' => $action,
-                    'path' => $path,
-                    'user_id' => Auth::user()->id,
-                    'command' => $command,
-                    'csv_file_id' => $request->input('csvfileId'),
+                    'status'          => $status,
+                    'message'         => $message,
+                    'action'          => $action,
+                    'path'            => $path,
+                    'user_id'         => Auth::user()->id,
+                    'command'         => $command,
+                    'csv_file_id'     => $request->input('csvfileId'),
                 ]);
 
                 return response()->json(['status' => 'success', 'message' => $message, 'code' => 200]);
             } else {
                 StoreWebsiteCsvFile::create([
                     'storewebsite_id' => $storeWebsiteId,
-                    'status' => $status,
-                    'message' => $message,
-                    'action' => $action,
-                    'path' => $path,
-                    'command' => $command,
-                    'user_id' => Auth::user()->id,
-                    'csv_file_id' => $request->input('csvfileId'),
+                    'status'          => $status,
+                    'message'         => $message,
+                    'action'          => $action,
+                    'path'            => $path,
+                    'command'         => $command,
+                    'user_id'         => Auth::user()->id,
+                    'csv_file_id'     => $request->input('csvfileId'),
                 ]);
 
                 \Log::info('command:' . $command);
@@ -2392,12 +2400,12 @@ class StoreWebsiteController extends Controller
         } else {
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
-                'status' => 'fail',
-                'message' => 'Invalid JSON response',
-                'action' => $action,
-                'command' => $command,
-                'user_id' => Auth::user()->id,
-                'csv_file_id' => $request->input('csvfileId'),
+                'status'          => 'fail',
+                'message'         => 'Invalid JSON response',
+                'action'          => $action,
+                'command'         => $command,
+                'user_id'         => Auth::user()->id,
+                'csv_file_id'     => $request->input('csvfileId'),
             ]);
 
             \Log::info('command:' . $command);
@@ -2416,16 +2424,16 @@ class StoreWebsiteController extends Controller
         }
 
         // Retrieve required data for the operation
-        $storeWebsiteId = $id;
-        $serverName = $storewebsite->server_ip;
-        $websiteName = $storewebsite->title;
+        $storeWebsiteId   = $id;
+        $serverName       = $storewebsite->server_ip;
+        $websiteName      = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
-        $storeCode = 'gb-en';
-        $fileName = str_replace(' ', '-', $storewebsite->title) . '-gb-en.csv';
-        $action = $action;
+        $storeCode        = 'gb-en';
+        $fileName         = str_replace(' ', '-', $storewebsite->title) . '-gb-en.csv';
+        $action           = $action;
 
-        $pullHistory = new StoreWebsiteCsvPullHistory();
-        $pullHistory->user_id = Auth::user()->id;
+        $pullHistory                   = new StoreWebsiteCsvPullHistory();
+        $pullHistory->user_id          = Auth::user()->id;
         $pullHistory->store_website_id = $id;
         $pullHistory->save();
 
@@ -2452,10 +2460,10 @@ class StoreWebsiteController extends Controller
         if ($message !== '') {
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
-                'status' => 'fail',
-                'message' => $message,
-                'action' => $action,
-                'user_id' => Auth::user()->id,
+                'status'          => 'fail',
+                'message'         => $message,
+                'action'          => $action,
+                'user_id'         => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
@@ -2466,9 +2474,9 @@ class StoreWebsiteController extends Controller
         // $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh'  . '-a ' . $action . '-s ' . $serverName . ' -w ' . $websiteName . ' -d ' . $websiteDirectory . ' -S ' . $storeCode . ' -f' . $fileName . '';
         $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
 
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $command;
-        $result = exec($command, $allOutput);
+        $result      = exec($command, $allOutput);
         // Below static code for testing purpose.
         $allOutput = [
             'bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a "pull" -s "85.208.51.101" -w "Brands QA" -d "/home/brands-qa-1-1/current/" -S "gb-en" -f "Brands-QA-gb-en.csv" 2>&1',
@@ -2481,45 +2489,45 @@ class StoreWebsiteController extends Controller
         \Log::info('response:' . print_r($response, true));
 
         if (is_array($response)) {
-            $status = $response['status'];
+            $status  = $response['status'];
             $message = $response['message'];
-            $path = $response['path'];
+            $path    = $response['path'];
 
             // $path = "/var/www/erp.local/storage/app/magento/lang/csv/Brands-QA-gb-en.csv";
 
             if ($status === 'success') {
                 StoreWebsiteCsvFile::create([
                     'storewebsite_id' => $storeWebsiteId,
-                    'status' => $status,
-                    'message' => $message,
-                    'action' => $action,
-                    'path' => $path,
-                    'user_id' => Auth::user()->id,
+                    'status'          => $status,
+                    'message'         => $message,
+                    'action'          => $action,
+                    'path'            => $path,
+                    'user_id'         => Auth::user()->id,
                 ]);
 
                 if (! file_exists($path)) {
                     try {
                         foreach ($languageData as $language) {
                             $new_file_path = str_replace('-en.cs', '-' . $language->locale . '.cs', $path);
-                            $result = $this->translateFile($path, $language->locale, ',');
+                            $result        = $this->translateFile($path, $language->locale, ',');
                             StoreWebsiteCsvFile::create([
                                 'storewebsite_id' => $storeWebsiteId,
-                                'status' => 'success',
-                                'message' => 'csv file created',
-                                'action' => $action,
-                                'filename' => $new_file_path,
-                                'user_id' => Auth::user()->id,
-                                'command' => $command,
+                                'status'          => 'success',
+                                'message'         => 'csv file created',
+                                'action'          => $action,
+                                'filename'        => $new_file_path,
+                                'user_id'         => Auth::user()->id,
+                                'command'         => $command,
                             ]);
 
                             foreach ($result as $translationSet) {
                                 try {
-                                    $translationDataStored = new GoogleTranslateCsvData();
-                                    $translationDataStored->key = $translationSet[0];
-                                    $translationDataStored->value = $translationSet[1];
-                                    $translationDataStored->standard_value = $translationSet[2];
+                                    $translationDataStored                  = new GoogleTranslateCsvData();
+                                    $translationDataStored->key             = $translationSet[0];
+                                    $translationDataStored->value           = $translationSet[1];
+                                    $translationDataStored->standard_value  = $translationSet[2];
                                     $translationDataStored->storewebsite_id = $storeWebsiteId;
-                                    $translationDataStored->lang_id = $language->id;
+                                    $translationDataStored->lang_id         = $language->id;
                                     $translationDataStored->save();
                                 } catch (\Exception $e) {
                                     return 'Upload failed: ' . $e->getMessage();
@@ -2532,12 +2540,12 @@ class StoreWebsiteController extends Controller
                 } else {
                     StoreWebsiteCsvFile::create([
                         'storewebsite_id' => $storeWebsiteId,
-                        'status' => $status,
-                        'message' => 'File not found',
-                        'action' => $action,
-                        'path' => $path,
-                        'user_id' => Auth::user()->id,
-                        'command' => $command,
+                        'status'          => $status,
+                        'message'         => 'File not found',
+                        'action'          => $action,
+                        'path'            => $path,
+                        'user_id'         => Auth::user()->id,
+                        'command'         => $command,
                     ]);
                     throw new Exception('File not found');
                 }
@@ -2546,12 +2554,12 @@ class StoreWebsiteController extends Controller
             } else {
                 StoreWebsiteCsvFile::create([
                     'storewebsite_id' => $storeWebsiteId,
-                    'status' => $status,
-                    'message' => $message,
-                    'action' => $action,
-                    'path' => $path,
-                    'user_id' => Auth::user()->id,
-                    'command' => $command,
+                    'status'          => $status,
+                    'message'         => $message,
+                    'action'          => $action,
+                    'path'            => $path,
+                    'user_id'         => Auth::user()->id,
+                    'command'         => $command,
                 ]);
 
                 \Log::info('command:' . $command);
@@ -2562,11 +2570,11 @@ class StoreWebsiteController extends Controller
         } else {
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
-                'status' => 'fail',
-                'message' => 'Invalid JSON response',
-                'action' => $action,
-                'user_id' => Auth::user()->id,
-                'command' => $command,
+                'status'          => 'fail',
+                'message'         => 'Invalid JSON response',
+                'action'          => $action,
+                'user_id'         => Auth::user()->id,
+                'command'         => $command,
             ]);
 
             \Log::info('command:' . $command);
@@ -2584,7 +2592,7 @@ class StoreWebsiteController extends Controller
         if (! file_exists($path) || ! is_readable($path)) {
             return false;
         }
-        $newCsvData = [];
+        $newCsvData         = [];
         $keywordToTranslate = [];
 
         $new_file_path = str_replace('-en.cs', '-' . $language . '.cs', $path);
@@ -2601,7 +2609,7 @@ class StoreWebsiteController extends Controller
                         $data[] = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
                     } else {
                         $keywordToTranslate[] = $data[0];
-                        $data[] = $data[0];
+                        $data[]               = $data[0];
                     }
                     $newCsvData[] = $data;
                 }
@@ -2612,11 +2620,11 @@ class StoreWebsiteController extends Controller
             if (isset($keywordToTranslate) && count($keywordToTranslate) > 0) {
                 // Max 128 lines supports for translation per request
                 $keywordToTranslateChunk = array_chunk($keywordToTranslate, 100);
-                $translationString = [];
+                $translationString       = [];
                 foreach ($keywordToTranslateChunk as $key => $chunk) {
                     try {
                         $googleTranslate = new GoogleTranslate();
-                        $result = $googleTranslate->translate($language, $chunk, true);
+                        $result          = $googleTranslate->translate($language, $chunk, true);
                     } catch (\Exception $e) {
                         \Log::channel('errorlog')->error($e);
                         throw new Exception($e->getMessage());
@@ -2629,13 +2637,13 @@ class StoreWebsiteController extends Controller
                 if (isset($translationString) && count($translationString) > 0) {
                     foreach ($translationString as $key => $value) {
                         $translateKeyPair[$value['input']] = $value['text'];
-                        $insertData[] = [
+                        $insertData[]                      = [
                             'text_original' => $value['input'],
-                            'text' => $value['text'],
-                            'from' => 'en',
-                            'to' => $language,
-                            'created_at' => now(),
-                            'updated_at' => now(),
+                            'text'          => $value['text'],
+                            'from'          => 'en',
+                            'to'            => $language,
+                            'created_at'    => now(),
+                            'updated_at'    => now(),
                         ];
                     }
                 }
@@ -2704,9 +2712,9 @@ class StoreWebsiteController extends Controller
         $histories = StoreWebsiteCsvPullHistory::with(['storewebsite', 'user'])->where('store_website_id', $id)->where('user_id', Auth::user()->id)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -2719,18 +2727,18 @@ class StoreWebsiteController extends Controller
             $histories = StoreWebsiteCsvFile::with(['storewebsite', 'user'])->where('storewebsite_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get history status',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get history status',
                 'status_name' => 'success',
             ], 200);
         } else {
             $histories = StoreWebsiteCsvFile::with(['storewebsite', 'user'])->where('csv_file_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get history status',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get history status',
                 'status_name' => 'success',
             ], 200);
         }
@@ -2750,15 +2758,15 @@ class StoreWebsiteController extends Controller
         StoreWebsiteUsers::whereIn('id', $request->ids)->update(['is_deleted' => 1]);
 
         return response()->json([
-            'status' => true,
-            'message' => ' column visiblity Added Successfully',
+            'status'      => true,
+            'message'     => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function generateRandomString($length)
     {
-        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $characters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = str_shuffle($characters);
         $randomString = substr($randomString, 0, $length);
 
@@ -2767,18 +2775,18 @@ class StoreWebsiteController extends Controller
 
     public function createAdminUrl(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'store_dir' => 'required',
+            'store_dir'         => 'required',
             'server_ip_address' => 'required',
-            'store_website_id' => 'required',
-            'admin_url' => 'required',
-            'title' => 'required',
+            'store_website_id'  => 'required',
+            'admin_url'         => 'required',
+            'title'             => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -2789,10 +2797,10 @@ class StoreWebsiteController extends Controller
         }
 
         // New Script
-        $title = $post['title'];
-        $admin_url_var = $title . '_admin_' . $this->generateRandomString(6);
-        $password = '';
-        $store_dir = $post['store_dir'];
+        $title             = $post['title'];
+        $admin_url_var     = $title . '_admin_' . $this->generateRandomString(6);
+        $password          = '';
+        $store_dir         = $post['store_dir'];
         $server_ip_address = $post['server_ip_address'];
 
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -2806,12 +2814,12 @@ class StoreWebsiteController extends Controller
 
         StoreWebsiteAdminUrl::where('store_website_id', $post['store_website_id'])->update(['status' => 0]);
 
-        $adminurl = new StoreWebsiteAdminUrl;
-        $adminurl->created_by = Auth::user()->id;
-        $adminurl->store_dir = $post['store_dir'];
+        $adminurl                    = new StoreWebsiteAdminUrl;
+        $adminurl->created_by        = Auth::user()->id;
+        $adminurl->store_dir         = $post['store_dir'];
         $adminurl->server_ip_address = $post['server_ip_address'];
-        $adminurl->store_website_id = $post['store_website_id'];
-        $adminurl->website_url = $post['admin_url'];
+        $adminurl->store_website_id  = $post['store_website_id'];
+        $adminurl->website_url       = $post['admin_url'];
 
         if (substr($post['admin_url'], -1) == '/') {
             $adminurl->admin_url = $post['admin_url'] . $admin_url_var;
@@ -2819,7 +2827,7 @@ class StoreWebsiteController extends Controller
             $adminurl->admin_url = $post['admin_url'] . '/' . $admin_url_var;
         }
 
-        $adminurl->request_data = $cmd;
+        $adminurl->request_data  = $cmd;
         $adminurl->response_data = json_encode($result);
         $adminurl->save();
 
@@ -2832,7 +2840,7 @@ class StoreWebsiteController extends Controller
             return back()->with('error', 'The request parameter ids missing');
         }
 
-        $available = 0;
+        $available    = 0;
         $notavailable = 0;
         foreach ($request->storewebsiteids as $id) {
             $storeWebsite = StoreWebsite::where('id', $id)->first();
@@ -2840,9 +2848,9 @@ class StoreWebsiteController extends Controller
             if (! empty($storeWebsite['working_directory']) && ! empty($storeWebsite['server_ip']) && ! empty($storeWebsite['website']) && ! empty($storeWebsite['title'])) {
                 StoreWebsiteAdminUrl::where('store_website_id', $id)->update(['status' => 0]);
 
-                $admin_url_var = $storeWebsite['title'] . '_admin_' . $this->generateRandomString(6);
-                $password = '';
-                $store_dir = $storeWebsite['working_directory'];
+                $admin_url_var     = $storeWebsite['title'] . '_admin_' . $this->generateRandomString(6);
+                $password          = '';
+                $store_dir         = $storeWebsite['working_directory'];
                 $server_ip_address = $storeWebsite['server_ip'];
 
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -2854,11 +2862,11 @@ class StoreWebsiteController extends Controller
 
                 //$result = '';
 
-                $adminurl = new StoreWebsiteAdminUrl;
-                $adminurl->created_by = Auth::user()->id;
-                $adminurl->store_dir = $storeWebsite['working_directory'];
+                $adminurl                    = new StoreWebsiteAdminUrl;
+                $adminurl->created_by        = Auth::user()->id;
+                $adminurl->store_dir         = $storeWebsite['working_directory'];
                 $adminurl->server_ip_address = $storeWebsite['server_ip'];
-                $adminurl->store_website_id = $storeWebsite['id'];
+                $adminurl->store_website_id  = $storeWebsite['id'];
                 //$adminurl->admin_url = $storeWebsite['website_url'].$admin_url_var;
 
                 $adminurl->website_url = $storeWebsite['website'];
@@ -2869,7 +2877,7 @@ class StoreWebsiteController extends Controller
                     $adminurl->admin_url = $storeWebsite['website'] . '/' . $admin_url_var;
                 }
 
-                $adminurl->request_data = $cmd;
+                $adminurl->request_data  = $cmd;
                 $adminurl->response_data = json_encode($result);
                 $adminurl->save();
 
@@ -2892,15 +2900,15 @@ class StoreWebsiteController extends Controller
 
     public function magentoMediaSync(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
             'source_store_website_id' => 'required',
-            'dest_store_website_id' => 'required',
+            'dest_store_website_id'   => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -2911,7 +2919,7 @@ class StoreWebsiteController extends Controller
         }
 
         $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->source_store_website_id)->first();
-        $destStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->dest_store_website_id)->first();
+        $destStoreWebsites   = StoreWebsite::whereNull('deleted_at')->where('id', $request->dest_store_website_id)->first();
 
         if (! empty($sourceStoreWebsites) && ! empty($destStoreWebsites)) {
             if (! empty($sourceStoreWebsites->server_ip) && ! empty($sourceStoreWebsites->working_directory) && ! empty($destStoreWebsites->server_ip) && ! empty($destStoreWebsites->working_directory)) {
@@ -2939,14 +2947,14 @@ class StoreWebsiteController extends Controller
 
     public function varnishFrontendCron(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
             'varnish_store_website_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -2957,8 +2965,8 @@ class StoreWebsiteController extends Controller
         }
 
         $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->varnish_store_website_id)->first();
-        $cwd = '';
-        $assetsmanager = new AssetsManager;
+        $cwd                 = '';
+        $assetsmanager       = new AssetsManager;
         if ($sourceStoreWebsites) {
             $assetsmanager = AssetsManager::where('id', $sourceStoreWebsites->assets_manager_id)->first();
         }
@@ -2976,14 +2984,14 @@ class StoreWebsiteController extends Controller
             \Log::info('store return_var:' . $return_var);
 
             $useraccess = VarnishStats::create([
-                'created_by' => Auth::user()->id,
-                'store_website_id' => $request->varnish_store_website_id,
+                'created_by'        => Auth::user()->id,
+                'store_website_id'  => $request->varnish_store_website_id,
                 'assets_manager_id' => $sourceStoreWebsites->assets_manager_id,
-                'server_name' => $sourceStoreWebsites->title,
-                'server_ip' => $sourceStoreWebsites->server_ip,
-                'website_name' => $assetsmanager->ip_name,
-                'request_data' => $cmd,
-                'response_data' => json_encode($result),
+                'server_name'       => $sourceStoreWebsites->title,
+                'server_ip'         => $sourceStoreWebsites->server_ip,
+                'website_name'      => $assetsmanager->ip_name,
+                'request_data'      => $cmd,
+                'response_data'     => json_encode($result),
             ]);
         } else {
             return response()->json(['code' => 400, 'message' => 'Something went wrong. Please try again.']);

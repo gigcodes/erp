@@ -42,7 +42,7 @@ class MostUsedWordsInChat extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // start to get the most used words from chat messages
@@ -70,7 +70,7 @@ class MostUsedWordsInChat extends Command
                             foreach ($split as $sentence) {
                                 ChatMessagePhrase::insert([
                                     'word_id' => $words->id,
-                                    'phrase' => $sentence,
+                                    'phrase'  => $sentence,
                                     'chat_id' => $phrase['id'],
                                 ]);
                             }

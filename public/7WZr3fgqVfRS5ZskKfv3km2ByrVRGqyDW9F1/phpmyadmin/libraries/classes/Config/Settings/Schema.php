@@ -94,34 +94,34 @@ final class Schema
     public $svg_all_tables_same_width;
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     public function __construct(array $schema = [])
     {
-        $this->format = $this->setFormat($schema);
-        $this->pdf_show_color = $this->setPdfShowColor($schema);
-        $this->pdf_show_keys = $this->setPdfShowKeys($schema);
+        $this->format                    = $this->setFormat($schema);
+        $this->pdf_show_color            = $this->setPdfShowColor($schema);
+        $this->pdf_show_keys             = $this->setPdfShowKeys($schema);
         $this->pdf_all_tables_same_width = $this->setPdfAllTablesSameWidth($schema);
-        $this->pdf_orientation = $this->setPdfOrientation($schema);
-        $this->pdf_paper = $this->setPdfPaper($schema);
-        $this->pdf_show_grid = $this->setPdfShowGrid($schema);
-        $this->pdf_with_doc = $this->setPdfWithDoc($schema);
-        $this->pdf_table_order = $this->setPdfTableOrder($schema);
-        $this->dia_show_color = $this->setDiaShowColor($schema);
-        $this->dia_show_keys = $this->setDiaShowKeys($schema);
-        $this->dia_orientation = $this->setDiaOrientation($schema);
-        $this->dia_paper = $this->setDiaPaper($schema);
-        $this->eps_show_color = $this->setEpsShowColor($schema);
-        $this->eps_show_keys = $this->setEpsShowKeys($schema);
+        $this->pdf_orientation           = $this->setPdfOrientation($schema);
+        $this->pdf_paper                 = $this->setPdfPaper($schema);
+        $this->pdf_show_grid             = $this->setPdfShowGrid($schema);
+        $this->pdf_with_doc              = $this->setPdfWithDoc($schema);
+        $this->pdf_table_order           = $this->setPdfTableOrder($schema);
+        $this->dia_show_color            = $this->setDiaShowColor($schema);
+        $this->dia_show_keys             = $this->setDiaShowKeys($schema);
+        $this->dia_orientation           = $this->setDiaOrientation($schema);
+        $this->dia_paper                 = $this->setDiaPaper($schema);
+        $this->eps_show_color            = $this->setEpsShowColor($schema);
+        $this->eps_show_keys             = $this->setEpsShowKeys($schema);
         $this->eps_all_tables_same_width = $this->setEpsAllTablesSameWidth($schema);
-        $this->eps_orientation = $this->setEpsOrientation($schema);
-        $this->svg_show_color = $this->setSvgShowColor($schema);
-        $this->svg_show_keys = $this->setSvgShowKeys($schema);
+        $this->eps_orientation           = $this->setEpsOrientation($schema);
+        $this->svg_show_color            = $this->setSvgShowColor($schema);
+        $this->svg_show_keys             = $this->setSvgShowKeys($schema);
         $this->svg_all_tables_same_width = $this->setSvgAllTablesSameWidth($schema);
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      *
      * @psalm-return 'pdf'|'eps'|'dia'|'svg'
      */
@@ -135,7 +135,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfShowColor(array $schema): bool
     {
@@ -147,7 +147,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfShowKeys(array $schema): bool
     {
@@ -159,7 +159,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfAllTablesSameWidth(array $schema): bool
     {
@@ -171,7 +171,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      *
      * @psalm-return 'L'|'P'
      */
@@ -185,7 +185,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfPaper(array $schema): string
     {
@@ -197,7 +197,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfShowGrid(array $schema): bool
     {
@@ -209,7 +209,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setPdfWithDoc(array $schema): bool
     {
@@ -221,7 +221,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      *
      * @psalm-return ''|'name_asc'|'name_desc'
      */
@@ -237,7 +237,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setDiaShowColor(array $schema): bool
     {
@@ -249,7 +249,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setDiaShowKeys(array $schema): bool
     {
@@ -261,7 +261,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      *
      * @psalm-return 'L'|'P'
      */
@@ -275,7 +275,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setDiaPaper(array $schema): string
     {
@@ -287,7 +287,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setEpsShowColor(array $schema): bool
     {
@@ -299,7 +299,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setEpsShowKeys(array $schema): bool
     {
@@ -311,7 +311,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setEpsAllTablesSameWidth(array $schema): bool
     {
@@ -323,7 +323,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      *
      * @psalm-return 'L'|'P'
      */
@@ -337,7 +337,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setSvgShowColor(array $schema): bool
     {
@@ -349,7 +349,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setSvgShowKeys(array $schema): bool
     {
@@ -361,7 +361,7 @@ final class Schema
     }
 
     /**
-     * @param  array<int|string, mixed>  $schema
+     * @param array<int|string, mixed> $schema
      */
     private function setSvgAllTablesSameWidth(array $schema): bool
     {

@@ -49,7 +49,7 @@ class SetFormattedPricingForScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all scraped products without formatted pricing
@@ -65,7 +65,7 @@ class SetFormattedPricingForScrapedProducts extends Command
                             $scrapedProduct->save();
                         } else {
                             // Set multiplier
-                            $multiplier = 'euroIn' . ucfirst(strtolower($currency));
+                            $multiplier                = 'euroIn' . ucfirst(strtolower($currency));
                             $scrapedProduct->price_eur = round($this->$multiplier * $this->_getFormattedPrice($scrapedProduct->price), 2);
                             $scrapedProduct->save();
                         }

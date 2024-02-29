@@ -80,16 +80,16 @@ class DocumentController extends Controller
             ], 200);
         }
 
-        $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
+        $users          = User::select(['id', 'name', 'email', 'agent_role'])->get();
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address', 'id');
-        $category = DocumentCategory::select('id', 'name')->get();
-        $api_keys = ApiKey::select('number')->get();
+        $category       = DocumentCategory::select('id', 'name')->get();
+        $api_keys       = ApiKey::select('number')->get();
 
         return view('documents.index', [
-            'documents' => $documents,
-            'users' => $users,
-            'category' => $category,
-            'api_keys' => $api_keys,
+            'documents'      => $documents,
+            'users'          => $users,
+            'category'       => $category,
+            'api_keys'       => $api_keys,
             'emailAddresses' => $emailAddresses,
         ]);
     }
@@ -144,7 +144,7 @@ class DocumentController extends Controller
         }
         $uploadDocData = $uploadDocData->union($developertask);
         $uploadDocData = $uploadDocData->orderBy('media_id', 'desc');
-        $DataCount = $uploadDocData->count();
+        $DataCount     = $uploadDocData->count();
         $uploadDocData = $uploadDocData->paginate(50);
 
         $users = User::get();
@@ -172,16 +172,16 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'user_id' => 'required|numeric',
-            'name' => 'required|string|max:255',
-            'file' => 'required',
+            'user_id'     => 'required|numeric',
+            'name'        => 'required|string|max:255',
+            'file'        => 'required',
             'category_id' => 'required',
-            'version' => 'required',
+            'version'     => 'required',
         ]);
 
         $data = $request->except(['_token', 'file']);
         foreach ($request->file('file') as $file) {
-            $data['filename'] = $file->hashName();
+            $data['filename']      = $file->hashName();
             $data['file_contents'] = $file->openFile()->fread($file->getSize());
 
             $file->storeAs('files/documents', $data['filename']);
@@ -216,7 +216,8 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -227,7 +228,8 @@ class DocumentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -238,16 +240,17 @@ class DocumentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $document = Document::findorfail($id);
-        $document->user_id = $request->user_id;
-        $document->name = $request->name;
+        $document              = Document::findorfail($id);
+        $document->user_id     = $request->user_id;
+        $document->name        = $request->name;
         $document->category_id = $request->category_id;
-        $document->status = 1;
+        $document->status      = 1;
         $document->update();
 
         return redirect()->route('document.index')->withSuccess('You have successfully updated document!');
@@ -256,7 +259,8 @@ class DocumentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -275,15 +279,15 @@ class DocumentController extends Controller
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         $file_paths = [];
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
-                $path = $file->store('files/documents');
+                $path         = $file->store('files/documents');
                 $file_paths[] = $path;
             }
         }
@@ -311,34 +315,34 @@ class DocumentController extends Controller
 
         if ($request->user_type == 1) {
             foreach ($request->users as $key) {
-                $user = User::findOrFail($key);
+                $user       = User::findOrFail($key);
                 $user_email = $user->email;
-                $reqKey = 'selected_email_' . $key;
-                $email = (isset($request[$reqKey])) ? $request[$reqKey] : $user->email;
+                $reqKey     = 'selected_email_' . $key;
+                $email      = (isset($request[$reqKey])) ? $request[$reqKey] : $user->email;
 
                 //History
-                $history['send_by'] = Auth::id();
-                $history['send_to'] = $user->id;
-                $history['type'] = 'User';
-                $history['via'] = 'Email';
+                $history['send_by']     = Auth::id();
+                $history['send_to']     = $user->id;
+                $history['type']        = 'User';
+                $history['via']         = 'Email';
                 $history['document_id'] = $document->id;
                 DocumentSendHistory::create($history);
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
                 $email = \App\Email::create([
-                    'model_id' => $user->id,
-                    'model_type' => \App\User::class,
-                    'from' => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
-                    'to' => $email,
-                    'subject' => $emailClass->subject,
-                    'message' => $emailClass->render(),
-                    'template' => 'customer-simple',
+                    'model_id'        => $user->id,
+                    'model_type'      => \App\User::class,
+                    'from'            => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
+                    'to'              => $email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'status' => 'pre-send',
-                    'is_draft' => 1,
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -348,31 +352,31 @@ class DocumentController extends Controller
                 $vendor = Vendor::findOrFail($key);
 
                 //History
-                $history['send_by'] = Auth::id();
-                $history['send_to'] = $vendor->id;
-                $history['type'] = 'Vendor';
-                $history['via'] = 'Email';
+                $history['send_by']     = Auth::id();
+                $history['send_to']     = $vendor->id;
+                $history['type']        = 'Vendor';
+                $history['via']         = 'Email';
                 $history['document_id'] = $document->id;
                 DocumentSendHistory::create($history);
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
                 $reqKey = 'selected_email_' . $key;
-                $email = (isset($request[$reqKey])) ? $request[$reqKey] : $vendor->email;
+                $email  = (isset($request[$reqKey])) ? $request[$reqKey] : $vendor->email;
 
                 $email = \App\Email::create([
-                    'model_id' => $vendor->id,
-                    'model_type' => \App\Vendor::class,
-                    'from' => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
-                    'to' => $email,
-                    'subject' => $emailClass->subject,
-                    'message' => $emailClass->render(),
-                    'template' => 'customer-simple',
+                    'model_id'        => $vendor->id,
+                    'model_type'      => \App\Vendor::class,
+                    'from'            => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
+                    'to'              => $email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'status' => 'pre-send',
-                    'is_draft' => 1,
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -382,28 +386,28 @@ class DocumentController extends Controller
                 $contact = Contact::findOrFail($key);
 
                 //History
-                $history['send_by'] = Auth::id();
-                $history['send_to'] = $contact->id;
-                $history['type'] = 'Contact';
-                $history['via'] = 'Email';
+                $history['send_by']     = Auth::id();
+                $history['send_to']     = $contact->id;
+                $history['type']        = 'Contact';
+                $history['via']         = 'Email';
                 $history['document_id'] = $document->id;
                 DocumentSendHistory::create($history);
 
                 $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
                 $email = \App\Email::create([
-                    'model_id' => $contact->id,
-                    'model_type' => \App\Contact::class,
-                    'from' => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
-                    'to' => $contact->email,
-                    'subject' => $emailClass->subject,
-                    'message' => $emailClass->render(),
-                    'template' => 'customer-simple',
+                    'model_id'        => $contact->id,
+                    'model_type'      => \App\Contact::class,
+                    'from'            => ($fromEmail != '') ? $fromEmail : $emailClass->fromMailer,
+                    'to'              => $contact->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'status' => 'pre-send',
-                    'is_draft' => 1,
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -420,27 +424,27 @@ class DocumentController extends Controller
                 }
 
                 //History
-                $history['send_by'] = Auth::id();
-                $history['send_to'] = $contacts;
-                $history['type'] = 'Manual Email';
-                $history['via'] = 'Email';
+                $history['send_by']     = Auth::id();
+                $history['send_to']     = $contacts;
+                $history['type']        = 'Manual Email';
+                $history['via']         = 'Email';
                 $history['document_id'] = $document->id;
                 DocumentSendHistory::create($history);
 
                 $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
                 $params = [
-                    'model_id' => $contacts,
-                    'model_type' => User::class,
-                    'from' => ($fromEmail != '') ? $fromEmail : 'documents@amourint.com',
-                    'seen' => 1,
-                    'to' => $contacts,
-                    'subject' => $request->subject,
-                    'message' => $request->message,
-                    'template' => 'customer-simple',
+                    'model_id'        => $contacts,
+                    'model_type'      => User::class,
+                    'from'            => ($fromEmail != '') ? $fromEmail : 'documents@amourint.com',
+                    'seen'            => 1,
+                    'to'              => $contacts,
+                    'subject'         => $request->subject,
+                    'message'         => $request->message,
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ?: null,
-                    'bcc' => $bcc ?: null,
+                    'cc'              => $cc ?: null,
+                    'bcc'             => $bcc ?: null,
                 ];
 
                 Email::create($params);
@@ -461,16 +465,16 @@ class DocumentController extends Controller
 
     public function addRemark(Request $request)
     {
-        $remark = $request->input('remark');
-        $id = $request->input('id');
+        $remark     = $request->input('remark');
+        $id         = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
+        $update_at  = date('Y-m-d H:i:s');
         if ($request->module_type == 'document') {
             $remark_entry = DocumentRemark::create([
                 'document_id' => $id,
-                'remark' => $remark,
+                'remark'      => $remark,
                 'module_type' => $request->module_type,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+                'user_name'   => $request->user_name ? $request->user_name : Auth::user()->name,
             ]);
         }
 
@@ -482,19 +486,19 @@ class DocumentController extends Controller
         $document = Document::findOrFail($request->document_id);
 
         //Create Document History
-        $document_history = new DocumentHistory();
+        $document_history              = new DocumentHistory();
         $document_history->document_id = $document->id;
         $document_history->category_id = $document->category_id;
-        $document_history->user_id = $document->user_id;
-        $document_history->name = $document->name;
-        $document_history->filename = $document->filename;
-        $document_history->version = $document->version;
+        $document_history->user_id     = $document->user_id;
+        $document_history->name        = $document->name;
+        $document_history->filename    = $document->filename;
+        $document_history->version     = $document->version;
         $document_history->save();
 
         //Update the version and files name
-        $document->version = ($document->version + 1);
-        $file = $request->file('files');
-        $document->filename = $file->hashName();
+        $document->version       = ($document->version + 1);
+        $file                    = $request->file('files');
+        $document->filename      = $file->hashName();
         $document->file_contents = $file->openFile()->fread($file->getSize());
         $file->storeAs('files/documents', $document->filename);
         $document->save();
@@ -564,17 +568,17 @@ class DocumentController extends Controller
      */
     public function email()
     {
-        $documents = Document::where('status', 0)->latest()->paginate(Setting::get('pagination'));
-        $users = User::select(['id', 'name', 'email', 'agent_role'])->get();
-        $category = DocumentCategory::select('id', 'name')->get();
-        $api_keys = ApiKey::select('number')->get();
+        $documents      = Document::where('status', 0)->latest()->paginate(Setting::get('pagination'));
+        $users          = User::select(['id', 'name', 'email', 'agent_role'])->get();
+        $category       = DocumentCategory::select('id', 'name')->get();
+        $api_keys       = ApiKey::select('number')->get();
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->pluck('from_address', 'id');
 
         return view('documents.email', [
-            'documents' => $documents,
-            'users' => $users,
-            'category' => $category,
-            'api_keys' => $api_keys,
+            'documents'      => $documents,
+            'users'          => $users,
+            'category'       => $category,
+            'api_keys'       => $api_keys,
             'emailAddresses' => $emailAddresses,
         ]);
     }

@@ -51,19 +51,19 @@ class AutoMessenger extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $params = [
-                'number' => null,
-                'user_id' => 6,
+                'number'   => null,
+                'user_id'  => 6,
                 'approved' => 0,
-                'status' => 9, // auto message status
+                'status'   => 9, // auto message status
             ];
 
             $communication_histories = CommunicationHistory::where('type', 'refund-initiated')->where('model_type', \App\Order::class)->where('method', 'email')->get();
-            $now = Carbon::now();
+            $now                     = Carbon::now();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'CommunicationHistory model query was finished']);
 
@@ -71,9 +71,9 @@ class AutoMessenger extends Command
                 $time_diff = Carbon::parse($history->created_at)->diffInHours($now);
 
                 if ($time_diff == 12) {
-                    $order = Order::find($history->model_id);
+                    $order                 = Order::find($history->model_id);
                     $params['customer_id'] = $order->customer_id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -83,7 +83,7 @@ class AutoMessenger extends Command
 
             // Follow Up Sequence
             $follow_ups = CommunicationHistory::where('type', 'initiate-followup')->where('model_type', \App\Customer::class)->where('method', 'whatsapp')->where('is_stopped', 0)->get();
-            $now = Carbon::now();
+            $now        = Carbon::now();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting all the follow ups']);
 
@@ -93,9 +93,9 @@ class AutoMessenger extends Command
                 dump("FOLLOWUP - $time_diff");
 
                 if ($time_diff == 24) {
-                    $customer = Customer::find($follow_up->model_id);
+                    $customer              = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-24')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-24')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -103,9 +103,9 @@ class AutoMessenger extends Command
                 }
 
                 if ($time_diff == 48) {
-                    $customer = Customer::find($follow_up->model_id);
+                    $customer              = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-48')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-48')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -113,9 +113,9 @@ class AutoMessenger extends Command
                 }
 
                 if ($time_diff == 72) {
-                    $customer = Customer::find($follow_up->model_id);
+                    $customer              = Customer::find($follow_up->model_id);
                     $params['customer_id'] = $customer->id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-72')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-followup-72')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -130,7 +130,7 @@ class AutoMessenger extends Command
             // Refunds Workflow
 
             $refunded_orders = Order::where('refund_answer', 'no')->get();
-            $now = Carbon::now();
+            $now             = Carbon::now();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting all the refunded orders detail']);
 
@@ -139,7 +139,7 @@ class AutoMessenger extends Command
                 dump("Refund No - $time_diff");
                 if ($time_diff == 48) {
                     $params['customer_id'] = $order->customer_id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-in-process')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-in-process')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -148,7 +148,7 @@ class AutoMessenger extends Command
 
                 if ($time_diff == 72) {
                     $params['customer_id'] = $order->customer_id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative-72')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-alternative-72')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -157,12 +157,12 @@ class AutoMessenger extends Command
                     sleep(5);
 
                     $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'refund-transfer-details')->first()->reply;
-                    $chat_message = ChatMessage::create($params);
+                    $chat_message      = ChatMessage::create($params);
                 }
             }
 
             // PRIVATE VIEWING ALERT
-            $now = Carbon::now();
+            $now           = Carbon::now();
             $private_views = PrivateView::whereNull('status')->get();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get all the private view detail']);
@@ -172,7 +172,7 @@ class AutoMessenger extends Command
                 dump("Private view - $time_diff");
                 if ($time_diff == 24) {
                     $params['customer_id'] = $private_view->customer_id;
-                    $params['message'] = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-reminder')->first()->reply;
+                    $params['message']     = AutoReply::where('type', 'auto-reply')->where('keyword', 'private-viewing-reminder')->first()->reply;
 
                     $chat_message = ChatMessage::create($params);
 
@@ -181,7 +181,7 @@ class AutoMessenger extends Command
             }
 
             // SCHEDULED MESSAGES
-            $now = Carbon::now();
+            $now                = Carbon::now();
             $scheduled_messages = ScheduledMessage::where('sent', 0)->where('sending_time', '<', $now)->get();
 
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get all the scheduled messages detail']);
@@ -191,12 +191,12 @@ class AutoMessenger extends Command
                     dump('Scheduled Message for Customers');
 
                     $params = [
-                        'number' => null,
-                        'user_id' => $message->user_id,
+                        'number'      => null,
+                        'user_id'     => $message->user_id,
                         'customer_id' => $message->customer_id,
-                        'approved' => 0,
-                        'status' => 1,
-                        'message' => $message->message,
+                        'approved'    => 0,
+                        'status'      => 1,
+                        'message'     => $message->message,
                     ];
 
                     ChatMessage::create($params);
@@ -211,14 +211,14 @@ class AutoMessenger extends Command
                     $additional_params = json_decode($message->data, true);
 
                     $params = [
-                        'number' => null,
-                        'user_id' => $additional_params['user_id'],
-                        'erp_user' => $additional_params['erp_user'],
-                        'task_id' => $additional_params['task_id'],
-                        'contact_id' => $additional_params['contact_id'],
-                        'approved' => 0,
-                        'status' => 1,
-                        'message' => $message->message,
+                        'number'      => null,
+                        'user_id'     => $additional_params['user_id'],
+                        'erp_user'    => $additional_params['erp_user'],
+                        'task_id'     => $additional_params['task_id'],
+                        'contact_id'  => $additional_params['contact_id'],
+                        'approved'    => 0,
+                        'status'      => 1,
+                        'message'     => $message->message,
                         'is_reminder' => 1,
                     ];
 

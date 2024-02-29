@@ -12,7 +12,7 @@ class DomainReport extends Model
 
     public function domainReportSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'domain_organic_search_keywords' => 'https://api.semrush.com/?type=domain_organic&key=' . $key . '&display_filter=%2B%7CPh%7CCo%7Cseo&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
 
@@ -171,7 +171,7 @@ appleid.apple.com;351;139299;0.09',
 
     public function domainReportAhrefsApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'publisher_display_ads' => '',
 

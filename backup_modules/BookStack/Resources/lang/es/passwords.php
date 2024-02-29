@@ -7,9 +7,9 @@
 return [
 
     'password' => 'La contraseña debe ser como mínimo de seis caracteres y coincidir con la confirmación.',
-    'user' => 'No podemos encontrar un usuario con esta dirección de correo electrónico.',
-    'token' => 'El token de reseteo de la contraseña es inválido.',
-    'sent' => '¡Hemos enviado a su cuenta de e-mail un enlace para restaurar su contraseña!',
-    'reset' => '¡Su contraseña ha sido restaurada!',
+    'user'     => 'No podemos encontrar un usuario con esta dirección de correo electrónico.',
+    'token'    => 'El token de reseteo de la contraseña es inválido.',
+    'sent'     => '¡Hemos enviado a su cuenta de e-mail un enlace para restaurar su contraseña!',
+    'reset'    => '¡Su contraseña ha sido restaurada!',
 
 ];

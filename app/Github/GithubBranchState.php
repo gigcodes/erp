@@ -28,7 +28,8 @@ class GithubBranchState extends Model
     /**
      * Set the keys for a save update query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function setKeysForSaveQuery($query)
@@ -48,7 +49,8 @@ class GithubBranchState extends Model
     /**
      * Get the primary key value for a save query.
      *
-     * @param  mixed  $keyName
+     * @param mixed $keyName
+     *
      * @return mixed
      */
     protected function getKeyForSaveQuery($keyName = null)

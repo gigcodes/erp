@@ -23,7 +23,7 @@ class FormProcessing
     /**
      * Processes forms registered in $form_display, handles error correction
      *
-     * @param  FormDisplay  $form_display Form to display
+     * @param FormDisplay $form_display Form to display
      */
     public static function process(FormDisplay $form_display): void
     {
@@ -58,22 +58,22 @@ class FormProcessing
         }
 
         $formset = isset($_GET['formset']) && is_string($_GET['formset']) ? $_GET['formset'] : '';
-        $formId = isset($_GET['id']) && is_numeric($_GET['id']) && (int) $_GET['id'] >= 1 ? (int) $_GET['id'] : 0;
+        $formId  = isset($_GET['id']) && is_numeric($_GET['id']) && (int) $_GET['id'] >= 1 ? (int) $_GET['id'] : 0;
         if ($formId === 0 && $page === 'servers') {
             // we've just added a new server, get its id
             $formId = $form_display->getConfigFile()->getServerCount();
         }
 
         $urlParams = [
-            'page' => $page,
+            'page'    => $page,
             'formset' => $formset,
-            'id' => $formId,
+            'id'      => $formId,
         ];
 
         $template = new Template();
         echo $template->render('setup/error', [
             'url_params' => $urlParams,
-            'errors' => $form_display->displayErrors(),
+            'errors'     => $form_display->displayErrors(),
         ]);
     }
 }

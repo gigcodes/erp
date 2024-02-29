@@ -34,8 +34,8 @@ final class ThemeSetController extends AbstractController
         $this->themeManager->setActiveTheme($_POST['set_theme']);
         $this->themeManager->setThemeCookie();
 
-        $userPreferences = new UserPreferences();
-        $preferences = $userPreferences->load();
+        $userPreferences                            = new UserPreferences();
+        $preferences                                = $userPreferences->load();
         $preferences['config_data']['ThemeDefault'] = $_POST['set_theme'];
         $userPreferences->save($preferences['config_data']);
 

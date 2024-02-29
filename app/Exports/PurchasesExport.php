@@ -25,8 +25,8 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
     public function array(): array
     {
         $products_array = [];
-        $total_price = 0;
-        $purchases = Purchase::whereIn('id', $this->selected_purchases)->get();
+        $total_price    = 0;
+        $purchases      = Purchase::whereIn('id', $this->selected_purchases)->get();
 
         foreach ($purchases as $purchase) {
             // check order products
@@ -36,15 +36,15 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
                     if ($orderProducts->purchase_status == 'Request Sent to Supplier' || $orderProducts->purchase_status == 'Pending Purchase') {
                         $product = $orderProducts->product;
                         if ($product) {
-                            $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+                            $path         = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
                             $this->path[] = $path;
 
-                            $products_array[$this->count]['image'] = 'Image.......';
-                            $products_array[$this->count]['size'] = $orderProducts->size;
-                            $products_array[$this->count]['sku'] = $product->sku;
-                            $products_array[$this->count]['price'] = $product->price;
-                            $products_array[$this->count]['discount'] = $product->percentage . '%';
-                            $products_array[$this->count]['qty'] = $orderProducts->qty;
+                            $products_array[$this->count]['image']      = 'Image.......';
+                            $products_array[$this->count]['size']       = $orderProducts->size;
+                            $products_array[$this->count]['sku']        = $product->sku;
+                            $products_array[$this->count]['price']      = $product->price;
+                            $products_array[$this->count]['discount']   = $product->percentage . '%';
+                            $products_array[$this->count]['qty']        = $orderProducts->qty;
                             $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $orderProducts->qty;
 
                             $this->count++;
@@ -57,15 +57,15 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
                 foreach ($purchase->products as $product) {
                     foreach ($product->orderproducts as $order_product) {
                         if ($order_product->purchase_status == 'Request Sent to Supplier' || $order_product->purchase_status == 'Pending Purchase') {
-                            $path = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+                            $path         = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
                             $this->path[] = $path;
 
-                            $products_array[$this->count]['image'] = 'Image.......';
-                            $products_array[$this->count]['size'] = $order_product->size;
-                            $products_array[$this->count]['sku'] = $product->sku;
-                            $products_array[$this->count]['price'] = $product->price;
-                            $products_array[$this->count]['discount'] = $product->percentage . '%';
-                            $products_array[$this->count]['qty'] = $order_product->qty;
+                            $products_array[$this->count]['image']      = 'Image.......';
+                            $products_array[$this->count]['size']       = $order_product->size;
+                            $products_array[$this->count]['sku']        = $product->sku;
+                            $products_array[$this->count]['price']      = $product->price;
+                            $products_array[$this->count]['discount']   = $product->percentage . '%';
+                            $products_array[$this->count]['qty']        = $order_product->qty;
                             $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
 
                             $this->count++;
@@ -77,12 +77,12 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
             }
         }
 
-        $products_array[$this->count]['image'] = '';
-        $products_array[$this->count]['size'] = '';
-        $products_array[$this->count]['sku'] = '';
-        $products_array[$this->count]['price'] = '';
-        $products_array[$this->count]['discount'] = '';
-        $products_array[$this->count]['qty'] = 'TOTAL';
+        $products_array[$this->count]['image']      = '';
+        $products_array[$this->count]['size']       = '';
+        $products_array[$this->count]['sku']        = '';
+        $products_array[$this->count]['price']      = '';
+        $products_array[$this->count]['discount']   = '';
+        $products_array[$this->count]['qty']        = 'TOTAL';
         $products_array[$this->count]['final_cost'] = $total_price;
 
         return $products_array;
@@ -109,7 +109,7 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
             AfterSheet::class => function (AfterSheet $event) {
                 for ($i = 1; $i <= $this->count; $i++) {
                     $coordinates = 'A' . (string) ($i + 1);
-                    $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+                    $drawing     = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
                     $drawing->setName('Logo');
                     $drawing->setDescription('Logo');
                     $drawing->setPath($this->path[$i - 1]);

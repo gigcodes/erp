@@ -29,7 +29,7 @@ class Events
 {
     /** @var array<string, array<int, string>> */
     private $status = [
-        'query' => ['ENABLE', 'DISABLE', 'DISABLE ON SLAVE'],
+        'query'   => ['ENABLE', 'DISABLE', 'DISABLE ON SLAVE'],
         'display' => ['ENABLED', 'DISABLED', 'SLAVESIDE_DISABLED'],
     ];
 
@@ -65,13 +65,13 @@ class Events
     private $response;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface instance.
-     * @param  Template  $template Template instance.
-     * @param  ResponseRenderer  $response Response instance.
+     * @param DatabaseInterface $dbi      DatabaseInterface instance.
+     * @param Template          $template Template instance.
+     * @param ResponseRenderer  $response Response instance.
      */
     public function __construct(DatabaseInterface $dbi, Template $template, $response)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->template = $template;
         $this->response = $response;
     }
@@ -94,7 +94,7 @@ class Events
                 if (! empty($_POST['editor_process_edit'])) {
                     // Backup the old trigger, in case something goes wrong
                     $create_item = $this->dbi->getDefinition($db, 'EVENT', $_POST['item_original_name']);
-                    $drop_item = 'DROP EVENT IF EXISTS '
+                    $drop_item   = 'DROP EVENT IF EXISTS '
                         . Util::backquote($_POST['item_original_name'])
                         . ";\n";
                     $result = $this->dbi->tryQuery($drop_item);
@@ -173,7 +173,7 @@ class Events
             if ($this->response->isAjax()) {
                 if ($message->isSuccess()) {
                     $events = $this->dbi->getEvents($db, $_POST['item_name']);
-                    $event = $events[0];
+                    $event  = $events[0];
                     $this->response->addJSON(
                         'name',
                         htmlspecialchars(
@@ -188,12 +188,12 @@ class Events
                         $this->response->addJSON(
                             'new_row',
                             $this->template->render('database/events/row', [
-                                'db' => $db,
-                                'table' => $table,
-                                'event' => $event,
+                                'db'            => $db,
+                                'table'         => $table,
+                                'event'         => $event,
                                 'has_privilege' => Util::currentUserHasPrivilege('EVENT', $db),
-                                'sql_drop' => $sqlDrop,
-                                'row_class' => '',
+                                'sql_drop'      => $sqlDrop,
+                                'row_class'     => '',
                             ])
                         );
                     }
@@ -226,9 +226,9 @@ class Events
 
         // FIXME: this must be simpler than that
         $operation = '';
-        $title = '';
-        $item = null;
-        $mode = '';
+        $title     = '';
+        $item      = null;
+        $mode      = '';
         if (! empty($_POST['item_changetype'])) {
             $operation = 'change';
         }
@@ -236,8 +236,8 @@ class Events
         // Get the data for the form (if any)
         if (! empty($_REQUEST['add_item'])) {
             $title = __('Add event');
-            $item = $this->getDataFromRequest();
-            $mode = 'add';
+            $item  = $this->getDataFromRequest();
+            $mode  = 'add';
         } elseif (! empty($_REQUEST['edit_item'])) {
             $title = __('Edit event');
             if (
@@ -262,11 +262,11 @@ class Events
     /**
      * This function will generate the values that are required to for the editor
      *
-     * @return array    Data necessary to create the editor.
+     * @return array Data necessary to create the editor.
      */
     public function getDataFromRequest()
     {
-        $retval = [];
+        $retval  = [];
         $indices = [
             'item_name',
             'item_original_name',
@@ -285,10 +285,10 @@ class Events
             $retval[$index] = $_POST[$index] ?? '';
         }
 
-        $retval['item_type'] = 'ONE TIME';
+        $retval['item_type']        = 'ONE TIME';
         $retval['item_type_toggle'] = 'RECURRING';
         if (isset($_POST['item_type']) && $_POST['item_type'] === 'RECURRING') {
-            $retval['item_type'] = 'RECURRING';
+            $retval['item_type']        = 'RECURRING';
             $retval['item_type_toggle'] = 'ONE TIME';
         }
 
@@ -299,14 +299,15 @@ class Events
      * This function will generate the values that are required to complete
      * the "Edit event" form given the name of a event.
      *
-     * @param  string  $name The name of the event.
+     * @param string $name The name of the event.
+     *
      * @return array|null Data necessary to create the editor.
      */
     public function getDataFromName($name): ?array
     {
         global $db;
 
-        $retval = [];
+        $retval  = [];
         $columns = '`EVENT_NAME`, `STATUS`, `EVENT_TYPE`, `EXECUTE_AT`, '
                  . '`INTERVAL_VALUE`, `INTERVAL_FIELD`, `STARTS`, `ENDS`, '
                  . '`EVENT_DEFINITION`, `ON_COMPLETION`, `DEFINER`, `EVENT_COMMENT`';
@@ -314,33 +315,33 @@ class Events
                  . "'" . $this->dbi->escapeString($db) . "' "
                  . "AND EVENT_NAME='" . $this->dbi->escapeString($name) . "'";
         $query = 'SELECT ' . $columns . ' FROM `INFORMATION_SCHEMA`.`EVENTS` WHERE ' . $where . ';';
-        $item = $this->dbi->fetchSingleRow($query);
+        $item  = $this->dbi->fetchSingleRow($query);
         if (! $item) {
             return null;
         }
 
-        $retval['item_name'] = $item['EVENT_NAME'];
+        $retval['item_name']   = $item['EVENT_NAME'];
         $retval['item_status'] = $item['STATUS'];
-        $retval['item_type'] = $item['EVENT_TYPE'];
+        $retval['item_type']   = $item['EVENT_TYPE'];
         if ($retval['item_type'] === 'RECURRING') {
             $retval['item_type_toggle'] = 'ONE TIME';
         } else {
             $retval['item_type_toggle'] = 'RECURRING';
         }
 
-        $retval['item_execute_at'] = $item['EXECUTE_AT'];
+        $retval['item_execute_at']     = $item['EXECUTE_AT'];
         $retval['item_interval_value'] = $item['INTERVAL_VALUE'];
         $retval['item_interval_field'] = $item['INTERVAL_FIELD'];
-        $retval['item_starts'] = $item['STARTS'];
-        $retval['item_ends'] = $item['ENDS'];
-        $retval['item_preserve'] = '';
+        $retval['item_starts']         = $item['STARTS'];
+        $retval['item_ends']           = $item['ENDS'];
+        $retval['item_preserve']       = '';
         if ($item['ON_COMPLETION'] === 'PRESERVE') {
             $retval['item_preserve'] = " checked='checked'";
         }
 
         $retval['item_definition'] = $item['EVENT_DEFINITION'];
-        $retval['item_definer'] = $item['DEFINER'];
-        $retval['item_comment'] = $item['EVENT_COMMENT'];
+        $retval['item_definer']    = $item['DEFINER'];
+        $retval['item_comment']    = $item['EVENT_COMMENT'];
 
         return $retval;
     }
@@ -348,14 +349,15 @@ class Events
     /**
      * Displays a form used to add/edit an event
      *
-     * @param  string  $mode      If the editor will be used to edit an event
+     * @param string $mode      If the editor will be used to edit an event
      *                          or add a new one: 'edit' or 'add'.
-     * @param  string  $operation If the editor was previously invoked with
+     * @param string $operation If the editor was previously invoked with
      *                          JS turned off, this will hold the name of
      *                          the current operation
-     * @param  array  $item      Data for the event returned by
+     * @param array  $item      Data for the event returned by
      *                          getDataFromRequest() or getDataFromName()
-     * @return string   HTML code for the editor.
+     *
+     * @return string HTML code for the editor.
      */
     public function getEditorForm($mode, $operation, array $item)
     {
@@ -363,21 +365,21 @@ class Events
 
         if ($operation === 'change') {
             if ($item['item_type'] === 'RECURRING') {
-                $item['item_type'] = 'ONE TIME';
+                $item['item_type']        = 'ONE TIME';
                 $item['item_type_toggle'] = 'RECURRING';
             } else {
-                $item['item_type'] = 'RECURRING';
+                $item['item_type']        = 'RECURRING';
                 $item['item_type_toggle'] = 'ONE TIME';
             }
         }
 
         return $this->template->render('database/events/editor_form', [
-            'db' => $db,
-            'event' => $item,
-            'mode' => $mode,
-            'is_ajax' => $this->response->isAjax(),
+            'db'             => $db,
+            'event'          => $item,
+            'mode'           => $mode,
+            'is_ajax'        => $this->response->isAjax(),
             'status_display' => $this->status['display'],
-            'event_type' => $this->type,
+            'event_type'     => $this->type,
             'event_interval' => $this->interval,
         ]);
     }
@@ -385,7 +387,7 @@ class Events
     /**
      * Composes the query necessary to create an event from an HTTP request.
      *
-     * @return string  The CREATE EVENT query.
+     * @return string The CREATE EVENT query.
      */
     public function getQueryFromRequest()
     {
@@ -484,8 +486,9 @@ class Events
     }
 
     /**
-     * @param  string|null  $createStatement Query
-     * @param  array  $errors          Errors
+     * @param string|null $createStatement Query
+     * @param array       $errors          Errors
+     *
      * @return array
      */
     private function checkResult($createStatement, array $errors)
@@ -506,11 +509,11 @@ class Events
     /**
      * Send editor via ajax or by echoing.
      *
-     * @param  string  $mode      Editor mode 'add' or 'edit'
-     * @param  array|null  $item      Data necessary to create the editor
-     * @param  string  $title     Title of the editor
-     * @param  string  $db        Database
-     * @param  string  $operation Operation 'change' or ''
+     * @param string     $mode      Editor mode 'add' or 'edit'
+     * @param array|null $item      Data necessary to create the editor
+     * @param string     $title     Title of the editor
+     * @param string     $db        Database
+     * @param string     $operation Operation 'change' or ''
      */
     private function sendEditor($mode, ?array $item, $title, $db, $operation): void
     {
@@ -551,7 +554,7 @@ class Events
             return;
         }
 
-        $itemName = $_GET['item_name'];
+        $itemName   = $_GET['item_name'];
         $exportData = $this->dbi->getDefinition($db, 'EVENT', $itemName);
 
         if (! $exportData) {
@@ -561,7 +564,7 @@ class Events
         $itemName = htmlspecialchars(Util::backquote($itemName));
         if ($exportData !== false) {
             $exportData = htmlspecialchars(trim($exportData));
-            $title = sprintf(__('Export of event %s'), $itemName);
+            $title      = sprintf(__('Export of event %s'), $itemName);
 
             if ($this->response->isAjax()) {
                 $this->response->addJSON('message', $exportData);

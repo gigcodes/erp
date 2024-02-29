@@ -52,7 +52,7 @@ final class Search
             $sql_query .= '* ';
         } else {
             $columnsToDisplay = $_POST['columnsToDisplay'];
-            $quotedColumns = [];
+            $quotedColumns    = [];
             foreach ($columnsToDisplay as $column) {
                 $quotedColumns[] = Util::backquote($column);
             }
@@ -99,7 +99,7 @@ final class Search
         // else continue to form the where clause from column criteria values
         $fullWhereClause = [];
         foreach ($_POST['criteriaColumnOperators'] as $column_index => $operator) {
-            $unaryFlag = $this->dbi->types->isUnaryOperator($operator);
+            $unaryFlag     = $this->dbi->types->isUnaryOperator($operator);
             $tmp_geom_func = $_POST['geom_func'][$column_index] ?? null;
 
             $whereClause = $this->getWhereClause(
@@ -128,12 +128,13 @@ final class Search
     /**
      * Return the where clause for query generation based on the inputs provided.
      *
-     * @param  mixed  $criteriaValues Search criteria input
-     * @param  string  $names          Name of the column on which search is submitted
-     * @param  string  $types          Type of the field
-     * @param  string  $func_type      Search function/operator
-     * @param  bool  $unaryFlag      Whether operator unary or not
-     * @param  string|null  $geom_func      Whether geometry functions should be applied
+     * @param mixed       $criteriaValues Search criteria input
+     * @param string      $names          Name of the column on which search is submitted
+     * @param string      $types          Type of the field
+     * @param string      $func_type      Search function/operator
+     * @param bool        $unaryFlag      Whether operator unary or not
+     * @param string|null $geom_func      Whether geometry functions should be applied
+     *
      * @return string generated where clause.
      */
     private function getWhereClause(
@@ -150,7 +151,7 @@ final class Search
         }
 
         $backquoted_name = Util::backquote($names);
-        $where = '';
+        $where           = '';
         if ($unaryFlag) {
             $where = $backquoted_name . ' ' . $func_type;
         } elseif (strncasecmp($types, 'enum', 4) == 0 && ! empty($criteriaValues)) {
@@ -172,17 +173,17 @@ final class Search
 
             // LIKE %...%
             if ($func_type === 'LIKE %...%') {
-                $func_type = 'LIKE';
+                $func_type      = 'LIKE';
                 $criteriaValues = '%' . $criteriaValues . '%';
             }
 
             if ($func_type === 'NOT LIKE %...%') {
-                $func_type = 'NOT LIKE';
+                $func_type      = 'NOT LIKE';
                 $criteriaValues = '%' . $criteriaValues . '%';
             }
 
             if ($func_type === 'REGEXP ^...$') {
-                $func_type = 'REGEXP';
+                $func_type      = 'REGEXP';
                 $criteriaValues = '^' . $criteriaValues . '$';
             }
 
@@ -211,7 +212,7 @@ final class Search
             foreach ($values as $key => &$value) {
                 if ($value === '') {
                     $emptyKey = $key;
-                    $value = 'NULL';
+                    $value    = 'NULL';
 
                     continue;
                 }
@@ -252,11 +253,12 @@ final class Search
     /**
      * Return the where clause for a geometrical column.
      *
-     * @param  mixed  $criteriaValues Search criteria input
-     * @param  string  $names          Name of the column on which search is submitted
-     * @param  string  $func_type      Search function/operator
-     * @param  string  $types          Type of the field
-     * @param  string|null  $geom_func      Whether geometry functions should be applied
+     * @param mixed       $criteriaValues Search criteria input
+     * @param string      $names          Name of the column on which search is submitted
+     * @param string      $func_type      Search function/operator
+     * @param string      $types          Type of the field
+     * @param string|null $geom_func      Whether geometry functions should be applied
+     *
      * @return string part of where clause.
      */
     private function getGeomWhereClause(
@@ -267,9 +269,9 @@ final class Search
         $geom_func = null
     ): string {
         $geom_unary_functions = [
-            'IsEmpty' => 1,
+            'IsEmpty'  => 1,
             'IsSimple' => 1,
-            'IsRing' => 1,
+            'IsRing'   => 1,
             'IsClosed' => 1,
         ];
         $where = '';
@@ -291,7 +293,7 @@ final class Search
         }
 
         // New output type is the output type of the function being applied
-        $type = $geom_funcs[$geom_func]['type'];
+        $type                  = $geom_funcs[$geom_func]['type'];
         $geom_function_applied = $geom_func
             . '(' . Util::backquote($names) . ')';
 
@@ -301,7 +303,7 @@ final class Search
         } elseif (in_array($type, Gis::getDataTypes()) && ! empty($criteriaValues)) {
             // create gis data from the criteria input
             $gis_data = Gis::createData($criteriaValues, $this->dbi->getVersion());
-            $where = $geom_function_applied . ' ' . $func_type . ' ' . $gis_data;
+            $where    = $geom_function_applied . ' ' . $func_type . ' ' . $gis_data;
         } elseif (strlen($criteriaValues) > 0) {
             $where = $geom_function_applied . ' '
                 . $func_type . " '" . $criteriaValues . "'";
@@ -313,8 +315,9 @@ final class Search
     /**
      * Return the where clause in case column's type is ENUM.
      *
-     * @param  mixed  $criteriaValues Search criteria input
-     * @param  string  $func_type      Search function/operator
+     * @param mixed  $criteriaValues Search criteria input
+     * @param string $func_type      Search function/operator
+     *
      * @return string part of where clause.
      */
     private function getEnumWhereClause($criteriaValues, $func_type): string
@@ -325,15 +328,15 @@ final class Search
 
         $enum_selected_count = count($criteriaValues);
         if ($func_type === '=' && $enum_selected_count > 1) {
-            $func_type = 'IN';
-            $parens_open = '(';
+            $func_type    = 'IN';
+            $parens_open  = '(';
             $parens_close = ')';
         } elseif ($func_type === '!=' && $enum_selected_count > 1) {
-            $func_type = 'NOT IN';
-            $parens_open = '(';
+            $func_type    = 'NOT IN';
+            $parens_open  = '(';
             $parens_close = ')';
         } else {
-            $parens_open = '';
+            $parens_open  = '';
             $parens_close = '';
         }
 

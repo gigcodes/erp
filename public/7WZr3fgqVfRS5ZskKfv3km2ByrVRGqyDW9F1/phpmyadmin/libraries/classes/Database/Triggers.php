@@ -41,13 +41,13 @@ class Triggers
     private $response;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface instance.
-     * @param  Template  $template Template instance.
-     * @param  ResponseRenderer  $response Response instance.
+     * @param DatabaseInterface $dbi      DatabaseInterface instance.
+     * @param Template          $template Template instance.
+     * @param ResponseRenderer  $response Response instance.
      */
     public function __construct(DatabaseInterface $dbi, Template $template, $response)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->template = $template;
         $this->response = $response;
     }
@@ -65,27 +65,27 @@ class Triggers
         $this->handleEditor();
         $this->export();
 
-        $items = $this->dbi->getTriggers($db, $table);
+        $items               = $this->dbi->getTriggers($db, $table);
         $hasTriggerPrivilege = Util::currentUserHasPrivilege('TRIGGER', $db, $table);
-        $isAjax = $this->response->isAjax() && empty($_REQUEST['ajax_page_request']);
+        $isAjax              = $this->response->isAjax() && empty($_REQUEST['ajax_page_request']);
 
         $rows = '';
         foreach ($items as $item) {
             $rows .= $this->template->render('database/triggers/row', [
-                'db' => $db,
-                'table' => $table,
-                'trigger' => $item,
+                'db'                 => $db,
+                'table'              => $table,
+                'trigger'            => $item,
                 'has_drop_privilege' => $hasTriggerPrivilege,
                 'has_edit_privilege' => $hasTriggerPrivilege,
-                'row_class' => $isAjax ? 'ajaxInsert hide' : '',
+                'row_class'          => $isAjax ? 'ajaxInsert hide' : '',
             ]);
         }
 
         echo $this->template->render('database/triggers/list', [
-            'db' => $db,
-            'table' => $table,
-            'items' => $items,
-            'rows' => $rows,
+            'db'            => $db,
+            'table'         => $table,
+            'items'         => $items,
+            'rows'          => $rows,
             'has_privilege' => $hasTriggerPrivilege,
         ]);
     }
@@ -107,10 +107,10 @@ class Triggers
                 // Execute the created query
                 if (! empty($_POST['editor_process_edit'])) {
                     // Backup the old trigger, in case something goes wrong
-                    $trigger = $this->getDataFromName($_POST['item_original_name']);
+                    $trigger     = $this->getDataFromName($_POST['item_original_name']);
                     $create_item = $trigger['create'];
-                    $drop_item = $trigger['drop'] . ';';
-                    $result = $this->dbi->tryQuery($drop_item);
+                    $drop_item   = $trigger['drop'] . ';';
+                    $result      = $this->dbi->tryQuery($drop_item);
                     if (! $result) {
                         $errors[] = sprintf(
                             __('The following query has failed: "%s"'),
@@ -186,7 +186,7 @@ class Triggers
 
             if ($this->response->isAjax()) {
                 if ($message->isSuccess()) {
-                    $items = $this->dbi->getTriggers($db, $table, '');
+                    $items   = $this->dbi->getTriggers($db, $table, '');
                     $trigger = false;
                     foreach ($items as $value) {
                         if ($value['name'] != $_POST['item_name']) {
@@ -198,17 +198,17 @@ class Triggers
 
                     $insert = false;
                     if (empty($table) || ($trigger !== false && $table == $trigger['table'])) {
-                        $insert = true;
+                        $insert              = true;
                         $hasTriggerPrivilege = Util::currentUserHasPrivilege('TRIGGER', $db, $table);
                         $this->response->addJSON(
                             'new_row',
                             $this->template->render('database/triggers/row', [
-                                'db' => $db,
-                                'table' => $table,
-                                'trigger' => $trigger,
+                                'db'                 => $db,
+                                'table'              => $table,
+                                'trigger'            => $trigger,
                                 'has_drop_privilege' => $hasTriggerPrivilege,
                                 'has_edit_privilege' => $hasTriggerPrivilege,
-                                'row_class' => '',
+                                'row_class'          => '',
                             ])
                         );
                         $this->response->addJSON(
@@ -246,14 +246,14 @@ class Triggers
             return;
         }
 
-        $mode = '';
-        $item = null;
+        $mode  = '';
+        $item  = null;
         $title = '';
         // Get the data for the form (if any)
         if (! empty($_REQUEST['add_item'])) {
             $title = __('Add trigger');
-            $item = $this->getDataFromRequest();
-            $mode = 'add';
+            $item  = $this->getDataFromRequest();
+            $mode  = 'add';
         } elseif (! empty($_REQUEST['edit_item'])) {
             $title = __('Edit trigger');
             if (! empty($_REQUEST['item_name']) && empty($_POST['editor_process_edit'])) {
@@ -274,11 +274,11 @@ class Triggers
     /**
      * This function will generate the values that are required to for the editor
      *
-     * @return array    Data necessary to create the editor.
+     * @return array Data necessary to create the editor.
      */
     public function getDataFromRequest()
     {
-        $retval = [];
+        $retval  = [];
         $indices = [
             'item_name',
             'item_table',
@@ -299,14 +299,15 @@ class Triggers
      * This function will generate the values that are required to complete
      * the "Edit trigger" form given the name of a trigger.
      *
-     * @param  string  $name The name of the trigger.
+     * @param string $name The name of the trigger.
+     *
      * @return array|null Data necessary to create the editor.
      */
     public function getDataFromName($name): ?array
     {
         global $db, $table;
 
-        $temp = [];
+        $temp  = [];
         $items = $this->dbi->getTriggers($db, $table, '');
         foreach ($items as $value) {
             if ($value['name'] != $name) {
@@ -320,15 +321,15 @@ class Triggers
             return null;
         }
 
-        $retval = [];
-        $retval['create'] = $temp['create'];
-        $retval['drop'] = $temp['drop'];
-        $retval['item_name'] = $temp['name'];
-        $retval['item_table'] = $temp['table'];
-        $retval['item_action_timing'] = $temp['action_timing'];
+        $retval                            = [];
+        $retval['create']                  = $temp['create'];
+        $retval['drop']                    = $temp['drop'];
+        $retval['item_name']               = $temp['name'];
+        $retval['item_table']              = $temp['table'];
+        $retval['item_action_timing']      = $temp['action_timing'];
         $retval['item_event_manipulation'] = $temp['event_manipulation'];
-        $retval['item_definition'] = $temp['definition'];
-        $retval['item_definer'] = $temp['definer'];
+        $retval['item_definition']         = $temp['definition'];
+        $retval['item_definer']            = $temp['definer'];
 
         return $retval;
     }
@@ -336,10 +337,10 @@ class Triggers
     /**
      * Displays a form used to add/edit a trigger
      *
-     * @param  string  $db
-     * @param  string  $table
-     * @param  string  $mode  If the editor will be used to edit a trigger or add a new one: 'edit' or 'add'.
-     * @param  array  $item  Data for the trigger returned by getDataFromRequest() or getDataFromName()
+     * @param string $db
+     * @param string $table
+     * @param string $mode  If the editor will be used to edit a trigger or add a new one: 'edit' or 'add'.
+     * @param array  $item  Data for the trigger returned by getDataFromRequest() or getDataFromName()
      */
     public function getEditorForm($db, $table, $mode, array $item): string
     {
@@ -349,13 +350,13 @@ class Triggers
         $tables = $this->dbi->fetchResult($query);
 
         return $this->template->render('database/triggers/editor_form', [
-            'db' => $db,
-            'table' => $table,
+            'db'      => $db,
+            'table'   => $table,
             'is_edit' => $mode === 'edit',
-            'item' => $item,
-            'tables' => $tables,
-            'time' => $this->time,
-            'events' => $this->event,
+            'item'    => $item,
+            'tables'  => $tables,
+            'time'    => $this->time,
+            'events'  => $this->event,
             'is_ajax' => $this->response->isAjax(),
         ]);
     }
@@ -363,7 +364,7 @@ class Triggers
     /**
      * Composes the query necessary to create a trigger from an HTTP request.
      *
-     * @return string  The CREATE TRIGGER query.
+     * @return string The CREATE TRIGGER query.
      */
     public function getQueryFromRequest()
     {
@@ -417,8 +418,9 @@ class Triggers
     }
 
     /**
-     * @param  string  $createStatement Query
-     * @param  array  $errors          Errors
+     * @param string $createStatement Query
+     * @param array  $errors          Errors
+     *
      * @return array
      */
     private function checkResult($createStatement, array $errors)
@@ -439,11 +441,11 @@ class Triggers
     /**
      * Send editor via ajax or by echoing.
      *
-     * @param  string  $mode  Editor mode 'add' or 'edit'
-     * @param  array|null  $item  Data necessary to create the editor
-     * @param  string  $title Title of the editor
-     * @param  string  $db    Database
-     * @param  string  $table Table
+     * @param string     $mode  Editor mode 'add' or 'edit'
+     * @param array|null $item  Data necessary to create the editor
+     * @param string     $title Title of the editor
+     * @param string     $db    Database
+     * @param string     $table Table
      */
     private function sendEditor($mode, ?array $item, $title, $db, $table): void
     {
@@ -484,8 +486,8 @@ class Triggers
             return;
         }
 
-        $itemName = $_GET['item_name'];
-        $triggers = $this->dbi->getTriggers($db, $table, '');
+        $itemName   = $_GET['item_name'];
+        $triggers   = $this->dbi->getTriggers($db, $table, '');
         $exportData = false;
 
         foreach ($triggers as $trigger) {
@@ -506,7 +508,7 @@ class Triggers
             }
 
             $this->response->addHTML($this->template->render('database/triggers/export', [
-                'data' => $exportData,
+                'data'      => $exportData,
                 'item_name' => $itemName,
             ]));
 

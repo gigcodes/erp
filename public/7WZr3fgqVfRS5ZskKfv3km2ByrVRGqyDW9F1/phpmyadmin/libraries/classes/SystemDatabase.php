@@ -20,11 +20,11 @@ class SystemDatabase
     /**
      * Get instance of SystemDatabase
      *
-     * @param  DatabaseInterface  $dbi Database interface for the system database
+     * @param DatabaseInterface $dbi Database interface for the system database
      */
     public function __construct(DatabaseInterface $dbi)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = new Relation($this->dbi);
     }
 
@@ -32,7 +32,8 @@ class SystemDatabase
      * Get existing data on transformations applied for
      * columns in a particular table
      *
-     * @param  string  $db Database name looking for
+     * @param string $db Database name looking for
+     *
      * @return ResultInterface|false Result of executed SQL query
      */
     public function getExistingTransformationData($db)
@@ -57,10 +58,11 @@ class SystemDatabase
     /**
      * Get SQL query for store new transformation details of a VIEW
      *
-     * @param  ResultInterface  $transformationData Result set of SQL execution
-     * @param  array  $columnMap          Details of VIEW columns
-     * @param  string  $viewName           Name of the VIEW
-     * @param  string  $db                 Database name of the VIEW
+     * @param ResultInterface $transformationData Result set of SQL execution
+     * @param array           $columnMap          Details of VIEW columns
+     * @param string          $viewName           Name of the VIEW
+     * @param string          $db                 Database name of the VIEW
+     *
      * @return string SQL query for new transformations
      */
     public function getNewTransformationDataSql(
@@ -85,7 +87,7 @@ class SystemDatabase
         );
 
         $columnCount = 0;
-        $addComma = false;
+        $addComma    = false;
 
         while ($dataRow = $transformationData->fetchAssoc()) {
             foreach ($columnMap as $column) {

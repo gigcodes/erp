@@ -17,7 +17,7 @@ class Ndbcluster extends StorageEngine
     /**
      * Returns array with variable names related to NDBCLUSTER storage engine
      *
-     * @return array   variable names
+     * @return array variable names
      */
     public function getVariables()
     {
@@ -30,7 +30,7 @@ class Ndbcluster extends StorageEngine
      * Returns the pattern to be used in the query for SQL variables
      * related to NDBCLUSTER storage engine
      *
-     * @return string  SQL query LIKE pattern
+     * @return string SQL query LIKE pattern
      */
     public function getVariablesLikePattern()
     {
@@ -41,7 +41,7 @@ class Ndbcluster extends StorageEngine
      * Returns string with filename for the MySQL help page
      * about this storage engine
      *
-     * @return string  mysql helppage filename
+     * @return string mysql helppage filename
      */
     public function getMysqlHelpPage()
     {

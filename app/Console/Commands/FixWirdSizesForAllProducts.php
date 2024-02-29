@@ -42,7 +42,7 @@ class FixWirdSizesForAllProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -50,7 +50,7 @@ class FixWirdSizesForAllProducts extends Command
                 foreach ($products as $product) {
                     dump('Updating..' . $product->id);
                     $product->short_description = str_replace([' ', '/', ';', '-', "\n", '\n', '_', '\\'], ' ', $product->short_description);
-                    $product->composition = str_replace([' ', '/', ';', '-', "\n", '\n', '_', '\\', 'Made in', 'Made In', 'Italy', 'France', 'Portugal'], ' ', $product->composition);
+                    $product->composition       = str_replace([' ', '/', ';', '-', "\n", '\n', '_', '\\', 'Made in', 'Made In', 'Italy', 'France', 'Portugal'], ' ', $product->composition);
                     $product->save();
                 }
             });

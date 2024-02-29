@@ -21,10 +21,10 @@ class RefrerralProgramSeeder extends Seeder
                 ReferralProgram::updateOrCreate(
                     ['uri' => $website->website],
                     [
-                        'name' => 'signup_referral',
-                        'uri' => "$website->website",
-                        'credit' => 100,
-                        'currency' => 'EUR',
+                        'name'             => 'signup_referral',
+                        'uri'              => "$website->website",
+                        'credit'           => 100,
+                        'currency'         => 'EUR',
                         'lifetime_minutes' => 10080,
                         'store_website_id' => "$website->id",
                     ]

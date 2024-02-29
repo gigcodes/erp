@@ -15,11 +15,11 @@ class GoogleAdsHelper
         $account = GoogleAdsAccount::find($account_id);
         if (! is_null($account)) {
             try {
-                $clientId = $account->oauth2_client_id;
+                $clientId     = $account->oauth2_client_id;
                 $clientSecret = $account->oauth2_client_secret;
                 $refreshToken = $account->oauth2_refresh_token;
 
-                $developerToken = $account->google_adwords_manager_account_developer_token;
+                $developerToken  = $account->google_adwords_manager_account_developer_token;
                 $loginCustomerId = $account->google_adwords_manager_account_customer_id;
 
                 // Generate a refreshable OAuth2 credential for authentication.
@@ -39,8 +39,8 @@ class GoogleAdsHelper
             } catch (Exception $e) {
                 // Insert google ads log
                 $input = [
-                    'type' => 'ERROR',
-                    'module' => 'Google Ads Client',
+                    'type'    => 'ERROR',
+                    'module'  => 'Google Ads Client',
                     'message' => 'Create google ads client > ' . $e->getMessage(),
                 ];
                 insertGoogleAdsLog($input);
@@ -57,11 +57,11 @@ class GoogleAdsHelper
         $account = GoogleAdsAccount::find($account_id);
         if (! is_null($account)) {
             try {
-                $clientId = $account->oauth2_client_id;
+                $clientId     = $account->oauth2_client_id;
                 $clientSecret = $account->oauth2_client_secret;
                 $refreshToken = $account->oauth2_refresh_token;
 
-                $developerToken = $account->google_adwords_manager_account_developer_token;
+                $developerToken  = $account->google_adwords_manager_account_developer_token;
                 $loginCustomerId = $account->google_adwords_manager_account_customer_id;
 
                 // Generate a refreshable OAuth2 credential for authentication.
@@ -81,8 +81,8 @@ class GoogleAdsHelper
             } catch (Exception $e) {
                 // Insert google ads log
                 $input = [
-                    'type' => 'ERROR',
-                    'module' => 'Google Ads Client',
+                    'type'    => 'ERROR',
+                    'module'  => 'Google Ads Client',
                     'message' => 'Create google ads client > ' . $e->getMessage(),
                 ];
                 insertGoogleAdsLog($input);

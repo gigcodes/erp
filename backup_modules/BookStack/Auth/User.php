@@ -22,8 +22,8 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @property string $password
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property bool $email_confirmed
- * @property int $image_id
+ * @property bool   $email_confirmed
+ * @property int    $image_id
  * @property string $external_auth_id
  * @property string $system_name
  */
@@ -96,6 +96,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Check if the user has a role.
      *
+     * @param mixed $role
+     *
      * @return mixed
      */
     public function hasRole($role)
@@ -105,6 +107,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Check if the user has a role.
+     *
+     * @param mixed $role
      *
      * @return mixed
      */
@@ -116,7 +120,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Get all permissions belonging to a the current user.
      *
-     * @param  bool  $cache
+     * @param bool $cache
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function permissions($cache = true)
@@ -135,6 +140,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Check if the user has a particular permission.
+     *
+     * @param mixed $permissionName
      *
      * @return bool
      */
@@ -157,6 +164,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     /**
      * Attach a role id to this user.
+     *
+     * @param mixed $id
      */
     public function attachRoleId($id)
     {
@@ -177,7 +186,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * Check if the user has a social account,
      * If a driver is passed it checks for that single account type.
      *
-     * @param  bool|string  $socialDriver
+     * @param bool|string $socialDriver
+     *
      * @return bool
      */
     public function hasSocialAccount($socialDriver = false)
@@ -192,7 +202,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Returns the user's avatar,
      *
-     * @param  int  $size
+     * @param int $size
+     *
      * @return string
      */
     public function getAvatar($size = 50)
@@ -245,7 +256,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Get a shortened version of the user's name.
      *
-     * @param  int  $chars
+     * @param int $chars
+     *
      * @return string
      */
     public function getShortName($chars = 8)
@@ -265,7 +277,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     /**
      * Send the password reset notification.
      *
-     * @param  string  $token
+     * @param string $token
+     *
      * @return void
      */
     public function sendPasswordResetNotification($token)

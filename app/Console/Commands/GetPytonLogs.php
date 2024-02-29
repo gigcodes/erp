@@ -44,7 +44,7 @@ class GetPytonLogs extends Command
     public function handle()
     {
         $storeWebsites = ['sololuxury', 'avoir-chic', 'brands-labels', 'o-labels', 'suvandnat', 'veralusso'];
-        $devices = ['mobile', 'desktop', 'tablet'];
+        $devices       = ['mobile', 'desktop', 'tablet'];
         foreach ($storeWebsites as $website) {
             $url = 'http://167.86.88.58:5000/get-logs';
             foreach ($devices as $device) {
@@ -69,19 +69,19 @@ class GetPytonLogs extends Command
     public function callApi($url, $method, $data = [])
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 0,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
             ],
         ]);

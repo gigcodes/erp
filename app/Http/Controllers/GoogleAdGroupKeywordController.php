@@ -44,8 +44,8 @@ class GoogleAdGroupKeywordController extends Controller
         $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->where('channel_type', 'SEARCH')->first();
         if ($campaignDetail->exists() > 0) {
             return [
-                'account_id' => $campaignDetail->account_id,
-                'campaign_name' => $campaignDetail->campaign_name,
+                'account_id'         => $campaignDetail->account_id,
+                'campaign_name'      => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
@@ -55,15 +55,15 @@ class GoogleAdGroupKeywordController extends Controller
 
     public function index(Request $request, $campaignId, $adGroupId)
     {
-        $acDetail = $this->getAccountDetail($campaignId);
+        $acDetail            = $this->getAccountDetail($campaignId);
         $campaign_account_id = $acDetail['account_id'];
 
         $where = [
-            'google_adgroup_id' => $adGroupId,
+            'google_adgroup_id'          => $adGroupId,
             'adgroup_google_campaign_id' => $campaignId,
         ];
 
-        $adGroup = GoogleAdsGroup::where($where)->firstOrFail();
+        $adGroup       = GoogleAdsGroup::where($where)->firstOrFail();
         $ad_group_name = $adGroup->ad_group_name;
 
         $keywords = GoogleAdGroupKeyword::where($where);
@@ -86,8 +86,8 @@ class GoogleAdGroupKeywordController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'Ad Group keyword',
+            'type'    => 'SUCCESS',
+            'module'  => 'Ad Group keyword',
             'message' => 'Viewed ad group keyword listing for ' . $ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -101,17 +101,17 @@ class GoogleAdGroupKeywordController extends Controller
         $acDetail = $this->getAccountDetail($campaignId);
 
         $where = [
-            'google_adgroup_id' => $adGroupId,
+            'google_adgroup_id'          => $adGroupId,
             'adgroup_google_campaign_id' => $campaignId,
         ];
 
-        $adGroup = GoogleAdsGroup::where($where)->firstOrFail();
+        $adGroup       = GoogleAdsGroup::where($where)->firstOrFail();
         $ad_group_name = $adGroup->ad_group_name;
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'Ad Group keyword',
+            'type'    => 'SUCCESS',
+            'module'  => 'Ad Group keyword',
             'message' => 'Viewed create ad group keyword for ' . $ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -125,17 +125,17 @@ class GoogleAdGroupKeywordController extends Controller
         $rules = ['suggested_keywords' => 'required'];
         $this->validate($request, $rules);
 
-        $acDetail = $this->getAccountDetail($campaignId);
-        $account_id = $acDetail['account_id'];
+        $acDetail      = $this->getAccountDetail($campaignId);
+        $account_id    = $acDetail['account_id'];
         $campaign_name = $acDetail['campaign_name'];
-        $customerId = $acDetail['google_customer_id'];
+        $customerId    = $acDetail['google_customer_id'];
 
         $where = [
-            'google_adgroup_id' => $adGroupId,
+            'google_adgroup_id'          => $adGroupId,
             'adgroup_google_campaign_id' => $campaignId,
         ];
 
-        $adGroup = GoogleAdsGroup::where($where)->firstOrFail();
+        $adGroup       = GoogleAdsGroup::where($where)->firstOrFail();
         $ad_group_name = $adGroup->ad_group_name;
 
         try {
@@ -153,15 +153,15 @@ class GoogleAdGroupKeywordController extends Controller
                 $keyword = substr($keyword, 0, 80);
 
                 $keywordInfo = new KeywordInfo([
-                    'text' => $keyword,
+                    'text'       => $keyword,
                     'match_type' => KeywordMatchType::EXACT,
                 ]);
 
                 // Constructs an ad group criterion using the keyword text info above.
                 $adGroupCriterion = new AdGroupCriterion([
                     'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
-                    'status' => AdGroupCriterionStatus::ENABLED,
-                    'keyword' => $keywordInfo,
+                    'status'   => AdGroupCriterionStatus::ENABLED,
+                    'keyword'  => $keywordInfo,
                 ]);
 
                 $adGroupCriterionOperation = new AdGroupCriterionOperation();
@@ -169,30 +169,30 @@ class GoogleAdGroupKeywordController extends Controller
 
                 // Issues a mutate request to add the ad group criterion.
                 $adGroupCriterionServiceClient = $googleAdsClient->getAdGroupCriterionServiceClient();
-                $response = $adGroupCriterionServiceClient->mutateAdGroupCriteria(
+                $response                      = $adGroupCriterionServiceClient->mutateAdGroupCriteria(
                     $customerId,
                     [$adGroupCriterionOperation]
                 );
 
-                $addedKeyword = $response->getResults()[0];
+                $addedKeyword        = $response->getResults()[0];
                 $keywordResourceName = $addedKeyword->getResourceName();
                 if (! empty($keywordResourceName)) {
                     $keywordId = substr($keywordResourceName, strrpos($keywordResourceName, '~') + 1);
 
                     $inputKeyword = [
-                        'google_customer_id' => $customerId,
+                        'google_customer_id'         => $customerId,
                         'adgroup_google_campaign_id' => $campaignId,
-                        'google_adgroup_id' => $adGroupId,
-                        'google_keyword_id' => $keywordId,
-                        'keyword' => $keyword,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'google_adgroup_id'          => $adGroupId,
+                        'google_keyword_id'          => $keywordId,
+                        'keyword'                    => $keyword,
+                        'created_at'                 => date('Y-m-d H:i:s'),
+                        'updated_at'                 => date('Y-m-d H:i:s'),
                     ];
 
                     GoogleAdGroupKeyword::updateOrCreate(
                         [
                             'google_adgroup_id' => $adGroupId,
-                            'keyword' => $keyword,
+                            'keyword'           => $keyword,
                         ],
                         $inputKeyword
                     );
@@ -202,9 +202,9 @@ class GoogleAdGroupKeywordController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad Group keyword',
-                'message' => 'Created ad group keyword for ' . $ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad Group keyword',
+                'message'  => 'Created ad group keyword for ' . $ad_group_name,
                 'response' => json_encode($inputKeyword),
             ];
             insertGoogleAdsLog($input);
@@ -213,8 +213,8 @@ class GoogleAdGroupKeywordController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad Group keyword',
+                'type'    => 'ERROR',
+                'module'  => 'Ad Group keyword',
                 'message' => 'Create ad group keyword > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -226,16 +226,16 @@ class GoogleAdGroupKeywordController extends Controller
     // delete keyword
     public function deleteKeyword(Request $request, $campaignId, $adGroupId, $keywordId)
     {
-        $acDetail = $this->getAccountDetail($campaignId);
+        $acDetail   = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
         // $storagepath = $this->getstoragepath($account_id);
 
         $where = [
-            'google_adgroup_id' => $adGroupId,
+            'google_adgroup_id'          => $adGroupId,
             'adgroup_google_campaign_id' => $campaignId,
-            'google_keyword_id' => $keywordId,
+            'google_keyword_id'          => $keywordId,
         ];
 
         $keyword = GoogleAdGroupKeyword::where($where)->firstOrFail();
@@ -254,7 +254,7 @@ class GoogleAdGroupKeywordController extends Controller
 
             // Issues a mutate request to remove the ad group criterion.
             $adGroupCriterionServiceClient = $googleAdsClient->getAdGroupCriterionServiceClient();
-            $response = $adGroupCriterionServiceClient->mutateAdGroupCriteria(
+            $response                      = $adGroupCriterionServiceClient->mutateAdGroupCriteria(
                 $customerId,
                 [$adGroupCriterionOperation]
             );
@@ -263,9 +263,9 @@ class GoogleAdGroupKeywordController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad Group keyword',
-                'message' => 'Deleted ad group keyword for ' . $keyword->ad_group->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad Group keyword',
+                'message'  => 'Deleted ad group keyword for ' . $keyword->ad_group->ad_group_name,
                 'response' => json_encode($keyword),
             ];
 
@@ -277,8 +277,8 @@ class GoogleAdGroupKeywordController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad Group keyword',
+                'type'    => 'ERROR',
+                'module'  => 'Ad Group keyword',
                 'message' => 'Delete ad group keyword > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);

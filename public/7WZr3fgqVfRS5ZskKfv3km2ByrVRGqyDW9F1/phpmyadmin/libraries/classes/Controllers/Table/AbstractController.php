@@ -19,7 +19,7 @@ abstract class AbstractController extends Controller
     public function __construct(ResponseRenderer $response, Template $template, string $db, string $table)
     {
         parent::__construct($response, $template);
-        $this->db = $db;
+        $this->db    = $db;
         $this->table = $table;
     }
 }

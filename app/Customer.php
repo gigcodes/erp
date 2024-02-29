@@ -225,7 +225,7 @@ class Customer extends Model
 
     public function getCommunicationAttribute()
     {
-        $message = $this->messages();
+        $message  = $this->messages();
         $whatsapp = $this->whatsapps();
 
         if ($message && $whatsapp) {
@@ -312,6 +312,10 @@ class Customer extends Model
      *  Get information by ids
      *
      *  @param []
+     * @param mixed $ids
+     * @param mixed $fields
+     * @param mixed $toArray
+     *
      *  @return mixed
      */
     public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)
@@ -342,7 +346,7 @@ class Customer extends Model
     {
         return [
             'instagram' => 'Instagram',
-            'default' => 'Default',
+            'default'   => 'Default',
         ];
     }
 

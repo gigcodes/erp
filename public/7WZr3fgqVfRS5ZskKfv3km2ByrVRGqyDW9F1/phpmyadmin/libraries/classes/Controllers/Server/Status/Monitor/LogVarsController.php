@@ -29,7 +29,7 @@ final class LogVarsController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->monitor = $monitor;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
@@ -37,7 +37,7 @@ final class LogVarsController extends AbstractController
         global $errorUrl;
 
         $params = [
-            'varName' => $_POST['varName'] ?? null,
+            'varName'  => $_POST['varName'] ?? null,
             'varValue' => $_POST['varValue'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');

@@ -34,39 +34,39 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => public_path(),
+            'root'   => public_path(),
         ],
 
         'local_secure' => [
             'driver' => 'local',
-            'root' => storage_path(),
+            'root'   => storage_path(),
         ],
 
         'ftp' => [
-            'driver' => 'ftp',
-            'host' => 'ftp.example.com',
+            'driver'   => 'ftp',
+            'host'     => 'ftp.example.com',
             'username' => 'your-username',
             'password' => 'your-password',
         ],
 
         's3' => [
-            'driver' => 's3',
-            'key' => env('STORAGE_S3_KEY', 'your-key'),
-            'secret' => env('STORAGE_S3_SECRET', 'your-secret'),
-            'region' => env('STORAGE_S3_REGION', 'your-region'),
-            'bucket' => env('STORAGE_S3_BUCKET', 'your-bucket'),
-            'endpoint' => env('STORAGE_S3_ENDPOINT', null),
+            'driver'                  => 's3',
+            'key'                     => env('STORAGE_S3_KEY', 'your-key'),
+            'secret'                  => env('STORAGE_S3_SECRET', 'your-secret'),
+            'region'                  => env('STORAGE_S3_REGION', 'your-region'),
+            'bucket'                  => env('STORAGE_S3_BUCKET', 'your-bucket'),
+            'endpoint'                => env('STORAGE_S3_ENDPOINT', null),
             'use_path_style_endpoint' => env('STORAGE_S3_ENDPOINT', null) !== null,
         ],
 
         'rackspace' => [
-            'driver' => 'rackspace',
-            'username' => 'your-username',
-            'key' => 'your-key',
+            'driver'    => 'rackspace',
+            'username'  => 'your-username',
+            'key'       => 'your-key',
             'container' => 'your-container',
-            'endpoint' => 'https://identity.api.rackspacecloud.com/v2.0/',
-            'region' => 'IAD',
-            'url_type' => 'publicURL',
+            'endpoint'  => 'https://identity.api.rackspacecloud.com/v2.0/',
+            'region'    => 'IAD',
+            'url_type'  => 'publicURL',
         ],
 
     ],

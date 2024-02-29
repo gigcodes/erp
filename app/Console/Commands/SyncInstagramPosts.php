@@ -44,13 +44,13 @@ class SyncInstagramPosts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $configs = SocialConfig::where([
                 'platform' => 'instagram',
-                'status' => 1,
+                'status'   => 1,
             ])->get();
 
             foreach ($configs as $config) {
@@ -60,18 +60,18 @@ class SyncInstagramPosts extends Command
 
                 foreach ($posts['posts']['media'] as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
-                        'post_body' => $post['caption'] ?? '',
-                        'post_by' =>  $post['owner']['id'],
-                        'posted_on' => Carbon::parse($post['timestamp']),
-                        'status' => 1,
-                        'permalink' => $post['permalink'],
-                        'image_path' => $post['media_url'],
-                        'media' => $post['children'] ?? null,
+                        'post_body'   => $post['caption'] ?? '',
+                        'post_by'     => $post['owner']['id'],
+                        'posted_on'   => Carbon::parse($post['timestamp']),
+                        'status'      => 1,
+                        'permalink'   => $post['permalink'],
+                        'image_path'  => $post['media_url'],
+                        'media'       => $post['children'] ?? null,
                         'custom_data' => [
-                            'like_count' => $post['like_count'],
-                            'comments_count' => $post['comments_count'],
+                            'like_count'         => $post['like_count'],
+                            'comments_count'     => $post['comments_count'],
                             'media_product_type' => $post['media_product_type'],
-                            'media_type' => $post['media_type'],
+                            'media_type'         => $post['media_type'],
                         ],
                     ]);
                 }

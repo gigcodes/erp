@@ -25,6 +25,9 @@ class PushMagentoSettings implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $magentoSetting
+     * @param protected $website_ids
+     *
      * @return void
      */
     public function __construct(protected $magentoSetting, protected $website_ids)
@@ -45,12 +48,12 @@ class PushMagentoSettings implements ShouldQueue
 
             // Load product and website
             $magentoSetting = $this->magentoSetting;
-            $entity = $magentoSetting;
+            $entity         = $magentoSetting;
 
-            $scope = $entity->scope;
-            $name = $entity->name;
-            $path = $entity->path;
-            $value = $entity->value;
+            $scope    = $entity->scope;
+            $name     = $entity->name;
+            $path     = $entity->path;
+            $value    = $entity->value;
             $datatype = $entity->datatype;
 
             $website_ids = $this->website_ids;
@@ -65,23 +68,23 @@ class PushMagentoSettings implements ShouldQueue
                     $store_website_id = $storeWebsite->id;
                     $storeWebsiteCode = $storeWebsite->storeCode;
                     \Log::info('Start Setting Pushed to : ' . $store_website_id);
-                    $api_token = $storeWebsite->api_token;
+                    $api_token   = $storeWebsite->api_token;
                     $magento_url = $storeWebsite->magento_url;
 
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $store_website_id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $store_website_id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
+                            'scope'     => $scope,
+                            'scope_id'  => $store_website_id,
+                            'name'      => $name,
+                            'path'      => $path,
+                            'value'     => $value,
                             'data_type' => $datatype,
                         ]);
                     } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
+                        $m_setting->name      = $name;
+                        $m_setting->path      = $path;
+                        $m_setting->value     = $value;
                         $m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
@@ -93,8 +96,8 @@ class PushMagentoSettings implements ShouldQueue
                         $url = rtrim($magento_url, '/') . '/rest/all/V1/store-info/configuration';
                     }
 
-                    $data = [];
-                    $data['scopeId'] = 0;
+                    $data              = [];
+                    $data['scopeId']   = 0;
                     $data['scopeType'] = 'default';
                     $data['configs'][] = ['path' => $path, 'value' => $value];
 
@@ -103,7 +106,7 @@ class PushMagentoSettings implements ShouldQueue
                     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer ' . $api_token]);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     \Log::info(print_r([json_encode($data), $url, $result], true));
 
@@ -146,22 +149,22 @@ class PushMagentoSettings implements ShouldQueue
                     \Log::info('store_website_id : ' . $store_website_id);
 
                     $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
-                    $api_token = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
+                    $api_token   = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
 
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStore->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
+                            'scope'     => $scope,
+                            'scope_id'  => $websiteStore->id,
+                            'name'      => $name,
+                            'path'      => $path,
+                            'value'     => $value,
                             'data_type' => $datatype,
                         ]);
                     } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
+                        $m_setting->name      = $name;
+                        $m_setting->path      = $path;
+                        $m_setting->value     = $value;
                         $m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
@@ -175,8 +178,8 @@ class PushMagentoSettings implements ShouldQueue
                             $url = rtrim($magento_url, '/') . '/rest/all/V1/store-info/configuration';
                         }
 
-                        $data = [];
-                        $data['scopeId'] = $scopeID;
+                        $data              = [];
+                        $data['scopeId']   = $scopeID;
                         $data['scopeType'] = 'websites';
                         $data['configs'][] = ['path' => $path, 'value' => $value];
 
@@ -185,7 +188,7 @@ class PushMagentoSettings implements ShouldQueue
                         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
                         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer ' . $api_token]);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         \Log::info(print_r([json_encode($data), $url, $result], true));
 
@@ -217,7 +220,7 @@ class PushMagentoSettings implements ShouldQueue
             }
             // Scope Default
             if ($scope === 'stores') {
-                $store = isset($entity->storeview->websiteStore->website->name) ? $entity->storeview->websiteStore->website->name : '';
+                $store      = isset($entity->storeview->websiteStore->website->name) ? $entity->storeview->websiteStore->website->name : '';
                 $store_view = isset($entity->storeview->code) ? $entity->storeview->code : '';
                 \Log::info('Setting Pushed to store : ' . $store);
                 \Log::info('Setting Pushed to  store_view: ' . $store_view);
@@ -235,22 +238,22 @@ class PushMagentoSettings implements ShouldQueue
                     \Log::info('store_website_id : ' . $store_website_id);
 
                     $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
-                    $api_token = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
+                    $api_token   = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
 
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStoresView->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
+                            'scope'     => $scope,
+                            'scope_id'  => $websiteStoresView->id,
+                            'name'      => $name,
+                            'path'      => $path,
+                            'value'     => $value,
                             'data_type' => $datatype,
                         ]);
                     } else {
-                        $m_setting->name = $name;
-                        $m_setting->path = $path;
-                        $m_setting->value = $value;
+                        $m_setting->name      = $name;
+                        $m_setting->path      = $path;
+                        $m_setting->value     = $value;
                         $m_setting->data_type = $datatype;
                         $m_setting->save();
                     }
@@ -264,8 +267,8 @@ class PushMagentoSettings implements ShouldQueue
                             $url = rtrim($magento_url, '/') . '/rest/all/V1/store-info/configuration';
                         }
 
-                        $data = [];
-                        $data['scopeId'] = $scopeID;
+                        $data              = [];
+                        $data['scopeId']   = $scopeID;
                         $data['scopeType'] = 'stores';
                         $data['configs'][] = ['path' => $path, 'value' => $value];
 
@@ -274,7 +277,7 @@ class PushMagentoSettings implements ShouldQueue
                         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
                         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer ' . $api_token]);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         \Log::info(print_r([json_encode($data), $url, $result], true));
 

@@ -45,12 +45,12 @@ class MovePlannedTasks extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'new report added.']);
 
-            $today = Carbon::now()->format('Y-m-d');
+            $today         = Carbon::now()->format('Y-m-d');
             $planned_tasks = Task::whereNotNull('time_slot')->where('planned_at', '<', "$today 00:00")->whereNull('is_completed')->orderBy('time_slot', 'ASC')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Planned task query finished.']);
             foreach ($planned_tasks as $task) {

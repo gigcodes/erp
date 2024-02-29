@@ -15,8 +15,8 @@ class RedisjobController extends Controller
      */
     public function index()
     {
-        $redis_data = new Redisjob();
-        $redis_data = $redis_data->paginate(25);
+        $redis_data  = new Redisjob();
+        $redis_data  = $redis_data->paginate(25);
         $total_count = $redis_data->total();
 
         return view('radis_job.index', compact('redis_data', 'total_count'));
@@ -29,8 +29,8 @@ class RedisjobController extends Controller
      */
     public function listData(Request $request)
     {
-        $redis_data = new Redisjob();
-        $redis_data = $redis_data->paginate(25)->get();
+        $redis_data  = new Redisjob();
+        $redis_data  = $redis_data->paginate(25)->get();
         $total_count = $redis_data->total();
 
         return response()->json([
@@ -47,7 +47,7 @@ class RedisjobController extends Controller
     public function store(Request $request)
     {
         try {
-            $redis = new Redisjob();
+            $redis       = new Redisjob();
             $redis->name = $request->name;
             $redis->type = $request->type;
             $redis->save();
@@ -61,7 +61,8 @@ class RedisjobController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Redisjob  $redisjob
+     * @param \App\Redisjob $redisjob
+     *
      * @return \Illuminate\Http\Response
      */
     public function clearQue(Request $request)
@@ -78,7 +79,8 @@ class RedisjobController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Redisjob  $redisjob
+     * @param \App\Redisjob $redisjob
+     *
      * @return \Illuminate\Http\Response
      */
     public function restartManagement(Request $request)

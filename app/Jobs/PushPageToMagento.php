@@ -20,6 +20,9 @@ class PushPageToMagento implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $page
+     * @param protected $updatedBy
+     *
      * @return void
      */
     public function __construct(protected $page, protected $updatedBy)
@@ -38,7 +41,7 @@ class PushPageToMagento implements ShouldQueue
             set_time_limit(0);
 
             // Load product and website
-            $page = $this->page;
+            $page    = $this->page;
             $website = $page->storeWebsite;
 
             if ($website) {
@@ -71,25 +74,25 @@ class PushPageToMagento implements ShouldQueue
                             $page->stores = implode(',', $stores);
                             $page->save();
 
-                            $params = [];
+                            $params         = [];
                             $params['page'] = [
-                                'identifier' => $page->url_key,
-                                'title' => $page->title,
-                                'meta_title' => $page->meta_title,
-                                'meta_keywords' => $page->meta_keywords,
+                                'identifier'       => $page->url_key,
+                                'title'            => $page->title,
+                                'meta_title'       => $page->meta_title,
+                                'meta_keywords'    => $page->meta_keywords,
                                 'meta_description' => $page->meta_description,
-                                'content_heading' => $page->content_heading,
-                                'content' => $page->content,
-                                'active' => $page->active,
-                                'platform_id' => $page->platform_id,
-                                'page_id' => $page->id,
-                                'updated_by' => optional($this->updatedBy)->id,
+                                'content_heading'  => $page->content_heading,
+                                'content'          => $page->content,
+                                'active'           => $page->active,
+                                'platform_id'      => $page->platform_id,
+                                'page_id'          => $page->id,
+                                'updated_by'       => optional($this->updatedBy)->id,
                             ];
 
                             if (! empty($stores)) {
                                 foreach ($stores as $s) {
                                     $params['page']['store'] = $s;
-                                    $id = MagentoHelper::pushWebsitePage($params, $website);
+                                    $id                      = MagentoHelper::pushWebsitePage($params, $website);
                                     if (! empty($id) && is_numeric($id)) {
                                         $page->platform_id = $id;
                                         $page->save();

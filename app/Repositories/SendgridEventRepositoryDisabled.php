@@ -24,13 +24,13 @@ class SendgridEventRepositoryDisabled implements SendgridEventRepositoryInterfac
      */
     public function create($event): SendgridEvent
     {
-        $newEvent = new SendgridEvent();
-        $newEvent->timestamp = $event['timestamp'];
-        $newEvent->email = $event['email'];
-        $newEvent->event = $event['event'];
-        $newEvent->sg_event_id = $event['sg_event_id'];
+        $newEvent                = new SendgridEvent();
+        $newEvent->timestamp     = $event['timestamp'];
+        $newEvent->email         = $event['email'];
+        $newEvent->event         = $event['event'];
+        $newEvent->sg_event_id   = $event['sg_event_id'];
         $newEvent->sg_message_id = $event['sg_message_id'];
-        $newEvent->payload = $event;
+        $newEvent->payload       = $event;
 
         if (! empty($event['category'])) {
             $category = $event['category'];

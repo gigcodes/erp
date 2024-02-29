@@ -6,8 +6,8 @@ namespace App\Social;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use App\Models\SocialAdAccount;
 use Plank\Mediable\Mediable;
+use App\Models\SocialAdAccount;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialAd extends Model

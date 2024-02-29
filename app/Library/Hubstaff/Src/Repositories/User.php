@@ -9,10 +9,10 @@ class User
     private $accessToken;
 
     private $urls = [
-        'allUsers' => 'https://api.hubstaff.com/v2/users',
-        'userDetail' => 'https://api.hubstaff.com/v2/users/{userId}',
+        'allUsers'         => 'https://api.hubstaff.com/v2/users',
+        'userDetail'       => 'https://api.hubstaff.com/v2/users/{userId}',
         'organizationUser' => 'https://api.hubstaff.com/v2/users/{userId}/organizations',
-        'projectUser' => 'https://api.hubstaff.com/v2/users/{userId}/projects',
+        'projectUser'      => 'https://api.hubstaff.com/v2/users/{userId}/projects',
     ];
 
     public function __construct($accessToken)
@@ -26,6 +26,8 @@ class User
      * Get user detail from user Id
      *
      * @param userId [integer]
+     * @param null|mixed $userId
+     *
      * @return object user
      */
     public function getUserDetail($userId = null)

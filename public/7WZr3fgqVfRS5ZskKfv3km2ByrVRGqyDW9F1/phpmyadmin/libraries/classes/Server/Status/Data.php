@@ -70,8 +70,8 @@ class Data
     /**
      * An empty setter makes the above properties read-only
      *
-     * @param  string  $a key
-     * @param  mixed  $b value
+     * @param string $a key
+     * @param mixed  $b value
      */
     public function __set($a, $b): void
     {
@@ -89,44 +89,44 @@ class Data
             // variable name => section
             // variable names match when they begin with the given string
 
-            'Com_' => 'com',
-            'Innodb_' => 'innodb',
-            'Ndb_' => 'ndb',
-            'Handler_' => 'handler',
-            'Qcache_' => 'qcache',
-            'Threads_' => 'threads',
+            'Com_'                => 'com',
+            'Innodb_'             => 'innodb',
+            'Ndb_'                => 'ndb',
+            'Handler_'            => 'handler',
+            'Qcache_'             => 'qcache',
+            'Threads_'            => 'threads',
             'Slow_launch_threads' => 'threads',
 
             'Binlog_cache_' => 'binlog_cache',
-            'Created_tmp_' => 'created_tmp',
-            'Key_' => 'key',
+            'Created_tmp_'  => 'created_tmp',
+            'Key_'          => 'key',
 
-            'Delayed_' => 'delayed',
+            'Delayed_'                 => 'delayed',
             'Not_flushed_delayed_rows' => 'delayed',
 
-            'Flush_commands' => 'query',
-            'Last_query_cost' => 'query',
-            'Slow_queries' => 'query',
-            'Queries' => 'query',
+            'Flush_commands'      => 'query',
+            'Last_query_cost'     => 'query',
+            'Slow_queries'        => 'query',
+            'Queries'             => 'query',
             'Prepared_stmt_count' => 'query',
 
             'Select_' => 'select',
-            'Sort_' => 'sort',
+            'Sort_'   => 'sort',
 
-            'Open_tables' => 'table',
-            'Opened_tables' => 'table',
-            'Open_table_definitions' => 'table',
+            'Open_tables'              => 'table',
+            'Opened_tables'            => 'table',
+            'Open_table_definitions'   => 'table',
             'Opened_table_definitions' => 'table',
-            'Table_locks_' => 'table',
+            'Table_locks_'             => 'table',
 
             'Rpl_status' => 'repl',
-            'Slave_' => 'repl',
+            'Slave_'     => 'repl',
 
             'Tc_' => 'tc',
 
             'Ssl_' => 'ssl',
 
-            'Open_files' => 'files',
+            'Open_files'   => 'files',
             'Open_streams' => 'files',
             'Opened_files' => 'files',
         ];
@@ -141,25 +141,25 @@ class Data
     {
         return [
             // section => section name (description)
-            'com' => 'Com',
-            'query' => __('SQL query'),
-            'innodb' => 'InnoDB',
-            'ndb' => 'NDB',
-            'handler' => __('Handler'),
-            'qcache' => __('Query cache'),
-            'threads' => __('Threads'),
+            'com'          => 'Com',
+            'query'        => __('SQL query'),
+            'innodb'       => 'InnoDB',
+            'ndb'          => 'NDB',
+            'handler'      => __('Handler'),
+            'qcache'       => __('Query cache'),
+            'threads'      => __('Threads'),
             'binlog_cache' => __('Binary log'),
-            'created_tmp' => __('Temporary data'),
-            'delayed' => __('Delayed inserts'),
-            'key' => __('Key cache'),
-            'select' => __('Joins'),
-            'repl' => __('Replication'),
-            'sort' => __('Sorting'),
-            'table' => __('Tables'),
-            'tc' => __('Transaction coordinator'),
-            'files' => __('Files'),
-            'ssl' => 'SSL',
-            'other' => __('Other'),
+            'created_tmp'  => __('Temporary data'),
+            'delayed'      => __('Delayed inserts'),
+            'key'          => __('Key cache'),
+            'select'       => __('Joins'),
+            'repl'         => __('Replication'),
+            'sort'         => __('Sorting'),
+            'table'        => __('Tables'),
+            'tc'           => __('Transaction coordinator'),
+            'files'        => __('Files'),
+            'ssl'          => 'SSL',
+            'other'        => __('Other'),
         ];
     }
 
@@ -177,34 +177,34 @@ class Data
         // variable or section name => (name => url)
 
         $links['table'][__('Flush (close) all tables')] = [
-            'url' => $this->selfUrl,
+            'url'    => $this->selfUrl,
             'params' => Url::getCommon(['flush' => 'TABLES'], ''),
         ];
         $links['table'][__('Show open tables')] = [
-            'url' => Url::getFromRoute('/sql'),
+            'url'    => Url::getFromRoute('/sql'),
             'params' => Url::getCommon([
                 'sql_query' => 'SHOW OPEN TABLES',
-                'goto' => $this->selfUrl,
+                'goto'      => $this->selfUrl,
             ], ''),
         ];
 
         if ($primaryInfo['status']) {
             $links['repl'][__('Show replica hosts')] = [
-                'url' => Url::getFromRoute('/sql'),
+                'url'    => Url::getFromRoute('/sql'),
                 'params' => Url::getCommon([
                     'sql_query' => 'SHOW SLAVE HOSTS',
-                    'goto' => $this->selfUrl,
+                    'goto'      => $this->selfUrl,
                 ], ''),
             ];
             $links['repl'][__('Show primary status')] = [
-                'url' => '#replication_primary',
+                'url'    => '#replication_primary',
                 'params' => '',
             ];
         }
 
         if ($replicaInfo['status']) {
             $links['repl'][__('Show replica status')] = [
-                'url' => '#replication_replica',
+                'url'    => '#replication_replica',
                 'params' => '',
             ];
         }
@@ -212,7 +212,7 @@ class Data
         $links['repl']['doc'] = 'replication';
 
         $links['qcache'][__('Flush query cache')] = [
-            'url' => $this->selfUrl,
+            'url'    => $this->selfUrl,
             'params' => Url::getCommon(['flush' => 'QUERY CACHE'], ''),
         ];
         $links['qcache']['doc'] = 'query_cache';
@@ -226,11 +226,11 @@ class Data
         $links['Slow_queries']['doc'] = 'slow_query_log';
 
         $links['innodb'][__('Variables')] = [
-            'url' => Url::getFromRoute('/server/engines/InnoDB'),
+            'url'    => Url::getFromRoute('/server/engines/InnoDB'),
             'params' => '',
         ];
         $links['innodb'][__('InnoDB Status')] = [
-            'url' => Url::getFromRoute('/server/engines/InnoDB/Status'),
+            'url'    => Url::getFromRoute('/server/engines/InnoDB/Status'),
             'params' => '',
         ];
         $links['innodb']['doc'] = 'innodb';
@@ -241,8 +241,9 @@ class Data
     /**
      * Calculate some values
      *
-     * @param  array  $server_status    contains results of SHOW GLOBAL STATUS
-     * @param  array  $server_variables contains results of SHOW GLOBAL VARIABLES
+     * @param array $server_status    contains results of SHOW GLOBAL STATUS
+     * @param array $server_variables contains results of SHOW GLOBAL VARIABLES
+     *
      * @return array
      */
     private function calculateValues(array $server_status, array $server_variables)
@@ -272,8 +273,8 @@ class Data
             isset($server_status['Key_writes'], $server_status['Key_write_requests'])
             && $server_status['Key_write_requests'] > 0
         ) {
-            $key_writes = $server_status['Key_writes'];
-            $key_write_requests = $server_status['Key_write_requests'];
+            $key_writes                         = $server_status['Key_writes'];
+            $key_write_requests                 = $server_status['Key_write_requests'];
             $server_status['Key_write_ratio_%'] = 100 * $key_writes / $key_write_requests;
         }
 
@@ -281,8 +282,8 @@ class Data
             isset($server_status['Key_reads'], $server_status['Key_read_requests'])
             && $server_status['Key_read_requests'] > 0
         ) {
-            $key_reads = $server_status['Key_reads'];
-            $key_read_requests = $server_status['Key_read_requests'];
+            $key_reads                         = $server_status['Key_reads'];
+            $key_read_requests                 = $server_status['Key_read_requests'];
             $server_status['Key_read_ratio_%'] = 100 * $key_reads / $key_read_requests;
         }
 
@@ -301,11 +302,12 @@ class Data
     /**
      * Sort variables into arrays
      *
-     * @param  array  $server_status contains results of SHOW GLOBAL STATUS
-     * @param  array  $allocations   allocations for sections
-     * @param  array  $allocationMap map variables to their section
-     * @param  array  $sectionUsed   is a section used?
-     * @param  array  $used_queries  used queries
+     * @param array $server_status contains results of SHOW GLOBAL STATUS
+     * @param array $allocations   allocations for sections
+     * @param array $allocationMap map variables to their section
+     * @param array $sectionUsed   is a section used?
+     * @param array $used_queries  used queries
+     *
      * @return array ($allocationMap, $sectionUsed, $used_queries)
      */
     private function sortVariables(
@@ -322,9 +324,9 @@ class Data
                     continue;
                 }
 
-                $allocationMap[$name] = $section;
+                $allocationMap[$name]  = $section;
                 $sectionUsed[$section] = true;
-                $section_found = true;
+                $section_found         = true;
                 if ($section === 'com' && $value > 0) {
                     $used_queries[$name] = $value;
                 }
@@ -359,11 +361,11 @@ class Data
         // get status from server
         $server_status_result = $dbi->tryQuery('SHOW GLOBAL STATUS');
         if ($server_status_result === false) {
-            $server_status = [];
+            $server_status    = [];
             $this->dataLoaded = false;
         } else {
             $this->dataLoaded = true;
-            $server_status = $server_status_result->fetchAllKeyPair();
+            $server_status    = $server_status_result->fetchAllKeyPair();
             unset($server_status_result);
         }
 
@@ -417,19 +419,20 @@ class Data
             $this->dbIsLocal = true;
         }
 
-        $this->status = $server_status;
-        $this->sections = $sections;
-        $this->variables = $server_variables;
-        $this->usedQueries = $used_queries;
+        $this->status        = $server_status;
+        $this->sections      = $sections;
+        $this->variables     = $server_variables;
+        $this->usedQueries   = $used_queries;
         $this->allocationMap = $allocationMap;
-        $this->links = $links;
-        $this->sectionUsed = $sectionUsed;
+        $this->links         = $links;
+        $this->sectionUsed   = $sectionUsed;
     }
 
     /**
      * cleanup of some deprecated values
      *
-     * @param  array  $server_status status array to process
+     * @param array $server_status status array to process
+     *
      * @return array
      */
     public static function cleanDeprecated(array $server_status)

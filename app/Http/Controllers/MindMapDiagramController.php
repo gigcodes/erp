@@ -37,18 +37,19 @@ class MindMapDiagramController extends Controller
      */
     public function store(StoreMindMapDiagramRequest $request)
     {
-        $mind_map = new MindMapDiagram();
-        $mind_map->title = $request->title;
-        $mind_map->user_id = auth()->user()->id;
+        $mind_map              = new MindMapDiagram();
+        $mind_map->title       = $request->title;
+        $mind_map->user_id     = auth()->user()->id;
         $mind_map->description = $request->description;
-        $mind_map->data = $request->data;
+        $mind_map->data        = $request->data;
         $mind_map->save();
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\MindMapDiagram  $mindMapDiagram
+     * @param \App\Models\MindMapDiagram $mindMapDiagram
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(MindMapDiagram $mindMap)

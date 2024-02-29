@@ -18,16 +18,16 @@ class EnvController extends Controller
 
     public function addEnv(Request $request)
     {
-        $env = new DotenvEditor();
-        $client = new Client();
-        $server = env('APP_ENV');
-        $url = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/add-env' : 'https://erp.theluxuryunlimited.com/api/add-env';
+        $env      = new DotenvEditor();
+        $client   = new Client();
+        $server   = env('APP_ENV');
+        $url      = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/add-env' : 'https://erp.theluxuryunlimited.com/api/add-env';
         $response = [];
         if ($request->get('addToLive') && $request->get('addToLive') === '1') {
             $response = $client->request('POST', $url, [
                 'form_params' => [
-                    'key' => $request->get('key'),
-                    'value' => $request->get('value'),
+                    'key'    => $request->get('key'),
+                    'value'  => $request->get('value'),
                     '_token' => $request->get('_token'),
                 ],
                 'headers' => [
@@ -40,8 +40,8 @@ class EnvController extends Controller
         $env->addData([
             $request->get('key') => $request->get('value'),
         ]);
-        $envDescription = new EnvDescription();
-        $envDescription->key = $request->get('key');
+        $envDescription              = new EnvDescription();
+        $envDescription->key         = $request->get('key');
         $envDescription->description = $request->get('description');
         $envDescription->save();
 
@@ -58,18 +58,18 @@ class EnvController extends Controller
     public function editEnv(Request $request)
     {
         $client = new Client();
-        $env = new DotenvEditor();
+        $env    = new DotenvEditor();
 
-        $server = env('APP_ENV');
-        $url = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/edit-env' : 'https://erp.theluxuryunlimited.com/api/edit-env';
+        $server   = env('APP_ENV');
+        $url      = $server === 'production' ? 'https://erpstage.theluxuryunlimited.com/api/edit-env' : 'https://erp.theluxuryunlimited.com/api/edit-env';
         $response = [];
         if ($request->get('server') === 'production' || $request->get('server') === 'staging') {
             $response = $client->request('POST', $url, [
                 'form_params' => [
-                    'key' => $request->get('key'),
-                    'value' => $request->get('value'),
+                    'key'         => $request->get('key'),
+                    'value'       => $request->get('value'),
                     'description' => $request->get('description'),
-                    '_token' => $request->get('_token'),
+                    '_token'      => $request->get('_token'),
                 ],
                 'headers' => [
                     'Accept' => 'application/json',

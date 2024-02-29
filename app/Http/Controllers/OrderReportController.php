@@ -40,14 +40,14 @@ class OrderReportController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'status_id' => 'required',
+            'status_id'       => 'required',
             'completion_date' => 'required',
         ]);
 
         $report = new OrderReport;
 
         $report->status_id = $request->status_id;
-        $report->user_id = Auth::id();
+        $report->user_id   = Auth::id();
 
         if ($request->order_id) {
             $report->order_id = $request->order_id;
@@ -79,9 +79,9 @@ class OrderReportController extends Controller
 
     public function orderRefundStatusMessage(Request $request)
     {
-        $page = $request->page;
+        $page     = $request->page;
         $paginate = 10;
-        $orders = DB::table('orders')
+        $orders   = DB::table('orders')
             ->join('customers', 'orders.customer_id', 'customers.id')
             ->select('orders.id', 'orders.is_flag', 'customer_id', 'orders.created_at as date', DB::raw("'order' as type"), 'customers.phone', 'customers.name', 'customers.email', 'order_status_id', 'estimated_delivery_date');
 
@@ -108,8 +108,8 @@ class OrderReportController extends Controller
         if ($request->customer_name && $request->customer_name != null) {
             $order_n_refunds->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
         }
-        $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date', 'DESC')->get();
-        $orderStatusList = OrderStatus::all();
+        $order_n_refunds   = $order_n_refunds->union($orders)->orderBy('date', 'DESC')->get();
+        $orderStatusList   = OrderStatus::all();
         $order_status_list = OrderHelper::getStatus();
 
         return view('orders.status-history', compact('order_n_refunds', 'order_status_list', 'orderStatusList'));
@@ -157,7 +157,8 @@ class OrderReportController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -168,7 +169,8 @@ class OrderReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -179,7 +181,8 @@ class OrderReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -190,7 +193,8 @@ class OrderReportController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

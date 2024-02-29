@@ -15,7 +15,7 @@ class PinterestScraper extends Scraper
     {
         $query = str_replace('{query_string}', $q, self::GOOGLE_IMAGE_SEARCH_URL[0]);
         $query = str_replace('{chip_value}', $chip_value, $query);
-        $body = $this->getContent($query);
+        $body  = $this->getContent($query);
 
         $c = new HtmlPageCrawler($body);
         if ($c->filter('body')->filter('td.gvhng')->getInnerHtml()) {
@@ -26,7 +26,7 @@ class PinterestScraper extends Scraper
         $google_div_id = 'td.e3goi';
         if ($c->filter('body')->filter($google_div_id)->getInnerHtml()) {
             $imageJson = $c->filter('body')->filter($google_div_id)->filter('img');
-            $images = [];
+            $images    = [];
 
             foreach ($imageJson as $key => $image) {
                 foreach ($image->attributes as $att => $image) {

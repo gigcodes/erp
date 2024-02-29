@@ -41,7 +41,7 @@ class Session
      */
     private static function generateToken(): void
     {
-        $_SESSION[' PMA_token '] = Util::generateRandom(16, true);
+        $_SESSION[' PMA_token ']   = Util::generateRandom(16, true);
         $_SESSION[' HMAC_secret '] = Util::generateRandom(16);
 
         /**
@@ -75,7 +75,7 @@ class Session
     /**
      * Session failed function
      *
-     * @param  array  $errors PhpMyAdmin\ErrorHandler array
+     * @param array $errors PhpMyAdmin\ErrorHandler array
      */
     private static function sessionFailed(array $errors): void
     {
@@ -117,8 +117,8 @@ class Session
     /**
      * Set up session
      *
-     * @param  Config  $config       Configuration handler
-     * @param  ErrorHandler  $errorHandler Error handler
+     * @param Config       $config       Configuration handler
+     * @param ErrorHandler $errorHandler Error handler
      */
     public static function setUp(Config $config, ErrorHandler $errorHandler): void
     {
@@ -140,7 +140,7 @@ class Session
 
         /** @psalm-var 'Lax'|'Strict'|'None' $cookieSameSite */
         $cookieSameSite = $config->get('CookieSameSite') ?? 'Strict';
-        $cookiePath = $config->getRootPath();
+        $cookiePath     = $config->getRootPath();
         if (PHP_VERSION_ID < 70300) {
             $cookiePath .= '; SameSite=' . $cookieSameSite;
         }

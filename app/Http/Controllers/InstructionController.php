@@ -26,14 +26,14 @@ class InstructionController extends Controller
      */
     public function index(Request $request)
     {
-        $a = new UserActions();
-        $a->action = 'List';
-        $a->page = 'Instructions';
+        $a          = new UserActions();
+        $a->action  = 'List';
+        $a->page    = 'Instructions';
         $a->details = 'Opened Instruction Page!';
         $a->save();
 
         $selected_category = $request->category ?? '';
-        $orderby = 'DESC';
+        $orderby           = 'DESC';
 
         if ($request->orderby != '') {
             $orderby = 'ASC';
@@ -41,59 +41,59 @@ class InstructionController extends Controller
 
         if (Auth::user()->hasRole('Admin')) {
             if ($request->user[0] != null) {
-                $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
-                $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
-                $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user);
+                $instructions           = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
+                $pending_instructions   = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->whereIn('assigned_to', $request->user);
+                $verify_instructions    = Instruction::where('verified', 0)->whereNotNull('completed_at')->whereIn('assigned_to', $request->user);
                 $completed_instructions = Instruction::where('verified', 1)->whereIn('assigned_to', $request->user);
 
                 if ($selected_category != '') {
-                    $instructions = $instructions->where('category_id', $selected_category);
-                    $pending_instructions = $pending_instructions->where('category_id', $selected_category);
-                    $verify_instructions = $verify_instructions->where('category_id', $selected_category);
+                    $instructions           = $instructions->where('category_id', $selected_category);
+                    $pending_instructions   = $pending_instructions->where('category_id', $selected_category);
+                    $verify_instructions    = $verify_instructions->where('category_id', $selected_category);
                     $completed_instructions = $completed_instructions->where('category_id', $selected_category);
                 }
             } else {
-                $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at');
-                $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at');
-                $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at');
+                $instructions           = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at');
+                $pending_instructions   = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at');
+                $verify_instructions    = Instruction::where('verified', 0)->whereNotNull('completed_at');
                 $completed_instructions = Instruction::where('verified', 1);
 
                 if ($selected_category != '') {
-                    $instructions = $instructions->where('category_id', $selected_category);
-                    $pending_instructions = $pending_instructions->where('category_id', $selected_category);
-                    $verify_instructions = $verify_instructions->where('category_id', $selected_category);
+                    $instructions           = $instructions->where('category_id', $selected_category);
+                    $pending_instructions   = $pending_instructions->where('category_id', $selected_category);
+                    $verify_instructions    = $verify_instructions->where('category_id', $selected_category);
                     $completed_instructions = $completed_instructions->where('category_id', $selected_category);
                 }
             }
         } else {
-            $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id());
-            $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id());
-            $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id());
+            $instructions           = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_to', Auth::id());
+            $pending_instructions   = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_to', Auth::id());
+            $verify_instructions    = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_to', Auth::id());
             $completed_instructions = Instruction::where('verified', 1)->where('assigned_to', Auth::id());
 
             if ($selected_category != '') {
-                $instructions = $instructions->where('category_id', $selected_category);
-                $pending_instructions = $pending_instructions->where('category_id', $selected_category);
-                $verify_instructions = $verify_instructions->where('category_id', $selected_category);
+                $instructions           = $instructions->where('category_id', $selected_category);
+                $pending_instructions   = $pending_instructions->where('category_id', $selected_category);
+                $verify_instructions    = $verify_instructions->where('category_id', $selected_category);
                 $completed_instructions = $completed_instructions->where('category_id', $selected_category);
             }
         }
 
         $users_array = Helpers::getUserArray(User::all());
-        $user = $request->user ? $request->user : [];
+        $user        = $request->user ? $request->user : [];
 
-        $instructions = $instructions->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'));
-        $pending_instructions = $pending_instructions->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-        $verify_instructions = $verify_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'verify-page');
+        $instructions           = $instructions->orderBy('is_priority', 'DESC')->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'));
+        $pending_instructions   = $pending_instructions->orderBy('created_at', $orderby)->paginate(Setting::get('pagination'), ['*'], 'pending-page');
+        $verify_instructions    = $verify_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'verify-page');
         $completed_instructions = $completed_instructions->orderBy('completed_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
-        $ids_list = [];
+        $ids_list               = [];
         foreach ($instructions as $data) {
             foreach ($data as $instruction) {
                 $ids_list[] = $instruction['customer'] ? $instruction['customer']['id'] : '';
             }
         }
 
-        $categories_array = [];
+        $categories_array       = [];
         $instruction_categories = InstructionCategory::all();
 
         foreach ($instruction_categories as $category) {
@@ -102,24 +102,24 @@ class InstructionController extends Controller
         }
 
         return view('instructions.index')->with([
-            'instructions' => $instructions,
-            'pending_instructions' => $pending_instructions,
-            'verify_instructions' => $verify_instructions,
+            'instructions'           => $instructions,
+            'pending_instructions'   => $pending_instructions,
+            'verify_instructions'    => $verify_instructions,
             'completed_instructions' => $completed_instructions,
-            'users_array' => $users_array,
-            'user' => $user,
-            'orderby' => $orderby,
-            'categories_array' => $categories_array,
-            'customer_ids_list' => json_encode($ids_list),
-            'selected_category' => $selected_category,
+            'users_array'            => $users_array,
+            'user'                   => $user,
+            'orderby'                => $orderby,
+            'categories_array'       => $categories_array,
+            'customer_ids_list'      => json_encode($ids_list),
+            'selected_category'      => $selected_category,
         ]);
     }
 
     public function list(Request $request)
     {
-        $a = new UserActions();
-        $a->action = 'List';
-        $a->page = 'Instructions';
+        $a          = new UserActions();
+        $a->action  = 'List';
+        $a->page    = 'Instructions';
         $a->details = 'Oened Instructions List Page';
         $a->save();
 
@@ -129,66 +129,66 @@ class InstructionController extends Controller
             $orderby = 'asc';
         }
 
-        $instructions = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
-        $pending_instructions = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
-        $verify_instructions = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $instructions           = Instruction::with(['Remarks', 'Customer', 'Category'])->where('verified', 0)->where('pending', 0)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $pending_instructions   = Instruction::where('verified', 0)->where('pending', 1)->whereNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
+        $verify_instructions    = Instruction::where('verified', 0)->whereNotNull('completed_at')->where('assigned_from', Auth::id())->orderBy('id', $orderby);
         $completed_instructions = Instruction::where('verified', 1)->where('assigned_from', Auth::id())->orderBy('id', $orderby);
 
         if ($request->category_id) {
-            $instructions = $instructions->where('category_id', $request->category_id);
-            $pending_instructions = $pending_instructions->where('category_id', $request->category_id);
-            $verify_instructions = $verify_instructions->where('category_id', $request->category_id);
+            $instructions           = $instructions->where('category_id', $request->category_id);
+            $pending_instructions   = $pending_instructions->where('category_id', $request->category_id);
+            $verify_instructions    = $verify_instructions->where('category_id', $request->category_id);
             $completed_instructions = $completed_instructions->where('category_id', $request->category_id);
         }
 
         if (! empty($request->user) && is_array($request->user)) {
-            $instructions = $instructions->whereIn('assigned_to', $request->user);
-            $pending_instructions = $pending_instructions->whereIn('assigned_to', $request->user);
-            $verify_instructions = $verify_instructions->whereIn('assigned_to', $request->user);
+            $instructions           = $instructions->whereIn('assigned_to', $request->user);
+            $pending_instructions   = $pending_instructions->whereIn('assigned_to', $request->user);
+            $verify_instructions    = $verify_instructions->whereIn('assigned_to', $request->user);
             $completed_instructions = $completed_instructions->whereIn('assigned_to', $request->user);
         }
 
         if ($request->term) {
             $term = $request->term;
-            $sql = "(customer_id in (select id from customers where name like '%" . $term . "%') or instruction like '%" . $term . "%')";
+            $sql  = "(customer_id in (select id from customers where name like '%" . $term . "%') or instruction like '%" . $term . "%')";
 
-            $instructions = $instructions->whereRaw($sql);
-            $pending_instructions = $pending_instructions->whereRaw($sql);
-            $verify_instructions = $verify_instructions->whereRaw($sql);
+            $instructions           = $instructions->whereRaw($sql);
+            $pending_instructions   = $pending_instructions->whereRaw($sql);
+            $verify_instructions    = $verify_instructions->whereRaw($sql);
             $completed_instructions = $completed_instructions->whereRaw($sql);
         }
 
         if ($request->start_date) {
-            $instructions = $instructions->where('start_time', '>=', $request->start_date);
-            $pending_instructions = $pending_instructions->where('start_time', '>=', $request->start_date);
-            $verify_instructions = $verify_instructions->where('start_time', '>=', $request->start_date);
+            $instructions           = $instructions->where('start_time', '>=', $request->start_date);
+            $pending_instructions   = $pending_instructions->where('start_time', '>=', $request->start_date);
+            $verify_instructions    = $verify_instructions->where('start_time', '>=', $request->start_date);
             $completed_instructions = $completed_instructions->where('start_time', '>=', $request->start_date);
         }
 
         if ($request->end_date) {
-            $instructions = $instructions->where('end_time', '<=', $request->end_date);
-            $pending_instructions = $pending_instructions->where('end_time', '<=', $request->end_date);
-            $verify_instructions = $verify_instructions->where('end_time', '<=', $request->end_date);
+            $instructions           = $instructions->where('end_time', '<=', $request->end_date);
+            $pending_instructions   = $pending_instructions->where('end_time', '<=', $request->end_date);
+            $verify_instructions    = $verify_instructions->where('end_time', '<=', $request->end_date);
             $completed_instructions = $completed_instructions->where('end_time', '<=', $request->end_date);
         }
 
-        $instructions = $instructions->get()->toArray();
-        $pending_instructions = $pending_instructions->paginate(Setting::get('pagination'), ['*'], 'pending-page');
-        $verify_instructions = $verify_instructions->paginate(Setting::get('pagination'), ['*'], 'verify-page');
+        $instructions           = $instructions->get()->toArray();
+        $pending_instructions   = $pending_instructions->paginate(Setting::get('pagination'), ['*'], 'pending-page');
+        $verify_instructions    = $verify_instructions->paginate(Setting::get('pagination'), ['*'], 'verify-page');
         $completed_instructions = $completed_instructions->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         $users_array = Helpers::getUserArray(User::all());
-        $user = $request->user ? $request->user : [];
+        $user        = $request->user ? $request->user : [];
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
         $currentItems = array_slice($instructions, $perPage * ($currentPage - 1), $perPage);
 
         $instructions = new LengthAwarePaginator($currentItems, count($instructions), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
-        $categories_array = [];
+        $categories_array       = [];
         $instruction_categories = InstructionCategory::all();
 
         foreach ($instruction_categories as $category) {
@@ -197,14 +197,14 @@ class InstructionController extends Controller
         }
 
         return view('instructions.list')->with([
-            'instructions' => $instructions,
-            'pending_instructions' => $pending_instructions,
-            'verify_instructions' => $verify_instructions,
+            'instructions'           => $instructions,
+            'pending_instructions'   => $pending_instructions,
+            'verify_instructions'    => $verify_instructions,
             'completed_instructions' => $completed_instructions,
-            'users_array' => $users_array,
-            'user' => $user,
-            'orderby' => $orderby,
-            'categories_array' => $categories_array,
+            'users_array'            => $users_array,
+            'user'                   => $user,
+            'orderby'                => $orderby,
+            'categories_array'       => $categories_array,
         ]);
     }
 
@@ -231,18 +231,18 @@ class InstructionController extends Controller
             'assigned_to' => 'required|numeric',
         ]);
 
-        $instruction = new Instruction;
-        $instruction->category_id = $request->category_id;
-        $instruction->instruction = $request->instruction;
-        $instruction->customer_id = $request->customer_id;
+        $instruction                = new Instruction;
+        $instruction->category_id   = $request->category_id;
+        $instruction->instruction   = $request->instruction;
+        $instruction->customer_id   = $request->customer_id;
         $instruction->assigned_from = Auth::id();
-        $instruction->assigned_to = $request->assigned_to;
-        $instruction->is_priority = $request->is_priority == 'on' ? 1 : 0;
+        $instruction->assigned_to   = $request->assigned_to;
+        $instruction->is_priority   = $request->is_priority == 'on' ? 1 : 0;
 
         $instruction->save();
 
         if ($request->send_whatsapp === 'send') {
-            $user = User::find($instruction->assigned_to);
+            $user      = User::find($instruction->assigned_to);
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['remark' => 'Auto message was sent.', 'id' => $instruction->id, 'module_type' => 'instruction']);
@@ -251,9 +251,9 @@ class InstructionController extends Controller
             app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($user->phone, $user->whatsapp_number, $instruction->instruction);
         }
 
-        $a = new UserActions();
-        $a->action = 'List';
-        $a->page = 'Instructions';
+        $a          = new UserActions();
+        $a->action  = 'List';
+        $a->page    = 'Instructions';
         $a->details = 'Oened Instructions List Page';
         $a->save();
 
@@ -280,7 +280,8 @@ class InstructionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -291,7 +292,8 @@ class InstructionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -302,7 +304,8 @@ class InstructionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -316,15 +319,15 @@ class InstructionController extends Controller
 
     public function complete(Request $request)
     {
-        $instruction = Instruction::find($request->id);
+        $instruction               = Instruction::find($request->id);
         $instruction->completed_at = Carbon::now();
 
         $instructionTime = \App\InstructionTime::where('instructions_id', $request->id)->where('end', '0000-00-00 00:00:00')->orderBy('id', 'desc')->first();
         if ($instructionTime) {
             $instruction->end_time = Carbon::now();
-            $instructionTime->end = date('Y-m-d H:i:s');
+            $instructionTime->end  = date('Y-m-d H:i:s');
 
-            $diff = date_diff(date_create($instructionTime->start), date_create(date('Y-m-d H:i:s')));
+            $diff                           = date_diff(date_create($instructionTime->start), date_create(date('Y-m-d H:i:s')));
             $instructionTime->total_minutes = $diff->format('%i');
             $instructionTime->save();
         }
@@ -345,7 +348,7 @@ class InstructionController extends Controller
 
     public function pending(Request $request)
     {
-        $instruction = Instruction::find($request->id);
+        $instruction          = Instruction::find($request->id);
         $instruction->pending = 1;
         $instruction->save();
 
@@ -354,7 +357,7 @@ class InstructionController extends Controller
 
     public function verify(Request $request)
     {
-        $instruction = Instruction::find($request->id);
+        $instruction           = Instruction::find($request->id);
         $instruction->verified = 1;
         $instruction->save();
 
@@ -396,7 +399,8 @@ class InstructionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -426,11 +430,11 @@ class InstructionController extends Controller
         }
 
         // Get the first instruction
-        $instruction = $instructions->orderBy('id', 'desc')->first();
+        $instruction     = $instructions->orderBy('id', 'desc')->first();
         $instructionTime = null;
         if ($instruction) {
             $instructionTime = \App\InstructionTime::create([
-                'start' => date('Y-m-d H:i:s'),
+                'start'           => date('Y-m-d H:i:s'),
                 'instructions_id' => $instruction->id,
             ]);
 
@@ -440,51 +444,51 @@ class InstructionController extends Controller
             }
         }
 
-        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
-        $groups = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $nextActionArr    = DB::table('customer_next_actions')->pluck('name', 'id');
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $reply_categories = \App\ReplyCategory::all();
-        $users_array = Helpers::getUserArray(\App\User::all());
+        $users_array      = Helpers::getUserArray(\App\User::all());
         $settingShortCuts = [
-            'image_shortcut' => \App\Setting::get('image_shortcut'),
-            'price_shortcut' => \App\Setting::get('price_shortcut'),
-            'call_shortcut' => \App\Setting::get('call_shortcut'),
+            'image_shortcut'      => \App\Setting::get('image_shortcut'),
+            'price_shortcut'      => \App\Setting::get('price_shortcut'),
+            'call_shortcut'       => \App\Setting::get('call_shortcut'),
             'screenshot_shortcut' => \App\Setting::get('screenshot_shortcut'),
-            'details_shortcut' => \App\Setting::get('details_shortcut'),
-            'purchase_shortcut' => \App\Setting::get('purchase_shortcut'),
+            'details_shortcut'    => \App\Setting::get('details_shortcut'),
+            'purchase_shortcut'   => \App\Setting::get('purchase_shortcut'),
         ];
 
         $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
-        $brands = \App\Brand::all();
-        $category_array = \App\Category::renderAsArray();
+        $brands              = \App\Brand::all();
+        $category_array      = \App\Category::renderAsArray();
 
         $skippedCount = Instruction::where('verified', 0)->whereNull('completed_at')->whereNotNull('customer_id')->where('skipped_count', '!=', '0')->count();
 
         // Return the view with the first instruction
         return view('instructions.quick-instruction')->with([
-            'instruction' => $instruction,
-            'type' => $request->type ?? '',
-            'customer' => $instruction ? $instruction->customer : '',
-            'nextActionArr' => $nextActionArr,
-            'groups' => $groups,
-            'reply_categories' => $reply_categories,
-            'settingShortCuts' => $settingShortCuts,
-            'users_array' => $users_array,
+            'instruction'         => $instruction,
+            'type'                => $request->type ?? '',
+            'customer'            => $instruction ? $instruction->customer : '',
+            'nextActionArr'       => $nextActionArr,
+            'groups'              => $groups,
+            'reply_categories'    => $reply_categories,
+            'settingShortCuts'    => $settingShortCuts,
+            'users_array'         => $users_array,
             'category_suggestion' => $category_suggestion,
-            'brands' => $brands,
-            'category_array' => $category_array,
-            'skippedCount' => $skippedCount,
-            'instructionTime' => $instructionTime,
+            'brands'              => $brands,
+            'category_array'      => $category_array,
+            'skippedCount'        => $skippedCount,
+            'instructionTime'     => $instructionTime,
         ]);
     }
 
     public function storeInstructionEndTime(Request $request)
     {
         $instructionTime = \App\InstructionTime::where('id', $request->get('id'))->first();
-        $instruction = \App\Instruction::where('id', $request->get('instructions_id'))->first();
+        $instruction     = \App\Instruction::where('id', $request->get('instructions_id'))->first();
         if ($instructionTime) {
             $instructionTime->end = date('Y-m-d H:i:s');
 
-            $diff = date_diff(date_create($instructionTime->start), date_create(date('Y-m-d H:i:s')));
+            $diff                           = date_diff(date_create($instructionTime->start), date_create(date('Y-m-d H:i:s')));
             $instructionTime->total_minutes = $diff->format('%i');
             $instructionTime->save();
         }

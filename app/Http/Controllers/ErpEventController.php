@@ -16,8 +16,8 @@ class ErpEventController extends Controller
             foreach ($events as $event) {
                 $listEvents[] = [
                     'startDate' => date('Y-m-d', strtotime($event->start_date)),
-                    'endDate' => date('Y-m-d', strtotime($event->end_date)),
-                    'title' => $event->event_name,
+                    'endDate'   => date('Y-m-d', strtotime($event->end_date)),
+                    'title'     => $event->event_name,
                 ];
             }
         }
@@ -27,12 +27,12 @@ class ErpEventController extends Controller
 
     public function store()
     {
-        $params = request()->all();
-        $params['brand_id'] = implode(',', $params['brand_id']);
+        $params                = request()->all();
+        $params['brand_id']    = implode(',', $params['brand_id']);
         $params['category_id'] = implode(',', $params['category_id']);
-        $params['type'] = 1;
-        $params['created_by'] = \Auth::id();
-        $erpEvnts = new ErpEvents();
+        $params['type']        = 1;
+        $params['created_by']  = \Auth::id();
+        $erpEvnts              = new ErpEvents();
         $erpEvnts->fill($params);
         $erpEvnts->save();
 
@@ -42,22 +42,22 @@ class ErpEventController extends Controller
     public function dummy()
     {
         $params = [
-            'event_name' => 'Testing Event',
-            'event_description' => 'This is test description',
-            'start_date' => '2019-12-04',
-            'end_date' => '2019-12-15',
-            'type' => '1',
-            'brand_id' => '1,2,3',
-            'category_id' => '10,38',
-            'number_of_person' => '20',
+            'event_name'         => 'Testing Event',
+            'event_description'  => 'This is test description',
+            'start_date'         => '2019-12-04',
+            'end_date'           => '2019-12-15',
+            'type'               => '1',
+            'brand_id'           => '1,2,3',
+            'category_id'        => '10,38',
+            'number_of_person'   => '20',
             'product_start_date' => '',
-            'product_end_date' => '',
-            'minute' => '0',
-            'hour' => '1',
-            'day_of_month' => '0',
-            'month' => '0',
-            'day_of_week' => '0',
-            'created_by' => '1',
+            'product_end_date'   => '',
+            'minute'             => '0',
+            'hour'               => '1',
+            'day_of_month'       => '0',
+            'month'              => '0',
+            'day_of_week'        => '0',
+            'created_by'         => '1',
         ];
 
         $erpEvnts = new ErpEvents();

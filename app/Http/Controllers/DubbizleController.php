@@ -15,8 +15,8 @@ class DubbizleController extends Controller
 {
     public function updateReminder(Request $request)
     {
-        $supplier = Dubbizle::find($request->get('dubbizle_id'));
-        $supplier->frequency = $request->get('frequency');
+        $supplier                   = Dubbizle::find($request->get('dubbizle_id'));
+        $supplier->frequency        = $request->get('frequency');
         $supplier->reminder_message = $request->get('message');
         $supplier->save();
 
@@ -49,18 +49,18 @@ class DubbizleController extends Controller
         $keywords = Dubbizle::select('keywords')->get()->groupBy('keywords');
 
         return view('dubbizle', [
-            'posts' => $posts,
+            'posts'    => $posts,
             'keywords' => $keywords,
         ]);
     }
 
     public function show($id)
     {
-        $dubbizle = Dubbizle::find($id);
+        $dubbizle    = Dubbizle::find($id);
         $users_array = Helpers::getUserArray(User::all());
 
         return view('dubbizle-show', [
-            'dubbizle' => $dubbizle,
+            'dubbizle'    => $dubbizle,
             'users_array' => $users_array,
         ]);
     }
@@ -68,16 +68,16 @@ class DubbizleController extends Controller
     public function bulkWhatsapp(Request $request)
     {
         $this->validate($request, [
-            'group' => 'required|string',
+            'group'   => 'required|string',
             'message' => 'required|string',
         ]);
 
         $params = [
-            'user_id' => Auth::id(),
-            'number' => null,
-            'message' => $request->message,
+            'user_id'  => Auth::id(),
+            'number'   => null,
+            'message'  => $request->message,
             'approved' => 0,
-            'status' => 1,
+            'status'   => 1,
         ];
 
         $dubbizles = Dubbizle::where('keywords', $request->group)->get();
@@ -90,8 +90,8 @@ class DubbizleController extends Controller
             app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], null, $chat_message->id);
 
             $chat_message->update([
-                'approved' => 1,
-                'status' => 2,
+                'approved'   => 1,
+                'status'     => 2,
                 'created_at' => Carbon::now(),
             ]);
         }
@@ -110,12 +110,12 @@ class DubbizleController extends Controller
     {
         $d = Dubbizle::findOrFail($id);
 
-        $d->url = $request->get('url');
+        $d->url          = $request->get('url');
         $d->phone_number = $request->get('phone_number');
-        $d->keywords = $request->get('keywords');
-        $d->post_date = $request->get('post_date');
+        $d->keywords     = $request->get('keywords');
+        $d->post_date    = $request->get('post_date');
         $d->requirements = $request->get('requirements');
-        $d->body = $request->get('body');
+        $d->body         = $request->get('body');
         $d->phone_number = $request->get('phone_number');
         $d->save();
 

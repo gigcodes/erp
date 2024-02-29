@@ -19,10 +19,10 @@ class SocialMessages extends Model
     ];
 
     protected $casts = [
-        'from' => 'json',
-        'to' => 'json',
-        'attachments' => 'json',
+        'from'           => 'json',
+        'to'             => 'json',
+        'attachments'    => 'json',
         'is_unsupported' => 'boolean',
-        'created_time' => 'datetime',
+        'created_time'   => 'datetime',
     ];
 }

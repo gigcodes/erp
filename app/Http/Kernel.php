@@ -60,19 +60,19 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         'twilio.voice.validate' => \App\Http\Middleware\VoiceValidateRequest::class,
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
-        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
-        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
-        'optimizeImages' => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
-        'affiliates' => AffiliateMiddleware::class,
-        'custom.api.auth' => \App\Http\Middleware\CustomApiAuthMiddleware::class,
+        'auth'                  => \App\Http\Middleware\Authenticate::class,
+        'auth.basic'            => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'cache.headers'         => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can'                   => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest'                 => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'signed'                => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'role'                  => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission'            => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission'    => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+        'optimizeImages'        => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
+        'affiliates'            => AffiliateMiddleware::class,
+        'custom.api.auth'       => \App\Http\Middleware\CustomApiAuthMiddleware::class,
     ];
 
     /**

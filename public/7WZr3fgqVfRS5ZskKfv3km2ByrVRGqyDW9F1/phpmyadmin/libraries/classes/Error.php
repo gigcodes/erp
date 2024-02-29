@@ -55,21 +55,21 @@ class Error extends Message
      * @var array
      */
     public static $errortype = [
-        0 => 'Internal error',
-        E_ERROR => 'Error',
-        E_WARNING => 'Warning',
-        E_PARSE => 'Parsing Error',
-        E_NOTICE => 'Notice',
-        E_CORE_ERROR => 'Core Error',
-        E_CORE_WARNING => 'Core Warning',
-        E_COMPILE_ERROR => 'Compile Error',
-        E_COMPILE_WARNING => 'Compile Warning',
-        E_USER_ERROR => 'User Error',
-        E_USER_WARNING => 'User Warning',
-        E_USER_NOTICE => 'User Notice',
-        E_STRICT => 'Runtime Notice',
-        E_DEPRECATED => 'Deprecation Notice',
-        E_USER_DEPRECATED => 'Deprecation Notice',
+        0                   => 'Internal error',
+        E_ERROR             => 'Error',
+        E_WARNING           => 'Warning',
+        E_PARSE             => 'Parsing Error',
+        E_NOTICE            => 'Notice',
+        E_CORE_ERROR        => 'Core Error',
+        E_CORE_WARNING      => 'Core Warning',
+        E_COMPILE_ERROR     => 'Compile Error',
+        E_COMPILE_WARNING   => 'Compile Warning',
+        E_USER_ERROR        => 'User Error',
+        E_USER_WARNING      => 'User Warning',
+        E_USER_NOTICE       => 'User Notice',
+        E_STRICT            => 'Runtime Notice',
+        E_DEPRECATED        => 'Deprecation Notice',
+        E_USER_DEPRECATED   => 'Deprecation Notice',
         E_RECOVERABLE_ERROR => 'Catchable Fatal Error',
     ];
 
@@ -79,21 +79,21 @@ class Error extends Message
      * @var array
      */
     public static $errorlevel = [
-        0 => 'error',
-        E_ERROR => 'error',
-        E_WARNING => 'error',
-        E_PARSE => 'error',
-        E_NOTICE => 'notice',
-        E_CORE_ERROR => 'error',
-        E_CORE_WARNING => 'error',
-        E_COMPILE_ERROR => 'error',
-        E_COMPILE_WARNING => 'error',
-        E_USER_ERROR => 'error',
-        E_USER_WARNING => 'error',
-        E_USER_NOTICE => 'notice',
-        E_STRICT => 'notice',
-        E_DEPRECATED => 'notice',
-        E_USER_DEPRECATED => 'notice',
+        0                   => 'error',
+        E_ERROR             => 'error',
+        E_WARNING           => 'error',
+        E_PARSE             => 'error',
+        E_NOTICE            => 'notice',
+        E_CORE_ERROR        => 'error',
+        E_CORE_WARNING      => 'error',
+        E_COMPILE_ERROR     => 'error',
+        E_COMPILE_WARNING   => 'error',
+        E_USER_ERROR        => 'error',
+        E_USER_WARNING      => 'error',
+        E_USER_NOTICE       => 'notice',
+        E_STRICT            => 'notice',
+        E_DEPRECATED        => 'notice',
+        E_USER_DEPRECATED   => 'notice',
         E_RECOVERABLE_ERROR => 'error',
     ];
 
@@ -126,10 +126,10 @@ class Error extends Message
     protected $hideLocation = false;
 
     /**
-     * @param  int  $errno   error number
-     * @param  string  $errstr  error message
-     * @param  string  $errfile file
-     * @param  int  $errline line
+     * @param int    $errno   error number
+     * @param string $errstr  error message
+     * @param string $errfile file
+     * @param int    $errline line
      */
     public function __construct(int $errno, string $errstr, string $errfile, int $errline)
     {
@@ -155,7 +155,7 @@ class Error extends Message
     /**
      * Process backtrace to avoid path disclosures, objects and so on
      *
-     * @param  array  $backtrace backtrace
+     * @param array $backtrace backtrace
      */
     public static function processBacktrace(array $backtrace): array
     {
@@ -202,7 +202,7 @@ class Error extends Message
     /**
      * Toggles location hiding
      *
-     * @param  bool  $hide Whether to hide
+     * @param bool $hide Whether to hide
      */
     public function setHideLocation(bool $hide): void
     {
@@ -214,7 +214,7 @@ class Error extends Message
      *
      * We don't store full arguments to avoid wakeup or memory problems.
      *
-     * @param  array  $backtrace backtrace
+     * @param array $backtrace backtrace
      */
     public function setBacktrace(array $backtrace): void
     {
@@ -224,7 +224,7 @@ class Error extends Message
     /**
      * sets PhpMyAdmin\Error::$_line
      *
-     * @param  int  $line the line
+     * @param int $line the line
      */
     public function setLine(int $line): void
     {
@@ -234,7 +234,7 @@ class Error extends Message
     /**
      * sets PhpMyAdmin\Error::$_file
      *
-     * @param  string  $file the file
+     * @param string $file the file
      */
     public function setFile(string $file): void
     {
@@ -272,7 +272,8 @@ class Error extends Message
      * pass $count = -1 to get full backtrace.
      * The same can be done by not passing $count at all.
      *
-     * @param  int  $count Number of stack frames.
+     * @param int $count Number of stack frames.
+     *
      * @return array PhpMyAdmin\Error::$_backtrace
      */
     public function getBacktrace(int $count = -1): array
@@ -359,9 +360,10 @@ class Error extends Message
     /**
      * return formatted backtrace field
      *
-     * @param  array  $backtrace Backtrace data
-     * @param  string  $separator Arguments separator to use
-     * @param  string  $lines     Lines separator to use
+     * @param array  $backtrace Backtrace data
+     * @param string $separator Arguments separator to use
+     * @param string $lines     Lines separator to use
+     *
      * @return string formatted backtrace
      */
     public static function formatBacktrace(
@@ -391,8 +393,8 @@ class Error extends Message
     /**
      * Formats function call in a backtrace
      *
-     * @param  array  $step      backtrace step
-     * @param  string  $separator Arguments separator to use
+     * @param array  $step      backtrace step
+     * @param string $separator Arguments separator to use
      */
     public static function getFunctionCall(array $step, string $separator): string
     {
@@ -421,12 +423,12 @@ class Error extends Message
      * if $function is one of include/require
      * the $arg is converted to a relative path
      *
-     * @param  mixed  $arg      argument to process
-     * @param  string  $function function name
+     * @param mixed  $arg      argument to process
+     * @param string $function function name
      */
     public static function getArg($arg, string $function): string
     {
-        $retval = '';
+        $retval           = '';
         $includeFunctions = [
             'include',
             'include_once',
@@ -466,7 +468,7 @@ class Error extends Message
         $this->isDisplayed(true);
 
         $context = 'primary';
-        $level = $this->getLevel();
+        $level   = $this->getLevel();
         if ($level === 'error') {
             $context = 'danger';
         }
@@ -507,7 +509,8 @@ class Error extends Message
      * prevent path disclosure in error message,
      * and make users feel safe to submit error reports
      *
-     * @param  string  $path path to be shorten
+     * @param string $path path to be shorten
+     *
      * @return string shortened path
      */
     public static function relPath(string $path): string

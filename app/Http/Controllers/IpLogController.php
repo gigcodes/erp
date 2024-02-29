@@ -37,19 +37,19 @@ class IpLogController extends Controller
     {
         $validatedData = $request->validate([
             'server_name' => 'required',
-            'ip_address' => 'required|ip',
-            'comment' => 'required',
+            'ip_address'  => 'required|ip',
+            'comment'     => 'required',
         ]);
 
         $serverName = $validatedData['server_name'];
-        $ipAddress = $validatedData['ip_address'];
-        $comment = $validatedData['comment'];
+        $ipAddress  = $validatedData['ip_address'];
+        $comment    = $validatedData['comment'];
 
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'webaccess-firewall.sh ' . '-s "' . $serverName . '" -i "' . $ipAddress . '" -c "' . $comment . '"';
 
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $command;
-        $result = exec($command, $allOutput);
+        $result      = exec($command, $allOutput);
 
         Log::info('Command result: ' . $result);
 

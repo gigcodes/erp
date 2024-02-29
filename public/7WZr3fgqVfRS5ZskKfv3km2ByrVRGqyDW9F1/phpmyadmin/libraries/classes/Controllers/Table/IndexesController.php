@@ -38,7 +38,7 @@ class IndexesController extends AbstractController
         Indexes $indexes
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
         $this->indexes = $indexes;
     }
 
@@ -50,7 +50,7 @@ class IndexesController extends AbstractController
             Util::checkParameters(['db', 'table']);
 
             $urlParams = ['db' => $db, 'table' => $table];
-            $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+            $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
             $errorUrl .= Url::getCommon($urlParams, '&');
 
             DbTableExists::check();
@@ -79,7 +79,7 @@ class IndexesController extends AbstractController
     /**
      * Display the form to edit/create an index
      *
-     * @param  Index  $index An Index instance.
+     * @param Index $index An Index instance.
      */
     private function displayForm(Index $index): void
     {
@@ -112,7 +112,7 @@ class IndexesController extends AbstractController
 
         // Get fields and stores their name/type
         if (isset($_POST['create_edit_table'])) {
-            $fields = json_decode($_POST['columns'], true);
+            $fields       = json_decode($_POST['columns'], true);
             $index_params = [
                 'Non_unique' => $_POST['index']['Index_choice'] === 'UNIQUE'
                     ? '0' : '1',
@@ -125,7 +125,7 @@ class IndexesController extends AbstractController
         }
 
         $form_params = [
-            'db' => $this->db,
+            'db'    => $this->db,
             'table' => $this->table,
         ];
 
@@ -140,11 +140,11 @@ class IndexesController extends AbstractController
         $this->addScriptFiles(['indexes.js']);
 
         $this->render('table/index_form', [
-            'fields' => $fields,
-            'index' => $index,
-            'form_params' => $form_params,
-            'add_fields' => $add_fields,
-            'create_edit_table' => isset($_POST['create_edit_table']),
+            'fields'                => $fields,
+            'index'                 => $index,
+            'form_params'           => $form_params,
+            'add_fields'            => $add_fields,
+            'create_edit_table'     => isset($_POST['create_edit_table']),
             'default_sliders_state' => $GLOBALS['cfg']['InitialSlidersState'],
         ]);
     }

@@ -21,6 +21,6 @@ final class RecentlyUsedTablesFeature
     public function __construct(DatabaseName $database, TableName $recent)
     {
         $this->database = $database;
-        $this->recent = $recent;
+        $this->recent   = $recent;
     }
 }

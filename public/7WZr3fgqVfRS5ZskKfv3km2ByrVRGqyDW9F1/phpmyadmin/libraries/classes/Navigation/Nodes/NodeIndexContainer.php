@@ -22,23 +22,23 @@ class NodeIndexContainer extends Node
     public function __construct()
     {
         parent::__construct(__('Indexes'), Node::CONTAINER);
-        $this->icon = ['image' => 'b_index', 'title' => __('Indexes')];
+        $this->icon  = ['image' => 'b_index', 'title' => __('Indexes')];
         $this->links = [
             'text' => ['route' => '/table/structure', 'params' => ['db' => null, 'table' => null]],
             'icon' => ['route' => '/table/structure', 'params' => ['db' => null, 'table' => null]],
         ];
         $this->realName = 'indexes';
 
-        $newLabel = _pgettext('Create new index', 'New');
-        $new = NodeFactory::getInstanceForNewNode($newLabel, 'new_index italics');
-        $new->icon = ['image' => 'b_index_add', 'title' => $newLabel];
+        $newLabel   = _pgettext('Create new index', 'New');
+        $new        = NodeFactory::getInstanceForNewNode($newLabel, 'new_index italics');
+        $new->icon  = ['image' => 'b_index_add', 'title' => $newLabel];
         $new->links = [
             'text' => [
-                'route' => '/table/indexes',
+                'route'  => '/table/indexes',
                 'params' => ['create_index' => 1, 'added_fields' => 2, 'db' => null, 'table' => null],
             ],
             'icon' => [
-                'route' => '/table/indexes',
+                'route'  => '/table/indexes',
                 'params' => ['create_index' => 1, 'added_fields' => 2, 'db' => null, 'table' => null],
             ],
         ];

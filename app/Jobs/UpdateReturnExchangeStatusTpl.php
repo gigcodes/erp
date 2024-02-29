@@ -20,6 +20,9 @@ class UpdateReturnExchangeStatusTpl implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $returnId
+     * @param private $message
+     *
      * @return void
      */
     public function __construct(private $returnId, private $message)
@@ -45,9 +48,9 @@ class UpdateReturnExchangeStatusTpl implements ShouldQueue
                 $requestData->setMethod('POST');
                 $requestData->request->add([
                     'customer_id' => $return->customer_id,
-                    'message' => $msg,
-                    'status' => 0,
-                    'order_id' => $product->order_product_id,
+                    'message'     => $msg,
+                    'status'      => 0,
+                    'order_id'    => $product->order_product_id,
                 ]);
                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
             }

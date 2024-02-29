@@ -82,10 +82,10 @@ class Form
     /**
      * Reads default config values
      *
-     * @param  string  $formName Form name
-     * @param  array  $form     Form data
-     * @param  ConfigFile  $cf       Config file instance
-     * @param  int  $index    arbitrary index, stored in Form::$index
+     * @param string     $formName Form name
+     * @param array      $form     Form data
+     * @param ConfigFile $cf       Config file instance
+     * @param int        $index    arbitrary index, stored in Form::$index
      */
     public function __construct(
         $formName,
@@ -93,7 +93,7 @@ class Form
         ConfigFile $cf,
         $index = null
     ) {
-        $this->index = $index;
+        $this->index      = $index;
         $this->configFile = $cf;
         $this->loadForm($formName, $form);
     }
@@ -101,7 +101,8 @@ class Form
     /**
      * Returns type of given option
      *
-     * @param  string  $optionName path or field name
+     * @param string $optionName path or field name
+     *
      * @return string|null one of: boolean, integer, double, string, select, array
      */
     public function getOptionType($optionName)
@@ -120,7 +121,8 @@ class Form
     /**
      * Returns allowed values for select fields
      *
-     * @param  string  $optionPath Option path
+     * @param string $optionPath Option path
+     *
      * @return array
      */
     public function getOptionValueList($optionPath)
@@ -149,7 +151,7 @@ class Form
 
         // convert value list array('a', 'b') to array('a' => 'a', 'b' => 'b')
         $hasStringKeys = false;
-        $keys = [];
+        $keys          = [];
         for ($i = 0, $nb = count($value); $i < $nb; $i++) {
             if (! isset($value[$i])) {
                 $hasStringKeys = true;
@@ -172,9 +174,9 @@ class Form
      * array_walk callback function, reads path of form fields from
      * array (see docs for \PhpMyAdmin\Config\Forms\BaseForm::getForms)
      *
-     * @param  mixed  $value  Value
-     * @param  mixed  $key    Key
-     * @param  mixed  $prefix Prefix
+     * @param mixed $value  Value
+     * @param mixed $key    Key
+     * @param mixed $prefix Prefix
      */
     private function readFormPathsCallback($value, $key, $prefix): void
     {
@@ -193,7 +195,7 @@ class Form
 
         if (! is_int($key)) {
             $this->default[$prefix . $key] = $value;
-            $value = $key;
+            $value                         = $key;
         }
 
         // add unique id to group ends
@@ -215,7 +217,7 @@ class Form
     /**
      * Reads form paths to {@link $fields}
      *
-     * @param  array  $form Form
+     * @param array $form Form
      */
     protected function readFormPaths(array $form): void
     {
@@ -231,7 +233,7 @@ class Form
 
         // $this->fields is an array of the form: [0..n] => 'field path'
         // change numeric indexes to contain field names (last part of the path)
-        $paths = $this->fields;
+        $paths        = $this->fields;
         $this->fields = [];
         foreach ($paths as $path) {
             $key = ltrim(
@@ -272,7 +274,7 @@ class Form
      *
      * @see issue #15836
      *
-     * @param  array  $form The form data
+     * @param array $form The form data
      */
     protected function cleanGroupPaths(array $form): array
     {
@@ -295,13 +297,13 @@ class Form
      * Reads form settings and prepares class to work with given subset of
      * config file
      *
-     * @param  string  $formName Form name
-     * @param  array  $form     Form
+     * @param string $formName Form name
+     * @param array  $form     Form
      */
     public function loadForm($formName, array $form): void
     {
         $this->name = $formName;
-        $form = $this->cleanGroupPaths($form);
+        $form       = $this->cleanGroupPaths($form);
         $this->readFormPaths($form);
         $this->readTypes();
     }

@@ -821,7 +821,7 @@ class LanguageManager
             foreach ($this->availableLocales() as $lang) {
                 $lang = strtolower($lang);
                 if (isset(static::$languageData[$lang])) {
-                    $data = static::$languageData[$lang];
+                    $data                            = static::$languageData[$lang];
                     $this->availableLanguages[$lang] = new Language($data[0], $data[1], $data[2], $data[3], $data[4]);
                 } else {
                     $this->availableLanguages[$lang] = new Language(
@@ -857,12 +857,13 @@ class LanguageManager
     /**
      * Return Language object for given code
      *
-     * @param  string  $code Language code
+     * @param string $code Language code
+     *
      * @return Language|false Language object or false on failure
      */
     public function getLanguage($code)
     {
-        $code = strtolower($code);
+        $code  = strtolower($code);
         $langs = $this->availableLanguages();
         if (isset($langs[$code])) {
             return $langs[$code];

@@ -11,7 +11,6 @@ class TranslationLanguage extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="locale",type="string")
      */

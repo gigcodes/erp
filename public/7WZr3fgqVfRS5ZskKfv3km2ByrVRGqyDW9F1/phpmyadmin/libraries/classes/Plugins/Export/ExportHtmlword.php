@@ -58,8 +58,8 @@ class ExportHtmlword extends ExportPlugin
         $leaf = new RadioPropertyItem('structure_or_data');
         $leaf->setValues(
             [
-                'structure' => __('structure'),
-                'data' => __('data'),
+                'structure'          => __('structure'),
+                'data'               => __('data'),
                 'structure_and_data' => __('structure and data'),
             ]
         );
@@ -127,8 +127,8 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Aliases of db
+     * @param string $db      Database name
+     * @param string $dbAlias Aliases of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -144,7 +144,7 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -154,9 +154,9 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -166,12 +166,12 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs the content of a table in HTML-Word format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -183,7 +183,7 @@ class ExportHtmlword extends ExportPlugin
     ): bool {
         global $what, $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
@@ -202,7 +202,7 @@ class ExportHtmlword extends ExportPlugin
         }
 
         // Gets the data from the database
-        $result = $dbi->query($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
+        $result     = $dbi->query($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
         $fields_cnt = $result->numFields();
 
         // If required, get fields name at the first line
@@ -254,10 +254,11 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Returns a stand-in CREATE definition to resolve view dependencies
      *
-     * @param  string  $db      the database name
-     * @param  string  $view    the view name
-     * @param  string  $crlf    the end of line sequence
-     * @param  array  $aliases Aliases of db/table/columns
+     * @param string $db      the database name
+     * @param string $view    the view name
+     * @param string $crlf    the end of line sequence
+     * @param array  $aliases Aliases of db/table/columns
+     *
      * @return string resulting definition
      */
     public function getTableDefStandIn($db, $view, $crlf, $aliases = [])
@@ -284,7 +285,7 @@ class ExportHtmlword extends ExportPlugin
          * Get the unique keys in the view
          */
         $unique_keys = [];
-        $keys = $dbi->getTableIndexes($db, $view);
+        $keys        = $dbi->getTableIndexes($db, $view);
         foreach ($keys as $key) {
             if ($key['Non_unique'] != 0) {
                 continue;
@@ -312,19 +313,20 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Returns $table's CREATE definition
      *
-     * @param  string  $db          the database name
-     * @param  string  $table       the table name
-     * @param  bool  $do_relation whether to include relation comments
-     * @param  bool  $do_comments whether to include the pmadb-style column
+     * @param string $db          the database name
+     * @param string $table       the table name
+     * @param bool   $do_relation whether to include relation comments
+     * @param bool   $do_comments whether to include the pmadb-style column
      *                            comments as comments in the structure;
      *                            this is deprecated but the parameter is
      *                            left here because /export calls
      *                            PMA_exportStructure() also for other
      *                            export types which use this parameter
-     * @param  bool  $do_mime     whether to include mime comments
+     * @param bool   $do_mime     whether to include mime comments
      *                            at the end
-     * @param  bool  $view        whether we're handling a view
-     * @param  array  $aliases     Aliases of db/table/columns
+     * @param bool   $view        whether we're handling a view
+     * @param array  $aliases     Aliases of db/table/columns
+     *
      * @return string resulting schema
      */
     public function getTableDef(
@@ -399,7 +401,7 @@ class ExportHtmlword extends ExportPlugin
          * Get the unique keys in the table
          */
         $unique_keys = [];
-        $keys = $dbi->getTableIndexes($db, $table);
+        $keys        = $dbi->getTableIndexes($db, $table);
         foreach ($keys as $key) {
             if ($key['Non_unique'] != 0) {
                 continue;
@@ -456,8 +458,9 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs triggers
      *
-     * @param  string  $db    database name
-     * @param  string  $table table name
+     * @param string $db    database name
+     * @param string $table table name
+     *
      * @return string Formatted triggers list
      */
     protected function getTriggers($db, $table)
@@ -499,23 +502,23 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Outputs table's structure
      *
-     * @param  string  $db          database name
-     * @param  string  $table       table name
-     * @param  string  $crlf        the end of line sequence
-     * @param  string  $errorUrl    the url to go back in case of error
-     * @param  string  $exportMode  'create_table', 'triggers', 'create_view',
-     *                             'stand_in'
-     * @param  string  $exportType  'server', 'database', 'table'
-     * @param  bool  $do_relation whether to include relation comments
-     * @param  bool  $do_comments whether to include the pmadb-style column
+     * @param string $db          database name
+     * @param string $table       table name
+     * @param string $crlf        the end of line sequence
+     * @param string $errorUrl    the url to go back in case of error
+     * @param string $exportMode  'create_table', 'triggers', 'create_view',
+     *                            'stand_in'
+     * @param string $exportType  'server', 'database', 'table'
+     * @param bool   $do_relation whether to include relation comments
+     * @param bool   $do_comments whether to include the pmadb-style column
      *                            comments as comments in the structure;
      *                            this is deprecated but the parameter is
      *                            left here because /export calls
      *                            PMA_exportStructure() also for other
      *                            export types which use this parameter
-     * @param  bool  $do_mime     whether to include mime comments
-     * @param  bool  $dates       whether to include creation/update/check dates
-     * @param  array  $aliases     Aliases of db/table/columns
+     * @param bool   $do_mime     whether to include mime comments
+     * @param bool   $dates       whether to include creation/update/check dates
+     * @param array  $aliases     Aliases of db/table/columns
      */
     public function exportStructure(
         $db,
@@ -532,7 +535,7 @@ class ExportHtmlword extends ExportPlugin
     ): bool {
         global $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
@@ -547,7 +550,7 @@ class ExportHtmlword extends ExportPlugin
                 $dump .= $this->getTableDef($db, $table, $do_relation, $do_comments, $do_mime, false, $aliases);
                 break;
             case 'triggers':
-                $dump = '';
+                $dump     = '';
                 $triggers = $dbi->getTriggers($db, $table);
                 if ($triggers) {
                     $dump .= '<h2>'
@@ -578,9 +581,10 @@ class ExportHtmlword extends ExportPlugin
     /**
      * Formats the definition for one column
      *
-     * @param  array  $column      info about this column
-     * @param  array  $unique_keys unique keys of the table
-     * @param  string  $col_alias   Column Alias
+     * @param array  $column      info about this column
+     * @param array  $unique_keys unique keys of the table
+     * @param string $col_alias   Column Alias
+     *
      * @return string Formatted column definition
      */
     protected function formatOneColumnDefinition(
@@ -607,7 +611,7 @@ class ExportHtmlword extends ExportPlugin
             }
         }
 
-        $fmt_pre = '';
+        $fmt_pre  = '';
         $fmt_post = '';
         if (in_array($column['Field'], $unique_keys)) {
             $fmt_pre = '<strong>' . $fmt_pre;

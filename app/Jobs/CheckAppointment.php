@@ -71,7 +71,7 @@ class CheckAppointment
             }
 
             $userAppointments[$userId]['newAppointments'][] = $appointment;
-            $userAppointments[$userId]['userId'] = $userId;
+            $userAppointments[$userId]['userId']            = $userId;
         });
 
         $reactedUnseenAppointments->each(function ($appointment) use (&$userAppointments) {
@@ -82,7 +82,7 @@ class CheckAppointment
             }
 
             $userAppointments[$userId]['reactedUnseenAppointments'][] = $appointment;
-            $userAppointments[$userId]['userId'] = $userId;
+            $userAppointments[$userId]['userId']                      = $userId;
         });
 
         foreach ($userAppointments as $appointment) {

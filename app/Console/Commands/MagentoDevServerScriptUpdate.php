@@ -46,9 +46,9 @@ class MagentoDevServerScriptUpdate extends Command
                 if ($folder_name != '' && $website->server_ip != '') {
                     $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $website->server_ip . ' --site ' . $folder_name;
 
-                    $allOutput = [];
+                    $allOutput   = [];
                     $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput);
+                    $result      = exec($cmd, $allOutput);
                     if ($result == '') {
                         $result = 'Not any response';
                     } elseif ($result == 0) {
@@ -62,21 +62,21 @@ class MagentoDevServerScriptUpdate extends Command
                     MagentoDevScripUpdateLog::create(
                         [
                             'store_website_id' => $website->id,
-                            'website' => $website->website,
-                            'response' => $result,
-                            'command_name' => $cmd,
-                            'site_folder' => $website->site_folder,
+                            'website'          => $website->website,
+                            'response'         => $result,
+                            'command_name'     => $cmd,
+                            'site_folder'      => $website->site_folder,
                         ]
                     );
                 } else {
                     MagentoDevScripUpdateLog::create(
                         [
                             'store_website_id' => $website->id ?? '',
-                            'website' => $website->website ?? '',
-                            'response' => 'Please check Site folder and server ip',
-                            'error' => 'Error',
-                            'command_name' => 'Not run command. Please server Ip and site folder',
-                            'site_folder' => $website->site_folder ?? '',
+                            'website'          => $website->website ?? '',
+                            'response'         => 'Please check Site folder and server ip',
+                            'error'            => 'Error',
+                            'command_name'     => 'Not run command. Please server Ip and site folder',
+                            'site_folder'      => $website->site_folder ?? '',
                         ]);
                 }
             } //end website foreach
@@ -84,10 +84,10 @@ class MagentoDevServerScriptUpdate extends Command
             MagentoDevScripUpdateLog::create(
                 [
                     'store_website_id' => $website[0]->id ?? '',
-                    'website' => $website[0]->website ?? '',
-                    'error' => $e->getMessage(),
-                    'command_name' => 'Not run command. Please server Ip and site folder',
-                    'site_folder' => $website[0]->site_folder ?? '',
+                    'website'          => $website[0]->website ?? '',
+                    'error'            => $e->getMessage(),
+                    'command_name'     => 'Not run command. Please server Ip and site folder',
+                    'site_folder'      => $website[0]->site_folder ?? '',
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

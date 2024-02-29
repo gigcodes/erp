@@ -34,7 +34,8 @@ final class SimulateDml
     /**
      * Find the matching rows for UPDATE/DELETE query.
      *
-     * @param  DeleteStatement|UpdateStatement|Statement  $statement
+     * @param DeleteStatement|UpdateStatement|Statement $statement
+     *
      * @return array<string, int|string>
      *
      * @psalm-return array{
@@ -53,16 +54,16 @@ final class SimulateDml
         }
 
         // Execute the query and get the number of matched rows.
-        $matchedRows = $this->executeMatchedRowQuery($matchedRowQuery);
+        $matchedRows    = $this->executeMatchedRowQuery($matchedRowQuery);
         $matchedRowsUrl = Url::getFromRoute('/sql', [
-            'db' => $GLOBALS['db'],
-            'sql_query' => $matchedRowQuery,
+            'db'            => $GLOBALS['db'],
+            'sql_query'     => $matchedRowQuery,
             'sql_signature' => Core::signSqlQuery($matchedRowQuery),
         ]);
 
         return [
-            'sql_query' => Html\Generator::formatSql($query),
-            'matched_rows' => $matchedRows,
+            'sql_query'        => Html\Generator::formatSql($query),
+            'matched_rows'     => $matchedRows,
             'matched_rows_url' => $matchedRowsUrl,
         ];
     }
@@ -70,7 +71,8 @@ final class SimulateDml
     /**
      * Executes the matched_row_query and returns the resultant row count.
      *
-     * @param  string  $matchedRowQuery SQL query
+     * @param string $matchedRowQuery SQL query
+     *
      * @return int|string
      *
      * @psalm-return int|numeric-string
@@ -96,7 +98,7 @@ final class SimulateDml
     private function getSimulatedDeleteQuery(Parser $parser, DeleteStatement $statement): string
     {
         $tableReferences = Query::getTables($statement);
-        $where = Query::getClause($statement, $parser->list, 'WHERE');
+        $where           = Query::getClause($statement, $parser->list, 'WHERE');
         if (empty($where)) {
             $where = '1';
         }
@@ -122,15 +124,15 @@ final class SimulateDml
     private function getSimulatedUpdateQuery(Parser $parser, UpdateStatement $statement): string
     {
         $tableReferences = Query::getTables($statement);
-        $where = Query::getClause($statement, $parser->list, 'WHERE');
+        $where           = Query::getClause($statement, $parser->list, 'WHERE');
         if (empty($where)) {
             $where = '1';
         }
 
         $columns = [];
-        $diff = [];
+        $diff    = [];
         foreach ($statement->set as $set) {
-            $columns[] = $set->column;
+            $columns[]        = $set->column;
             $notEqualOperator = ' <> ';
             if (strtoupper($set->value) === 'NULL') {
                 $notEqualOperator = ' IS NOT ';

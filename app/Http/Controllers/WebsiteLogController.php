@@ -24,7 +24,7 @@ class WebsiteLogController extends Controller
 
     public function prepareWebsite($filePath)
     {
-        $path = $this->logsPath();
+        $path     = $this->logsPath();
         $filePath = trim(str_replace($path, '', $filePath), '/');
         $filePath = explode('/', $filePath);
         if (count($filePath) > 1) {
@@ -53,9 +53,9 @@ class WebsiteLogController extends Controller
     {
         $path = $this->logsPath();
 
-        $srchWebsite = request('website', '');
+        $srchWebsite  = request('website', '');
         $srchFilename = request('file_name', '');
-        $searchDate = request('date', '');
+        $searchDate   = request('date', '');
 
         $listSrchFiles = [];
 
@@ -84,12 +84,12 @@ class WebsiteLogController extends Controller
                 }
 
                 $dataArr[] = [
-                    'S_No' => $key + 1,
-                    'File_name' => $fileName,
-                    'Website' => '',
-                    'Website' => $website,
-                    'File_Path' => $filePath,
-                    'date' => date('F d Y H:i:s.', filemtime($filePath)),
+                    'S_No'         => $key + 1,
+                    'File_name'    => $fileName,
+                    'Website'      => '',
+                    'Website'      => $website,
+                    'File_Path'    => $filePath,
+                    'date'         => date('F d Y H:i:s.', filemtime($filePath)),
                     'formatedDate' => date('Y-m-d', filemtime($filePath)),
                 ];
             }
@@ -116,8 +116,8 @@ class WebsiteLogController extends Controller
         ksort($listSrchFiles);
 
         return view('website-logs.index', [
-            'dataArr' => $dataArr,
-            'listWebsites' => $listWebsites,
+            'dataArr'       => $dataArr,
+            'listWebsites'  => $listWebsites,
             'listSrchFiles' => $listSrchFiles,
         ]);
     }
@@ -150,12 +150,13 @@ class WebsiteLogController extends Controller
      * @param [string] $string
      * @param [string] $start
      * @param [string] $end
+     *
      * @return string
      */
     public function get_string_between($string, $start, $end)
     {
         $string = ' ' . $string;
-        $ini = strpos($string, $start);
+        $ini    = strpos($string, $start);
         if ($ini == 0) {
             return '';
         }
@@ -171,6 +172,7 @@ class WebsiteLogController extends Controller
      * @param [string] $str
      * @param [string] $starting_word
      * @param [string] $ending_word
+     *
      * @return string
      */
     public function string_between_two_string($str, $starting_word, $ending_word)
@@ -188,7 +190,8 @@ class WebsiteLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store()
@@ -226,11 +229,11 @@ class WebsiteLogController extends Controller
             if ($request->date) {
                 $dataArr = $dataArr->where('created_at', 'LIKE', '%' . $request->date . '%');
             }
-            $dataArr = $dataArr->latest()->paginate(\App\Setting::get('pagination', 10));
+            $dataArr      = $dataArr->latest()->paginate(\App\Setting::get('pagination', 10));
             $search_error = $request->search_error;
-            $search_type = $request->search_type;
-            $website_id = $request->website_ids;
-            $date = $request->date;
+            $search_type  = $request->search_type;
+            $website_id   = $request->website_ids;
+            $date         = $request->date;
 
             $website_log_statuses = WebsiteLogStatus::get();
 
@@ -244,8 +247,8 @@ class WebsiteLogController extends Controller
 
     public function websiteErrorShow(Request $request)
     {
-        $id = $request->input('id');
-        $errorData = WebsiteLog::where('id', $id)->value('error');
+        $id          = $request->input('id');
+        $errorData   = WebsiteLog::where('id', $id)->value('error');
         $htmlContent = '<tr><td>' . $errorData . '</td></tr>';
 
         return $htmlContent;
@@ -267,17 +270,17 @@ class WebsiteLogController extends Controller
         if ($checkAlredyExist) {
             return response()->json(['code' => 200, 'message' => 'Alreday Insert Into CodeShortcut!!!']);
         } else {
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
+            $platform   = CodeShortCutPlatform::firstOrCreate(['name' => 'magnetoCron']);
             $platformId = $platform->id;
 
-            $codeShortcut = new CodeShortcut();
+            $codeShortcut                             = new CodeShortcut();
             $codeShortcut->code_shortcuts_platform_id = $platformId;
-            $codeShortcut->description = $websiteLog->file_path;
-            $codeShortcut->title = $websiteLog->error;
-            $codeShortcut->website = $websiteLog->website_id;
-            $codeShortcut->user_id = auth()->user()->id;
-            $codeShortcut->website_log_view_id = $request->id;
-            $codeShortcut->type = 'website-log-view';
+            $codeShortcut->description                = $websiteLog->file_path;
+            $codeShortcut->title                      = $websiteLog->error;
+            $codeShortcut->website                    = $websiteLog->website_id;
+            $codeShortcut->user_id                    = auth()->user()->id;
+            $codeShortcut->website_log_view_id        = $request->id;
+            $codeShortcut->type                       = 'website-log-view';
             $codeShortcut->save();
 
             return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);
@@ -287,7 +290,7 @@ class WebsiteLogController extends Controller
     public function websiteLogsStatusCreate(Request $request)
     {
         try {
-            $status = new WebsiteLogStatus();
+            $status              = new WebsiteLogStatus();
             $status->status_name = $request->status_name;
             $status->save();
 
@@ -303,29 +306,29 @@ class WebsiteLogController extends Controller
     {
         $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-        $taskStatistics = $query->get();
-        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $query               = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query               = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics      = $query->get();
+        $othertask           = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1              = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1              = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
-        $merged = $othertaskStatistics->merge($taskStatistics);
+        $merged              = $othertaskStatistics->merge($taskStatistics);
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
 
     public function updateStatus(Request $request)
     {
-        $WebsiteLogId = $request->input('WebsiteLogId');
+        $WebsiteLogId   = $request->input('WebsiteLogId');
         $selectedStatus = $request->input('selectedStatus');
 
-        $WebsiteLog = WebsiteLog::find($WebsiteLogId);
-        $history = new WebsiteLogStatusHistory();
+        $WebsiteLog              = WebsiteLog::find($WebsiteLogId);
+        $history                 = new WebsiteLogStatusHistory();
         $history->website_log_id = $WebsiteLogId;
-        $history->old_value = $WebsiteLog->status;
-        $history->new_value = $selectedStatus;
-        $history->user_id = Auth::user()->id;
+        $history->old_value      = $WebsiteLog->status;
+        $history->new_value      = $selectedStatus;
+        $history->user_id        = Auth::user()->id;
         $history->save();
 
         $WebsiteLog->status = $selectedStatus;
@@ -342,9 +345,9 @@ class WebsiteLogController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -354,12 +357,12 @@ class WebsiteLogController extends Controller
         $WebsiteLogId = $request->input('WebsiteLogId');
         $selectedUser = $request->input('selectedUser');
 
-        $WebsiteLog = WebsiteLog::find($WebsiteLogId);
-        $history = new WebsiteLogUserHistory();
+        $WebsiteLog              = WebsiteLog::find($WebsiteLogId);
+        $history                 = new WebsiteLogUserHistory();
         $history->website_log_id = $WebsiteLogId;
-        $history->old_value = $WebsiteLog->user_id;
-        $history->new_value = $selectedUser;
-        $history->user_id = Auth::user()->id;
+        $history->old_value      = $WebsiteLog->user_id;
+        $history->new_value      = $selectedUser;
+        $history->user_id        = Auth::user()->id;
         $history->save();
 
         $WebsiteLog->user_id = $selectedUser;
@@ -376,9 +379,9 @@ class WebsiteLogController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }

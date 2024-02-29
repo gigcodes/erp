@@ -59,14 +59,14 @@ abstract class SchemaPlugin implements Plugin
     /**
      * Exports the schema into the specified format.
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     abstract public function exportSchema($db): bool;
 
     /**
      * Adds export options common to all plugins.
      *
-     * @param  OptionsPropertyMainGroup  $propertyGroup property group
+     * @param OptionsPropertyMainGroup $propertyGroup property group
      */
     protected function addCommonOptions(OptionsPropertyMainGroup $propertyGroup): void
     {

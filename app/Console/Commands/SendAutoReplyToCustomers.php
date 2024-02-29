@@ -53,7 +53,7 @@ class SendAutoReplyToCustomers extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
@@ -89,8 +89,8 @@ class SendAutoReplyToCustomers extends Command
 
                 $this->activeMessage = $message->message;
 
-                $extractedCategory = $this->extractCategory($customer->gender);
-                $extractedBrands = $this->extractBrands();
+                $extractedCategory    = $this->extractCategory($customer->gender);
+                $extractedBrands      = $this->extractBrands();
                 $extractedComposition = $this->extractCompositions();
 
                 if ($this->specificCategories !== []) {
@@ -134,12 +134,12 @@ class SendAutoReplyToCustomers extends Command
 
                 $messageToSend = ' ';
 
-                $chatMessage = new ChatMessage();
+                $chatMessage              = new ChatMessage();
                 $chatMessage->customer_id = $customer->id;
-                $chatMessage->message = $messageToSend;
-                $chatMessage->user_id = 109;
-                $chatMessage->status = 10;
-                $chatMessage->approved = 0;
+                $chatMessage->message     = $messageToSend;
+                $chatMessage->user_id     = 109;
+                $chatMessage->status      = 10;
+                $chatMessage->approved    = 0;
                 $chatMessage->save();
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Chat message added.']);
 
@@ -167,8 +167,8 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractBrands(): array
     {
-        $message = $this->activeMessage;
-        $brands = Brand::whereNull('deleted_at')->get();
+        $message     = $this->activeMessage;
+        $brands      = Brand::whereNull('deleted_at')->get();
         $brandsFound = [];
 
         foreach ($brands as $brand) {
@@ -184,12 +184,12 @@ class SendAutoReplyToCustomers extends Command
     private function extractCompositions(): array
     {
         $compositions = [];
-        $message = $this->activeMessage;
+        $message      = $this->activeMessage;
 
         $compositionsFound = [];
 
         foreach ($compositions as $composition) {
-            $name = $composition->name;
+            $name  = $composition->name;
             $name2 = $composition->replace_with;
             if (stripos($message, $name) !== false || (stripos($message, $name2) !== false && $name2)) {
                 $compositionsFound[] = $name;
@@ -213,12 +213,12 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractFemaleCategory()
     {
-        $extractedCats = [];
+        $extractedCats  = [];
         $femaleCategory = Category::find(2);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[] = $subSubCategory->id;
+                    $extractedCats[]            = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -229,12 +229,12 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractMaleCategory(): array
     {
-        $extractedCats = [];
+        $extractedCats  = [];
         $femaleCategory = Category::find(3);
         foreach ($femaleCategory->childs as $femaleCategoryChild) {
             foreach ($femaleCategoryChild->childs as $subSubCategory) {
                 if ($this->extractCategoryIdWithReferences($subSubCategory)) {
-                    $extractedCats[] = $subSubCategory->id;
+                    $extractedCats[]            = $subSubCategory->id;
                     $this->specificCategories[] = $subSubCategory->id;
                 }
             }
@@ -245,7 +245,7 @@ class SendAutoReplyToCustomers extends Command
 
     private function extractCategoryIdWithReferences($category): bool
     {
-        $name = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
+        $name    = strlen($category->title) > 3 ? substr($category->title, 0, -1) : $category->title;
         $message = $this->activeMessage;
 
         return stripos(strtoupper($message), strtoupper($name)) !== false;

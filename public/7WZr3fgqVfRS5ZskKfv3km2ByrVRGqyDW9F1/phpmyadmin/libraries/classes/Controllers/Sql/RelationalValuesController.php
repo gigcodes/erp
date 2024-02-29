@@ -25,7 +25,7 @@ final class RelationalValuesController extends AbstractController
         CheckUserPrivileges $checkUserPrivileges
     ) {
         parent::__construct($response, $template);
-        $this->sql = $sql;
+        $this->sql                 = $sql;
         $this->checkUserPrivileges = $checkUserPrivileges;
     }
 

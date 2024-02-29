@@ -17,7 +17,7 @@ class ReffringDomain extends Model
 
     public function reffringDomainSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'referring_domains' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_refdomains&target=searchenginejournal.com&target_type=root_domain&export_columns=domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen&display_limit=5',
 
@@ -63,7 +63,7 @@ Canada;791;695950',
 
     public function reffringDomainAhrefApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'referring_domains' => 'https://apiv2.ahrefs.com?from=refdomains&target=ahrefs.com&mode=domain&limit=3&output=json',
 

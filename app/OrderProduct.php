@@ -94,7 +94,7 @@ class OrderProduct extends Model
 
     public function getCommunicationAttribute()
     {
-        $message = $this->messages();
+        $message  = $this->messages();
         $whatsapp = $this->whatsapps();
 
         if ($message && $whatsapp) {

@@ -42,7 +42,7 @@ class SyncDMForDummyAccounts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -90,6 +90,8 @@ class SyncDMForDummyAccounts extends Command
     }
 
     /**
+     * @param mixed $user
+     *
      * @return Customer|void
      */
     private function createCustomer($user)
@@ -100,12 +102,12 @@ class SyncDMForDummyAccounts extends Command
         }
 
         if (! $customer) {
-            $customer = new Customer();
+            $customer       = new Customer();
             $customer->name = $user['full_name'];
         }
 
         $customer->instahandler = $user['pk'];
-        $customer->ig_username = $user['username'];
+        $customer->ig_username  = $user['username'];
         $customer->save();
 
         return $customer;
@@ -113,19 +115,19 @@ class SyncDMForDummyAccounts extends Command
 
     private function createThread($customer, $t)
     {
-        $thread = new InstagramThread();
-        $thread->customer_id = $customer->id;
-        $thread->thread_id = $t['thread_id'];
+        $thread               = new InstagramThread();
+        $thread->customer_id  = $customer->id;
+        $thread->thread_id    = $t['thread_id'];
         $thread->thread_v2_id = $t['thread_v2_id'];
         $thread->save();
     }
 
     private function createReview($customer, $t, $accUser, $currentUserId)
     {
-        $review = new Review();
-        $review->customer_id = $customer->id;
-        $thread = $this->messages->direct->getThread($t['thread_id'])->asArray();
-        $thread = $thread['thread'];
+        $review                 = new Review();
+        $review->customer_id    = $customer->id;
+        $thread                 = $this->messages->direct->getThread($t['thread_id'])->asArray();
+        $thread                 = $thread['thread'];
         $threadJson['messages'] = array_map(function ($item) use ($customer, $accUser, $currentUserId) {
             $text = '';
             if ($item['item_type'] == 'text') {
@@ -139,7 +141,7 @@ class SyncDMForDummyAccounts extends Command
             return '<strong>' . ($item['user_id'] == $currentUserId ? $accUser : $customer->ig_username) . '</strong>' . ' =>' . $text;
         }, $thread['items']);
 
-        $review->review = '<ul>' . implode('<li>', $threadJson['messages']) . '</ul>';
+        $review->review   = '<ul>' . implode('<li>', $threadJson['messages']) . '</ul>';
         $review->platform = 'instagram_dm';
         $review->save();
     }

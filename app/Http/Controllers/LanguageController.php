@@ -27,7 +27,7 @@ class LanguageController extends Controller
     {
         $this->validate($request, [
             'locale' => 'sometimes|nullable|string|max:255',
-            'code' => 'required',
+            'code'   => 'required',
         ]);
 
         $data = $request->except('_token');
@@ -38,11 +38,11 @@ class LanguageController extends Controller
 
     public function update(Request $request)
     {
-        $language = Language::find($request->id);
-        $language->locale = $request->locale;
-        $language->code = $request->code;
+        $language             = Language::find($request->id);
+        $language->locale     = $request->locale;
+        $language->code       = $request->code;
         $language->store_view = $request->store_view;
-        $language->status = $request->status;
+        $language->status     = $request->status;
         $language->update();
 
         return response()->json(['success'], 200);

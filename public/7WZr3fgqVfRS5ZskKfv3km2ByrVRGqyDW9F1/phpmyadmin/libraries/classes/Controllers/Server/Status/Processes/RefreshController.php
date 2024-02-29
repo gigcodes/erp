@@ -24,11 +24,11 @@ final class RefreshController extends AbstractController
     public function __invoke(): void
     {
         $params = [
-            'showExecuting' => $_POST['showExecuting'] ?? null,
-            'full' => $_POST['full'] ?? null,
-            'column_name' => $_POST['column_name'] ?? null,
+            'showExecuting'  => $_POST['showExecuting'] ?? null,
+            'full'           => $_POST['full'] ?? null,
+            'column_name'    => $_POST['column_name'] ?? null,
             'order_by_field' => $_POST['order_by_field'] ?? null,
-            'sort_order' => $_POST['sort_order'] ?? null,
+            'sort_order'     => $_POST['sort_order'] ?? null,
         ];
 
         if (! $this->response->isAjax()) {

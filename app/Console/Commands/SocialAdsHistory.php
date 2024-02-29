@@ -48,14 +48,14 @@ class SocialAdsHistory extends Command
      */
     public function handle()
     {
-        $socialConfigs = SocialConfig::latest()->paginate(Setting::get('pagination'));
+        $socialConfigs       = SocialConfig::latest()->paginate(Setting::get('pagination'));
         $adAccountCollection = [];
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime           = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($socialConfigs as $config) {
             $this->fb = new Facebook([
-                'app_id' => $config->api_key,
-                'app_secret' => $config->api_secret,
+                'app_id'                => $config->api_key,
+                'app_secret'            => $config->api_secret,
                 'default_graph_version' => 'v15.0',
             ]);
 
@@ -65,10 +65,10 @@ class SocialAdsHistory extends Command
                 $pages = $response->getGraphEdge()->asArray();
 
                 foreach ($pages as $key => $page) {
-                    $ad_acc_id = $page['id'];
+                    $ad_acc_id                              = $page['id'];
                     $adAccountCollection[$key]['config_id'] = $config->id;
-                    $adAccountCollection[$key]['ad_ac_id'] = $ad_acc_id;
-                    $adAccountCollection[$key]['token'] = $config->token;
+                    $adAccountCollection[$key]['ad_ac_id']  = $ad_acc_id;
+                    $adAccountCollection[$key]['token']     = $config->token;
                 }
             }
         }
@@ -86,9 +86,9 @@ class SocialAdsHistory extends Command
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_POST, 0);
 
-            $resp = curl_exec($ch);
-            $resp = json_decode($resp); //response decodes
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $resp       = curl_exec($ch);
+            $resp       = json_decode($resp); //response decodes
+            $httpcode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $parameters = [];
             LogRequest::log($startTime, $query, 'GET', json_encode($parameters), $resp, $httpcode, \App\Console\Commands\SocialAdsHistory::class, 'handle');
             curl_close($ch);
@@ -99,21 +99,21 @@ class SocialAdsHistory extends Command
                 foreach ($resp->data as $data) {
                     if (isset($data->ads) && ! empty($data->ads)) {
                         foreach ($data->ads->data as $ads) {
-                            $ad = new SocialAdHistory();
+                            $ad           = new SocialAdHistory();
                             $ad->ad_ac_id = isset($ads->id) ? $ads->id : '';
 
-                            $ad->account_id = isset($ads->insights->data[0]->account_id) ? $ads->insights->data[0]->account_id : '';
-                            $ad->reach = isset($ads->insights->data[0]->reach) ? number_format($ads->insights->data[0]->reach, 2) : '';
-                            $ad->Impressions = isset($ads->insights->data[0]->impressions) ? number_format($ads->insights->data[0]->impressions, 2) : '';
-                            $ad->amount = isset($ads->insights->data[0]->spend) ? number_format($ads->insights->data[0]->spend, 2) : '';
+                            $ad->account_id    = isset($ads->insights->data[0]->account_id) ? $ads->insights->data[0]->account_id : '';
+                            $ad->reach         = isset($ads->insights->data[0]->reach) ? number_format($ads->insights->data[0]->reach, 2) : '';
+                            $ad->Impressions   = isset($ads->insights->data[0]->impressions) ? number_format($ads->insights->data[0]->impressions, 2) : '';
+                            $ad->amount        = isset($ads->insights->data[0]->spend) ? number_format($ads->insights->data[0]->spend, 2) : '';
                             $ad->cost_p_result = isset($ads->insights->data[0]->cost_per_unique_click) ? number_format($ads->insights->data[0]->cost_per_unique_click, 2) : '';
-                            $ad->ad_name = isset($ads->name) ? $ads->name : '';
-                            $ad->status = isset($ads->status) ? $ads->status : '';
-                            $ad->adset_name = isset($ads->adset->name) ? $ads->adset->name : '';
-                            $ad->action_type = isset($ads->insights->data[0]->actions[0]->action_type) ? $ads->insights->data[0]->actions[0]->action_type : '';
+                            $ad->ad_name       = isset($ads->name) ? $ads->name : '';
+                            $ad->status        = isset($ads->status) ? $ads->status : '';
+                            $ad->adset_name    = isset($ads->adset->name) ? $ads->adset->name : '';
+                            $ad->action_type   = isset($ads->insights->data[0]->actions[0]->action_type) ? $ads->insights->data[0]->actions[0]->action_type : '';
                             $ad->campaign_name = isset($ads->insights->data[0]->campaign_name) ? $ads->insights->data[0]->campaign_name : '';
-                            $ad->thumb_image = isset($ads->adcreatives->data[0]->thumbnail_url) ? $ads->adcreatives->data[0]->thumbnail_url : '';
-                            $ad->end_time = isset($ads->insights->data[0]->date_stop) ? $ads->insights->data[0]->date_stop : '';
+                            $ad->thumb_image   = isset($ads->adcreatives->data[0]->thumbnail_url) ? $ads->adcreatives->data[0]->thumbnail_url : '';
+                            $ad->end_time      = isset($ads->insights->data[0]->date_stop) ? $ads->insights->data[0]->date_stop : '';
                             $ad->save();
                         }
                     }
@@ -126,7 +126,7 @@ class SocialAdsHistory extends Command
     {
         $response = '';
         try {
-            $token = $config->token;
+            $token   = $config->token;
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.

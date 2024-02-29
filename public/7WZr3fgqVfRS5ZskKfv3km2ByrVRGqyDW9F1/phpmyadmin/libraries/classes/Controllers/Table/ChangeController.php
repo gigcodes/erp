@@ -41,7 +41,7 @@ class ChangeController extends AbstractController
     ) {
         parent::__construct($response, $template, $db, $table);
         $this->insertEdit = $insertEdit;
-        $this->relation = $relation;
+        $this->relation   = $relation;
     }
 
     public function __invoke(): void
@@ -91,7 +91,7 @@ class ChangeController extends AbstractController
         }
 
         $urlParams = [
-            'db' => $db,
+            'db'        => $db,
             'sql_query' => $_POST['sql_query'] ?? '',
         ];
 
@@ -153,16 +153,16 @@ class ChangeController extends AbstractController
         $html_output = '';
         // Set if we passed the first timestamp field
         $timestamp_seen = false;
-        $columns_cnt = count($table_columns);
+        $columns_cnt    = count($table_columns);
 
-        $tabindex = 0;
-        $tabindex_for_value = 0;
-        $o_rows = 0;
+        $tabindex              = 0;
+        $tabindex_for_value    = 0;
+        $o_rows                = 0;
         $biggest_max_file_size = 0;
 
-        $urlParams['db'] = $db;
+        $urlParams['db']    = $db;
         $urlParams['table'] = $table;
-        $urlParams = $this->insertEdit->urlParamsInEditMode($urlParams, $where_clause_array);
+        $urlParams          = $this->insertEdit->urlParamsInEditMode($urlParams, $where_clause_array);
 
         $has_blob_field = false;
         foreach ($table_columns as $column) {
@@ -200,16 +200,16 @@ class ChangeController extends AbstractController
             }
 
             $jsvkey = $row_id;
-            $vkey = '[multi_edit][' . $jsvkey . ']';
+            $vkey   = '[multi_edit][' . $jsvkey . ']';
 
             $current_result = (isset($result) && is_array($result) && isset($result[$row_id])
                 ? $result[$row_id]
                 : $result);
             $repopulate = [];
-            $checked = true;
+            $checked    = true;
             if (isset($unsaved_values[$row_id])) {
                 $repopulate = $unsaved_values[$row_id];
-                $checked = false;
+                $checked    = false;
             }
 
             if ($insert_mode && $row_id > 0) {
@@ -253,10 +253,10 @@ class ChangeController extends AbstractController
 
         $isNumeric = InsertEdit::isWhereClauseNumeric($where_clause);
         $html_output .= $this->template->render('table/insert/actions_panel', [
-            'where_clause' => $where_clause,
-            'after_insert' => $after_insert,
+            'where_clause'     => $where_clause,
+            'after_insert'     => $after_insert,
             'found_unique_key' => $found_unique_key,
-            'is_numeric' => $isNumeric,
+            'is_numeric'       => $isNumeric,
         ]);
 
         if ($biggest_max_file_size > 0) {

@@ -70,10 +70,10 @@ class Mozscape extends Moz
     public static function getSiteDetails($url = false)
     {
         return [
-            'domain_authority' => static::getDomainAuthority($url),
+            'domain_authority'  => static::getDomainAuthority($url),
             'linking_authority' => static::getLinkCount($url),
-            'inbound_links' => static::getExternalEquityLinkCount($url),
-            'ranking_keywords' => static::getRankingKeywordCount($url),
+            'inbound_links'     => static::getExternalEquityLinkCount($url),
+            'ranking_keywords'  => static::getRankingKeywordCount($url),
         ];
     }
 }

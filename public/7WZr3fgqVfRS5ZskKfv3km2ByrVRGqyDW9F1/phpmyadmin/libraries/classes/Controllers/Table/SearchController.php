@@ -105,17 +105,17 @@ class SearchController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->search = $search;
+        $this->search   = $search;
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
 
-        $this->columnNames = [];
-        $this->columnTypes = [];
+        $this->columnNames         = [];
+        $this->columnTypes         = [];
         $this->originalColumnTypes = [];
-        $this->columnCollations = [];
-        $this->columnNullFlags = [];
-        $this->geomColumnFlag = false;
-        $this->foreigners = [];
+        $this->columnCollations    = [];
+        $this->columnNullFlags     = [];
+        $this->geomColumnFlag      = false;
+        $this->foreigners          = [];
         $this->loadTableInfo();
     }
 
@@ -161,8 +161,8 @@ class SearchController extends AbstractController
                 $type = '&nbsp;';
             }
 
-            $this->columnTypes[] = $type;
-            $this->columnNullFlags[] = $row['Null'];
+            $this->columnTypes[]      = $type;
+            $this->columnNullFlags[]  = $row['Null'];
             $this->columnCollations[] = ! empty($row['Collation']) && $row['Collation'] !== 'NULL'
                 ? $row['Collation']
                 : '';
@@ -182,7 +182,7 @@ class SearchController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
@@ -221,10 +221,10 @@ class SearchController extends AbstractController
             return;
         }
 
-        $extra_data = [];
+        $extra_data     = [];
         $row_info_query = 'SELECT * FROM ' . Util::backquote($_POST['db']) . '.'
             . Util::backquote($_POST['table']) . ' WHERE ' . $_POST['where_clause'];
-        $result = $this->dbi->query($row_info_query . ';');
+        $result      = $this->dbi->query($row_info_query . ';');
         $fields_meta = $this->dbi->getFieldsMeta($result);
         while ($row = $result->fetchAssoc()) {
             // for bit fields we need to convert them to printable form
@@ -295,16 +295,16 @@ class SearchController extends AbstractController
         }
 
         $this->render('table/search/index', [
-            'db' => $this->db,
-            'table' => $this->table,
-            'goto' => $goto,
-            'self' => $this,
-            'geom_column_flag' => $this->geomColumnFlag,
-            'column_names' => $this->columnNames,
-            'column_types' => $this->columnTypes,
-            'column_collations' => $this->columnCollations,
+            'db'                    => $this->db,
+            'table'                 => $this->table,
+            'goto'                  => $goto,
+            'self'                  => $this,
+            'geom_column_flag'      => $this->geomColumnFlag,
+            'column_names'          => $this->columnNames,
+            'column_types'          => $this->columnTypes,
+            'column_collations'     => $this->columnCollations,
             'default_sliders_state' => $cfg['InitialSlidersState'],
-            'max_rows' => intval($cfg['MaxRows']),
+            'max_rows'              => intval($cfg['MaxRows']),
         ]);
     }
 
@@ -320,7 +320,7 @@ class SearchController extends AbstractController
     /**
      * Finds minimum and maximum value of a given column.
      *
-     * @param  string  $column Column name
+     * @param string $column Column name
      */
     public function getColumnMinMax($column): ?array
     {
@@ -336,16 +336,17 @@ class SearchController extends AbstractController
      * Provides a column's type, collation, operators list, and criteria value
      * to display in table search form
      *
-     * @param  int  $search_index Row number in table search form
-     * @param  int  $column_index Column index in ColumnNames array
+     * @param int $search_index Row number in table search form
+     * @param int $column_index Column index in ColumnNames array
+     *
      * @return array Array containing column's properties
      */
     public function getColumnProperties($search_index, $column_index)
     {
         $selected_operator = ($_POST['criteriaColumnOperators'][$search_index] ?? '');
-        $entered_value = ($_POST['criteriaValues'] ?? '');
+        $entered_value     = ($_POST['criteriaValues'] ?? '');
         //Gets column's type and collation
-        $type = $this->columnTypes[$column_index];
+        $type      = $this->columnTypes[$column_index];
         $collation = $this->columnCollations[$column_index];
         $cleanType = preg_replace('@\(.*@s', '', $type);
         //Gets column's comparison operators depending on column type
@@ -355,7 +356,7 @@ class SearchController extends AbstractController
             $selected_operator
         );
         $func = $this->template->render('table/search/column_comparison_operators', [
-            'search_index' => $search_index,
+            'search_index'   => $search_index,
             'type_operators' => $typeOperators,
         ]);
         //Gets link to browse foreign data(if any) and criteria inputbox
@@ -369,9 +370,9 @@ class SearchController extends AbstractController
         $htmlAttributes = '';
         if (in_array($cleanType, $this->dbi->types->getIntegerTypes())) {
             $extractedColumnspec = Util::extractColumnSpec($this->originalColumnTypes[$column_index]);
-            $is_unsigned = $extractedColumnspec['unsigned'];
-            $minMaxValues = $this->dbi->types->getIntegerRange($cleanType, ! $is_unsigned);
-            $htmlAttributes = 'data-min="' . $minMaxValues[0] . '" '
+            $is_unsigned         = $extractedColumnspec['unsigned'];
+            $minMaxValues        = $this->dbi->types->getIntegerRange($cleanType, ! $is_unsigned);
+            $htmlAttributes      = 'data-min="' . $minMaxValues[0] . '" '
                             . 'data-max="' . $minMaxValues[1] . '"';
         }
 
@@ -379,29 +380,29 @@ class SearchController extends AbstractController
                         . 'verifyAfterSearchFieldChange(' . $search_index . ', \'#tbl_search_form\')"';
 
         $value = $this->template->render('table/search/input_box', [
-            'str' => '',
-            'column_type' => (string) $type,
-            'column_data_type' => strtoupper($cleanType),
-            'html_attributes' => $htmlAttributes,
-            'column_id' => 'fieldID_',
+            'str'                 => '',
+            'column_type'         => (string) $type,
+            'column_data_type'    => strtoupper($cleanType),
+            'html_attributes'     => $htmlAttributes,
+            'column_id'           => 'fieldID_',
             'in_zoom_search_edit' => false,
-            'foreigners' => $this->foreigners,
-            'column_name' => $this->columnNames[$column_index],
-            'column_name_hash' => md5($this->columnNames[$column_index]),
-            'foreign_data' => $foreignData,
-            'table' => $this->table,
-            'column_index' => $search_index,
-            'foreign_max_limit' => $GLOBALS['cfg']['ForeignKeyMaxLimit'],
-            'criteria_values' => $entered_value,
-            'db' => $this->db,
-            'in_fbs' => true,
+            'foreigners'          => $this->foreigners,
+            'column_name'         => $this->columnNames[$column_index],
+            'column_name_hash'    => md5($this->columnNames[$column_index]),
+            'foreign_data'        => $foreignData,
+            'table'               => $this->table,
+            'column_index'        => $search_index,
+            'foreign_max_limit'   => $GLOBALS['cfg']['ForeignKeyMaxLimit'],
+            'criteria_values'     => $entered_value,
+            'db'                  => $this->db,
+            'in_fbs'              => true,
         ]);
 
         return [
-            'type' => $type,
+            'type'      => $type,
             'collation' => $collation,
-            'func' => $func,
-            'value' => $value,
+            'func'      => $func,
+            'value'     => $value,
         ];
     }
 }

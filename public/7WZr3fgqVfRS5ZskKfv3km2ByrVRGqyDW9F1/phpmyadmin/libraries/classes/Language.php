@@ -40,16 +40,16 @@ class Language
     /**
      * Constructs the Language object
      *
-     * @param  string  $code   Language code
-     * @param  string  $name   English name
-     * @param  string  $native Native name
-     * @param  string  $regex  Match regular expression
-     * @param  string  $mysql  MySQL locale code
+     * @param string $code   Language code
+     * @param string $name   English name
+     * @param string $native Native name
+     * @param string $regex  Match regular expression
+     * @param string $mysql  MySQL locale code
      */
     public function __construct($code, $name, $native, $regex, $mysql)
     {
-        $this->code = $code;
-        $this->name = $name;
+        $this->code   = $code;
+        $this->name   = $name;
         $this->native = $native;
         if (! str_contains($regex, '[-_]')) {
             $regex = str_replace('|', '([-_][[:alpha:]]{2,3})?|', $regex);
@@ -116,7 +116,8 @@ class Language
     /**
      * Compare function used for sorting
      *
-     * @param  Language  $other Other object to compare
+     * @param Language $other Other object to compare
+     *
      * @return int same as strcmp
      */
     public function cmp(Language $other): int
@@ -135,7 +136,7 @@ class Language
     /**
      * Checks whether language matches HTTP header Accept-Language.
      *
-     * @param  string  $header Header content
+     * @param string $header Header content
      */
     public function matchesAcceptLanguage($header): bool
     {
@@ -149,7 +150,7 @@ class Language
     /**
      * Checks whether language matches HTTP header User-Agent
      *
-     * @param  string  $header Header content
+     * @param string $header Header content
      */
     public function matchesUserAgent($header): bool
     {
@@ -195,8 +196,8 @@ class Language
         $GLOBALS['l'] = [];
 
         /* TCPDF settings */
-        $GLOBALS['l']['a_meta_charset'] = 'UTF-8';
-        $GLOBALS['l']['a_meta_dir'] = $GLOBALS['text_dir'];
+        $GLOBALS['l']['a_meta_charset']  = 'UTF-8';
+        $GLOBALS['l']['a_meta_dir']      = $GLOBALS['text_dir'];
         $GLOBALS['l']['a_meta_language'] = $this->code;
 
         /* TCPDF translations */

@@ -24,12 +24,12 @@ class WebMessageController extends Controller
     public function index()
     {
         $jsonUser = [
-            'id' => 0,
-            'name' => \Auth()->user()->name,
-            'number' => \Auth()->user()->phone,
-            'is_admin' => \Auth::user()->hasRole('Admin'),
+            'id'         => 0,
+            'name'       => \Auth()->user()->name,
+            'number'     => \Auth()->user()->phone,
+            'is_admin'   => \Auth::user()->hasRole('Admin'),
             'is_hod_crm' => \Auth::user()->hasRole('HOD of CRM'),
-            'pic' => 'https://via.placeholder.com/400x400',
+            'pic'        => 'https://via.placeholder.com/400x400',
         ];
 
         // customer list need to display first
@@ -37,7 +37,7 @@ class WebMessageController extends Controller
         // on click based show the customer message
         $customerList = $this->getLastConversationGroup();
         $jsonCustomer = $customerList['jsonCustomer'];
-        $jsonMessage = $customerList['jsonMessage'];
+        $jsonMessage  = $customerList['jsonMessage'];
 
         // add the auto reply message here
         $jsonAutoSuggest = \App\AutoReply::get()->pluck(['reply'])->toArray();
@@ -48,10 +48,10 @@ class WebMessageController extends Controller
     public function getLastConversationGroup($page = 1)
     {
         $blockedUser = \App\BlockWebMessageList::all();
-        $autoChat = ChatMessage::EXECLUDE_AUTO_CHAT;
+        $autoChat    = ChatMessage::EXECLUDE_AUTO_CHAT;
 
         $excludeSuppliers = [];
-        $excludeVendors = [];
+        $excludeVendors   = [];
         $excludeCustomers = [];
 
         if (! empty($blockedUser)) {
@@ -111,11 +111,11 @@ class WebMessageController extends Controller
 
         $customers = [];
 
-        $customerIds = [];
+        $customerIds    = [];
         $lastMessageIds = [];
         if (! empty($customerList)) {
             foreach ($customerList as $customer) {
-                $customerIds[] = $customer->customer_id;
+                $customerIds[]    = $customer->customer_id;
                 $lastMessageIds[] = $customer->last_chat_id;
             }
         }
@@ -127,11 +127,11 @@ class WebMessageController extends Controller
             true
         );
 
-        $vendors = [];
+        $vendors   = [];
         $vendorIds = [];
         if (! empty($vendorList)) {
             foreach ($vendorList as $vendor) {
-                $vendorIds[] = $vendor->vendor_id;
+                $vendorIds[]      = $vendor->vendor_id;
                 $lastMessageIds[] = $vendor->last_chat_id;
             }
         }
@@ -142,11 +142,11 @@ class WebMessageController extends Controller
             ['id', 'name', 'email', 'phone', 'whatsapp_number', 'default_phone', 'created_at']
         );
 
-        $suppliers = [];
+        $suppliers   = [];
         $supplierIds = [];
         if (! empty($supplierList)) {
             foreach ($supplierList as $supplier) {
-                $supplierIds[] = $supplier->supplier_id;
+                $supplierIds[]    = $supplier->supplier_id;
                 $lastMessageIds[] = $supplier->last_chat_id;
             }
         }
@@ -174,18 +174,18 @@ class WebMessageController extends Controller
         $jsonCustomer = [];
         if (! empty($customerInfo)) {
             foreach ($customerInfo as $customer) {
-                $id = 'c_' . $customer['id'];
+                $id                                     = 'c_' . $customer['id'];
                 $customers['c_' . $id]['customer_info'] = $customer;
 
                 // json customer setup
                 $jsonCustomer[] = [
-                    'id' => $id,
-                    'name' => $customer['name'],
-                    'number' => $customer['phone'],
-                    'pic' => 'https://via.placeholder.com/400x400',
+                    'id'       => $id,
+                    'name'     => $customer['name'],
+                    'number'   => $customer['phone'],
+                    'pic'      => 'https://via.placeholder.com/400x400',
                     'lastSeen' => $customer['created_at'],
-                    'real_id' => $customer['id'],
-                    'type' => 'customer',
+                    'real_id'  => $customer['id'],
+                    'type'     => 'customer',
                 ];
             }
         }
@@ -193,18 +193,18 @@ class WebMessageController extends Controller
         // setup the vendor for information
         if (! empty($vendorInfo)) {
             foreach ($vendorInfo as $vendor) {
-                $id = $vendor['id'];
+                $id                                   = $vendor['id'];
                 $vendors['v_' . $id]['customer_info'] = $vendor;
 
                 // json customer setup
                 $jsonCustomer[] = [
-                    'id' => 'v_' . $id,
-                    'name' => $vendor['name'],
-                    'number' => $vendor['phone'],
-                    'pic' => 'https://via.placeholder.com/400x400',
+                    'id'       => 'v_' . $id,
+                    'name'     => $vendor['name'],
+                    'number'   => $vendor['phone'],
+                    'pic'      => 'https://via.placeholder.com/400x400',
                     'lastSeen' => (string) $vendor['created_at'],
-                    'real_id' => $vendor['id'],
-                    'type' => 'vendor',
+                    'real_id'  => $vendor['id'],
+                    'type'     => 'vendor',
                 ];
             }
         }
@@ -212,24 +212,24 @@ class WebMessageController extends Controller
         // setup the supplier for information
         if (! empty($supplierInfo)) {
             foreach ($supplierInfo as $supplier) {
-                $id = $supplier['id'];
+                $id                                   = $supplier['id'];
                 $vendors['s_' . $id]['customer_info'] = $supplier;
 
                 // json customer setup
                 $jsonCustomer[] = [
-                    'id' => 's_' . $id,
-                    'name' => $supplier['supplier'],
-                    'number' => $supplier['phone'],
-                    'pic' => 'https://via.placeholder.com/400x400',
+                    'id'       => 's_' . $id,
+                    'name'     => $supplier['supplier'],
+                    'number'   => $supplier['phone'],
+                    'pic'      => 'https://via.placeholder.com/400x400',
                     'lastSeen' => (string) $supplier['created_at'],
-                    'real_id' => $supplier['id'],
-                    'type' => 'supplier',
+                    'real_id'  => $supplier['id'],
+                    'type'     => 'supplier',
                 ];
             }
         }
 
         // setup the last message inforation
-        $lastMessage = [];
+        $lastMessage    = [];
         $jsonMessageArr = [];
         if (! empty($messageInfo)) {
             foreach ($messageInfo as $message) {
@@ -241,21 +241,21 @@ class WebMessageController extends Controller
                     $id = 's_' . $message['supplier_id'];
                 }
 
-                $customers[$id]['last_message_info'] = $message;
+                $customers[$id]['last_message_info']               = $message;
                 $customers[$id]['last_message_info']['has_images'] = false;
-                $lastMessage[$message['id']] = $id;
+                $lastMessage[$message['id']]                       = $id;
 
                 $jsonMessageArr[$message['id']] = [
-                    'id' => $message['id'],
-                    'sender' => 0,
-                    'body' => $message['message'],
-                    'time' => date('M d, Y H:i:s', strtotime($message['created_at'])),
-                    'status' => $message['status'],
-                    'approved' => $message['approved'],
-                    'recvId' => $id,
+                    'id'          => $message['id'],
+                    'sender'      => 0,
+                    'body'        => $message['message'],
+                    'time'        => date('M d, Y H:i:s', strtotime($message['created_at'])),
+                    'status'      => $message['status'],
+                    'approved'    => $message['approved'],
+                    'recvId'      => $id,
                     'recvIsGroup' => false,
-                    'isSender' => is_null($message['number']) ? true : false,
-                    'has_media' => false,
+                    'isSender'    => is_null($message['number']) ? true : false,
+                    'has_media'   => false,
                 ];
             }
         }
@@ -279,17 +279,17 @@ class WebMessageController extends Controller
 
     public function messageList(Request $request, $id)
     {
-        $params = $request->all();
+        $params        = $request->all();
         [$object, $id] = explode('_', $id);
 
         if ($object == 'c') {
-            $field = 'customer_id';
+            $field    = 'customer_id';
             $customer = Customer::find($id);
         } elseif ($object == 'v') {
-            $field = 'vendor_id';
+            $field    = 'vendor_id';
             $customer = Vendor::find($id);
         } elseif ($object == 's') {
-            $field = 'supplier_id';
+            $field    = 'supplier_id';
             $customer = Supplier::find($id);
         }
 
@@ -307,18 +307,18 @@ class WebMessageController extends Controller
             $messageIds = [];
             if (! empty($messageInfo)) {
                 foreach ($messageInfo as $message) {
-                    $messageIds[] = $message['id'];
+                    $messageIds[]                = $message['id'];
                     $jsonMessage[$message['id']] = [
-                        'id' => $message['id'],
-                        'sender' => 0,
-                        'body' => is_null($message['message']) ? '' : $message['message'],
-                        'time' => date('M d, Y H:i:s', strtotime($message['created_at'])),
-                        'status' => $message['status'],
-                        'approved' => $message['approved'],
-                        'recvId' => $message[$field],
+                        'id'          => $message['id'],
+                        'sender'      => 0,
+                        'body'        => is_null($message['message']) ? '' : $message['message'],
+                        'time'        => date('M d, Y H:i:s', strtotime($message['created_at'])),
+                        'status'      => $message['status'],
+                        'approved'    => $message['approved'],
+                        'recvId'      => $message[$field],
                         'recvIsGroup' => false,
-                        'isSender' => is_null($message['number']) || $message['number'] != $customer->phone ? false : true,
-                        'isLast' => false,
+                        'isSender'    => is_null($message['number']) || $message['number'] != $customer->phone ? false : true,
+                        'isLast'      => false,
                     ];
                 }
                 $jsonMessage[$message['id']]['isLast'] = true;
@@ -341,11 +341,11 @@ class WebMessageController extends Controller
             }
 
             $allMedias = \Plank\Mediable\Media::whereIn('id', $allMediaIds)->get();
-            $urls = [];
+            $urls      = [];
             if (! $allMedias->isEmpty()) {
                 foreach ($allMedias as $aMedias) {
                     $urls[$aMedias->id] = [
-                        'url' => getMediaUrl($aMedias),
+                        'url'  => getMediaUrl($aMedias),
                         'type' => $aMedias->extension,
                     ];
                 }
@@ -363,7 +363,7 @@ class WebMessageController extends Controller
             if (! empty($lastImages)) {
                 foreach ($lastImages as $lastImg) {
                     $jsonMessage[$lastImg->mediable_id]['has_media'] = true;
-                    $mediaId = explode(',', $lastImg->image_ids);
+                    $mediaId                                         = explode(',', $lastImg->image_ids);
                     if (! empty($mediaId)) {
                         foreach ($mediaId as $mi) {
                             if (isset($urls[$mi])) {
@@ -385,7 +385,7 @@ class WebMessageController extends Controller
 
     public function send(Request $request)
     {
-        $params = $request->all();
+        $params    = $request->all();
         $pureValue = self::getObject($params['recvId']);
 
         $case = $pureValue['object'];
@@ -393,8 +393,8 @@ class WebMessageController extends Controller
             case 'customer':
                 $params = [
                     'customer_id' => $pureValue['real_id'],
-                    'message' => $request->get('body', ''),
-                    'status' => 1,
+                    'message'     => $request->get('body', ''),
+                    'status'      => 1,
                 ];
                 $request = new Request;
                 $request->setMethod('POST');
@@ -405,8 +405,8 @@ class WebMessageController extends Controller
             case 'vendor':
                 $params = [
                     'vendor_id' => $pureValue['real_id'],
-                    'message' => $request->get('body', ''),
-                    'status' => 1,
+                    'message'   => $request->get('body', ''),
+                    'status'    => 1,
                 ];
                 $request = new Request;
                 $request->setMethod('POST');
@@ -417,8 +417,8 @@ class WebMessageController extends Controller
             case 'supplier':
                 $params = [
                     'supplier_id' => $pureValue['real_id'],
-                    'message' => $request->get('body', ''),
-                    'status' => 1,
+                    'message'     => $request->get('body', ''),
+                    'status'      => 1,
                 ];
                 $request = new Request;
                 $request->setMethod('POST');
@@ -436,11 +436,11 @@ class WebMessageController extends Controller
 
     public function status(Request $request)
     {
-        $params = $request->all();
+        $params       = $request->all();
         $customerList = $this->getLastConversationGroup();
 
         // setup the customer information
-        $jsonCustomer = $customerList['jsonCustomer'];
+        $jsonCustomer    = $customerList['jsonCustomer'];
         $mainJsonMessage = $customerList['jsonMessage'];
 
         $ac = $request->get('ac');
@@ -480,16 +480,16 @@ class WebMessageController extends Controller
                     }
 
                     $jsonMessage[$message['id']] = [
-                        'id' => $message['id'],
-                        'sender' => 0,
-                        'body' => is_null($message['message']) ? '' : $message['message'],
-                        'time' => date('M d, Y H:i:s', strtotime($message['created_at'])),
-                        'status' => $message['status'],
-                        'approved' => $message['approved'],
-                        'recvId' => $id,
+                        'id'          => $message['id'],
+                        'sender'      => 0,
+                        'body'        => is_null($message['message']) ? '' : $message['message'],
+                        'time'        => date('M d, Y H:i:s', strtotime($message['created_at'])),
+                        'status'      => $message['status'],
+                        'approved'    => $message['approved'],
+                        'recvId'      => $id,
                         'recvIsGroup' => false,
-                        'isSender' => is_null($message['number']) || $message['number'] != $customer->phone ? false : true,
-                        'isLast' => false,
+                        'isSender'    => is_null($message['number']) || $message['number'] != $customer->phone ? false : true,
+                        'isLast'      => false,
                     ];
                 }
                 $jsonMessage[$message['id']]['isLast'] = true;
@@ -512,11 +512,11 @@ class WebMessageController extends Controller
             }
 
             $allMedias = \Plank\Mediable\Media::whereIn('id', $allMediaIds)->get();
-            $urls = [];
+            $urls      = [];
             if (! $allMedias->isEmpty()) {
                 foreach ($allMedias as $aMedias) {
                     $urls[$aMedias->id] = [
-                        'url' => getMediaUrl($aMedias),
+                        'url'  => getMediaUrl($aMedias),
                         'type' => $aMedias->extension,
                     ];
                 }
@@ -534,7 +534,7 @@ class WebMessageController extends Controller
             if (! empty($lastImages)) {
                 foreach ($lastImages as $lastImg) {
                     $jsonMessage[$lastImg->mediable_id]['has_media'] = true;
-                    $mediaId = explode(',', $lastImg->image_ids);
+                    $mediaId                                         = explode(',', $lastImg->image_ids);
                     if (! empty($mediaId)) {
                         foreach ($mediaId as $mi) {
                             if (isset($urls[$mi])) {
@@ -556,7 +556,7 @@ class WebMessageController extends Controller
 
     public function action(Request $request)
     {
-        $params = $request->all();
+        $params      = $request->all();
         $chatMessage = ChatMessage::where('id', $params['id'])->first();
 
         if (! empty($params['case'])) {
@@ -571,10 +571,10 @@ class WebMessageController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add([
-                        'customer_id' => $chatMessage->customer_id,
+                        'customer_id'      => $chatMessage->customer_id,
                         'selected_product' => [$params['p']],
-                        'dimension' => true,
-                        'auto_approve' => true,
+                        'dimension'        => true,
+                        'auto_approve'     => true,
                     ]);
 
                     $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
@@ -587,10 +587,10 @@ class WebMessageController extends Controller
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add([
-                        'customer_id' => $chatMessage->customer_id,
+                        'customer_id'      => $chatMessage->customer_id,
                         'selected_product' => [$params['p']],
-                        'detailed' => true,
-                        'auto_approve' => true,
+                        'detailed'         => true,
+                        'auto_approve'     => true,
                     ]);
 
                     $res = app(\App\Http\Controllers\LeadsController::class)->sendPrices($requestData, new GuzzleClient);
@@ -612,22 +612,22 @@ class WebMessageController extends Controller
     {
         [$o, $i] = explode('_', $id);
 
-        $field = '';
+        $field  = '';
         $object = '';
-        $class = '';
+        $class  = '';
 
         if ($o == 'c') {
-            $field = 'customer_id';
+            $field  = 'customer_id';
             $object = 'customer';
-            $class = Customer::class;
+            $class  = Customer::class;
         } elseif ($o == 'v') {
-            $field = 'vendor_id';
+            $field  = 'vendor_id';
             $object = 'vendor';
-            $class = Vendor::class;
+            $class  = Vendor::class;
         } elseif ($o == 's') {
-            $field = 'supplier_id';
+            $field  = 'supplier_id';
             $object = 'supplier';
-            $class = Supplier::class;
+            $class  = Supplier::class;
         }
 
         return ['field' => $field, 'object' => $object, 'real_id' => $i, 'class' => $class];
@@ -635,7 +635,7 @@ class WebMessageController extends Controller
 
     public function userAction(Request $request)
     {
-        $params = $request->all();
+        $params    = $request->all();
         $pureValue = self::getObject($params['id']);
 
         if (! empty($pureValue['object']) && ! empty($pureValue['real_id'])) {

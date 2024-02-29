@@ -22,9 +22,9 @@ class SimplyDutySegmentController extends Controller
 
     public function segment_add(Request $request)
     {
-        $id = $request->segment_id;
+        $id      = $request->segment_id;
         $segment = $request->segment;
-        $price = $request->price;
+        $price   = $request->price;
         if ($id == 0) {
             SimplyDutySegment::insert(['segment' => $segment, 'price' => $price]);
 

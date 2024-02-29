@@ -19,6 +19,8 @@ class Chrome implements DriverContract
 
     /**
      * Chrome constructor.
+     *
+     * @param mixed $proxy
      */
     public function __construct($proxy)
     {

@@ -77,7 +77,7 @@ class ExportForm extends BaseForm
                 'Export/sql_utc_time',
             ],
             'CodeGen' => ['Export/codegen_format'],
-            'Csv' => [
+            'Csv'     => [
                 ':group:' . __('CSV'),
                 'Export/csv_separator',
                 'Export/csv_enclosed',

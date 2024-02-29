@@ -17,7 +17,7 @@ class MasterControlController extends Controller
     public function index(Request $request)
     {
         $start = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay()->format('Y-m-d 00:00');
-        $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
+        $end   = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay()->format('Y-m-d 23:59');
 
         $cropReference = Cache::get('cropped_image_references');
         $cropReference = ! empty($cropReference) ? $cropReference : 0;
@@ -77,50 +77,50 @@ class MasterControlController extends Controller
             return response()->json([
                 'tbody' => view('mastercontrol.partials.data',
                     [
-                        'start' => $start,
-                        'end' => $end,
-                        'cropReference' => $cropReference,
+                        'start'                        => $start,
+                        'end'                          => $end,
+                        'cropReference'                => $cropReference,
                         'pendingCropReferenceProducts' => $pendingCropReferenceProducts,
                         'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
-                        'productStats' => $productStats,
+                        'productStats'                 => $productStats,
                         'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
-                        'cropReferenceWeekCount' => $cropReferenceWeekCount,
-                        'cropReferenceDailyCount' => $cropReferenceDailyCount,
-                        'chatSuppliers' => $suppliers,
-                        'chatCustomers' => $customers,
-                        'chatVendors' => $vendors,
-                        'reply_categories' => $reply_categories,
-                        'vendorReplier' => $vendorReplier,
-                        'supplierReplier' => $supplierReplier,
-                        'cronLastErrors' => $cronLastErrors,
-                        'latestRemarks' => $latestRemarks,
-                        'todaytaskhistory' => $todaytaskhistory,
-                        'hubstaffNotifications' => $hubstaff_notifications,
+                        'cropReferenceWeekCount'       => $cropReferenceWeekCount,
+                        'cropReferenceDailyCount'      => $cropReferenceDailyCount,
+                        'chatSuppliers'                => $suppliers,
+                        'chatCustomers'                => $customers,
+                        'chatVendors'                  => $vendors,
+                        'reply_categories'             => $reply_categories,
+                        'vendorReplier'                => $vendorReplier,
+                        'supplierReplier'              => $supplierReplier,
+                        'cronLastErrors'               => $cronLastErrors,
+                        'latestRemarks'                => $latestRemarks,
+                        'todaytaskhistory'             => $todaytaskhistory,
+                        'hubstaffNotifications'        => $hubstaff_notifications,
 
                     ])->render(),
             ], 200);
         }
 
         return view('mastercontrol.index', [
-            'start' => $start,
-            'end' => $end,
-            'cropReference' => $cropReference,
+            'start'                        => $start,
+            'end'                          => $end,
+            'cropReference'                => $cropReference,
             'pendingCropReferenceProducts' => $pendingCropReferenceProducts,
             'pendingCropReferenceCategory' => $pendingCropReferenceCategory,
-            'productStats' => $productStats,
+            'productStats'                 => $productStats,
             'resultScrapedProductsInStock' => $resultScrapedProductsInStock,
-            'cropReferenceWeekCount' => $cropReferenceWeekCount,
-            'cropReferenceDailyCount' => $cropReferenceDailyCount,
-            'chatSuppliers' => $suppliers,
-            'chatCustomers' => $customers,
-            'chatVendors' => $vendors,
-            'reply_categories' => $reply_categories,
-            'vendorReplier' => $vendorReplier,
-            'supplierReplier' => $supplierReplier,
-            'cronLastErrors' => $cronLastErrors,
-            'latestRemarks' => $latestRemarks,
-            'todaytaskhistory' => $todaytaskhistory,
-            'hubstaffNotifications' => $hubstaff_notifications,
+            'cropReferenceWeekCount'       => $cropReferenceWeekCount,
+            'cropReferenceDailyCount'      => $cropReferenceDailyCount,
+            'chatSuppliers'                => $suppliers,
+            'chatCustomers'                => $customers,
+            'chatVendors'                  => $vendors,
+            'reply_categories'             => $reply_categories,
+            'vendorReplier'                => $vendorReplier,
+            'supplierReplier'              => $supplierReplier,
+            'cronLastErrors'               => $cronLastErrors,
+            'latestRemarks'                => $latestRemarks,
+            'todaytaskhistory'             => $todaytaskhistory,
+            'hubstaffNotifications'        => $hubstaff_notifications,
         ]);
     }
 
@@ -154,7 +154,8 @@ class MasterControlController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -165,7 +166,8 @@ class MasterControlController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -176,7 +178,8 @@ class MasterControlController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -187,7 +190,8 @@ class MasterControlController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

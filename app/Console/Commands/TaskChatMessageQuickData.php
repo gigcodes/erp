@@ -45,11 +45,11 @@ class TaskChatMessageQuickData extends Command
             foreach ($tasks as $task) {
                 if (count($task->allMessages)) {
                     foreach ($task->allMessages as $key1 => $item1) {
-                        $data['last_unread_message'] = ($item1->status == 0) ? $item1->message : null;
-                        $data['last_unread_message_at'] = ($item1->status == 0) ? $item1->created_at : null;
-                        $data['last_communicated_message'] = ($item1->status > 0) ? $item1->message : null;
+                        $data['last_unread_message']          = ($item1->status == 0) ? $item1->message : null;
+                        $data['last_unread_message_at']       = ($item1->status == 0) ? $item1->created_at : null;
+                        $data['last_communicated_message']    = ($item1->status > 0) ? $item1->message : null;
                         $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : null;
-                        $data['last_unread_message_id'] = null;
+                        $data['last_unread_message_id']       = null;
                         $data['last_communicated_message_id'] = null;
 
                         if (! empty($data['last_unread_message'])) {
@@ -61,7 +61,7 @@ class TaskChatMessageQuickData extends Command
 
                         if (! empty($data['last_unread_message']) || ! empty($data['last_communicated_message'])) {
                             ChatMessagesQuickData::updateOrCreate([
-                                'model' => \App\Task::class,
+                                'model'    => \App\Task::class,
                                 'model_id' => $item1->task_id,
                             ], $data);
                             break;

@@ -33,7 +33,7 @@ class MissingBrandController extends Controller
      */
     public function saveMissingBrand(Request $request)
     {
-        $name = $request->name;
+        $name     = $request->name;
         $supplier = $request->supplier;
         if ($name) {
             $checkIfExist = MissingBrand::where('name', $name)->where('supplier', $supplier)->first();
@@ -42,8 +42,8 @@ class MissingBrandController extends Controller
                     'message' => 'Missing Brand Already Exist',
                 ]);
             } else {
-                $brand = new MissingBrand();
-                $brand->name = $name;
+                $brand           = new MissingBrand();
+                $brand->name     = $name;
                 $brand->supplier = $supplier;
                 $brand->save();
 
@@ -78,7 +78,7 @@ class MissingBrandController extends Controller
         }
 
         $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
-        $brands = MissingBrand::select('name')->groupBy('name')->get();
+        $brands   = MissingBrand::select('name')->groupBy('name')->get();
 
         $missingBrands = $missingBrands->orderBy('name', 'Asc')->paginate(20);
         if ($request->ajax()) {
@@ -113,8 +113,8 @@ class MissingBrandController extends Controller
     {
         $brand = $brand->find($request->brand);
         if ($brand) {
-            $ref = explode(',', $brand->references);
-            $ref[] = $request->name;
+            $ref               = explode(',', $brand->references);
+            $ref[]             = $request->name;
             $brand->references = implode(',', array_filter($ref));
             $brand->save();
         }
@@ -132,7 +132,7 @@ class MissingBrandController extends Controller
         $ids = $request->ids;
         if (! empty($ids)) {
             $brand = Brand::find($request->brand);
-            $ref = explode(',', $brand->references);
+            $ref   = explode(',', $brand->references);
             if ($brand) {
                 $mIds = MissingBrand::whereIn('id', $ids)->get();
                 if (! $mIds->isEmpty()) {
@@ -152,7 +152,7 @@ class MissingBrandController extends Controller
     public function automaticMerge()
     {
         $missingBrands = MissingBrand::all();
-        $brands = Brand::select('name', 'id', 'references')->get();
+        $brands        = Brand::select('name', 'id', 'references')->get();
         foreach ($missingBrands as $missingBrand) {
             $isFind = 0;
             foreach ($brands as $brand) {
@@ -187,8 +187,8 @@ class MissingBrandController extends Controller
                 $missingBrand->delete();
             } else {
                 //creating new brand
-                $newBrand = new Brand;
-                $newBrand->name = strip_tags($missingBrand->name);
+                $newBrand              = new Brand;
+                $newBrand->name        = strip_tags($missingBrand->name);
                 $newBrand->euro_to_inr = 0;
                 $newBrand->save();
 

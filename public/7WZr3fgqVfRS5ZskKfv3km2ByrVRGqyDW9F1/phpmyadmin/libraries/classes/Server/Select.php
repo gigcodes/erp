@@ -23,15 +23,16 @@ class Select
     /**
      * Renders the server selection in list or selectbox form, or option tags only
      *
-     * @param  bool  $not_only_options whether to include form tags or not
-     * @param  bool  $omit_fieldset    whether to omit fieldset tag or not
+     * @param bool $not_only_options whether to include form tags or not
+     * @param bool $omit_fieldset    whether to omit fieldset tag or not
+     *
      * @return string
      */
     public static function render($not_only_options, $omit_fieldset)
     {
         // Show as list?
         if ($not_only_options) {
-            $list = $GLOBALS['cfg']['DisplayServersList'];
+            $list             = $GLOBALS['cfg']['DisplayServersList'];
             $not_only_options = ! $list;
         } else {
             $list = false;
@@ -80,32 +81,32 @@ class Select
                 if ($selected) {
                     $servers['list'][] = [
                         'selected' => true,
-                        'label' => $label,
+                        'label'    => $label,
                     ];
                 } else {
                     $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabServer'], 'server');
-                    $href = $scriptName . Url::getCommon(
+                    $href       = $scriptName . Url::getCommon(
                         ['server' => $key],
                         ! str_contains($scriptName, '?') ? '?' : '&'
                     );
                     $servers['list'][] = [
-                        'href' => $href,
+                        'href'  => $href,
                         'label' => $label,
                     ];
                 }
             } else {
                 $servers['select'][] = [
-                    'value' => $key,
+                    'value'    => $key,
                     'selected' => $selected,
-                    'label' => $label,
+                    'label'    => $label,
                 ];
             }
         }
 
         $renderDetails = [
             'not_only_options' => $not_only_options,
-            'omit_fieldset' => $omit_fieldset,
-            'servers' => $servers,
+            'omit_fieldset'    => $omit_fieldset,
+            'servers'          => $servers,
         ];
         if ($not_only_options) {
             $renderDetails['form_action'] = $form_action;

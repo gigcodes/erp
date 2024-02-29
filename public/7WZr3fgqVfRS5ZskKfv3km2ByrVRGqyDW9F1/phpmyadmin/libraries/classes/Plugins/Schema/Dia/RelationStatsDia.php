@@ -53,11 +53,11 @@ class RelationStatsDia
     /**
      * @see Relation_Stats_Dia::getXy
      *
-     * @param  Dia  $diagram       The DIA diagram
-     * @param  TableStatsDia  $master_table  The master table name
-     * @param  string  $master_field  The relation field in the master table
-     * @param  TableStatsDia  $foreign_table The foreign table name
-     * @param  string  $foreign_field The relation field in the foreign table
+     * @param Dia           $diagram       The DIA diagram
+     * @param TableStatsDia $master_table  The master table name
+     * @param string        $master_field  The relation field in the master table
+     * @param TableStatsDia $foreign_table The foreign table name
+     * @param string        $foreign_field The relation field in the foreign table
      */
     public function __construct(
         $diagram,
@@ -66,17 +66,17 @@ class RelationStatsDia
         $foreign_table,
         $foreign_field
     ) {
-        $this->diagram = $diagram;
-        $src_pos = $this->getXy($master_table, $master_field);
-        $dest_pos = $this->getXy($foreign_table, $foreign_field);
-        $this->srcConnPointsLeft = $src_pos[0];
-        $this->srcConnPointsRight = $src_pos[1];
-        $this->destConnPointsLeft = $dest_pos[0];
+        $this->diagram             = $diagram;
+        $src_pos                   = $this->getXy($master_table, $master_field);
+        $dest_pos                  = $this->getXy($foreign_table, $foreign_field);
+        $this->srcConnPointsLeft   = $src_pos[0];
+        $this->srcConnPointsRight  = $src_pos[1];
+        $this->destConnPointsLeft  = $dest_pos[0];
         $this->destConnPointsRight = $dest_pos[1];
-        $this->masterTablePos = $src_pos[2];
-        $this->foreignTablePos = $dest_pos[2];
-        $this->masterTableId = $master_table->tableId;
-        $this->foreignTableId = $foreign_table->tableId;
+        $this->masterTablePos      = $src_pos[2];
+        $this->foreignTablePos     = $dest_pos[2];
+        $this->masterTableId       = $master_table->tableId;
+        $this->foreignTableId      = $foreign_table->tableId;
     }
 
     /**
@@ -86,8 +86,9 @@ class RelationStatsDia
      * then determines its left and right connection
      * points.
      *
-     * @param  TableStatsDia  $table  The current table name
-     * @param  string  $column The relation column name
+     * @param TableStatsDia $table  The current table name
+     * @param string        $column The relation column name
+     *
      * @return array Table right,left connection points and key position
      */
     private function getXy($table, $column)
@@ -121,11 +122,12 @@ class RelationStatsDia
      *
      * @see    PDF
      *
-     * @param  bool  $showColor Whether to use one color per relation or not
+     * @param bool $showColor Whether to use one color per relation or not
      *                        if showColor is true then an array of $listOfColors
      *                        will be used to choose the random colors for
      *                        references lines. we can change/add more colors to
      *                        this
+     *
      * @return bool|void
      */
     public function relationDraw($showColor)

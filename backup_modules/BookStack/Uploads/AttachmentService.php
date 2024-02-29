@@ -41,25 +41,26 @@ class AttachmentService extends UploadService
     /**
      * Store a new attachment upon user upload.
      *
-     * @param  int  $page_id
+     * @param int $page_id
+     *
      * @return Attachment
      *
      * @throws FileUploadException
      */
     public function saveNewUpload(UploadedFile $uploadedFile, $page_id)
     {
-        $attachmentName = $uploadedFile->getClientOriginalName();
-        $attachmentPath = $this->putFileInStorage($uploadedFile);
+        $attachmentName       = $uploadedFile->getClientOriginalName();
+        $attachmentPath       = $this->putFileInStorage($uploadedFile);
         $largestExistingOrder = Attachment::where('uploaded_to', '=', $page_id)->max('order');
 
         $attachment = Attachment::forceCreate([
-            'name' => $attachmentName,
-            'path' => $attachmentPath,
-            'extension' => $uploadedFile->getClientOriginalExtension(),
+            'name'        => $attachmentName,
+            'path'        => $attachmentPath,
+            'extension'   => $uploadedFile->getClientOriginalExtension(),
             'uploaded_to' => $page_id,
-            'created_by' => user()->id,
-            'updated_by' => user()->id,
-            'order' => $largestExistingOrder + 1,
+            'created_by'  => user()->id,
+            'updated_by'  => user()->id,
+            'order'       => $largestExistingOrder + 1,
         ]);
 
         return $attachment;
@@ -82,9 +83,9 @@ class AttachmentService extends UploadService
         $attachmentName = $uploadedFile->getClientOriginalName();
         $attachmentPath = $this->putFileInStorage($uploadedFile);
 
-        $attachment->name = $attachmentName;
-        $attachment->path = $attachmentPath;
-        $attachment->external = false;
+        $attachment->name      = $attachmentName;
+        $attachment->path      = $attachmentPath;
+        $attachment->external  = false;
         $attachment->extension = $uploadedFile->getClientOriginalExtension();
         $attachment->save();
 
@@ -94,9 +95,10 @@ class AttachmentService extends UploadService
     /**
      * Save a new File attachment from a given link and name.
      *
-     * @param  string  $name
-     * @param  string  $link
-     * @param  int  $page_id
+     * @param string $name
+     * @param string $link
+     * @param int    $page_id
+     *
      * @return Attachment
      */
     public function saveNewFromLink($name, $link, $page_id)
@@ -104,21 +106,22 @@ class AttachmentService extends UploadService
         $largestExistingOrder = Attachment::where('uploaded_to', '=', $page_id)->max('order');
 
         return Attachment::forceCreate([
-            'name' => $name,
-            'path' => $link,
-            'external' => true,
-            'extension' => '',
+            'name'        => $name,
+            'path'        => $link,
+            'external'    => true,
+            'extension'   => '',
             'uploaded_to' => $page_id,
-            'created_by' => user()->id,
-            'updated_by' => user()->id,
-            'order' => $largestExistingOrder + 1,
+            'created_by'  => user()->id,
+            'updated_by'  => user()->id,
+            'order'       => $largestExistingOrder + 1,
         ]);
     }
 
     /**
      * Updates the file ordering for a listing of attached files.
      *
-     * @param  array  $attachmentList
+     * @param array $attachmentList
+     * @param mixed $pageId
      */
     public function updateFileOrderWithinPage($attachmentList, $pageId)
     {
@@ -129,6 +132,8 @@ class AttachmentService extends UploadService
 
     /**
      * Update the details of a file.
+     *
+     * @param mixed $requestData
      *
      * @return Attachment
      */
@@ -191,7 +196,7 @@ class AttachmentService extends UploadService
     {
         $attachmentData = file_get_contents($uploadedFile->getRealPath());
 
-        $storage = $this->getStorage();
+        $storage  = $this->getStorage();
         $basePath = 'uploads/files/' . date('Y-m-M') . '/';
 
         $uploadFileName = Str::random(16) . '.' . $uploadedFile->getClientOriginalExtension();

@@ -23,8 +23,8 @@ final class ConfigurableMenusFeature
 
     public function __construct(DatabaseName $database, TableName $userGroups, TableName $users)
     {
-        $this->database = $database;
+        $this->database   = $database;
         $this->userGroups = $userGroups;
-        $this->users = $users;
+        $this->users      = $users;
     }
 }

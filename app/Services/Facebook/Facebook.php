@@ -28,22 +28,22 @@ class Facebook
     /**
      * Instagram constructor.
      *
-     * @param  Facebook  $facebook
+     * @param Facebook $facebook
      */
     public function __construct(Fb $facebook)
     {
-        $this->facebook = $facebook;
+        $this->facebook          = $facebook;
         $this->user_access_token = env('USER_ACCESS_TOKEN', 'EAAD7Te0j0B8BAJKziYXYZCNZB0i6B9JMBvYULH5kIeH5qm6N9E3DZBoQyZCZC0bxZB4c4Rl5gifAqVa788DRaCWXQ2fNPtKFVnEoKvb5Nm1ufMG5cZCTTzKZAM8qUyaDtT0mmyC0zjhv5S9IJt70tQBpDMRHk9XNYoPTtmBedrvevtPIRPEUKns8feYJMkqHS6EZD');
         $this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAD7Te0j0B8BAAKzDh8E40gydzeZAHsTyZBLsbkx8vadbTdb5d9u7O7yCCoh2GeZBgugVUZAlyJZBFlUiGICQFBLxGpEk2nWjj8imk8y0CuPLfHY4l7h04pZCTLKZALMvSfxZARJzBVDQhMa6OfXhZBLZAPQ6oX96ClZCvwWGCIb8RDfYMYro2inwacWW77bLL87hG0jbdODxRhtgZDZD');
-        $this->page_id = '507935072915757';
-        $this->ad_acc_id = 'act_128125721296439';
-        $this->instagram_id = '17841406743743390';
+        $this->page_id           = '507935072915757';
+        $this->ad_acc_id         = 'act_128125721296439';
+        $this->instagram_id      = '17841406743743390';
     }
 
     public function getMentions($tag)
     {
         $tagText = $tag->name;
-        $data = $this->facebook->get('ig_hashtag_search?user_id=' . $this->instagram_id . '&q=' . $tagText, '10606198004.0912694.8a4c5161260e41bb87fd646638d27093');
+        $data    = $this->facebook->get('ig_hashtag_search?user_id=' . $this->instagram_id . '&q=' . $tagText, '10606198004.0912694.8a4c5161260e41bb87fd646638d27093');
 
         dd($data);
     }
@@ -55,14 +55,14 @@ class Facebook
         }
 
         $imageIds = [];
-        $key = 0;
+        $key      = 0;
 
         $postMedia['access_token'] = $this->page_access_token;
 
         foreach ($images as $image) {
             $mediaId = $this->postMediaObject($image);
             if ($mediaId !== false) {
-                $imageIds[] = $image->id;
+                $imageIds[]                                = $image->id;
                 $postMedia['attached_media[' . $key . ']'] = '{"media_fbid":"' . $mediaId . '"}';
                 $key++;
             }
@@ -70,12 +70,12 @@ class Facebook
             $postMedia['published'] = 'true';
         }
 
-        $data = null;
+        $data                 = null;
         $postMedia['message'] = $message;
 
         try {
             $response = $this->facebook->post('/me/feed', $postMedia)->getDecodedBody();
-            $data = $response['id'];
+            $data     = $response['id'];
             ImageSchedule::whereIn('image_id', $imageIds)->update([
                 'posted' => 1,
             ]);
@@ -85,19 +85,19 @@ class Facebook
         }
 
         $this->imageIds = $imageIds;
-        $this->feedId = $data;
+        $this->feedId   = $data;
     }
 
     private function postMediaObject(Image $image)
     {
-        $data['caption'] = $image->schedule->description;
-        $data['published'] = 'false';
+        $data['caption']      = $image->schedule->description;
+        $data['published']    = 'false';
         $data['access_token'] = $this->page_access_token;
-        $file = public_path() . '/uploads/social-media/' . $image->filename;
+        $file                 = public_path() . '/uploads/social-media/' . $image->filename;
         if (! file_exists($file)) {
             $file = public_path() . '/uploads/' . $image->filename;
         }
-        $file = new File($file);
+        $file           = new File($file);
         $data['source'] = $this->facebook->fileToUpload($file);
 
         $mediaId = null;
@@ -134,7 +134,7 @@ class Facebook
      * @return array
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
-     * Get the conversation for page ID
+     *                                                   Get the conversation for page ID
      */
     public function getConversations()
     {
@@ -144,10 +144,12 @@ class Facebook
     }
 
     /**
+     * @param mixed $id
+     *
      * @return array
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
-     * Get the messages for the conversation for conversation ID
+     *                                                   Get the messages for the conversation for conversation ID
      */
     public function getConversation($id)
     {

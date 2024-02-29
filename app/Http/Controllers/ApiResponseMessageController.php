@@ -32,10 +32,10 @@ class ApiResponseMessageController extends Controller
         if ($request->api_value != '') {
             $api->where('value', 'LIKE', '%' . $request->api_value . '%');
         }
-        $api_response = $api->orderBy('created_at', 'desc')->paginate(Setting::get('pagination'));
+        $api_response   = $api->orderBy('created_at', 'desc')->paginate(Setting::get('pagination'));
         $store_websites = StoreWebsite::orderBy('created_at', 'desc')->get();
         if ($request->ajax()) {
-            $page = $request->page;
+            $page  = $request->page;
             $count = ($page - 1) * 15;
 
             return view('apiResponse/index_ajax', compact('api_response', 'store_websites', 'count'));
@@ -54,10 +54,10 @@ class ApiResponseMessageController extends Controller
             return redirect()->route('api-response-message');
         }
 
-        $response = new ApiResponseMessage();
+        $response                   = new ApiResponseMessage();
         $response->store_website_id = $request->store_website_id;
-        $response->key = $request->res_key;
-        $response->value = $request->res_value;
+        $response->key              = $request->res_key;
+        $response->value            = $request->res_value;
         if ($response->save()) {
             \Session::flash('message', 'Added successfully');
             \Session::flash('alert-class', 'alert-success');
@@ -73,20 +73,20 @@ class ApiResponseMessageController extends Controller
 
     public function getEditModal(Request $request)
     {
-        $id = $request->id;
+        $id             = $request->id;
         $store_websites = StoreWebsite::orderBy('created_at', 'desc')->get();
-        $data = ApiResponseMessage::where('id', $id)->first();
-        $history = ApiResponseMessageValueHistory::where('api_response_message_id', $id)->orderBy('created_at', 'desc')->first();
-        $returnHTML = view('apiResponse/ajaxEdit')->with('data', $data)->with('store_websites', $store_websites)->with('history', $history)->render();
+        $data           = ApiResponseMessage::where('id', $id)->first();
+        $history        = ApiResponseMessageValueHistory::where('api_response_message_id', $id)->orderBy('created_at', 'desc')->first();
+        $returnHTML     = view('apiResponse/ajaxEdit')->with('data', $data)->with('store_websites', $store_websites)->with('history', $history)->render();
 
         return response()->json(['data' => $returnHTML, 'type' => 'success'], 200);
     }
 
     public function lodeTranslation(Request $request)
     {
-        $id = $request->id;
+        $id                 = $request->id;
         $apiResponseMessage = ApiResponseMessage::where('id', $id)->first();
-        $returnHTML = "<tr><td colspan='6'>No Data Found!</td></tr>";
+        $returnHTML         = "<tr><td colspan='6'>No Data Found!</td></tr>";
 
         if ($apiResponseMessage) {
             $translations = ApiResponseMessagesTranslation::where('store_website_id', $apiResponseMessage->store_website_id)->where('key', $apiResponseMessage->key)->get();
@@ -111,18 +111,18 @@ class ApiResponseMessageController extends Controller
 
     public function update(Request $request)
     {
-        $old_value = '';
-        $response = ApiResponseMessage::where('id', $request->id)->first();
-        $old_value = $response->value;
+        $old_value                  = '';
+        $response                   = ApiResponseMessage::where('id', $request->id)->first();
+        $old_value                  = $response->value;
         $response->store_website_id = $request->store_website_id;
-        $response->key = $request->key;
-        $response->value = $request->value;
+        $response->key              = $request->key;
+        $response->value            = $request->value;
         if ($response->save()) {
             $data = [
-                'user_id' => Auth::User()->id,
+                'user_id'                 => Auth::User()->id,
                 'api_response_message_id' => $response->id,
-                'old_value' => $old_value,
-                'new_value' => $request->value,
+                'old_value'               => $old_value,
+                'new_value'               => $request->value,
             ];
             \App\ApiResponseMessageValueHistory::insert($data);
             \Session::flash('message', 'Updated successfully');
@@ -188,9 +188,9 @@ class ApiResponseMessageController extends Controller
                 // Save translated text
                 ApiResponseMessagesTranslation::updateOrCreate([
                     'store_website_id' => $apiResponseMessage->store_website_id,
-                    'key' => $apiResponseMessage->key,
-                    'lang_code' => $lang_code,
-                    'lang_name' => $l->name,
+                    'key'              => $apiResponseMessage->key,
+                    'lang_code'        => $lang_code,
+                    'lang_name'        => $l->name,
                 ], [
                     'value' => $translatedValue,
                 ]);
@@ -204,14 +204,14 @@ class ApiResponseMessageController extends Controller
 
     public function messageTranslateList(Request $request)
     {
-        $languages = \App\Language::where('status', 1)->get();
-        $apiResponseMessagesTranslations = ApiResponseMessagesTranslation::all();
+        $languages                           = \App\Language::where('status', 1)->get();
+        $apiResponseMessagesTranslations     = ApiResponseMessagesTranslation::all();
         $apiResponseMessagesTranslationsRows = ApiResponseMessagesTranslation::with('storeWebsite')->groupBy(['store_website_id', 'key'])->latest()->get();
 
         $rowValues = [];
         foreach ($apiResponseMessagesTranslations as $apiResponseMessagesTranslation) {
             $rowValues[$apiResponseMessagesTranslation->store_website_id][$apiResponseMessagesTranslation->key][$apiResponseMessagesTranslation->lang_name] = [
-                'value' => $apiResponseMessagesTranslation->value,
+                'value'               => $apiResponseMessagesTranslation->value,
                 'approved_by_user_id' => $apiResponseMessagesTranslation->approved_by_user_id,
             ];
         }
@@ -227,22 +227,22 @@ class ApiResponseMessageController extends Controller
             ->first();
         if (! $apiResponseMessagesTranslation) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => 'Data Not found !!',
             ]);
         }
-        $apiResponseMessagesTranslation->value = $request->value;
-        $apiResponseMessagesTranslation->updated_by_user_id = Auth::User()->id;
+        $apiResponseMessagesTranslation->value               = $request->value;
+        $apiResponseMessagesTranslation->updated_by_user_id  = Auth::User()->id;
         $apiResponseMessagesTranslation->approved_by_user_id = Auth::User()->id;
         $apiResponseMessagesTranslation->save();
 
         return response()->json([
-            'code' => 200,
-            'message' => 'Approved successfully !!',
-            'new_value' => $request->value,
+            'code'             => 200,
+            'message'          => 'Approved successfully !!',
+            'new_value'        => $request->value,
             'store_website_id' => $request->store_website_id,
-            'key' => $request->key,
-            'lang_name' => $request->lang_name,
+            'key'              => $request->key,
+            'lang_name'        => $request->lang_name,
         ]);
     }
 
@@ -257,26 +257,26 @@ class ApiResponseMessageController extends Controller
 
     public function loadTable(Request $request)
     {
-        $assetsManagers = AssetsManager::query()->orderBy('id', 'DESC')->get();
-        $websites = StoreWebsite::all();
-        $plateforms = AssetPlateForm::all();
-        $emailAddress = EmailAddress::all();
-        $whatsappCon = WhatsappConfig::all();
+        $assetsManagers  = AssetsManager::query()->orderBy('id', 'DESC')->get();
+        $websites        = StoreWebsite::all();
+        $plateforms      = AssetPlateForm::all();
+        $emailAddress    = EmailAddress::all();
+        $whatsappCon     = WhatsappConfig::all();
         $assets_category = AssetsCategory::all();
-        $assets = AssetsManager::query()->orderBy('id', 'DESC')->get();
+        $assets          = AssetsManager::query()->orderBy('id', 'DESC')->get();
 
         $users = User::get()->toArray();
 
         return response()->json([
             'tpl' => (string) view('partials.modals.assets-manager-listing-modal', [
-                'assetsManagers' => $assetsManagers,
-                'websites' => $websites,
-                'plateforms' => $plateforms,
-                'emailAddress' => $emailAddress,
-                'whatsappCon' => $whatsappCon,
+                'assetsManagers'  => $assetsManagers,
+                'websites'        => $websites,
+                'plateforms'      => $plateforms,
+                'emailAddress'    => $emailAddress,
+                'whatsappCon'     => $whatsappCon,
                 'assets_category' => $assets_category,
-                'assets' => $assets,
-                'users' => $users,
+                'assets'          => $assets,
+                'users'           => $users,
             ]),
         ]);
     }

@@ -42,7 +42,7 @@ class CroppedImageReference extends Model
             return 'Default';
         } else {
             $colorCode = str_replace('gallery_', '', $media->tag);
-            $site = StoreWebsite::select('title')->where('cropper_color', $colorCode)->first();
+            $site      = StoreWebsite::select('title')->where('cropper_color', $colorCode)->first();
             if ($site) {
                 return $site->title;
             } else {

@@ -31,7 +31,7 @@ class GoogleSearchController extends Controller
     {
         $platformsId = 2;
         $queryString = '';
-        $sortBy = 'hashtag';
+        $sortBy      = 'hashtag';
         if ($request->input('orderby') == '') {
             $orderBy = 'DESC';
         } else {
@@ -70,9 +70,9 @@ class GoogleSearchController extends Controller
                 ->make(true);
         }
 
-        $keywords_total = HashTag::where('platforms_id', $this->platformsId)->count();
+        $keywords_total         = HashTag::where('platforms_id', $this->platformsId)->count();
         $new_category_selection = Category::attr(['name' => 'category', 'class' => 'form-control', 'id' => 'product-category'])->renderAsDropdown();
-        $variants = KeywordSearchVariants::list();
+        $variants               = KeywordSearchVariants::list();
 
         return view('google.search.index', compact('keywords_total', 'queryString', 'orderBy', 'variants', 'new_category_selection'));
     }
@@ -90,11 +90,11 @@ class GoogleSearchController extends Controller
             'name' => 'required',
         ]);
 
-        $hashtag = new HashTag();
-        $hashtag->hashtag = $request->get('name');
-        $hashtag->rating = $request->get('rating') ?? 8;
+        $hashtag               = new HashTag();
+        $hashtag->hashtag      = $request->get('name');
+        $hashtag->rating       = $request->get('rating') ?? 8;
         $hashtag->platforms_id = $this->platformsId;
-        $hashtag->created_by = \Auth::user()->id;
+        $hashtag->created_by   = \Auth::user()->id;
         $hashtag->save();
 
         return redirect()->back()->with('message', 'Keyword created successfully!');
@@ -103,7 +103,8 @@ class GoogleSearchController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -114,7 +115,8 @@ class GoogleSearchController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $id)
@@ -150,7 +152,7 @@ class GoogleSearchController extends Controller
             ]);
         }
 
-        $hashtag = HashTag::findOrFail($id);
+        $hashtag           = HashTag::findOrFail($id);
         $hashtag->priority = $request->type;
         $hashtag->update();
 
@@ -258,11 +260,11 @@ class GoogleSearchController extends Controller
                     $instagramPost = InstagramPosts::firstOrNew(['location' => $postJson['URL']]);
 
                     $instagramPost->hashtag_id = $keywords->id;
-                    $instagramPost->caption = $postJson['description'];
-                    $instagramPost->posted_at = ($postJson['crawledAt']) ? date('Y-m-d H:i:s', strtotime($postJson['crawledAt'])) : date('Y-m-d H:i:s');
+                    $instagramPost->caption    = $postJson['description'];
+                    $instagramPost->posted_at  = ($postJson['crawledAt']) ? date('Y-m-d H:i:s', strtotime($postJson['crawledAt'])) : date('Y-m-d H:i:s');
                     $instagramPost->media_type = 'other';
-                    $instagramPost->media_url = $postJson['URL'];
-                    $instagramPost->source = 'google';
+                    $instagramPost->media_url  = $postJson['URL'];
+                    $instagramPost->source     = 'google';
                     $instagramPost->save();
                 }
             }
@@ -282,7 +284,7 @@ class GoogleSearchController extends Controller
     public function searchResults(Request $request)
     {
         $queryString = '';
-        $orderBy = 'DESC';
+        $orderBy     = 'DESC';
         if (! empty($request->hashtag)) {
             $queryString .= 'hashtag=' . $request->hashtag . '&';
         }
@@ -324,7 +326,7 @@ class GoogleSearchController extends Controller
      */
     private function getFilteredGoogleSearchResults(Request $request)
     {
-        $sortBy = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
+        $sortBy  = ($request->input('sortby') == '') ? 'posted_at' : $request->input('sortby');
         $orderBy = ($request->input('orderby') == '') ? 'DESC' : $request->input('orderby');
 
         // Base query
@@ -362,7 +364,8 @@ class GoogleSearchController extends Controller
     /**
      * function to call google scraper
      *
-     * @param  \Illuminate\Http\Request  $request , id of keyword to scrap
+     * @param \Illuminate\Http\Request $request , id of keyword to scrap
+     *
      * @return \Illuminate\Http\JsonResponse, failure
      */
     public function callScraper(Request $request)
@@ -376,11 +379,11 @@ class GoogleSearchController extends Controller
                 'error' => 'Keyword not found',
             ], 400);
         } else {
-            $postData = [];
-            $postData['data'] = $searchKeywords;
-            $postData = json_encode($postData);
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearch';
+            $postData              = [];
+            $postData['data']      = $searchKeywords;
+            $postData              = json_encode($postData);
+            $startTime             = date('Y-m-d H:i:s', LARAVEL_START);
+            $url                   = env('NODE_SCRAPER_SERVER') . 'api/googleSearch';
             $parameters['Scraper'] = [
                 'searchKeywords' => $searchKeywords,
             ];
@@ -388,20 +391,20 @@ class GoogleSearchController extends Controller
             // call this endpoint - /api/googleSearch
             $curl = curl_init();
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
+                CURLOPT_URL            => $url,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 50,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
+                CURLOPT_ENCODING       => '',
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 50,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
+                CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json',
                 ],
                 CURLOPT_POSTFIELDS => $postData,
             ]);
             $response = curl_exec($curl);
-            $err = curl_error($curl);
+            $err      = curl_error($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
             LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleSearchController::class, 'GoogleSearchcallScraper');
@@ -428,8 +431,8 @@ class GoogleSearchController extends Controller
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', '-1');
 
-        $data = $request->post('data');
-        $brand_list = $data['brand'];
+        $data          = $request->post('data');
+        $brand_list    = $data['brand'];
         $category_list = $data['category'];
         $variants_list = $data['variants'];
 
@@ -439,12 +442,12 @@ class GoogleSearchController extends Controller
         foreach ($brand_list as $val1) {
             foreach ($category_list as $val2) {
                 foreach ($variants_list as $val3) {
-                    $string_arr['hashtag'] = $val1 . ' ' . $val2['title'] . ' ' . $val3;
+                    $string_arr['hashtag']      = $val1 . ' ' . $val2['title'] . ' ' . $val3;
                     $string_arr['platforms_id'] = $this->platformsId;
-                    $string_arr['rating'] = 8;
-                    $string_arr['created_at'] = $string_arr['updated_at'] = date('Y-m-d h:i:s');
-                    $string_arr['created_by'] = \Auth::user()->id;
-                    $check_exist = HashTag::where('hashtag', $string_arr['hashtag'])->count();
+                    $string_arr['rating']       = 8;
+                    $string_arr['created_at']   = $string_arr['updated_at'] = date('Y-m-d h:i:s');
+                    $string_arr['created_by']   = \Auth::user()->id;
+                    $check_exist                = HashTag::where('hashtag', $string_arr['hashtag'])->count();
                     if ($check_exist <= 0) {
                         HashTag::insert($string_arr);
                     }

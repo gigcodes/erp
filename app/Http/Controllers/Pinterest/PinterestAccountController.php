@@ -41,9 +41,9 @@ class PinterestAccountController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'pinterest_application_name' => 'required',
-                'pinterest_client_id' => 'required',
-                'pinterest_client_secret' => 'required',
-                'is_active' => 'required|in:true,false',
+                'pinterest_client_id'        => 'required',
+                'pinterest_client_secret'    => 'required',
+                'is_active'                  => 'required|in:true,false',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts')
@@ -53,9 +53,9 @@ class PinterestAccountController extends Controller
             }
             PinterestBusinessAccounts::create([
                 'pinterest_application_name' => $request->pinterest_application_name,
-                'pinterest_client_id' => $request->pinterest_client_id,
-                'pinterest_client_secret' => $request->pinterest_client_secret,
-                'is_active' => $request->is_active === 'true',
+                'pinterest_client_id'        => $request->pinterest_client_id,
+                'pinterest_client_secret'    => $request->pinterest_client_secret,
+                'is_active'                  => $request->is_active === 'true',
             ]);
 
             return Redirect::route('pinterest.accounts')
@@ -68,6 +68,8 @@ class PinterestAccountController extends Controller
 
     /**
      * Get Business account
+     *
+     * @param mixed $id
      */
     public function getAccount(Request $request, $id): JsonResponse
     {
@@ -85,6 +87,8 @@ class PinterestAccountController extends Controller
 
     /**
      * update the business account
+     *
+     * @param mixed $id
      */
     public function updateAccount(Request $request, $id): RedirectResponse
     {
@@ -96,9 +100,9 @@ class PinterestAccountController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'pinterest_application_name' => 'required',
-                'pinterest_client_id' => 'required',
-                'pinterest_client_secret' => 'required',
-                'is_active' => 'required|in:true,false',
+                'pinterest_client_id'        => 'required',
+                'pinterest_client_secret'    => 'required',
+                'is_active'                  => 'required|in:true,false',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts')
@@ -107,9 +111,9 @@ class PinterestAccountController extends Controller
                     ->withInput();
             }
             $pinterestBusinessAccount->pinterest_application_name = $request->pinterest_application_name;
-            $pinterestBusinessAccount->pinterest_client_id = $request->pinterest_client_id;
-            $pinterestBusinessAccount->pinterest_client_secret = $request->pinterest_client_secret;
-            $pinterestBusinessAccount->is_active = $request->is_active == 'true';
+            $pinterestBusinessAccount->pinterest_client_id        = $request->pinterest_client_id;
+            $pinterestBusinessAccount->pinterest_client_secret    = $request->pinterest_client_secret;
+            $pinterestBusinessAccount->is_active                  = $request->is_active == 'true';
             $pinterestBusinessAccount->save();
 
             return Redirect::route('pinterest.accounts')
@@ -122,6 +126,8 @@ class PinterestAccountController extends Controller
 
     /**
      * Delete business account
+     *
+     * @param mixed $id
      */
     public function deleteAccount(Request $request, $id): RedirectResponse
     {
@@ -144,6 +150,8 @@ class PinterestAccountController extends Controller
 
     /**
      * Generate authorize url and redirect it to get access token.
+     *
+     * @param mixed $id
      */
     public function connectAccount(Request $request, $id): RedirectResponse
     {
@@ -154,7 +162,7 @@ class PinterestAccountController extends Controller
                     ->with('error', 'No account found');
             }
             $pinterest = new PinterestService($pinterestAccount->pinterest_client_id, $pinterestAccount->pinterest_client_secret, $pinterestAccount->id);
-            $authUrl = $pinterest->getAuthURL();
+            $authUrl   = $pinterest->getAuthURL();
             if ($authUrl) {
                 return Redirect::away($authUrl);
             }
@@ -179,17 +187,17 @@ class PinterestAccountController extends Controller
                     ->with('error', 'No account found');
             }
             $pinterest = new PinterestService($pinterestAccount->pinterest_client_id, $pinterestAccount->pinterest_client_secret, $pinterestAccount->id);
-            $response = $pinterest->validateAccessTokenAndRefreshToken($request->all());
+            $response  = $pinterest->validateAccessTokenAndRefreshToken($request->all());
             if (! $response['status']) {
                 return Redirect::route('pinterest.accounts')
                     ->with('error', $response['message']);
             } else {
-                $pinterestBusinessAccount = new PinterestBusinessAccountMails();
+                $pinterestBusinessAccount                                = new PinterestBusinessAccountMails();
                 $pinterestBusinessAccount->pinterest_business_account_id = $pinterestAccount->id;
-                $pinterestBusinessAccount->pinterest_refresh_token = $response['data']['refresh_token'];
-                $pinterestBusinessAccount->pinterest_access_token = $response['data']['access_token'];
-                $pinterestBusinessAccount->expires_in = $response['data']['expires_in'];
-                $pinterestBusinessAccount->refresh_token_expires_in = $response['data']['refresh_token_expires_in'];
+                $pinterestBusinessAccount->pinterest_refresh_token       = $response['data']['refresh_token'];
+                $pinterestBusinessAccount->pinterest_access_token        = $response['data']['access_token'];
+                $pinterestBusinessAccount->expires_in                    = $response['data']['expires_in'];
+                $pinterestBusinessAccount->refresh_token_expires_in      = $response['data']['refresh_token_expires_in'];
                 $pinterestBusinessAccount->save();
                 $pinterest->updateAccessToken($pinterestBusinessAccount->pinterest_access_token);
                 $userResponse = $pinterest->getUserAccount();
@@ -212,6 +220,8 @@ class PinterestAccountController extends Controller
 
     /**
      * Refresh the token and account details
+     *
+     * @param mixed $id
      */
     public function refreshAccount(Request $request, $id): RedirectResponse
     {
@@ -242,6 +252,8 @@ class PinterestAccountController extends Controller
 
     /**
      * Disconnect account from pinterest.
+     *
+     * @param mixed $id
      */
     public function disconnectAccount(Request $request, $id): RedirectResponse
     {

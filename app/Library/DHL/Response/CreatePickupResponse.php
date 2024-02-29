@@ -63,7 +63,7 @@ class CreatePickupResponse extends ResponseAbstract
 
         if (! empty($packageResult)) {
             $resCharges['message'] = (string) $packageResult->Message;
-            $resCharges['code'] = (string) $packageResult->code;
+            $resCharges['code']    = (string) $packageResult->code;
         }
 
         return $resCharges;

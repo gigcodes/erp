@@ -10,15 +10,15 @@ use Illuminate\Database\Eloquent\Model;
  *
  *
  * @property array|string[] $categories
- * @property Carbon $created_at
- * @property string $email
- * @property string $event
- * @property int $id
- * @property string $sg_event_id
- * @property string $sg_message_id
- * @property array $payload
- * @property Carbon $timestamp
- * @property Carbon $updated_at
+ * @property Carbon         $created_at
+ * @property string         $email
+ * @property string         $event
+ * @property int            $id
+ * @property string         $sg_event_id
+ * @property string         $sg_message_id
+ * @property array          $payload
+ * @property Carbon         $timestamp
+ * @property Carbon         $updated_at
  */
 class SendgridEvent extends Model
 {
@@ -30,8 +30,8 @@ class SendgridEvent extends Model
      * @var array
      */
     protected $casts = [
-        'timestamp' => 'datetime',
-        'payload' => 'array',
+        'timestamp'  => 'datetime',
+        'payload'    => 'array',
         'categories' => 'array',    ];
 
     /**

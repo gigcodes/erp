@@ -33,7 +33,7 @@ class Email extends Model
 
                 if (! empty($email->from)) {
                     $explodeArray = explode('@', $email->from);
-                    $email->name = $explodeArray[0];
+                    $email->name  = $explodeArray[0];
                 }
             } catch(\Exception $e) {
             }
@@ -42,31 +42,31 @@ class Email extends Model
         self::created(function ($email) {
             try {
                 $is_module_found = 0;
-                $customer = Customer::where('email', $email->from)->first();
+                $customer        = Customer::where('email', $email->from)->first();
 
                 if (! empty($customer)) {
                     $is_module_found = 1;
-                    $params = [
-                        'number' => $customer->phone,
-                        'message' => $email->message,
-                        'media_url' => null,
-                        'approved' => 0,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => null,
+                    $params          = [
+                        'number'      => $customer->phone,
+                        'message'     => $email->message,
+                        'media_url'   => null,
+                        'approved'    => 0,
+                        'status'      => 0,
+                        'contact_id'  => null,
+                        'erp_user'    => null,
                         'supplier_id' => null,
-                        'task_id' => null,
+                        'task_id'     => null,
                         'dubizzle_id' => null,
-                        'vendor_id' => null,
+                        'vendor_id'   => null,
                         'customer_id' => $customer->id,
-                        'is_email' => 1,
-                        'from_email' => $email->from,
-                        'to_email' => $email->to,
-                        'email_id' => $email->id,
+                        'is_email'    => 1,
+                        'from_email'  => $email->from,
+                        'to_email'    => $email->to,
+                        'email_id'    => $email->id,
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@', $email->from)[0];
+                    $email->name             = explode('@', $email->from)[0];
                     $email->save();
 
                     $messageModel = ChatMessage::create($params);
@@ -75,25 +75,25 @@ class Email extends Model
                 $supplier = Supplier::where('email', $email->from)->first();
                 if ($supplier) {
                     $is_module_found = 1;
-                    $params = [
-                        'number' => $supplier->phone,
-                        'message' => $email->message,
-                        'media_url' => null,
-                        'approved' => 0,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => null,
+                    $params          = [
+                        'number'      => $supplier->phone,
+                        'message'     => $email->message,
+                        'media_url'   => null,
+                        'approved'    => 0,
+                        'status'      => 0,
+                        'contact_id'  => null,
+                        'erp_user'    => null,
                         'supplier_id' => $supplier->id,
-                        'task_id' => null,
+                        'task_id'     => null,
                         'dubizzle_id' => null,
-                        'is_email' => 1,
-                        'from_email' => $email->from,
-                        'to_email' => $email->to,
-                        'email_id' => $email->id,
+                        'is_email'    => 1,
+                        'from_email'  => $email->from,
+                        'to_email'    => $email->to,
+                        'email_id'    => $email->id,
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@', $email->from)[0];
+                    $email->name             = explode('@', $email->from)[0];
                     $email->save();
 
                     $messageModel = ChatMessage::create($params);
@@ -102,26 +102,26 @@ class Email extends Model
                 $vandor = Vendor::where('email', $email->from)->first();
                 if ($vandor) {
                     $is_module_found = 1;
-                    $params = [
-                        'number' => $vandor->phone,
-                        'message' => $email->message,
-                        'media_url' => null,
-                        'approved' => 0,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => null,
+                    $params          = [
+                        'number'      => $vandor->phone,
+                        'message'     => $email->message,
+                        'media_url'   => null,
+                        'approved'    => 0,
+                        'status'      => 0,
+                        'contact_id'  => null,
+                        'erp_user'    => null,
                         'supplier_id' => null,
-                        'task_id' => null,
+                        'task_id'     => null,
                         'dubizzle_id' => null,
-                        'vendor_id' => $vandor->id,
-                        'is_email' => 1,
-                        'from_email' => $email->from,
-                        'to_email' => $email->to,
-                        'email_id' => $email->id,
+                        'vendor_id'   => $vandor->id,
+                        'is_email'    => 1,
+                        'from_email'  => $email->from,
+                        'to_email'    => $email->to,
+                        'email_id'    => $email->id,
                     ];
 
                     $email->is_unknow_module = 0;
-                    $email->name = explode('@', $email->from)[0];
+                    $email->name             = explode('@', $email->from)[0];
                     $email->save();
 
                     $messageModel = ChatMessage::create($params);
@@ -129,29 +129,29 @@ class Email extends Model
 
                 if ($is_module_found == 0) {
                     $email->is_unknow_module = 1;
-                    $email->name = explode('@', $email->from)[0];
+                    $email->name             = explode('@', $email->from)[0];
                     $email->save();
 
                     $params = [
-                        'number' => null,
-                        'message' => $email->message,
-                        'media_url' => null,
-                        'approved' => 0,
-                        'status' => 0,
-                        'contact_id' => null,
-                        'erp_user' => null,
-                        'supplier_id' => null,
-                        'task_id' => null,
-                        'dubizzle_id' => null,
-                        'is_email' => 1,
-                        'from_email' => $email->from,
-                        'to_email' => $email->to,
-                        'email_id' => $email->id,
+                        'number'       => null,
+                        'message'      => $email->message,
+                        'media_url'    => null,
+                        'approved'     => 0,
+                        'status'       => 0,
+                        'contact_id'   => null,
+                        'erp_user'     => null,
+                        'supplier_id'  => null,
+                        'task_id'      => null,
+                        'dubizzle_id'  => null,
+                        'is_email'     => 1,
+                        'from_email'   => $email->from,
+                        'to_email'     => $email->to,
+                        'email_id'     => $email->id,
                         'message_type' => 'email',
                     ];
 
                     $messageModel = ChatMessage::create($params);
-                    $mailFound = true;
+                    $mailFound    = true;
                 }
             } catch(\Exception $e) {
             }
@@ -185,7 +185,7 @@ class Email extends Model
     ];
 
     protected $casts = [
-        'cc' => 'array',
+        'cc'  => 'array',
         'bcc' => 'array',
     ];
 
@@ -207,23 +207,23 @@ class Email extends Model
     public static function emailModelTypeList()
     {
         return [
-            '' => '-- Model Type --',
-            'App\Affiliates' => 'Affiliates',
-            'App\Contact' => 'Contact',
-            'App\Coupon' => 'Coupon',
+            ''                    => '-- Model Type --',
+            'App\Affiliates'      => 'Affiliates',
+            'App\Contact'         => 'Contact',
+            'App\Coupon'          => 'Coupon',
             'App\CouponCodeRules' => 'Coupon Code Rules',
-            'App\Customer' => 'Customer',
+            'App\Customer'        => 'Customer',
             'App\CustomerCharity' => 'Customer Charity',
-            'App\Email' => 'Email',
-            'App\ErpLeads' => 'ErpLeads',
-            'App\GiftCard' => 'GiftCard',
-            'App\Order' => 'Order',
-            'App\ReturnExchange' => 'ReturnExchange',
+            'App\Email'           => 'Email',
+            'App\ErpLeads'        => 'ErpLeads',
+            'App\GiftCard'        => 'GiftCard',
+            'App\Order'           => 'Order',
+            'App\ReturnExchange'  => 'ReturnExchange',
             'App\ScrapInfluencer' => 'ScrapInfluencer',
-            'App\Supplier' => 'Supplier',
-            'App\Tickets' => 'Tickets',
-            'App\User' => 'User',
-            'App\Vendor' => 'Vendor',
+            'App\Supplier'        => 'Supplier',
+            'App\Tickets'         => 'Tickets',
+            'App\User'            => 'User',
+            'App\Vendor'          => 'Vendor',
         ];
     }
 
@@ -241,7 +241,8 @@ class Email extends Model
     /**
      * Get the user's first name.
      *
-     * @param  string  $value
+     * @param string $value
+     *
      * @return string
      */
     public function getMessageAttribute($value)

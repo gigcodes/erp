@@ -43,9 +43,9 @@ class SqlController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template);
-        $this->sql = $sql;
+        $this->sql                 = $sql;
         $this->checkUserPrivileges = $checkUserPrivileges;
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
     }
 
     public function __invoke(): void
@@ -186,9 +186,9 @@ class SqlController extends AbstractController
          */
         if ($goto === Url::getFromRoute('/sql')) {
             $is_gotofile = false;
-            $goto = Url::getFromRoute('/sql', [
-                'db' => $db,
-                'table' => $table,
+            $goto        = Url::getFromRoute('/sql', [
+                'db'        => $db,
+                'table'     => $table,
                 'sql_query' => $sql_query,
             ]);
         }

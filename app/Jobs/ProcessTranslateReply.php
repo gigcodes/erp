@@ -20,6 +20,9 @@ class ProcessTranslateReply implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $record
+     * @param private $user_id
+     *
      * @return void
      */
     public function __construct(private $record, private $user_id)
@@ -34,8 +37,8 @@ class ProcessTranslateReply implements ShouldQueue
     public function handle()
     {
         try {
-            $record = $this->record;
-            $id = $this->record->id;
+            $record  = $this->record;
+            $id      = $this->record->id;
             $user_id = $this->user_id;
 
             $replies = $record->reply;
@@ -56,8 +59,8 @@ class ProcessTranslateReply implements ShouldQueue
                     if ($checkTranslationTable) {
                         $data = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
                     } else {
-                        $data = '';
-                        $googleTranslate = new GoogleTranslate();
+                        $data              = '';
+                        $googleTranslate   = new GoogleTranslate();
                         $translationString = $googleTranslate->translate($language, $replies);
                         if ($translationString != '') {
                             Translations::addTranslation($replies, $translationString, 'en', $language);
@@ -72,7 +75,7 @@ class ProcessTranslateReply implements ShouldQueue
                             ->first();
 
                         if (count((array) $translateReplies) == 0) {
-                            $translateReplies = new TranslateReplies();
+                            $translateReplies             = new TranslateReplies();
                             $translateReplies->created_by = $user_id;
                             $translateReplies->created_at = date('Y-m-d H:i:s');
                         } else {
@@ -80,13 +83,13 @@ class ProcessTranslateReply implements ShouldQueue
                             $translateReplies->updated_at = date('Y-m-d H:i:s');
                         }
 
-                        $translateReplies->replies_id = $id;
+                        $translateReplies->replies_id     = $id;
                         $translateReplies->translate_from = 'en';
-                        $translateReplies->translate_to = $language;
+                        $translateReplies->translate_to   = $language;
                         $translateReplies->translate_text = $data;
                         $translateReplies->save();
 
-                        $record->is_flagged = 1;
+                        $record->is_flagged   = 1;
                         $record->is_translate = 1;
                         $record->save();
 
@@ -94,7 +97,7 @@ class ProcessTranslateReply implements ShouldQueue
                     } else {
                         (new ReplyLog)->addToLog($id, 'System unable to translate the FAQ', 'Translate');
 
-                        $record->is_flagged = 0;
+                        $record->is_flagged   = 0;
                         $record->is_translate = 0;
                         $record->save();
                     }

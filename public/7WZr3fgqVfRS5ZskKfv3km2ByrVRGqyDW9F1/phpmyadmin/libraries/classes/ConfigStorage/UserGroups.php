@@ -28,7 +28,8 @@ class UserGroups
     /**
      * Return HTML to list the users belonging to a given user group
      *
-     * @param  string  $userGroup user group name
+     * @param string $userGroup user group name
+     *
      * @return string HTML to list the users belonging to a given user group
      */
     public static function getHtmlForListingUsersofAGroup(
@@ -37,11 +38,11 @@ class UserGroups
     ): string {
         global $dbi;
 
-        $users = [];
+        $users   = [];
         $numRows = 0;
 
         $userGroupSpecialChars = htmlspecialchars($userGroup);
-        $usersTable = Util::backquote($configurableMenusFeature->database)
+        $usersTable            = Util::backquote($configurableMenusFeature->database)
             . '.' . Util::backquote($configurableMenusFeature->users);
         $sql_query = 'SELECT `username` FROM ' . $usersTable
             . " WHERE `usergroup`='" . $dbi->escapeString($userGroup)
@@ -52,7 +53,7 @@ class UserGroups
             while ($row = $result->fetchRow()) {
                 $users[] = [
                     'count' => ++$i,
-                    'user' => $row[0],
+                    'user'  => $row[0],
                 ];
             }
         }
@@ -61,8 +62,8 @@ class UserGroups
 
         return $template->render('server/user_groups/user_listings', [
             'user_group_special_chars' => $userGroupSpecialChars,
-            'num_rows' => $numRows,
-            'users' => $users,
+            'num_rows'                 => $numRows,
+            'users'                    => $users,
         ]);
     }
 
@@ -77,12 +78,12 @@ class UserGroups
 
         $groupTable = Util::backquote($configurableMenusFeature->database)
             . '.' . Util::backquote($configurableMenusFeature->userGroups);
-        $sql_query = 'SELECT * FROM ' . $groupTable . ' ORDER BY `usergroup` ASC';
-        $result = $dbi->tryQueryAsControlUser($sql_query);
-        $userGroups = [];
+        $sql_query        = 'SELECT * FROM ' . $groupTable . ' ORDER BY `usergroup` ASC';
+        $result           = $dbi->tryQueryAsControlUser($sql_query);
+        $userGroups       = [];
         $userGroupsValues = [];
-        $action = Url::getFromRoute('/server/privileges');
-        $hidden_inputs = null;
+        $action           = Url::getFromRoute('/server/privileges');
+        $hidden_inputs    = null;
         if ($result && $result->numRows()) {
             $hidden_inputs = Url::getHiddenInputs();
             foreach ($result as $row) {
@@ -95,11 +96,11 @@ class UserGroups
             }
 
             foreach ($userGroups as $groupName => $tabs) {
-                $userGroupVal = [];
-                $userGroupVal['name'] = htmlspecialchars((string) $groupName);
-                $userGroupVal['serverTab'] = self::getAllowedTabNames($tabs, 'server');
-                $userGroupVal['dbTab'] = self::getAllowedTabNames($tabs, 'db');
-                $userGroupVal['tableTab'] = self::getAllowedTabNames($tabs, 'table');
+                $userGroupVal                 = [];
+                $userGroupVal['name']         = htmlspecialchars((string) $groupName);
+                $userGroupVal['serverTab']    = self::getAllowedTabNames($tabs, 'server');
+                $userGroupVal['dbTab']        = self::getAllowedTabNames($tabs, 'db');
+                $userGroupVal['tableTab']     = self::getAllowedTabNames($tabs, 'table');
                 $userGroupVal['userGroupUrl'] = Url::getFromRoute('/server/user-groups');
                 $userGroupVal['viewUsersUrl'] = Url::getCommon(
                     [
@@ -114,27 +115,27 @@ class UserGroups
                 $userGroupVal['editUsersUrl'] = Url::getCommon(
                     [
                         'editUserGroup' => 1,
-                        'userGroup' => $groupName,
+                        'userGroup'     => $groupName,
                     ],
                     '',
                     false
                 );
                 $userGroupVal['editUsersIcon'] = Generator::getIcon('b_edit', __('Edit'));
-                $userGroupsValues[] = $userGroupVal;
+                $userGroupsValues[]            = $userGroupVal;
             }
         }
 
-        $addUserUrl = Url::getFromRoute('/server/user-groups', ['addUserGroup' => 1]);
+        $addUserUrl  = Url::getFromRoute('/server/user-groups', ['addUserGroup' => 1]);
         $addUserIcon = Generator::getIcon('b_usradd');
-        $template = new Template();
+        $template    = new Template();
 
         return $template->render('server/user_groups/user_groups', [
-            'action' => $action,
-            'hidden_inputs' => $hidden_inputs ?? '',
-            'has_rows' => $userGroups !== [],
+            'action'             => $action,
+            'hidden_inputs'      => $hidden_inputs ?? '',
+            'has_rows'           => $userGroups !== [],
             'user_groups_values' => $userGroupsValues,
-            'add_user_url' => $addUserUrl,
-            'add_user_icon' => $addUserIcon,
+            'add_user_url'       => $addUserUrl,
+            'add_user_icon'      => $addUserIcon,
         ]);
     }
 
@@ -142,14 +143,15 @@ class UserGroups
      * Returns the list of allowed menu tab names
      * based on a data row from usergroup table.
      *
-     * @param  array  $row   row of usergroup table
-     * @param  string  $level 'server', 'db' or 'table'
+     * @param array  $row   row of usergroup table
+     * @param string $level 'server', 'db' or 'table'
+     *
      * @return string comma separated list of allowed menu tab names
      */
     public static function getAllowedTabNames(array $row, string $level): string
     {
         $tabNames = [];
-        $tabs = Util::getMenuTabList($level);
+        $tabs     = Util::getMenuTabList($level);
         foreach ($tabs as $tab => $tabName) {
             if (isset($row[$level . '_' . $tab]) && $row[$level . '_' . $tab] !== 'Y') {
                 continue;
@@ -164,7 +166,7 @@ class UserGroups
     /**
      * Deletes a user group
      *
-     * @param  string  $userGroup user group name
+     * @param string $userGroup user group name
      */
     public static function delete(ConfigurableMenusFeature $configurableMenusFeature, string $userGroup): void
     {
@@ -187,7 +189,8 @@ class UserGroups
     /**
      * Returns HTML for add/edit user group dialog
      *
-     * @param  string|null  $userGroup name of the user group in case of editing
+     * @param string|null $userGroup name of the user group in case of editing
+     *
      * @return string HTML for add/edit user group dialog
      */
     public static function getHtmlToEditUserGroup(
@@ -204,7 +207,7 @@ class UserGroups
         }
 
         if ($userGroup !== null) {
-            $urlParams['userGroup'] = $userGroup;
+            $urlParams['userGroup']           = $userGroup;
             $urlParams['editUserGroupSubmit'] = '1';
         } else {
             $urlParams['addUserGroupSubmit'] = '1';
@@ -212,8 +215,8 @@ class UserGroups
 
         $allowedTabs = [
             'server' => [],
-            'db' => [],
-            'table' => [],
+            'db'     => [],
+            'table'  => [],
         ];
         if ($userGroup !== null) {
             $groupTable = Util::backquote($configurableMenusFeature->database)
@@ -224,7 +227,7 @@ class UserGroups
             $result = $dbi->tryQueryAsControlUser($sql_query);
             if ($result) {
                 foreach ($result as $row) {
-                    $key = $row['tab'];
+                    $key   = $row['tab'];
                     $value = $row['allowed'];
                     if (substr($key, 0, 7) === 'server_' && $value === 'Y') {
                         $allowedTabs['server'][] = mb_substr($key, 7);
@@ -258,11 +261,11 @@ class UserGroups
         $template = new Template();
 
         return $template->render('server/user_groups/edit_user_groups', [
-            'user_group' => $userGroup,
+            'user_group'                    => $userGroup,
             'edit_user_group_special_chars' => $editUserGroupSpecialChars,
-            'user_group_url' => Url::getFromRoute('/server/user-groups'),
-            'hidden_inputs' => Url::getHiddenInputs($urlParams),
-            'tab_list' => $tabList,
+            'user_group_url'                => Url::getFromRoute('/server/user-groups'),
+            'hidden_inputs'                 => Url::getHiddenInputs($urlParams),
+            'tab_list'                      => $tabList,
         ]);
     }
 
@@ -270,28 +273,29 @@ class UserGroups
      * Returns HTML for checkbox groups to choose
      * tabs of 'server', 'db' or 'table' levels.
      *
-     * @param  string  $title    title of the checkbox group
-     * @param  string  $level    'server', 'db' or 'table'
-     * @param  array  $selected array of selected allowed tabs
+     * @param string $title    title of the checkbox group
+     * @param string $level    'server', 'db' or 'table'
+     * @param array  $selected array of selected allowed tabs
+     *
      * @return string HTML for checkbox groups
      */
     public static function getTabList(string $title, string $level, array $selected): string
     {
-        $tabs = Util::getMenuTabList($level);
+        $tabs       = Util::getMenuTabList($level);
         $tabDetails = [];
         foreach ($tabs as $tab => $tabName) {
-            $tabDetail = [];
+            $tabDetail             = [];
             $tabDetail['in_array'] = (in_array($tab, $selected) ? ' checked="checked"' : '');
-            $tabDetail['tab'] = $tab;
+            $tabDetail['tab']      = $tab;
             $tabDetail['tab_name'] = $tabName;
-            $tabDetails[] = $tabDetail;
+            $tabDetails[]          = $tabDetail;
         }
 
         $template = new Template();
 
         return $template->render('server/user_groups/tab_list', [
-            'title' => $title,
-            'level' => $level,
+            'title'       => $title,
+            'level'       => $level,
             'tab_details' => $tabDetails,
         ]);
     }
@@ -299,8 +303,8 @@ class UserGroups
     /**
      * Add/update a user group with allowed menu tabs.
      *
-     * @param  string  $userGroup user group name
-     * @param  bool  $new       whether this is a new user group
+     * @param string $userGroup user group name
+     * @param bool   $new       whether this is a new user group
      */
     public static function edit(
         ConfigurableMenusFeature $configurableMenusFeature,
@@ -309,7 +313,7 @@ class UserGroups
     ): void {
         global $dbi;
 
-        $tabs = Util::getMenuTabList();
+        $tabs       = Util::getMenuTabList();
         $groupTable = Util::backquote($configurableMenusFeature->database)
             . '.' . Util::backquote($configurableMenusFeature->userGroups);
 

@@ -51,8 +51,8 @@ class ScrapperNotRun extends Command
 
             $scraper_proc = [];
             foreach ($scraper_process as $key => $sp) {
-                $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
-                $from = \Carbon\Carbon::now();
+                $to            = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+                $from          = \Carbon\Carbon::now();
                 $diff_in_hours = $to->diffInMinutes($from);
                 if ($diff_in_hours > 1440) {
                     array_push($scraper_proc, $sp->scraper_id);
@@ -72,16 +72,16 @@ class ScrapperNotRun extends Command
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'DeveloperTask model query finished']);
 
                 if ($hasAssignedIssue != null and $hasAssignedIssue->assigned_to != null) {
-                    $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
+                    $userName    = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Scraper didn't Run In Last 24 Hr", 'status' => 1]);
                     $reason = "Scrapper process hasn't started yet";
                     if (isset($scrapperDetails->latestScrapperProcess->started_at)) {
-                        $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $scrapperDetails->latestScrapperProcess->started_at);
-                        $from = \Carbon\Carbon::now();
+                        $to            = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $scrapperDetails->latestScrapperProcess->started_at);
+                        $from          = \Carbon\Carbon::now();
                         $diff_in_hours = $to->diffInMinutes($from);
-                        $reason = 'Last started date is ' . $to . ' and current date is ' . $from . ' and time difference is ' . gmdate('H:i:s', $diff_in_hours);
+                        $reason        = 'Last started date is ' . $to . ' and current date is ' . $from . ' and time difference is ' . gmdate('H:i:s', $diff_in_hours);
                     }
 
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'scraper not run', 'log_messages' => "Scraper didn't Run In Last 24 Hr", 'reason' => $reason]);

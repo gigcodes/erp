@@ -55,11 +55,11 @@ class OperationsController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db);
-        $this->operations = $operations;
+        $this->operations          = $operations;
         $this->checkUserPrivileges = $checkUserPrivileges;
-        $this->relation = $relation;
-        $this->relationCleanup = $relationCleanup;
-        $this->dbi = $dbi;
+        $this->relation            = $relation;
+        $this->relationCleanup     = $relationCleanup;
+        $this->dbi                 = $dbi;
     }
 
     public function __invoke(): void
@@ -119,7 +119,7 @@ class OperationsController extends AbstractController
                     // remove all foreign key constraints, otherwise we can get errors
                     /** @var ExportSql $export_sql_plugin */
                     $export_sql_plugin = Plugins::getPlugin('export', 'sql', [
-                        'export_type' => 'database',
+                        'export_type'  => 'database',
                         'single_table' => isset($single_table),
                     ]);
 
@@ -199,7 +199,7 @@ class OperationsController extends AbstractController
                     } elseif (! $_error) {
                         if (isset($_POST['switch_to_new']) && $_POST['switch_to_new'] === 'true') {
                             $_SESSION['pma_switch_to_new'] = true;
-                            $db = $_POST['newname'];
+                            $db                            = $_POST['newname'];
                         } else {
                             $_SESSION['pma_switch_to_new'] = false;
                         }
@@ -266,7 +266,7 @@ class OperationsController extends AbstractController
             unset($message);
         }
 
-        $db_collation = $this->dbi->getDbCollation($db);
+        $db_collation          = $this->dbi->getDbCollation($db);
         $is_information_schema = Utilities::isSystemSchema($db);
 
         if ($is_information_schema) {
@@ -286,7 +286,7 @@ class OperationsController extends AbstractController
 
         $switchToNew = isset($_SESSION['pma_switch_to_new']) && $_SESSION['pma_switch_to_new'];
 
-        $charsets = Charsets::getCharsets($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
+        $charsets   = Charsets::getCharsets($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
         $collations = Charsets::getCollations($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
 
         if (! $relationParameters->hasAllFeatures() && $cfg['PmaNoRelation_DisableWarning'] == false) {
@@ -307,16 +307,16 @@ class OperationsController extends AbstractController
         }
 
         $this->render('database/operations/index', [
-            'message' => $oldMessage,
-            'db' => $db,
-            'has_comment' => $relationParameters->columnCommentsFeature !== null,
-            'db_comment' => $databaseComment,
-            'db_collation' => $db_collation,
-            'has_adjust_privileges' => $hasAdjustPrivileges,
+            'message'                  => $oldMessage,
+            'db'                       => $db,
+            'has_comment'              => $relationParameters->columnCommentsFeature !== null,
+            'db_comment'               => $databaseComment,
+            'db_collation'             => $db_collation,
+            'has_adjust_privileges'    => $hasAdjustPrivileges,
             'is_drop_database_allowed' => $isDropDatabaseAllowed,
-            'switch_to_new' => $switchToNew,
-            'charsets' => $charsets,
-            'collations' => $collations,
+            'switch_to_new'            => $switchToNew,
+            'charsets'                 => $charsets,
+            'collations'               => $collations,
         ]);
     }
 }

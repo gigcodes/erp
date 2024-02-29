@@ -8,9 +8,9 @@ class ProductColorController extends Controller
 {
     public function index()
     {
-        $title = 'Product Color';
+        $title  = 'Product Color';
         $brands = \App\Brand::pluck('name', 'id')->toArray();
-        $users = \App\User::pluck('name', 'id')->toArray();
+        $users  = \App\User::pluck('name', 'id')->toArray();
 
         return view('product-color.index', compact('title', 'brands', 'users'));
     }
@@ -28,7 +28,7 @@ class ProductColorController extends Controller
 
     public function records(Request $request)
     {
-        $brands = $request->get('brands', []);
+        $brands   = $request->get('brands', []);
         $usresIds = $request->get('user_ids', []);
 
         $productCategory = \App\ProductColorHistory::leftJoin('products as p', 'p.id', 'product_color_histories.product_id')
@@ -59,10 +59,10 @@ class ProductColorController extends Controller
 
         // total product without category by supplier
         return response()->json([
-            'code' => 200,
-            'data' => $productCategory->items(),
-            'pagination' => (string) $productCategory->render(),
-            'total' => $productCategory->total(),
+            'code'            => 200,
+            'data'            => $productCategory->items(),
+            'pagination'      => (string) $productCategory->render(),
+            'total'           => $productCategory->total(),
             'updated_history' => $updatedHistory,
         ]);
     }
@@ -72,8 +72,8 @@ class ProductColorController extends Controller
         if (! empty($request->user_id) && $request->supplier_id != null) {
             $categoryUpdate = \App\CategoryUpdateUser::where('supplier_id', $request->supplier_id)->where('user_id', $request->user_id)->first();
             if (! $categoryUpdate) {
-                $categoryUpdate = new \App\CategoryUpdateUser;
-                $categoryUpdate->user_id = $request->user_id;
+                $categoryUpdate              = new \App\CategoryUpdateUser;
+                $categoryUpdate->user_id     = $request->user_id;
                 $categoryUpdate->supplier_id = $request->supplier_id;
                 $categoryUpdate->save();
             }

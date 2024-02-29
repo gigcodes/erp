@@ -22,9 +22,9 @@ class SocialWebhookController extends Controller
      */
     public function verifyWebhook(Request $request)
     {
-        $hub = $request->all();
+        $hub         = $request->all();
         $verifyToken = $hub['hub_verify_token'];
-        $challange = $hub['hub_challenge'];
+        $challange   = $hub['hub_challenge'];
 
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'request params', ['token' => $hub]);
 
@@ -74,8 +74,8 @@ class SocialWebhookController extends Controller
     /**
      * Entry type = messaging
      *
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $entry
+     * @param array $data
      */
     private function receiveMessage($entry, $data)
     {
@@ -84,23 +84,23 @@ class SocialWebhookController extends Controller
                 continue;
             }
 
-            $senderId = $message['sender']['id'];
-            $recipientId = $message['recipient']['id'];
-            $type = SocialContactThread::RECEIVE;
+            $senderId      = $message['sender']['id'];
+            $recipientId   = $message['recipient']['id'];
+            $type          = SocialContactThread::RECEIVE;
             $senderAccount = SocialConfig::where('account_id', $recipientId)->first();
 
             if (! $senderAccount) {
-                $temp = $senderId;
-                $senderId = $recipientId;
+                $temp        = $senderId;
+                $senderId    = $recipientId;
                 $recipientId = $temp;
-                $type = SocialContactThread::SEND;
+                $type        = SocialContactThread::SEND;
             }
 
-            $messageId = $message['message']['mid'];
-            $text = $message['message']['text'];
+            $messageId       = $message['message']['mid'];
+            $text            = $message['message']['text'];
             $socialAccountId = $entry['id'];
-            $sendingAt = Carbon::createFromTimestampMs($message['timestamp'])->toDateTimeString();
-            $account = SocialConfig::where('account_id', $recipientId)->first();
+            $sendingAt       = Carbon::createFromTimestampMs($message['timestamp'])->toDateTimeString();
+            $account         = SocialConfig::where('account_id', $recipientId)->first();
 
             if ($account) {
                 $object = null;
@@ -112,7 +112,7 @@ class SocialWebhookController extends Controller
                 if ($object) {
                     $user = SocialContact::where('account_id', $senderId)->where('platform', $object)->first();
                     if (! $user) {
-                        $result = $this->getUserInfo($senderId, $account->page_token);
+                        $result   = $this->getUserInfo($senderId, $account->page_token);
                         $response = $result['response'];
                         $httpcode = $result['http_code'];
 
@@ -120,10 +120,10 @@ class SocialWebhookController extends Controller
 
                         if ($httpcode == 200) {
                             $user = SocialContact::create([
-                                'account_id' => $senderId,
+                                'account_id'       => $senderId,
                                 'social_config_id' => $account->id,
-                                'name' => $response['name'],
-                                'platform' => $object,
+                                'name'             => $response['name'],
+                                'platform'         => $object,
                             ]);
 
                             SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Receive Message) => New user create', ['id' => $senderId, 'object' => $data['object'], 'data' => $data]);
@@ -133,12 +133,12 @@ class SocialWebhookController extends Controller
                     if ($user) {
                         SocialContactThread::create([
                             'social_contact_id' => $user->id,
-                            'message_id' => $messageId,
-                            'sender_id' => $message['sender']['id'],
-                            'recipient_id' => $message['recipient']['id'],
-                            'text' => $text,
-                            'type' => $type,
-                            'sending_at' => $sendingAt,
+                            'message_id'        => $messageId,
+                            'sender_id'         => $message['sender']['id'],
+                            'recipient_id'      => $message['recipient']['id'],
+                            'text'              => $text,
+                            'type'              => $type,
+                            'sending_at'        => $sendingAt,
                         ]);
 
                         SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Receive Message) => Message Received', ['mid' => $messageId, 'object' => $data['object'], 'data' => $data]);
@@ -157,8 +157,8 @@ class SocialWebhookController extends Controller
     /**
      * When Status, Photo, Video or Comment Post on Page Feed
      *
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $entry
+     * @param array $data
      */
     private function changes($entry, $data)
     {
@@ -182,9 +182,9 @@ class SocialWebhookController extends Controller
     /**
      * Status Upload
      *
-     * @param  array  $changes
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
      *
      * @throws Exception
      */
@@ -199,10 +199,10 @@ class SocialWebhookController extends Controller
                 ],
                 [
                     'social_config_id' => $socialConfig->id,
-                    'message' => $changes['value']['message'] ?? null,
-                    'item' => BusinessPost::STATUS,
-                    'verb' => $changes['value']['verb'],
-                    'time' => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
+                    'message'          => $changes['value']['message'] ?? null,
+                    'item'             => BusinessPost::STATUS,
+                    'verb'             => $changes['value']['verb'],
+                    'time'             => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
                 ]
             );
 
@@ -215,9 +215,9 @@ class SocialWebhookController extends Controller
     /**
      * Photo Upload
      *
-     * @param  array  $changes
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
      *
      * @throws Exception
      */
@@ -232,10 +232,10 @@ class SocialWebhookController extends Controller
                 ],
                 [
                     'social_config_id' => $socialConfig->id,
-                    'message' => $changes['value']['message'] ?? null,
-                    'item' => BusinessPost::PHOTO,
-                    'verb' => $changes['value']['verb'],
-                    'time' => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
+                    'message'          => $changes['value']['message'] ?? null,
+                    'item'             => BusinessPost::PHOTO,
+                    'verb'             => $changes['value']['verb'],
+                    'time'             => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
                 ]
             );
 
@@ -248,9 +248,9 @@ class SocialWebhookController extends Controller
     /**
      * Video Upload
      *
-     * @param  array  $changes
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
      *
      * @throws Exception
      */
@@ -265,10 +265,10 @@ class SocialWebhookController extends Controller
                 ],
                 [
                     'social_config_id' => $socialConfig->id,
-                    'message' => $changes['value']['message'] ?? null,
-                    'item' => BusinessPost::VIDEO,
-                    'verb' => $changes['value']['verb'],
-                    'time' => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
+                    'message'          => $changes['value']['message'] ?? null,
+                    'item'             => BusinessPost::VIDEO,
+                    'verb'             => $changes['value']['verb'],
+                    'time'             => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
                 ]
             );
 
@@ -281,9 +281,9 @@ class SocialWebhookController extends Controller
     /**
      * Comment on Post (FB)
      *
-     * @param  array  $changes
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
      *
      * @throws Exception
      */
@@ -291,22 +291,22 @@ class SocialWebhookController extends Controller
     {
         try {
             $isAdminComment = 1;
-            $isParent = 0;
-            $fromId = $changes['value']['from']['id'];
-            $pageId = $entry['id'];
-            $socialConfig = SocialConfig::where('account_id', $pageId)->firstOrFail();
+            $isParent       = 0;
+            $fromId         = $changes['value']['from']['id'];
+            $pageId         = $entry['id'];
+            $socialConfig   = SocialConfig::where('account_id', $pageId)->firstOrFail();
 
             if ($pageId !== $fromId) {
                 $socialContact = SocialContact::where('account_id', $fromId)->first();
                 if (! $socialContact) {
                     $socialContact = SocialContact::create([
-                        'account_id' => $fromId,
+                        'account_id'       => $fromId,
                         'social_config_id' => $socialConfig->id,
-                        'name' => $changes['value']['from']['name'],
-                        'platform' => SocialContact::FACEBOOK,
+                        'name'             => $changes['value']['from']['name'],
+                        'platform'         => SocialContact::FACEBOOK,
                     ]);
                 }
-                $socialConfig = $socialContact;
+                $socialConfig   = $socialContact;
                 $isAdminComment = 0;
             }
 
@@ -319,15 +319,15 @@ class SocialWebhookController extends Controller
                     'comment_id' => $changes['value']['comment_id'],
                 ],
                 [
-                    'post_id' => $changes['value']['post_id'],
-                    'is_admin_comment' => $isAdminComment,
+                    'post_id'           => $changes['value']['post_id'],
+                    'is_admin_comment'  => $isAdminComment,
                     'social_contact_id' => $socialConfig->id,
-                    'message' => $changes['value']['message'] ?? null,
-                    'photo' => $changes['value']['photo'] ?? null,
-                    'is_parent' => $isParent,
+                    'message'           => $changes['value']['message'] ?? null,
+                    'photo'             => $changes['value']['photo'] ?? null,
+                    'is_parent'         => $isParent,
                     'parent_comment_id' => $changes['value']['parent_id'] ?? null,
-                    'verb' => $changes['value']['verb'],
-                    'time' => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
+                    'verb'              => $changes['value']['verb'],
+                    'time'              => Carbon::createFromTimestamp($changes['value']['created_time'])->toDateTimeString(),
                 ]
             );
 
@@ -340,9 +340,9 @@ class SocialWebhookController extends Controller
     /**
      * Comment on Post (IG)
      *
-     * @param  array  $changes
-     * @param  array  $entry
-     * @param  array  $data
+     * @param array $changes
+     * @param array $entry
+     * @param array $data
      *
      * @throws Exception
      */
@@ -350,23 +350,23 @@ class SocialWebhookController extends Controller
     {
         try {
             $isAdminComment = 1;
-            $isParent = 0;
-            $fromId = $changes['value']['from']['id'];
-            $pageId = $entry['id'];
-            $socialConfig = SocialConfig::where('account_id', $pageId)->firstOrFail();
-            $mediaId = $changes['value']['media']['id'];
-            $igMedia = BusinessPost::find($mediaId);
+            $isParent       = 0;
+            $fromId         = $changes['value']['from']['id'];
+            $pageId         = $entry['id'];
+            $socialConfig   = SocialConfig::where('account_id', $pageId)->firstOrFail();
+            $mediaId        = $changes['value']['media']['id'];
+            $igMedia        = BusinessPost::find($mediaId);
             if (! $igMedia) {
                 $response = $this->getIGMedia($mediaId, $socialConfig->page_token);
 
                 if ($response['http_code'] == 200) {
                     BusinessPost::create([
-                        'post_id' => $mediaId,
+                        'post_id'          => $mediaId,
                         'social_config_id' => $socialConfig->id,
-                        'message' => $response['response']['caption'] ?? null,
-                        'item' => $response['response']['media_type'],
-                        'verb' => 'add',
-                        'time' => $response['response']['timestamp'],
+                        'message'          => $response['response']['caption'] ?? null,
+                        'item'             => $response['response']['media_type'],
+                        'verb'             => 'add',
+                        'time'             => $response['response']['timestamp'],
                     ]);
                 } else {
                     throw new \Exception('Media not found');
@@ -377,13 +377,13 @@ class SocialWebhookController extends Controller
                 $socialContact = SocialContact::where('account_id', $fromId)->first();
                 if (! $socialContact) {
                     $socialContact = SocialContact::create([
-                        'account_id' => $fromId,
+                        'account_id'       => $fromId,
                         'social_config_id' => $socialConfig->id,
-                        'name' => $changes['value']['from']['username'],
-                        'platform' => SocialContact::INSTAGRAM,
+                        'name'             => $changes['value']['from']['username'],
+                        'platform'         => SocialContact::INSTAGRAM,
                     ]);
                 }
-                $socialConfig = $socialContact;
+                $socialConfig   = $socialContact;
                 $isAdminComment = 0;
             }
 
@@ -396,14 +396,14 @@ class SocialWebhookController extends Controller
                     'comment_id' => $changes['value']['id'],
                 ],
                 [
-                    'post_id' => $mediaId,
-                    'is_admin_comment' => $isAdminComment,
+                    'post_id'           => $mediaId,
+                    'is_admin_comment'  => $isAdminComment,
                     'social_contact_id' => $socialConfig->id,
-                    'message' => $changes['value']['text'] ?? null,
-                    'is_parent' => $isParent,
+                    'message'           => $changes['value']['text'] ?? null,
+                    'is_parent'         => $isParent,
                     'parent_comment_id' => $changes['value']['parent_id'] ?? null,
-                    'verb' => 'add',
-                    'time' => Carbon::createFromTimestamp($entry['time'])->toDateTimeString(),
+                    'verb'              => 'add',
+                    'time'              => Carbon::createFromTimestamp($entry['time'])->toDateTimeString(),
                 ]
             );
 
@@ -416,15 +416,15 @@ class SocialWebhookController extends Controller
     /**
      * Get Facebook or Instagram User Details
      *
-     * @param  int  $userId
-     * @param  string  $pageAccessToken
+     * @param int    $userId
+     * @param string $pageAccessToken
      */
     private function getUserInfo($userId, $pageAccessToken)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $userId, 'id,name', $pageAccessToken);
+        $url       = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $userId, 'id,name', $pageAccessToken);
 
-        $response = Http::get($url);
+        $response     = Http::get($url);
         $responseData = $response->json();
 
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting User) => Fetched user details using Page access Token', ['response' => $responseData, 'user_id' => $userId]);
@@ -432,7 +432,7 @@ class SocialWebhookController extends Controller
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), TemplatesController::class, 'getImageByCurl');
 
         return [
-            'response' => $response,
+            'response'  => $response,
             'http_code' => $response->status(),
         ];
     }
@@ -440,21 +440,22 @@ class SocialWebhookController extends Controller
     /**
      * Get Instagram Media Details
      *
-     * @param  int  $userId
-     * @param  string  $pageAccessToken
+     * @param int    $userId
+     * @param string $pageAccessToken
+     * @param mixed  $mediaId
      */
     private function getIGMedia($mediaId, $pageAccessToken)
     {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $mediaId, 'caption,media_type,timestamp', $pageAccessToken);
-        $response = Http::get($url);
+        $startTime    = date('Y-m-d H:i:s', LARAVEL_START);
+        $url          = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $mediaId, 'caption,media_type,timestamp', $pageAccessToken);
+        $response     = Http::get($url);
         $responseData = $response->json();
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting ID Media) => Fetched IG Media using Page access Token', ['response' => $responseData, 'media_id' => $mediaId]);
 
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), SocialWebhookController::class, 'getImageByCurl');
 
         return [
-            'response' => $response,
+            'response'  => $response,
             'http_code' => $response->status(),
         ];
     }

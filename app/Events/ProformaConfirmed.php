@@ -14,6 +14,9 @@ class ProformaConfirmed
     /**
      * Create a new event instance.
      *
+     * @param publicPurchase $purchase
+     * @param public         $purchase_amount
+     *
      * @return void
      */
     public function __construct(public Purchase $purchase, public $purchase_amount)

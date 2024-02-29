@@ -33,12 +33,12 @@ class Operations
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface object
-     * @param  Relation  $relation Relation object
+     * @param DatabaseInterface $dbi      DatabaseInterface object
+     * @param Relation          $relation Relation object
      */
     public function __construct(DatabaseInterface $dbi, Relation $relation)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = $relation;
     }
 
@@ -49,7 +49,7 @@ class Operations
      * we would need to modify the CREATE definitions to qualify
      * the db name
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function runProcedureAndFunctionDefinitions($db): void
     {
@@ -123,9 +123,10 @@ class Operations
     /**
      * Get views as an array and create SQL view stand-in
      *
-     * @param  array  $tables_full       array of all tables in given db or dbs
-     * @param  ExportSql  $export_sql_plugin export plugin instance
-     * @param  string  $db                database name
+     * @param array     $tables_full       array of all tables in given db or dbs
+     * @param ExportSql $export_sql_plugin export plugin instance
+     * @param string    $db                database name
+     *
      * @return array
      */
     public function getViewsAndCreateSqlViewStandIn(
@@ -166,9 +167,10 @@ class Operations
     /**
      * Get sql query for copy/rename table and boolean for whether copy/rename or not
      *
-     * @param  array  $tables_full array of all tables in given db or dbs
-     * @param  bool  $move        whether database name is empty or not
-     * @param  string  $db          database name
+     * @param array  $tables_full array of all tables in given db or dbs
+     * @param bool   $move        whether database name is empty or not
+     * @param string $db          database name
+     *
      * @return array SQL queries for the constraints
      */
     public function copyTables(array $tables_full, $move, $db)
@@ -248,7 +250,7 @@ class Operations
      * we would need to modify the CREATE definitions to qualify
      * the db name
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function runEventDefinitionsForDb($db): void
     {
@@ -273,9 +275,9 @@ class Operations
     /**
      * Handle the views, return the boolean value whether table rename/copy or not
      *
-     * @param  array  $views views as an array
-     * @param  bool  $move  whether database name is empty or not
-     * @param  string  $db    database name
+     * @param array  $views views as an array
+     * @param bool   $move  whether database name is empty or not
+     * @param string $db    database name
      */
     public function handleTheViews(array $views, $move, $db): void
     {
@@ -301,8 +303,8 @@ class Operations
     /**
      * Adjust the privileges after Renaming the db
      *
-     * @param  string  $oldDb   Database name before renaming
-     * @param  string  $newname New Database name requested
+     * @param string $oldDb   Database name before renaming
+     * @param string $newname New Database name requested
      */
     public function adjustPrivilegesMoveDb($oldDb, $newname): void
     {
@@ -316,7 +318,7 @@ class Operations
 
         $this->dbi->selectDb('mysql');
         $newname = str_replace('_', '\_', $newname);
-        $oldDb = str_replace('_', '\_', $oldDb);
+        $oldDb   = str_replace('_', '\_', $oldDb);
 
         // For Db specific privileges
         $query_db_specific = 'UPDATE ' . Util::backquote('db')
@@ -350,8 +352,8 @@ class Operations
     /**
      * Adjust the privileges after Copying the db
      *
-     * @param  string  $oldDb   Database name before copying
-     * @param  string  $newname New Database name requested
+     * @param string $oldDb   Database name before copying
+     * @param string $newname New Database name requested
      */
     public function adjustPrivilegesCopyDb($oldDb, $newname): void
     {
@@ -365,7 +367,7 @@ class Operations
 
         $this->dbi->selectDb('mysql');
         $newname = str_replace('_', '\_', $newname);
-        $oldDb = str_replace('_', '\_', $oldDb);
+        $oldDb   = str_replace('_', '\_', $oldDb);
 
         $query_db_specific_old = 'SELECT * FROM '
             . Util::backquote('db') . ' WHERE '
@@ -447,7 +449,7 @@ class Operations
     /**
      * Create all accumulated constraints
      *
-     * @param  array  $sqlConstratints array of sql constraints for the database
+     * @param array $sqlConstratints array of sql constraints for the database
      */
     public function createAllAccumulatedConstraints(array $sqlConstratints): void
     {
@@ -462,8 +464,8 @@ class Operations
     /**
      * Duplicate the bookmarks for the db (done once for each db)
      *
-     * @param  bool  $_error whether table rename/copy or not
-     * @param  string  $db     database name
+     * @param bool   $_error whether table rename/copy or not
+     * @param string $db     database name
      */
     public function duplicateBookmarks($_error, $db): void
     {
@@ -477,7 +479,7 @@ class Operations
             'query',
         ];
         $where_fields = ['dbase' => $db];
-        $new_fields = ['dbase' => $_POST['newname']];
+        $new_fields   = ['dbase' => $_POST['newname']];
         Table::duplicateInfo('bookmarkwork', 'bookmark', $get_fields, $where_fields, $new_fields);
     }
 
@@ -493,34 +495,34 @@ class Operations
 
         $possible_row_formats = [
             'ARCHIVE' => ['COMPRESSED' => 'COMPRESSED'],
-            'ARIA' => [
-                'FIXED' => 'FIXED',
+            'ARIA'    => [
+                'FIXED'   => 'FIXED',
                 'DYNAMIC' => 'DYNAMIC',
-                'PAGE' => 'PAGE',
+                'PAGE'    => 'PAGE',
             ],
             'MARIA' => [
-                'FIXED' => 'FIXED',
+                'FIXED'   => 'FIXED',
                 'DYNAMIC' => 'DYNAMIC',
-                'PAGE' => 'PAGE',
+                'PAGE'    => 'PAGE',
             ],
             'MYISAM' => [
-                'FIXED' => 'FIXED',
+                'FIXED'   => 'FIXED',
                 'DYNAMIC' => 'DYNAMIC',
             ],
             'PBXT' => [
-                'FIXED' => 'FIXED',
+                'FIXED'   => 'FIXED',
                 'DYNAMIC' => 'DYNAMIC',
             ],
             'INNODB' => [
-                'COMPACT' => 'COMPACT',
+                'COMPACT'   => 'COMPACT',
                 'REDUNDANT' => 'REDUNDANT',
             ],
         ];
 
         /** @var Innodb $innodbEnginePlugin */
-        $innodbEnginePlugin = StorageEngine::getEngine('Innodb');
+        $innodbEnginePlugin  = StorageEngine::getEngine('Innodb');
         $innodbPluginVersion = $innodbEnginePlugin->getInnodbPluginVersion();
-        $innodb_file_format = '';
+        $innodb_file_format  = '';
         if (! empty($innodbPluginVersion)) {
             $innodb_file_format = $innodbEnginePlugin->getInnodbFileFormat() ?? '';
         }
@@ -534,7 +536,7 @@ class Operations
             (strtolower($innodb_file_format) === 'barracuda') || ($innodb_file_format == '')
             && $innodbEnginePlugin->supportsFilePerTable()
         ) {
-            $possible_row_formats['INNODB']['DYNAMIC'] = 'DYNAMIC';
+            $possible_row_formats['INNODB']['DYNAMIC']    = 'DYNAMIC';
             $possible_row_formats['INNODB']['COMPRESSED'] = 'COMPRESSED';
         }
 
@@ -549,11 +551,11 @@ class Operations
         global $db, $table;
 
         $choices = [
-            'ANALYZE' => __('Analyze'),
-            'CHECK' => __('Check'),
+            'ANALYZE'  => __('Analyze'),
+            'CHECK'    => __('Check'),
             'OPTIMIZE' => __('Optimize'),
-            'REBUILD' => __('Rebuild'),
-            'REPAIR' => __('Repair'),
+            'REBUILD'  => __('Rebuild'),
+            'REPAIR'   => __('Repair'),
             'TRUNCATE' => __('Truncate'),
         ];
 
@@ -575,8 +577,8 @@ class Operations
     }
 
     /**
-     * @param  array  $urlParams          Array of url parameters.
-     * @param  bool  $hasRelationFeature If relation feature is enabled.
+     * @param array $urlParams          Array of url parameters.
+     * @param bool  $hasRelationFeature If relation feature is enabled.
      */
     public function getForeignersForReferentialIntegrityCheck(
         array $urlParams,
@@ -628,7 +630,7 @@ class Operations
             $thisUrlParams = array_merge(
                 $urlParams,
                 [
-                    'sql_query' => $joinQuery,
+                    'sql_query'     => $joinQuery,
                     'sql_signature' => Core::signSqlQuery($joinQuery),
                 ]
             );
@@ -636,9 +638,9 @@ class Operations
             $foreigners[] = [
                 'params' => $thisUrlParams,
                 'master' => $master,
-                'db' => $arr['foreign_db'],
-                'table' => $arr['foreign_table'],
-                'field' => $arr['foreign_field'],
+                'db'     => $arr['foreign_db'],
+                'table'  => $arr['foreign_table'],
+                'field'  => $arr['foreign_field'],
             ];
         }
 
@@ -648,15 +650,16 @@ class Operations
     /**
      * Get table alters array
      *
-     * @param  Table  $pma_table           The Table object
-     * @param  string  $pack_keys           pack keys
-     * @param  string  $checksum            value of checksum
-     * @param  string  $page_checksum       value of page checksum
-     * @param  string  $delay_key_write     delay key write
-     * @param  string  $row_format          row format
-     * @param  string  $newTblStorageEngine table storage engine
-     * @param  string  $transactional       value of transactional
-     * @param  string  $tbl_collation       collation of the table
+     * @param Table  $pma_table           The Table object
+     * @param string $pack_keys           pack keys
+     * @param string $checksum            value of checksum
+     * @param string $page_checksum       value of page checksum
+     * @param string $delay_key_write     delay key write
+     * @param string $row_format          row format
+     * @param string $newTblStorageEngine table storage engine
+     * @param string $transactional       value of transactional
+     * @param string $tbl_collation       collation of the table
+     *
      * @return array
      */
     public function getTableAltersArray(
@@ -731,7 +734,7 @@ class Operations
         }
 
         if (! empty($_POST['new_row_format'])) {
-            $newRowFormat = $_POST['new_row_format'];
+            $newRowFormat      = $_POST['new_row_format'];
             $newRowFormatLower = mb_strtolower($newRowFormat);
             if (
                 $pma_table->isEngine(['MYISAM', 'ARIA', 'INNODB', 'PBXT'])
@@ -779,10 +782,10 @@ class Operations
     /**
      * Adjust the privileges after renaming/moving a table
      *
-     * @param  string  $oldDb    Database name before table renaming/moving table
-     * @param  string  $oldTable Table name before table renaming/moving table
-     * @param  string  $newDb    Database name after table renaming/ moving table
-     * @param  string  $newTable Table name after table renaming/moving table
+     * @param string $oldDb    Database name before table renaming/moving table
+     * @param string $oldTable Table name before table renaming/moving table
+     * @param string $newDb    Database name after table renaming/ moving table
+     * @param string $newTable Table name after table renaming/moving table
      */
     public function adjustPrivilegesRenameOrMoveTable($oldDb, $oldTable, $newDb, $newTable): void
     {
@@ -818,10 +821,10 @@ class Operations
     /**
      * Adjust the privileges after copying a table
      *
-     * @param  string  $oldDb    Database name before table copying
-     * @param  string  $oldTable Table name before table copying
-     * @param  string  $newDb    Database name after table copying
-     * @param  string  $newTable Table name after table copying
+     * @param string $oldDb    Database name before table copying
+     * @param string $oldTable Table name before table copying
+     * @param string $newDb    Database name after table copying
+     * @param string $newTable Table name after table copying
      */
     public function adjustPrivilegesCopyTable($oldDb, $oldTable, $newDb, $newTable): void
     {
@@ -873,9 +876,9 @@ class Operations
     /**
      * Change all collations and character sets of all columns in table
      *
-     * @param  string  $db            Database name
-     * @param  string  $table         Table name
-     * @param  string  $tbl_collation Collation Name
+     * @param string $db            Database name
+     * @param string $table         Table name
+     * @param string $tbl_collation Collation Name
      */
     public function changeAllColumnsCollation($db, $table, $tbl_collation): void
     {
@@ -896,8 +899,8 @@ class Operations
     /**
      * Move or copy a table
      *
-     * @param  string  $db    current database name
-     * @param  string  $table current table name
+     * @param string $db    current database name
+     * @param string $table current table name
      */
     public function moveOrCopyTable($db, $table): Message
     {

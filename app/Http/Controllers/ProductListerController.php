@@ -49,8 +49,8 @@ class ProductListerController extends Controller
         $result = $this->magentoSoapApiUpload($product);
 
         if ($result) {
-            $product->isUploaded = 1;
-            $product->stage = $stage->get('Lister');
+            $product->isUploaded       = 1;
+            $product->stage            = $stage->get('Lister');
             $product->is_uploaded_date = Carbon::now();
             $product->save();
 
@@ -79,7 +79,7 @@ class ProductListerController extends Controller
             '3' => 'magethree',
         ];
 
-        $i = 1;
+        $i             = 1;
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
         if (! empty($websiteArrays)) {
             foreach ($websiteArrays as $websiteArray) {

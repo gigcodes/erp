@@ -38,7 +38,7 @@ final class MoveColumnsController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->tableObj = $this->dbi->getTable($this->db, $this->table);
     }
 
@@ -53,12 +53,12 @@ final class MoveColumnsController extends AbstractController
         /**
          * load the definitions for all columns
          */
-        $columns = $this->dbi->getColumnsFull($this->db, $this->table);
+        $columns      = $this->dbi->getColumnsFull($this->db, $this->table);
         $column_names = array_keys($columns);
-        $changes = [];
+        $changes      = [];
 
         // @see https://mariadb.com/kb/en/library/changes-improvements-in-mariadb-102/#information-schema
-        $usesLiteralNull = $this->dbi->isMariaDB() && $this->dbi->getVersion() >= 100200;
+        $usesLiteralNull  = $this->dbi->isMariaDB() && $this->dbi->getVersion() >= 100200;
         $defaultNullValue = $usesLiteralNull ? 'NULL' : null;
         // move columns from first to last
         for ($i = 0, $l = count($_POST['move_columns']); $i < $l; $i++) {
@@ -69,15 +69,15 @@ final class MoveColumnsController extends AbstractController
             }
 
             // it is not, let's move it to index $i
-            $data = $columns[$column];
+            $data                 = $columns[$column];
             $extracted_columnspec = Util::extractColumnSpec($data['Type']);
             if (isset($data['Extra']) && $data['Extra'] === 'on update CURRENT_TIMESTAMP') {
                 $extracted_columnspec['attribute'] = $data['Extra'];
                 unset($data['Extra']);
             }
 
-            $timeType = $data['Type'] === 'timestamp' || $data['Type'] === 'datetime';
-            $timeDefault = $data['Default'] === 'CURRENT_TIMESTAMP' || $data['Default'] === 'current_timestamp()';
+            $timeType          = $data['Type'] === 'timestamp' || $data['Type'] === 'datetime';
+            $timeDefault       = $data['Default'] === 'CURRENT_TIMESTAMP' || $data['Default'] === 'current_timestamp()';
             $current_timestamp = $timeType && $timeDefault;
 
             // @see https://mariadb.com/kb/en/library/information-schema-columns-table/#examples
@@ -101,7 +101,7 @@ final class MoveColumnsController extends AbstractController
             $data['Expression'] = '';
             if (isset($data['Extra']) && in_array($data['Extra'], $virtual)) {
                 $data['Virtuality'] = str_replace(' GENERATED', '', $data['Extra']);
-                $expressions = $this->tableObj->getColumnGenerationExpression($column);
+                $expressions        = $this->tableObj->getColumnGenerationExpression($column);
                 $data['Expression'] = is_array($expressions) ? $expressions[$column] : null;
             }
 

@@ -13,7 +13,7 @@ class LogHelper
         $currentDate = Carbon::now()->format('Y-m-d');
 
         $cronPrefix = $fileName;
-        $fileName = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '-', $fileName);
+        $fileName   = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '-', $fileName);
 
         //first parameter passed to Monolog\Logger sets the logging channel name
         $cronLog = new Logger($fileName);

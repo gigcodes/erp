@@ -41,12 +41,12 @@ class IndexerStateController extends Controller
             $elastic->getConn()->ping();
 
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Connection successful to elasticsearch.',
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -137,11 +137,11 @@ class IndexerStateController extends Controller
     public function masterSlave(Request $request)
     {
         \DB::setDefaultConnection('mysql_read');
-        $select = User::query()->limit(5)->orderBy('id', 'DESC');
+        $select     = User::query()->limit(5)->orderBy('id', 'DESC');
         $selectHost = $select->getConnection()->getConfig('host');
-        $rand = rand(1, 55);
+        $rand       = rand(1, 55);
         \DB::setDefaultConnection('mysql');
-        $create = User::create(['name' => 'test' . $rand, 'email' => 'test' . $rand . '@example.com', 'password' => '$2y$10$Sr8Gzf8en1WuxAl0XRB1se3loslJH/kIOt3Dyz6zZ4eqYEae9J5Uq']);
+        $create     = User::create(['name' => 'test' . $rand, 'email' => 'test' . $rand . '@example.com', 'password' => '$2y$10$Sr8Gzf8en1WuxAl0XRB1se3loslJH/kIOt3Dyz6zZ4eqYEae9J5Uq']);
         $createHost = $create->getConnection()->getConfig('host');
 
         return response()->json(

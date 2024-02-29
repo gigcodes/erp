@@ -54,9 +54,9 @@ class UserManagementController extends Controller
      */
     public function index(Request $req)
     {
-        $title = 'User management';
+        $title             = 'User management';
         $permissionRequest = PermissionRequest::count();
-        $statusList = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
+        $statusList        = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
 
         // $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
         // $final_array = [];
@@ -118,9 +118,9 @@ class UserManagementController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = UserScheduleStatus::find($key);
+            $bugstatus        = UserScheduleStatus::find($key);
             $bugstatus->color = $value;
             $bugstatus->save();
         }
@@ -134,10 +134,10 @@ class UserManagementController extends Controller
 
         $usersystemips = UserSysyemIp::with('user')->get();
 
-        $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
+        $shell_list  = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
         $final_array = [];
         if ($shell_list != '') {
-            $lines = explode(PHP_EOL, $shell_list);
+            $lines       = explode(PHP_EOL, $shell_list);
             $final_array = [];
             foreach ($lines as $line) {
                 $values = [];
@@ -148,14 +148,14 @@ class UserManagementController extends Controller
 
         if (! empty($final_array)) {
             foreach (array_reverse($final_array) as $values) {
-                $index = $values[0] ?? 0;
-                $ip = $values[1] ?? 0;
+                $index   = $values[0] ?? 0;
+                $ip      = $values[1] ?? 0;
                 $comment = $values[2] ?? 0;
-                $where = ['ip' => $ip];
-                $insert = [
+                $where   = ['ip' => $ip];
+                $insert  = [
                     'index_txt' => $index ?? '-',
-                    'ip' => $ip ?? '-',
-                    'notes' => $comment ?? '-',
+                    'ip'        => $ip ?? '-',
+                    'notes'     => $comment ?? '-',
                     // 'user_id'         => Auth::id(),
                     // 'other_user_name' => $comment,
                 ];
@@ -168,9 +168,9 @@ class UserManagementController extends Controller
 
     public function cat_name(Request $req)
     {
-        $title = 'User management';
+        $title             = 'User management';
         $permissionRequest = PermissionRequest::count();
-        $statusList = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
+        $statusList        = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
 
         $usersystemips = UserSysyemIp::with('user')->get();
 
@@ -232,9 +232,9 @@ class UserManagementController extends Controller
                 $filterList[] = [
                     'user_name' => $value->name,
                     'devtaskId' => empty($value->devtaskId) ? $value->task_id : $value->devtaskId,
-                    'task' => empty($value->devtaskId) ? $value->task_subject : $value->subject,
-                    'date' => $value->starts_at,
-                    'tracked' => number_format($value->day_tracked / 60, 2, '.', ','),
+                    'task'      => empty($value->devtaskId) ? $value->task_subject : $value->subject,
+                    'date'      => $value->starts_at,
+                    'tracked'   => number_format($value->day_tracked / 60, 2, '.', ','),
                 ];
             }
         }
@@ -256,9 +256,9 @@ class UserManagementController extends Controller
         foreach ($history as $key => $value) {
             $filterList = [
                 'user_name' => $value->name,
-                'task' => $value->subject,
-                'date' => $value->starts_at,
-                'tracked' => number_format($value->day_tracked / 60, 2, '.', ','),
+                'task'      => $value->subject,
+                'date'      => $value->starts_at,
+                'tracked'   => number_format($value->day_tracked / 60, 2, '.', ','),
             ];
         }
 
@@ -274,13 +274,13 @@ class UserManagementController extends Controller
 
             // user need to send message
             //\App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
-            $permission = \App\Permission::find($request->permission);
+            $permission     = \App\Permission::find($request->permission);
             $permissionName = '';
             if ($permission) {
                 $permissionName = $permission->name;
             }
 
-            $params = [];
+            $params            = [];
             $params['user_id'] = $user->id;
             $params['message'] = 'Your permission request has been approved for the permission :' . $permissionName;
             // send chat message
@@ -301,7 +301,7 @@ class UserManagementController extends Controller
 
     public function records(Request $request)
     {
-        $user = new User;
+        $user        = new User;
         $isWhitelist = $request->is_whitelisted == 1 ? 1 : 0;
         if (! Auth::user()->isAdmin()) {
             $user = $user->where('users.id', Auth::user()->id);
@@ -333,19 +333,19 @@ class UserManagementController extends Controller
             ->paginate(12);
         $limitchacter = 50;
 
-        $items = [];
+        $items   = [];
         $replies = null;
         if (! $user->isEmpty()) {
             foreach ($user as $u) {
                 // dump($u->id);
-                $currentRate = $u->latestRate;
-                $team = Team::where('user_id', $u->id)->first();
+                $currentRate  = $u->latestRate;
+                $team         = Team::where('user_id', $u->id)->first();
                 $user_in_team = 0;
                 if ($team) {
-                    $u['team_leads'] = $team->users->count();
+                    $u['team_leads']   = $team->users->count();
                     $u['team_members'] = $team->users->toArray();
-                    $u['team'] = $team;
-                    $user_in_team = 1;
+                    $u['team']         = $team;
+                    $user_in_team      = 1;
                 }
 
                 $taskList = DB::select('
@@ -373,7 +373,7 @@ class UserManagementController extends Controller
                 ');
 
                 $pending_tasks = 0;
-                $total_tasks = count($taskList);
+                $total_tasks   = count($taskList);
                 foreach ($taskList as $t) {
                     if ($t->has_flag != 1) {
                         $pending_tasks++;
@@ -384,14 +384,14 @@ class UserManagementController extends Controller
                 // ->Where('assign_to', $u->id)->count();
 
                 $no_time_estimate = DeveloperTask::whereNull('estimate_minutes')->where('assigned_to', $u->id)->count();
-                $overdue_task = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
+                $overdue_task     = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
 
                 // $total_tasks = Task::where('is_statutory', 0)
                 // ->Where('assign_to', $u->id)->count();
-                $u['pending_tasks'] = $pending_tasks;
-                $u['total_tasks'] = $total_tasks;
+                $u['pending_tasks']    = $pending_tasks;
+                $u['total_tasks']      = $total_tasks;
                 $u['no_time_estimate'] = $no_time_estimate;
-                $u['overdue_task'] = $overdue_task;
+                $u['overdue_task']     = $overdue_task;
 
                 $isMember = $u->teams()->first();
                 if ($isMember) {
@@ -399,12 +399,12 @@ class UserManagementController extends Controller
                 }
 
                 $u['user_in_team'] = $user_in_team;
-                $u['hourly_rate'] = ($currentRate) ? $currentRate->hourly_rate : 0;
-                $u['currency'] = ($currentRate) ? $currentRate->currency : 'USD';
+                $u['hourly_rate']  = ($currentRate) ? $currentRate->hourly_rate : 0;
+                $u['currency']     = ($currentRate) ? $currentRate->currency : 'USD';
 
                 $u['yesterday_hrs'] = $u->yesterdayHrs();
-                $u['isAdmin'] = $u->isAdmin();
-                $u['is_online'] = $u->isOnline();
+                $u['isAdmin']       = $u->isAdmin();
+                $u['is_online']     = $u->isOnline();
 
                 if ($u->approve_login == date('Y-m-d')) {
                     $u['already_approved'] = true;
@@ -459,13 +459,13 @@ class UserManagementController extends Controller
         $isAdmin = Auth::user()->isAdmin();
 
         return response()->json([
-            'code' => 200,
-            'data' => $items,
-            'replies' => $replies,
-            'isAdmin' => $isAdmin,
+            'code'       => 200,
+            'data'       => $items,
+            'replies'    => $replies,
+            'isAdmin'    => $isAdmin,
             'pagination' => (string) $user->links(),
-            'total' => $user->total(),
-            'page' => $user->currentPage(),
+            'total'      => $user->total(),
+            'page'       => $user->currentPage(),
         ]);
     }
 
@@ -481,38 +481,38 @@ class UserManagementController extends Controller
 
     public function getPendingandAvalHour($id)
     {
-        $u = [];
-        $tasks_time = Task::where('assign_to', $id)->where('is_verified', null)->select(DB::raw('SUM(approximate) as approximate_time'));
+        $u             = [];
+        $tasks_time    = Task::where('assign_to', $id)->where('is_verified', null)->select(DB::raw('SUM(approximate) as approximate_time'));
         $devTasks_time = DeveloperTask::where('assigned_to', $id)->where('status', '!=', 'Done')->select(DB::raw('SUM(estimate_minutes) as approximate_time'));
 
-        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $task_times    = ($devTasks_time)->union($tasks_time)->get();
         $pending_tasks = 0;
         foreach ($task_times as $key => $task_time) {
             $pending_tasks += $task_time['approximate_time'];
         }
         $u['total_pending_hours'] = intdiv($pending_tasks, 60) . ':' . ($pending_tasks % 60);
-        $today = date('Y-m-d');
+        $today                    = date('Y-m-d');
 
         /** get total availablity hours */
-        $avaibility = UserAvaibility::where('user_id', $id)->where('date', '>=', $today)->get();
+        $avaibility      = UserAvaibility::where('user_id', $id)->where('date', '>=', $today)->get();
         $avaibility_hour = 0;
         foreach ($avaibility as $aval_time) {
             $from = $this->getTimeFormat($aval_time['from']);
-            $to = $this->getTimeFormat($aval_time['to']);
+            $to   = $this->getTimeFormat($aval_time['to']);
             $avaibility_hour += round((strtotime($to) - strtotime($from)) / 3600, 1);
         }
-        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $avaibility_hour            = $this->getTimeFormat($avaibility_hour);
         $u['total_avaibility_hour'] = $avaibility_hour;
 
         /** get today availablity hours */
-        $today_avaibility = UserAvaibility::where('user_id', $id)->where('date', '=', $today)->get();
+        $today_avaibility      = UserAvaibility::where('user_id', $id)->where('date', '=', $today)->get();
         $today_avaibility_hour = 0;
         foreach ($today_avaibility as $aval_time) {
             $from = $this->getTimeFormat($aval_time['from']);
-            $to = $this->getTimeFormat($aval_time['to']);
+            $to   = $this->getTimeFormat($aval_time['to']);
             $today_avaibility_hour += round((strtotime($to) - strtotime($from)) / 3600, 1);
         }
-        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $today_avaibility_hour      = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
         return response()->json([
@@ -535,17 +535,17 @@ class UserManagementController extends Controller
 
     public function edit($id)
     {
-        $user = User::find($id);
-        $roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        $user       = User::find($id);
+        $roles      = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
         $permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
 
-        $users = User::all();
-        $userRole = $user->roles->pluck('name', 'id')->all();
-        $userPermission = $user->permissions->pluck('name', 'id')->all();
-        $agent_roles = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
+        $users            = User::all();
+        $userRole         = $user->roles->pluck('name', 'id')->all();
+        $userPermission   = $user->permissions->pluck('name', 'id')->all();
+        $agent_roles      = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
         $user_agent_roles = explode(',', $user->agent_role);
-        $api_keys = ApiKey::select('number')->get();
-        $customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
+        $api_keys         = ApiKey::select('number')->get();
+        $customers_all    = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
         $userRate = UserRate::getRateForUser($user->id);
         // return response()->json([
@@ -564,14 +564,14 @@ class UserManagementController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'phone'    => 'sometimes|nullable|integer|unique:users,phone,' . $id,
             'password' => 'same:confirm-password',
         ]);
-        $input = $request->all();
+        $input       = $request->all();
         $hourly_rate = $input['hourly_rate'];
-        $currency = $input['currency'];
+        $currency    = $input['currency'];
 
         unset($input['hourly_rate']);
         unset($input['currency']);
@@ -596,15 +596,15 @@ class UserManagementController extends Controller
             }
         }
 
-        $user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
+        $user->listing_approval_rate  = $request->get('listing_approval_rate') ?? '0';
         $user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
         $user->save();
 
-        $userRate = new UserRate();
-        $userRate->start_date = Carbon::now();
+        $userRate              = new UserRate();
+        $userRate->start_date  = Carbon::now();
         $userRate->hourly_rate = $hourly_rate;
-        $userRate->currency = $currency;
-        $userRate->user_id = $user->id;
+        $userRate->currency    = $currency;
+        $userRate->user_id     = $user->id;
         $userRate->save();
 
         return redirect()->back()
@@ -623,9 +623,9 @@ class UserManagementController extends Controller
         $user->save();
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'User sucessfully updated',
-            'page' => $request->get('page'),
+            'page'    => $request->get('page'),
         ]);
     }
 
@@ -637,13 +637,13 @@ class UserManagementController extends Controller
             return redirect()->route('user-management.index')->withWarning("You don't have access to this page!");
         }
 
-        $users_array = Helpers::getUserArray(User::all());
-        $roles = Role::pluck('name', 'name')->all();
-        $users = User::all();
-        $userRole = $user->roles->pluck('name', 'name')->all();
-        $agent_roles = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
+        $users_array      = Helpers::getUserArray(User::all());
+        $roles            = Role::pluck('name', 'name')->all();
+        $users            = User::all();
+        $userRole         = $user->roles->pluck('name', 'name')->all();
+        $agent_roles      = ['sales' => 'Sales', 'support' => 'Support', 'queries' => 'Others'];
         $user_agent_roles = explode(',', $user->agent_role);
-        $api_keys = ApiKey::select('number')->get();
+        $api_keys         = ApiKey::select('number')->get();
 
         $pending_tasks = Task::where('is_statutory', 0)
             ->whereNull('is_completed')
@@ -658,49 +658,49 @@ class UserManagementController extends Controller
         return view(
             'usermanagement::templates.show',
             [
-                'user' => $user,
-                'users_array' => $users_array,
-                'roles' => $roles,
-                'users' => $users,
-                'userRole' => $userRole,
-                'agent_roles' => $agent_roles,
+                'user'             => $user,
+                'users_array'      => $users_array,
+                'roles'            => $roles,
+                'users'            => $users,
+                'userRole'         => $userRole,
+                'agent_roles'      => $agent_roles,
                 'user_agent_roles' => $user_agent_roles,
-                'api_keys' => $api_keys,
-                'pending_tasks' => $pending_tasks,
+                'api_keys'         => $api_keys,
+                'pending_tasks'    => $pending_tasks,
             ]
         );
     }
 
     public function usertrack($id)
     {
-        $user = User::find($id);
+        $user    = User::find($id);
         $actions = $user->actions()->orderBy('created_at', 'DESC')->get();
 
         $tracks = Session::where('user_id', $id)->orderBy('created_at', 'DESC')->get();
 
         $routeActions = [
-            'users.index' => 'Viewed Users Page',
-            'users.show' => 'Viewed A User',
-            'customer.index' => 'Viewed Customer Page',
-            'customer.show' => 'Viewed A Customer Page',
+            'users.index'      => 'Viewed Users Page',
+            'users.show'       => 'Viewed A User',
+            'customer.index'   => 'Viewed Customer Page',
+            'customer.show'    => 'Viewed A Customer Page',
             'cold-leads.index' => 'Viewed Cold Leads Page',
-            'home' => 'Landed Homepage',
-            'purchase.index' => 'Viewed Purchase Page',
+            'home'             => 'Landed Homepage',
+            'purchase.index'   => 'Viewed Purchase Page',
         ];
 
         $models = [
-            'users.show' => new User(),
-            'customer.show' => new Customer(),
+            'users.show'      => new User(),
+            'customer.show'   => new Customer(),
             'cold-leads.show' => new ColdLeads(),
         ];
 
         return view(
             'usermanagement::templates.track',
             [
-                'actions' => $actions,
-                'tracks' => $tracks,
+                'actions'      => $actions,
+                'tracks'       => $tracks,
                 'routeActions' => $routeActions,
-                'models' => $models,
+                'models'       => $models,
             ]
         );
     }
@@ -719,10 +719,10 @@ class UserManagementController extends Controller
             $year = $date->format('Y');
         }
         $result = getStartAndEndDate($week, $year);
-        $start = $result['week_start'];
-        $end = $result['week_end'];
+        $start  = $result['week_start'];
+        $end    = $result['week_end'];
 
-        $user = User::join('hubstaff_payment_accounts as hpa', 'hpa.user_id', 'users.id')->where('users.id', $id)->with(['currentRate'])->first();
+        $user               = User::join('hubstaff_payment_accounts as hpa', 'hpa.user_id', 'users.id')->where('users.id', $id)->with(['currentRate'])->first();
         $usersRatesThisWeek = UserRate::ratesForWeek($week, $year);
 
         $usersRatesPreviousWeek = UserRate::latestRatesForWeek($week - 1, $year);
@@ -733,12 +733,12 @@ class UserManagementController extends Controller
 
         $amountToBePaid = HubstaffPaymentAccount::getConsidatedUserAmountToBePaid();
 
-        $now = now();
+        $now            = now();
         $paymentMethods = [];
         if ($user) {
             $user->secondsTracked = 0;
-            $user->currency = '-';
-            $user->total = 0;
+            $user->currency       = '-';
+            $user->total          = 0;
 
             $userPaymentsDone = 0;
 
@@ -750,7 +750,7 @@ class UserManagementController extends Controller
                 $userPaymentsDone = $userPaymentsDoneModel->paid;
             }
 
-            $userPaymentsToBeDone = 0;
+            $userPaymentsToBeDone    = 0;
             $userAmountToBePaidModel = $amountToBePaid->first(function ($value) use ($user) {
                 return $value->user_id == $user->id;
             });
@@ -772,8 +772,8 @@ class UserManagementController extends Controller
             if ($invidualRatesPreviousWeek) {
                 $weekRates[] = [
                     'start_date' => $start,
-                    'rate' => $invidualRatesPreviousWeek->hourly_rate,
-                    'currency' => $invidualRatesPreviousWeek->currency,
+                    'rate'       => $invidualRatesPreviousWeek->hourly_rate,
+                    'currency'   => $invidualRatesPreviousWeek->currency,
                 ];
             }
 
@@ -785,8 +785,8 @@ class UserManagementController extends Controller
                 foreach ($rates as $rate) {
                     $weekRates[] = [
                         'start_date' => $rate->start_date,
-                        'rate' => $rate->hourly_rate,
-                        'currency' => $rate->currency,
+                        'rate'       => $rate->hourly_rate,
+                        'currency'   => $rate->currency,
                     ];
                 }
             }
@@ -800,8 +800,8 @@ class UserManagementController extends Controller
 
                 $weekRates[] = [
                     'start_date' => $end,
-                    'rate' => $lastEntry['rate'],
-                    'currency' => $lastEntry['currency'],
+                    'rate'       => $lastEntry['rate'],
+                    'currency'   => $lastEntry['currency'],
                 ];
 
                 $user->currency = $lastEntry['currency'];
@@ -818,12 +818,12 @@ class UserManagementController extends Controller
                 $i = 0;
                 while ($i < count($weekRates) - 1) {
                     $start = $weekRates[$i];
-                    $end = $weekRates[$i + 1];
+                    $end   = $weekRates[$i + 1];
 
                     if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
                         // the activity needs calculation for the start rate and hence do it
-                        $earnings = $activity->tracked * ($start['rate'] / 60 / 60);
-                        $activity->rate = $start['rate'];
+                        $earnings           = $activity->tracked * ($start['rate'] / 60 / 60);
+                        $activity->rate     = $start['rate'];
                         $activity->earnings = $earnings;
                         $user->total += $earnings;
                         break;
@@ -842,10 +842,10 @@ class UserManagementController extends Controller
         return view(
             'usermanagement::templates.payments',
             [
-                'user' => $user,
-                'id' => $id,
-                'selectedYear' => $year,
-                'selectedWeek' => $week,
+                'user'           => $user,
+                'id'             => $id,
+                'selectedYear'   => $year,
+                'selectedWeek'   => $week,
                 'paymentMethods' => $paymentMethods,
             ]
         );
@@ -853,15 +853,15 @@ class UserManagementController extends Controller
 
     public function getRoles($id)
     {
-        $user = User::find($id);
-        $roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        $user     = User::find($id);
+        $roles    = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
         $userRole = $user->roles->pluck('name', 'id')->all();
 
         return response()->json([
-            'code' => 200,
-            'user' => $user,
+            'code'     => 200,
+            'user'     => $user,
             'userRole' => $userRole,
-            'roles' => $roles,
+            'roles'    => $roles,
         ]);
     }
 
@@ -872,13 +872,13 @@ class UserManagementController extends Controller
             $user->roles()->sync($request->input('roles'));
 
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Role updated successfully',
             ]);
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Unauthorized access',
         ]);
     }
@@ -903,10 +903,10 @@ class UserManagementController extends Controller
         $userPermission = $user->permissions->pluck('name', 'id')->all();
 
         return response()->json([
-            'code' => 200,
-            'user' => $user,
+            'code'           => 200,
+            'user'           => $user,
             'userPermission' => $userPermission,
-            'permissions' => $permission,
+            'permissions'    => $permission,
         ]);
     }
 
@@ -917,13 +917,13 @@ class UserManagementController extends Controller
             $user->permissions()->sync($request->input('permissions'));
 
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Permission updated successfully',
             ]);
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Unauthorized access',
         ]);
     }
@@ -931,24 +931,24 @@ class UserManagementController extends Controller
     public function addNewPermission(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+            'name'  => 'required|unique:roles,name',
             'route' => 'required|unique:roles,name',
 
         ]);
-        $permission = new Permission();
-        $permission->name = $request->name;
+        $permission        = new Permission();
+        $permission->name  = $request->name;
         $permission->route = $request->route;
         $permission->save();
 
         return response()->json([
-            'code' => 200,
+            'code'       => 200,
             'permission' => $permission,
         ]);
     }
 
     public function paymentInfo($id)
     {
-        $user = User::find($id);
+        $user     = User::find($id);
         $lastPaid = $user->payments()->orderBy('id', 'desc')->first();
         if ($lastPaid) {
             $lastPaidOn = $lastPaid->paid_upto;
@@ -956,7 +956,7 @@ class UserManagementController extends Controller
             $query = HubstaffPaymentAccount::where('user_id', $id)->first();
             if (! $query) {
                 return response()->json([
-                    'code' => 500,
+                    'code'    => 500,
                     'message' => 'No data found',
                 ]);
             }
@@ -965,49 +965,49 @@ class UserManagementController extends Controller
         $pendingPyments = HubstaffPaymentAccount::where('user_id', $id)->where('billing_start', '>', $lastPaidOn)->get();
         if (! count($pendingPyments)) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => 'No data found',
             ]);
         }
         $pendingTerms = [];
         if ($user->payment_frequency == 'fornightly') {
             $totalPendingTerms = count($pendingPyments);
-            $perPacket = 1;
+            $perPacket         = 1;
         }
         if ($user->payment_frequency == 'weekly') {
             $totalPendingTerms = floor(count($pendingPyments) / 7);
-            $perPacket = 7;
+            $perPacket         = 7;
         }
         if ($user->payment_frequency == 'biweekly') {
             $totalPendingTerms = floor(count($pendingPyments) / 14);
-            $perPacket = 14;
+            $perPacket         = 14;
         }
         if ($user->payment_frequency == 'monthly') {
             $totalPendingTerms = floor(count($pendingPyments) / 30);
-            $perPacket = 30;
+            $perPacket         = 30;
         }
-        $count = 0;
-        $packetCount = 0;
-        $totalAmount = 0;
+        $count               = 0;
+        $packetCount         = 0;
+        $totalAmount         = 0;
         $totalAmountTobePaid = 0;
         foreach ($pendingPyments as $pending) {
             if ($count < $totalPendingTerms) {
-                $totalAmount = $totalAmount + ($pending->hrs * $pending->rate);
+                $totalAmount         = $totalAmount + ($pending->hrs * $pending->rate);
                 $totalAmountTobePaid = $totalAmountTobePaid + ($pending->hrs * $pending->rate * $pending->ex_rate);
-                $packetCount = $packetCount + 1;
+                $packetCount         = $packetCount + 1;
                 if ($packetCount == $perPacket) {
                     $packetCount = 0;
-                    $count = $count + 1;
-                    $array = [
-                        'totalAmount' => $totalAmount,
-                        'lastPaidOn' => $pending->billing_start,
-                        'currency' => $pending->currency,
+                    $count       = $count + 1;
+                    $array       = [
+                        'totalAmount'         => $totalAmount,
+                        'lastPaidOn'          => $pending->billing_start,
+                        'currency'            => $pending->currency,
                         'totalAmountTobePaid' => $totalAmountTobePaid,
-                        'payment_currency' => $pending->payment_currency,
+                        'payment_currency'    => $pending->payment_currency,
                     ];
 
-                    $pendingTerms[] = $array;
-                    $totalAmount = 0;
+                    $pendingTerms[]      = $array;
+                    $totalAmount         = 0;
                     $totalAmountTobePaid = 0;
                 }
             } else {
@@ -1021,7 +1021,7 @@ class UserManagementController extends Controller
 
     public function addPaymentMethod(Request $request)
     {
-        $paymentMethods = new PaymentMethod;
+        $paymentMethods       = new PaymentMethod;
         $paymentMethods->name = $request->name;
         $paymentMethods->save();
         $paymentMethods = PaymentMethod::all();
@@ -1032,21 +1032,21 @@ class UserManagementController extends Controller
     public function savePayments($id, Request $request)
     {
         $this->validate($request, [
-            'currency' => 'required',
-            'amounts' => 'required',
+            'currency'          => 'required',
+            'amounts'           => 'required',
             'payment_method_id' => 'required',
         ]);
 
-        $user = User::find($id);
+        $user     = User::find($id);
         $lastPaid = $user->payments()->orderBy('id', 'desc')->first();
         if ($lastPaid) {
             $lastPaidOn = $lastPaid->paid_upto;
         } else {
-            $query = HubstaffPaymentAccount::where('user_id', $id)->first();
+            $query      = HubstaffPaymentAccount::where('user_id', $id)->first();
             $lastPaidOn = date('Y-m-d', strtotime($query->billing_start . '-1 days'));
         }
         $pendingPyments = HubstaffPaymentAccount::where('user_id', $id)->where('billing_start', '>', $lastPaidOn)->get();
-        $pendingTerms = [];
+        $pendingTerms   = [];
         if ($user->payment_frequency == 'fornightly') {
             $perPacket = 1;
         }
@@ -1059,7 +1059,7 @@ class UserManagementController extends Controller
         if ($user->payment_frequency == 'monthly') {
             $perPacket = 30;
         }
-        $count = 1;
+        $count            = 1;
         $totalPendingRaws = $perPacket * count($request->amounts);
         foreach ($pendingPyments as $pending) {
             if ($count == $totalPendingRaws) {
@@ -1072,13 +1072,13 @@ class UserManagementController extends Controller
         foreach ($request->amounts as $amount) {
             $totalAmount = $totalAmount + $amount;
         }
-        $payment = new Payment;
+        $payment                    = new Payment;
         $payment->payment_method_id = $request->payment_method_id;
-        $payment->user_id = $id;
-        $payment->note = $request->note;
-        $payment->amount = $totalAmount;
-        $payment->currency = $request->currency;
-        $payment->paid_upto = $resetLastPaidOn;
+        $payment->user_id           = $id;
+        $payment->note              = $request->note;
+        $payment->amount            = $totalAmount;
+        $payment->currency          = $request->currency;
+        $payment->paid_upto         = $resetLastPaidOn;
         $payment->save();
 
         return redirect()->back()->with('success', 'Payment done successfully');
@@ -1086,7 +1086,7 @@ class UserManagementController extends Controller
 
     public function addReply(Request $request)
     {
-        $reply = $request->get('reply');
+        $reply     = $request->get('reply');
         $autoReply = [];
         // add reply from here
         if (! empty($reply)) {
@@ -1120,7 +1120,7 @@ class UserManagementController extends Controller
 
     public function userTasks($id)
     {
-        $user = User::find($id)->toArray();
+        $user     = User::find($id)->toArray();
         $taskList = DB::select('
                 select * from (
                     (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.status as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
@@ -1152,11 +1152,11 @@ class UserManagementController extends Controller
 
         //  $taskList = $devTasks->union($tasks)->get();
 
-        $u = [];
-        $tasks_time = Task::where('assign_to', $id)->where('is_verified', null)->select(DB::raw('SUM(approximate) as approximate_time'));
+        $u             = [];
+        $tasks_time    = Task::where('assign_to', $id)->where('is_verified', null)->select(DB::raw('SUM(approximate) as approximate_time'));
         $devTasks_time = DeveloperTask::where('assigned_to', $id)->where('status', '!=', 'Done')->select(DB::raw('SUM(estimate_minutes) as approximate_time'));
 
-        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $task_times    = ($devTasks_time)->union($tasks_time)->get();
         $pending_tasks = 0;
         foreach ($task_times as $key => $task_time) {
             $pending_tasks += $task_time['approximate_time'];
@@ -1164,79 +1164,79 @@ class UserManagementController extends Controller
         $u['total_pending_hours'] = intdiv($pending_tasks, 60) . ':' . ($pending_tasks % 60);
 
         //$priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
-        $p_tasks_time = Task::where('assign_to', $id)->where('is_verified', null)->where('is_flagged', 1)->select(DB::raw('SUM(approximate) as approximate_time'));
-        $p_devtasks_time = DeveloperTask::where('assigned_to', $id)->where('status', '!=', 'Done')->where('priority', '!=', 0)->select(DB::raw('SUM(estimate_minutes) as approximate_time'));
+        $p_tasks_time        = Task::where('assign_to', $id)->where('is_verified', null)->where('is_flagged', 1)->select(DB::raw('SUM(approximate) as approximate_time'));
+        $p_devtasks_time     = DeveloperTask::where('assigned_to', $id)->where('status', '!=', 'Done')->where('priority', '!=', 0)->select(DB::raw('SUM(estimate_minutes) as approximate_time'));
         $priority_tasks_time = ($p_devtasks_time)->union($p_tasks_time)->get();
         // SELECT
         /** get availablity hours */
-        $user_avaibility = UserAvaibility::where('user_id', $id)->selectRaw('minute')->orderBy('id', 'desc')->first();
+        $user_avaibility  = UserAvaibility::where('user_id', $id)->selectRaw('minute')->orderBy('id', 'desc')->first();
         $available_minute = ! empty($user_avaibility) ? $user_avaibility->minute : 0;
 
         $totalPriority = ! empty($priority_tasks_time) ? $priority_tasks_time[0]->approximate_time : 0;
-        $hours = 0;
+        $hours         = 0;
 
         if ($available_minute != 0) {
             $available_minute = $available_minute - $totalPriority;
-            $hours = floor($available_minute / 60); // Get the number of whole hours
+            $hours            = floor($available_minute / 60); // Get the number of whole hours
             $available_minute = $available_minute % 60;
         }
 
         $u['total_priority_hours'] = intdiv($totalPriority, 60) . ':' . ($totalPriority % 60);
         $u['total_available_time'] = sprintf('%d:%02d', $hours, $available_minute);
-        $today = date('Y-m-d');
+        $today                     = date('Y-m-d');
 
         /** get total availablity hours */
-        $avaibility = UserAvaibility::where('user_id', $id)->where('date', '>=', $today)->get();
+        $avaibility      = UserAvaibility::where('user_id', $id)->where('date', '>=', $today)->get();
         $avaibility_hour = 0;
         foreach ($avaibility as $aval_time) {
             $from = $this->getTimeFormat($aval_time['from']);
-            $to = $this->getTimeFormat($aval_time['to']);
+            $to   = $this->getTimeFormat($aval_time['to']);
             $avaibility_hour += round((strtotime($to) - strtotime($from)) / 3600, 1);
         }
-        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $avaibility_hour            = $this->getTimeFormat($avaibility_hour);
         $u['total_avaibility_hour'] = $avaibility_hour;
 
         /** get today availablity hours */
-        $today_avaibility = UserAvaibility::where('user_id', $id)->where('date', '=', $today)->get();
+        $today_avaibility      = UserAvaibility::where('user_id', $id)->where('date', '=', $today)->get();
         $today_avaibility_hour = 0;
         foreach ($today_avaibility as $aval_time) {
             $from = $this->getTimeFormat($aval_time['from']);
-            $to = $this->getTimeFormat($aval_time['to']);
+            $to   = $this->getTimeFormat($aval_time['to']);
             $today_avaibility_hour += round((strtotime($to) - strtotime($from)) / 3600, 1);
         }
-        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $today_avaibility_hour      = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
         $statusList = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
 
         return response()->json([
-            'code' => 200,
-            'user' => $user,
+            'code'       => 200,
+            'user'       => $user,
             'statusList' => $statusList,
-            'taskList' => $taskList,
+            'taskList'   => $taskList,
             'userTiming' => $u,
         ]);
     }
 
     public function createTeam($id)
     {
-        $user = User::find($id);
+        $user  = User::find($id);
         $users = User::where('id', '!=', $id)->where('is_active', 1)->get()->pluck('name', 'id');
 
         return response()->json([
-            'code' => 200,
-            'user' => $user,
+            'code'  => 200,
+            'user'  => $user,
             'users' => $users,
         ]);
     }
 
     public function submitTeam($id, Request $request)
     {
-        $user = User::find($id);
+        $user     = User::find($id);
         $isLeader = Team::where('user_id', $id)->orWhere('second_lead_id', $request->second_lead)->first();
         if ($isLeader) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => 'This user is already a team leader',
             ]);
         }
@@ -1244,13 +1244,13 @@ class UserManagementController extends Controller
         $isMember = $user->teams()->first();
         if ($isMember) {
             return response()->json([
-                'code' => 500,
+                'code'    => 500,
                 'message' => 'This user is already a team member',
             ]);
         }
-        $team = new Team;
-        $team->name = $request->name;
-        $team->user_id = $id;
+        $team                 = new Team;
+        $team->name           = $request->name;
+        $team->user_id        = $id;
         $team->second_lead_id = $request->second_lead;
         $team->save();
 
@@ -1269,13 +1269,13 @@ class UserManagementController extends Controller
                         $isLeader = Team::where('user_id', $mem)->first();
                         if (! $isMember && ! $isLeader) {
                             $team->users()->attach($mem);
-                            $response[$key]['msg'] = $u->name . ' added in team successfully';
+                            $response[$key]['msg']    = $u->name . ' added in team successfully';
                             $response[$key]['status'] = 'success';
                         } elseif ($isMember) {
-                            $response[$key]['msg'] = $u->name . ' is already team member';
+                            $response[$key]['msg']    = $u->name . ' is already team member';
                             $response[$key]['status'] = 'error';
                         } else {
-                            $response[$key]['msg'] = $u->name . ' is already team leader';
+                            $response[$key]['msg']    = $u->name . ' is already team leader';
                             $response[$key]['status'] = 'error';
                         }
                     }
@@ -1289,7 +1289,7 @@ class UserManagementController extends Controller
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Unauthorized access',
         ]);
     }
@@ -1299,7 +1299,7 @@ class UserManagementController extends Controller
         $team = Team::where('user_id', $id)->first();
         $team->user;
         $team->members = $team->users()->where('users.id', '!=', $team->second_lead_id)->pluck('name', 'users.id');
-        $totalMembers = $team->users()->count();
+        $totalMembers  = $team->users()->count();
 
         $users = User::where('id', '!=', $id)->where('id', '!=', $team->second_lead_id)->where('is_active', 1)->get()->pluck('name', 'id');
 
@@ -1308,9 +1308,9 @@ class UserManagementController extends Controller
         }
 
         return response()->json([
-            'code' => 200,
-            'team' => $team,
-            'users' => $users,
+            'code'         => 200,
+            'team'         => $team,
+            'users'        => $users,
             'second_users' => ! empty($second_users->name) ? $second_users->name : '',
             'totalMembers' => $totalMembers,
         ]);
@@ -1329,7 +1329,7 @@ class UserManagementController extends Controller
             ]);
         } else {
             return response()->json([
-                'code' => 200,
+                'code'    => 200,
                 'message' => 'Unauthorized access',
             ]);
         }
@@ -1357,13 +1357,13 @@ class UserManagementController extends Controller
                         $isLeader = Team::where('user_id', $mem)->first();
                         if (! $isMember && ! $isLeader) {
                             $team->users()->attach($mem);
-                            $response[$key]['msg'] = $u->name . ' added in team successfully';
+                            $response[$key]['msg']    = $u->name . ' added in team successfully';
                             $response[$key]['status'] = 'success';
                         } elseif ($isMember) {
-                            $response[$key]['msg'] = $u->name . ' is already team member';
+                            $response[$key]['msg']    = $u->name . ' is already team member';
                             $response[$key]['status'] = 'error';
                         } else {
-                            $response[$key]['msg'] = $u->name . ' is already team leader';
+                            $response[$key]['msg']    = $u->name . ' is already team leader';
                             $response[$key]['status'] = 'error';
                         }
                     }
@@ -1377,7 +1377,7 @@ class UserManagementController extends Controller
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Unauthorized access',
         ]);
     }
@@ -1386,17 +1386,17 @@ class UserManagementController extends Controller
     {
         \Log::info('Request:' . json_encode($request->all()));
         $rules = [
-            'user_id' => 'required',
-            'to' => 'required',
-            'from' => 'required|lte:to',
-            'day' => 'required',
-            'status' => 'required',
-            'availableDay' => 'required',
+            'user_id'       => 'required',
+            'to'            => 'required',
+            'from'          => 'required|lte:to',
+            'day'           => 'required',
+            'status'        => 'required',
+            'availableDay'  => 'required',
             'availableHour' => 'required',
-            'startTime' => 'required',
-            'endTime' => 'required',
-            'lunchTime' => 'required',
-            'note' => 'required_if:status,"0"',
+            'startTime'     => 'required',
+            'endTime'       => 'required',
+            'lunchTime'     => 'required',
+            'note'          => 'required_if:status,"0"',
         ];
 
         $validator = \Validator::make($request->all(), $rules);
@@ -1410,7 +1410,7 @@ class UserManagementController extends Controller
             }
 
             return response()->json([
-                'code' => 500,
+                'code'  => 500,
                 'error' => $message,
             ]);
         }
@@ -1420,16 +1420,16 @@ class UserManagementController extends Controller
         UserAvaibility::updateOrCreate([
             'user_id' => $request->user_id,
         ], [
-            'date' => $nextDay,
-            'user_id' => $request->user_id,
-            'from' => $request->from,
-            'to' => $request->to,
-            'day' => $request->availableDay,
-            'minute' => $request->availableHour,
-            'status' => $request->status,
-            'note' => trim($request->note),
+            'date'       => $nextDay,
+            'user_id'    => $request->user_id,
+            'from'       => $request->from,
+            'to'         => $request->to,
+            'day'        => $request->availableDay,
+            'minute'     => $request->availableHour,
+            'status'     => $request->status,
+            'note'       => trim($request->note),
             'start_time' => $request->startTime,
-            'end_time' => $request->endTime,
+            'end_time'   => $request->endTime,
             'lunch_time' => $request->lunchTime,
         ]);
 
@@ -1445,7 +1445,7 @@ class UserManagementController extends Controller
         // $user_avaibility->save();
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Successful',
         ]);
     }
@@ -1457,21 +1457,21 @@ class UserManagementController extends Controller
     {
         $avaibility = UserAvaibility::where('user_id', $id)->first();
         if ($avaibility) {
-            $avaibility['weekday'] = explode(',', $avaibility['date']);
+            $avaibility['weekday']   = explode(',', $avaibility['date']);
             $avaibility['date_from'] = date('Y-m-d', strtotime($avaibility['from']));
-            $avaibility['date_to'] = date('Y-m-d', strtotime($avaibility['to']));
+            $avaibility['date_to']   = date('Y-m-d', strtotime($avaibility['to']));
         }
         // $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id',352204)->sum('tracked');
 
-        $userhubstafftotal = \DB::table('hubstaff_activities')->where('user_id', $id)->whereBetween('starts_at', [$avaibility['date_from'], $avaibility['date_to']])->sum('tracked');
+        $userhubstafftotal               = \DB::table('hubstaff_activities')->where('user_id', $id)->whereBetween('starts_at', [$avaibility['date_from'], $avaibility['date_to']])->sum('tracked');
         $avaibility['userhubstafftotal'] = $userhubstafftotal;
 
         // \Log::info('HubStaff'.json_encode($userhubstafftotal));
-        $avaibility['user_id'] = $id;
+        $avaibility['user_id']    = $id;
         $avaibility['start_time'] = date('H:i', strtotime($avaibility['start_time']));
-        $avaibility['end_time'] = date('H:i', strtotime($avaibility['end_time']));
+        $avaibility['end_time']   = date('H:i', strtotime($avaibility['end_time']));
         $avaibility['lunch_time'] = date('H:i', strtotime($avaibility['lunch_time']));
-        $avaibility['minute'] = date('H:i', strtotime($avaibility['minute']));
+        $avaibility['minute']     = date('H:i', strtotime($avaibility['minute']));
         //\Log::info('avaibility:'.json_encode($avaibility));
         return response()->json(['code' => 200, 'data' => $avaibility]);
     }
@@ -1518,8 +1518,8 @@ class UserManagementController extends Controller
 
     public function userAvaibility($id)
     {
-        $user = User::find($id);
-        $today = date('Y-m-d');
+        $user       = User::find($id);
+        $today      = date('Y-m-d');
         $avaibility = UserAvaibility::where('user_id', $id)->where('date', '>=', $today)->get();
         foreach ($avaibility as $av) {
             $av->day = date('D', strtotime($av['date']));
@@ -1527,8 +1527,8 @@ class UserManagementController extends Controller
         $avaibility = $avaibility->toArray();
 
         return response()->json([
-            'code' => 200,
-            'user' => $user,
+            'code'       => 200,
+            'user'       => $user,
             'avaibility' => $avaibility,
         ]);
     }
@@ -1549,7 +1549,7 @@ class UserManagementController extends Controller
         if ($user) {
             $user->update(['approve_login' => date('Y-m-d')]);
 
-            $params = [];
+            $params            = [];
             $params['user_id'] = $user->id;
             $params['message'] = "Your activity has been approved for today's date " . date('Y-m-d');
             // send chat message
@@ -1566,7 +1566,7 @@ class UserManagementController extends Controller
 
     public function getDatabase(Request $request, $id)
     {
-        $database = \App\UserDatabase::where('user_id', $id)->where('database', 'mysql')->first();
+        $database       = \App\UserDatabase::where('user_id', $id)->where('database', 'mysql')->first();
         $tablesExisting = [];
         if ($database) {
             $tablesExisting = \App\UserDatabaseTable::where('user_database_id', $database->id)->pluck('name', 'id')->toArray();
@@ -1574,7 +1574,7 @@ class UserManagementController extends Controller
 
         $user = \App\User::find($id);
 
-        $list = [];
+        $list   = [];
         $tables = \DB::select('SHOW TABLES');
         foreach ($tables as $table) {
             foreach ($table as $t) {
@@ -1582,13 +1582,13 @@ class UserManagementController extends Controller
             }
         }
         $data = [
-            'user_id' => $id,
-            'database' => $database,
-            'tables' => $list,
-            'user_name' => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
-            'password' => ($database) ? $database->password : '',
+            'user_id'        => $id,
+            'database'       => $database,
+            'tables'         => $list,
+            'user_name'      => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
+            'password'       => ($database) ? $database->password : '',
             'tablesExisting' => $tablesExisting,
-            'connection' => 'mysql',
+            'connection'     => 'mysql',
         ];
 
         return response()->json(['code' => 200, 'data' => $data]);
@@ -1629,7 +1629,7 @@ class UserManagementController extends Controller
                 if ($storeWebsite->mysql_password == '') {
                     return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
                 }
-                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['host']     = $storeWebsite->server_ip;
                 $connectionInformation['database'] = $storeWebsite->database_name;
                 $connectionInformation['username'] = $storeWebsite->mysql_username;
                 $connectionInformation['password'] = $storeWebsite->mysql_password;
@@ -1645,26 +1645,26 @@ class UserManagementController extends Controller
         if ($user) {
             $database = \App\UserDatabase::where('user_id', $user->id)->where('database', $connection)->first();
             if (! $database) {
-                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create -h ' . $connectionInformation['host'] . ' -d ' . $connectionInformation['database'] . ' -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -n '" . $username . "' -s '" . $password . "' 2>&1";
-                $allOutput = [];
+                $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create -h ' . $connectionInformation['host'] . ' -d ' . $connectionInformation['database'] . ' -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -n '" . $username . "' -s '" . $password . "' 2>&1";
+                $allOutput   = [];
                 $allOutput[] = $cmd;
-                $result = exec($cmd, $allOutput);
+                $result      = exec($cmd, $allOutput);
                 \Log::info(print_r($allOutput, true));
                 \App\UserDatabase::create([
                     'username' => $username,
                     'password' => $password,
                     'database' => $connection,
-                    'user_id' => $id,
+                    'user_id'  => $id,
                 ]);
 
                 \App\Models\UserDatabaseLog::create([
-                    'user_id' => $id,
-                    'request_data' => $cmd,
+                    'user_id'       => $id,
+                    'request_data'  => $cmd,
                     'response_data' => json_encode($allOutput),
-                    'updated_by' => Auth::id(),
+                    'updated_by'    => Auth::id(),
                 ]);
 
-                $params = [];
+                $params            = [];
                 $params['user_id'] = $user->id;
                 $params['message'] = 'We have created user with username : ' . $username . ' and password : ' . $password . ' , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.';
                 // send chat message
@@ -1705,7 +1705,7 @@ class UserManagementController extends Controller
                 if ($storeWebsite->mysql_password == '') {
                     return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
                 }
-                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['host']     = $storeWebsite->server_ip;
                 $connectionInformation['database'] = $storeWebsite->database_name;
                 $connectionInformation['username'] = $storeWebsite->mysql_username;
                 $connectionInformation['password'] = $storeWebsite->mysql_password;
@@ -1717,9 +1717,9 @@ class UserManagementController extends Controller
             return response()->json(['code' => 500, 'message' => 'No , database connection is not available']);
         }
 
-        $database = \App\UserDatabase::where('user_id', $id)->where('database', $connection)->first();
-        $user = \App\User::find($id);
-        $tables = ! empty($request->tables) ? $request->tables : [];
+        $database       = \App\UserDatabase::where('user_id', $id)->where('database', $connection)->first();
+        $user           = \App\User::find($id);
+        $tables         = ! empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get('assign_permission', 'read');
 
         if ($database) {
@@ -1732,10 +1732,10 @@ class UserManagementController extends Controller
                     }
                 }
                 if (! empty($deleteTables)) {
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $deleteTables) . ' 2>&1';
-                    $allOutput = [];
+                    $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $deleteTables) . ' 2>&1';
+                    $allOutput   = [];
                     $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput);
+                    $result      = exec($cmd, $allOutput);
                     \Log::info(print_r($allOutput, true));
                 }
             }
@@ -1746,25 +1746,25 @@ class UserManagementController extends Controller
                 foreach ($tables as $t) {
                     \App\UserDatabaseTable::create([
                         'user_database_id' => $database->id,
-                        'name' => $t,
+                        'name'             => $t,
                     ]);
                 }
             }
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $tables) . " -m '" . $permissionType . "' 2>&1";
-            $allOutput = [];
+            $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . " -n '" . $database->username . "' -t " . implode(',', $tables) . " -m '" . $permissionType . "' 2>&1";
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result      = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput, true));
 
             \App\Models\UserDatabaseLog::create([
-                'user_id' => $user->id,
-                'request_data' => $cmd,
+                'user_id'       => $user->id,
+                'request_data'  => $cmd,
                 'response_data' => json_encode($allOutput),
-                'updated_by' => Auth::id(),
+                'updated_by'    => Auth::id(),
             ]);
 
-            $params = [];
+            $params            = [];
             $params['user_id'] = $user->id;
             $params['message'] = 'Your request for given table (' . implode(',', $tables) . ')  has been approved , please verify at your end.';
             // send chat message
@@ -1802,7 +1802,7 @@ class UserManagementController extends Controller
                 if ($storeWebsite->mysql_password == '') {
                     return response()->json(['code' => '500',  'message' => 'MySql Username password is not set!']);
                 }
-                $connectionInformation['host'] = $storeWebsite->server_ip;
+                $connectionInformation['host']     = $storeWebsite->server_ip;
                 $connectionInformation['database'] = $storeWebsite->database_name;
                 $connectionInformation['username'] = $storeWebsite->mysql_username;
                 $connectionInformation['password'] = $storeWebsite->mysql_password;
@@ -1816,10 +1816,10 @@ class UserManagementController extends Controller
 
         $database = \App\UserDatabase::where('user_id', $id)->where('database', $connection)->first();
         if ($database) {
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . "  -n '" . $database->username . "' 2>&1";
-            $allOutput = [];
+            $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete -h ' . $connectionInformation['host'] . '  -u ' . $connectionInformation['username'] . " -p '" . $connectionInformation['password'] . "' -d " . $connectionInformation['database'] . "  -n '" . $database->username . "' 2>&1";
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result      = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput, true));
             foreach ($database->userDatabaseTables as $dbtables) {
                 $dbtables->delete();
@@ -1827,10 +1827,10 @@ class UserManagementController extends Controller
             $database->delete();
 
             \App\Models\UserDatabaseLog::create([
-                'user_id' => $id,
-                'request_data' => $cmd,
+                'user_id'       => $id,
+                'request_data'  => $cmd,
                 'response_data' => json_encode($allOutput),
-                'updated_by' => Auth::id(),
+                'updated_by'    => Auth::id(),
             ]);
 
             return response()->json(['code' => 200, 'message' => 'Database access has been removed']);
@@ -1843,7 +1843,7 @@ class UserManagementController extends Controller
     {
         $connection = $request->get('connection');
 
-        $database = \App\UserDatabase::where('database', $connection)->where('user_id', $id)->first();
+        $database       = \App\UserDatabase::where('database', $connection)->where('user_id', $id)->first();
         $tablesExisting = [];
         if ($database) {
             $tablesExisting = \App\UserDatabaseTable::where('user_database_id', $database->id)->pluck('name', 'id')->toArray();
@@ -1851,13 +1851,13 @@ class UserManagementController extends Controller
 
         $user = \App\User::find($id);
 
-        $list = [];
+        $list   = [];
         $tables = [];
         if ($connection != 'mysql') {
             $storeWebsite = \App\StoreWebsite::where('id', $connection)->first();
             if ($storeWebsite) {
-                $server_ip = $storeWebsite->server_ip;
-                $database_name = $storeWebsite->database_name;
+                $server_ip      = $storeWebsite->server_ip;
+                $database_name  = $storeWebsite->database_name;
                 $mysql_username = $storeWebsite->mysql_username;
                 $mysql_password = $storeWebsite->mysql_password;
                 if ($server_ip == '') {
@@ -1906,13 +1906,13 @@ class UserManagementController extends Controller
             }
         }
         $data = [
-            'user_id' => $id,
-            'database' => $database,
-            'tables' => $list,
-            'user_name' => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
-            'password' => ($database) ? $database->password : '',
+            'user_id'        => $id,
+            'database'       => $database,
+            'tables'         => $list,
+            'user_name'      => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
+            'password'       => ($database) ? $database->password : '',
             'tablesExisting' => $tablesExisting,
-            'connection' => $connection,
+            'connection'     => $connection,
         ];
 
         return response()->json(['code' => 200, 'data' => $data]);
@@ -1958,16 +1958,16 @@ class UserManagementController extends Controller
         if (! $server) {
             return redirect()->back()->with('error', 'Server data not found!');
         }
-        $server = $server->ip;
-        $username = $pemHistory->username;
+        $server     = $server->ip;
+        $username   = $pemHistory->username;
         $public_key = $pemHistory->public_key;
         if ($public_key == '') {
             return redirect()->back()->with('error', 'Public key is not found!');
         }
 
         $access_type = $pemHistory->access_type;
-        $content = $pemHistory->pem_content;
-        $nameF = $pemHistory->server_name . '.pem';
+        $content     = $pemHistory->pem_content;
+        $nameF       = $pemHistory->server_name . '.pem';
 
         //header download
         header('Content-Disposition: attachment; filename="' . $nameF . '"');
@@ -1984,7 +1984,7 @@ class UserManagementController extends Controller
     public function userGenerateStorefile(Request $request)
     {
         $server_id = $request->get('for_server');
-        $user = \App\User::find($request->get('userid', 0));
+        $user      = \App\User::find($request->get('userid', 0));
         if (! $user) {
             return response()->json(['code' => 500, 'message' => 'User data Not found!']);
         }
@@ -1993,26 +1993,26 @@ class UserManagementController extends Controller
             return response()->json(['code' => 500, 'message' => 'Please enter public key']);
         }
         $access_type = $request->get('access_type', 'sftp');
-        $server = AssetsManager::where('id', $server_id)->first();
+        $server      = AssetsManager::where('id', $server_id)->first();
         if (! $server) {
             return response()->json(['code' => 500, 'message' => 'Server data Not found!']);
         }
         $user_role = $request->get('user_role');
-        $username = str_replace(' ', '_', $user->name);
+        $username  = str_replace(' ', '_', $user->name);
 
         $var_t_sftp = 'true';
-        $var_b_ssh = 'false';
+        $var_b_ssh  = 'false';
         if ($access_type == 'ssh') {
             $var_t_sftp = 'false';
-            $var_b_ssh = 'true';
+            $var_b_ssh  = 'true';
         }
         $server_ip = $server->ip;
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $username . ' -f add -s ' . $server_ip . ' -t ' . $var_t_sftp . '  -b ' . $var_b_ssh . '  -k "' . $public_key . '" -R ' . $user_role . ' 2>&1';
         \Log::info('Generate Pem Files:');
-        $allOutput = [];
+        $allOutput   = [];
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput, $return_var);
+        $result      = exec($cmd, $allOutput, $return_var);
 
         \Log::info(print_r($allOutput, true));
 
@@ -2021,7 +2021,7 @@ class UserManagementController extends Controller
             $continuetoFill = false;
             foreach ($allOutput as $ao) {
                 if (strpos($ao, 'PRIVATE KEY-----') !== false || $continuetoFill) {
-                    $string[] = $ao;
+                    $string[]       = $ao;
                     $continuetoFill = true;
                 }
             }
@@ -2031,17 +2031,17 @@ class UserManagementController extends Controller
         $content = $content . "\n";
 
         $userPemfileHistory = UserPemfileHistory::create([
-            'user_id' => $request->userid,
-            'server_id' => $server->id,
+            'user_id'     => $request->userid,
+            'server_id'   => $server->id,
             'server_name' => $server->name,
-            'server_ip' => $server->ip,
-            'username' => $username,
-            'public_key' => $public_key,
+            'server_ip'   => $server->ip,
+            'username'    => $username,
+            'public_key'  => $public_key,
             'access_type' => $access_type,
-            'user_role' => $user_role,
+            'user_role'   => $user_role,
             'pem_content' => $content,
-            'action' => 'add',
-            'created_by' => $request->user()->id,
+            'action'      => 'add',
+            'created_by'  => $request->user()->id,
         ]);
 
         (new UserPemfileHistoryLog())->saveLog($userPemfileHistory->id, $cmd, $allOutput, $return_var);
@@ -2065,21 +2065,21 @@ class UserManagementController extends Controller
                 return response()->json(['code' => 500, 'data' => [], 'message' => 'Server data not found!']);
             }
             $access_type = $pemHistory->access_type;
-            $var_t_sftp = true;
-            $var_b_ssh = false;
+            $var_t_sftp  = true;
+            $var_b_ssh   = false;
             if ($access_type == 'ssh') {
                 $var_t_sftp = false;
-                $var_b_ssh = true;
+                $var_b_ssh  = true;
             }
 
             \Log::info('Disable Pem Access:' . $id);
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f disable -s ' . $server->id . ' -t ' . $var_t_sftp . '  -b ' . $var_b_ssh . '  2>&1';
 
-            $allOutput = [];
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput, $return_var);
+            $result      = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
-            $pemHistory->action = 'disable';
+            $pemHistory->action     = 'disable';
             $pemHistory->created_by = auth()->user()->id;
             $pemHistory->save();
 
@@ -2101,11 +2101,11 @@ class UserManagementController extends Controller
             }
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u ' . $pemHistory->username . ' -f delete -s ' . $server->id . ' 2>&1';
             \Log::info('Delete Pem Access:' . $id);
-            $allOutput = [];
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput, $return_var);
+            $result      = exec($cmd, $allOutput, $return_var);
             \Log::info(print_r($allOutput, true));
-            $pemHistory->action = 'delete';
+            $pemHistory->action     = 'delete';
             $pemHistory->created_by = auth()->user()->id;
             $pemHistory->save();
             $pemHistory->delete();
@@ -2124,8 +2124,8 @@ class UserManagementController extends Controller
         if ($cat->count() != 0) {
             return response()->json(['message' => 'Category already exists']);
         }
-        $category = new UserFeedbackCategory;
-        $category->user_id = Auth::id();
+        $category           = new UserFeedbackCategory;
+        $category->user_id  = Auth::id();
         $category->category = $request->category;
         $category->save();
         $status = UserFeedbackStatus::get();
@@ -2138,7 +2138,7 @@ class UserManagementController extends Controller
     {
         $status = UserFeedbackStatus::where('status', $request->status);
         if ($status->count() === 0) {
-            $feedback_status = new UserFeedbackStatus;
+            $feedback_status         = new UserFeedbackStatus;
             $feedback_status->status = $request->status;
             $feedback_status->save();
             // return view('usermanagement::user-feedback-data',compact('status'));
@@ -2152,7 +2152,7 @@ class UserManagementController extends Controller
     {
         $status = UserFeedbackStatus::get();
 
-        $user_id = $request->user_id;
+        $user_id  = $request->user_id;
         $category = UserFeedbackCategory::groupBy('category')->get();
 
         return view('usermanagement::user-feedback-table', compact('category', 'status', 'user_id'));
@@ -2160,15 +2160,15 @@ class UserManagementController extends Controller
 
     public function updateFeedbackStatus(Request $request)
     {
-        $cat_id = $request->cat_id;
-        $user_id = $request->user_id;
+        $cat_id    = $request->cat_id;
+        $user_id   = $request->user_id;
         $status_id = $request->status_id;
-        $status = UserFeedbackStatusUpdate::where('user_feedback_category_id', $cat_id)->where('user_id', $user_id)->first();
+        $status    = UserFeedbackStatusUpdate::where('user_feedback_category_id', $cat_id)->where('user_id', $user_id)->first();
         if (! $status) {
             $status = new UserFeedbackStatusUpdate;
         }
-        $status->user_id = $user_id;
-        $status->user_feedback_status_id = $status_id ? $status_id : 0;
+        $status->user_id                   = $user_id;
+        $status->user_feedback_status_id   = $status_id ? $status_id : 0;
         $status->user_feedback_category_id = $cat_id;
         $status->save();
 
@@ -2183,7 +2183,7 @@ class UserManagementController extends Controller
 
         return response()->json([
             'message' => request('is_task_planned') ? 'User unflagged successfully.' : 'User flagged successfully.',
-            'flag' => request('is_task_planned') ? 0 : 1,
+            'flag'    => request('is_task_planned') ? 0 : 1,
         ]);
     }
 
@@ -2202,13 +2202,13 @@ class UserManagementController extends Controller
         $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
 
         return view('usermanagement::user-schedules.index', [
-            'title' => 'User Schedules',
+            'title'       => 'User Schedules',
             'urlLoadData' => route('user-management.user-schedules.load-data'),
-            'statusList' => $statusList,
-            'userType' => $userType,
-            'allUsers' => $allUsers,
-            'status' => $status,
-            'listUsers' => User::dropdown([
+            'statusList'  => $statusList,
+            'userType'    => $userType,
+            'allUsers'    => $allUsers,
+            'status'      => $status,
+            'listUsers'   => User::dropdown([
                 'is_active' => 1,
             ]),
 
@@ -2219,15 +2219,15 @@ class UserManagementController extends Controller
     {
         $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $query          = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query          = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
         //print_r($taskStatistics);
-        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertask           = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1              = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1              = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
-        $merged = $othertaskStatistics->merge($taskStatistics);
+        $merged              = $othertaskStatistics->merge($taskStatistics);
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
@@ -2236,8 +2236,8 @@ class UserManagementController extends Controller
     {
         $taskStatistics['Devtask'] = DeveloperTask::where('subject', 'LIKE', '%User Schedules Page - %')->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('subject', 'LIKE', '%User Schedules Page - %')->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $query          = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('subject', 'LIKE', '%User Schedules Page - %')->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query          = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
 
         $merged = $taskStatistics;
@@ -2247,9 +2247,9 @@ class UserManagementController extends Controller
 
     public function addNewRequest(Request $request)
     {
-        $UserScheduleRequest = new UserScheduleRequest;
-        $UserScheduleRequest->user_id = $request->user_id;
-        $UserScheduleRequest->request_date = $request->request_date;
+        $UserScheduleRequest                 = new UserScheduleRequest;
+        $UserScheduleRequest->user_id        = $request->user_id;
+        $UserScheduleRequest->request_date   = $request->request_date;
         $UserScheduleRequest->request_status = 'requested';
         $UserScheduleRequest->save();
 
@@ -2261,7 +2261,7 @@ class UserManagementController extends Controller
         $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $request->user_id)->where('request_date', '=', $request->request_date)->orderBy('id', 'DESC')->first();
 
         $UserScheduleRequested->request_status = $request->request_status;
-        $UserScheduleRequested->updated_by = Auth::id();
+        $UserScheduleRequested->updated_by     = Auth::id();
         $UserScheduleRequested->update();
 
         return $UserScheduleRequested;
@@ -2271,8 +2271,8 @@ class UserManagementController extends Controller
     {
         try {
             $usertemp = 0;
-            $count = 0;
-            $data = [];
+            $count    = 0;
+            $data     = [];
 
             $isPrint = ! request()->ajax();
 
@@ -2282,7 +2282,7 @@ class UserManagementController extends Controller
             $stDate = request('srchDateFrom');
             $enDate = request('srchDateTo');
             if ($stDate && $enDate) {
-                $filterDates = dateRangeArr($stDate, $enDate);
+                $filterDates    = dateRangeArr($stDate, $enDate);
                 $filterDatesNew = [];
                 foreach ($filterDates as $row) {
                     $filterDatesNew[$row['date']] = $row;
@@ -2332,8 +2332,8 @@ class UserManagementController extends Controller
                     foreach ($users as $single) {
                         $userIds[] = $single->id;
                         if ($single->uaId) {
-                            $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
-                            $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
+                            $single->uaStTime    = date('H:i:00', strtotime($single->uaStTime));
+                            $single->uaEnTime    = date('H:i:00', strtotime($single->uaEnTime));
                             $single->uaLunchTime = $single->uaLunchTime ? date('H:i:00', strtotime($single->uaLunchTime)) : '';
 
                             $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
@@ -2341,23 +2341,23 @@ class UserManagementController extends Controller
                             $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime, $single);
 
                             $userArr[] = [
-                                'id' => $single->id,
-                                'name' => $single->name,
-                                'uaLunchTime' => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
-                                'uaId' => $single->uaId,
-                                'uaDays' => $single->uaDays,
-                                'availableDays' => $single->uaDays,
+                                'id'             => $single->id,
+                                'name'           => $single->name,
+                                'uaLunchTime'    => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
+                                'uaId'           => $single->uaId,
+                                'uaDays'         => $single->uaDays,
+                                'availableDays'  => $single->uaDays,
                                 'availableDates' => $availableDates,
                                 'availableSlots' => $availableSlots,
                             ];
                         } else {
                             $userArr[] = [
-                                'id' => $single->id,
-                                'name' => $single->name,
-                                'uaLunchTime' => null,
-                                'uaId' => null,
-                                'uaDays' => [],
-                                'availableDays' => [],
+                                'id'             => $single->id,
+                                'name'           => $single->name,
+                                'uaLunchTime'    => null,
+                                'uaId'           => null,
+                                'uaDays'         => [],
+                                'availableDays'  => [],
                                 'availableDates' => [],
                                 'availableSlots' => [],
                             ];
@@ -2365,8 +2365,8 @@ class UserManagementController extends Controller
                     }
 
                     // Get Tasks & Developer Tasks -- Arrange with End time & Mins
-                    $tasksArr = [];
-                    $usertasksArr = [];
+                    $tasksArr        = [];
+                    $usertasksArr    = [];
                     $userdevtasksArr = [];
                     if ($userIds) {
                         $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
@@ -2392,21 +2392,21 @@ class UserManagementController extends Controller
                                 // }
 
                                 if (! in_array($task->id, $usertasksArr)) {
-                                    $usertasksArr[] = $task->id;
+                                    $usertasksArr[]                                 = $task->id;
                                     $tasksArr[$task->assigned_to][$task->status2][] = [
-                                        'id' => $task->id,
-                                        'typeId' => $task->type . '-' . $task->id,
-                                        'stDate' => $task->st_date,
-                                        'enDate' => $task->en_date,
-                                        'status' => $task->status,
-                                        'status2' => $task->status2,
-                                        'mins' => $task->est_minutes,
-                                        'manually_assign' => $task->manually_assign,
+                                        'id'               => $task->id,
+                                        'typeId'           => $task->type . '-' . $task->id,
+                                        'stDate'           => $task->st_date,
+                                        'enDate'           => $task->en_date,
+                                        'status'           => $task->status,
+                                        'status2'          => $task->status2,
+                                        'mins'             => $task->est_minutes,
+                                        'manually_assign'  => $task->manually_assign,
                                         'estimate_minutes' => $task->estimate_minutes,
-                                        'slotTaskRemarks' => $task->slotTaskRemarks,
-                                        'task_type' => 'tasks',
-                                        'mt_start_date' => $task->mt_start_date,
-                                        'mt_end_date' => $task->mt_end_date,
+                                        'slotTaskRemarks'  => $task->slotTaskRemarks,
+                                        'task_type'        => 'tasks',
+                                        'mt_start_date'    => $task->mt_start_date,
+                                        'mt_end_date'      => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -2416,23 +2416,23 @@ class UserManagementController extends Controller
                                 if (! in_array($task->id, $usertasksArr)) {
                                     $usertasksArr[] = $task->id;
 
-                                    $task->est_minutes = 20;
-                                    $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
-                                    $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                                    $task->est_minutes                              = 20;
+                                    $task->st_date                                  = $task->st_date ?: date('Y-m-d H:i:00');
+                                    $task->en_date                                  = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
                                     $tasksArr[$task->assigned_to][$task->status2][] = [
-                                        'id' => $task->id,
-                                        'typeId' => $task->type . '-' . $task->id,
-                                        'stDate' => $task->st_date,
-                                        'enDate' => $task->en_date,
-                                        'status' => $task->status,
-                                        'status2' => $task->status2,
-                                        'mins' => $task->est_minutes,
-                                        'manually_assign' => $task->manually_assign,
+                                        'id'               => $task->id,
+                                        'typeId'           => $task->type . '-' . $task->id,
+                                        'stDate'           => $task->st_date,
+                                        'enDate'           => $task->en_date,
+                                        'status'           => $task->status,
+                                        'status2'          => $task->status2,
+                                        'mins'             => $task->est_minutes,
+                                        'manually_assign'  => $task->manually_assign,
                                         'estimate_minutes' => $task->estimate_minutes,
-                                        'slotTaskRemarks' => $task->slotTaskRemarks,
-                                        'task_type' => 'dev_tasks',
-                                        'mt_start_date' => $task->mt_start_date,
-                                        'mt_end_date' => $task->mt_end_date,
+                                        'slotTaskRemarks'  => $task->slotTaskRemarks,
+                                        'task_type'        => 'dev_tasks',
+                                        'mt_start_date'    => $task->mt_start_date,
+                                        'mt_end_date'      => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -2453,8 +2453,8 @@ class UserManagementController extends Controller
                                         $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
                                         // dd($res, $userTasks);
 
-                                        $userTasks = $res['userTasks'] ?? [];
-                                        $slot['taskIds'] = $res['taskIds'] ?? [];
+                                        $userTasks         = $res['userTasks'] ?? [];
+                                        $slot['taskIds']   = $res['taskIds'] ?? [];
                                         $slot['userTasks'] = $res['userTasks'] ?? [];
                                     }
                                     // else if ($slotRow['type'] == 'LUNCH') {
@@ -2480,8 +2480,8 @@ class UserManagementController extends Controller
                                 $divSlots = [];
                                 // dd($slots);
                                 foreach ($slots as $slot) {
-                                    $title = '';
-                                    $class = '';
+                                    $title   = '';
+                                    $class   = '';
                                     $display = [
                                         date('H:i', strtotime($slot['st'])),
                                         ' - ',
@@ -2494,25 +2494,25 @@ class UserManagementController extends Controller
                                         date('H:i', strtotime($slot['en'])),
                                     ];
 
-                                    $displayManually = [];
-                                    $displayText = [];
-                                    $displayTextManually = [];
-                                    $displayManuallyMove = [];
-                                    $taskArray = [];
-                                    $devtaskArray = [];
-                                    $plusIconArray = [];
-                                    $avaibilityGreenTask = [];
+                                    $displayManually      = [];
+                                    $displayText          = [];
+                                    $displayTextManually  = [];
+                                    $displayManuallyMove  = [];
+                                    $taskArray            = [];
+                                    $devtaskArray         = [];
+                                    $plusIconArray        = [];
+                                    $avaibilityGreenTask  = [];
                                     $avaibilityYellowTask = [];
                                     $avaibilityOrangeTask = [];
 
                                     if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END', 'PAST'])) {
-                                        $ut_array = [];
+                                        $ut_array         = [];
                                         $ut_arrayManually = [];
 
                                         if ($slot['type'] == 'PAST') {
                                             $todaydate = date('Y-m-d');
-                                            $pastdate = date('Y-m-d', strtotime(' -1 day'));
-                                            $slotdate = date('Y-m-d', strtotime($slot['st']));
+                                            $pastdate  = date('Y-m-d', strtotime(' -1 day'));
+                                            $slotdate  = date('Y-m-d', strtotime($slot['st']));
 
                                             if ($todaydate == $slotdate || $pastdate == $slotdate) {
                                                 if (! empty($slot['userTasks'])) {
@@ -2596,8 +2596,8 @@ class UserManagementController extends Controller
                                                 } elseif ($slot['type'] == 'LUNCH-END') {
                                                     $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
                                                 } else {
-                                                    $class = 'text-secondary';
-                                                    $display[] = '';
+                                                    $class           = 'text-secondary';
+                                                    $display[]       = '';
                                                     $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';
                                                 }
                                             } else {
@@ -2773,8 +2773,8 @@ class UserManagementController extends Controller
                                             } elseif ($slot['type'] == 'LUNCH-END') {
                                                 $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
                                             } else {
-                                                $class = 'text-secondary';
-                                                $display[] = '';
+                                                $class           = 'text-secondary';
+                                                $display[]       = '';
                                                 $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" title="Add Task"><i class="fa fa-plus" aria-hidden="true"></i></a>';
                                             }
                                         }
@@ -2786,11 +2786,11 @@ class UserManagementController extends Controller
 
                                         $plusIcon = implode('', $plusIconArray);
                                     } elseif (in_array($slot['slot_type'], ['LUNCH'])) {
-                                        $title = 'Not Available';
-                                        $class = 'text-secondary';
+                                        $title     = 'Not Available';
+                                        $class     = 'text-secondary';
                                         $display[] = ' (' . $slot['slot_type'] . ')';
-                                        $display = '<s>' . implode('', $display) . '</s>';
-                                        $plusIcon = '';
+                                        $display   = '<s>' . implode('', $display) . '</s>';
+                                        $plusIcon  = '';
                                     } /*elseif (in_array($slot['slot_type'], ['PAST'])) {
 
                                         $todaydate = date("Y-m-d");
@@ -2818,11 +2818,11 @@ class UserManagementController extends Controller
                                     //     $display = '<s>'.implode('', $display).'</s>';
                                     // }
                                     elseif ($slot['type'] == 'FULL-LUNCH') {
-                                        $title = 'LUNCH';
-                                        $class = 'text-secondary';
+                                        $title     = 'LUNCH';
+                                        $class     = 'text-secondary';
                                         $display[] = ' (LUNCH)';
-                                        $display = '<s>' . implode('', $display) . '</s>';
-                                        $plusIcon = '';
+                                        $display   = '<s>' . implode('', $display) . '</s>';
+                                        $plusIcon  = '';
                                     }
                                     // elseif ($slot['type'] == "LUNCH-START") {
                                     //     dd($slot);
@@ -2938,9 +2938,9 @@ class UserManagementController extends Controller
                                 for ($p = 0; $p < 9; $p++) {
                                     $varid = 'slots' . $p;
                                     if (isset($divSlots[$p])) {
-                                        $str = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
-                                        $str = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
-                                        $str = str_replace('(PAST)', '<br>(PAST)', $divSlots[$p]);
+                                        $str                     = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
+                                        $str                     = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
+                                        $str                     = str_replace('(PAST)', '<br>(PAST)', $divSlots[$p]);
                                         $data[$usertemp][$varid] = $str;
                                     } else {
                                         $data[$usertemp][$varid] = '';
@@ -2958,8 +2958,8 @@ class UserManagementController extends Controller
                              */
 
                             $data[$usertemp] = [
-                                'name' => $user['name'],
-                                'date' => '-',
+                                'name'   => $user['name'],
+                                'date'   => '-',
                                 'slots0' => 'Availability is not set for this user.',
                                 'slots1' => '',
                                 'slots2' => '',
@@ -2980,10 +2980,10 @@ class UserManagementController extends Controller
                 }
 
                 return respJson(200, '', [
-                    'draw' => request('draw'),
-                    'recordsTotal' => $count,
+                    'draw'            => request('draw'),
+                    'recordsTotal'    => $count,
                     'recordsFiltered' => $count,
-                    'data' => $data,
+                    'data'            => $data,
                 ]);
             } else {
                 return respJson(400, 'From and To Date is required.');
@@ -3000,7 +3000,7 @@ class UserManagementController extends Controller
 
         $taskStatus = DeveloperTask::DEV_TASK_STATUS_FILTER;
 
-        $taskIds = [];
+        $taskIds   = [];
         $userTasks = [];
 
         if ($tasks) {
@@ -3009,9 +3009,9 @@ class UserManagementController extends Controller
                     if ($list = ($tasks[$key] ?? [])) {
                         foreach ($list as $k => $task) {
                             $SlotStart = Carbon::parse($slot['st']);
-                            $SlotEnd = Carbon::parse($slot['en']);
+                            $SlotEnd   = Carbon::parse($slot['en']);
                             $TaskStart = Carbon::parse($task['stDate']);
-                            $TaskEnd = Carbon::parse($task['enDate']);
+                            $TaskEnd   = Carbon::parse($task['enDate']);
 
                             if (
                                 ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
@@ -3024,7 +3024,7 @@ class UserManagementController extends Controller
 
                             if ($task['mt_start_date'] !== null && $task['mt_end_date'] !== null) {
                                 $TaskStart = Carbon::parse($task['mt_start_date']);
-                                $TaskEnd = Carbon::parse($task['mt_end_date']);
+                                $TaskEnd   = Carbon::parse($task['mt_end_date']);
 
                                 if (
                                     ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
@@ -3036,7 +3036,7 @@ class UserManagementController extends Controller
                                 }
                             } elseif ($task['mt_start_date'] !== null && $task['mt_end_date'] == null) {
                                 $TaskStart = Carbon::parse($task['mt_start_date']);
-                                $TaskEnd = Carbon::parse(Carbon::now());
+                                $TaskEnd   = Carbon::parse(Carbon::now());
 
                                 if (
                                     ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
@@ -3048,7 +3048,7 @@ class UserManagementController extends Controller
                                 }
                             }
                         }
-                        $list = array_values($list);
+                        $list        = array_values($list);
                         $tasks[$key] = $list;
                     }
                 }
@@ -3076,15 +3076,15 @@ class UserManagementController extends Controller
         }
         // print_r($userTasks);
         return [
-            'taskIds' => $taskIds ?? [],
+            'taskIds'   => $taskIds ?? [],
             'userTasks' => $userTasks ?? [],
         ];
     }
 
     public function typeWiseTasks($type, $wh, $task_status_value, $task_type_filter)
     {
-        $userIds = $wh['userIds'] ?? [0];
-        $taskStatuses = [];
+        $userIds         = $wh['userIds'] ?? [0];
+        $taskStatuses    = [];
         $devTaskStatuses = [];
 
         /*if ($type == 'IN_PROGRESS') {
@@ -3107,7 +3107,7 @@ class UserManagementController extends Controller
             $task_status_value_array = array_filter($task_status_value, fn ($ip_ids) => ! is_null($task_status_value));
             if (! in_array(null, $task_status_value_array)) {
                 foreach ($task_status_value as $key => $value) {
-                    $varTask_status = strtoupper(str_replace(' ', '_', $value));
+                    $varTask_status    = strtoupper(str_replace(' ', '_', $value));
                     $vardevTask_status = strtoupper(str_replace(' ', '_', $value));
 
                     $taskStatuses[] = Task::TASK_STATUS_FILTER[$varTask_status];
@@ -3264,7 +3264,7 @@ class UserManagementController extends Controller
             ]);
             $list = $q->get();
 
-            $html = [];
+            $html   = [];
             $html[] = '<table class="table table-bordered">';
             $html[] = '<thead>
                     <tr>
@@ -3321,7 +3321,7 @@ class UserManagementController extends Controller
         $q->where('user_avaibility_id', request('id'));
         $list = $q->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -3337,7 +3337,7 @@ class UserManagementController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
-                $html[] = '<tr>
+                $html[]     = '<tr>
                     <td>' . $single->id . '</td>
                     <td>' . $single->username . '</td>
                     <td>' . $single->from . ' - ' . $single->to . '</td>
@@ -3360,7 +3360,7 @@ class UserManagementController extends Controller
     public function deleteFeedbackCategory(Request $request)
     {
         try {
-            $userFCH = UserFeedbackCategorySopHistory::where('category_id', $request->id);
+            $userFCH    = UserFeedbackCategorySopHistory::where('category_id', $request->id);
             $getUserFCH = $userFCH->get();
             if (! empty($getUserFCH)) {
                 foreach ($getUserFCH as $key => $val) {
@@ -3449,11 +3449,11 @@ class UserManagementController extends Controller
 
         if (! empty($request->user_id) && ! empty($request->month) && ! empty($request->year)) {
             $desiredMonth = $request->month; // September (example)
-            $desiredYear = $request->year; // 2023 (example)
+            $desiredYear  = $request->year; // 2023 (example)
 
             // Create a Carbon instance for the specified month and year
             $startDate = Carbon::createFromDate($desiredYear, $desiredMonth, 1)->startOfMonth();
-            $endDate = $startDate->copy()->endOfMonth();
+            $endDate   = $startDate->copy()->endOfMonth();
 
             // Loop through each day of the specified month
 
@@ -3472,7 +3472,7 @@ class UserManagementController extends Controller
 
                         if ($value->start_date !== null && $value->estimate_date !== null) {
                             $startDate = Carbon::parse($value->start_date);
-                            $endDate = Carbon::parse($value->estimate_date);
+                            $endDate   = Carbon::parse($value->estimate_date);
 
                             $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
                         }
@@ -3491,7 +3491,7 @@ class UserManagementController extends Controller
 
                         if ($valueTask->start_date !== null && $valueTask->due_date !== null) {
                             $startDateTask = Carbon::parse($valueTask->start_date);
-                            $endDateTask = Carbon::parse($valueTask->due_date);
+                            $endDateTask   = Carbon::parse($valueTask->due_date);
 
                             $recordsTask[$keyTask]['totalMinutes'] = $endDateTask->diffInMinutes($startDateTask);
                         }

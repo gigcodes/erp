@@ -45,12 +45,12 @@ class CustomerListToEmailLead extends Command
             $i = 0;
             foreach ($customer as $val) {
                 $emailLead = new EmailLead();
-                $user = EmailLead::where('email', '=', $val->email)->first();
+                $user      = EmailLead::where('email', '=', $val->email)->first();
                 if ($user !== null) {
                     continue;
                 }
-                $emailLead->email = $val->email;
-                $emailLead->source = 'erp';
+                $emailLead->email      = $val->email;
+                $emailLead->source     = 'erp';
                 $emailLead->created_at = date('Y-m-d H:i:s');
                 $emailLead->save();
                 $i++;

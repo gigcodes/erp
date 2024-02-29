@@ -42,14 +42,14 @@ class ReplaceJpegImageWithJpg extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $medias = Media::where('extension', 'jpeg')->get();
 
             foreach ($medias as $media) {
-                $absolutePath = $media->getAbsolutePath();
+                $absolutePath    = $media->getAbsolutePath();
                 $newAbsolutePath = substr($absolutePath, 0, -4) . 'jpg';
 
                 if (file_exists($absolutePath)) {

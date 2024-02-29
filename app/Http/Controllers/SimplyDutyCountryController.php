@@ -57,7 +57,8 @@ class SimplyDutyCountryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
 
@@ -104,8 +105,8 @@ class SimplyDutyCountryController extends Controller
     public function getCountryFromApi()
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        $url = 'https://www.api.simplyduty.com/api/Supporting/supported-countries';
+        $ch        = curl_init();
+        $url       = 'https://www.api.simplyduty.com/api/Supporting/supported-countries';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -114,7 +115,7 @@ class SimplyDutyCountryController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCountryController::class, 'getCountryFromApi');
 
@@ -125,13 +126,13 @@ class SimplyDutyCountryController extends Controller
 
         foreach ($countries as $country) {
             $countryDetail = $country->Country;
-            $countryCode = $country->CountryCode;
+            $countryCode   = $country->CountryCode;
             //Country Code wtih Details
             $cat = SimplyDutyCountry::where('country_code', $countryCode)->where('country_name', $countryDetail)->first();
             if ($cat != '' && $cat != null) {
                 $cat->touch();
             } else {
-                $category = new SimplyDutyCountry;
+                $category               = new SimplyDutyCountry;
                 $category->country_code = $countryCode;
                 $category->country_name = $countryDetail;
                 $category->save();
@@ -176,17 +177,17 @@ class SimplyDutyCountryController extends Controller
             return response()->json(['success' => false, 'message' => 'Something went wrong!']);
         }
         $country = SimplyDutyCountry::find($request->input('id'));
-        $data = [
+        $data    = [
             'simply_duty_countries_id' => $country->id,
-            'old_segment' => $country->segment_id,
-            'new_segment' => $country->segment_id,
-            'old_duty' => $country->default_duty,
-            'new_duty' => $request->input('duty'),
-            'updated_by' => Auth::user()->id,
+            'old_segment'              => $country->segment_id,
+            'new_segment'              => $country->segment_id,
+            'old_duty'                 => $country->default_duty,
+            'new_duty'                 => $request->input('duty'),
+            'updated_by'               => Auth::user()->id,
 
         ];
         $country->default_duty = $request->input('duty');
-        $country->status = 0;
+        $country->status       = 0;
         SimplyDutyCountryHistory::insert($data);
         if ($country->save()) {
             $this->update_store_website_product_prices($country->country_code, $request->input('duty'));
@@ -199,19 +200,19 @@ class SimplyDutyCountryController extends Controller
 
     public function addsegment(Request $request)
     {
-        $cid = $request->cid;
-        $sid = $request->sid;
+        $cid  = $request->cid;
+        $sid  = $request->sid;
         $duty = SimplyDutyCountry::where('id', $cid)->first();
         $data = [
             'simply_duty_countries_id' => $duty->id,
-            'old_segment' => $duty->segment_id,
-            'new_segment' => $sid,
-            'old_duty' => $duty->default_duty,
-            'new_duty' => $duty->default_duty,
-            'updated_by' => Auth::user()->id,
+            'old_segment'              => $duty->segment_id,
+            'new_segment'              => $sid,
+            'old_duty'                 => $duty->default_duty,
+            'new_duty'                 => $duty->default_duty,
+            'updated_by'               => Auth::user()->id,
         ];
         $duty->segment_id = $sid;
-        $duty->status = 0;
+        $duty->status     = 0;
         $duty->save();
         SimplyDutyCountryHistory::insert($data);
 
@@ -227,22 +228,22 @@ class SimplyDutyCountryController extends Controller
 
     public function assignDefaultValue(Request $request)
     {
-        $value = $request->value;
+        $value   = $request->value;
         $segment = $request->segment;
         if ($value > 0 && $segment > 0) {
             $duty = SimplyDutyCountry::where('segment_id', $segment)->get();
             foreach ($duty as $d) {
                 $data = [
                     'simply_duty_countries_id' => $d->id,
-                    'old_segment' => $d->segment_id,
-                    'new_segment' => $d->segment_id,
-                    'old_duty' => $d->default_duty,
-                    'new_duty' => $value,
-                    'updated_by' => Auth::user()->id,
+                    'old_segment'              => $d->segment_id,
+                    'new_segment'              => $d->segment_id,
+                    'old_duty'                 => $d->default_duty,
+                    'new_duty'                 => $value,
+                    'updated_by'               => Auth::user()->id,
 
                 ];
                 $d->default_duty = $value;
-                $d->status = 0;
+                $d->status       = 0;
                 $d->save();
                 SimplyDutyCountryHistory::insert($data);
                 $this->update_store_website_product_prices($d->country_code, $value);

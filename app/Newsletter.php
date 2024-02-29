@@ -11,7 +11,6 @@ class Newsletter extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="subject",type="string")
      * @SWG\Property(property="mail_list_id",type="integer")

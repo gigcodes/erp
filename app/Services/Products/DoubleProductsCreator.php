@@ -15,21 +15,21 @@ class DoubleProductsCreator
     public function createDoubleProducts($image)
     {
         $data['sku'] = str_replace(' ', '', $image->sku);
-        $validator = Validator::make($data, [
+        $validator   = Validator::make($data, [
             'sku' => 'unique:products,sku',
         ]);
 
         if ($validator->fails()) {
         } else {
-            $product = new Product;
-            $product->sku = str_replace(' ', '', $image->sku);
-            $product->brand = $image->brand_id;
-            $product->supplier = 'Double F';
-            $product->name = $image->title;
+            $product                    = new Product;
+            $product->sku               = str_replace(' ', '', $image->sku);
+            $product->brand             = $image->brand_id;
+            $product->supplier          = 'Double F';
+            $product->name              = $image->title;
             $product->short_description = $image->description;
-            $product->supplier_link = $image->url;
-            $product->stage = 3;
-            $product->is_scraped = 1;
+            $product->supplier_link     = $image->url;
+            $product->stage             = 3;
+            $product->is_scraped        = 1;
 
             $properties_array = $image->properties ?? [];
 
@@ -46,7 +46,7 @@ class DoubleProductsCreator
             }
 
             if (array_key_exists('category', $properties_array)) {
-                $categories = Category::all();
+                $categories  = Category::all();
                 $category_id = 1;
 
                 foreach ($properties_array['category'] as $cat) {
@@ -88,7 +88,7 @@ class DoubleProductsCreator
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr = round($product->price_inr, -3);
+            $product->price_inr     = round($product->price_inr, -3);
             $product->price_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_special = round($product->price_special, -3);
@@ -102,7 +102,7 @@ class DoubleProductsCreator
             $images = $image->images;
 
             foreach ($images as $image_name) {
-                $path = public_path('uploads') . '/social-media/' . $image_name;
+                $path  = public_path('uploads') . '/social-media/' . $image_name;
                 $media = MediaUploader::fromSource($path)
                                         ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                                         ->upload();

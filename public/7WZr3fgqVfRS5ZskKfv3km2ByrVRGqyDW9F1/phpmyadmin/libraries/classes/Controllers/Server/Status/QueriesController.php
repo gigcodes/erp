@@ -51,13 +51,13 @@ class QueriesController extends AbstractController
         ]);
 
         if ($this->data->dataLoaded) {
-            $hourFactor = 3600 / $this->data->status['Uptime'];
-            $usedQueries = $this->data->usedQueries;
+            $hourFactor   = 3600 / $this->data->status['Uptime'];
+            $usedQueries  = $this->data->usedQueries;
             $totalQueries = array_sum($usedQueries);
 
             $stats = [
-                'total' => $totalQueries,
-                'per_hour' => $totalQueries * $hourFactor,
+                'total'      => $totalQueries,
+                'per_hour'   => $totalQueries * $hourFactor,
                 'per_minute' => $totalQueries * 60 / $this->data->status['Uptime'],
                 'per_second' => $totalQueries / $this->data->status['Uptime'],
             ];
@@ -65,10 +65,10 @@ class QueriesController extends AbstractController
             // reverse sort by value to show most used statements first
             arsort($usedQueries);
 
-            $chart = [];
+            $chart    = [];
             $querySum = array_sum($usedQueries);
             $otherSum = 0;
-            $queries = [];
+            $queries  = [];
             foreach ($usedQueries as $key => $value) {
                 // For the percentage column, use Questions - Connections, because
                 // the number of connections is not an item of the Query types
@@ -83,9 +83,9 @@ class QueriesController extends AbstractController
                 }
 
                 $queries[$key] = [
-                    'name' => $name,
-                    'value' => $value,
-                    'per_hour' => $value * $hourFactor,
+                    'name'       => $name,
+                    'value'      => $value,
+                    'per_hour'   => $value * $hourFactor,
                     'percentage' => $value * 100 / $totalQueries,
                 ];
             }
@@ -97,9 +97,9 @@ class QueriesController extends AbstractController
 
         $this->render('server/status/queries/index', [
             'is_data_loaded' => $this->data->dataLoaded,
-            'stats' => $stats ?? null,
-            'queries' => $queries ?? [],
-            'chart' => $chart ?? [],
+            'stats'          => $stats ?? null,
+            'queries'        => $queries ?? [],
+            'chart'          => $chart ?? [],
         ]);
     }
 }

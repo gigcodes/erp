@@ -24,7 +24,7 @@ class InitializeReturnRequest extends Mailable
 
     public function __construct(ReturnExchange $return)
     {
-        $this->return = $return;
+        $this->return     = $return;
         $this->fromMailer = \App\Helpers::getFromEmail($this->return->customer->id);
     }
 
@@ -35,8 +35,8 @@ class InitializeReturnRequest extends Mailable
      */
     public function build()
     {
-        $subject = 'Return Request Initialized';
-        $return = $this->return;
+        $subject  = 'Return Request Initialized';
+        $return   = $this->return;
         $customer = $return->customer;
 
         $this->subject = $subject;

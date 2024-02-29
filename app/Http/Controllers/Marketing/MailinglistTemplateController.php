@@ -20,10 +20,10 @@ class MailinglistTemplateController extends Controller
 
         // get all templates for mail
         $mailEclipseTpl = mailEclipse::getTemplates();
-        $rViewMail = [];
+        $rViewMail      = [];
         if (! empty($mailEclipseTpl)) {
             foreach ($mailEclipseTpl as $mTpl) {
-                $v = mailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+                $v             = mailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
                 $rViewMail[$v] = $mTpl->template_name . ' [' . $mTpl->template_description . ']';
             }
         }
@@ -113,9 +113,9 @@ class MailinglistTemplateController extends Controller
 
         $validator = Validator::make(
             $request->all(), [
-                'name' => 'required|string',
-                'mail_tpl' => 'required|string',
-                'category' => 'nullable|numeric',
+                'name'          => 'required|string',
+                'mail_tpl'      => 'required|string',
+                'category'      => 'nullable|numeric',
                 'store_website' => 'nullable|numeric',
             ]
         );
@@ -139,34 +139,34 @@ class MailinglistTemplateController extends Controller
             $mailing_item = new MailinglistTemplate();
         }
 
-        $mailing_item->name = $data['name'];
-        $mailing_item->subject = $data['subject'];
+        $mailing_item->name            = $data['name'];
+        $mailing_item->subject         = $data['subject'];
         $mailing_item->static_template = $data['static_template'];
 
-        $mailing_item->mail_tpl = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
+        $mailing_item->mail_tpl    = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
         $mailing_item->image_count = isset($data['image_count']) ? $data['image_count'] : 0;
-        $mailing_item->text_count = isset($data['text_count']) ? $data['text_count'] : 0;
+        $mailing_item->text_count  = isset($data['text_count']) ? $data['text_count'] : 0;
 
-        $mailing_item->category_id = $request->category;
+        $mailing_item->category_id      = $request->category;
         $mailing_item->store_website_id = $request->store_website;
 
-        $mailing_item->salutation = $request->salutation;
+        $mailing_item->salutation   = $request->salutation;
         $mailing_item->introduction = $request->introduction;
 
         $mailing_item->from_email = $request->from_email;
-        $mailing_item->html_text = $request->html_text;
+        $mailing_item->html_text  = $request->html_text;
 
         $mailing_item->save();
 
         $path = 'mailinglist/email-templates/' . $mailing_item->id;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store($path);
+            $path                        = $request->file('image')->store($path);
             $mailing_item->example_image = $path;
         }
 
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store($path);
+            $path               = $request->file('logo')->store($path);
             $mailing_item->logo = $path;
         }
 
@@ -193,8 +193,8 @@ class MailinglistTemplateController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => [],
+                'code'    => 200,
+                'data'    => [],
                 'message' => 'Mailing list template deleted successfully',
             ]
         );
@@ -202,8 +202,8 @@ class MailinglistTemplateController extends Controller
 
     public function images_file(Request $request)
     {
-        $id = $request->id;
-        $rs = MailingTemplateFilesHistory::where('mailing_id', $id)->orderBy('created_at', 'desc')->get();
+        $id    = $request->id;
+        $rs    = MailingTemplateFilesHistory::where('mailing_id', $id)->orderBy('created_at', 'desc')->get();
         $table = " <table class='table table-bordered' > <thead> <tr>";
         $table .= '<th>Date</th><th>Old Path</th><th>New Path</th></tr></thead><tbody>';
         foreach ($rs as $r) {
@@ -218,7 +218,7 @@ class MailinglistTemplateController extends Controller
 
     public function saveimagesfile(Request $request)
     {
-        $id = $request->id;
+        $id         = $request->id;
         $mltemplate = MailinglistTemplate::where('id', $id)->first();
 
         $path = 'mailinglist/email-templates/' . $id;
@@ -233,9 +233,9 @@ class MailinglistTemplateController extends Controller
             MailingTemplateFilesHistory::insert(
                 [
                     'mailing_id' => $id,
-                    'old_path' => $m->path,
+                    'old_path'   => $m->path,
                     'created_at' => date('Y-m-d'),
-                    'new_path' => $path,
+                    'new_path'   => $path,
                     'updated_by' => Auth()->id(),
                 ]
             );
@@ -244,15 +244,15 @@ class MailinglistTemplateController extends Controller
             MailingTemplateFile::insert(
                 [
                     'mailing_id' => $id,
-                    'path' => $path,
+                    'path'       => $path,
                 ]
             );
             MailingTemplateFilesHistory::insert(
                 [
                     'mailing_id' => $id,
-                    'old_path' => '',
+                    'old_path'   => '',
                     'created_at' => date('Y-m-d'),
-                    'new_path' => $path,
+                    'new_path'   => $path,
                     'updated_by' => Auth()->id(),
                 ]
             );

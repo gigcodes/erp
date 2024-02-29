@@ -114,15 +114,15 @@ class Header
 
         $this->template = new Template();
 
-        $this->isEnabled = true;
-        $this->isAjax = false;
-        $this->bodyId = '';
-        $this->title = '';
-        $this->console = new Console();
-        $this->menu = new Menu($dbi, $db ?? '', $table ?? '');
-        $this->menuEnabled = true;
+        $this->isEnabled       = true;
+        $this->isAjax          = false;
+        $this->bodyId          = '';
+        $this->title           = '';
+        $this->console         = new Console();
+        $this->menu            = new Menu($dbi, $db ?? '', $table ?? '');
+        $this->menuEnabled     = true;
         $this->warningsEnabled = true;
-        $this->scripts = new Scripts();
+        $this->scripts         = new Scripts();
         $this->addDefaultScripts();
         $this->headerIsSent = false;
 
@@ -183,24 +183,24 @@ class Header
 
         $params = [
             // Do not add any separator, JS code will decide
-            'common_query' => Url::getCommonRaw([], ''),
-            'opendb_url' => Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabDatabase'], 'database'),
-            'lang' => $GLOBALS['lang'],
-            'server' => $GLOBALS['server'],
-            'table' => $table ?? '',
-            'db' => $db ?? '',
-            'token' => $_SESSION[' PMA_token '],
-            'text_dir' => $GLOBALS['text_dir'],
-            'LimitChars' => $GLOBALS['cfg']['LimitChars'],
-            'pftext' => $pftext,
-            'confirm' => $GLOBALS['cfg']['Confirm'],
-            'LoginCookieValidity' => $GLOBALS['cfg']['LoginCookieValidity'],
+            'common_query'           => Url::getCommonRaw([], ''),
+            'opendb_url'             => Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabDatabase'], 'database'),
+            'lang'                   => $GLOBALS['lang'],
+            'server'                 => $GLOBALS['server'],
+            'table'                  => $table ?? '',
+            'db'                     => $db ?? '',
+            'token'                  => $_SESSION[' PMA_token '],
+            'text_dir'               => $GLOBALS['text_dir'],
+            'LimitChars'             => $GLOBALS['cfg']['LimitChars'],
+            'pftext'                 => $pftext,
+            'confirm'                => $GLOBALS['cfg']['Confirm'],
+            'LoginCookieValidity'    => $GLOBALS['cfg']['LoginCookieValidity'],
             'session_gc_maxlifetime' => (int) ini_get('session.gc_maxlifetime'),
-            'logged_in' => isset($dbi) ? $dbi->isConnected() : false,
-            'is_https' => $GLOBALS['config']->isHttps(),
-            'rootPath' => $GLOBALS['config']->getRootPath(),
-            'arg_separator' => Url::getArgSeparator(),
-            'version' => Version::VERSION,
+            'logged_in'              => isset($dbi) ? $dbi->isConnected() : false,
+            'is_https'               => $GLOBALS['config']->isHttps(),
+            'rootPath'               => $GLOBALS['config']->getRootPath(),
+            'arg_separator'          => Url::getArgSeparator(),
+            'version'                => Version::VERSION,
         ];
         if (isset($GLOBALS['cfg']['Server'], $GLOBALS['cfg']['Server']['auth_type'])) {
             $params['auth_type'] = $GLOBALS['cfg']['Server']['auth_type'];
@@ -242,7 +242,7 @@ class Header
      * Set the ajax flag to indicate whether
      * we are servicing an ajax request
      *
-     * @param  bool  $isAjax Whether we are servicing an ajax request
+     * @param bool $isAjax Whether we are servicing an ajax request
      */
     public function setAjax(bool $isAjax): void
     {
@@ -273,7 +273,7 @@ class Header
     /**
      * Setter for the ID attribute in the BODY tag
      *
-     * @param  string  $id Value for the ID attribute
+     * @param string $id Value for the ID attribute
      */
     public function setBodyId(string $id): void
     {
@@ -283,7 +283,7 @@ class Header
     /**
      * Setter for the title of the page
      *
-     * @param  string  $title New title
+     * @param string $title New title
      */
     public function setTitle(string $title): void
     {
@@ -331,9 +331,9 @@ class Header
 
         $this->sendHttpHeaders();
 
-        $baseDir = defined('PMA_PATH_TO_BASEDIR') ? PMA_PATH_TO_BASEDIR : '';
+        $baseDir   = defined('PMA_PATH_TO_BASEDIR') ? PMA_PATH_TO_BASEDIR : '';
         $themePath = $theme instanceof Theme ? $theme->getPath() : '';
-        $version = self::getVersionParameter();
+        $version   = self::getVersionParameter();
 
         // The user preferences have been merged at this point
         // so we can conditionally add CodeMirror, other scripts and settings
@@ -402,30 +402,30 @@ class Header
             $menu = $this->menu->getDisplay();
         }
 
-        $console = $this->console->getDisplay();
+        $console  = $this->console->getDisplay();
         $messages = $this->getMessage();
 
         return $this->template->render('header', [
-            'lang' => $GLOBALS['lang'],
+            'lang'                      => $GLOBALS['lang'],
             'allow_third_party_framing' => $GLOBALS['cfg']['AllowThirdPartyFraming'],
-            'base_dir' => $baseDir,
-            'theme_path' => $themePath,
-            'version' => $version,
-            'text_dir' => $GLOBALS['text_dir'],
-            'server' => $GLOBALS['server'] ?? null,
-            'title' => $this->getPageTitle(),
-            'scripts' => $this->scripts->getDisplay(),
-            'body_id' => $this->bodyId,
-            'navigation' => $navigation ?? '',
-            'custom_header' => $customHeader,
-            'load_user_preferences' => $loadUserPreferences ?? '',
-            'show_hint' => $GLOBALS['cfg']['ShowHint'],
-            'is_warnings_enabled' => $this->warningsEnabled,
-            'is_menu_enabled' => $this->menuEnabled,
-            'menu' => $menu ?? '',
-            'console' => $console,
-            'messages' => $messages,
-            'recent_table' => $recentTable,
+            'base_dir'                  => $baseDir,
+            'theme_path'                => $themePath,
+            'version'                   => $version,
+            'text_dir'                  => $GLOBALS['text_dir'],
+            'server'                    => $GLOBALS['server'] ?? null,
+            'title'                     => $this->getPageTitle(),
+            'scripts'                   => $this->scripts->getDisplay(),
+            'body_id'                   => $this->bodyId,
+            'navigation'                => $navigation ?? '',
+            'custom_header'             => $customHeader,
+            'load_user_preferences'     => $loadUserPreferences ?? '',
+            'show_hint'                 => $GLOBALS['cfg']['ShowHint'],
+            'is_warnings_enabled'       => $this->warningsEnabled,
+            'is_menu_enabled'           => $this->menuEnabled,
+            'menu'                      => $menu ?? '',
+            'console'                   => $console,
+            'messages'                  => $messages,
+            'recent_table'              => $recentTable,
         ]);
     }
 
@@ -435,7 +435,7 @@ class Header
      */
     public function getMessage(): string
     {
-        $retval = '';
+        $retval  = '';
         $message = '';
         if (! empty($GLOBALS['message'])) {
             $message = $GLOBALS['message'];
@@ -577,8 +577,8 @@ class Header
         global $cfg;
 
         $mapTileUrls = ' *.tile.openstreetmap.org';
-        $captchaUrl = '';
-        $cspAllow = $cfg['CSPAllow'];
+        $captchaUrl  = '';
+        $cspAllow    = $cfg['CSPAllow'];
 
         if (
             ! empty($cfg['CaptchaLoginPrivateKey'])
@@ -636,8 +636,8 @@ class Header
     /**
      * Add recently used table and reload the navigation.
      *
-     * @param  string  $db    Database name where the table is located.
-     * @param  string  $table The table name
+     * @param string $db    Database name where the table is located.
+     * @param string $table The table name
      */
     private function addRecentTable(string $db, string $table): string
     {
@@ -647,7 +647,7 @@ class Header
             if ($tmpResult === true) {
                 $retval = RecentFavoriteTable::getHtmlUpdateRecentTables();
             } else {
-                $error = $tmpResult;
+                $error  = $tmpResult;
                 $retval = $error->getDisplay();
             }
         }
@@ -670,12 +670,12 @@ class Header
     {
         global $cfg;
 
-        $maxInputVars = ini_get('max_input_vars');
+        $maxInputVars      = ini_get('max_input_vars');
         $maxInputVarsValue = $maxInputVars === false || $maxInputVars === '' ? 'false' : (int) $maxInputVars;
 
         return $this->template->render('javascript/variables', [
             'first_day_of_calendar' => $cfg['FirstDayOfCalendar'] ?? 0,
-            'max_input_vars' => $maxInputVarsValue,
+            'max_input_vars'        => $maxInputVarsValue,
         ]);
     }
 }

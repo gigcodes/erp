@@ -16,9 +16,9 @@ class MonitorJenkinsBuildController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('keyword');
+        $keyword   = $request->get('keyword');
         $projectId = $request->get('project_id');
-        $workerId = $request->get('worker_id');
+        $workerId  = $request->get('worker_id');
 
         $monitorJenkinsBuilds = new MonitorJenkinsBuild;
 
@@ -90,21 +90,21 @@ class MonitorJenkinsBuildController extends Controller
         if ($checkAlredyExist) {
             return response()->json(['code' => 200, 'message' => 'Alreday Insert Into CodeShortcut!!!']);
         } else {
-            $platform = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
+            $platform   = CodeShortCutPlatform::firstOrCreate(['name' => 'jenkins']);
             $platformId = $platform->id;
 
             if ($monitorJenkinsBuild->error == 'NA') {
                 $monitorJenkinsBuild->error = null;
             }
 
-            $codeShortcut = new CodeShortcut();
+            $codeShortcut                             = new CodeShortcut();
             $codeShortcut->code_shortcuts_platform_id = $platformId;
-            $codeShortcut->description = $monitorJenkinsBuild->full_log;
-            $codeShortcut->title = $monitorJenkinsBuild->error;
-            $codeShortcut->website = $monitorJenkinsBuild->project;
-            $codeShortcut->user_id = auth()->user()->id;
-            $codeShortcut->jenkins_log_id = $request->id;
-            $codeShortcut->type = 'monitor-jenkins-build';
+            $codeShortcut->description                = $monitorJenkinsBuild->full_log;
+            $codeShortcut->title                      = $monitorJenkinsBuild->error;
+            $codeShortcut->website                    = $monitorJenkinsBuild->project;
+            $codeShortcut->user_id                    = auth()->user()->id;
+            $codeShortcut->jenkins_log_id             = $request->id;
+            $codeShortcut->type                       = 'monitor-jenkins-build';
             $codeShortcut->save();
 
             return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);

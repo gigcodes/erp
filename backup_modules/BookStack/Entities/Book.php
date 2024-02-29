@@ -23,7 +23,8 @@ class Book extends Entity
     /**
      * Get the url for this book.
      *
-     * @param  string|bool  $path
+     * @param string|bool $path
+     *
      * @return string
      */
     public function getUrl($path = false)
@@ -38,8 +39,9 @@ class Book extends Entity
     /**
      * Returns book cover image, if book cover not exists return default cover image.
      *
-     * @param  int  $width - Width of the image
-     * @param  int  $height - Height of the image
+     * @param int $width  - Width of the image
+     * @param int $height - Height of the image
+     *
      * @return string
      */
     public function getBookCover($width = 440, $height = 250)

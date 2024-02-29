@@ -27,7 +27,7 @@ class ModelNameController extends Controller
     public function store(Request $request)
     {
         try {
-            $modelName = new ModelName();
+            $modelName       = new ModelName();
             $modelName->name = $request->name;
             $modelName->save();
 
@@ -61,7 +61,7 @@ class ModelNameController extends Controller
     public function update(Request $request, ModelName $modelName)
     {
         try {
-            $modelName = ModelName::where('id', $request->model_id)->update(['name' => $request->name]);
+            $modelName     = ModelName::where('id', $request->model_id)->update(['name' => $request->name]);
             $modelNameData = ModelName::where('id', $request->model_id)->first();
 
             return response()->json(['code' => 200, 'data' => $modelNameData, 'message' => 'Updated successfully!']);

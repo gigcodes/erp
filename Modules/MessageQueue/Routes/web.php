@@ -15,7 +15,7 @@ use Modules\MessageQueue\Http\Controllers\MessageQueueController;
 */
 
 Route::group([
-    'prefix' => 'message-queue',
+    'prefix'     => 'message-queue',
     'middleware' => 'auth',
 ],
     function () {

@@ -56,10 +56,10 @@ class UnknownAttributeProductController extends Controller
             return Datatables::of($query)
                 ->addIndexColumn()
                 ->addColumn('original_value', function ($row) {
-                    $original_value = $row->erp_value;
-                    $status_id = $row->status_id;
-                    $old_category = '';
-                    $old_size = '';
+                    $original_value   = $row->erp_value;
+                    $status_id        = $row->status_id;
+                    $old_category     = '';
+                    $old_size         = '';
                     $old_dmeasurement = '';
                     $old_hmeasurement = '';
                     $old_dmeasurement = '';
@@ -118,13 +118,13 @@ class UnknownAttributeProductController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        $status_list[StatusHelper::$unknownSize] = 'Unknown Size';
+        $status_list[StatusHelper::$unknownSize]        = 'Unknown Size';
         $status_list[StatusHelper::$unknownMeasurement] = 'Unknown Measurement';
-        $status_list[StatusHelper::$unknownCategory] = 'Unknown Category';
-        $status_list[StatusHelper::$unknownColor] = 'Unknown Color';
+        $status_list[StatusHelper::$unknownCategory]    = 'Unknown Category';
+        $status_list[StatusHelper::$unknownColor]       = 'Unknown Color';
 
         $categories = Category::all();
-        $sizes = Size::all();
+        $sizes      = Size::all();
 
         $colors = new \App\Colors;
         $colors = $colors->all();
@@ -137,32 +137,32 @@ class UnknownAttributeProductController extends Controller
         $validateArr['attribute_id'] = 'required';
 
         if ($request->attribute_id == StatusHelper::$unknownCategory) {
-            $validateArr['find_category'] = 'nullable';
+            $validateArr['find_category']    = 'nullable';
             $validateArr['replace_category'] = 'nullable';
             if ($request->find_category == $request->replace_category) {
                 return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
             }
         } elseif ($request->attribute_id == StatusHelper::$unknownColor) {
-            $validateArr['find_color'] = 'nullable';
+            $validateArr['find_color']    = 'nullable';
             $validateArr['replace_color'] = 'nullable';
 
             if ($request->find_color == $request->replace_color) {
                 return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
             }
         } elseif ($request->attribute_id == StatusHelper::$unknownSize) {
-            $validateArr['find_size'] = 'nullable';
+            $validateArr['find_size']    = 'nullable';
             $validateArr['replace_size'] = 'nullable';
             if ($request->find_size == $request->replace_size) {
                 return response()->json(['code' => 500, 'message' => 'New value can\'t be same as old value. Please select/enter different value.']);
             }
         } elseif ($request->attribute_id == StatusHelper::$unknownMeasurement) {
-            $validateArr['find_lmeasurement'] = 'nullable';
+            $validateArr['find_lmeasurement']    = 'nullable';
             $validateArr['replace_lmeasurement'] = 'nullable';
 
-            $validateArr['find_hmeasurement'] = 'nullable';
+            $validateArr['find_hmeasurement']    = 'nullable';
             $validateArr['replace_hmeasurement'] = 'nullable';
 
-            $validateArr['find_dmeasurement'] = 'nullable';
+            $validateArr['find_dmeasurement']    = 'nullable';
             $validateArr['replace_dmeasurement'] = 'nullable';
 
             if ($request->find_lmeasurement == $request->replace_lmeasurement || $request->find_hmeasurement == $request->replace_hmeasurement || $request->find_dmeasurement == $request->replace_dmeasurement) {
@@ -174,7 +174,7 @@ class UnknownAttributeProductController extends Controller
         if ($validator->fails()) {
             $return = ['code' => 500, 'message' => $validator->errors()->first()];
         } else {
-            $data['data'] = $request->all();
+            $data['data']            = $request->all();
             $data['data']['user_id'] = \Auth::user()->id;
             \App\Jobs\AttributeAssignment::dispatch($data)->onQueue('attribute_assignment');
 
@@ -186,7 +186,7 @@ class UnknownAttributeProductController extends Controller
 
     public function updateAttributeAssignment(Request $request)
     {
-        $validateArr['product_id'] = 'required';
+        $validateArr['product_id']   = 'required';
         $validateArr['attribute_id'] = 'required';
 
         if ($request->attribute_id == StatusHelper::$unknownCategory) {
@@ -207,7 +207,7 @@ class UnknownAttributeProductController extends Controller
         if ($validator->fails()) {
             $return = ['code' => 500, 'message' => $validator->errors()->first()];
         } else {
-            $userId = \Auth::user()->id;
+            $userId       = \Auth::user()->id;
             $find_product = Product::where('status_id', $request->attribute_id);
             $find_product->where('id', $request->product_id);
             $find_product = $find_product->first();
@@ -227,12 +227,12 @@ class UnknownAttributeProductController extends Controller
                     $find_product->save();
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_size,
-                        'new_value' => $new_value_size,
+                        'old_value'      => $old_value_size,
+                        'new_value'      => $new_value_size,
                         'attribute_name' => 'size',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
                 } elseif ($request->attribute_id == StatusHelper::$unknownMeasurement) {
                     $old_value_lmeasurement = $find_product->lmeasurement;
@@ -249,30 +249,30 @@ class UnknownAttributeProductController extends Controller
                     $find_product->save();
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_lmeasurement,
-                        'new_value' => $request->replace_lmeasurement,
+                        'old_value'      => $old_value_lmeasurement,
+                        'new_value'      => $request->replace_lmeasurement,
                         'attribute_name' => 'lmeasurement',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_hmeasurement,
-                        'new_value' => $request->replace_hmeasurement,
+                        'old_value'      => $old_value_hmeasurement,
+                        'new_value'      => $request->replace_hmeasurement,
                         'attribute_name' => 'hmeasurement',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_dmeasurement,
-                        'new_value' => $request->replace_dmeasurement,
+                        'old_value'      => $old_value_dmeasurement,
+                        'new_value'      => $request->replace_dmeasurement,
                         'attribute_name' => 'dmeasurement',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
                 } elseif ($request->attribute_id == StatusHelper::$unknownCategory) {
                     if ($find_product->category == $request->replace_category) {
@@ -284,12 +284,12 @@ class UnknownAttributeProductController extends Controller
                     $find_product->save();
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_category,
-                        'new_value' => $request->replace_category,
+                        'old_value'      => $old_value_category,
+                        'new_value'      => $request->replace_category,
                         'attribute_name' => 'category',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
                 } elseif ($request->attribute_id == StatusHelper::$unknownColor) {
                     $old_value_color = $find_product->color;
@@ -303,12 +303,12 @@ class UnknownAttributeProductController extends Controller
                     $find_product->save();
 
                     $productUpdatedAttributeHistory = \App\ProductUpdatedAttributeHistory::create([
-                        'old_value' => $old_value_color,
-                        'new_value' => $new_value_color,
+                        'old_value'      => $old_value_color,
+                        'new_value'      => $new_value_color,
                         'attribute_name' => 'color',
-                        'attribute_id' => $request->attribute_id,
-                        'product_id' => $request->product_id,
-                        'user_id' => $userId,
+                        'attribute_id'   => $request->attribute_id,
+                        'product_id'     => $request->product_id,
+                        'user_id'        => $userId,
                     ]);
                 }
             }
@@ -344,12 +344,12 @@ class UnknownAttributeProductController extends Controller
 
             if (isset($product) && ! empty($product)) {
                 $product->original_value = $product->erp_value;
-                $status_id = $product->status_id;
-                $old_category = '';
-                $old_size = '';
-                $old_dmeasurement = '';
-                $old_hmeasurement = '';
-                $old_dmeasurement = '';
+                $status_id               = $product->status_id;
+                $old_category            = '';
+                $old_size                = '';
+                $old_dmeasurement        = '';
+                $old_hmeasurement        = '';
+                $old_dmeasurement        = '';
                 if (isset($product->attribute_histories) && count($product->attribute_histories)) {
                     $attribute_histories = $product->attribute_histories;
                     foreach ($attribute_histories as $ah_key => $ah_value) {
@@ -410,7 +410,7 @@ class UnknownAttributeProductController extends Controller
 
             if (isset($histories) && ! empty($histories)) {
                 $show_history = (string) view('unknown-attribute-product.product_updated_history', compact('histories'));
-                $return = ['code' => 200, 'message' => 'Success', 'results' => $show_history];
+                $return       = ['code' => 200, 'message' => 'Success', 'results' => $show_history];
             } else {
                 $return = ['code' => 500, 'message' => 'No Results Found.'];
             }

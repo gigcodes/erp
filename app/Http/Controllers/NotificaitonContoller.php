@@ -32,24 +32,24 @@ class NotificaitonContoller extends Controller
         if (! empty($forRoles)) {
             foreach ($forRoles as $role) {
                 $notification->create([
-                    'message' => $messsage,
-                    'role' => $role,
+                    'message'    => $messsage,
+                    'role'       => $role,
                     'product_id' => $product_id,
-                    'user_id' => \Auth::id() ? \Auth::id() : $user_id,
-                    'sale_id' => $sale_id,
-                    'task_id' => '',
-                    'sent_to' => $sent_to,
+                    'user_id'    => \Auth::id() ? \Auth::id() : $user_id,
+                    'sale_id'    => $sale_id,
+                    'task_id'    => '',
+                    'sent_to'    => $sent_to,
                 ]);
             }
         } else {
             $notification->create([
-                'message' => $messsage,
-                'role' => '',
+                'message'    => $messsage,
+                'role'       => '',
                 'product_id' => '',
-                'user_id' => \Auth::id() ? \Auth::id() : $user_id,
-                'sale_id' => $sale_id,
-                'task_id' => '',
-                'sent_to' => $sent_to,
+                'user_id'    => \Auth::id() ? \Auth::id() : $user_id,
+                'sale_id'    => $sale_id,
+                'task_id'    => '',
+                'sent_to'    => $sent_to,
             ]);
         }
     }
@@ -59,13 +59,13 @@ class NotificaitonContoller extends Controller
         $notification = new Notification();
 
         $notification->create([
-            'message' => $messsage,
-            'role' => '',
+            'message'    => $messsage,
+            'role'       => '',
             'product_id' => '',
-            'sale_id' => null,
-            'user_id' => \Auth::id() ? \Auth::id() : $user_id,
-            'task_id' => $task_id,
-            'sent_to' => $sent_to,
+            'sale_id'    => null,
+            'user_id'    => \Auth::id() ? \Auth::id() : $user_id,
+            'task_id'    => $task_id,
+            'sent_to'    => $sent_to,
         ]);
     }
 

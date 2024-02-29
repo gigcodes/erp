@@ -22,7 +22,7 @@ class CreateMonitorUsersServers extends Migration
             $table->timestamps();
         });
 
-        $charset = config('database.connections.mysql.charset');
+        $charset   = config('database.connections.mysql.charset');
         $collation = config('database.connections.mysql.collation');
         DB::statement('ALTER TABLE `monitor_users_servers` ENGINE = MyISAM DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci');
     }

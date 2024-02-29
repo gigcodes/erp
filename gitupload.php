@@ -13,24 +13,24 @@ set_time_limit(0);
 
 // FTP Definitions:
 $server = ['quality' => ['host' => 'YOUR-FTP-HOSTING.com',
-    'usr' => 'CHANGE-USERNAME',
-    'pwd' => 'CHANGE-PASSWORD', ],
+    'usr'                       => 'CHANGE-USERNAME',
+    'pwd'                       => 'CHANGE-PASSWORD', ],
     'production' => ['host' => 'YOUR-FTP-HOSTING.com',
-        'usr' => 'CHANGE-USERNAME',
-        'pwd' => 'CHANGE-PASSWORD',
+        'usr'               => 'CHANGE-USERNAME',
+        'pwd'               => 'CHANGE-PASSWORD',
     ], ];
 
 // Misc Definitions:
-$localPath = '/opt/lampp/htdocs/myproject';
+$localPath  = '/opt/lampp/htdocs/myproject';
 $remotePath = '/';
 
 // This variables are for clean the path url:
-$sanatization = 'M       trunk/web/';
+$sanatization  = 'M       trunk/web/';
 $sanatization2 = 'A       trunk/web/';
 
 // misc internal vars
 $linesSubmited = 0;
-$files2Upload = 0;
+$files2Upload  = 0;
 $filesUploaded = 0;
 
 if (isset($_POST['action']) && $_POST['action'] == 'process') {
@@ -71,7 +71,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'process') {
 
         // perform file upload
         foreach ($sanaticedLines as $fileToUpload) {
-            $fileToUploadLocalPath = $localPath . $fileToUpload;
+            $fileToUploadLocalPath  = $localPath . $fileToUpload;
             $fileToUploadRemotePath = $remotePath . $fileToUpload;
 
             // log

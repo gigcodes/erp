@@ -35,13 +35,13 @@ class AgentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'model_id' => 'required|numeric',
-            'model_type' => 'required|string',
-            'name' => 'required|string||max:255',
-            'phone' => 'sometimes|nullable|numeric',
+            'model_id'        => 'required|numeric',
+            'model_type'      => 'required|string',
+            'name'            => 'required|string||max:255',
+            'phone'           => 'sometimes|nullable|numeric',
             'whatsapp_number' => 'sometimes|nullable|numeric',
-            'address' => 'sometimes|nullable|string',
-            'email' => 'sometimes|nullable|email',
+            'address'         => 'sometimes|nullable|string',
+            'email'           => 'sometimes|nullable|email',
         ]);
 
         $data = $request->except('_token');
@@ -60,7 +60,8 @@ class AgentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -71,7 +72,8 @@ class AgentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -82,17 +84,18 @@ class AgentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|string||max:255',
-            'phone' => 'sometimes|nullable|numeric',
+            'name'            => 'required|string||max:255',
+            'phone'           => 'sometimes|nullable|numeric',
             'whatsapp_number' => 'sometimes|nullable|numeric',
-            'address' => 'sometimes|nullable|string',
-            'email' => 'sometimes|nullable|email',
+            'address'         => 'sometimes|nullable|string',
+            'email'           => 'sometimes|nullable|email',
         ]);
 
         $data = $request->except('_token');
@@ -110,7 +113,8 @@ class AgentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

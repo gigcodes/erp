@@ -26,12 +26,14 @@ class UpdateProductColorFromErp implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param public $params
+     *
      * @return void
      */
     public function __construct(public $params)
     {
-        $this->from = $params['from'];
-        $this->to = $params['to'];
+        $this->from    = $params['from'];
+        $this->to      = $params['to'];
         $this->user_id = isset($params['user_id']) ? $params['user_id'] : 6;
     }
 
@@ -59,10 +61,10 @@ class UpdateProductColorFromErp implements ShouldQueue
                     $affectedProduct->color = $this->to;
                     $affectedProduct->save();
                     // do entry for the history as well
-                    $productColHis = new \App\ProductColorHistory;
-                    $productColHis->user_id = ($this->user_id) ? $this->user_id : 6;
-                    $productColHis->color = ! empty($this->to) ? $this->to : '';
-                    $productColHis->old_color = ! empty($this->from) ? $this->from : '';
+                    $productColHis             = new \App\ProductColorHistory;
+                    $productColHis->user_id    = ($this->user_id) ? $this->user_id : 6;
+                    $productColHis->color      = ! empty($this->to) ? $this->to : '';
+                    $productColHis->old_color  = ! empty($this->from) ? $this->from : '';
                     $productColHis->product_id = $affectedProduct->id;
                     $productColHis->save();
                 }

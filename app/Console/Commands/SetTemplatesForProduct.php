@@ -46,7 +46,7 @@ class SetTemplatesForProduct extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $totalCount = 0;
-            $templates = Template::where('auto_generate_product', 1)->get();
+            $templates  = Template::where('auto_generate_product', 1)->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'template query was finished.']);
             foreach ($templates as $template) {
                 if ($totalCount > 10000) {
@@ -73,26 +73,26 @@ class SetTemplatesForProduct extends Command
                             echo 'Completed making 10000 entries';
                         }
 
-                        $productTemplate = new ProductTemplate;
-                        $productTemplate->template_no = $template->id;
+                        $productTemplate                = new ProductTemplate;
+                        $productTemplate->template_no   = $template->id;
                         $productTemplate->product_title = $product->name;
-                        $productTemplate->brand_id = $product->brand;
-                        $productTemplate->currency = 'eur';
+                        $productTemplate->brand_id      = $product->brand;
+                        $productTemplate->currency      = 'eur';
                         if (empty($product->price)) {
                             $product->price = 0;
                         }
                         if (empty($product->price_eur_discounted)) {
                             $product->price_eur_discounted = 0;
                         }
-                        $productTemplate->price = $product->price;
+                        $productTemplate->price            = $product->price;
                         $productTemplate->discounted_price = $product->price_eur_discounted;
-                        $productTemplate->product_id = $product->id;
-                        $productTemplate->is_processed = 0;
+                        $productTemplate->product_id       = $product->id;
+                        $productTemplate->is_processed     = 0;
                         $productTemplate->save();
                         $totalCount++;
                         foreach ($product->getMedia(config('constants.media_tags'))->all() as $media) {
                             $media = Media::find($media->id);
-                            $tag = 'template-image';
+                            $tag   = 'template-image';
                             $productTemplate->attachMedia($media, $tag);
                         }
                     }

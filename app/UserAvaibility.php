@@ -34,7 +34,7 @@ class UserAvaibility extends Model
     public static function getAvailableDates($stDate, $enDate, $days, $dates = [])
     {
         $return = [];
-        $range = dateRangeArr($stDate, $enDate);
+        $range  = dateRangeArr($stDate, $enDate);
         foreach ($range as $value) {
             if (in_array($value['day'], $days)) {
                 $return[] = $value['date'];
@@ -82,7 +82,7 @@ class UserAvaibility extends Model
             if ($lunchTime) {
                 $stTime1 = $stDatetime;
                 $enTime1 = $lunchTime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
 
                 $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour')));
                 foreach ($temp as $key => $value) {
@@ -92,7 +92,7 @@ class UserAvaibility extends Model
 
                 $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
                 $enTime2 = $enDatetime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
             } else {
                 $slots = array_merge_recursive($slots, getHourlySlots($stDatetime, $enDatetime));
             }
@@ -101,7 +101,7 @@ class UserAvaibility extends Model
         if ($slots) {
             $temp = [];
             foreach ($slots as $key => $value) {
-                $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
+                $value['type']                                  = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
                 $temp[date('Y-m-d', strtotime($value['st']))][] = $value;
             }
             $slots = $temp;
@@ -128,7 +128,7 @@ class UserAvaibility extends Model
             if ($lunchTime) {
                 $stTime1 = $stDatetime;
                 $enTime1 = $lunchTime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime1, $enTime1));
 
                 $temp = getHourlySlots($lunchTime, date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour')));
                 foreach ($temp as $key => $value) {
@@ -138,7 +138,7 @@ class UserAvaibility extends Model
 
                 $stTime2 = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
                 $enTime2 = $enDatetime;
-                $slots = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
+                $slots   = array_merge_recursive($slots, getHourlySlots($stTime2, $enTime2));
             } else {
                 $slots = array_merge_recursive($slots, getHourlySlots($stDatetime, $enDatetime));
             }
@@ -147,8 +147,8 @@ class UserAvaibility extends Model
         if ($slots) {
             $temp = [];
             foreach ($slots as $key => $value) {
-                $value['type'] = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
-                $value['slot_type'] = $value['type'];
+                $value['type']                                  = $value['type'] ?? ($value['en'] < date('Y-m-d H:i:s') ? 'PAST' : 'AVL');
+                $value['slot_type']                             = $value['type'];
                 $temp[date('Y-m-d', strtotime($value['st']))][] = $value;
             }
             $slots = $temp;
@@ -156,25 +156,25 @@ class UserAvaibility extends Model
 
         foreach ($slots as $d => $slot) {
             $LStart = Carbon::parse($d . ' ' . $availability->lunch_time_from);
-            $LEnd = Carbon::parse($d . ' ' . $availability->lunch_time_to);
+            $LEnd   = Carbon::parse($d . ' ' . $availability->lunch_time_to);
 
             foreach ($slot as $key => $s) {
                 $SStart = Carbon::parse($s['st']);
-                $SEnd = Carbon::parse($s['en']);
+                $SEnd   = Carbon::parse($s['en']);
                 if ($LStart->gte($SStart) && $LEnd->lte($SEnd)) {
                     $slots[$d][$key]['type'] = 'SMALL-LUNCH';
                 } elseif ($LStart->lte($SStart) && $LEnd->gte($SEnd)) {
                     $slots[$d][$key]['type'] = 'FULL-LUNCH';
                 } elseif ($LStart->gt($SStart) && $LStart->lt($SEnd)) {
-                    $slots[$d][$key]['type'] = 'LUNCH-START';
+                    $slots[$d][$key]['type']   = 'LUNCH-START';
                     $slots[$d][$key]['new_en'] = ($d . ' ' . $availability->lunch_time_from);
                 } elseif ($LEnd->gt($SStart) && $LEnd->lt($SEnd)) {
-                    $slots[$d][$key]['type'] = 'LUNCH-END';
+                    $slots[$d][$key]['type']   = 'LUNCH-END';
                     $slots[$d][$key]['new_st'] = ($d . ' ' . $availability->lunch_time_to);
                 }
                 $slots[$d][$key]['lunch_time'] = [
                     'from' => ($d . ' ' . $availability->lunch_time_from),
-                    'to' => ($d . ' ' . $availability->lunch_time_to),
+                    'to'   => ($d . ' ' . $availability->lunch_time_to),
                 ];
             }
         }

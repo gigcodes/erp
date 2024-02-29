@@ -66,7 +66,7 @@ class GoogleDocController extends Controller
         if (! Auth::user()->isAdmin()) {
             $data->whereRaw("find_in_set('" . Auth::user()->gmail . "',google_docs.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_docs.write)");
         }
-        $data = $data->get();
+        $data  = $data->get();
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
         return view('googledocs.index', compact('data', 'users', 'request'))
@@ -81,19 +81,19 @@ class GoogleDocController extends Controller
     public function create(Request $request)
     {
         $data = $this->validate($request, [
-            'type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
-            'doc_name' => ['required', 'max:800'],
+            'type'            => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+            'doc_name'        => ['required', 'max:800'],
             'existing_doc_id' => ['sometimes', 'nullable', 'string', 'max:800'],
-            'read' => ['sometimes'],
-            'write' => ['sometimes'],
+            'read'            => ['sometimes'],
+            'write'           => ['sometimes'],
         ]);
 
         DB::transaction(function () use ($data) {
-            $googleDoc = new GoogleDoc();
-            $googleDoc->type = $data['type'];
-            $googleDoc->name = $data['doc_name'];
+            $googleDoc             = new GoogleDoc();
+            $googleDoc->type       = $data['type'];
+            $googleDoc->name       = $data['doc_name'];
             $googleDoc->created_by = Auth::user()->id;
-            $googleDoc->category = $data['doc_category'] ?? null;
+            $googleDoc->category   = $data['doc_category'] ?? null;
             if (isset($data['read'])) {
                 $googleDoc->read = implode(',', $data['read']);
             }
@@ -133,7 +133,8 @@ class GoogleDocController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -144,7 +145,8 @@ class GoogleDocController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -161,7 +163,8 @@ class GoogleDocController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -194,7 +197,8 @@ class GoogleDocController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -215,12 +219,12 @@ class GoogleDocController extends Controller
 
     public function permissionUpdate(Request $request)
     {
-        $fileId = request('file_id');
-        $fileData = GoogleDoc::find(request('id'));
-        $readData = request('read');
-        $writeData = request('write');
+        $fileId           = request('file_id');
+        $fileData         = GoogleDoc::find(request('id'));
+        $readData         = request('read');
+        $writeData        = request('write');
         $permissionEmails = [];
-        $client = new Client();
+        $client           = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
         $driveService = new Drive($client);
@@ -245,8 +249,8 @@ class GoogleDocController extends Controller
             $batch = $driveService->createBatch();
             foreach ($readData as $email) {
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'reader',
+                    'type'         => 'user',
+                    'role'         => 'reader',
                     'emailAddress' => $email,
                 ]);
 
@@ -260,8 +264,8 @@ class GoogleDocController extends Controller
             $batch = $driveService->createBatch();
             foreach ($writeData as $email) {
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'writer',
+                    'type'         => 'user',
+                    'role'         => 'writer',
                     'emailAddress' => $email,
                 ]);
 
@@ -271,7 +275,7 @@ class GoogleDocController extends Controller
             }
             $results = $batch->execute();
         }
-        $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+        $fileData->read  = ! empty($readData) ? implode(',', $readData) : null;
         $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
         $fileData->save();
 
@@ -287,7 +291,7 @@ class GoogleDocController extends Controller
 
         foreach ($googledocs as $googledoc) {
             $permissionEmails = [];
-            $client = new Client();
+            $client           = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -313,14 +317,14 @@ class GoogleDocController extends Controller
                 unset($read[$key]);
             }
 
-            $new_read_data = implode(',', $read);
+            $new_read_data   = implode(',', $read);
             $googledoc->read = $new_read_data;
 
             $write = explode(',', $googledoc->write);
             if (($key = array_search($request->remove_permission, $write)) !== false) {
                 unset($write[$key]);
             }
-            $new_write_data = implode(',', $write);
+            $new_write_data   = implode(',', $write);
             $googledoc->write = $new_write_data;
 
             $googledoc->update();
@@ -334,9 +338,9 @@ class GoogleDocController extends Controller
         $googledoc = GoogleDoc::where('id', $request->id)->first();
 
         $data = [
-            'read' => $googledoc->read,
+            'read'  => $googledoc->read,
             'write' => $googledoc->write,
-            'code' => 200,
+            'code'  => 200,
         ];
 
         return $data;
@@ -345,13 +349,14 @@ class GoogleDocController extends Controller
     /**
      * Search data of google docs.
      *
-     * @param  string  $subject
+     * @param string $subject
+     *
      * @return \Illuminate\Http\Response
      */
     public function googledocSearch(Request $request)
     {
         $subject = $request->subject;
-        $data = GoogleDoc::where('name', 'LIKE', '%' . $subject . '%')->orderBy('created_at', 'desc')->get();
+        $data    = GoogleDoc::where('name', 'LIKE', '%' . $subject . '%')->orderBy('created_at', 'desc')->get();
 
         return view('googledocs.partials.list-files', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
@@ -362,32 +367,32 @@ class GoogleDocController extends Controller
     public function createDocumentOnTask(Request $request)
     {
         $data = $this->validate($request, [
-            'doc_type' => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
-            'doc_name' => ['required', 'max:800'],
-            'task_id' => ['required'],
+            'doc_type'  => ['required', Rule::in('spreadsheet', 'doc', 'ppt', 'txt', 'xps')],
+            'doc_name'  => ['required', 'max:800'],
+            'task_id'   => ['required'],
             'task_type' => ['required'],
         ]);
         try {
             $authUser = Auth::user();
 
             DB::transaction(function () use ($data, $authUser, $request) {
-                $task = null;
+                $task  = null;
                 $class = null;
 
                 if ($data['task_type'] == 'DEVTASK') {
-                    $task = DeveloperTask::find($data['task_id']);
+                    $task  = DeveloperTask::find($data['task_id']);
                     $class = DeveloperTask::class;
                 }
                 if ($data['task_type'] == 'TASK') {
-                    $task = Task::find($data['task_id']);
+                    $task  = Task::find($data['task_id']);
                     $class = Task::class;
                 }
 
-                $googleDoc = new GoogleDoc();
-                $googleDoc->type = $data['doc_type'];
-                $googleDoc->name = $data['doc_name'];
+                $googleDoc             = new GoogleDoc();
+                $googleDoc->type       = $data['doc_type'];
+                $googleDoc->name       = $data['doc_name'];
                 $googleDoc->created_by = Auth::user()->id;
-                $googleDoc->category = $data['doc_category'] ?? null;
+                $googleDoc->category   = $data['doc_category'] ?? null;
 
                 // Add the task name and description in document name
                 if (isset($request->attach_task_detail)) {
@@ -400,16 +405,16 @@ class GoogleDocController extends Controller
                 }
 
                 if ($authUser->isAdmin()) {
-                    $googleDoc->read = null;
+                    $googleDoc->read  = null;
                     $googleDoc->write = null;
                 } else {
-                    $googleDoc->read = $authUser->gmail;
+                    $googleDoc->read  = $authUser->gmail;
                     $googleDoc->write = $authUser->gmail;
                 }
 
                 if (isset($task) && isset($task->id)) {
                     $googleDoc->belongable_type = $class;
-                    $googleDoc->belongable_id = $task->id;
+                    $googleDoc->belongable_id   = $task->id;
                 }
 
                 $googleDoc->save();
@@ -424,12 +429,12 @@ class GoogleDocController extends Controller
             });
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Document created successsfuly.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'success' => 'Something went wrong!',
             ]);
         }
@@ -454,7 +459,7 @@ class GoogleDocController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'data' => view('googledocs.task-document', compact('googleDoc'))->render(),
+                    'data'   => view('googledocs.task-document', compact('googleDoc'))->render(),
                 ]);
             } else {
                 throw new Exception('Task ID not found');
@@ -462,7 +467,7 @@ class GoogleDocController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'data' => view('googledocs.task-document')->render(),
+                'data'   => view('googledocs.task-document')->render(),
             ]);
         }
     }
@@ -530,7 +535,7 @@ class GoogleDocController extends Controller
             }
 
             $permissionEmails = [];
-            $client = new Client();
+            $client           = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -556,35 +561,35 @@ class GoogleDocController extends Controller
             $index = 1;
             $driveService->getClient()->setUseBatch(true);
 
-            $batch = $driveService->createBatch();
+            $batch          = $driveService->createBatch();
             $userPermission = new Drive\Permission([
-                'type' => 'user',
-                'role' => 'reader',
+                'type'         => 'user',
+                'role'         => 'reader',
                 'emailAddress' => $user->gmail,
             ]);
 
             $r_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($r_request, 'user' . rand(0, 999));
-            $results = $batch->execute();
+            $results          = $batch->execute();
             $readPermission[] = $user->gmail;
 
-            $batch = $driveService->createBatch();
+            $batch          = $driveService->createBatch();
             $userPermission = new Drive\Permission([
-                'type' => 'user',
-                'role' => 'writer',
+                'type'         => 'user',
+                'role'         => 'writer',
                 'emailAddress' => $user->gmail,
             ]);
 
             $w_request = $driveService->permissions->create($doc->docId, $userPermission, ['fields' => 'id']);
             $batch->add($w_request, 'user' . rand(0, 999));
-            $results = $batch->execute();
+            $results           = $batch->execute();
             $writePermission[] = $user->gmail;
 
             if ($doc->belongable_id == null) {
-                $doc->belongable_id = $request->task_id;
+                $doc->belongable_id   = $request->task_id;
                 $doc->belongable_type = ($request->task_type == 'DEVTASK') ? DeveloperTask::class : Task::class;
             }
-            $doc->read = ! empty($readPermission) ? implode(',', $readPermission) : null;
+            $doc->read  = ! empty($readPermission) ? implode(',', $readPermission) : null;
             $doc->write = ! empty($writePermission) ? implode(',', $writePermission) : null;
             $doc->save();
 
@@ -601,7 +606,7 @@ class GoogleDocController extends Controller
 
             return response()->json([
                 'status' => true,
-                'docs' => $doc,
+                'docs'   => $doc,
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -612,15 +617,15 @@ class GoogleDocController extends Controller
 
     public function googleDocRemovePermission(Request $request)
     {
-        $fileIds = explode(',', request('remove_doc_ids'));
-        $fileIds = array_map('intval', $fileIds);
-        $readArray = request('read');
+        $fileIds    = explode(',', request('remove_doc_ids'));
+        $fileIds    = array_map('intval', $fileIds);
+        $readArray  = request('read');
         $writeArray = request('write');
 
         foreach ($fileIds as $fileId) {
-            $file = GoogleDoc::find($fileId);
+            $file             = GoogleDoc::find($fileId);
             $permissionEmails = [];
-            $client = new Client();
+            $client           = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -640,9 +645,9 @@ class GoogleDocController extends Controller
                 }
             }
 
-            $readUsers = array_diff(explode(',', $file->read), $readArray);
-            $writeUsers = array_diff(explode(',', $file->write), $writeArray);
-            $file->read = implode(',', $readUsers);
+            $readUsers   = array_diff(explode(',', $file->read), $readArray);
+            $writeUsers  = array_diff(explode(',', $file->write), $writeArray);
+            $file->read  = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();
         }
@@ -652,15 +657,15 @@ class GoogleDocController extends Controller
 
     public function addMulitpleDocPermission(Request $request)
     {
-        $fileIds = explode(',', request('add_doc_ids'));
-        $fileIds = array_map('intval', $fileIds);
-        $readData = request('read');
-        $writeData = request('write');
+        $fileIds          = explode(',', request('add_doc_ids'));
+        $fileIds          = array_map('intval', $fileIds);
+        $readData         = request('read');
+        $writeData        = request('write');
         $permissionEmails = [];
 
         foreach ($fileIds as $fileId) {
             $fileData = GoogleDoc::find($fileId);
-            $client = new Client();
+            $client   = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -685,8 +690,8 @@ class GoogleDocController extends Controller
                 $batch = $driveService->createBatch();
                 foreach ($readData as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'reader',
+                        'type'         => 'user',
+                        'role'         => 'reader',
                         'emailAddress' => $email,
                     ]);
 
@@ -700,8 +705,8 @@ class GoogleDocController extends Controller
                 $batch = $driveService->createBatch();
                 foreach ($writeData as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'writer',
+                        'type'         => 'user',
+                        'role'         => 'writer',
                         'emailAddress' => $email,
                     ]);
 
@@ -711,7 +716,7 @@ class GoogleDocController extends Controller
                 }
                 $results = $batch->execute();
             }
-            $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+            $fileData->read  = ! empty($readData) ? implode(',', $readData) : null;
             $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
             $fileData->save();
         }
@@ -737,7 +742,7 @@ class GoogleDocController extends Controller
 
     public function googleTasksList(Request $request)
     {
-        $tasksData = \App\Task::pluck('id')->toArray();
+        $tasksData         = \App\Task::pluck('id')->toArray();
         $DeveloperTaskData = \App\DeveloperTask::pluck('id')->toArray();
 
         $tasks = array_unique(array_merge($tasksData, $DeveloperTaskData));

@@ -20,7 +20,7 @@ final class SavedQueryByExampleSearchesFeature
 
     public function __construct(DatabaseName $database, TableName $savedSearches)
     {
-        $this->database = $database;
+        $this->database      = $database;
         $this->savedSearches = $savedSearches;
     }
 }

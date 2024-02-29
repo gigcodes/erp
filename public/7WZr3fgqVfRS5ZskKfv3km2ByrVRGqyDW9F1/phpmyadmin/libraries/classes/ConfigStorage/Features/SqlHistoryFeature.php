@@ -21,6 +21,6 @@ final class SqlHistoryFeature
     public function __construct(DatabaseName $database, TableName $history)
     {
         $this->database = $database;
-        $this->history = $history;
+        $this->history  = $history;
     }
 }

@@ -19,8 +19,8 @@ class ServiceTableSeeder extends Seeder
 
         // Create 1000 customers
         for ($i = 0; $i < 100; $i++) {
-            $service = new Service();
-            $service->name = $faker->name;
+            $service              = new Service();
+            $service->name        = $faker->name;
             $service->description = $faker->paragraph;
             $service->save();
         }

@@ -25,7 +25,7 @@ class GrammarBot
                 ],
                 'headers' => [
                     'Ocp-Apim-Subscription-Key' => 'fdcfc2cb689346a39265829bb50bf39b',
-                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Content-Type'              => 'application/x-www-form-urlencoded',
                 ],
             ]);
         } catch (\Exception $exception) {

@@ -83,7 +83,7 @@ final class DbTableExists
                 return;
             }
 
-            $result = $dbi->tryQuery('SHOW TABLES LIKE \'' . $dbi->escapeString($table) . '\';');
+            $result   = $dbi->tryQuery('SHOW TABLES LIKE \'' . $dbi->escapeString($table) . '\';');
             $is_table = $result && $result->numRows();
         }
 
@@ -100,7 +100,7 @@ final class DbTableExists
              * SHOW TABLES doesn't show temporary tables, so try select
              * (as it can happen just in case temporary table, it should be fast):
              */
-            $result = $dbi->tryQuery('SELECT COUNT(*) FROM ' . Util::backquote($table) . ';');
+            $result   = $dbi->tryQuery('SELECT COUNT(*) FROM ' . Util::backquote($table) . ';');
             $is_table = $result && $result->numRows();
         }
 

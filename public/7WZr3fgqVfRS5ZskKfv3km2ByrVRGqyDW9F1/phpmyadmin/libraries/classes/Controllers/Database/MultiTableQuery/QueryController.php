@@ -13,7 +13,7 @@ final class QueryController extends AbstractController
     {
         $params = [
             'sql_query' => $_POST['sql_query'],
-            'db' => $_POST['db'] ?? $_GET['db'] ?? null,
+            'db'        => $_POST['db'] ?? $_GET['db'] ?? null,
         ];
 
         $this->response->addHTML(MultiTableQuery::displayResults($params['sql_query'], $params['db']));

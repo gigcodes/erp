@@ -13,7 +13,7 @@ final class ChangePrefixFormController extends AbstractController
     {
         global $db;
 
-        $selected = $_POST['selected_tbl'] ?? [];
+        $selected   = $_POST['selected_tbl'] ?? [];
         $submitMult = $_POST['submit_mult'] ?? '';
 
         if (empty($selected)) {
@@ -35,7 +35,7 @@ final class ChangePrefixFormController extends AbstractController
 
         $this->response->disable();
         $this->render('database/structure/change_prefix_form', [
-            'route' => $route,
+            'route'      => $route,
             'url_params' => $urlParams,
         ]);
     }

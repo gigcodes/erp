@@ -20,9 +20,9 @@ class MagentoSettingsController extends Controller
 {
     public function index(Request $request)
     {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $all_paths = MagentoSetting::groupBy('path')->get()->pluck('path', 'path')->toArray();
-        $all_names = MagentoSetting::groupBy('name')->get()->pluck('name', 'name')->toArray();
+        $startTime       = date('Y-m-d H:i:s', LARAVEL_START);
+        $all_paths       = MagentoSetting::groupBy('path')->get()->pluck('path', 'path')->toArray();
+        $all_names       = MagentoSetting::groupBy('name')->get()->pluck('name', 'name')->toArray();
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
@@ -75,15 +75,15 @@ class MagentoSettingsController extends Controller
             $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
         }
 
-        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
-        $storeWebsites = StoreWebsite::get();
-        $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
-        $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
-        $allUsers = User::where('is_active', '1')->get();
+        $magentoSettings        = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
+        $storeWebsites          = StoreWebsite::get();
+        $websitesStores         = WebsiteStore::get()->pluck('name')->unique()->toArray();
+        $websiteStoreViews      = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
+        $allUsers               = User::where('is_active', '1')->get();
         $magentoSettingStatuses = MagentoSettingStatus::all();
-        $data = $magentoSettings;
-        $data = $data->groupBy('store_website_id')->toArray();
-        $newValues = [];
+        $data                   = $magentoSettings;
+        $data                   = $data->groupBy('store_website_id')->toArray();
+        $newValues              = [];
 
         $countList = MagentoSetting::all();
         if (is_array($request->website) || $request->name || $request->path || $request->status || $request->scope) {
@@ -93,40 +93,40 @@ class MagentoSettingsController extends Controller
         }
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
-                'magentoSettings' => $magentoSettings,
-                'newValues' => $newValues,
-                'storeWebsites' => $storeWebsites,
-                'websitesStores' => $websitesStores,
-                'websiteStoreViews' => $websiteStoreViews,
-                'pushLogs' => $pushLogs,
-                'counter' => $counter,
-                'allUsers' => $allUsers,
+                'magentoSettings'        => $magentoSettings,
+                'newValues'              => $newValues,
+                'storeWebsites'          => $storeWebsites,
+                'websitesStores'         => $websitesStores,
+                'websiteStoreViews'      => $websiteStoreViews,
+                'pushLogs'               => $pushLogs,
+                'counter'                => $counter,
+                'allUsers'               => $allUsers,
                 'magentoSettingStatuses' => $magentoSettingStatuses,
-                'all_paths' => $all_paths,
-                'all_names' => $all_names,
+                'all_paths'              => $all_paths,
+                'all_names'              => $all_names,
             ]);
         } else {
             return view('magento.settings.index', [
-                'magentoSettings' => $magentoSettings,
-                'newValues' => $newValues,
-                'storeWebsites' => $storeWebsites,
-                'websitesStores' => $websitesStores,
-                'websiteStoreViews' => $websiteStoreViews,
-                'pushLogs' => $pushLogs,
-                'counter' => $counter,
-                'allUsers' => $allUsers,
+                'magentoSettings'        => $magentoSettings,
+                'newValues'              => $newValues,
+                'storeWebsites'          => $storeWebsites,
+                'websitesStores'         => $websitesStores,
+                'websiteStoreViews'      => $websiteStoreViews,
+                'pushLogs'               => $pushLogs,
+                'counter'                => $counter,
+                'allUsers'               => $allUsers,
                 'magentoSettingStatuses' => $magentoSettingStatuses,
-                'all_paths' => $all_paths,
-                'all_names' => $all_names,
+                'all_paths'              => $all_paths,
+                'all_names'              => $all_names,
             ]);
         }
     }
 
     public function getLogs(Request $request)
     {
-        $storeWebsites = StoreWebsite::get();
+        $storeWebsites   = StoreWebsite::get();
         $magentoSettings = MagentoSetting::get();
-        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        $pushLogs        = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
             ->select('store_websites.website', 'magento_setting_push_logs.id', 'magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at', 'magento_setting_push_logs.store_website_id', 'magento_setting_push_logs.command_server', 'magento_setting_push_logs.job_id', 'magento_setting_push_logs.setting_id')
             ->orderBy('magento_setting_push_logs.id', 'DESC');
         if ($request->website) {
@@ -160,9 +160,9 @@ class MagentoSettingsController extends Controller
         $counter = $counter->count();
 
         return view('magento.settings.sync_logs', [
-            'pushLogs' => $pushLogs,
-            'storeWebsites' => $storeWebsites,
-            'counter' => $counter,
+            'pushLogs'        => $pushLogs,
+            'storeWebsites'   => $storeWebsites,
+            'counter'         => $counter,
             'magentoSettings' => $magentoSettings,
         ]);
     }
@@ -185,11 +185,11 @@ class MagentoSettingsController extends Controller
 
     public function create(Request $request)
     {
-        $name = $request->name;
-        $path = $request->path;
-        $value = $request->value;
-        $datatype = $request->datatype;
-        $copyWebsites = (! empty($request->websites)) ? $request->websites : [];
+        $name               = $request->name;
+        $path               = $request->path;
+        $value              = $request->value;
+        $datatype           = $request->datatype;
+        $copyWebsites       = (! empty($request->websites)) ? $request->websites : [];
         $save_record_status = 0;
         foreach ($request->scope as $scope) {
             if ($scope === 'default') {
@@ -200,16 +200,16 @@ class MagentoSettingsController extends Controller
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $storeWebsite->id,
-                            'store_website_id' => $storeWebsite->id,
-                            'website_store_id' => 0,
+                            'scope'                 => $scope,
+                            'scope_id'              => $storeWebsite->id,
+                            'store_website_id'      => $storeWebsite->id,
+                            'website_store_id'      => 0,
                             'website_store_view_id' => 0,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
-                            'data_type' => $datatype,
-                            'created_by' => Auth::id(),
+                            'name'                  => $name,
+                            'path'                  => $path,
+                            'value'                 => $value,
+                            'data_type'             => $datatype,
+                            'created_by'            => Auth::id(),
                         ]);
                         $save_record_status = 1;
                     }
@@ -218,25 +218,25 @@ class MagentoSettingsController extends Controller
 
             if ($scope === 'websites') {
                 $websiteStores = [];
-                $stores = [];
+                $stores        = [];
                 if ($request->website_store != null) {
                     $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
                 }
                 foreach ($websiteStores as $websiteStore) {
-                    $stores[] = $websiteStore->code;
+                    $stores[]  = $websiteStore->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStore->id,
-                            'store_website_id' => $request->single_website,
-                            'website_store_id' => $websiteStore->id,
+                            'scope'                 => $scope,
+                            'scope_id'              => $websiteStore->id,
+                            'store_website_id'      => $request->single_website,
+                            'website_store_id'      => $websiteStore->id,
                             'website_store_view_id' => 0,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
-                            'data_type' => $datatype,
-                            'created_by' => Auth::id(),
+                            'name'                  => $name,
+                            'path'                  => $path,
+                            'value'                 => $value,
+                            'data_type'             => $datatype,
+                            'created_by'            => Auth::id(),
                         ]);
                         $save_record_status = 1;
                     }
@@ -249,16 +249,16 @@ class MagentoSettingsController extends Controller
                             $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
                             if (! $m_setting) {
                                 $m_setting = MagentoSetting::Create([
-                                    'scope' => $scope,
-                                    'scope_id' => $websiteStore->id,
-                                    'store_website_id' => $cw,
-                                    'website_store_id' => $websiteStore->id,
+                                    'scope'                 => $scope,
+                                    'scope_id'              => $websiteStore->id,
+                                    'store_website_id'      => $cw,
+                                    'website_store_id'      => $websiteStore->id,
                                     'website_store_view_id' => 0,
-                                    'name' => $name,
-                                    'path' => $path,
-                                    'value' => $value,
-                                    'data_type' => $datatype,
-                                    'created_by' => Auth::id(),
+                                    'name'                  => $name,
+                                    'path'                  => $path,
+                                    'value'                 => $value,
+                                    'data_type'             => $datatype,
+                                    'created_by'            => Auth::id(),
                                 ]);
                                 $save_record_status = 1;
                             }
@@ -274,20 +274,20 @@ class MagentoSettingsController extends Controller
                 }
                 $stores = [];
                 foreach ($websiteStoresViews as $websiteStoresView) {
-                    $stores[] = $websiteStoresView->code;
+                    $stores[]  = $websiteStoresView->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
                     if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope' => $scope,
-                            'scope_id' => $websiteStoresView->id,
-                            'store_website_id' => $request->single_website,
-                            'website_store_id' => $websiteStoresView->website_store_id,
+                            'scope'                 => $scope,
+                            'scope_id'              => $websiteStoresView->id,
+                            'store_website_id'      => $request->single_website,
+                            'website_store_id'      => $websiteStoresView->website_store_id,
                             'website_store_view_id' => $websiteStoresView->id,
-                            'name' => $name,
-                            'path' => $path,
-                            'value' => $value,
-                            'data_type' => $datatype,
-                            'created_by' => Auth::id(),
+                            'name'                  => $name,
+                            'path'                  => $path,
+                            'value'                 => $value,
+                            'data_type'             => $datatype,
+                            'created_by'            => Auth::id(),
                         ]);
                         $save_record_status = 1;
                     }
@@ -301,16 +301,16 @@ class MagentoSettingsController extends Controller
                             $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
                             if (! $m_setting) {
                                 $m_setting = MagentoSetting::Create([
-                                    'scope' => $scope,
-                                    'scope_id' => $websiteStoresView->id,
-                                    'store_website_id' => $cw,
-                                    'website_store_id' => $websiteStoresView->website_store_id,
+                                    'scope'                 => $scope,
+                                    'scope_id'              => $websiteStoresView->id,
+                                    'store_website_id'      => $cw,
+                                    'website_store_id'      => $websiteStoresView->website_store_id,
                                     'website_store_view_id' => $websiteStoresView->id,
-                                    'name' => $name,
-                                    'path' => $path,
-                                    'value' => $value,
-                                    'data_type' => $datatype,
-                                    'created_by' => Auth::id(),
+                                    'name'                  => $name,
+                                    'path'                  => $path,
+                                    'value'                 => $value,
+                                    'data_type'             => $datatype,
+                                    'created_by'            => Auth::id(),
                                 ]);
                                 $save_record_status = 1;
                             }
@@ -332,40 +332,40 @@ class MagentoSettingsController extends Controller
 
     public function update(Request $request)
     {
-        $entity_id = $request->id;
-        $scope = $request->scope;
-        $name = $request->name;
-        $path = $request->path;
-        $value = $request->value;
-        $datatype = $request->datatype;
-        $is_live = isset($request->live);
+        $entity_id      = $request->id;
+        $scope          = $request->scope;
+        $name           = $request->name;
+        $path           = $request->path;
+        $value          = $request->value;
+        $datatype       = $request->datatype;
+        $is_live        = isset($request->live);
         $is_development = isset($request->development);
-        $is_stage = isset($request->stage);
-        $website_ids = $request->websites;
+        $is_stage       = isset($request->stage);
+        $website_ids    = $request->websites;
 
         $m = MagentoSetting::where('id', $request->id)->first();
         if ($m) {
             MagentoSettingNameLog::insert([
-                'old_value' => $m->name,
-                'new_value' => $name,
-                'updated_by' => Auth::id(),
+                'old_value'           => $m->name,
+                'new_value'           => $name,
+                'updated_by'          => Auth::id(),
                 'magento_settings_id' => $request->id,
-                'updated_at' => date('Y-m-d H:i'),
+                'updated_at'          => date('Y-m-d H:i'),
             ]);
         }
 
         MagentoSetting::where('id', $request->id)->update([
-            'name' => $name,
-            'path' => $path,
+            'name'  => $name,
+            'path'  => $path,
             'value' => $value,
         ]);
 
         if ($value !== $m->value) {
-            $history = new MagentoSettingValueHistory();
+            $history                     = new MagentoSettingValueHistory();
             $history->magento_setting_id = $m->id;
-            $history->old_value = $m->value;
-            $history->new_value = $value;
-            $history->user_id = Auth::user()->id;
+            $history->old_value          = $m->value;
+            $history->new_value          = $value;
+            $history->user_id            = Auth::user()->id;
             $history->save();
         }
 
@@ -386,7 +386,7 @@ class MagentoSettingsController extends Controller
 
             if (! empty($storeWebsiteData)) {
                 $requestData['server'] = $storeWebsiteData->server_ip;
-                $requestData['dir'] = $storeWebsiteData->working_directory;
+                $requestData['dir']    = $storeWebsiteData->working_directory;
             }
 
             if (! empty($requestData['command']) && ! empty($requestData['server']) && ! empty($requestData['dir'])) {
@@ -437,8 +437,8 @@ class MagentoSettingsController extends Controller
     {
         if ($request->has('store_website_id') && $request->store_website_id != '') {
             $store_website_id = $request->store_website_id;
-            $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
-            $website_ids[] = $store_website_id;
+            $magentoSettings  = MagentoSetting::where('store_website_id', $store_website_id)->get();
+            $website_ids[]    = $store_website_id;
             foreach ($magentoSettings as $magentoSetting) {
                 \App\Jobs\PushMagentoSettings::dispatch($magentoSetting, $website_ids)->onQueue('pushmagentosettings');
             }
@@ -460,7 +460,7 @@ class MagentoSettingsController extends Controller
 
     public function websiteStoreViews(Request $request)
     {
-        $website_store_ids = $request->website_id;
+        $website_store_ids       = $request->website_id;
         $website_store_view_data = [];
         if (! empty($website_store_ids)) {
             $website_store_view_data = WebsiteStoreView::select('id', 'code')->whereNotNull('code')->whereIn('website_store_id', $website_store_ids)->get();
@@ -476,7 +476,7 @@ class MagentoSettingsController extends Controller
         $m_setting = MagentoSetting::find($id);
         if ($m_setting) {
             $m_setting->delete();
-            $log = $id . ' Id Deleted successfully';
+            $log      = $id . ' Id Deleted successfully';
             $formData = ['event' => 'delete', 'log' => $log];
             MagentoSettingLog::create($formData);
         }
@@ -486,7 +486,7 @@ class MagentoSettingsController extends Controller
 
     public function namehistrory($id)
     {
-        $ms = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
+        $ms    = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
         $table = "<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
         foreach ($ms as $m) {
             $table .= '<tr><td>' . $m->updated_at . '</td>';
@@ -517,7 +517,7 @@ class MagentoSettingsController extends Controller
 
     public function getMagentoSetting($id)
     {
-        $magentoSetting = MagentoSetting::where('id', $id)->first();
+        $magentoSetting      = MagentoSetting::where('id', $id)->first();
         $taggedStoreWebsites = '';
 
         if ($magentoSetting) {
@@ -551,11 +551,11 @@ class MagentoSettingsController extends Controller
                 'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
 
             if ($request->has('new_value') && $individualSetting->value !== $request->new_value) {
-                $history = new MagentoSettingValueHistory();
+                $history                     = new MagentoSettingValueHistory();
                 $history->magento_setting_id = $individualSetting->id;
-                $history->old_value = $individualSetting->value;
-                $history->new_value = $request->new_value;
-                $history->user_id = Auth::user()->id;
+                $history->old_value          = $individualSetting->value;
+                $history->new_value          = $request->new_value;
+                $history->user_id            = Auth::user()->id;
                 $history->save();
             }
             // Assign new value when push
@@ -576,9 +576,9 @@ class MagentoSettingsController extends Controller
     public function statusColor(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoSettingStatus = MagentoSettingStatus::find($key);
+            $magentoSettingStatus        = MagentoSettingStatus::find($key);
             $magentoSettingStatus->color = $value;
             $magentoSettingStatus->save();
         }
@@ -619,9 +619,9 @@ class MagentoSettingsController extends Controller
                 } else {
                     $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
                 }
-                $allInstancesIds = $allInstances->pluck('id');
+                $allInstancesIds    = $allInstances->pluck('id');
                 $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path', $magentoSetting->path)->where('scope', $magentoSetting->scope)->get()->pluck('id')->toArray();
-                $assign_settings = array_merge($assign_settings, $allMagentoSettings);
+                $assign_settings    = array_merge($assign_settings, $allMagentoSettings);
             }
             $user = User::find($request->assign_user);
             $user->magentoSettings()->attach($assign_settings);
@@ -640,9 +640,9 @@ class MagentoSettingsController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }

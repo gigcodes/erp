@@ -51,21 +51,21 @@ class VisitorLogs extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting the visitors detail this api: https://api.livechatinc.com/v2/visitors']);
             $url = 'https://api.livechatinc.com/v2/visitors';
             curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
+                CURLOPT_URL            => $url,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
+                CURLOPT_ENCODING       => '',
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 0,
                 CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-                CURLOPT_HTTPHEADER => [
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => 'GET',
+                CURLOPT_HTTPHEADER     => [
                     'Authorization: Basic ' . self::LIVE_CHAT_CREDNTIAL,
                 ],
             ]);
 
             $response = curl_exec($curl);
-            $err = curl_error($curl);
+            $err      = curl_error($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\VisitorLogs::class, 'handle');
             $duration = json_decode($response);
@@ -84,18 +84,18 @@ class VisitorLogs extends Command
                         if ($logExist == null) {
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'No found any visior log using ip: ' . $log->ip]);
 
-                            $logSave = new VisitorLog();
-                            $logSave->ip = $log->ip;
-                            $logSave->browser = $log->browser;
+                            $logSave           = new VisitorLog();
+                            $logSave->ip       = $log->ip;
+                            $logSave->browser  = $log->browser;
                             $logSave->location = $log->city . ' ' . $log->region . ' ' . $log->country . ' ' . $log->country_code;
                             foreach ($log->visit_path as $path) {
                                 $pathArray[] = $path->page;
                             }
-                            $logSave->page = json_encode($pathArray);
-                            $logSave->visits = $log->visits;
-                            $logSave->last_visit = $log->last_visit;
-                            $logSave->page_current = $log->page_current;
-                            $logSave->chats = $log->chats;
+                            $logSave->page          = json_encode($pathArray);
+                            $logSave->visits        = $log->visits;
+                            $logSave->last_visit    = $log->last_visit;
+                            $logSave->page_current  = $log->page_current;
+                            $logSave->chats         = $log->chats;
                             $logSave->customer_name = $log->name;
                             $logSave->save();
 

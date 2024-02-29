@@ -44,7 +44,7 @@ class EpsRelationSchema extends ExportRelationSchema
      *
      * @see Eps
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function __construct($db)
     {
@@ -166,13 +166,13 @@ class EpsRelationSchema extends ExportRelationSchema
      * @see TableStatsEps::__construct()
      * @see PhpMyAdmin\Plugins\Schema\Eps\RelationStatsEps::__construct()
      *
-     * @param  string  $masterTable    The master table name
-     * @param  string  $font           The font
-     * @param  int  $fontSize       The font size
-     * @param  string  $masterField    The relation field in the master table
-     * @param  string  $foreignTable   The foreign table name
-     * @param  string  $foreignField   The relation field in the foreign table
-     * @param  bool  $tableDimension Whether to display table position or not
+     * @param string $masterTable    The master table name
+     * @param string $font           The font
+     * @param int    $fontSize       The font size
+     * @param string $masterField    The relation field in the master table
+     * @param string $foreignTable   The foreign table name
+     * @param string $foreignField   The relation field in the foreign table
+     * @param bool   $tableDimension Whether to display table position or not
      */
     private function addRelation(
         $masterTable,

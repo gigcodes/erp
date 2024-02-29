@@ -48,9 +48,9 @@ class SendFcmNotification extends Command
         try {
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
-            $fromdate = date('Y-m-d H:i:s');
+            $fromdate     = date('Y-m-d H:i:s');
             $newtimestamp = strtotime($fromdate . ' + 4 minute');
-            $todate = date('Y-m-d H:i:s', $newtimestamp);
+            $todate       = date('Y-m-d H:i:s', $newtimestamp);
             echo $fromdate . ' # ' . $todate;
             echo PHP_EOL;
             \Log::info('fcm:send was started to run');
@@ -73,14 +73,14 @@ class SendFcmNotification extends Command
 
                 foreach ($Notifications as $Notification) {
                     $errorMessage = '';
-                    $token = '';
+                    $token        = '';
                     try {
                         config(['fcm.http.sender_id' => $Notification['push_web_id']]);
                         config(['fcm.http.server_key' => $Notification['push_web_key']]);
                         \Log::info('fcm:send sender_id was ' . $Notification['push_web_id'] . ' found with key ' . $Notification['push_web_key']);
 
-                        $title = $Notification->title;
-                        $googleTranslate = new GoogleTranslate();
+                        $title             = $Notification->title;
+                        $googleTranslate   = new GoogleTranslate();
                         $translationString = $googleTranslate->translate($Notification->lang, $Notification->title);
 
                         if ($translationString != '') {
@@ -88,8 +88,8 @@ class SendFcmNotification extends Command
                             $title = htmlspecialchars_decode($translationString, ENT_QUOTES);
                         }
 
-                        $body = $Notification->body;
-                        $googleTranslate = new GoogleTranslate();
+                        $body              = $Notification->body;
+                        $googleTranslate   = new GoogleTranslate();
                         $translationString = $googleTranslate->translate($Notification->lang, $Notification->body);
 
                         if ($translationString != '') {
@@ -106,13 +106,13 @@ class SendFcmNotification extends Command
 
                         $dataBuilder = new PayloadDataBuilder();
                         $dataBuilder->addData([
-                            'icon' => $Notification->icon,
+                            'icon'        => $Notification->icon,
                             'expired_day' => $Notification->expired_day,
                         ]);
 
-                        $option = $optionBuilder->build();
+                        $option       = $optionBuilder->build();
                         $notification = $notificationBuilder->build();
-                        $data = $dataBuilder->build();
+                        $data         = $dataBuilder->build();
 
                         $token = $Notification->token;
 
@@ -123,7 +123,7 @@ class SendFcmNotification extends Command
                             $this->info('Message Sent Succesfully');
                             \Log::info('fcm:send Message Sent Succesfully');
                             $Notification->status = 'Success';
-                            $success = true;
+                            $success              = true;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent successfully']);
                         } elseif ($downstreamResponse->numberFailure()) {
@@ -136,8 +136,8 @@ class SendFcmNotification extends Command
                         }
                     } catch (\Exception $e) {
                         $Notification->status = 'Failed';
-                        $success = false;
-                        $errorMessage = $e->getMessage();
+                        $success              = false;
+                        $errorMessage         = $e->getMessage();
                         \Log::info('fcm:send Exception Error message =>' . $errorMessage);
 
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'message sent error' . $errorMessage]);
@@ -149,10 +149,10 @@ class SendFcmNotification extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'notification detail updated by ID' . $Notification->id]);
 
                     \App\PushFcmNotificationHistory::create([
-                        'token' => $token,
+                        'token'           => $token,
                         'notification_id' => $Notification->id,
-                        'success' => $success,
-                        'error_message' => $errorMessage,
+                        'success'         => $success,
+                        'error_message'   => $errorMessage,
                     ]);
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved notification history']);

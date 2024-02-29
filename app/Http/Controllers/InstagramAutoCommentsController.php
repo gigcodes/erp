@@ -12,11 +12,11 @@ class InstagramAutoCommentsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     * All the comments by updated at and the location that we have saved
+     *                                   All the comments by updated at and the location that we have saved
      */
     public function index()
     {
-        $comments = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
+        $comments  = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
         $countries = TargetLocation::all();
 
         return view('instagram.auto_comments.index', compact('comments', 'countries'));
@@ -36,7 +36,7 @@ class InstagramAutoCommentsController extends Controller
      * Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
-     * Create a new comment for a country or gender
+     *                                   Create a new comment for a country or gender
      */
     public function store(Request $request)
     {
@@ -44,11 +44,11 @@ class InstagramAutoCommentsController extends Controller
             'text' => 'required',
         ]);
 
-        $comment = new InstagramAutoComments();
+        $comment          = new InstagramAutoComments();
         $comment->comment = $request->get('text');
-        $comment->source = $request->get('comment');
+        $comment->source  = $request->get('comment');
         $comment->country = $request->get('country');
-        $comment->gender = $request->get('gender');
+        $comment->gender  = $request->get('gender');
         $comment->options = $request->get('options') ?? [];
         $comment->save();
 
@@ -58,9 +58,11 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramAutoComments  $instagramAutoComments
+     * @param \App\InstagramAutoComments $instagramAutoComments
+     * @param mixed                      $action
+     *
      * @return \Illuminate\Http\Response
-     * This will delete the comments given
+     *                                   This will delete the comments given
      */
     public function show($action, Request $request)
     {
@@ -76,9 +78,11 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramAutoComments  $instagramAutoComments
+     * @param \App\InstagramAutoComments $instagramAutoComments
+     * @param mixed                      $id
+     *
      * @return \Illuminate\Http\Response
-     * Edit the Instagrm auto comment resource
+     *                                   Edit the Instagrm auto comment resource
      */
     public function edit($id)
     {
@@ -90,15 +94,17 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\InstagramAutoComments  $instagramAutoComments
+     * @param \App\InstagramAutoComments $instagramAutoComments
+     * @param mixed                      $id
+     *
      * @return \Illuminate\Http\Response
-     * Update the source, text and options
+     *                                   Update the source, text and options
      */
     public function update(Request $request, $id)
     {
-        $comment = InstagramAutoComments::findOrFail($id);
+        $comment          = InstagramAutoComments::findOrFail($id);
         $comment->comment = $request->get('text');
-        $comment->source = $request->get('source');
+        $comment->source  = $request->get('source');
         $comment->options = $request->get('options') ?? [];
         $comment->save();
 

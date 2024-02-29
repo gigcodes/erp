@@ -1,17 +1,17 @@
 <?php
 
-$user_id = $argv[1];
+$user_id   = $argv[1];
 $password1 = $argv[2];
 
 $servername = '81.0.247.216';
-$username = 'erplive';
-$password = 'C*jlP2E0nbj6';
-$dbname = 'erp_live';
+$username   = 'erplive';
+$password   = 'C*jlP2E0nbj6';
+$dbname     = 'erp_live';
 
 $options = [
     'cost' => 8,
 ];
-$GPASS = password_hash($password1, PASSWORD_BCRYPT);
+$GPASS  = password_hash($password1, PASSWORD_BCRYPT);
 $output = shell_exec("./gen-pass.sh $password");
 echo $output;
 //$str = preg_replace('/\:/', '', $output);

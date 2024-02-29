@@ -23,7 +23,7 @@ class TicketAck extends Mailable
 
     public function __construct($ticket)
     {
-        $this->ticket = $ticket;
+        $this->ticket     = $ticket;
         $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
@@ -35,10 +35,10 @@ class TicketAck extends Mailable
     public function build()
     {
         $subject = 'Ticket ACK';
-        $ticket = $this->ticket;
+        $ticket  = $this->ticket;
 
         $this->subject = $subject;
-        $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+        $emailAddress  = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
         if ($emailAddress) {
             $this->fromMailer = $emailAddress->from_address;
         }

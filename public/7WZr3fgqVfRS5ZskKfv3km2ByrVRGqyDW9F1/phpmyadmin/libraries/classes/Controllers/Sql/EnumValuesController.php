@@ -28,7 +28,7 @@ final class EnumValuesController extends AbstractController
         CheckUserPrivileges $checkUserPrivileges
     ) {
         parent::__construct($response, $template);
-        $this->sql = $sql;
+        $this->sql                 = $sql;
         $this->checkUserPrivileges = $checkUserPrivileges;
     }
 
@@ -41,9 +41,9 @@ final class EnumValuesController extends AbstractController
 
         $this->checkUserPrivileges->getPrivileges();
 
-        $column = $_POST['column'];
+        $column     = $_POST['column'];
         $curr_value = $_POST['curr_value'];
-        $values = $this->sql->getValuesForColumn($db, $table, $column);
+        $values     = $this->sql->getValuesForColumn($db, $table, $column);
 
         if ($values === null) {
             $this->response->addJSON('message', __('Error in processing request'));
@@ -56,7 +56,7 @@ final class EnumValuesController extends AbstractController
         $convertedCurrentValue = htmlentities($curr_value, ENT_COMPAT, 'UTF-8');
 
         $dropdown = $this->template->render('sql/enum_column_dropdown', [
-            'values' => $values,
+            'values'          => $values,
             'selected_values' => [$convertedCurrentValue],
         ]);
 

@@ -45,7 +45,7 @@ class PriceDropNotification extends Command
         foreach ($ticketsData as $ticket) {
             if ($ticket->prod_real_price <= $ticket->amount) {
                 if ($ticket->notify_on == 'phone' && $ticket->phone_no != null) {
-                    $message = 'Your are recieving this message as a notification for your inquiry Ticket No ' . $ticket->ticket_id . ' regarding price drop for product ' . $ticket->prod_name;
+                    $message     = 'Your are recieving this message as a notification for your inquiry Ticket No ' . $ticket->ticket_id . ' regarding price drop for product ' . $ticket->prod_name;
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['ticket_id' => $ticket->id, 'message' => $message, 'status' => 1]);

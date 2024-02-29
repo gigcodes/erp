@@ -29,14 +29,14 @@ class BuildProcessErrorLog extends Model
     public static function log($result)
     {
         // Log result to database
-        $buildProcessErrorLog = new BuildProcessErrorLog();
-        $buildProcessErrorLog->project_id = $result['project_id'];
-        $buildProcessErrorLog->error_message = $result['error_message'];
-        $buildProcessErrorLog->error_code = $result['error_code'];
-        $buildProcessErrorLog->github_organization_id = $result['github_organization_id'];
-        $buildProcessErrorLog->github_repository_id = $result['github_repository_id'];
+        $buildProcessErrorLog                           = new BuildProcessErrorLog();
+        $buildProcessErrorLog->project_id               = $result['project_id'];
+        $buildProcessErrorLog->error_message            = $result['error_message'];
+        $buildProcessErrorLog->error_code               = $result['error_code'];
+        $buildProcessErrorLog->github_organization_id   = $result['github_organization_id'];
+        $buildProcessErrorLog->github_repository_id     = $result['github_repository_id'];
         $buildProcessErrorLog->github_branch_state_name = $result['github_branch_state_name'];
-        $buildProcessErrorLog->user_id = $result['user_id'];
+        $buildProcessErrorLog->user_id                  = $result['user_id'];
         $buildProcessErrorLog->save();
 
         // Return

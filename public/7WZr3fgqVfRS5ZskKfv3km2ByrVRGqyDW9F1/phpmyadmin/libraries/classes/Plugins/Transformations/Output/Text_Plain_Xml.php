@@ -25,7 +25,7 @@ class Text_Plain_Xml extends TransformationsPlugin
         }
 
         $response = ResponseRenderer::getInstance();
-        $scripts = $response->getHeader()
+        $scripts  = $response->getHeader()
             ->getScripts();
         $scripts->addFile('vendor/codemirror/lib/codemirror.js');
         $scripts->addFile('vendor/codemirror/mode/xml/xml.js');
@@ -46,9 +46,10 @@ class Text_Plain_Xml extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)

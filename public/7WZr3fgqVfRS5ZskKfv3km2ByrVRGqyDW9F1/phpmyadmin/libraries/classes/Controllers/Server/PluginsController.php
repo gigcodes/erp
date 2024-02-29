@@ -34,7 +34,7 @@ class PluginsController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->plugins = $plugins;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
@@ -49,7 +49,7 @@ class PluginsController extends AbstractController
 
         $this->addScriptFiles(['vendor/jquery/jquery.tablesorter.js', 'server/plugins.js']);
 
-        $plugins = [];
+        $plugins       = [];
         $serverPlugins = $this->plugins->getAll();
         foreach ($serverPlugins as $plugin) {
             $plugins[$plugin->getType()][] = $plugin->toArray();
@@ -67,7 +67,7 @@ class PluginsController extends AbstractController
         }
 
         $this->render('server/plugins/index', [
-            'plugins' => $plugins,
+            'plugins'     => $plugins,
             'clean_types' => $cleanTypes,
         ]);
     }

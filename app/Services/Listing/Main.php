@@ -17,21 +17,25 @@ class Main
 
     /**
      * Main constructor.
+     *
+     * @param privateNameChecker        $nameChecker
+     * @param privateCompositionChecker $compositionChecker
+     * @param privateColorChecker       $colorChecker
      */
     public function __construct(private NameChecker $nameChecker, private CompositionChecker $compositionChecker, private ColorChecker $colorChecker, SizesChecker $sizesChecker, ShortDescriptionChecker $shortDescriptionChecker)
     {
         $this->descriptionChecker = $shortDescriptionChecker;
-        $this->sizeChecker = $sizesChecker;
+        $this->sizeChecker        = $sizesChecker;
     }
 
     public function validate(Product $product): bool
     {
-        $this->product = $product;
-        $composition = $this->isCompositionCorrect();
-        $name = $this->isNameCorrect();
+        $this->product    = $product;
+        $composition      = $this->isCompositionCorrect();
+        $name             = $this->isNameCorrect();
         $shortDescription = $this->isShortDescriptionCorrect();
-        $measurement = $this->areMeasurementsCorrect();
-        $sizes = $this->isSizeCorrect();
+        $measurement      = $this->areMeasurementsCorrect();
+        $sizes            = $this->isSizeCorrect();
 
         $status = $composition &&
             $name &&

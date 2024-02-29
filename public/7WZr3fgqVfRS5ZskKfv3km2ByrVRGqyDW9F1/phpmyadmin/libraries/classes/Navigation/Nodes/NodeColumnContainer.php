@@ -22,23 +22,23 @@ class NodeColumnContainer extends Node
     public function __construct()
     {
         parent::__construct(__('Columns'), Node::CONTAINER);
-        $this->icon = ['image' => 'pause', 'title' => __('Columns')];
+        $this->icon  = ['image' => 'pause', 'title' => __('Columns')];
         $this->links = [
             'text' => ['route' => '/table/structure', 'params' => ['db' => null, 'table' => null]],
             'icon' => ['route' => '/table/structure', 'params' => ['db' => null, 'table' => null]],
         ];
         $this->realName = 'columns';
 
-        $newLabel = _pgettext('Create new column', 'New');
-        $new = NodeFactory::getInstanceForNewNode($newLabel, 'new_column italics');
-        $new->icon = ['image' => 'b_column_add', 'title' => $newLabel];
+        $newLabel   = _pgettext('Create new column', 'New');
+        $new        = NodeFactory::getInstanceForNewNode($newLabel, 'new_column italics');
+        $new->icon  = ['image' => 'b_column_add', 'title' => $newLabel];
         $new->links = [
             'text' => [
-                'route' => '/table/add-field',
+                'route'  => '/table/add-field',
                 'params' => ['field_where' => 'last', 'after_field' => '', 'db' => null, 'table' => null],
             ],
             'icon' => [
-                'route' => '/table/add-field',
+                'route'  => '/table/add-field',
                 'params' => ['field_where' => 'last', 'after_field' => '', 'db' => null, 'table' => null],
             ],
         ];

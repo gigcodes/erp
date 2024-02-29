@@ -35,7 +35,7 @@ class QueryByExampleController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     public function __invoke(): void
@@ -47,7 +47,7 @@ class QueryByExampleController extends AbstractController
         $savedQbeSearchesFeature = $this->relation->getRelationParameters()->savedQueryByExampleSearchesFeature;
 
         $savedSearchList = [];
-        $savedSearch = null;
+        $savedSearch     = null;
         $currentSearchId = null;
         $this->addScriptFiles(['database/qbe.js']);
         if ($savedQbeSearchesFeature !== null) {
@@ -159,9 +159,9 @@ class QueryByExampleController extends AbstractController
         $databaseQbe = new Qbe($this->relation, $this->template, $this->dbi, $db, $savedSearchList, $savedSearch);
 
         $this->render('database/qbe/index', [
-            'url_params' => $urlParams,
+            'url_params'             => $urlParams,
             'has_message_to_display' => $hasMessageToDisplay,
-            'selection_form_html' => $databaseQbe->getSelectionForm(),
+            'selection_form_html'    => $databaseQbe->getSelectionForm(),
         ]);
     }
 }

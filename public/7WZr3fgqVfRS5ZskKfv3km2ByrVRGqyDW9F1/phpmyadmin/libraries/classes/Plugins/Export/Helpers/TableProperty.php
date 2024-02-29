@@ -61,16 +61,16 @@ class TableProperty
     public $ext;
 
     /**
-     * @param  array  $row table row
+     * @param array $row table row
      */
     public function __construct(array $row)
     {
-        $this->name = trim((string) $row[0]);
-        $this->type = trim((string) $row[1]);
-        $this->nullable = trim((string) $row[2]);
-        $this->key = trim((string) $row[3]);
+        $this->name         = trim((string) $row[0]);
+        $this->type         = trim((string) $row[1]);
+        $this->nullable     = trim((string) $row[2]);
+        $this->key          = trim((string) $row[3]);
         $this->defaultValue = trim((string) $row[4]);
-        $this->ext = trim((string) $row[5]);
+        $this->ext          = trim((string) $row[5]);
     }
 
     /**
@@ -219,7 +219,8 @@ class TableProperty
     /**
      * Formats a string for C#
      *
-     * @param  string  $text string to be formatted
+     * @param string $text string to be formatted
+     *
      * @return string formatted text
      */
     public function formatCs($text)
@@ -236,7 +237,8 @@ class TableProperty
     /**
      * Formats a string for XML
      *
-     * @param  string  $text string to be formatted
+     * @param string $text string to be formatted
+     *
      * @return string formatted text
      */
     public function formatXml($text)
@@ -259,7 +261,8 @@ class TableProperty
     /**
      * Formats a string
      *
-     * @param  string  $text string to be formatted
+     * @param string $text string to be formatted
+     *
      * @return string formatted text
      */
     public function format($text)

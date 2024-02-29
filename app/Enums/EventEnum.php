@@ -57,7 +57,7 @@ class EventEnum
     public static function getAll(): array
     {
         try {
-            $constants = (new \ReflectionClass(get_called_class()))->getConstants();
+            $constants       = (new \ReflectionClass(get_called_class()))->getConstants();
             $stringConstants = array_filter($constants, function ($key) use ($constants) {
                 return is_string($constants[$key]);
             },

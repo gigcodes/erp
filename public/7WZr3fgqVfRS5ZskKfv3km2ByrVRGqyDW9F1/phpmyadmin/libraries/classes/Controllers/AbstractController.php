@@ -27,7 +27,7 @@ abstract class AbstractController
     }
 
     /**
-     * @param  array<string, mixed>  $templateData
+     * @param array<string, mixed> $templateData
      */
     protected function render(string $templatePath, array $templateData = []): void
     {
@@ -35,11 +35,11 @@ abstract class AbstractController
     }
 
     /**
-     * @param  string[]  $files
+     * @param string[] $files
      */
     protected function addScriptFiles(array $files): void
     {
-        $header = $this->response->getHeader();
+        $header  = $this->response->getHeader();
         $scripts = $header->getScripts();
         $scripts->addFiles($files);
     }
@@ -90,7 +90,7 @@ abstract class AbstractController
     }
 
     /**
-     * @param  array<string, mixed>  $params
+     * @param array<string, mixed> $params
      */
     protected function redirect(string $route, array $params = []): void
     {

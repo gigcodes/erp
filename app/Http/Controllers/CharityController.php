@@ -18,8 +18,8 @@ class CharityController extends Controller
         $isAdmin = Auth::user()->isAdmin();
 
         //Get Current loggedin user role
-        $currentUserId = Auth::id();
-        $loggedInUser = User::find($currentUserId);
+        $currentUserId             = Auth::id();
+        $loggedInUser              = User::find($currentUserId);
         $checkCurrentUserIsCharity = false;
         foreach ($loggedInUser->roles as $role) {
             if ($role->name == 'Charity') {
@@ -30,7 +30,7 @@ class CharityController extends Controller
         //Get Current loggedin user role
 
         //Get All Users with Charity User Role
-        $users = User::all();
+        $users           = User::all();
         $onlyCharityUser = [];
         foreach ($users as $user) {
             $isCharityUser = false;
@@ -71,18 +71,18 @@ class CharityController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required|email',
-            'contact_no' => 'required|integer',
-            'name' => 'required|string',
+            'email'           => 'required|email',
+            'contact_no'      => 'required|integer',
+            'name'            => 'required|string',
             'whatsapp_number' => 'required|integer',
         ]);
 
-        $charity = new Charity;
-        $charity->name = $request->name;
-        $charity->contact_no = $request->contact_no;
-        $charity->email = $request->email;
+        $charity                  = new Charity;
+        $charity->name            = $request->name;
+        $charity->contact_no      = $request->contact_no;
+        $charity->email           = $request->email;
         $charity->whatsapp_number = $request->whatsapp_number;
-        $charity->assign_to = $request->assign_to;
+        $charity->assign_to       = $request->assign_to;
         $charity->save();
 
         return redirect()->route('charity')->with('flash_type', 'success')->with('message', 'Data successfully saved');
@@ -92,7 +92,7 @@ class CharityController extends Controller
     {
         $charityData = Charity::find($id);
         if ($request->post('name') && $request->post('email') && $request->post('contact_no') && $request->post('whatsapp_number')) {
-            $charityId = $request->post('id');
+            $charityId  = $request->post('id');
             $charityObj = Charity::find($charityId);
             $updateData = ['name' => $request->name, 'email' => $request->email, 'contact_no' => $request->contact_no, 'whatsapp_number' => $request->whatsapp_number, 'assign_to' => $request->assign_to];
             $charityObj->fill($updateData);
@@ -114,17 +114,17 @@ class CharityController extends Controller
         $allCharityStatus = CharityStatusMaster::all();
 
         $charityOrder = [];
-        $i = 0;
+        $i            = 0;
         foreach ($orderCharityData as $data) {
-            $userDetails = User::where('id', $data->customer_id)->get()->first()->toArray();
-            $charityOrder[$i]['orderData']['id'] = $data->id;
-            $charityOrder[$i]['orderData']['customer_id'] = $data->customer_id;
-            $charityOrder[$i]['orderData']['order_id'] = $data->order_id;
-            $charityOrder[$i]['orderData']['amount'] = $data->amount;
+            $userDetails                                            = User::where('id', $data->customer_id)->get()->first()->toArray();
+            $charityOrder[$i]['orderData']['id']                    = $data->id;
+            $charityOrder[$i]['orderData']['customer_id']           = $data->customer_id;
+            $charityOrder[$i]['orderData']['order_id']              = $data->order_id;
+            $charityOrder[$i]['orderData']['amount']                = $data->amount;
             $charityOrder[$i]['orderData']['customer_contribution'] = $data->customer_contribution;
-            $charityOrder[$i]['orderData']['our_contribution'] = $data->our_contribution;
-            $charityOrder[$i]['orderData']['status'] = $data->status;
-            $charityOrder[$i]['userData'] = $userDetails;
+            $charityOrder[$i]['orderData']['our_contribution']      = $data->our_contribution;
+            $charityOrder[$i]['orderData']['status']                = $data->status;
+            $charityOrder[$i]['userData']                           = $userDetails;
             $i++;
         }
         $query = CustomerOrderCharities::query();
@@ -132,8 +132,8 @@ class CharityController extends Controller
         $charityoOrderPagination = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 
         //Get Current loggedin user role
-        $currentUserId = Auth::id();
-        $loggedInUser = User::find($currentUserId);
+        $currentUserId             = Auth::id();
+        $loggedInUser              = User::find($currentUserId);
         $checkCurrentUserIsCharity = false;
         foreach ($loggedInUser->roles as $role) {
             if ($role->name == 'Charity') {
@@ -153,7 +153,7 @@ class CharityController extends Controller
     public function addStatus(Request $request)
     {
         if ($request->post('charity_status')) {
-            $charityStatusObj = new CharityStatusMaster;
+            $charityStatusObj                 = new CharityStatusMaster;
             $charityStatusObj->charity_status = $request->charity_status;
             $charityStatusObj->save();
 
@@ -167,7 +167,7 @@ class CharityController extends Controller
     {
         if ($request->post('orderId') && $request->post('status')) {
             $orderCharityData = CustomerOrderCharities::find($request->post('orderId'));
-            $updateData = ['status' => $request->post('status')];
+            $updateData       = ['status' => $request->post('status')];
             $orderCharityData->fill($updateData);
             $orderCharityData->save();
 
@@ -182,11 +182,11 @@ class CharityController extends Controller
         if ($request->post('customer_order_charity_id') && $request->post('comment') && $request->post('amount')) {
             $orderCharityData = CustomerOrderCharities::find($request->post('customer_order_charity_id'));
 
-            $query = new CharityOrderHistory;
+            $query                            = new CharityOrderHistory;
             $query->customer_order_charity_id = $request->post('customer_order_charity_id');
-            $query->amount = $request->post('amount');
-            $query->comment = $request->post('comment');
-            $query->user_id = $orderCharityData->customer_id;
+            $query->amount                    = $request->post('amount');
+            $query->comment                   = $request->post('comment');
+            $query->user_id                   = $orderCharityData->customer_id;
 
             $query->save();
 

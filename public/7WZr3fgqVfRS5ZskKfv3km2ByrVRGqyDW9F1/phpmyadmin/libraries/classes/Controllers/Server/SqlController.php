@@ -31,7 +31,7 @@ class SqlController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->sqlQueryForm = $sqlQueryForm;
-        $this->dbi = $dbi;
+        $this->dbi          = $dbi;
     }
 
     public function __invoke(): void

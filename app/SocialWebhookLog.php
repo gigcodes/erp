@@ -16,8 +16,8 @@ class SocialWebhookLog extends Model
 
     const TYPE = [
         self::SUCCESS => 'SUCCESS',
-        self::ERROR => 'ERROR',
-        self::INFO => 'INFO',
+        self::ERROR   => 'ERROR',
+        self::INFO    => 'INFO',
         self::WARNING => 'WARNING',
     ];
 
@@ -26,8 +26,8 @@ class SocialWebhookLog extends Model
     public static function log($type, $log, $context = null)
     {
         static::create([
-            'type' => $type,
-            'log' => $log,
+            'type'    => $type,
+            'log'     => $log,
             'context' => json_encode($context),
         ]);
     }

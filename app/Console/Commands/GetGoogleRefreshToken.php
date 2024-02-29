@@ -110,12 +110,12 @@ class GetGoogleRefreshToken extends Command
 
         $oauth2 = new OAuth2(
             [
-                'authorizationUri' => self::AUTHORIZATION_URI,
-                'redirectUri' => self::REDIRECT_URI,
+                'authorizationUri'   => self::AUTHORIZATION_URI,
+                'redirectUri'        => self::REDIRECT_URI,
                 'tokenCredentialUri' => CredentialsLoader::TOKEN_CREDENTIAL_URI,
-                'clientId' => $clientId,
-                'clientSecret' => $clientSecret,
-                'scope' => $scopes,
+                'clientId'           => $clientId,
+                'clientSecret'       => $clientSecret,
+                'scope'              => $scopes,
             ]
         );
 

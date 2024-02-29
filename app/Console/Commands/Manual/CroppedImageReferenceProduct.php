@@ -41,7 +41,7 @@ class CroppedImageReferenceProduct extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //Getting Images
@@ -57,8 +57,8 @@ class CroppedImageReferenceProduct extends Command
                 //Media is not null
                 if ($mediable != null) {
                     //Getting product
-                    $product = Product::select('id')->where('id', $mediable->mediable_id)->first();
-                    $cropped = CroppedImageReference::find($image->id);
+                    $product             = Product::select('id')->where('id', $mediable->mediable_id)->first();
+                    $cropped             = CroppedImageReference::find($image->id);
                     $cropped->product_id = $product->id;
                     $cropped->save();
                 }

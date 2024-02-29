@@ -11,7 +11,6 @@ class SupplierInventory extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="supplier_inventory",type="string")
      * @SWG\Property(property="supplier",type="string")

@@ -52,9 +52,9 @@ class CreateController extends AbstractController
     ) {
         parent::__construct($response, $template, $db, $table);
         $this->transformations = $transformations;
-        $this->config = $config;
-        $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->config          = $config;
+        $this->relation        = $relation;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -109,7 +109,7 @@ class CreateController extends AbstractController
         if (isset($_POST['do_save_data'])) {
             // lower_case_table_names=1 `DB` becomes `db`
             if ($this->dbi->getLowerCaseNames() === '1') {
-                $db = mb_strtolower($db);
+                $db    = mb_strtolower($db);
                 $table = mb_strtolower($table);
             }
 

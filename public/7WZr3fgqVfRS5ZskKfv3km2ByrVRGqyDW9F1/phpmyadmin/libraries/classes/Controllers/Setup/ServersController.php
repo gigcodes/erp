@@ -15,14 +15,15 @@ use PhpMyAdmin\Config\Forms\Setup\ServersForm;
 class ServersController extends AbstractController
 {
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
+     *
      * @return string HTML
      */
     public function index(array $params): string
     {
         $formset = isset($params['formset']) && is_string($params['formset']) ? $params['formset'] : '';
-        $id = isset($params['id']) && is_numeric($params['id']) && (int) $params['id'] >= 1 ? (int) $params['id'] : 0;
-        $mode = '';
+        $id      = isset($params['id']) && is_numeric($params['id']) && (int) $params['id'] >= 1 ? (int) $params['id'] : 0;
+        $mode    = '';
         if (isset($params['mode']) && in_array($params['mode'], ['add', 'edit', 'revert'], true)) {
             $mode = $params['mode'];
         }
@@ -40,18 +41,18 @@ class ServersController extends AbstractController
         $page = ob_get_clean();
 
         return $this->template->render('setup/servers/index', [
-            'formset' => $formset,
-            'pages' => $pages,
+            'formset'    => $formset,
+            'pages'      => $pages,
             'has_server' => $hasServer,
-            'mode' => $mode,
-            'server_id' => $id,
+            'mode'       => $mode,
+            'server_id'  => $id,
             'server_dsn' => $this->config->getServerDSN($id),
-            'page' => $page,
+            'page'       => $page,
         ]);
     }
 
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
      */
     public function destroy(array $params): void
     {

@@ -25,13 +25,13 @@ class WhatsappLogsController extends Controller
         foreach ($files as $file) {
             $total_log = 0;
             $yesterday = strtotime('yesterday');
-            $today = strtotime('today');
-            $path = base_path() . '/';
-            $content = Storage::disk('logs')->get($file);
-            $escaped = str_replace('/', '\/', $path);
-            $matches = [];
-            $rows = preg_split('/\r\n|\r|\n/', $content);
-            $rows = array_reverse($rows);
+            $today     = strtotime('today');
+            $path      = base_path() . '/';
+            $content   = Storage::disk('logs')->get($file);
+            $escaped   = str_replace('/', '\/', $path);
+            $matches   = [];
+            $rows      = preg_split('/\r\n|\r|\n/', $content);
+            $rows      = array_reverse($rows);
             foreach ($rows as $key => $row) {
                 if ($row && $row !== '') {
                     $data = [];
@@ -41,7 +41,7 @@ class WhatsappLogsController extends Controller
                         if ($date1 == $_REQUEST['date']) {
                             $data['date'] = $date;
                             // $message = substr($row, 155, strlen($row));
-                            $message = substr($row, 35, strlen($row));
+                            $message                = substr($row, 35, strlen($row));
                             $data['error_message1'] = $message;
                             $data['error_message2'] = '';
 
@@ -58,8 +58,8 @@ class WhatsappLogsController extends Controller
                     } elseif (isset($request->date) && $request->date != '') {
                         $date1 = substr($date, 0, 10);
                         if ($date1 == $request->date) {
-                            $data['date'] = $date;
-                            $message = substr($row, 35, strlen($row));
+                            $data['date']           = $date;
+                            $message                = substr($row, 35, strlen($row));
                             $data['error_message1'] = $message;
                             $data['error_message2'] = '';
 
@@ -74,8 +74,8 @@ class WhatsappLogsController extends Controller
                             array_push($array, $data);
                         }
                     } else {
-                        $data['date'] = $date;
-                        $message = substr($row, 35, strlen($row));
+                        $data['date']           = $date;
+                        $message                = substr($row, 35, strlen($row));
                         $data['error_message1'] = $message;
                         $data['error_message2'] = '';
 
@@ -94,32 +94,32 @@ class WhatsappLogsController extends Controller
         }
 
         /* chat api*/
-        $files = Storage::disk('logs')->files('chatapi');
+        $files        = Storage::disk('logs')->files('chatapi');
         $chatapiarray = [];
-        $files = array_reverse($files);
+        $files        = array_reverse($files);
         foreach ($files as $file) {
             $total_log = 0;
             $yesterday = strtotime('yesterday');
-            $today = strtotime('today');
-            $path = base_path() . '/';
-            $content = Storage::disk('logs')->get($file);
-            $escaped = str_replace('/', '\/', $path);
-            $matches = [];
-            $rows = preg_split('/\n+/', $content);
+            $today     = strtotime('today');
+            $path      = base_path() . '/';
+            $content   = Storage::disk('logs')->get($file);
+            $escaped   = str_replace('/', '\/', $path);
+            $matches   = [];
+            $rows      = preg_split('/\n+/', $content);
 
             $finaldata = [];
             foreach ($rows as $key => $row) {
                 if (substr($row, 0, 1) === '[') {
                     $row_cnt = 0;
-                    $date = preg_match('#\[(.*?)\]#', $row, $match);
+                    $date    = preg_match('#\[(.*?)\]#', $row, $match);
 
                     if (isset($_REQUEST['date']) && $_REQUEST['date'] != '') {
                         $date2 = substr($match[1], 0, 10);
                         if ($date2 == $_REQUEST['date']) {
-                            $finaldata['date'] = isset($match[1]) ? $match[1] : '';
-                            $message = substr($row, 35, strlen($row));
+                            $finaldata['date']           = isset($match[1]) ? $match[1] : '';
+                            $message                     = substr($row, 35, strlen($row));
                             $finaldata['error_message1'] = isset($message) ? $message : '';
-                            $row_cnt = 1;
+                            $row_cnt                     = 1;
 
                             $sent_message = strpos($message, '"sent":true');
 
@@ -132,10 +132,10 @@ class WhatsappLogsController extends Controller
                     } elseif (isset($request->date) && $request->date != '') {
                         $date2 = substr($match[1], 0, 10);
                         if ($date2 == $request->date) {
-                            $finaldata['date'] = isset($match[1]) ? $match[1] : '';
-                            $message = substr($row, 35, strlen($row));
+                            $finaldata['date']           = isset($match[1]) ? $match[1] : '';
+                            $message                     = substr($row, 35, strlen($row));
                             $finaldata['error_message1'] = isset($message) ? $message : '';
-                            $row_cnt = 1;
+                            $row_cnt                     = 1;
 
                             $sent_message = strpos($message, '"sent":true');
 
@@ -148,9 +148,9 @@ class WhatsappLogsController extends Controller
                     } else {
                         $finaldata['date'] = isset($match[1]) ? $match[1] : '';
 
-                        $message = substr($row, 35, strlen($row));
+                        $message                     = substr($row, 35, strlen($row));
                         $finaldata['error_message1'] = isset($message) ? $message : '';
-                        $row_cnt = 1;
+                        $row_cnt                     = 1;
 
                         $sent_message = strpos($message, '"sent":true');
 
@@ -163,12 +163,12 @@ class WhatsappLogsController extends Controller
                 }
 
                 if (substr($row, 0, 7) === 'Message' && $row_cnt == 1) {
-                    $message = substr($row, 8, strlen($row));
-                    $message = str_replace('\n', ' ', $message);
+                    $message                     = substr($row, 8, strlen($row));
+                    $message                     = str_replace('\n', ' ', $message);
                     $finaldata['error_message2'] = $message;
-                    $finaldata['file'] = 'chatapi';
+                    $finaldata['file']           = 'chatapi';
                     $finaldata['resend_details'] = '';
-                    $finaldata['type'] = 2;
+                    $finaldata['type']           = 2;
 
                     array_push($chatapiarray, $finaldata);
                     $finaldata = [];
@@ -178,7 +178,7 @@ class WhatsappLogsController extends Controller
         $chatapiarray = array_reverse($chatapiarray);
 
         $f_array = array_merge($chatapiarray, $array);
-        $farray = [];
+        $farray  = [];
         foreach ($f_array as $key => $value) {
             if (isset($_REQUEST['message_sent']) && $_REQUEST['message_sent'] != '' && isset($value['sent_message_status'])) {
                 if ($_REQUEST['message_sent'] == $value['sent_message_status']) {
@@ -213,7 +213,7 @@ class WhatsappLogsController extends Controller
 
         if ($request->ajax()) {
             $page = $request->page - 1;
-            $sr = $page * 10 - 9;
+            $sr   = $page * 10 - 9;
 
             return view('logging.whatsapp-grid', compact('array', 'sr', 'isAdmin'));
         }

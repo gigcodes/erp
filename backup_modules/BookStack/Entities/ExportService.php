@@ -16,7 +16,7 @@ class ExportService
      */
     public function __construct(EntityRepo $entityRepo, ImageService $imageService)
     {
-        $this->entityRepo = $entityRepo;
+        $this->entityRepo   = $entityRepo;
         $this->imageService = $imageService;
     }
 
@@ -24,7 +24,8 @@ class ExportService
      * Convert a page to a self-contained HTML file.
      * Includes required CSS & image content. Images are base64 encoded into the HTML.
      *
-     * @param  \BookStack\Entities\Page  $page
+     * @param \BookStack\Entities\Page $page
+     *
      * @return mixed|string
      *
      * @throws \Throwable
@@ -42,7 +43,8 @@ class ExportService
     /**
      * Convert a chapter to a self-contained HTML file.
      *
-     * @param  \BookStack\Entities\Chapter  $chapter
+     * @param \BookStack\Entities\Chapter $chapter
+     *
      * @return mixed|string
      *
      * @throws \Throwable
@@ -55,7 +57,7 @@ class ExportService
         });
         $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
-            'pages' => $pages,
+            'pages'   => $pages,
         ])->render();
 
         return $this->containHtml($html);
@@ -71,8 +73,8 @@ class ExportService
     public function bookToContainedHtml(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $html = view('bookstack::books/export', [
-            'book' => $book,
+        $html     = view('bookstack::books/export', [
+            'book'         => $book,
             'bookChildren' => $bookTree,
         ])->render();
 
@@ -99,7 +101,8 @@ class ExportService
     /**
      * Convert a chapter to a PDF file.
      *
-     * @param  \BookStack\Entities\Chapter  $chapter
+     * @param \BookStack\Entities\Chapter $chapter
+     *
      * @return mixed|string
      *
      * @throws \Throwable
@@ -112,7 +115,7 @@ class ExportService
         });
         $html = view('bookstack::chapters/export', [
             'chapter' => $chapter,
-            'pages' => $pages,
+            'pages'   => $pages,
         ])->render();
 
         return $this->htmlToPdf($html);
@@ -121,7 +124,8 @@ class ExportService
     /**
      * Convert a book to a PDF file
      *
-     * @param  \BookStack\Entities\Book  $book
+     * @param \BookStack\Entities\Book $book
+     *
      * @return string
      *
      * @throws \Throwable
@@ -129,8 +133,8 @@ class ExportService
     public function bookToPdf(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $html = view('bookstack::books/export', [
-            'book' => $book,
+        $html     = view('bookstack::books/export', [
+            'book'         => $book,
             'bookChildren' => $bookTree,
         ])->render();
 
@@ -140,6 +144,9 @@ class ExportService
     /**
      * Convert normal webpage HTML to a PDF.
      *
+     *
+     * @param mixed $html
+     *
      * @return string
      *
      * @throws \Exception
@@ -147,7 +154,7 @@ class ExportService
     protected function htmlToPdf($html)
     {
         $containedHtml = $this->containHtml($html);
-        $useWKHTML = config('snappy.pdf.binary') !== false;
+        $useWKHTML     = config('snappy.pdf.binary') !== false;
         if ($useWKHTML) {
             $pdf = \SnappyPDF::loadHTML($containedHtml);
             $pdf->setOption('print-media-type', true);
@@ -160,6 +167,9 @@ class ExportService
 
     /**
      * Bundle of the contents of a html file to be self-contained.
+     *
+     *
+     * @param mixed $htmlContent
      *
      * @return mixed|string
      *
@@ -174,13 +184,13 @@ class ExportService
         if (isset($imageTagsOutput[0]) && count($imageTagsOutput[0]) > 0) {
             foreach ($imageTagsOutput[0] as $index => $imgMatch) {
                 $oldImgTagString = $imgMatch;
-                $srcString = $imageTagsOutput[2][$index];
-                $imageEncoded = $this->imageService->imageUriToBase64($srcString);
+                $srcString       = $imageTagsOutput[2][$index];
+                $imageEncoded    = $this->imageService->imageUriToBase64($srcString);
                 if ($imageEncoded === null) {
                     $imageEncoded = $srcString;
                 }
                 $newImgTagString = str_replace($srcString, $imageEncoded, $oldImgTagString);
-                $htmlContent = str_replace($oldImgTagString, $newImgTagString, $htmlContent);
+                $htmlContent     = str_replace($oldImgTagString, $newImgTagString, $htmlContent);
             }
         }
 
@@ -191,11 +201,11 @@ class ExportService
         if (isset($linksOutput[0]) && count($linksOutput[0]) > 0) {
             foreach ($linksOutput[0] as $index => $linkMatch) {
                 $oldLinkString = $linkMatch;
-                $srcString = $linksOutput[2][$index];
+                $srcString     = $linksOutput[2][$index];
                 if (strpos(trim($srcString), 'http') !== 0) {
-                    $newSrcString = url($srcString);
+                    $newSrcString  = url($srcString);
                     $newLinkString = str_replace($srcString, $newSrcString, $oldLinkString);
-                    $htmlContent = str_replace($oldLinkString, $newLinkString, $htmlContent);
+                    $htmlContent   = str_replace($oldLinkString, $newLinkString, $htmlContent);
                 }
             }
         }
@@ -228,7 +238,8 @@ class ExportService
     /**
      * Convert a chapter into a plain text string.
      *
-     * @param  \BookStack\Entities\Chapter  $chapter
+     * @param \BookStack\Entities\Chapter $chapter
+     *
      * @return string
      */
     public function chapterToPlainText(Chapter $chapter)
@@ -250,7 +261,7 @@ class ExportService
     public function bookToPlainText(Book $book)
     {
         $bookTree = $this->entityRepo->getBookChildren($book, true, true);
-        $text = $book->name . "\n\n";
+        $text     = $book->name . "\n\n";
         foreach ($bookTree as $bookChild) {
             if ($bookChild->isA('chapter')) {
                 $text .= $this->chapterToPlainText($bookChild);

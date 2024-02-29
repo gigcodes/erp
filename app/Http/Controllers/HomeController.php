@@ -31,12 +31,12 @@ class HomeController extends Controller
     {
         //Read the favicon template from favicon.png
         //file from current directory
-        $im = imagecreatefrompng(public_path('favicon/favicon-30X30.png'));
+        $im   = imagecreatefrompng(public_path('favicon/favicon-30X30.png'));
         $char = preg_split("/\s+/", $request->get('title', 'U'));
 
-        $words = explode(' ', $request->get('title', 'Home'));
+        $words   = explode(' ', $request->get('title', 'Home'));
         $acronym = '';
-        $i = 1;
+        $i       = 1;
         foreach ($words as $w) {
             if (isset($w[0])) {
                 $acronym .= $w[0];

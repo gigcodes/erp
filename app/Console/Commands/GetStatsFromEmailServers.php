@@ -40,7 +40,7 @@ class GetStatsFromEmailServers extends Command
     public function handle()
     {
         $mailEmails = MailinglistEmail::where('progress', 0)->get();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime  = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($mailEmails as $mailEmail) {
             $list = $mailEmail->audience;
@@ -70,9 +70,9 @@ class GetStatsFromEmailServers extends Command
                         $response = json_decode($output);
 
                         if ($response->statistics) {
-                            $mailEmail->total_emails_scheduled = $response->statistics->subscriber_count;
-                            $mailEmail->total_emails_sent = $response->statistics->delivered_count;
-                            $pending = ($response->statistics->subscriber_count - $response->statistics->delivered_count);
+                            $mailEmail->total_emails_scheduled   = $response->statistics->subscriber_count;
+                            $mailEmail->total_emails_sent        = $response->statistics->delivered_count;
+                            $pending                             = ($response->statistics->subscriber_count - $response->statistics->delivered_count);
                             $mailEmail->total_emails_undelivered = $pending;
                             $mailEmail->save();
                         }

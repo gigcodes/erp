@@ -20,13 +20,13 @@ class AttachmentController extends Controller
     /**
      * AttachmentController constructor.
      *
-     * @param  \BookStack\Uploads\AttachmentService  $attachmentService
+     * @param \BookStack\Uploads\AttachmentService $attachmentService
      */
     public function __construct(AttachmentService $attachmentService, Attachment $attachment, EntityRepo $entityRepo)
     {
         $this->attachmentService = $attachmentService;
-        $this->attachment = $attachment;
-        $this->entityRepo = $entityRepo;
+        $this->attachment        = $attachment;
+        $this->entityRepo        = $entityRepo;
         parent::__construct();
     }
 
@@ -39,11 +39,11 @@ class AttachmentController extends Controller
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'file' => 'required|file',
+            'file'        => 'required|file',
         ]);
 
         $pageId = $request->get('uploaded_to');
-        $page = $this->entityRepo->getById('page', $pageId, true);
+        $page   = $this->entityRepo->getById('page', $pageId, true);
 
         $this->checkPermission('attachment-create-all');
         $this->checkOwnablePermission('page-update', $page);
@@ -62,18 +62,19 @@ class AttachmentController extends Controller
     /**
      * Update an uploaded attachment.
      *
-     * @param  int  $attachmentId
+     * @param int $attachmentId
+     *
      * @return mixed
      */
     public function uploadUpdate($attachmentId, Request $request)
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'file' => 'required|file',
+            'file'        => 'required|file',
         ]);
 
-        $pageId = $request->get('uploaded_to');
-        $page = $this->entityRepo->getById('page', $pageId, true);
+        $pageId     = $request->get('uploaded_to');
+        $page       = $this->entityRepo->getById('page', $pageId, true);
         $attachment = $this->attachment->findOrFail($attachmentId);
 
         $this->checkOwnablePermission('page-update', $page);
@@ -97,18 +98,20 @@ class AttachmentController extends Controller
     /**
      * Update the details of an existing file.
      *
+     * @param mixed $attachmentId
+     *
      * @return Attachment|mixed
      */
     public function update($attachmentId, Request $request)
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'name' => 'required|string|min:1|max:255',
-            'link' => 'string|min:1|max:255',
+            'name'        => 'required|string|min:1|max:255',
+            'link'        => 'string|min:1|max:255',
         ]);
 
-        $pageId = $request->get('uploaded_to');
-        $page = $this->entityRepo->getById('page', $pageId, true);
+        $pageId     = $request->get('uploaded_to');
+        $page       = $this->entityRepo->getById('page', $pageId, true);
         $attachment = $this->attachment->findOrFail($attachmentId);
 
         $this->checkOwnablePermission('page-update', $page);
@@ -132,25 +135,27 @@ class AttachmentController extends Controller
     {
         $this->validate($request, [
             'uploaded_to' => 'required|integer|exists:pages,id',
-            'name' => 'required|string|min:1|max:255',
-            'link' => 'required|string|min:1|max:255',
+            'name'        => 'required|string|min:1|max:255',
+            'link'        => 'required|string|min:1|max:255',
         ]);
 
         $pageId = $request->get('uploaded_to');
-        $page = $this->entityRepo->getById('page', $pageId, true);
+        $page   = $this->entityRepo->getById('page', $pageId, true);
 
         $this->checkPermission('attachment-create-all');
         $this->checkOwnablePermission('page-update', $page);
 
         $attachmentName = $request->get('name');
-        $link = $request->get('link');
-        $attachment = $this->attachmentService->saveNewFromLink($attachmentName, $link, $pageId);
+        $link           = $request->get('link');
+        $attachment     = $this->attachmentService->saveNewFromLink($attachmentName, $link, $pageId);
 
         return response()->json($attachment);
     }
 
     /**
      * Get the attachments for a specific page.
+     *
+     * @param mixed $pageId
      *
      * @return mixed
      */
@@ -165,12 +170,14 @@ class AttachmentController extends Controller
     /**
      * Update the attachment sorting.
      *
+     * @param mixed $pageId
+     *
      * @return mixed
      */
     public function sortForPage($pageId, Request $request)
     {
         $this->validate($request, [
-            'files' => 'required|array',
+            'files'      => 'required|array',
             'files.*.id' => 'required|integer',
         ]);
         $page = $this->entityRepo->getById('page', $pageId);
@@ -185,6 +192,9 @@ class AttachmentController extends Controller
     /**
      * Get an attachment from storage.
      *
+     *
+     * @param mixed $attachmentId
+     *
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -193,7 +203,7 @@ class AttachmentController extends Controller
     public function get($attachmentId)
     {
         $attachment = $this->attachment->findOrFail($attachmentId);
-        $page = $this->entityRepo->getById('page', $attachment->uploaded_to);
+        $page       = $this->entityRepo->getById('page', $attachment->uploaded_to);
         if ($page === null) {
             throw new NotFoundException(trans('errors.attachment_not_found'));
         }
@@ -211,6 +221,9 @@ class AttachmentController extends Controller
 
     /**
      * Delete a specific attachment in the system.
+     *
+     *
+     * @param mixed $attachmentId
      *
      * @return mixed
      *

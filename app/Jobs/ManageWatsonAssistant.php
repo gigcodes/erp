@@ -22,6 +22,14 @@ class ManageWatsonAssistant implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected      $customer
+     * @param protected      $inputText
+     * @param protected      $contextReset
+     * @param protected      $message_application_id
+     * @param null|protected $messageModel
+     * @param null|protected $userType
+     * @param null|protected $chat_message_log_id
+     *
      * @return void
      */
     public function __construct(protected $customer, protected $inputText, protected $contextReset, protected $message_application_id, protected $messageModel = null, protected $userType = null, protected $chat_message_log_id = null)
@@ -39,9 +47,9 @@ class ManageWatsonAssistant implements ShouldQueue
             if (isset($this->chat_message_log_id)) {
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $this->chat_message_log_id,
-                    'request' => '',
-                    'response' => 'Watson asistantant function job dispatched started',
-                    'status' => 'success',
+                    'request'                => '',
+                    'response'               => 'Watson asistantant function job dispatched started',
+                    'status'                 => 'success',
                 ]);
             }
 
@@ -58,9 +66,9 @@ class ManageWatsonAssistant implements ShouldQueue
                 if (isset($this->chat_message_log_id)) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $this->chat_message_log_id,
-                        'request' => '',
-                        'response' => 'Watson asistantant function send message from job started with account' . $account->api_key,
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Watson asistantant function send message from job started with account' . $account->api_key,
+                        'status'                 => 'success',
                     ]);
                 }
 
@@ -69,9 +77,9 @@ class ManageWatsonAssistant implements ShouldQueue
                 if (isset($this->chat_message_log_id)) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $this->chat_message_log_id,
-                        'request' => '',
-                        'response' => 'Watson asistantant function job account not found',
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Watson asistantant function job account not found',
+                        'status'                 => 'success',
                     ]);
                 }
             }
@@ -89,9 +97,9 @@ class ManageWatsonAssistant implements ShouldQueue
     {
         $data = [
             'chatbot_message_log_id' => $this->chat_message_log_id,
-            'request' => '',
-            'response' => 'Watson asistant queue failed.',
-            'status' => 'failed',
+            'request'                => '',
+            'response'               => 'Watson asistant queue failed.',
+            'status'                 => 'failed',
         ];
         $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
         /* Remove data when job fail while creating..... */

@@ -75,7 +75,7 @@ class Helpers
         $timestamp = strtotime($date);
 
         $strTime = ['second', 'minute', 'hour', 'day', 'month', 'year'];
-        $length = ['60', '60', '24', '30', '12', '10'];
+        $length  = ['60', '60', '24', '30', '12', '10'];
 
         $currentTime = time();
         if ($currentTime >= $timestamp) {
@@ -105,7 +105,7 @@ class Helpers
 
     public static function getadminorsupervisor()
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
         if (in_array('Supervisors', $myrole) or in_array('Admin', $myrole)) {
             return true;
@@ -116,7 +116,7 @@ class Helpers
 
     public static function getmessagingrole()
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
         if (in_array('message', $myrole)) {
             return true;
@@ -127,12 +127,12 @@ class Helpers
 
     public static function getproductsfromarraysofids($productsid)
     {
-        $products = json_decode($productsid);
+        $products         = json_decode($productsid);
         $productnamearray = [];
-        $product = new Product();
+        $product          = new Product();
         if (! empty($products)) {
             foreach ($products as $productid) {
-                $product_instance = $product->find($productid);
+                $product_instance   = $product->find($productid);
                 $productnamearray[] = $product_instance->name;
             }
             $productsname = implode(',', $productnamearray);
@@ -145,7 +145,7 @@ class Helpers
 
     public static function getleadstatus($statusid)
     {
-        $status = new status;
+        $status         = new status;
         $data['status'] = $status->all();
         foreach ($data['status'] as $key => $value) {
             if ($statusid == $value) {
@@ -164,7 +164,7 @@ class Helpers
 
     public static function getAllUserIdsWithoutRole($role = 'Admin')
     {
-        $users = User::all();
+        $users    = User::all();
         $user_ids = [];
 
         foreach ($users as $user) {
@@ -223,18 +223,19 @@ class Helpers
     /**
      * Custom paginator
      *
-     * @param  mixed  $request $request        attributes
-     * @param  array  $values $values         array values to be paginated
-     * @param  mixed  $posts_per_page $posts_per_page posts to show per page
+     * @param mixed $request        $request        attributes
+     * @param array $values         $values         array values to be paginated
+     * @param mixed $posts_per_page $posts_per_page posts to show per page
+     *
      * @return $items
      */
     public static function customPaginator($request, $values = [], $posts_per_page = '10')
     {
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $itemCollection = collect($values);
-        $perPage = intval($posts_per_page);
+        $currentPage      = LengthAwarePaginator::resolveCurrentPage();
+        $itemCollection   = collect($values);
+        $perPage          = intval($posts_per_page);
         $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-        $items = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+        $items            = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
         $items->setPath($request->url());
 
         return $items;
@@ -242,6 +243,9 @@ class Helpers
 
     /**
      * Get the final destination of helper
+     *
+     * @param mixed $url
+     * @param mixed $maxRequests
      */
     public static function findUltimateDestination($url, $maxRequests = 10)
     {
@@ -275,7 +279,7 @@ class Helpers
 
             //build next url
             if ($location[0] == '/') {
-                $u = parse_url($url);
+                $u   = parse_url($url);
                 $url = $u['scheme'] . '://' . $u['host'];
                 if (isset($u['port'])) {
                     $url .= ':' . $u['port'];
@@ -303,7 +307,7 @@ class Helpers
     public static function selectCategoryList($defaultVal = false)
     {
         return \App\Category::attr([
-            'name' => 'category',
+            'name'  => 'category',
             'class' => 'form-control-sm form-control select2',
             'style' => 'width:200px ',
         ])->selected($defaultVal)->renderAsDropdown();
@@ -338,7 +342,7 @@ class Helpers
 
     public static function getInstagramVars($name)
     {
-        $keyword = \App\InfluencerKeyword::where('name', $name)->first();
+        $keyword   = \App\InfluencerKeyword::where('name', $name)->first();
         $extravars = '';
         if ($keyword) {
             // check keyword account
@@ -353,7 +357,7 @@ class Helpers
 
     public static function getFacebookVars($name)
     {
-        $keyword = \App\InfluencerKeyword::where('name', $name)->first();
+        $keyword   = \App\InfluencerKeyword::where('name', $name)->first();
         $extravars = '';
         if ($keyword) {
             // check keyword account

@@ -20,7 +20,7 @@ class ShortDescriptionChecker implements CheckerInterface
         if (strlen($data) < 60) {
             return false;
         }
-        $data = $this->improvise($data);
+        $data                       = $this->improvise($data);
         $product->short_description = $data;
         $product->save();
         $state = $this->grammerBot->validate($data);
@@ -38,7 +38,7 @@ class ShortDescriptionChecker implements CheckerInterface
     public function improvise($sentence, $data2 = null): string
     {
         //Remove words that needs to be removed...
-        $sentence = strtolower($sentence);
+        $sentence     = strtolower($sentence);
         $replacements = AttributeReplacement::where('field_identifier', 'short_description')->get();
         foreach ($replacements as $replacement) {
             $sentence = str_replace(strtolower($replacement->first_term), $replacement->replacement_term, $sentence);

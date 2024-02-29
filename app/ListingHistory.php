@@ -21,11 +21,11 @@ class ListingHistory extends Model
     public static function createNewListing($userId = null, $productId = null, $content = [], $action = null)
     {
         // Create new activity for listing history
-        $listingHistory = new ListingHistory();
-        $listingHistory->user_id = $userId;
+        $listingHistory             = new ListingHistory();
+        $listingHistory->user_id    = $userId;
         $listingHistory->product_id = $productId;
-        $listingHistory->content = $content;
-        $listingHistory->action = $action;
+        $listingHistory->content    = $content;
+        $listingHistory->action     = $action;
 
         return $listingHistory->save();
     }

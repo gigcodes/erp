@@ -38,9 +38,9 @@ final class ChangeController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->relation = $relation;
+        $this->relation        = $relation;
         $this->transformations = $transformations;
-        $this->dbi = $dbi;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -66,14 +66,14 @@ final class ChangeController extends AbstractController
     /**
      * Displays HTML for changing one or more columns
      *
-     * @param  array|null  $selected the selected columns
+     * @param array|null $selected the selected columns
      */
     private function displayHtmlForColumnChange(?array $selected): void
     {
         global $action, $num_fields;
 
         if (empty($selected)) {
-            $selected[] = $_REQUEST['field'];
+            $selected[]   = $_REQUEST['field'];
             $selected_cnt = 1;
         } else { // from a multiple submit
             $selected_cnt = count($selected);

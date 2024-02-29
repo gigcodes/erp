@@ -40,11 +40,11 @@ class ScrapeController extends Controller
     public function getUrlFromQueue()
     {
         // Random array
-        $arrData = [];
+        $arrData  = [];
         $arData[] = [
-            'id' => 1,
-            'url' => 'https://www.matchesfashion.com/intl/products/1272559',
-            'name' => 'matchesfashion',
+            'id'    => 1,
+            'url'   => 'https://www.matchesfashion.com/intl/products/1272559',
+            'name'  => 'matchesfashion',
             'scope' => [
                 'title',
                 'description',
@@ -52,18 +52,18 @@ class ScrapeController extends Controller
         ];
 
         $arData[] = [
-            'id' => 2,
-            'url' => 'https://www.matchesfashion.com/intl/products/Saint-Laurent-West-harness-suede-boots-1251075',
-            'name' => 'matchesfashion',
+            'id'    => 2,
+            'url'   => 'https://www.matchesfashion.com/intl/products/Saint-Laurent-West-harness-suede-boots-1251075',
+            'name'  => 'matchesfashion',
             'scope' => [
                 '*',
             ],
         ];
 
         $arData[] = [
-            'id' => 3,
-            'url' => 'https://www.matchesfashion.com/intl/products/Dolce-%26-Gabbana-Angel-square-metal-sunglasses-1279179',
-            'name' => 'matchesfashion',
+            'id'    => 3,
+            'url'   => 'https://www.matchesfashion.com/intl/products/Dolce-%26-Gabbana-Angel-square-metal-sunglasses-1279179',
+            'name'  => 'matchesfashion',
             'scope' => [
                 'color',
                 'composition',
@@ -71,9 +71,9 @@ class ScrapeController extends Controller
         ];
 
         $arData[] = [
-            'id' => 4,
-            'url' => 'https://www.matchesfashion.com/intl/products/Aquazzura-Saint-Honore-70-pointed-toe-suede-boots-1280856',
-            'name' => 'matchesfashion',
+            'id'    => 4,
+            'url'   => 'https://www.matchesfashion.com/intl/products/Aquazzura-Saint-Honore-70-pointed-toe-suede-boots-1280856',
+            'name'  => 'matchesfashion',
             'scope' => [
                 'description',
                 'color',
@@ -81,9 +81,9 @@ class ScrapeController extends Controller
         ];
 
         $arData[] = [
-            'id' => 5,
-            'url' => 'https://shop.nordstrom.com/s/burberry-colorblock-vintage-check-gauze-wool-silk-scarf/5187547',
-            'name' => 'nordstrom',
+            'id'    => 5,
+            'url'   => 'https://shop.nordstrom.com/s/burberry-colorblock-vintage-check-gauze-wool-silk-scarf/5187547',
+            'name'  => 'nordstrom',
             'scope' => [
                 'category',
                 'color',
@@ -92,18 +92,18 @@ class ScrapeController extends Controller
         ];
 
         $arData[] = [
-            'id' => 6,
-            'url' => 'https://shop.nordstrom.com/s/bardot-arabella-body-con-dress/4754475',
-            'name' => 'nordstrom',
+            'id'    => 6,
+            'url'   => 'https://shop.nordstrom.com/s/bardot-arabella-body-con-dress/4754475',
+            'name'  => 'nordstrom',
             'scope' => [
                 '*',
             ],
         ];
 
         $arData[] = [
-            'id' => 7,
-            'url' => 'https://shop.nordstrom.com/s/gucci-gg-marmont-2-0-matelasse-leather-mini-backpack/4972084',
-            'name' => 'nordstrom',
+            'id'    => 7,
+            'url'   => 'https://shop.nordstrom.com/s/gucci-gg-marmont-2-0-matelasse-leather-mini-backpack/4972084',
+            'name'  => 'nordstrom',
             'scope' => [
                 'description',
                 'category',

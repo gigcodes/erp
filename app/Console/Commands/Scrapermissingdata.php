@@ -46,7 +46,7 @@ class Scrapermissingdata extends Command
     public function checkdata($field, $title)
     {
         $date = date('Y-m-d');
-        $ss = \App\ScrapedProducts::join('scrapers', 'scraped_products.website', 'scrapers.scraper_name')
+        $ss   = \App\ScrapedProducts::join('scrapers', 'scraped_products.website', 'scrapers.scraper_name')
             ->select(DB::raw('COUNT(*) as totalproduct'), 'scrapers.id as scraper_id', 'scrapers.scraper_name as scraper_name')
             ->groupBy('scrapers.scraper_name')
             ->whereRaw("date(scraped_products.created_at)=date('$date')")
@@ -69,14 +69,14 @@ class Scrapermissingdata extends Command
                     $user_id = 6;
                 }
 
-                $params = [];
-                $params['message'] = $msg;
-                $params['erp_user'] = $user_id;
-                $params['user_id'] = $user_id;
-                $params['approved'] = 1;
-                $params['status'] = 2;
+                $params                      = [];
+                $params['message']           = $msg;
+                $params['erp_user']          = $user_id;
+                $params['user_id']           = $user_id;
+                $params['approved']          = 1;
+                $params['status']            = 2;
                 $params['developer_task_id'] = $u->id;
-                $chat_message = \App\ChatMessage::create($params);
+                $chat_message                = \App\ChatMessage::create($params);
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');

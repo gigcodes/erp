@@ -47,21 +47,21 @@ class TasksController extends Controller
                     $query->where('is_active', '=', request('is_active'));
                 })
                 ->paginate(50),
-            'task' => null,
-            'queries' => ScheduleQuery::all(),
-            'users' => User::all(),
+            'task'             => null,
+            'queries'          => ScheduleQuery::all(),
+            'users'            => User::all(),
             'developer_module' => DeveloperModule::all(),
-            'commands' => Totem::getCommands(),
-            'timezones' => timezone_identifiers_list(),
-            'frequencies' => Totem::frequencies(),
-            'total_tasks' => Task::count(),
+            'commands'         => Totem::getCommands(),
+            'timezones'        => timezone_identifiers_list(),
+            'frequencies'      => Totem::frequencies(),
+            'total_tasks'      => Task::count(),
         ])->with('i', (request()->input('page', 1) - 1) * 50);
     }
 
     public function executionHistory($task)
     {
         $taskResults = [];
-        $assigned = CronActivity::where('assign_to_id', \Auth::User()->id)->where('cron_id', $task->id)->first();
+        $assigned    = CronActivity::where('assign_to_id', \Auth::User()->id)->where('cron_id', $task->id)->first();
 
         if (auth()->user()->isAdmin() || auth()->user()->isCronManager() || $assigned) {
             $taskResults = $task->results()->latest()->take(10)->get();
@@ -75,9 +75,9 @@ class TasksController extends Controller
     public function create()
     {
         return view('totem::tasks.form', [
-            'task' => new Task,
-            'commands' => Totem::getCommands(),
-            'timezones' => timezone_identifiers_list(),
+            'task'        => new Task,
+            'commands'    => Totem::getCommands(),
+            'timezones'   => timezone_identifiers_list(),
             'frequencies' => Totem::frequencies(),
         ]);
     }
@@ -102,7 +102,7 @@ class TasksController extends Controller
         ]));
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Task Created Successfully.',
         ]);
     }
@@ -110,7 +110,7 @@ class TasksController extends Controller
     public function view(Task $task)
     {
         return response()->json([
-            'task' => Task::find($task->id),
+            'task'    => Task::find($task->id),
             'results' => $task->results->count() > 0 ? number_format($task->results->sum('duration') / (1000 * $task->results->count()), 2) : '0',
         ]);
     }
@@ -118,9 +118,9 @@ class TasksController extends Controller
     public function edit(Task $task)
     {
         return response()->json([
-            'task' => $task,
-            'commands' => Totem::getCommands(),
-            'timezones' => timezone_identifiers_list(),
+            'task'        => $task,
+            'commands'    => Totem::getCommands(),
+            'timezones'   => timezone_identifiers_list(),
             'frequencies' => Totem::frequencies(),
         ]);
     }
@@ -145,7 +145,7 @@ class TasksController extends Controller
         ]));
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Task Updated Successfully.',
         ]);
     }
@@ -156,12 +156,12 @@ class TasksController extends Controller
             $task->delete();
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => 'Task Deleted Successfully.',
             ]);
         } else {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Task Not Found.',
             ]);
         }
@@ -183,12 +183,12 @@ class TasksController extends Controller
             }
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => $msg,
             ]);
         } else {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Task Not Found.',
             ]);
         }
@@ -212,11 +212,11 @@ class TasksController extends Controller
 
     public function totemCommandError(Request $request, $task)
     {
-        $tortem = CronJob::where('id', '=', $task->id)->first();
+        $tortem    = CronJob::where('id', '=', $task->id)->first();
         $cronError = CronJobErroLog::where('signature', '=', $tortem->signature)->get();
 
         return response()->json([
-            'data' => $cronError,
+            'data'    => $cronError,
             'message' => 'Listed successfully!!!',
         ]);
 
@@ -251,7 +251,7 @@ class TasksController extends Controller
             $msg = $request->get('active') ? 'Task enabled Successfully' : 'Task disabled Successfully';
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => $msg,
             ]);
         }
@@ -260,38 +260,38 @@ class TasksController extends Controller
     public function assignUsers(Request $request)
     {
         foreach ($request->get('users_id') as $userId) {
-            $cron = new CronActivity();
+            $cron               = new CronActivity();
             $cron->assign_by_id = \Auth::user()->id;
-            $cron->cron_id = $request->get('task-id');
+            $cron->cron_id      = $request->get('task-id');
             $cron->assign_to_id = $userId;
             $cron->save();
         }
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Cron assign succesfully',
         ]);
     }
 
     public function bulkAssign(Request $request)
     {
-        $crons = DB::table('crontasks')->get()->toArray();
+        $crons    = DB::table('crontasks')->get()->toArray();
         $cron_ids = [];
         foreach ($crons as $cron) {
             $cron_ids[] = $cron->id;
         }
         foreach ($request->get('users_id') as $userId) {
             foreach ($cron_ids as $cron_id) {
-                $cron = new CronActivity();
+                $cron               = new CronActivity();
                 $cron->assign_by_id = \Auth::user()->id;
-                $cron->cron_id = $cron_id;
+                $cron->cron_id      = $cron_id;
                 $cron->assign_to_id = $userId;
                 $cron->save();
             }
         }
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Cron assign succesfully',
         ]);
     }

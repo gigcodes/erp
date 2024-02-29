@@ -20,7 +20,7 @@ class Screenshot
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-            'ip' => '123.136.62.162',
+            'ip'   => '123.136.62.162',
             'port' => '8080',
         ];
     }

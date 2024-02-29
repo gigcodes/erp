@@ -17,27 +17,28 @@ class ActivityService
     /**
      * ActivityService constructor.
      *
-     * @param  \BookStack\Actions\Activity  $activity
+     * @param \BookStack\Actions\Activity $activity
      */
     public function __construct(Activity $activity, PermissionService $permissionService)
     {
-        $this->activity = $activity;
+        $this->activity          = $activity;
         $this->permissionService = $permissionService;
-        $this->user = user();
+        $this->user              = user();
     }
 
     /**
      * Add activity data to database.
      *
-     * @param  int  $bookId
-     * @param  bool  $extra
+     * @param int   $bookId
+     * @param bool  $extra
+     * @param mixed $activityKey
      */
     public function add(Entity $entity, $activityKey, $bookId = 0, $extra = false)
     {
-        $activity = $this->activity->newInstance();
+        $activity          = $this->activity->newInstance();
         $activity->user_id = $this->user->id;
         $activity->book_id = $bookId;
-        $activity->key = strtolower($activityKey);
+        $activity->key     = strtolower($activityKey);
         if ($extra !== false) {
             $activity->extra = $extra;
         }
@@ -48,14 +49,15 @@ class ActivityService
     /**
      * Adds a activity history with a message & without binding to a entity.
      *
-     * @param  int  $bookId
-     * @param  bool|false  $extra
+     * @param int        $bookId
+     * @param bool|false $extra
+     * @param mixed      $activityKey
      */
     public function addMessage($activityKey, $bookId = 0, $extra = false)
     {
         $this->activity->user_id = $this->user->id;
         $this->activity->book_id = $bookId;
-        $this->activity->key = strtolower($activityKey);
+        $this->activity->key     = strtolower($activityKey);
         if ($extra !== false) {
             $this->activity->extra = $extra;
         }
@@ -74,8 +76,8 @@ class ActivityService
     {
         $activities = $entity->activity;
         foreach ($activities as $activity) {
-            $activity->extra = $entity->name;
-            $activity->entity_id = 0;
+            $activity->extra       = $entity->name;
+            $activity->entity_id   = 0;
             $activity->entity_type = null;
             $activity->save();
         }
@@ -86,8 +88,9 @@ class ActivityService
     /**
      * Gets the latest activity.
      *
-     * @param  int  $count
-     * @param  int  $page
+     * @param int $count
+     * @param int $page
+     *
      * @return array
      */
     public function latest($count = 20, $page = 0)
@@ -103,9 +106,10 @@ class ActivityService
      * Gets the latest activity for an entity, Filtering out similar
      * items to prevent a message activity list.
      *
-     * @param  Entity  $entity
-     * @param  int  $count
-     * @param  int  $page
+     * @param Entity $entity
+     * @param int    $count
+     * @param int    $page
+     *
      * @return array
      */
     public function entityActivity($entity, $count = 20, $page = 1)
@@ -132,8 +136,10 @@ class ActivityService
      * Get latest activity for a user, Filtering out similar
      * items.
      *
-     * @param  int  $count
-     * @param  int  $page
+     * @param int   $count
+     * @param int   $page
+     * @param mixed $user
+     *
      * @return array
      */
     public function userActivity($user, $count = 20, $page = 0)
@@ -148,16 +154,17 @@ class ActivityService
     /**
      * Filters out similar activity.
      *
-     * @param  Activity[]  $activities
+     * @param Activity[] $activities
+     *
      * @return array
      */
     protected function filterSimilar($activities)
     {
-        $newActivity = [];
+        $newActivity  = [];
         $previousItem = false;
         foreach ($activities as $activityItem) {
             if ($previousItem === false) {
-                $previousItem = $activityItem;
+                $previousItem  = $activityItem;
                 $newActivity[] = $activityItem;
 
                 continue;
@@ -173,6 +180,8 @@ class ActivityService
 
     /**
      * Flashes a notification message to the session if an appropriate message is available.
+     *
+     * @param mixed $activityKey
      */
     protected function setNotification($activityKey)
     {

@@ -17,16 +17,16 @@ class TaskDueDateHistoryLog extends Model
     public static function historySave($taskId, $old, $new, $approved)
     {
         $single = self::create([
-            'task_id' => $taskId,
-            'task_type' => 'TASK',
-            'updated_by' => loginId(),
+            'task_id'      => $taskId,
+            'task_type'    => 'TASK',
+            'updated_by'   => loginId(),
             'old_due_date' => $old,
             'new_due_date' => $new,
-            'approved' => $approved ? 1 : 0,
+            'approved'     => $approved ? 1 : 0,
         ]);
         if ($approved) {
             TaskDueDateHistoryLogApprovals::create([
-                'parent_id' => $single->id,
+                'parent_id'   => $single->id,
                 'approved_by' => loginId(),
             ]);
         }
@@ -39,7 +39,7 @@ class TaskDueDateHistoryLog extends Model
         self::where('id', $single->id)->update(['approved' => 1]);
         Task::where('id', $single->task_id)->update(['due_date' => $single->new_due_date]);
         TaskDueDateHistoryLogApprovals::create([
-            'parent_id' => $single->id,
+            'parent_id'   => $single->id,
             'approved_by' => loginId(),
         ]);
     }

@@ -27,6 +27,8 @@ class PinterestAdsAccountsController extends Controller
     /**
      * Show list of ads account for the connected account.
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function dashboard(Request $request, $id)
@@ -59,6 +61,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Create a new Ads account.
+     *
+     * @param mixed $id
      */
     public function createAdsAccount(Request $request, $id): RedirectResponse
     {
@@ -69,7 +73,7 @@ class PinterestAdsAccountsController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|max:255',
+                'name'    => 'required|max:255',
                 'country' => 'required',
             ]);
             if ($validator->fails()) {
@@ -79,16 +83,16 @@ class PinterestAdsAccountsController extends Controller
                     ->withInput();
             }
             $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->createAdsAccount([
-                'name' => $request->get('name'),
+            $response  = $pinterest->createAdsAccount([
+                'name'    => $request->get('name'),
                 'country' => $request->get('country'),
             ]);
             if ($response['status']) {
                 PinterestAdsAccounts::create([
-                    'pinterest_mail_id' => $pinterestAccount->id,
-                    'ads_account_id' => $response['data']['id'],
-                    'ads_account_name' => $request->get('name'),
-                    'ads_account_country' => $request->get('country'),
+                    'pinterest_mail_id'    => $pinterestAccount->id,
+                    'ads_account_id'       => $response['data']['id'],
+                    'ads_account_name'     => $request->get('name'),
+                    'ads_account_country'  => $request->get('country'),
                     'ads_account_currency' => $response['data']['currency'],
                 ]);
 
@@ -106,6 +110,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Get all boards for a account.
+     *
+     * @param mixed $id
      *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
@@ -140,6 +146,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Create a new Board.
+     *
+     * @param mixed $id
      */
     public function createBoard(Request $request, $id): RedirectResponse
     {
@@ -151,8 +159,8 @@ class PinterestAdsAccountsController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'pinterest_ads_account_id' => 'required',
-                'name' => 'required',
-                'description' => 'sometimes',
+                'name'                     => 'required',
+                'description'              => 'sometimes',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.board.index', [$id])
@@ -161,17 +169,17 @@ class PinterestAdsAccountsController extends Controller
                     ->withInput();
             }
             $pinterestAdAccount = PinterestAdsAccounts::where('id', $request->get('pinterest_ads_account_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->createBoards([
-                'name' => $request->get('name'),
+            $pinterest          = $this->getPinterestClient($pinterestAccount);
+            $response           = $pinterest->createBoards([
+                'name'        => $request->get('name'),
                 'description' => $request->get('description'),
             ], ['ad_account_id' => $pinterestAdAccount->ads_account_id]);
             if ($response['status']) {
                 PinterestBoards::create([
                     'pinterest_ads_account_id' => $request->get('pinterest_ads_account_id'),
-                    'board_id' => $response['data']['id'],
-                    'name' => $request->get('name'),
-                    'description' => $request->get('description'),
+                    'board_id'                 => $response['data']['id'],
+                    'name'                     => $request->get('name'),
+                    'description'              => $request->get('description'),
                 ]);
 
                 return Redirect::route('pinterest.accounts.board.index', [$id])
@@ -190,6 +198,8 @@ class PinterestAdsAccountsController extends Controller
      * Get Board Details
      *
      * @param $accountId
+     * @param mixed $id
+     * @param mixed $boardId
      */
     public function getBoard($id, $boardId): JsonResponse
     {
@@ -211,6 +221,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Update a new Board.
+     *
+     * @param mixed $id
      */
     public function updateBoard(Request $request, $id): RedirectResponse
     {
@@ -221,10 +233,10 @@ class PinterestAdsAccountsController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'edit_board_id' => 'required',
+                'edit_board_id'                 => 'required',
                 'edit_pinterest_ads_account_id' => 'required',
-                'edit_name' => 'required',
-                'edit_description' => 'sometimes',
+                'edit_name'                     => 'required',
+                'edit_description'              => 'sometimes',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.board.index', [$id])
@@ -232,16 +244,16 @@ class PinterestAdsAccountsController extends Controller
                     ->withInput();
             }
             $pinterestAdAccount = PinterestAdsAccounts::where('id', $request->get('edit_pinterest_ads_account_id'))->first();
-            $pinterestBoard = PinterestBoards::where('id', $request->get('edit_board_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->updateBoards($pinterestBoard->board_id, [
-                'name' => $request->get('edit_name'),
+            $pinterestBoard     = PinterestBoards::where('id', $request->get('edit_board_id'))->first();
+            $pinterest          = $this->getPinterestClient($pinterestAccount);
+            $response           = $pinterest->updateBoards($pinterestBoard->board_id, [
+                'name'        => $request->get('edit_name'),
                 'description' => $request->get('edit_description'),
             ], ['ad_account_id' => $pinterestAdAccount->ads_account_id]);
             if ($response['status']) {
                 $pinterestBoard->pinterest_ads_account_id = $request->get('edit_pinterest_ads_account_id');
-                $pinterestBoard->name = $request->get('edit_name');
-                $pinterestBoard->description = $request->get('edit_description');
+                $pinterestBoard->name                     = $request->get('edit_name');
+                $pinterestBoard->description              = $request->get('edit_description');
                 $pinterestBoard->save();
 
                 return Redirect::route('pinterest.accounts.board.index', [$id])
@@ -258,6 +270,9 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Delete Board
+     *
+     * @param mixed $id
+     * @param mixed $boardId
      */
     public function deleteBoard($id, $boardId): RedirectResponse
     {
@@ -273,7 +288,7 @@ class PinterestAdsAccountsController extends Controller
                     ->with('error', 'Board not found');
             }
             $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->deleteBoards($pinterestBoard->board_id, ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
+            $response  = $pinterest->deleteBoards($pinterestBoard->board_id, ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
             if ($response['status']) {
                 $pinterestBoard->delete();
 
@@ -291,6 +306,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Get all board sections for a account.
+     *
+     * @param mixed $id
      *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
@@ -327,6 +344,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Create a new Board Section.
+     *
+     * @param mixed $id
      */
     public function createBoardSections(Request $request, $id): RedirectResponse
     {
@@ -338,7 +357,7 @@ class PinterestAdsAccountsController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'pinterest_board_id' => 'required',
-                'name' => 'required|max:179',
+                'name'               => 'required|max:179',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.boardSections.index', [$id])
@@ -347,16 +366,16 @@ class PinterestAdsAccountsController extends Controller
                     ->withInput();
             }
             $pinterestBoard = PinterestBoards::with('account')->where('id', $request->get('pinterest_board_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->createBoardSection($pinterestBoard->board_id, [
+            $pinterest      = $this->getPinterestClient($pinterestAccount);
+            $response       = $pinterest->createBoardSection($pinterestBoard->board_id, [
                 'name' => $request->get('name'),
             ], ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
             if ($response['status']) {
                 PinterestBoardSections::create([
                     'pinterest_ads_account_id' => $pinterestBoard->account->id,
-                    'pinterest_board_id' => $pinterestBoard->id,
-                    'board_section_id' => $response['data']['id'],
-                    'name' => $request->get('name'),
+                    'pinterest_board_id'       => $pinterestBoard->id,
+                    'board_section_id'         => $response['data']['id'],
+                    'name'                     => $request->get('name'),
                 ]);
 
                 return Redirect::route('pinterest.accounts.boardSections.index', [$id])
@@ -373,6 +392,9 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Get Board Section Details
+     *
+     * @param mixed $id
+     * @param mixed $boardSectionId
      */
     public function getBoardSection($id, $boardSectionId): JsonResponse
     {
@@ -394,6 +416,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Update a Board section.
+     *
+     * @param mixed $id
      */
     public function updateBoardSection(Request $request, $id): RedirectResponse
     {
@@ -405,24 +429,24 @@ class PinterestAdsAccountsController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'edit_board_section_id' => 'required',
-                'edit_board_id' => 'required',
-                'edit_name' => 'required|max:179',
+                'edit_board_id'         => 'required',
+                'edit_name'             => 'required|max:179',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.boardSections.index', [$id])
                     ->withErrors($validator)
                     ->withInput();
             }
-            $pinterestBoard = PinterestBoards::with('account')->where('id', $request->get('edit_board_id'))->first();
+            $pinterestBoard         = PinterestBoards::with('account')->where('id', $request->get('edit_board_id'))->first();
             $pinterestBoardSections = PinterestBoardSections::where('id', $request->get('edit_board_section_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->updateBoardSection($pinterestBoard->board_id, $pinterestBoardSections->board_section_id, [
+            $pinterest              = $this->getPinterestClient($pinterestAccount);
+            $response               = $pinterest->updateBoardSection($pinterestBoard->board_id, $pinterestBoardSections->board_section_id, [
                 'name' => $request->get('edit_name'),
             ], ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
             if ($response['status']) {
                 $pinterestBoardSections->pinterest_ads_account_id = $pinterestBoard->account->id;
-                $pinterestBoardSections->pinterest_board_id = $request->get('edit_board_id');
-                $pinterestBoardSections->name = $request->get('edit_name');
+                $pinterestBoardSections->pinterest_board_id       = $request->get('edit_board_id');
+                $pinterestBoardSections->name                     = $request->get('edit_name');
                 $pinterestBoardSections->save();
 
                 return Redirect::route('pinterest.accounts.boardSections.index', [$id])
@@ -439,6 +463,9 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Delete Board Section
+     *
+     * @param mixed $id
+     * @param mixed $boardSectionId
      */
     public function deleteBoardSection($id, $boardSectionId): RedirectResponse
     {
@@ -454,7 +481,7 @@ class PinterestAdsAccountsController extends Controller
                     ->with('error', 'Board not found');
             }
             $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->deleteBoardSection($pinterestBoardSections->board->board_id, $pinterestBoardSections->board_section_id,
+            $response  = $pinterest->deleteBoardSection($pinterestBoardSections->board->board_id, $pinterestBoardSections->board_section_id,
                 ['ad_account_id' => $pinterestBoardSections->account->ads_account_id]);
             if ($response['status']) {
                 $pinterestBoardSections->delete();
@@ -473,6 +500,8 @@ class PinterestAdsAccountsController extends Controller
 
     /**
      * Get Pinterest Client
+     *
+     * @param mixed $pinterestAccount
      *
      * @throws \Exception
      */

@@ -65,8 +65,8 @@ final class ImportController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->import = $import;
-        $this->sql = $sql;
-        $this->dbi = $dbi;
+        $this->sql    = $sql;
+        $this->dbi    = $dbi;
     }
 
     public function __invoke(): void
@@ -80,16 +80,16 @@ final class ImportController extends AbstractController
         global $show_as_php, $reload, $charset_connection, $is_js_confirmed, $MAX_FILE_SIZE, $message_to_show;
         global $noplugin, $skip_queries;
 
-        $charset_of_file = $_POST['charset_of_file'] ?? null;
-        $format = $_POST['format'] ?? '';
-        $import_type = $_POST['import_type'] ?? null;
-        $is_js_confirmed = $_POST['is_js_confirmed'] ?? null;
-        $MAX_FILE_SIZE = $_POST['MAX_FILE_SIZE'] ?? null;
-        $message_to_show = $_POST['message_to_show'] ?? null;
-        $noplugin = $_POST['noplugin'] ?? null;
-        $skip_queries = $_POST['skip_queries'] ?? null;
+        $charset_of_file   = $_POST['charset_of_file'] ?? null;
+        $format            = $_POST['format'] ?? '';
+        $import_type       = $_POST['import_type'] ?? null;
+        $is_js_confirmed   = $_POST['is_js_confirmed'] ?? null;
+        $MAX_FILE_SIZE     = $_POST['MAX_FILE_SIZE'] ?? null;
+        $message_to_show   = $_POST['message_to_show'] ?? null;
+        $noplugin          = $_POST['noplugin'] ?? null;
+        $skip_queries      = $_POST['skip_queries'] ?? null;
         $local_import_file = $_POST['local_import_file'] ?? null;
-        $show_as_php = $_POST['show_as_php'] ?? null;
+        $show_as_php       = $_POST['show_as_php'] ?? null;
 
         // If it's a refresh console bookmarks request
         if (isset($_GET['console_bookmark_refresh'])) {
@@ -110,10 +110,10 @@ final class ImportController extends AbstractController
             }
 
             $bookmarkFields = [
-                'bkm_database' => $_POST['db'],
-                'bkm_user' => $cfg['Server']['user'],
+                'bkm_database'  => $_POST['db'],
+                'bkm_user'      => $cfg['Server']['user'],
                 'bkm_sql_query' => $_POST['bookmark_query'],
-                'bkm_label' => $_POST['label'],
+                'bkm_label'     => $_POST['label'],
             ];
             $isShared = ($_POST['shared'] === 'true');
             $bookmark = Bookmark::createBookmark($this->dbi, $bookmarkFields, $isShared);
@@ -129,7 +129,7 @@ final class ImportController extends AbstractController
         }
 
         // reset import messages for ajax request
-        $_SESSION['Import_message']['message'] = null;
+        $_SESSION['Import_message']['message']     = null;
         $_SESSION['Import_message']['go_back_url'] = null;
         // default values
         $reload = false;
@@ -167,9 +167,9 @@ final class ImportController extends AbstractController
             }
 
             // run SQL query
-            $import_text = $sql_query;
-            $import_type = 'query';
-            $format = 'sql';
+            $import_text                    = $sql_query;
+            $import_type                    = 'query';
+            $format                         = 'sql';
             $_SESSION['sql_from_query_box'] = true;
 
             // If there is a request to ROLLBACK when finished.
@@ -179,7 +179,7 @@ final class ImportController extends AbstractController
 
             // refresh navigation and main panels
             if (preg_match('/^(DROP)\s+(VIEW|TABLE|DATABASE|SCHEMA)\s+/i', $sql_query)) {
-                $reload = true;
+                $reload                = true;
                 $ajax_reload['reload'] = true;
             }
 
@@ -191,7 +191,7 @@ final class ImportController extends AbstractController
             // do a dynamic reload if table is RENAMED
             // (by sending the instruction to the AJAX response handler)
             if (preg_match('/^RENAME\s+TABLE\s+(.*?)\s+TO\s+(.*?)($|;|\s)/i', $sql_query, $rename_table_names)) {
-                $ajax_reload['reload'] = true;
+                $ajax_reload['reload']     = true;
                 $ajax_reload['table_name'] = Util::unQuote($rename_table_names[2]);
             }
 
@@ -200,12 +200,12 @@ final class ImportController extends AbstractController
             // run uploaded SQL file
             $import_file = $sql_file;
             $import_type = 'queryfile';
-            $format = 'sql';
+            $format      = 'sql';
             unset($sql_file);
         } elseif (! empty($_POST['id_bookmark'])) {
             // run bookmark
             $import_type = 'query';
-            $format = 'sql';
+            $format      = 'sql';
         }
 
         // If we didn't get any parameters, either user called this directly, or
@@ -221,7 +221,7 @@ final class ImportController extends AbstractController
             $message->addParam('[/doc]');
 
             // so we can obtain the message
-            $_SESSION['Import_message']['message'] = $message->getDisplay();
+            $_SESSION['Import_message']['message']     = $message->getDisplay();
             $_SESSION['Import_message']['go_back_url'] = $goto;
 
             $this->response->setRequestStatus(false);
@@ -260,7 +260,7 @@ final class ImportController extends AbstractController
 
         if (strlen($table) > 0 && strlen($db) > 0) {
             $urlParams = [
-                'db' => $db,
+                'db'    => $db,
                 'table' => $table,
             ];
         } elseif (strlen($db) > 0) {
@@ -286,7 +286,7 @@ final class ImportController extends AbstractController
             }
         }
 
-        $errorUrl = $goto . Url::getCommon($urlParams, '&');
+        $errorUrl                                  = $goto . Url::getCommon($urlParams, '&');
         $_SESSION['Import_message']['go_back_url'] = $errorUrl;
 
         if (strlen($db) > 0) {
@@ -306,20 +306,20 @@ final class ImportController extends AbstractController
         }
 
         // set default values
-        $timeout_passed = false;
-        $error = false;
-        $read_multiply = 1;
-        $finished = false;
-        $offset = 0;
-        $max_sql_len = 0;
-        $sql_query = '';
+        $timeout_passed     = false;
+        $error              = false;
+        $read_multiply      = 1;
+        $finished           = false;
+        $offset             = 0;
+        $max_sql_len        = 0;
+        $sql_query          = '';
         $sql_query_disabled = false;
-        $go_sql = false;
-        $executed_queries = 0;
-        $run_query = true;
+        $go_sql             = false;
+        $executed_queries   = 0;
+        $run_query          = true;
         $charset_conversion = false;
-        $reset_charset = false;
-        $msg = 'Sorry an unexpected error happened!';
+        $reset_charset      = false;
+        $msg                = 'Sorry an unexpected error happened!';
 
         /** @var bool|mixed $result */
         $result = false;
@@ -349,7 +349,7 @@ final class ImportController extends AbstractController
 
                     // refresh navigation and main panels
                     if (preg_match('/^(DROP)\s+(VIEW|TABLE|DATABASE|SCHEMA)\s+/i', $import_text)) {
-                        $reload = true;
+                        $reload                = true;
                         $ajax_reload['reload'] = true;
                     }
 
@@ -398,7 +398,7 @@ final class ImportController extends AbstractController
                         return;
                     } else {
                         $run_query = false;
-                        $error = true; // this is kind of hack to skip processing the query
+                        $error     = true; // this is kind of hack to skip processing the query
                     }
 
                     break;
@@ -408,7 +408,7 @@ final class ImportController extends AbstractController
         // Do no run query if we show PHP code
         if (isset($show_as_php)) {
             $run_query = false;
-            $go_sql = true;
+            $go_sql    = true;
         }
 
         // We can not read all at once, otherwise we can run out of memory
@@ -440,7 +440,7 @@ final class ImportController extends AbstractController
 
         // handle filenames
         if (isset($_FILES['import_file'])) {
-            $import_file = $_FILES['import_file']['tmp_name'];
+            $import_file      = $_FILES['import_file']['tmp_name'];
             $import_file_name = $_FILES['import_file']['name'];
         }
 
@@ -529,7 +529,7 @@ final class ImportController extends AbstractController
             $this->dbi->query('SET NAMES \'' . $charset_of_file . '\'');
             // We can not show query in this case, it is in different charset
             $sql_query_disabled = true;
-            $reset_charset = true;
+            $reset_charset      = true;
         }
 
         // Something to skip? (because timeout has passed)
@@ -548,7 +548,7 @@ final class ImportController extends AbstractController
         // This array contain the data like number of valid sql queries in the statement
         // and complete valid sql statement (which affected for rows)
         $sql_data = [
-            'valid_sql' => [],
+            'valid_sql'     => [],
             'valid_queries' => 0,
         ];
 
@@ -595,9 +595,9 @@ final class ImportController extends AbstractController
 
         // Show correct message
         if (! empty($id_bookmark) && $_POST['action_bookmark'] == 2) {
-            $message = Message::success(__('The bookmark has been deleted.'));
+            $message       = Message::success(__('The bookmark has been deleted.'));
             $display_query = $import_text;
-            $error = false; // unset error marker, it was used just to skip processing
+            $error         = false; // unset error marker, it was used just to skip processing
         } elseif (! empty($id_bookmark) && $_POST['action_bookmark'] == 1) {
             $message = Message::notice(__('Showing bookmark'));
         } elseif ($finished && ! $error) {
@@ -630,7 +630,7 @@ final class ImportController extends AbstractController
         // Did we hit timeout? Tell it user.
         if ($timeout_passed) {
             $urlParams['timeout_passed'] = '1';
-            $urlParams['offset'] = $offset;
+            $urlParams['offset']         = $offset;
             if (isset($local_import_file)) {
                 $urlParams['local_import_file'] = $local_import_file;
             }
@@ -693,7 +693,7 @@ final class ImportController extends AbstractController
         if ($go_sql) {
             if (! empty($sql_data) && ($sql_data['valid_queries'] > 1)) {
                 $_SESSION['is_multi_query'] = true;
-                $sql_queries = $sql_data['valid_sql'];
+                $sql_queries                = $sql_data['valid_sql'];
             } else {
                 $sql_queries = [$sql_query];
             }
