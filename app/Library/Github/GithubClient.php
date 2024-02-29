@@ -13,7 +13,7 @@ class GithubClient
     public function __construct()
     {
         $this->endpoint = 'https://api.github.com';
-        $this->client = new Client([
+        $this->client   = new Client([
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }

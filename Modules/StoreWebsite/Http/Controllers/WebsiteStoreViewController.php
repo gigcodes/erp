@@ -21,20 +21,20 @@ class WebsiteStoreViewController extends Controller
      */
     public function index(Request $request)
     {
-        $title = 'Website Store View | Store Website';
+        $title         = 'Website Store View | Store Website';
         $storeWebsites = StoreWebsite::orderBy('title', 'ASC')->pluck('title', 'id')->toArray();
 
         $websiteStores = WebsiteStore::join('websites', 'websites.id', '=', 'website_stores.website_id')->join('store_websites', 'store_websites.id', '=', 'websites.store_website_id')->orderBy('websites.name', 'ASC')->select('websites.*', \DB::raw('CONCAT(website_stores.name, " (", store_websites.title,")") AS full_name'))->pluck('full_name', 'id')->toArray();
 
-        $languages = \App\Language::orderBy('name', 'ASC')->pluck('name', 'name')->toArray();
+        $languages    = \App\Language::orderBy('name', 'ASC')->pluck('name', 'name')->toArray();
         $storeServers = StoreViewCodeServerMap::groupBy('server_id')->get();
 
         return view('storewebsite::website-store-view.index', [
-            'title' => $title,
+            'title'         => $title,
             'storeWebsites' => $storeWebsites,
             'websiteStores' => $websiteStores,
-            'languages' => $languages,
-            'storeServers' => $storeServers,
+            'languages'     => $languages,
+            'storeServers'  => $storeServers,
         ]);
     }
 
@@ -71,16 +71,16 @@ class WebsiteStoreViewController extends Controller
 
     public function store(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'name' => 'required',
-            'code' => 'required',
+            'name'             => 'required',
+            'code'             => 'required',
             'website_store_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -111,7 +111,8 @@ class WebsiteStoreViewController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -127,7 +128,8 @@ class WebsiteStoreViewController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -178,11 +180,11 @@ class WebsiteStoreViewController extends Controller
         $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/get_group';
 
         $postData = [
-            'id' => (int) $request->store_group_id,
+            'id'     => (int) $request->store_group_id,
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -191,12 +193,12 @@ class WebsiteStoreViewController extends Controller
             if (isset($response->error)) {
                 return response()->json(['status' => 'errors', $response], 403);
             } else {
-                $response->row_id = (int) $request->id;
-                $websiteStoreView = WebsiteStoreView::find($request->id);
-                $response->type = 'edit';
+                $response->row_id             = (int) $request->id;
+                $websiteStoreView             = WebsiteStoreView::find($request->id);
+                $response->type               = 'edit';
                 $response->ref_theme_group_id = $websiteStoreView->ref_theme_group_id;
-                $response->agents = ($this->agents($request))->original['responseData'];
-                $response->group_route = DB::table('group_routes')->where('group_id', $websiteStoreView->store_group_id)->latest()->first();
+                $response->agents             = ($this->agents($request))->original['responseData'];
+                $response->group_route        = DB::table('group_routes')->where('group_id', $websiteStoreView->store_group_id)->latest()->first();
 
                 return response()->json(['status' => 'success', 'responseData' => $response], 200);
             }
@@ -208,14 +210,14 @@ class WebsiteStoreViewController extends Controller
         $postData = $request->all();
 
         $validator = Validator::make($postData, [
-            'name' => 'required',
-            'agents' => 'required',
+            'name'      => 'required',
+            'agents'    => 'required',
             'priorites' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -230,7 +232,7 @@ class WebsiteStoreViewController extends Controller
             $agent_priorities[$postData['agents'][$key]] = $val;
         }
 
-        $id = (int) $request->id;
+        $id     = (int) $request->id;
         $row_id = (int) $request->row_id;
 
         if ($id) {
@@ -240,14 +242,14 @@ class WebsiteStoreViewController extends Controller
         }
 
         $postData = [
-            'id' => $id ?? '',
-            'name' => $request->name,
-            'language_code' => $request->language_code,
+            'id'               => $id ?? '',
+            'name'             => $request->name,
+            'language_code'    => $request->language_code,
             'agent_priorities' => $agent_priorities,
         ];
 
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -264,15 +266,15 @@ class WebsiteStoreViewController extends Controller
                 }
                 $group_id = $request->group;
                 if ($group_id) {
-                    $postURL1 = 'https://api.livechatinc.com/v2/properties/group/' . $group_id;
-                    $result1 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
-                    $postURL2 = 'https://api.livechatinc.com/v2/properties/group/' . $store_group_id;
-                    $result2 = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
+                    $postURL1                 = 'https://api.livechatinc.com/v2/properties/group/' . $group_id;
+                    $result1                  = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL1, [], 'application/json', true, 'GET');
+                    $postURL2                 = 'https://api.livechatinc.com/v2/properties/group/' . $store_group_id;
+                    $result2                  = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL2, $result1['response'], 'application/json', true, 'PUT');
                     $response->group_details1 = json_decode($result1['response']);
                     $response->group_details2 = json_decode($result2['response']);
                 }
                 if ($websiteStoreView) {
-                    $websiteStoreView->store_group_id = $store_group_id;
+                    $websiteStoreView->store_group_id     = $store_group_id;
                     $websiteStoreView->ref_theme_group_id = $group_id;
                     $websiteStoreView->save();
                 }
@@ -286,11 +288,11 @@ class WebsiteStoreViewController extends Controller
                         $postURL = 'https://api.livechatinc.com/v3.3/configuration/action/add_auto_access';
                     }
                     $domain_values['value'] = $request->route_domain;
-                    $url_values['value'] = $request->route_url;
-                    $postData = [
-                        'id' => $group_route == null ? null : $group_route->route_id,
+                    $url_values['value']    = $request->route_url;
+                    $postData               = [
+                        'id'          => $group_route == null ? null : $group_route->route_id,
                         'description' => $request->route_name,
-                        'access' => [
+                        'access'      => [
                             'groups' => [$store_group_id],
                         ],
                         'conditions' => [
@@ -303,17 +305,17 @@ class WebsiteStoreViewController extends Controller
                         ],
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         DB::table('group_routes')->updateOrInsert([
                             'group_id' => $store_group_id,
                         ], [
-                            'group_id' => $store_group_id,
-                            'route_id' => $group_route != null ? $group_route->route_id : $response->id,
+                            'group_id'   => $store_group_id,
+                            'route_id'   => $group_route != null ? $group_route->route_id : $response->id,
                             'route_name' => $request->route_name,
-                            'domain' => $request->route_domain,
-                            'url' => $request->route_url,
+                            'domain'     => $request->route_domain,
+                            'url'        => $request->route_url,
                         ]);
                     }
                 }
@@ -325,7 +327,7 @@ class WebsiteStoreViewController extends Controller
 
     public function deleteGroup(Request $request, $id, $store_group_id)
     {
-        $id = (int) $request->id;
+        $id             = (int) $request->id;
         $store_group_id = (int) $request->store_group_id;
 
         $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/delete_group';
@@ -334,7 +336,7 @@ class WebsiteStoreViewController extends Controller
             'id' => $store_group_id,
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -372,7 +374,7 @@ class WebsiteStoreViewController extends Controller
             ],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -394,18 +396,18 @@ class WebsiteStoreViewController extends Controller
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
             $response = json_decode($result['response']);
-            $groups = [];
+            $groups   = [];
             foreach ($response as $res) {
                 if (str_starts_with($res->name, 'theme')) {
-                    $g['id'] = $res->id;
+                    $g['id']   = $res->id;
                     $g['name'] = $res->name;
-                    $groups[] = $g;
+                    $groups[]  = $g;
                 }
             }
             if (isset($response->error)) {
@@ -421,11 +423,12 @@ class WebsiteStoreViewController extends Controller
      *
      * @param $id
      * @param $storeWebsiteId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateStoreWebsite(Request $request)
     {
-        $storeWebsiteId = $request->input('store_website_id');
+        $storeWebsiteId     = $request->input('store_website_id');
         $selectedStoreViews = $request->input('selected_store_views');
         if (count($selectedStoreViews) == 0) {
             return response()->json(['code' => 500, 'message' => 'Select at least on store view to update the website!']);
@@ -438,10 +441,10 @@ class WebsiteStoreViewController extends Controller
                 return response()->json(['code' => 500, 'message' => 'Record not found!']);
             }
 
-            $websiteId = $websiteStoreView->websiteStore->website->id;
-            $website = Website::find($websiteId);
+            $websiteId                 = $websiteStoreView->websiteStore->website->id;
+            $website                   = Website::find($websiteId);
             $website->store_website_id = $storeWebsiteId;
-            $response = $website->save();
+            $response                  = $website->save();
             $count++;
         }
         if ($response && $count == $key + 1) {

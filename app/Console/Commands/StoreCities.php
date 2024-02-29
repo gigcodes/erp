@@ -55,8 +55,8 @@ class StoreCities extends Command
             if (! @$response['error']) {
                 foreach ($response as $value) {
                     $input = [
-                        'name' => $value['name'],
-                        'state_id' => $state->id,
+                        'name'       => $value['name'],
+                        'state_id'   => $state->id,
                         'country_id' => $country->id,
                     ];
 

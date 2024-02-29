@@ -25,11 +25,11 @@ use PhpMyAdmin\Plugins\Schema\RelationStats;
 class RelationStatsPdf extends RelationStats
 {
     /**
-     * @param  Pdf  $diagram       The PDF diagram
-     * @param  string  $master_table  The master table name
-     * @param  string  $master_field  The relation field in the master table
-     * @param  string  $foreign_table The foreign table name
-     * @param  string  $foreign_field The relation field in the foreign table
+     * @param Pdf    $diagram       The PDF diagram
+     * @param string $master_table  The master table name
+     * @param string $master_field  The relation field in the master table
+     * @param string $foreign_table The foreign table name
+     * @param string $foreign_field The relation field in the foreign table
      */
     public function __construct(
         $diagram,
@@ -47,8 +47,8 @@ class RelationStatsPdf extends RelationStats
      *
      * @see    Pdf
      *
-     * @param  bool  $showColor Whether to use one color per relation or not
-     * @param  int  $i         The id of the link to draw
+     * @param bool $showColor Whether to use one color per relation or not
+     * @param int  $i         The id of the link to draw
      */
     public function relationDraw($showColor, $i): void
     {
@@ -90,7 +90,7 @@ class RelationStatsPdf extends RelationStats
                 ],
             ];
             [$a, $b, $c] = $case[$d];
-            $e = 1 - ($j - 1) / 6;
+            $e           = 1 - ($j - 1) / 6;
             $this->diagram->SetDrawColor($a * 255 * $e, $b * 255 * $e, $c * 255 * $e);
         } else {
             $this->diagram->SetDrawColor(0);

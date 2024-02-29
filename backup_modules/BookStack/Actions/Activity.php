@@ -49,6 +49,8 @@ class Activity extends Model
     /**
      * Checks if another Activity matches the general information of another.
      *
+     * @param mixed $activityB
+     *
      * @return bool
      */
     public function isSimilarTo($activityB)

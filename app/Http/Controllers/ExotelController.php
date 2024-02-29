@@ -12,16 +12,16 @@ class ExotelController extends FindByNumberController
     public function call($curl_setopt)
     {
         $post_data = [
-            'From' => '02248931265',
-            'To' => '02225921525',
+            'From'     => '02248931265',
+            'To'       => '02225921525',
             'CallerId' => '02248931265',
             'CallType' => 'promo', //Can be "trans" for transactional and "promo" for promotional content
         ];
 
-        $exotel_sid = 'sololuxury'; // Your Exotel SID - Get it from here: https://my.exotel.in/settings/site#api-settings
+        $exotel_sid   = 'sololuxury'; // Your Exotel SID - Get it from here: https://my.exotel.in/settings/site#api-settings
         $exotel_token = '815a3a4dbf47e348d5f45c19c4067de14c120046'; // Your exotel token - Get it from here: https://my.exotel.in/settings/site#api-settings
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = 'https://' . $exotel_sid . ':' . $exotel_token . '@twilix.exotel.in/v1/Accounts/' . $exotel_sid . '/Calls/connect';
+        $startTime    = date('Y-m-d H:i:s', LARAVEL_START);
+        $url          = 'https://' . $exotel_sid . ':' . $exotel_token . '@twilix.exotel.in/v1/Accounts/' . $exotel_sid . '/Calls/connect';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -32,8 +32,8 @@ class ExotelController extends FindByNumberController
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
         $http_result = curl_exec($ch);
-        $error = curl_error($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error       = curl_error($ch);
+        $http_code   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -51,8 +51,8 @@ class ExotelController extends FindByNumberController
             if (! $context) {
                 $customer = new Customer;
 
-                $customer->name = 'Customer from Call';
-                $customer->phone = $number;
+                $customer->name   = 'Customer from Call';
+                $customer->phone  = $number;
                 $customer->rating = 1;
 
                 $customer->save();
@@ -66,14 +66,14 @@ class ExotelController extends FindByNumberController
 
     public function recordingCallback(Request $request)
     {
-        $url = $request->get('RecordingUrl');
-        $sid = $request->get('CallSid');
+        $url    = $request->get('RecordingUrl');
+        $sid    = $request->get('CallSid');
         $params = [
-            'recording_url' => $url,
+            'recording_url'   => $url,
             'twilio_call_sid' => $sid,
-            'callsid' => $sid,
+            'callsid'         => $sid,
         ];
-        $context = $request->get('context');
+        $context    = $request->get('context');
         $internalId = $request->get('internalId');
 
         if ($context && $internalId) {

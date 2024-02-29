@@ -32,7 +32,7 @@ class YoutubeController extends Controller
     */
     public function refreshToken(Request $request)
     {
-        $client_id = $request->client_id;
+        $client_id     = $request->client_id;
         $client_secret = $request->client_secret;
         Session::put('client_id', $client_id);
         Session::put('client_secret', $client_secret);
@@ -46,12 +46,12 @@ class YoutubeController extends Controller
 
         $oauth2 = new OAuth2(
             [
-                'authorizationUri' => config('youtube.GOOGLE_ADS_AUTHORIZATION_URI'),
-                'redirectUri' => route('youtubeaccount.get-refresh-token'),
+                'authorizationUri'   => config('youtube.GOOGLE_ADS_AUTHORIZATION_URI'),
+                'redirectUri'        => route('youtubeaccount.get-refresh-token'),
                 'tokenCredentialUri' => CredentialsLoader::TOKEN_CREDENTIAL_URI,
-                'clientId' => $client_id,
-                'clientSecret' => $client_secret,
-                'scope' => $scopes,
+                'clientId'           => $client_id,
+                'clientSecret'       => $client_secret,
+                'scope'              => $scopes,
             ]
         );
 
@@ -67,8 +67,8 @@ class YoutubeController extends Controller
     public function viewUploadVideo(Request $request, $id)
     {
         $chaneltableData = YoutubeChannel::where('id', $id)->firstOrFail();
-        $chanelTableId = $chaneltableData->id;
-        $categoriesData = Helper::getVideoCategories();
+        $chanelTableId   = $chaneltableData->id;
+        $categoriesData  = Helper::getVideoCategories();
 
         return view('youtube.chanel.video.create', compact('chanelTableId', 'categoriesData'));
     }
@@ -85,20 +85,20 @@ class YoutubeController extends Controller
 
             $params = [
                 'refresh_token' => $websiteData->refresh_token,
-                'client_id' => config('services.youtube.client_id'),
+                'client_id'     => config('services.youtube.client_id'),
                 'client_secret' => config('services.youtube.client_secret'),
-                'grant_type' => 'refresh_token',
+                'grant_type'    => 'refresh_token',
             ];
             $headers = [
                 'Host' => 'oauth2.googleapis.com',
             ];
 
-            $response = Http::withHeaders($headers)->post('https://oauth2.googleapis.com/token', $params)->json();
+            $response                  = Http::withHeaders($headers)->post('https://oauth2.googleapis.com/token', $params)->json();
             $websiteData->access_token = $response['access_token'];
-            $expireIn = ! empty($response['expires_in']) ? $response['expires_in'] : null;
+            $expireIn                  = ! empty($response['expires_in']) ? $response['expires_in'] : null;
             if (! empty($expireIn)) {
                 $currentTime = strtotime(Carbon::now());
-                $expireIn = Carbon::createFromTimestamp(($currentTime + $expireIn));
+                $expireIn    = Carbon::createFromTimestamp(($currentTime + $expireIn));
             }
             $websiteData->token_expire_time = $expireIn;
             $websiteData->save();
@@ -114,10 +114,10 @@ class YoutubeController extends Controller
         try {
             $this->validate($request, [
                 'videoCategories' => 'required',
-                'status' => 'required',
-                'title' => 'required',
-                'description' => 'required',
-                'youtubeVideo' => 'required',
+                'status'          => 'required',
+                'title'           => 'required',
+                'description'     => 'required',
+                'youtubeVideo'    => 'required',
             ]);
 
             $chaneltableData = YoutubeChannel::where('id', $request->tableChannelId)->firstOrFail();
@@ -159,8 +159,8 @@ class YoutubeController extends Controller
                 'snippet,status',
                 $video,
                 [
-                    'data' => \File::get($request->file('youtubeVideo')),
-                    'mimeType' => 'application/octet-stream',
+                    'data'       => \File::get($request->file('youtubeVideo')),
+                    'mimeType'   => 'application/octet-stream',
                     'uploadType' => 'multipart',
                 ]
             );
@@ -186,16 +186,16 @@ class YoutubeController extends Controller
     {
         //create account
         $this->validate($request, [
-            'store_websites' => 'required',
-            'status' => 'required',
-            'email' => 'required|email',
-            'oauth2_client_id' => 'required',
+            'store_websites'       => 'required',
+            'status'               => 'required',
+            'email'                => 'required|email',
+            'oauth2_client_id'     => 'required',
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
         ]);
 
         try {
-            $input = $request->all();
+            $input         = $request->all();
             $createChannel = YoutubeChannel::create($input);
             FetchYoutubeChannelData::dispatch($createChannel);
 
@@ -213,15 +213,15 @@ class YoutubeController extends Controller
     public function getRefreshToken(Request $request)
     {
         $google_redirect_url = route('youtubeaccount.get-refresh-token');
-        $scopes = ['Youtube1' => 'https://www.googleapis.com/auth/youtube.force-ssl', 'Youtube2' => 'https://www.googleapis.com/auth/youtubepartner-channel-audit'];
-        $oauth2 = new OAuth2(
+        $scopes              = ['Youtube1' => 'https://www.googleapis.com/auth/youtube.force-ssl', 'Youtube2' => 'https://www.googleapis.com/auth/youtubepartner-channel-audit'];
+        $oauth2              = new OAuth2(
             [
-                'authorizationUri' => config('google.GOOGLE_ADS_AUTHORIZATION_URI'),
-                'redirectUri' => $google_redirect_url,
+                'authorizationUri'   => config('google.GOOGLE_ADS_AUTHORIZATION_URI'),
+                'redirectUri'        => $google_redirect_url,
                 'tokenCredentialUri' => CredentialsLoader::TOKEN_CREDENTIAL_URI,
-                'clientId' => Session::get('client_id'),
-                'clientSecret' => Session::get('client_secret'),
-                'scope' => $scopes,
+                'clientId'           => Session::get('client_id'),
+                'clientSecret'       => Session::get('client_secret'),
+                'scope'              => $scopes,
             ]
         );
         if ($request->code) {
@@ -254,7 +254,7 @@ class YoutubeController extends Controller
         }
 
         $store_website = StoreWebsite::all();
-        $totalentries = $googleadsaccount->count();
+        $totalentries  = $googleadsaccount->count();
 
         return view('youtube.chanel.chanel-create', ['googleadsaccount' => $googleadsaccount, 'totalentries' => $totalentries, 'store_website' => $store_website]);
     }
@@ -276,10 +276,10 @@ class YoutubeController extends Controller
         $account_id = $request->account_id;
 
         $this->validate($request, [
-            'store_websites' => 'required',
-            'status' => 'required',
-            'email' => 'required|email',
-            'oauth2_client_id' => 'required',
+            'store_websites'       => 'required',
+            'status'               => 'required',
+            'email'                => 'required|email',
+            'oauth2_client_id'     => 'required',
             'oauth2_client_secret' => 'required',
             'oauth2_refresh_token' => 'required',
         ]);
@@ -288,7 +288,7 @@ class YoutubeController extends Controller
             $input = $request->all();
 
             $googleadsAcQuery = new YoutubeChannel();
-            $googleadsAc = $googleadsAcQuery->find($account_id);
+            $googleadsAc      = $googleadsAcQuery->find($account_id);
             $googleadsAc->fill($input);
             $googleadsAc->save();
 

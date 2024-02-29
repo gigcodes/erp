@@ -29,7 +29,7 @@ final class AddPrefixTableController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -39,12 +39,12 @@ final class AddPrefixTableController extends AbstractController
 
         $selected = $_POST['selected'] ?? [];
 
-        $sql_query = '';
+        $sql_query     = '';
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {
             $newTableName = $_POST['add_prefix'] . $selected[$i];
-            $aQuery = 'ALTER TABLE ' . Util::backquote($selected[$i])
+            $aQuery       = 'ALTER TABLE ' . Util::backquote($selected[$i])
                 . ' RENAME ' . Util::backquote($newTableName);
 
             $sql_query .= $aQuery . ';' . "\n";

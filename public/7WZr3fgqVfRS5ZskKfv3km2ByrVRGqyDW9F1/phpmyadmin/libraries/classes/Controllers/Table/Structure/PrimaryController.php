@@ -33,7 +33,7 @@ final class PrimaryController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -41,7 +41,7 @@ final class PrimaryController extends AbstractController
     {
         global $db, $table, $message, $sql_query, $urlParams, $errorUrl, $cfg;
 
-        $selected = $_POST['selected'] ?? [];
+        $selected     = $_POST['selected'] ?? [];
         $selected_fld = $_POST['selected_fld'] ?? [];
 
         if (empty($selected) && empty($selected_fld)) {
@@ -64,14 +64,14 @@ final class PrimaryController extends AbstractController
             Util::checkParameters(['db', 'table']);
 
             $urlParams = ['db' => $db, 'table' => $table];
-            $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+            $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
             $errorUrl .= Url::getCommon($urlParams, '&');
 
             DbTableExists::check();
 
             $this->render('table/structure/primary', [
-                'db' => $db,
-                'table' => $table,
+                'db'       => $db,
+                'table'    => $table,
                 'selected' => $selected_fld,
             ]);
 
@@ -86,7 +86,7 @@ final class PrimaryController extends AbstractController
 
             $sql_query .= ' ADD PRIMARY KEY(';
 
-            $i = 1;
+            $i             = 1;
             $selectedCount = count($selected);
             foreach ($selected as $field) {
                 $sql_query .= Util::backquote($field);

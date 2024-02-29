@@ -82,14 +82,14 @@ class ConfigFile
     private $id;
 
     /**
-     * @param  array|null  $baseConfig base configuration read from
+     * @param array|null $baseConfig base configuration read from
      *                               {@link PhpMyAdmin\Config::$base_config},
      *                               use only when not in PMA Setup
      */
     public function __construct($baseConfig = null)
     {
         // load default config values
-        $settings = new Settings([]);
+        $settings         = new Settings([]);
         $this->defaultCfg = $settings->toArray();
 
         // load additional config information
@@ -102,9 +102,9 @@ class ConfigFile
             }
         }
 
-        $this->baseCfg = $baseConfig;
+        $this->baseCfg   = $baseConfig;
         $this->isInSetup = $baseConfig === null;
-        $this->id = 'ConfigFile' . $GLOBALS['server'];
+        $this->id        = 'ConfigFile' . $GLOBALS['server'];
         if (isset($_SESSION[$this->id])) {
             return;
         }
@@ -116,7 +116,7 @@ class ConfigFile
      * Sets names of config options which will be placed in config file even if
      * they are set to their default values (use only full paths)
      *
-     * @param  array  $keys the names of the config options
+     * @param array $keys the names of the config options
      */
     public function setPersistKeys(array $keys): void
     {
@@ -139,7 +139,7 @@ class ConfigFile
      * By default ConfigFile allows setting of all configuration keys, use
      * this method to set up a filter on {@link set()} method
      *
-     * @param  array|null  $keys array of allowed keys or null to remove filter
+     * @param array|null $keys array of allowed keys or null to remove filter
      */
     public function setAllowedKeys($keys): void
     {
@@ -159,7 +159,7 @@ class ConfigFile
      * {@link updateWithGlobalConfig()} or reading
      * by {@link getConfig()} or {@link getConfigArray()}
      *
-     * @param  array  $mapping Contains the mapping of "Server/config options"
+     * @param array $mapping Contains the mapping of "Server/config options"
      *                       to "Server/1/config options"
      */
     public function setCfgUpdateReadMapping(array $mapping): void
@@ -178,7 +178,7 @@ class ConfigFile
     /**
      * Sets configuration data (overrides old data)
      *
-     * @param  array  $cfg Configuration options
+     * @param array $cfg Configuration options
      */
     public function setConfigData(array $cfg): void
     {
@@ -188,9 +188,9 @@ class ConfigFile
     /**
      * Sets config value
      *
-     * @param  string  $path          Path
-     * @param  mixed  $value         Value
-     * @param  string  $canonicalPath Canonical path
+     * @param string $path          Path
+     * @param mixed  $value         Value
+     * @param string $canonicalPath Canonical path
      */
     public function set($path, $value, $canonicalPath = null): void
     {
@@ -210,7 +210,7 @@ class ConfigFile
         }
 
         $defaultValue = $this->getDefault($canonicalPath);
-        $removePath = $value === $defaultValue;
+        $removePath   = $value === $defaultValue;
         if ($this->isInSetup) {
             // remove if it has a default value or is empty
             $removePath = $removePath
@@ -239,8 +239,8 @@ class ConfigFile
      * Flattens multidimensional array, changes indices to paths
      * (eg. 'key/subkey').
      *
-     * @param  array  $array  Multidimensional array
-     * @param  string  $prefix Prefix
+     * @param array  $array  Multidimensional array
+     * @param string $prefix Prefix
      */
     private function getFlatArray(array $array, string $prefix = ''): array
     {
@@ -268,7 +268,7 @@ class ConfigFile
      * Updates config with values read from given array
      * (config will contain differences to defaults from {@see \PhpMyAdmin\Config\Settings}).
      *
-     * @param  array  $cfg Configuration
+     * @param array $cfg Configuration
      */
     public function updateWithGlobalConfig(array $cfg): void
     {
@@ -290,8 +290,9 @@ class ConfigFile
     /**
      * Returns config value or $default if it's not set
      *
-     * @param  string  $path    Path of config file
-     * @param  mixed  $default Default values
+     * @param string $path    Path of config file
+     * @param mixed  $default Default values
+     *
      * @return mixed
      */
     public function get($path, $default = null)
@@ -304,8 +305,9 @@ class ConfigFile
      * exist in {@see \PhpMyAdmin\Config\Settings} ($cfg) and config.values.php
      * ($_cfg_db['_overrides'])
      *
-     * @param  string  $canonicalPath Canonical path
-     * @param  mixed  $default       Default value
+     * @param string $canonicalPath Canonical path
+     * @param mixed  $default       Default value
+     *
      * @return mixed
      */
     public function getDefault($canonicalPath, $default = null)
@@ -317,8 +319,9 @@ class ConfigFile
      * Returns config value, if it's not set uses the default one; returns
      * $default if the path isn't set and doesn't contain a default value
      *
-     * @param  string  $path    Path
-     * @param  mixed  $default Default value
+     * @param string $path    Path
+     * @param mixed  $default Default value
+     *
      * @return mixed
      */
     public function getValue($path, $default = null)
@@ -336,7 +339,8 @@ class ConfigFile
     /**
      * Returns canonical path
      *
-     * @param  string  $path Path
+     * @param string $path Path
+     *
      * @return string
      */
     public function getCanonicalPath($path)
@@ -347,8 +351,9 @@ class ConfigFile
     /**
      * Returns config database entry for $path
      *
-     * @param  string  $path    path of the variable in config db
-     * @param  mixed  $default default value
+     * @param string $path    path of the variable in config db
+     * @param mixed  $default default value
+     *
      * @return mixed
      */
     public function getDbEntry($path, $default = null)
@@ -379,7 +384,8 @@ class ConfigFile
     /**
      * Returns DSN of given server
      *
-     * @param  int  $server server index
+     * @param int $server server index
+     *
      * @return string
      */
     public function getServerDSN($server)
@@ -389,7 +395,7 @@ class ConfigFile
         }
 
         $path = 'Servers/' . $server;
-        $dsn = 'mysqli://';
+        $dsn  = 'mysqli://';
         if ($this->getValue($path . '/auth_type') === 'config') {
             $dsn .= $this->getValue($path . '/user');
             if (! empty($this->getValue($path . '/password'))) {
@@ -415,7 +421,8 @@ class ConfigFile
     /**
      * Returns server name
      *
-     * @param  int  $id server index
+     * @param int $id server index
+     *
      * @return string
      */
     public function getServerName($id)
@@ -437,7 +444,7 @@ class ConfigFile
     /**
      * Removes server
      *
-     * @param  int  $server server index
+     * @param int $server server index
      */
     public function removeServer($server): void
     {

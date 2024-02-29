@@ -19,8 +19,9 @@ class ParseAnalyze
     /**
      * Calls the parser on a query
      *
-     * @param  string  $sqlQuery the query to parse
-     * @param  string  $db       the current database
+     * @param string $sqlQuery the query to parse
+     * @param string $db       the current database
+     *
      * @return array
      */
     public static function sqlQuery($sqlQuery, $db)

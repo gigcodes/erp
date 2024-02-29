@@ -38,17 +38,17 @@ class testcommand extends Command
     public function handle()
     {
         $email = \App\Email::create([
-            'model_id' => 1,
-            'model_type' => 'User',
-            'from' => 'shyam@ghanshyamdigital.com',
-            'to' => 'shyam@ghanshyamdigital.com',
-            'subject' => 'shyam@ghanshyamdigital.com',
-            'message' => 'shyam@ghanshyamdigital.com',
-            'template' => 'referr-coupon',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => 1,
+            'model_type'       => 'User',
+            'from'             => 'shyam@ghanshyamdigital.com',
+            'to'               => 'shyam@ghanshyamdigital.com',
+            'subject'          => 'shyam@ghanshyamdigital.com',
+            'message'          => 'shyam@ghanshyamdigital.com',
+            'template'         => 'referr-coupon',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');

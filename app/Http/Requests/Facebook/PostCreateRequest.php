@@ -25,11 +25,11 @@ class PostCreateRequest extends FormRequest
     {
         return [
             'config_id' => 'required|exists:social_configs,id',
-            'webpage' => 'nullable',
-            'source' => 'nullable',
-            'video1' => 'nullable',
-            'message' => 'required|string',
-            'date' => 'nullable',
+            'webpage'   => 'nullable',
+            'source'    => 'nullable',
+            'video1'    => 'nullable',
+            'message'   => 'required|string',
+            'date'      => 'nullable',
         ];
     }
 }

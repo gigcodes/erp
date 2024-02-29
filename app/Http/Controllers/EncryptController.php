@@ -28,7 +28,7 @@ class EncryptController extends Controller
                 $first->key = $string;
                 $first->update();
             } else {
-                $public = new PublicKey;
+                $public      = new PublicKey;
                 $public->key = $string;
                 $public->save();
             }

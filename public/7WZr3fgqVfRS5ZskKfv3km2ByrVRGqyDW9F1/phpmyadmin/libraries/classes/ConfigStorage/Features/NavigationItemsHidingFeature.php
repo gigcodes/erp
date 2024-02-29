@@ -20,7 +20,7 @@ final class NavigationItemsHidingFeature
 
     public function __construct(DatabaseName $database, TableName $navigationHiding)
     {
-        $this->database = $database;
+        $this->database         = $database;
         $this->navigationHiding = $navigationHiding;
     }
 }

@@ -35,8 +35,8 @@ class AutoReplyHashtagsController extends Controller
      */
     public function store(Request $request)
     {
-        $h = new AutoReplyHashtags();
-        $h->text = $request->get('hashtag');
+        $h         = new AutoReplyHashtags();
+        $h->text   = $request->get('hashtag');
         $h->status = 1;
         $h->save();
 
@@ -46,7 +46,9 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\AutoReplyHashtags  $autoReplyHashtags
+     * @param \App\AutoReplyHashtags $autoReplyHashtags
+     * @param mixed                  $hashtag
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($hashtag, Request $request)
@@ -56,34 +58,34 @@ class AutoReplyHashtagsController extends Controller
             $maxId = $request->get('maxId');
         }
 
-        $country = $request->get('country');
+        $country  = $request->get('country');
         $hashtags = new Hashtags();
         $hashtags->login();
 
         $keywords = $request->get('keywords');
 
-        $alltags = $request->get('hashtags');
-        $allMedias = [];
-        $allCounts = [];
-        $maxIds = [];
+        $alltags          = $request->get('hashtags');
+        $allMedias        = [];
+        $allCounts        = [];
+        $maxIds           = [];
         $alltagsWithCount = [];
 
         foreach ($alltags as $tag) {
             $arh = AutoReplyHashtags::where('text', $tag)->first();
 
             if (! $arh) {
-                $arh = new AutoReplyHashtags();
+                $arh       = new AutoReplyHashtags();
                 $arh->text = $tag;
                 $arh->type = 'hashtag';
                 $arh->save();
             }
 
-            [$medias, $maxId] = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
-            $media_count = $hashtags->getMediaCount($tag);
+            [$medias, $maxId]   = $hashtags->getFeed($tag, $maxId[$tag] ?? '', $country, $keywords);
+            $media_count        = $hashtags->getMediaCount($tag);
             $alltagsWithCount[] = $tag . "($media_count)";
-            $allCounts[$tag] = $media_count;
-            $maxIds[$tag] = $maxId;
-            $allMedias = array_merge($allMedias, $medias);
+            $allCounts[$tag]    = $media_count;
+            $maxIds[$tag]       = $maxId;
+            $allMedias          = array_merge($allMedias, $medias);
         }
 
         $countryText = $request->get('country');
@@ -108,7 +110,9 @@ class AutoReplyHashtagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\AutoReplyHashtags  $autoReplyHashtags
+     * @param \App\AutoReplyHashtags $autoReplyHashtags
+     * @param mixed                  $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -120,15 +124,15 @@ class AutoReplyHashtagsController extends Controller
         $medias = $request->get('posts');
 
         foreach ($medias as $media) {
-            $h = new AutoCommentHistory();
-            $h->target = $request->get('hashtag_' . $media);
-            $h->post_code = $request->get('code_' . $media);
-            $h->post_id = $media;
-            $h->caption = $request->get('caption_' . $media);
-            $h->gender = $request->get('gender_' . $media);
+            $h                        = new AutoCommentHistory();
+            $h->target                = $request->get('hashtag_' . $media);
+            $h->post_code             = $request->get('code_' . $media);
+            $h->post_id               = $media;
+            $h->caption               = $request->get('caption_' . $media);
+            $h->gender                = $request->get('gender_' . $media);
             $h->auto_reply_hashtag_id = 1;
-            $h->country = strlen($request->get('country')) > 4 ? $request->get('country') : '';
-            $h->status = 0;
+            $h->country               = strlen($request->get('country')) > 4 ? $request->get('country') : '';
+            $h->status                = 0;
             $h->save();
 
             $caption = $h->caption;

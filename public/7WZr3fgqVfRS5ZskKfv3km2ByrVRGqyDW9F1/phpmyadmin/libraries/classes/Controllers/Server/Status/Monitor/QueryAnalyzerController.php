@@ -29,7 +29,7 @@ final class QueryAnalyzerController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->monitor = $monitor;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
@@ -38,7 +38,7 @@ final class QueryAnalyzerController extends AbstractController
 
         $params = [
             'database' => $_POST['database'] ?? null,
-            'query' => $_POST['query'] ?? null,
+            'query'    => $_POST['query'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');
 

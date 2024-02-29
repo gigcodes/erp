@@ -19,8 +19,8 @@ class NameChecker implements CheckerInterface
 
     public function check($product): bool
     {
-        $data = $product->name;
-        $data = $this->improvise($data);
+        $data          = $product->name;
+        $data          = $this->improvise($data);
         $product->name = $data;
         $product->save();
         $state = $this->grammerBot->validate($data);
@@ -37,19 +37,19 @@ class NameChecker implements CheckerInterface
 
     public function improvise($sentence, $data2 = null): string
     {
-        $sentence = strtolower($sentence);
+        $sentence     = strtolower($sentence);
         $replacements = AttributeReplacement::where('field_identifier', 'name')->get();
         foreach ($replacements as $replacement) {
             $sentence = str_replace(strtolower($replacement->first_term), $replacement->replacement_term, $sentence);
         }
 
         $sentence = strtoupper($sentence);
-        $brands = Brand::whereNull('deleted_at')->get();
+        $brands   = Brand::whereNull('deleted_at')->get();
 
         foreach ($brands as $brand) {
-            $sentence = str_replace(strtoupper($brand->name), '', $sentence);
+            $sentence    = str_replace(strtoupper($brand->name), '', $sentence);
             $brand->name = str_replace("'", '', $brand->name);
-            $sentence = str_replace(strtoupper($brand->name), '', $sentence);
+            $sentence    = str_replace(strtoupper($brand->name), '', $sentence);
         }
 
         $colors = (new Colors)->all();

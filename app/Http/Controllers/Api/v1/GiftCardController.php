@@ -59,50 +59,50 @@ class GiftCardController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'sender_name' => 'required|max:30',
-            'sender_email' => 'required|email',
-            'receiver_name' => 'required|max:30',
-            'receiver_email' => 'required|email',
+            'sender_name'           => 'required|max:30',
+            'sender_email'          => 'required|email',
+            'receiver_name'         => 'required|max:30',
+            'receiver_email'        => 'required|email',
             'gift_card_coupon_code' => 'required|max:50|unique:gift_cards,gift_card_coupon_code',
             'gift_card_description' => 'max:1000',
-            'gift_card_amount' => 'required|integer',
-            'gift_card_message' => 'max:200',
-            'expiry_date' => 'required|date_format:Y-m-d|after:yesterday',
-            'website' => 'required|exists:store_websites,website',
+            'gift_card_amount'      => 'required|integer',
+            'gift_card_message'     => 'max:200',
+            'expiry_date'           => 'required|date_format:Y-m-d|after:yesterday',
+            'website'               => 'required|exists:store_websites,website',
         ]);
         if ($validator->fails()) {
             $message = $this->generate_erp_response('giftcard.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
 
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
-        $storeweb = StoreWebsite::where('website', $request->website)->first();
-        $giftcardData = $couponData = [];
-        $giftcardData = $request->all();
+        $storeweb                         = StoreWebsite::where('website', $request->website)->first();
+        $giftcardData                     = $couponData = [];
+        $giftcardData                     = $request->all();
         $giftcardData['store_website_id'] = $storeweb->id;
-        $success = GiftCard::create($giftcardData);
+        $success                          = GiftCard::create($giftcardData);
         if ($success) {
-            $couponData['code'] = $success->gift_card_coupon_code;
-            $couponData['description'] = $success->gift_card_description;
-            $couponData['start'] = date('Y-m-d H:i');
-            $couponData['expiration'] = $success->expiry_date;
-            $couponData['details'] = $success->gift_card_message;
+            $couponData['code']           = $success->gift_card_coupon_code;
+            $couponData['description']    = $success->gift_card_description;
+            $couponData['start']          = date('Y-m-d H:i');
+            $couponData['expiration']     = $success->expiry_date;
+            $couponData['details']        = $success->gift_card_message;
             $couponData['initial_amount'] = $success->gift_card_amount;
-            $couponData['email'] = $success->receiver_email;
-            $couponData['coupon_type'] = 'giftcard';
-            $couponData['status'] = 1;
+            $couponData['email']          = $success->receiver_email;
+            $couponData['coupon_type']    = 'giftcard';
+            $couponData['status']         = 1;
             if (Coupon::create($couponData)) {
-                $mailData['receiver_email'] = $success->receiver_email;
-                $mailData['sender_email'] = $success->sender_email;
-                $mailData['coupon'] = $success->gift_card_coupon_code;
-                $mailData['model_id'] = $success->id;
-                $mailData['model_class'] = GiftCard::class;
+                $mailData['receiver_email']   = $success->receiver_email;
+                $mailData['sender_email']     = $success->sender_email;
+                $mailData['coupon']           = $success->gift_card_coupon_code;
+                $mailData['model_id']         = $success->id;
+                $mailData['model_class']      = GiftCard::class;
                 $mailData['store_website_id'] = $success->store_website_id;
                 $this->sendMail($mailData);
 
                 $message = $this->generate_erp_response('giftcard.success', $storeweb->id, $default = 'gift card added successfully', request('lang_code'));
 
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => $message,
                 ], 200);
             }
@@ -118,7 +118,8 @@ class GiftCardController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -129,7 +130,8 @@ class GiftCardController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -140,7 +142,8 @@ class GiftCardController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -151,7 +154,8 @@ class GiftCardController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -203,9 +207,9 @@ class GiftCardController extends Controller
         $message = $this->generate_erp_response('giftcard.amount.success', 0, $default = 'gift card amount fetched successfully', request('lang_code'));
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => $message,
-            'data' => $couponData,
+            'data'    => $couponData,
         ], 200);
     }
 
@@ -215,17 +219,17 @@ class GiftCardController extends Controller
             $emailClass = (new AddGiftCard($data))->build();
 
             $email = \App\Email::create([
-                'model_id' => $data['model_id'],
-                'model_type' => $data['model_class'],
-                'from' => $data['receiver_email'],
-                'to' => $data['sender_email'],
-                'subject' => $emailClass->subject,
-                'message' => $emailClass->render(),
-                'template' => 'gift-card',
-                'additional_data' => '',
-                'status' => 'pre-send',
+                'model_id'         => $data['model_id'],
+                'model_type'       => $data['model_class'],
+                'from'             => $data['receiver_email'],
+                'to'               => $data['sender_email'],
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'gift-card',
+                'additional_data'  => '',
+                'status'           => 'pre-send',
                 'store_website_id' => $data['store_website_id'],
-                'is_draft' => 0,
+                'is_draft'         => 0,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');

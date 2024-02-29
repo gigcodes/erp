@@ -46,10 +46,10 @@ class LearningModuleController extends Controller
     public function index(Request $request)
     {
         if ($request->input('selected_user') == '') {
-            $userid = Auth::id();
+            $userid    = Auth::id();
             $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         } else {
-            $userid = $request->input('selected_user');
+            $userid    = $request->input('selected_user');
             $userquery = ' AND (master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
         }
 
@@ -61,16 +61,16 @@ class LearningModuleController extends Controller
         $activeCategories = LearningModule::where('is_active', 1)->pluck('id')->all();
 
         $categoryWhereClause = '';
-        $category = '';
-        $request->category = $request->category ? $request->category : 1;
+        $category            = '';
+        $request->category   = $request->category ? $request->category : 1;
         if ($request->category != '') {
             if ($request->category != 1) {
                 $categoryWhereClause = "AND category = $request->category";
-                $category = $request->category;
+                $category            = $request->category;
             } else {
                 $category_condition = implode(',', $activeCategories);
                 if ($category_condition != '' || $category_condition != null) {
-                    $category_condition = '( ' . $category_condition . ' )';
+                    $category_condition  = '( ' . $category_condition . ' )';
                     $categoryWhereClause = 'AND category in ' . $category_condition;
                 } else {
                     $categoryWhereClause = '';
@@ -78,7 +78,7 @@ class LearningModuleController extends Controller
             }
         }
 
-        $term = $request->term ?? '';
+        $term              = $request->term ?? '';
         $searchWhereClause = '';
 
         if ($request->term != '') {
@@ -92,18 +92,18 @@ class LearningModuleController extends Controller
         }
         $data['task'] = [];
 
-        $search_term_suggestions = [];
-        $search_suggestions = [];
-        $assign_from_arr = [0];
-        $special_task_arr = [0];
-        $assign_to_arr = [0];
-        $data['task']['pending'] = [];
+        $search_term_suggestions                 = [];
+        $search_suggestions                      = [];
+        $assign_from_arr                         = [0];
+        $special_task_arr                        = [0];
+        $assign_to_arr                           = [0];
+        $data['task']['pending']                 = [];
         $data['task']['statutory_not_completed'] = [];
-        $data['task']['completed'] = [];
+        $data['task']['completed']               = [];
         if ($type == 'pending') {
             $paginate = 50;
-            $page = $request->get('page', 1);
-            $offSet = ($page * $paginate) - $paginate;
+            $page     = $request->get('page', 1);
+            $offSet   = ($page * $paginate) - $paginate;
 
             $orderByClause .= ' is_flagged DESC, message_created_at DESC';
             $isCompleteWhereClose = ' AND is_verified IS NULL ';
@@ -145,11 +145,11 @@ class LearningModuleController extends Controller
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to = array_unique($assign_to_arr);
+            $user_ids_to   = array_unique($assign_to_arr);
 
             foreach ($data['task']['pending'] as $task) {
                 $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist = in_array($task->assign_from, $user_ids_from);
+                $from_exist           = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
                     if ($from_user) {
@@ -170,8 +170,8 @@ class LearningModuleController extends Controller
             }
         } elseif ($type == 'completed') {
             $paginate = 50;
-            $page = $request->get('page', 1);
-            $offSet = ($page * $paginate) - $paginate;
+            $page     = $request->get('page', 1);
+            $offSet   = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
             $data['task']['completed'] = DB::select('
                 SELECT *,
@@ -204,11 +204,11 @@ class LearningModuleController extends Controller
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to = array_unique($assign_to_arr);
+            $user_ids_to   = array_unique($assign_to_arr);
 
             foreach ($data['task']['completed'] as $task) {
                 $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist = in_array($task->assign_from, $user_ids_from);
+                $from_exist           = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
                     if ($from_user) {
@@ -229,8 +229,8 @@ class LearningModuleController extends Controller
             }
         } elseif ($type == 'statutory_not_completed') {
             $paginate = 50;
-            $page = $request->get('page', 1);
-            $offSet = ($page * $paginate) - $paginate;
+            $page     = $request->get('page', 1);
+            $offSet   = ($page * $paginate) - $paginate;
             $orderByClause .= ' last_communicated_at DESC';
             $data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
@@ -265,11 +265,11 @@ class LearningModuleController extends Controller
             }
 
             $user_ids_from = array_unique($assign_from_arr);
-            $user_ids_to = array_unique($assign_to_arr);
+            $user_ids_to   = array_unique($assign_to_arr);
 
             foreach ($data['task']['statutory_not_completed'] as $task) {
                 $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
-                $from_exist = in_array($task->assign_from, $user_ids_from);
+                $from_exist           = in_array($task->assign_from, $user_ids_from);
                 if ($from_exist) {
                     $from_user = User::find($task->assign_from);
                     if ($from_user) {
@@ -294,14 +294,14 @@ class LearningModuleController extends Controller
 
         $subjectList = Learning::select('learning_subject')->distinct()->pluck('learning_subject');
 
-        $users = User::oldest()->get()->toArray();
-        $data['users'] = $users;
+        $users                       = User::oldest()->get()->toArray();
+        $data['users']               = $users;
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         //My code start
-        $selected_user = $request->input('selected_user');
-        $users = Helpers::getUserArray(User::orderby('name')->get());
-        $task_categories = LearningModule::where('parent_id', 0)->get();
+        $selected_user            = $request->input('selected_user');
+        $users                    = Helpers::getUserArray(User::orderby('name')->get());
+        $task_categories          = LearningModule::where('parent_id', 0)->get();
         $learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'learning_module', 'class' => 'form-control input-sm parent-module'])
             ->selected($request->category)
             ->renderAsDropdown();
@@ -317,7 +317,7 @@ class LearningModuleController extends Controller
         }
         //My code end
         $tasks_view = [];
-        $priority = \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
+        $priority   = \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
 
         $openTask = \App\Learning::join('users as u', 'u.id', 'learnings.assign_to')
             ->whereNull('learnings.is_completed')
@@ -425,19 +425,19 @@ class LearningModuleController extends Controller
             ], 500);
         }
 
-        $newCompleted = $total - $task->milestone_completed;
+        $newCompleted    = $total - $task->milestone_completed;
         $individualPrice = $task->cost / $task->no_of_milestone;
-        $totalCost = $individualPrice * $newCompleted;
+        $totalCost       = $individualPrice * $newCompleted;
 
         $task->milestone_completed = $total;
         $task->save();
-        $payment_receipt = new PaymentReceipt;
-        $payment_receipt->date = date('Y-m-d');
+        $payment_receipt                 = new PaymentReceipt;
+        $payment_receipt->date           = date('Y-m-d');
         $payment_receipt->worked_minutes = $task->approximate;
         $payment_receipt->rate_estimated = $totalCost;
-        $payment_receipt->status = 'Pending';
-        $payment_receipt->task_id = $task->id;
-        $payment_receipt->user_id = $task->assign_to;
+        $payment_receipt->status         = 'Pending';
+        $payment_receipt->task_id        = $task->id;
+        $payment_receipt->user_id        = $task->assign_to;
         $payment_receipt->save();
 
         return response()->json([
@@ -453,11 +453,11 @@ class LearningModuleController extends Controller
             if ($task && $request->approximate) {
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $task->id,
-                    'model' => \App\Task::class,
-                    'attribute' => 'estimation_minute',
-                    'old_value' => $task->approximate,
-                    'new_value' => $request->approximate,
-                    'user_id' => auth()->id(),
+                    'model'             => \App\Task::class,
+                    'attribute'         => 'estimation_minute',
+                    'old_value'         => $task->approximate,
+                    'new_value'         => $request->approximate,
+                    'user_id'           => auth()->id(),
                 ]);
             }
 
@@ -486,7 +486,7 @@ class LearningModuleController extends Controller
 
     public function learningListByUserId(Request $request)
     {
-        $user_id = $request->get('user_id', 0);
+        $user_id        = $request->get('user_id', 0);
         $selected_issue = $request->get('selected_issue', []);
 
         $issues = Learning::select('learnings.id', 'learnings.task_subject', 'learnings.task_details', 'learnings.assign_from')
@@ -517,7 +517,7 @@ class LearningModuleController extends Controller
     public function setTaskPriority(Request $request)
     {
         $priority = $request->get('priority', null);
-        $user_id = $request->get('user_id', 0);
+        $user_id  = $request->get('user_id', 0);
 
         //delete old priority
         \App\ErpPriority::where('user_id', $user_id)->where('model_type', '=', Learning::class)->delete();
@@ -525,9 +525,9 @@ class LearningModuleController extends Controller
         if (! empty($priority)) {
             foreach ((array) $priority as $model_id) {
                 \App\ErpPriority::create([
-                    'model_id' => $model_id,
+                    'model_id'   => $model_id,
                     'model_type' => Learning::class,
-                    'user_id' => $user_id,
+                    'user_id'    => $user_id,
                 ]);
             }
 
@@ -543,7 +543,7 @@ class LearningModuleController extends Controller
                 ->get();
 
             $message = '';
-            $i = 1;
+            $i       = 1;
 
             foreach ($developerTask as $value) {
                 $message .= $i . ' : #Task-' . $value->id . '-' . $value->task_subject . "\n";
@@ -553,7 +553,7 @@ class LearningModuleController extends Controller
             if (! empty($message)) {
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $params = [];
+                $params            = [];
                 $params['user_id'] = $user_id;
 
                 $string = '';
@@ -565,7 +565,7 @@ class LearningModuleController extends Controller
                 $string .= "Task Priority is : \n" . $message;
 
                 $params['message'] = $string;
-                $params['status'] = 2;
+                $params['status']  = 2;
                 $requestData->request->add($params);
                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
             }
@@ -582,16 +582,16 @@ class LearningModuleController extends Controller
         $this->validate($request, [
             'task_subject' => 'required',
             'task_details' => 'required',
-            'assign_to' => 'required_without:assign_to_contacts',
+            'assign_to'    => 'required_without:assign_to_contacts',
         ]);
-        $data = $request->except('_token');
+        $data                = $request->except('_token');
         $data['assign_from'] = Auth::id();
 
         if ($request->task_type == 'quick_task') {
             $data['is_statutory'] = 0;
-            $data['category'] = 6;
-            $data['model_type'] = $request->model_type;
-            $data['model_id'] = $request->model_id;
+            $data['category']     = 6;
+            $data['model_type']   = $request->model_type;
+            $data['model_id']     = $request->model_id;
         }
 
         if ($request->task_type == 'note-task') {
@@ -610,8 +610,8 @@ class LearningModuleController extends Controller
             foreach ($request->note as $note) {
                 if ($note != null) {
                     Remark::create([
-                        'taskid' => $task->id,
-                        'remark' => $note,
+                        'taskid'      => $task->id,
+                        'remark'      => $note,
                         'module_type' => 'task-note',
                     ]);
                 }
@@ -639,12 +639,12 @@ class LearningModuleController extends Controller
         }
 
         $params = [
-            'number' => null,
-            'user_id' => Auth::id(),
+            'number'   => null,
+            'user_id'  => Auth::id(),
             'approved' => 1,
-            'status' => 2,
-            'task_id' => $task->id,
-            'message' => $message,
+            'status'   => 2,
+            'task_id'  => $task->id,
+            'message'  => $message,
         ];
         if (count($task->users) > 0) {
             if ($task->assign_from == Auth::id()) {
@@ -680,10 +680,10 @@ class LearningModuleController extends Controller
 
         $chat_message = ChatMessage::create($params);
         ChatMessagesQuickData::updateOrCreate([
-            'model' => \App\Learning::class,
+            'model'    => \App\Learning::class,
             'model_id' => $params['task_id'],
         ], [
-            'last_communicated_message' => @$params['message'],
+            'last_communicated_message'    => @$params['message'],
             'last_communicated_message_at' => $chat_message->created_at,
             'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
         ]);
@@ -715,11 +715,11 @@ class LearningModuleController extends Controller
             $task->save();
         }
         if ($hubstaffUserId) {
-            $task = new HubstaffTask();
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaff_project_id;
+            $task                      = new HubstaffTask();
+            $task->hubstaff_task_id    = $hubstaffTaskId;
+            $task->project_id          = $hubstaff_project_id;
             $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $message;
+            $task->summary             = $message;
             $task->save();
         }
 
@@ -729,7 +729,7 @@ class LearningModuleController extends Controller
             $hasRender = request('has_render', false);
 
             if (! empty($hasRender)) {
-                $users = Helpers::getUserArray(User::all());
+                $users    = Helpers::getUserArray(User::all());
                 $priority = \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
 
                 if ($task->is_statutory == 1) {
@@ -774,7 +774,7 @@ class LearningModuleController extends Controller
                 [
                     RequestOptions::HEADERS => [
                         'Authorization' => 'Bearer ' . $tokens->access_token,
-                        'Content-Type' => 'application/json',
+                        'Content-Type'  => 'application/json',
                     ],
 
                     RequestOptions::BODY => json_encode($body),
@@ -833,9 +833,9 @@ class LearningModuleController extends Controller
 
     public function plan(Request $request, $id)
     {
-        $task = Learning::find($id);
-        $task->time_slot = $request->time_slot;
-        $task->planned_at = $request->planned_at;
+        $task                      = Learning::find($id);
+        $task->time_slot           = $request->time_slot;
+        $task->planned_at          = $request->planned_at;
         $task->general_category_id = $request->get('general_category_id', null);
         $task->save();
 
@@ -848,9 +848,9 @@ class LearningModuleController extends Controller
     {
         $tasks = Learning::whereIn('id', $request->selected_tasks)->get();
         $users = Helpers::getUserArray(User::all());
-        $view = view('learning-module.partials.learning-view', [
+        $view  = view('learning-module.partials.learning-view', [
             'tasks_view' => $tasks,
-            'users' => $users,
+            'users'      => $users,
         ])->render();
 
         return response()->json([
@@ -863,7 +863,7 @@ class LearningModuleController extends Controller
         $messages_ids = json_decode($request->selected_messages, true);
 
         foreach ($messages_ids as $message_id) {
-            $message = ChatMessage::find($message_id);
+            $message          = ChatMessage::find($message_id);
             $message->task_id = $request->task_id;
             $message->save();
         }
@@ -874,24 +874,24 @@ class LearningModuleController extends Controller
     public function messageReminder(Request $request)
     {
         $this->validate($request, [
-            'message_id' => 'required|numeric',
+            'message_id'    => 'required|numeric',
             'reminder_date' => 'required',
         ]);
 
         $message = ChatMessage::find($request->message_id);
 
         $additional_params = [
-            'user_id' => $message->user_id,
-            'task_id' => $message->task_id,
-            'erp_user' => $message->erp_user,
+            'user_id'    => $message->user_id,
+            'task_id'    => $message->task_id,
+            'erp_user'   => $message->erp_user,
             'contact_id' => $message->contact_id,
         ];
 
         $params = [
-            'user_id' => Auth::id(),
-            'message' => 'Reminder - ' . $message->message,
-            'type' => 'task',
-            'data' => json_encode($additional_params),
+            'user_id'      => Auth::id(),
+            'message'      => 'Reminder - ' . $message->message,
+            'type'         => 'task',
+            'data'         => json_encode($additional_params),
             'sending_time' => $request->reminder_date,
         ];
 
@@ -912,7 +912,7 @@ class LearningModuleController extends Controller
 
     public function updateSubject(Request $request, $id)
     {
-        $task = Learning::find($id);
+        $task               = Learning::find($id);
         $task->task_subject = $request->subject;
         $task->save();
 
@@ -922,8 +922,8 @@ class LearningModuleController extends Controller
     public function addNote(Request $request, $id)
     {
         Remark::create([
-            'taskid' => $id,
-            'remark' => $request->note,
+            'taskid'      => $id,
+            'remark'      => $request->note,
             'module_type' => 'task-note',
         ]);
 
@@ -933,8 +933,8 @@ class LearningModuleController extends Controller
     public function addSubnote(Request $request, $id)
     {
         $remark = Remark::create([
-            'taskid' => $id,
-            'remark' => $request->note,
+            'taskid'      => $id,
+            'remark'      => $request->note,
             'module_type' => 'task-note-subnote',
         ]);
 
@@ -945,7 +945,7 @@ class LearningModuleController extends Controller
 
     public function updateCategory(Request $request, $id)
     {
-        $task = Learning::find($id);
+        $task           = Learning::find($id);
         $task->category = $request->category;
         $task->save();
 
@@ -954,15 +954,15 @@ class LearningModuleController extends Controller
 
     public function show($id)
     {
-        $task = Learning::find($id);
+        $task         = Learning::find($id);
         $chatMessages = ChatMessage::where('task_id', $id)->get();
         if ((! $task->users->contains(Auth::id()) && $task->is_private == 1) || ($task->assign_from != Auth::id() && $task->contacts()->count() > 0) || (! $task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && Auth::id() != 6)) {
             return redirect()->back()->withErrors('This Learning is private!');
         }
 
-        $users = User::all();
+        $users       = User::all();
         $users_array = Helpers::getUserArray(User::all());
-        $categories = LearningModule::attr(['title' => 'category', 'class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
+        $categories  = LearningModule::attr(['title' => 'category', 'class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
             ->selected($task->category)
             ->renderAsDropdown();
 
@@ -975,20 +975,20 @@ class LearningModuleController extends Controller
         $hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 
         return view('learning-module.learning-show', [
-            'task' => $task,
-            'users' => $users,
-            'users_array' => $users_array,
-            'categories' => $categories,
-            'taskNotes' => $taskNotes,
+            'task'          => $task,
+            'users'         => $users,
+            'users_array'   => $users_array,
+            'categories'    => $categories,
+            'taskNotes'     => $taskNotes,
             'hiddenRemarks' => $hiddenRemarks,
-            'chatMessages' => $chatMessages,
+            'chatMessages'  => $chatMessages,
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'assign_to.*' => 'required_without:assign_to_contacts',
+            'assign_to.*'  => 'required_without:assign_to_contacts',
             'sending_time' => 'sometimes|nullable|date',
         ]);
 
@@ -1076,13 +1076,13 @@ class LearningModuleController extends Controller
                                 ->with('error', 'Please provide cost for fixed price task.');
                         }
                         if (! $task->is_milestone) {
-                            $payment_receipt = new PaymentReceipt;
-                            $payment_receipt->date = date('Y-m-d');
+                            $payment_receipt                 = new PaymentReceipt;
+                            $payment_receipt->date           = date('Y-m-d');
                             $payment_receipt->worked_minutes = $task->approximate;
                             $payment_receipt->rate_estimated = $task->cost;
-                            $payment_receipt->status = 'Pending';
-                            $payment_receipt->task_id = $task->id;
-                            $payment_receipt->user_id = $task->assign_to;
+                            $payment_receipt->status         = 'Pending';
+                            $payment_receipt->task_id        = $task->id;
+                            $payment_receipt->user_id        = $task->assign_to;
                             $payment_receipt->save();
                         }
                     }
@@ -1091,7 +1091,7 @@ class LearningModuleController extends Controller
             }
         } elseif ($request->type == 'clear') {
             $task->is_completed = null;
-            $task->is_verified = null;
+            $task->is_verified  = null;
         }
         $task->save();
 
@@ -1123,7 +1123,7 @@ class LearningModuleController extends Controller
 
     public function statutoryComplete($taskid)
     {
-        $task = SatutoryTask::find($taskid);
+        $task                  = SatutoryTask::find($taskid);
         $task->completion_date = date('Y-m-d H:i:s');
 
         if ($task->assign_to == Auth::id()) {
@@ -1138,23 +1138,23 @@ class LearningModuleController extends Controller
 
     public function addRemark(Request $request)
     {
-        $remark = $request->input('remark');
-        $id = $request->input('id');
+        $remark     = $request->input('remark');
+        $id         = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
+        $update_at  = date('Y-m-d H:i:s');
         if ($request->module_type == 'document') {
             $remark_entry = DocumentRemark::create([
                 'document_id' => $id,
-                'remark' => $remark,
+                'remark'      => $remark,
                 'module_type' => $request->module_type,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+                'user_name'   => $request->user_name ? $request->user_name : Auth::user()->name,
             ]);
         } else {
             $remark_entry = Remark::create([
-                'taskid' => $id,
-                'remark' => $remark,
+                'taskid'      => $id,
+                'remark'      => $remark,
                 'module_type' => $request->module_type,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+                'user_name'   => $request->user_name ? $request->user_name : Auth::user()->name,
             ]);
         }
 
@@ -1167,32 +1167,32 @@ class LearningModuleController extends Controller
 
     public function list(Request $request)
     {
-        $pending_tasks = Learning::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
+        $pending_tasks   = Learning::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
         $completed_tasks = Learning::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
 
         if (is_array($request->user) && $request->user[0] != null) {
-            $pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
+            $pending_tasks   = $pending_tasks->whereIn('assign_to', $request->user);
             $completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
         }
 
         if ($request->date != null) {
-            $pending_tasks = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
+            $pending_tasks   = $pending_tasks->where('created_at', 'LIKE', "%$request->date%");
             $completed_tasks = $completed_tasks->where('created_at', 'LIKE', "%$request->date%");
         }
 
-        $pending_tasks = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
+        $pending_tasks   = $pending_tasks->oldest()->paginate(Setting::get('pagination'));
         $completed_tasks = $completed_tasks->orderBy('is_completed', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'completed-page');
 
         $users = Helpers::getUserArray(User::all());
-        $user = $request->user ?? [];
-        $date = $request->date ?? '';
+        $user  = $request->user ?? [];
+        $date  = $request->date ?? '';
 
         return view('learning-module.list', [
-            'pending_tasks' => $pending_tasks,
+            'pending_tasks'   => $pending_tasks,
             'completed_tasks' => $completed_tasks,
-            'users' => $users,
-            'user' => $user,
-            'date' => $date,
+            'users'           => $users,
+            'user'            => $user,
+            'date'            => $date,
         ]);
     }
 
@@ -1207,7 +1207,7 @@ class LearningModuleController extends Controller
 
     public function deleteTask(Request $request)
     {
-        $id = $request->input('id');
+        $id   = $request->input('id');
         $task = Learning::find($id);
 
         if ($task) {
@@ -1237,8 +1237,8 @@ class LearningModuleController extends Controller
 
     public function archiveTaskRemark($id)
     {
-        $task = Remark::find($id);
-        $remark = $task->remark;
+        $task            = Remark::find($id);
+        $remark          = $task->remark;
         $task->delete_at = now();
         $task->update();
 
@@ -1247,7 +1247,7 @@ class LearningModuleController extends Controller
 
     public function deleteStatutoryTask(Request $request)
     {
-        $id = $request->input('id');
+        $id   = $request->input('id');
         $task = SatutoryTask::find($id);
         $task->delete();
 
@@ -1257,8 +1257,8 @@ class LearningModuleController extends Controller
     public function exportTask(Request $request)
     {
         $users = $request->input('selected_user');
-        $from = $request->input('range_start') . ' 00:00:00.000000';
-        $to = $request->input('range_end') . ' 23:59:59.000000';
+        $from  = $request->input('range_start') . ' 00:00:00.000000';
+        $to    = $request->input('range_end') . ' 23:59:59.000000';
 
         $tasks = (new Task())->newQuery()->withTrashed()->whereBetween('created_at', [$from, $to])->where('assign_from', '!=', 0)->where('assign_to', '!=', 0);
 
@@ -1267,22 +1267,22 @@ class LearningModuleController extends Controller
         }
 
         $tasks_list = $tasks->get()->toArray();
-        $tasks_csv = [];
-        $userList = Helpers::getUserArray(User::all());
+        $tasks_csv  = [];
+        $userList   = Helpers::getUserArray(User::all());
 
         for ($i = 0; $i < count($tasks_list); $i++) {
-            $task_csv = [];
-            $task_csv['id'] = $tasks_list[$i]['id'];
-            $task_csv['SrNo'] = $i + 1;
-            $task_csv['assign_from'] = $userList[$tasks_list[$i]['assign_from']];
-            $task_csv['assign_to'] = $userList[$tasks_list[$i]['assign_to']];
-            $task_csv['type'] = $tasks_list[$i]['is_statutory'] == 1 ? 'Statutory' : 'Other';
-            $task_csv['task_subject'] = $tasks_list[$i]['task_subject'];
-            $task_csv['task_details'] = $tasks_list[$i]['task_details'];
+            $task_csv                    = [];
+            $task_csv['id']              = $tasks_list[$i]['id'];
+            $task_csv['SrNo']            = $i + 1;
+            $task_csv['assign_from']     = $userList[$tasks_list[$i]['assign_from']];
+            $task_csv['assign_to']       = $userList[$tasks_list[$i]['assign_to']];
+            $task_csv['type']            = $tasks_list[$i]['is_statutory'] == 1 ? 'Statutory' : 'Other';
+            $task_csv['task_subject']    = $tasks_list[$i]['task_subject'];
+            $task_csv['task_details']    = $tasks_list[$i]['task_details'];
             $task_csv['completion_date'] = $tasks_list[$i]['completion_date'];
-            $task_csv['remark'] = $tasks_list[$i]['remark'];
-            $task_csv['completed_on'] = $tasks_list[$i]['is_completed'];
-            $task_csv['created_on'] = $tasks_list[$i]['created_at'];
+            $task_csv['remark']          = $tasks_list[$i]['remark'];
+            $task_csv['completed_on']    = $tasks_list[$i]['is_completed'];
+            $task_csv['created_on']      = $tasks_list[$i]['created_at'];
 
             array_push($tasks_csv, $task_csv);
         }
@@ -1357,7 +1357,7 @@ class LearningModuleController extends Controller
     {
         $statutory_task['is_statutory'] = 1;
         $statutory_task['statutory_id'] = $statutory_task['id'];
-        $task = Learning::create($statutory_task);
+        $task                           = Learning::create($statutory_task);
     }
 
     public function getTaskRemark(Request $request)
@@ -1376,51 +1376,51 @@ class LearningModuleController extends Controller
     public function addWhatsAppGroup(Request $request)
     {
         $whatsapp_number = '971562744570';
-        $task = Learning::findorfail($request->id);
+        $task            = Learning::findorfail($request->id);
 
         // Yogesh Sir Number
-        $admin_number = User::findorfail(6);
+        $admin_number  = User::findorfail(6);
         $assigned_from = Helpers::getUserArray(User::where('id', $task->assign_from)->get());
-        $assigned_to = Helpers::getUserArray(User::where('id', $task->assign_to)->get());
-        $task_id = $task->id;
+        $assigned_to   = Helpers::getUserArray(User::where('id', $task->assign_to)->get());
+        $task_id       = $task->id;
 
         //Check if task id is present in Whats App Group
         $group = WhatsAppGroup::where('task_id', $task_id)->first();
 
         if ($group == null) {
             //First Create Group Using Admin id
-            $phone = $admin_number->phone;
+            $phone  = $admin_number->phone;
             $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup($task_id, '', $phone, '', $whatsapp_number);
             if (isset($result['chatId']) && $result['chatId'] != null) {
                 $task_id = $task_id;
-                $chatId = $result['chatId'];
+                $chatId  = $result['chatId'];
                 //Create Group
-                $group = new WhatsAppGroup;
-                $group->task_id = $task_id;
+                $group           = new WhatsAppGroup;
+                $group->task_id  = $task_id;
                 $group->group_id = $chatId;
                 $group->save();
                 //Save Whats App Group With Reference To Group ID
-                $group_number = new WhatsAppGroupNumber;
+                $group_number           = new WhatsAppGroupNumber;
                 $group_number->group_id = $group->id;
-                $group_number->user_id = $admin_number->id;
+                $group_number->user_id  = $admin_number->id;
                 $group_number->save();
                 //Chat Message
-                $params['task_id'] = $task_id;
+                $params['task_id']  = $task_id;
                 $params['group_id'] = $group->id;
                 ChatMessage::create($params);
             } else {
-                $group = new WhatsAppGroup;
-                $group->task_id = $task_id;
+                $group           = new WhatsAppGroup;
+                $group->task_id  = $task_id;
                 $group->group_id = null;
                 $group->save();
 
-                $group_number = new WhatsAppGroupNumber;
+                $group_number           = new WhatsAppGroupNumber;
                 $group_number->group_id = $group->id;
-                $group_number->user_id = $admin_number->id;
+                $group_number->user_id  = $admin_number->id;
                 $group_number->save();
 
-                $params['task_id'] = $task_id;
-                $params['group_id'] = $group->id;
+                $params['task_id']      = $task_id;
+                $params['group_id']     = $group->id;
                 $params['error_status'] = 1;
                 ChatMessage::create($params);
             }
@@ -1451,31 +1451,31 @@ class LearningModuleController extends Controller
         foreach ($request->user_id as $key => $value) {
             $check = WhatsAppGroupNumber::where('group_id', $request->group_id)->where('user_id', $value)->first();
             if ($check == null) {
-                $user = User::findorfail($value);
-                $group = WhatsAppGroup::where('task_id', $request->task_id)->first();
-                $phone = $user->phone;
+                $user   = User::findorfail($value);
+                $group  = WhatsAppGroup::where('task_id', $request->task_id)->first();
+                $phone  = $user->phone;
                 $result = app(\App\Http\Controllers\WhatsAppController::class)->createGroup('', $group->group_id, $phone, '', $whatsapp_number);
                 if (isset($result['add']) && $result['add'] != null) {
                     $task_id = $request->task_id;
 
-                    $group_number = new WhatsAppGroupNumber;
+                    $group_number           = new WhatsAppGroupNumber;
                     $group_number->group_id = $request->group_id;
-                    $group_number->user_id = $user->id;
+                    $group_number->user_id  = $user->id;
                     $group_number->save();
-                    $params['user_id'] = $user->id;
-                    $params['task_id'] = $task_id;
+                    $params['user_id']  = $user->id;
+                    $params['task_id']  = $task_id;
                     $params['group_id'] = $request->group_id;
                     ChatMessage::create($params);
                 } else {
                     $task_id = $request->task_id;
 
-                    $group_number = new WhatsAppGroupNumber;
+                    $group_number           = new WhatsAppGroupNumber;
                     $group_number->group_id = $request->group_id;
-                    $group_number->user_id = $user->id;
+                    $group_number->user_id  = $user->id;
                     $group_number->save();
-                    $params['user_id'] = $user->id;
-                    $params['task_id'] = $task_id;
-                    $params['group_id'] = $request->group_id;
+                    $params['user_id']      = $user->id;
+                    $params['task_id']      = $task_id;
+                    $params['group_id']     = $request->group_id;
                     $params['error_status'] = 1;
                     ChatMessage::create($params);
                 }
@@ -1505,8 +1505,8 @@ class LearningModuleController extends Controller
                 foreach ($request->note as $note) {
                     if ($note != null) {
                         Remark::create([
-                            'taskid' => $task->id,
-                            'remark' => $note,
+                            'taskid'      => $task->id,
+                            'remark'      => $note,
                             'module_type' => 'task-note',
                         ]);
                     }
@@ -1521,20 +1521,20 @@ class LearningModuleController extends Controller
 
     public function createLearningFromSortcut(Request $request)
     {
-        $created = 0;
-        $message = '';
+        $created        = 0;
+        $message        = '';
         $assignedUserId = 0;
-        $data = $request->except('_token');
+        $data           = $request->except('_token');
 
         Learning::create([
-            'learning_user' => $request->learning_user,
-            'learning_vendor' => $request->learning_vendor,
-            'learning_subject' => $request->learning_subject,
-            'learning_module' => $request->learning_module,
-            'learning_submodule' => $request->learning_submodule,
+            'learning_user'       => $request->learning_user,
+            'learning_vendor'     => $request->learning_vendor,
+            'learning_subject'    => $request->learning_subject,
+            'learning_module'     => $request->learning_module,
+            'learning_submodule'  => $request->learning_submodule,
             'learning_assignment' => $request->learning_assignment,
-            'learning_duedate' => $request->learning_duedate,
-            'learning_status' => $request->learning_status,
+            'learning_duedate'    => $request->learning_duedate,
+            'learning_status'     => $request->learning_status,
         ]);
 
         $created = 1;
@@ -1574,7 +1574,7 @@ class LearningModuleController extends Controller
     public function assignMasterUser(Request $request)
     {
         $masterUserId = $request->get('master_user_id');
-        $issue = Learning::find($request->get('issue_id'));
+        $issue        = Learning::find($request->get('issue_id'));
 
         $user = User::find($masterUserId);
 
@@ -1609,11 +1609,11 @@ class LearningModuleController extends Controller
             $issue->save();
         }
         if ($hubstaffTaskId) {
-            $task = new HubstaffTask();
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaff_project_id;
+            $task                      = new HubstaffTask();
+            $task->hubstaff_task_id    = $hubstaffTaskId;
+            $task->project_id          = $hubstaff_project_id;
             $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $message;
+            $task->summary             = $message;
             $task->save();
         }
 
@@ -1637,7 +1637,7 @@ class LearningModuleController extends Controller
         $file->move($path, $name);
 
         return response()->json([
-            'name' => $name,
+            'name'          => $name,
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
@@ -1648,11 +1648,11 @@ class LearningModuleController extends Controller
             return response()->json(['code' => 500, 'data' => [], 'message' => 'Select one learning']);
         }
         $documents = $request->input('document', []);
-        $learning = Learning::find($request->learning_id);
+        $learning  = Learning::find($request->learning_id);
         if (! empty($documents)) {
             $count = 0;
             foreach ($request->input('document', []) as $file) {
-                $path = storage_path('tmp/uploads/' . $file);
+                $path  = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('learning-files/' . floor($learning->id / config('constants.image_per_folder')))
                     ->upload();
@@ -1668,15 +1668,15 @@ class LearningModuleController extends Controller
 
     public function previewTaskImage($id)
     {
-        $task = Learning::find($id);
+        $task    = Learning::find($id);
         $records = [];
         if ($task) {
             $userList = User::pluck('name', 'id')->all();
             if ($task->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
                     $imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief', 'jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
-                    $explodeImage = explode('.', getMediaUrl($media));
-                    $extension = end($explodeImage);
+                    $explodeImage    = explode('.', getMediaUrl($media));
+                    $extension       = end($explodeImage);
 
                     if (in_array($extension, $imageExtensions)) {
                         $isImage = true;
@@ -1684,11 +1684,11 @@ class LearningModuleController extends Controller
                         $isImage = false;
                     }
                     $records[] = [
-                        'id' => $media->id,
-                        'url' => getMediaUrl($media),
-                        'task_id' => $task->id,
-                        'isImage' => $isImage,
-                        'userList' => $userList,
+                        'id'         => $media->id,
+                        'url'        => getMediaUrl($media),
+                        'task_id'    => $task->id,
+                        'isImage'    => $isImage,
+                        'userList'   => $userList,
                         'created_at' => $media->created_at,
                     ];
                 }
@@ -1696,7 +1696,7 @@ class LearningModuleController extends Controller
         }
 
         $records = array_reverse($records);
-        $title = 'Preview images';
+        $title   = 'Preview images';
 
         return view('learning-module.partials.preview-task-images', compact('title', 'records'));
     }
@@ -1710,7 +1710,7 @@ class LearningModuleController extends Controller
                 ], 500);
             }
             DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\Task::class)->update(['is_approved' => 0]);
-            $history = DeveloperTaskHistory::find($request->approve_time);
+            $history              = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
 
@@ -1726,7 +1726,7 @@ class LearningModuleController extends Controller
 
     public function getTrackedHistory(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id;
         $type = $request->type;
         if ($type == 'lead') {
             $task_histories = DB::select(DB::raw('SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,learnings.master_user_id,users.name FROM `hubstaff_activities`  join learnings on learnings.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = learnings.master_user_id where learnings.id = ' . $id . ' group by starts_at_date'));
@@ -1798,11 +1798,11 @@ class LearningModuleController extends Controller
                 ], 500);
             }
             if ($hubstaffTaskId) {
-                $task = new HubstaffTask();
-                $task->hubstaff_task_id = $hubstaffTaskId;
-                $task->project_id = $hubstaff_project_id;
+                $task                      = new HubstaffTask();
+                $task->hubstaff_task_id    = $hubstaffTaskId;
+                $task->project_id          = $hubstaff_project_id;
                 $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $taskSummery;
+                $task->summary             = $taskSummery;
                 $task->save();
             }
 
@@ -1827,9 +1827,9 @@ class LearningModuleController extends Controller
     {
         if (count($request->selected_tasks) > 0) {
             foreach ($request->selected_tasks as $t) {
-                $task = Learning::find($t);
+                $task               = Learning::find($t);
                 $task->is_completed = date('Y-m-d H:i:s');
-                $task->is_verified = date('Y-m-d H:i:s');
+                $task->is_verified  = date('Y-m-d H:i:s');
                 if ($task->assignedTo) {
                     if ($task->assignedTo->fixed_price_user_or_job == 1) {
                         // Fixed price task.
@@ -1856,7 +1856,7 @@ class LearningModuleController extends Controller
 
     public function getTimeHistory(Request $request)
     {
-        $id = $request->id;
+        $id          = $request->id;
         $task_module = DeveloperTaskHistory::join('users', 'users.id', 'developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model', \App\Task::class)->where('attribute', 'estimation_minute')->select('developer_tasks_history.*', 'users.name')->get();
         if ($task_module) {
             return $task_module;
@@ -1869,7 +1869,7 @@ class LearningModuleController extends Controller
     {
         if ($request->id != null && $request->user_id != null) {
             $media = \Plank\Mediable\Media::find($request->id);
-            $user = \App\User::find($request->user_id);
+            $user  = \App\User::find($request->user_id);
             if ($user) {
                 if ($media) {
                     \App\ChatMessage::sendWithChatApi(
@@ -1928,7 +1928,7 @@ class LearningModuleController extends Controller
 
     public function learningModuleUpdate(Request $request)
     {
-        $id = $request->id;
+        $id       = $request->id;
         $learning = Learning::find($id);
         if ($request->user_id) {
             $learning->learning_user = $request->user_id;
@@ -1952,7 +1952,7 @@ class LearningModuleController extends Controller
         }
 
         if ($request->module_id) {
-            $learning->learning_module = $request->module_id;
+            $learning->learning_module    = $request->module_id;
             $learning->learning_submodule = null;
             $learning->save();
             $submodule = LearningModule::where('parent_id', $learning->learning_module)->get();
@@ -1977,9 +1977,9 @@ class LearningModuleController extends Controller
         if ($request->status_id) {
             LearningStatusHistory::create([
                 'learning_id' => $learning->id,
-                'old_status' => $learning->learning_status ?? 0,
-                'new_status' => $request->status_id,
-                'update_by' => $request->user()->id,
+                'old_status'  => $learning->learning_status ?? 0,
+                'new_status'  => $request->status_id,
+                'update_by'   => $request->user()->id,
             ]);
 
             $learning->learning_status = $request->status_id;
@@ -1987,13 +1987,13 @@ class LearningModuleController extends Controller
             $s = TaskStatus::where('name', 'completed')->first();
             if ($s) {
                 if ($s->id == $request->status_id) {
-                    $payment_receipt = new PaymentReceipt;
-                    $payment_receipt->date = date('Y-m-d');
+                    $payment_receipt                 = new PaymentReceipt;
+                    $payment_receipt->date           = date('Y-m-d');
                     $payment_receipt->worked_minutes = 0;
                     $payment_receipt->rate_estimated = $learning->cost;
-                    $payment_receipt->status = 'Pending';
-                    $payment_receipt->task_id = $learning->id;
-                    $payment_receipt->user_id = $learning->assign_to;
+                    $payment_receipt->status         = 'Pending';
+                    $payment_receipt->task_id        = $learning->id;
+                    $payment_receipt->user_id        = $learning->assign_to;
                     $payment_receipt->save();
                 }
             }
@@ -2016,9 +2016,9 @@ class LearningModuleController extends Controller
             foreach ($records as $row) {
                 $response[] = [
                     'created_date' => $row->created_at->format('Y-m-d'),
-                    'old_status' => optional($row->oldstatus)->name ?? '-',
-                    'new_status' => optional($row->newstatus)->name ?? '-',
-                    'update_by' => $row->user->name,
+                    'old_status'   => optional($row->oldstatus)->name ?? '-',
+                    'new_status'   => optional($row->newstatus)->name ?? '-',
+                    'update_by'    => $row->user->name,
                 ];
             }
 
@@ -2037,7 +2037,7 @@ class LearningModuleController extends Controller
                 'learning_id' => $learning->id,
                 'old_duedate' => $learning->learning_duedate ?? 0,
                 'new_duedate' => $due_date,
-                'update_by' => $request->user()->id,
+                'update_by'   => $request->user()->id,
             ]);
         }
 
@@ -2063,9 +2063,9 @@ class LearningModuleController extends Controller
             foreach ($records as $row) {
                 $response[] = [
                     'created_date' => $row->created_at->format('Y-m-d'),
-                    'old_duedate' => $row->old_duedate ?? '-',
-                    'new_duedate' => $row->new_duedate ?? '-',
-                    'update_by' => $row->user->name,
+                    'old_duedate'  => $row->old_duedate ?? '-',
+                    'new_duedate'  => $row->new_duedate ?? '-',
+                    'update_by'    => $row->user->name,
                 ];
             }
 

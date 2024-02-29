@@ -11,7 +11,6 @@ class SupplierSize extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="supplier_size",type="string")
      * @SWG\Property(property="timestamps",type="datetime")

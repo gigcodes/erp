@@ -45,7 +45,7 @@ class ExportLatex extends ExportPlugin
     protected function init(): void
     {
         /* Messages used in default captions */
-        $GLOBALS['strLatexContent'] = __('Content of table @TABLE@');
+        $GLOBALS['strLatexContent']   = __('Content of table @TABLE@');
         $GLOBALS['strLatexContinued'] = __('(continued)');
         $GLOBALS['strLatexStructure'] = __('Structure of table @TABLE@');
     }
@@ -89,8 +89,8 @@ class ExportLatex extends ExportPlugin
         $leaf = new RadioPropertyItem('structure_or_data');
         $leaf->setValues(
             [
-                'structure' => __('structure'),
-                'data' => __('data'),
+                'structure'          => __('structure'),
+                'data'               => __('data'),
                 'structure_and_data' => __('structure and data'),
             ]
         );
@@ -230,8 +230,8 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Aliases of db
+     * @param string $db      Database name
+     * @param string $dbAlias Aliases of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -250,7 +250,7 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -260,9 +260,9 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -272,12 +272,12 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs the content of a table in JSON format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -289,14 +289,14 @@ class ExportLatex extends ExportPlugin
     ): bool {
         global $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
         $result = $dbi->tryQuery($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
 
-        $columns_cnt = $result->numFields();
-        $columns = [];
+        $columns_cnt   = $result->numFields();
+        $columns       = [];
         $columns_alias = [];
         foreach ($result->getFieldNames() as $i => $col_as) {
             $columns[$i] = $col_as;
@@ -326,7 +326,7 @@ class ExportLatex extends ExportPlugin
                         static::class,
                     ],
                     [
-                        'table' => $table_alias,
+                        'table'    => $table_alias,
                         'database' => $db_alias,
                     ]
                 )
@@ -335,7 +335,7 @@ class ExportLatex extends ExportPlugin
                     $GLOBALS['latex_data_label'],
                     null,
                     [
-                        'table' => $table_alias,
+                        'table'    => $table_alias,
                         'database' => $db_alias,
                     ]
                 )
@@ -370,7 +370,7 @@ class ExportLatex extends ExportPlugin
                                 static::class,
                             ],
                             [
-                                'table' => $table_alias,
+                                'table'    => $table_alias,
                                 'database' => $db_alias,
                             ]
                         )
@@ -425,9 +425,9 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs result raw query
      *
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery the rawquery to output
-     * @param  string  $crlf     the seperator for a file
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery the rawquery to output
+     * @param string $crlf     the seperator for a file
      */
     public function exportRawQuery(string $errorUrl, string $sqlQuery, string $crlf): bool
     {
@@ -437,23 +437,23 @@ class ExportLatex extends ExportPlugin
     /**
      * Outputs table's structure
      *
-     * @param  string  $db          database name
-     * @param  string  $table       table name
-     * @param  string  $crlf        the end of line sequence
-     * @param  string  $errorUrl    the url to go back in case of error
-     * @param  string  $exportMode  'create_table', 'triggers', 'create_view',
-     *                             'stand_in'
-     * @param  string  $exportType  'server', 'database', 'table'
-     * @param  bool  $do_relation whether to include relation comments
-     * @param  bool  $do_comments whether to include the pmadb-style column
+     * @param string $db          database name
+     * @param string $table       table name
+     * @param string $crlf        the end of line sequence
+     * @param string $errorUrl    the url to go back in case of error
+     * @param string $exportMode  'create_table', 'triggers', 'create_view',
+     *                            'stand_in'
+     * @param string $exportType  'server', 'database', 'table'
+     * @param bool   $do_relation whether to include relation comments
+     * @param bool   $do_comments whether to include the pmadb-style column
      *                            comments as comments in the structure;
      *                            this is deprecated but the parameter is
      *                            left here because /export calls
      *                            exportStructure() also for other
      *                            export types which use this parameter
-     * @param  bool  $do_mime     whether to include mime comments
-     * @param  bool  $dates       whether to include creation/update/check dates
-     * @param  array  $aliases     Aliases of db/table/columns
+     * @param bool   $do_mime     whether to include mime comments
+     * @param bool   $dates       whether to include creation/update/check dates
+     * @param array  $aliases     Aliases of db/table/columns
      */
     public function exportStructure(
         $db,
@@ -470,7 +470,7 @@ class ExportLatex extends ExportPlugin
     ): bool {
         global $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
@@ -485,7 +485,7 @@ class ExportLatex extends ExportPlugin
          * Get the unique keys in the table
          */
         $unique_keys = [];
-        $keys = $dbi->getTableIndexes($db, $table);
+        $keys        = $dbi->getTableIndexes($db, $table);
         foreach ($keys as $key) {
             if ($key['Non_unique'] != 0) {
                 continue;
@@ -558,7 +558,7 @@ class ExportLatex extends ExportPlugin
                         static::class,
                     ],
                     [
-                        'table' => $table_alias,
+                        'table'    => $table_alias,
                         'database' => $db_alias,
                     ]
                 )
@@ -567,7 +567,7 @@ class ExportLatex extends ExportPlugin
                     $GLOBALS['latex_structure_label'],
                     null,
                     [
-                        'table' => $table_alias,
+                        'table'    => $table_alias,
                         'database' => $db_alias,
                     ]
                 )
@@ -586,7 +586,7 @@ class ExportLatex extends ExportPlugin
                         static::class,
                     ],
                     [
-                        'table' => $table_alias,
+                        'table'    => $table_alias,
                         'database' => $db_alias,
                     ]
                 )
@@ -602,7 +602,7 @@ class ExportLatex extends ExportPlugin
         $fields = $dbi->getColumns($db, $table);
         foreach ($fields as $row) {
             $extracted_columnspec = Util::extractColumnSpec($row['Type']);
-            $type = $extracted_columnspec['print_type'];
+            $type                 = $extracted_columnspec['print_type'];
             if (empty($type)) {
                 $type = ' ';
             }
@@ -644,7 +644,7 @@ class ExportLatex extends ExportPlugin
 
             $local_buffer = self::texEscape($local_buffer);
             if ($row['Key'] === 'PRI') {
-                $pos = (int) mb_strpos($local_buffer, "\000");
+                $pos          = (int) mb_strpos($local_buffer, "\000");
                 $local_buffer = '\\textit{'
                     .
                     mb_substr($local_buffer, 0, $pos)
@@ -653,7 +653,7 @@ class ExportLatex extends ExportPlugin
             }
 
             if (in_array($field_name, $unique_keys)) {
-                $pos = (int) mb_strpos($local_buffer, "\000");
+                $pos          = (int) mb_strpos($local_buffer, "\000");
                 $local_buffer = '\\textbf{'
                     .
                     mb_substr($local_buffer, 0, $pos)
@@ -677,7 +677,8 @@ class ExportLatex extends ExportPlugin
     /**
      * Escapes some special characters for use in TeX/LaTeX
      *
-     * @param  string  $string the string to convert
+     * @param string $string the string to convert
+     *
      * @return string the converted string with escape codes
      */
     public static function texEscape($string)

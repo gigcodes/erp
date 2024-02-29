@@ -18,7 +18,7 @@ class ScheduleGroup extends Model
      */
     protected $casts = [
         'scheduled_for' => 'datetime',
-        'images' => 'array',    ];
+        'images'        => 'array',    ];
 
     public $timestamps = false;
 

@@ -40,9 +40,9 @@ class OrganizationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name'     => 'required',
             'username' => 'required',
-            'token' => 'required',
+            'token'    => 'required',
         ]);
 
         $mode = 'created';
@@ -55,9 +55,9 @@ class OrganizationController extends Controller
             $githubOrganization = new GithubOrganization;
         }
 
-        $githubOrganization->name = $request->name;
+        $githubOrganization->name     = $request->name;
         $githubOrganization->username = $request->username;
-        $githubOrganization->token = $request->token;
+        $githubOrganization->token    = $request->token;
         $githubOrganization->save();
 
         \Session::flash('sucess', 'Success! Organization has been ' . $mode . '.');
@@ -68,7 +68,8 @@ class OrganizationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -79,7 +80,8 @@ class OrganizationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -90,7 +92,8 @@ class OrganizationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -101,7 +104,8 @@ class OrganizationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

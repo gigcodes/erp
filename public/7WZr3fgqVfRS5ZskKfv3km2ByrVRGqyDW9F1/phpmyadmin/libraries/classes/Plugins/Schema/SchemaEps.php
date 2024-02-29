@@ -80,7 +80,7 @@ class SchemaEps extends SchemaPlugin
     /**
      * Exports the schema into EPS format.
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function exportSchema($db): bool
     {

@@ -34,15 +34,15 @@ class Job extends Model
     ];
 
     const JOBS_LIST = [
-        'product' => 'Product Queue',
-        'magento' => 'Magento Queue',
-        'mageone' => 'Magento product push Queue 1',
-        'magetwo' => 'Magento product push Queue 2',
-        'magethree' => 'Magento product push Queue 3',
-        'supplier_products' => 'Supplier product push',
-        'customer_message' => 'Customer message queue',
-        'watson_push' => 'Watson push queue',
-        'send_email' => 'Sending Email',
+        'product'            => 'Product Queue',
+        'magento'            => 'Magento Queue',
+        'mageone'            => 'Magento product push Queue 1',
+        'magetwo'            => 'Magento product push Queue 2',
+        'magethree'          => 'Magento product push Queue 3',
+        'supplier_products'  => 'Supplier product push',
+        'customer_message'   => 'Customer message queue',
+        'watson_push'        => 'Watson push queue',
+        'send_email'         => 'Sending Email',
         'generate_hash_tags' => 'Generate Google search keywords',
     ];
 }

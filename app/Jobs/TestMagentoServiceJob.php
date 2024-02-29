@@ -22,8 +22,8 @@ class TestMagentoServiceJob
     /**
      * Create a new job instance.
      *
-     * @param  null  $log
-     * @param  null  $mode
+     * @param null $log
+     * @param null $mode
      */
     public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null)
     {
@@ -53,7 +53,7 @@ class TestMagentoServiceJob
         $error_msg = 'TestMagentoServiceJob failed for ' . $product->name;
         if ($this->log) {
             $this->log->sync_status = 'error';
-            $this->log->message = $error_msg;
+            $this->log->message     = $error_msg;
             $this->log->save();
         }
         ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $this->log->id);

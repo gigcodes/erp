@@ -25,25 +25,25 @@ trait GithubTrait
     {
         $addedFilters = ! empty($filters) ? Arr::query($filters) : '';
         $pullRequests = [];
-        $url = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
+        $url          = 'https://api.github.com/repositories/' . $repoId . '/pulls?per_page=200';
         if (! empty($addedFilters)) {
             $url .= '&' . $addedFilters;
         }
         try {
             $githubClient = $this->connectGithubClient($userName, $token);
-            $response = $githubClient->get($url);
+            $response     = $githubClient->get($url);
 
             $decodedJson = json_decode($response->getBody()->getContents());
             foreach ($decodedJson as $pullRequest) {
                 $pullRequests[] = [
-                    'id' => $pullRequest->number,
-                    'title' => $pullRequest->title,
-                    'number' => $pullRequest->number,
-                    'state' => $pullRequest->state,
-                    'username' => $pullRequest->user->login,
-                    'userId' => $pullRequest->user->id,
-                    'updated_at' => $pullRequest->updated_at,
-                    'source' => $pullRequest->head->ref,
+                    'id'          => $pullRequest->number,
+                    'title'       => $pullRequest->title,
+                    'number'      => $pullRequest->number,
+                    'state'       => $pullRequest->state,
+                    'username'    => $pullRequest->user->login,
+                    'userId'      => $pullRequest->user->id,
+                    'updated_at'  => $pullRequest->updated_at,
+                    'source'      => $pullRequest->head->ref,
                     'destination' => $pullRequest->base->ref,
                 ];
             }
@@ -60,16 +60,16 @@ trait GithubTrait
         //https://api.github.com/repositories/:repoId/compare/:diff
 
         try {
-            $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
+            $url      = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
             $response = $githubClient->get($url);
         } catch (ClientException $e) {
             if ($e->getResponse()->getStatusCode() == 404) {
                 // known error which happens in case there is more changes
                 return [
-                    'ahead_by' => 0,
-                    'behind_by' => 0,
+                    'ahead_by'                    => 0,
+                    'behind_by'                   => 0,
                     'last_commit_author_username' => null,
-                    'last_commit_time' => null,
+                    'last_commit_time'            => null,
                 ];
             }
         }
@@ -77,7 +77,7 @@ trait GithubTrait
         $compare = json_decode($response->getBody()->getContents());
 
         $lastCommitAuthorUsername = null;
-        $lastCommitTime = null;
+        $lastCommitTime           = null;
 
         if (is_array($compare->commits) && count($compare->commits) > 0) {
             $index = count($compare->commits) - 1;
@@ -91,14 +91,14 @@ trait GithubTrait
             $lastCommitTime = Carbon::parse($compare->commits[$index]->commit->author->date);
         } else {
             $lastCommitAuthorUsername = $compare->merge_base_commit->commit->author->name;
-            $lastCommitTime = Carbon::parse($compare->merge_base_commit->commit->author->date);
+            $lastCommitTime           = Carbon::parse($compare->merge_base_commit->commit->author->date);
         }
 
         return [
-            'ahead_by' => $compare->ahead_by,
-            'behind_by' => $compare->behind_by,
+            'ahead_by'                    => $compare->ahead_by,
+            'behind_by'                   => $compare->behind_by,
             'last_commit_author_username' => $lastCommitAuthorUsername,
-            'last_commit_time' => $lastCommitTime,
+            'last_commit_time'            => $lastCommitTime,
         ];
     }
 
@@ -140,15 +140,15 @@ trait GithubTrait
             $pullRequest = json_decode($response->getBody()->getContents());
 
             return [
-                'id' => $pullRequest->number,
-                'title' => $pullRequest->title,
-                'number' => $pullRequest->number,
-                'username' => $pullRequest->user->login,
-                'userId' => $pullRequest->user->id,
-                'updated_at' => $pullRequest->updated_at,
-                'source' => $pullRequest->head->ref,
+                'id'              => $pullRequest->number,
+                'title'           => $pullRequest->title,
+                'number'          => $pullRequest->number,
+                'username'        => $pullRequest->user->login,
+                'userId'          => $pullRequest->user->id,
+                'updated_at'      => $pullRequest->updated_at,
+                'source'          => $pullRequest->head->ref,
                 'mergeable_state' => $pullRequest->mergeable_state,
-                'destination' => $pullRequest->base->ref,
+                'destination'     => $pullRequest->base->ref,
             ];
         } catch (Exception $e) {
         }
@@ -156,7 +156,7 @@ trait GithubTrait
 
     private function closePullRequest(string $repositoryId, string $pullNumber)
     {
-        $repository = GithubRepository::find($repositoryId);
+        $repository   = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -173,7 +173,7 @@ trait GithubTrait
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
-            $data['error'] = $e->getMessage();
+            $data['error']  = $e->getMessage();
         }
 
         return $data;
@@ -181,7 +181,7 @@ trait GithubTrait
 
     private function deleteBranch(string $repositoryId, string $branchName)
     {
-        $repository = GithubRepository::find($repositoryId);
+        $repository   = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -193,7 +193,7 @@ trait GithubTrait
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
-            $data['error'] = $e->getMessage();
+            $data['error']  = $e->getMessage();
         }
 
         return $data;
@@ -201,7 +201,7 @@ trait GithubTrait
 
     private function getGithubActionRuns(string $repositoryId, $page = 1, $date = null, $status = null, $branch = null)
     {
-        $repository = GithubRepository::find($repositoryId);
+        $repository   = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -218,7 +218,7 @@ trait GithubTrait
         }
 
         try {
-            $response = $githubClient->get($url);
+            $response     = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
 
             return $githubAction;
@@ -228,7 +228,7 @@ trait GithubTrait
 
     private function getGithubActionRunJobs(string $repositoryId, string $runId)
     {
-        $repository = GithubRepository::find($repositoryId);
+        $repository   = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -236,7 +236,7 @@ trait GithubTrait
         $url = 'https://api.github.com/repositories/' . $repositoryId . '/actions/runs/' . $runId . '/jobs';
 
         try {
-            $response = $githubClient->get($url);
+            $response     = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
 
             return $githubAction;
@@ -249,7 +249,7 @@ trait GithubTrait
      */
     public function getGithubBranches(string $repositoryId, array $inputs)
     {
-        $repository = GithubRepository::find($repositoryId);
+        $repository   = GithubRepository::find($repositoryId);
         $organization = $repository->organization;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -257,7 +257,7 @@ trait GithubTrait
         $url = "https://api.github.com/repositories/{$repositoryId}/branches";
 
         try {
-            $response = $githubClient->get($url);
+            $response     = $githubClient->get($url);
             $githubAction = json_decode($response->getBody()->getContents());
 
             return $githubAction;
@@ -279,7 +279,7 @@ trait GithubTrait
             $data['status'] = true;
         } catch (Exception $e) {
             $data['status'] = false;
-            $data['error'] = $e->getMessage();
+            $data['error']  = $e->getMessage();
         }
 
         return $data;

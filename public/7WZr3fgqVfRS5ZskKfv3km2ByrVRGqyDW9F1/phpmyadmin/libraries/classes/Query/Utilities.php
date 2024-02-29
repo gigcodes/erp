@@ -53,8 +53,8 @@ class Utilities
     /**
      * Checks whether given schema is a system schema
      *
-     * @param  string  $schema_name        Name of schema (database) to test
-     * @param  bool  $testForMysqlSchema Whether 'mysql' schema should
+     * @param string $schema_name        Name of schema (database) to test
+     * @param bool   $testForMysqlSchema Whether 'mysql' schema should
      *                                   be treated the same as IS and DD
      */
     public static function isSystemSchema(
@@ -76,8 +76,9 @@ class Utilities
      * This is needed because some errors messages cannot
      * be obtained by mysql_error().
      *
-     * @param  int  $error_number  Error code
-     * @param  string  $error_message Error message as returned by server
+     * @param int    $error_number  Error code
+     * @param string $error_message Error message as returned by server
+     *
      * @return string HML text with error details
      *
      * @psalm-return non-empty-string
@@ -86,7 +87,7 @@ class Utilities
     {
         $error_message = htmlspecialchars($error_message);
 
-        $error = '#' . ((string) $error_number);
+        $error     = '#' . ((string) $error_number);
         $separator = ' &mdash; ';
 
         if ($error_number == 2002) {
@@ -125,12 +126,13 @@ class Utilities
     /**
      * usort comparison callback
      *
-     * @param  array  $a         first argument to sort
-     * @param  array  $b         second argument to sort
-     * @param  string  $sortBy    Key to sort by
-     * @param  string  $sortOrder The order (ASC/DESC)
-     * @return int  a value representing whether $a should be before $b in the
-     *              sorted array or not
+     * @param array  $a         first argument to sort
+     * @param array  $b         second argument to sort
+     * @param string $sortBy    Key to sort by
+     * @param string $sortOrder The order (ASC/DESC)
+     *
+     * @return int a value representing whether $a should be before $b in the
+     *             sorted array or not
      */
     public static function usortComparisonCallback(array $a, array $b, string $sortBy, string $sortOrder): int
     {
@@ -157,7 +159,7 @@ class Utilities
     /**
      * Convert version string to integer.
      *
-     * @param  string  $version MySQL server version
+     * @param string $version MySQL server version
      */
     public static function versionToInt(string $version): int
     {
@@ -169,10 +171,10 @@ class Utilities
     /**
      * Stores query data into session data for debugging purposes
      *
-     * @param  string  $query        Query text
-     * @param  string|null  $errorMessage Error message from getError()
-     * @param  ResultInterface|false  $result       Query result
-     * @param  int|float  $time         Time to execute query
+     * @param string                $query        Query text
+     * @param string|null           $errorMessage Error message from getError()
+     * @param ResultInterface|false $result       Query result
+     * @param int|float             $time         Time to execute query
      */
     public static function debugLogQueryIntoSession(string $query, ?string $errorMessage, $result, $time): void
     {
@@ -184,7 +186,7 @@ class Utilities
         }
 
         $dbgInfo['query'] = htmlspecialchars($query);
-        $dbgInfo['time'] = $time;
+        $dbgInfo['time']  = $time;
         // Get and slightly format backtrace, this is used
         // in the javascript console.
         // Strip call to debugLogQueryIntoSession

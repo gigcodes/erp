@@ -7,7 +7,7 @@ class CompareImagesHelper
     public static function mimeType($i)
     {
         /*returns array with mime type and if its jpg or png. Returns false if it isn't jpg or png*/
-        $mime = getimagesize($i);
+        $mime   = getimagesize($i);
         $return = [$mime[0], $mime[1]];
 
         switch ($mime['mime']) {
@@ -56,10 +56,10 @@ class CompareImagesHelper
     {
         /*returns the mean value of the colors and the list of all pixel's colors*/
         $colorList = [];
-        $colorSum = 0;
+        $colorSum  = 0;
         for ($a = 0; $a < 8; $a++) {
             for ($b = 0; $b < 8; $b++) {
-                $rgb = imagecolorat($i, $a, $b);
+                $rgb         = imagecolorat($i, $a, $b);
                 $colorList[] = $rgb & 0xFF;
                 $colorSum += $rgb & 0xFF;
             }

@@ -80,10 +80,10 @@ class FacebookController extends Controller
                 if ($postJson['Owner']) {
                     $inf = ScrappedFacebookUser::where('owner', $postJson['Owner'])->first();
                     if ($inf == null) {
-                        $scrapeFacebook = new ScrappedFacebookUser;
-                        $scrapeFacebook->url = $postJson['URL'];
+                        $scrapeFacebook        = new ScrappedFacebookUser;
+                        $scrapeFacebook->url   = $postJson['URL'];
                         $scrapeFacebook->owner = $postJson['Owner'];
-                        $scrapeFacebook->bio = $postJson['Bio'];
+                        $scrapeFacebook->bio   = $postJson['Bio'];
                         if (isset($postJson['keyword'])) {
                             $scrapeFacebook->keyword = $postJson['keyword'];
                         }
@@ -123,21 +123,21 @@ class FacebookController extends Controller
                 if (! empty($postJson['name'])) {
                     $inf = ScrapInfluencer::where('name', $postJson['name'])->first();
                     if ($inf == null) {
-                        $influencer = new ScrapInfluencer;
-                        $influencer->name = $postJson['name'];
-                        $influencer->url = isset($postJson['url']) ? $postJson['url'] : '';
-                        $influencer->country = isset($postJson['Country']) ? $postJson['Country'] : '';
-                        $influencer->email = isset($postJson['Email']) ? $postJson['Email'] : '';
-                        $influencer->followers = $postJson['followers'];
-                        $influencer->following = $postJson['friends'];
+                        $influencer              = new ScrapInfluencer;
+                        $influencer->name        = $postJson['name'];
+                        $influencer->url         = isset($postJson['url']) ? $postJson['url'] : '';
+                        $influencer->country     = isset($postJson['Country']) ? $postJson['Country'] : '';
+                        $influencer->email       = isset($postJson['Email']) ? $postJson['Email'] : '';
+                        $influencer->followers   = $postJson['followers'];
+                        $influencer->following   = $postJson['friends'];
                         $influencer->description = $postJson['bio'];
 
                         $influencer->profile_pic = $postJson['profile pic'];
-                        $influencer->friends = $postJson['friends'];
+                        $influencer->friends     = $postJson['friends'];
                         $influencer->cover_photo = $postJson['cover photo'];
-                        $influencer->interests = implode(',', $postJson['interests']);
-                        $influencer->work_at = $postJson['works at'];
-                        $influencer->platform = 'Facebook';
+                        $influencer->interests   = implode(',', $postJson['interests']);
+                        $influencer->work_at     = $postJson['works at'];
+                        $influencer->platform    = 'Facebook';
 
                         if (isset($postJson['keyword'])) {
                             $influencer->keyword = $postJson['keyword'];

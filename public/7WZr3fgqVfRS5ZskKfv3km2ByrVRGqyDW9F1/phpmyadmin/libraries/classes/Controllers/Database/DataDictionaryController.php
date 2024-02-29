@@ -34,9 +34,9 @@ class DataDictionaryController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db);
-        $this->relation = $relation;
+        $this->relation        = $relation;
         $this->transformations = $transformations;
-        $this->dbi = $dbi;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -67,7 +67,7 @@ class DataDictionaryController extends AbstractController
             $columnsComments = $this->relation->getComments($this->db, $tableName);
 
             $columns = $this->dbi->getColumns($this->db, $tableName);
-            $rows = [];
+            $rows    = [];
             foreach ($columns as $row) {
                 $extractedColumnSpec = Util::extractColumnSpec($row['Type']);
 
@@ -90,32 +90,32 @@ class DataDictionaryController extends AbstractController
                 }
 
                 $rows[$row['Field']] = [
-                    'name' => $row['Field'],
+                    'name'            => $row['Field'],
                     'has_primary_key' => isset($primaryKeys[$row['Field']]),
-                    'type' => $extractedColumnSpec['type'],
-                    'print_type' => $extractedColumnSpec['print_type'],
-                    'is_nullable' => $row['Null'] !== '' && $row['Null'] !== 'NO',
-                    'default' => $row['Default'] ?? null,
-                    'comment' => $columnsComments[$row['Field']] ?? '',
-                    'mime' => $mime,
-                    'relation' => $relation,
+                    'type'            => $extractedColumnSpec['type'],
+                    'print_type'      => $extractedColumnSpec['print_type'],
+                    'is_nullable'     => $row['Null'] !== '' && $row['Null'] !== 'NO',
+                    'default'         => $row['Default'] ?? null,
+                    'comment'         => $columnsComments[$row['Field']] ?? '',
+                    'mime'            => $mime,
+                    'relation'        => $relation,
                 ];
             }
 
             $tables[$tableName] = [
-                'name' => $tableName,
-                'comment' => $showComment,
+                'name'         => $tableName,
+                'comment'      => $showComment,
                 'has_relation' => $hasRelation,
-                'has_mime' => $relationParameters->browserTransformationFeature !== null,
-                'columns' => $rows,
-                'indexes' => Index::getFromTable($tableName, $this->db),
+                'has_mime'     => $relationParameters->browserTransformationFeature !== null,
+                'columns'      => $rows,
+                'indexes'      => Index::getFromTable($tableName, $this->db),
             ];
         }
 
         $this->render('database/data_dictionary/index', [
             'database' => $this->db,
-            'comment' => $comment,
-            'tables' => $tables,
+            'comment'  => $comment,
+            'tables'   => $tables,
         ]);
     }
 }

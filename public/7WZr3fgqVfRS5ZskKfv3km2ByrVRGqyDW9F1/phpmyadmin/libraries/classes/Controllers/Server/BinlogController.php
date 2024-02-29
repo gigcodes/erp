@@ -45,8 +45,8 @@ class BinlogController extends AbstractController
         global $cfg, $errorUrl;
 
         $params = [
-            'log' => $_POST['log'] ?? null,
-            'pos' => $_POST['pos'] ?? null,
+            'log'           => $_POST['log'] ?? null,
+            'pos'           => $_POST['pos'] ?? null,
             'is_full_query' => $_POST['is_full_query'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');
@@ -64,18 +64,18 @@ class BinlogController extends AbstractController
 
         $isFullQuery = false;
         if (! empty($params['is_full_query'])) {
-            $isFullQuery = true;
+            $isFullQuery                = true;
             $urlParams['is_full_query'] = 1;
         }
 
         $sqlQuery = $this->getSqlQuery($params['log'] ?? '', $position, (int) $cfg['MaxRows']);
-        $result = $this->dbi->query($sqlQuery);
+        $result   = $this->dbi->query($sqlQuery);
 
         $numRows = $result->numRows();
 
-        $previousParams = $urlParams;
+        $previousParams    = $urlParams;
         $fullQueriesParams = $urlParams;
-        $nextParams = $urlParams;
+        $nextParams        = $urlParams;
         if ($position > 0) {
             $fullQueriesParams['pos'] = $position;
             if ($position > $cfg['MaxRows']) {
@@ -95,25 +95,25 @@ class BinlogController extends AbstractController
         $values = $result->fetchAllAssoc();
 
         $this->render('server/binlog/index', [
-            'url_params' => $urlParams,
-            'binary_logs' => $this->binaryLogs,
-            'log' => $params['log'],
-            'sql_message' => Generator::getMessage(Message::success(), $sqlQuery),
-            'values' => $values,
-            'has_previous' => $position > 0,
-            'has_next' => $numRows >= $cfg['MaxRows'],
-            'previous_params' => $previousParams,
+            'url_params'          => $urlParams,
+            'binary_logs'         => $this->binaryLogs,
+            'log'                 => $params['log'],
+            'sql_message'         => Generator::getMessage(Message::success(), $sqlQuery),
+            'values'              => $values,
+            'has_previous'        => $position > 0,
+            'has_next'            => $numRows >= $cfg['MaxRows'],
+            'previous_params'     => $previousParams,
             'full_queries_params' => $fullQueriesParams,
-            'next_params' => $nextParams,
-            'has_icons' => Util::showIcons('TableNavigationLinksMode'),
-            'is_full_query' => $isFullQuery,
+            'next_params'         => $nextParams,
+            'has_icons'           => Util::showIcons('TableNavigationLinksMode'),
+            'is_full_query'       => $isFullQuery,
         ]);
     }
 
     /**
-     * @param  string  $log      Binary log file name
-     * @param  int  $position Position to display
-     * @param  int  $maxRows  Maximum number of rows
+     * @param string $log      Binary log file name
+     * @param int    $position Position to display
+     * @param int    $maxRows  Maximum number of rows
      */
     private function getSqlQuery(
         string $log,

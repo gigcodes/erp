@@ -46,9 +46,9 @@ class MagentoRunCronOnMultipleWebsite extends Command
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info('Start Rum Magento Command On Multiple Website');
         try {
-            $command_id = $this->argument('id');
+            $command_id   = $this->argument('id');
             $websites_ids = $this->argument('websites_ids');
-            $magCom = MagentoCronList::find($command_id);
+            $magCom       = MagentoCronList::find($command_id);
 
             Log::info('Magento Command ID: ' . $command_id);
             Log::info('Magento Cron Name: ' . $magCom->cron_name);
@@ -58,13 +58,13 @@ class MagentoRunCronOnMultipleWebsite extends Command
                 if ($websites->isEmpty()) {
                     MagentoCronRunLog::create(
                         [
-                            'command_id' => $magCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => $websites_id,
-                            'command_name' => $magCom->cron_name,
-                            'server_ip' => '',
+                            'command_id'        => $magCom->id,
+                            'user_id'           => \Auth::user()->id ?? '',
+                            'website_ids'       => $websites_id,
+                            'command_name'      => $magCom->cron_name,
+                            'server_ip'         => '',
                             'working_directory' => $website->working_directory,
-                            'response' => 'The website is not found!',
+                            'response'          => 'The website is not found!',
                         ]
                     );
                 }
@@ -76,15 +76,15 @@ class MagentoRunCronOnMultipleWebsite extends Command
                         Log::info('Cron Name: ' . $magCom->cron_name);
                         Log::info('website server_ip: ' . $website->server_ip);
 
-                        $job_id = '';
+                        $job_id     = '';
                         $website_id = $website->id;
 
-                        $url = getenv('MAGENTO_COMMAND_API_URL');
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $url           = getenv('MAGENTO_COMMAND_API_URL');
+                        $key           = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $requestParams = [
                             'command' => $magCom->cron_name,
-                            'dir' => $website->working_directory,
-                            'server' => $website->server_ip,
+                            'dir'     => $website->working_directory,
+                            'server'  => $website->server_ip,
                         ];
 
                         $ch = curl_init();
@@ -94,7 +94,7 @@ class MagentoRunCronOnMultipleWebsite extends Command
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -105,14 +105,14 @@ class MagentoRunCronOnMultipleWebsite extends Command
                             Log::info('API Error: ' . curl_error($ch));
                             MagentoCronRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => $website->id,
-                                    'command_name' => $magCom->cron_name,
-                                    'server_ip' => $website->server_ip,
+                                    'command_id'        => $magCom->id,
+                                    'user_id'           => \Auth::user()->id ?? '',
+                                    'website_ids'       => $website->id,
+                                    'command_name'      => $magCom->cron_name,
+                                    'server_ip'         => $website->server_ip,
                                     'working_directory' => $website->working_directory,
-                                    'response' => curl_error($ch),
-                                    'request' => json_encode($requestParams),
+                                    'response'          => curl_error($ch),
+                                    'request'           => json_encode($requestParams),
                                 ]
                             );
                         }
@@ -128,14 +128,14 @@ class MagentoRunCronOnMultipleWebsite extends Command
                                 Log::info('API Response Error: ' . $message);
                                 MagentoCronRunLog::create(
                                     [
-                                        'command_id' => $magCom->id,
-                                        'user_id' => \Auth::user()->id ?? '',
-                                        'website_ids' => $website->id,
-                                        'command_name' => $magCom->cron_name,
-                                        'server_ip' => $website->server_ip,
+                                        'command_id'        => $magCom->id,
+                                        'user_id'           => \Auth::user()->id ?? '',
+                                        'website_ids'       => $website->id,
+                                        'command_name'      => $magCom->cron_name,
+                                        'server_ip'         => $website->server_ip,
                                         'working_directory' => $website->working_directory,
-                                        'response' => $message,
-                                        'request' => json_encode($requestParams),
+                                        'response'          => $message,
+                                        'request'           => json_encode($requestParams),
                                     ]
                                 );
                             }
@@ -152,9 +152,9 @@ class MagentoRunCronOnMultipleWebsite extends Command
                         if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
                             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
                         }
-                        $allOutput = [];
+                        $allOutput   = [];
                         $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput, $statusCode);
+                        $result      = exec($cmd, $allOutput, $statusCode);
                         if ($statusCode == '') {
                             $result = 'Not any response';
                             $status = 'Not any response';
@@ -170,33 +170,33 @@ class MagentoRunCronOnMultipleWebsite extends Command
                         }
 
                         $magCom->last_execution_time = date('Y-m-d H:i:s');
-                        $magCom->last_message = $result;
-                        $magCom->cron_status = $status;
+                        $magCom->last_message        = $result;
+                        $magCom->cron_status         = $status;
                         $magCom->save();
 
                         MagentoCronRunLog::create(
                             [
-                                'command_id' => $magCom->id,
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => $website->id,
-                                'command_name' => $cmd,
-                                'server_ip' => $website->server_ip,
+                                'command_id'        => $magCom->id,
+                                'user_id'           => \Auth::user()->id ?? '',
+                                'website_ids'       => $website->id,
+                                'command_name'      => $cmd,
+                                'server_ip'         => $website->server_ip,
                                 'working_directory' => $website->working_directory,
-                                'response' => $result,
-                                'job_id' => $job_id,
-                                'request' => json_encode($requestParams),
+                                'response'          => $result,
+                                'job_id'            => $job_id,
+                                'request'           => json_encode($requestParams),
                             ]
                         );
                     } else {
                         $add = MagentoCronRunLog::create(
                             [
-                                'command_id' => $magCom->id ?? '',
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => $website->id,
-                                'command_name' => $cmd ?? '',
-                                'server_ip' => $website->server_ip ?? '',
+                                'command_id'        => $magCom->id ?? '',
+                                'user_id'           => \Auth::user()->id ?? '',
+                                'website_ids'       => $website->id,
+                                'command_name'      => $cmd ?? '',
+                                'server_ip'         => $website->server_ip ?? '',
                                 'working_directory' => $website->working_directory ?? '',
-                                'response' => 'Server IP and Cron not found',
+                                'response'          => 'Server IP and Cron not found',
                             ]);
                         Log::info('Server IP and Cron not found');
                     }
@@ -208,13 +208,13 @@ class MagentoRunCronOnMultipleWebsite extends Command
             Log::info(' Error on Rum Magento Cron On Multiple Websit: ' . $e->getMessage());
             MagentoDevScripUpdateLog::create(
                 [
-                    'command_id' => $command_id,
-                    'user_id' => \Auth::user()->id ?? '',
-                    'website_ids' => '',
+                    'command_id'   => $command_id,
+                    'user_id'      => \Auth::user()->id ?? '',
+                    'website_ids'  => '',
                     'command_name' => '',
-                    'server_ip' => '',
+                    'server_ip'    => '',
                     'command_type' => '',
-                    'response' => ' Error ' . $e->getMessage(),
+                    'response'     => ' Error ' . $e->getMessage(),
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

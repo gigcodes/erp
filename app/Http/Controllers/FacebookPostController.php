@@ -12,9 +12,9 @@ class FacebookPostController extends Controller
 {
     public function index(Request $request)
     {
-        $posts = FacebookPost::query();
+        $posts      = FacebookPost::query();
         $account_id = $request->account_id;
-        $term = $request->term;
+        $term       = $request->term;
         if ($request->account_id) {
             $posts = $posts->where('account_id', $account_id);
         }
@@ -24,9 +24,9 @@ class FacebookPostController extends Controller
                     ->orWhere('post_body', 'like', '%' . $term . '%');
             });
         }
-        $posts = $posts->paginate(30);
+        $posts      = $posts->paginate(30);
         $totalPosts = $posts->total();
-        $accounts = Account::where('platform', 'facebook')->where('status', 1)->get();
+        $accounts   = Account::where('platform', 'facebook')->where('status', 1)->get();
         if ($request->ajax()) {
             return view('facebook.data', compact('posts', 'accounts', 'account_id', 'term', 'totalPosts'));
         }
@@ -46,11 +46,11 @@ class FacebookPostController extends Controller
         if (! $request->account_id || $request->account_id == '') {
             return response()->json(['message' => 'Select Account', 'code' => 500]);
         }
-        $post = new FacebookPost;
+        $post             = new FacebookPost;
         $post->account_id = $request->account_id;
-        $post->caption = $request->caption;
-        $post->post_body = $request->post_body;
-        $post->post_by = Auth::user()->id;
+        $post->caption    = $request->caption;
+        $post->post_body  = $request->post_body;
+        $post->post_by    = Auth::user()->id;
         $post->save();
 
         if (! empty($request->file('image'))) {
@@ -93,19 +93,19 @@ class FacebookPostController extends Controller
             return response()->json(['message' => 'No post found', 'code' => 404]);
         }
         if ($post->getMedia(config('constants.media_tags'))->first()) {
-            $url = getMediaUrl($post->getMedia(config('constants.media_tags'))->first());
+            $url  = getMediaUrl($post->getMedia(config('constants.media_tags'))->first());
             $data = [
                 'queueNumber' => $post->id,
-                'username' => $request->email,
-                'body' => $url,
-                'filename' => '',
-                'caption' => $post->caption,
+                'username'    => $request->email,
+                'body'        => $url,
+                'filename'    => '',
+                'caption'     => $post->caption,
             ];
         } else {
             $data = [
                 'queueNumber' => $post->id,
-                'username' => $request->email,
-                'body' => $post->post_body,
+                'username'    => $request->email,
+                'body'        => $post->post_body,
             ];
         }
 
@@ -137,7 +137,7 @@ class FacebookPostController extends Controller
         if (! $post) {
             return response()->json(['message' => 'No post found', 'code' => 404]);
         }
-        $post->status = $request->status;
+        $post->status    = $request->status;
         $post->posted_on = \Carbon\Carbon::now();
         $post->save();
 

@@ -82,9 +82,9 @@ class WeTransferController extends Controller
         }
         WeTransferLog::create(['link' => '', 'log_description' => 'we transfer item found']);
         if ($request->file) {
-            $file = $request->file('file');
+            $file  = $request->file('file');
             $fileN = time() . $file->getClientOriginalName();
-            $path = public_path() . '/wetransfer/' . $request->id;
+            $path  = public_path() . '/wetransfer/' . $request->id;
             $file->move($path, $fileN);
 
             $wetransfer->is_processed = 2;
@@ -114,7 +114,7 @@ class WeTransferController extends Controller
 
     public function reDownloadFiles(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id;
         $list = Wetransfer::where('id', $id)->first();
 
         if (! empty($list)) {
@@ -125,33 +125,33 @@ class WeTransferController extends Controller
             ]);
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => $response ? 'Download completed' : 'Download failed',
             ], 200);
         }
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Something went wrong, Please check if URL is correct!',
         ], 200);
     }
 
     public static function downloadFromURL($id, $url, $supplier)
     {
-        $payload = sprintf('{"id":%u,"url":"%s"}', $id, $url);
+        $payload   = sprintf('{"id":%u,"url":"%s"}', $id, $url);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'http://75.119.154.85:100/download',
+            CURLOPT_URL            => 'http://75.119.154.85:100/download',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 0,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: text/plain',
             ],
         ]);

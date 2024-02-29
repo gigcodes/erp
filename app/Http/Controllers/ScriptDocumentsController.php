@@ -20,17 +20,17 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
 
-        $records = ScriptDocuments::select('*', DB::raw('MAX(id) AS id'))->orderBy('id', 'DESC');
-        $records = $records->groupBy('file')->get();
+        $records       = ScriptDocuments::select('*', DB::raw('MAX(id) AS id'))->orderBy('id', 'DESC');
+        $records       = $records->groupBy('file')->get();
         $records_count = $records->count();
 
         $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
 
         return view(
             'script-documents.index', [
-                'title' => $title,
+                'title'         => $title,
                 'records_count' => $records_count,
-                'allUsers' => $allUsers,
+                'allUsers'      => $allUsers,
             ]
         );
     }
@@ -55,7 +55,7 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(25)->groupBy('file')->get();
+        $records       = $records->take(25)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
@@ -73,8 +73,8 @@ class ScriptDocumentsController extends Controller
 
         return response()->json(
             [
-                'code' => 200,
-                'data' => $records,
+                'code'  => 200,
+                'data'  => $records,
                 'total' => $records_count,
             ]
         );
@@ -83,23 +83,23 @@ class ScriptDocumentsController extends Controller
     public function store(Request $request)
     {
         $script_document = $request->all();
-        $validator = Validator::make(
+        $validator       = Validator::make(
             $script_document, [
-                'file' => 'required|string',
+                'file'            => 'required|string',
                 'usage_parameter' => 'required|string',
-                'category' => 'required|string',
-                'comments' => 'required|string',
-                'author' => 'required|string',
-                'description' => 'required',
-                'location' => 'required',
-                'last_run' => 'required',
-                'status' => 'required',
+                'category'        => 'required|string',
+                'comments'        => 'required|string',
+                'author'          => 'required|string',
+                'description'     => 'required',
+                'location'        => 'required',
+                'last_run'        => 'required',
+                'status'          => 'required',
             ]
         );
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -139,7 +139,7 @@ class ScriptDocumentsController extends Controller
 
         return response()->json(
             [
-                'code' => 500,
+                'code'  => 500,
                 'error' => 'Wrong script document id!',
             ]
         );
@@ -149,19 +149,19 @@ class ScriptDocumentsController extends Controller
     {
         $this->validate(
             $request, [
-                'file' => 'required|string',
+                'file'            => 'required|string',
                 'usage_parameter' => 'required|string',
-                'category' => 'required|string',
-                'comments' => 'required|string',
-                'author' => 'required|string',
-                'description' => 'required',
-                'location' => 'required',
-                'last_run' => 'required',
-                'status' => 'required',
+                'category'        => 'required|string',
+                'comments'        => 'required|string',
+                'author'          => 'required|string',
+                'description'     => 'required',
+                'location'        => 'required',
+                'last_run'        => 'required',
+                'status'          => 'required',
             ]
         );
 
-        $data = $request->except('_token', 'id');
+        $data            = $request->except('_token', 'id');
         $script_document = ScriptDocuments::where('id', $request->id)->first();
         $script_document->update($data);
 
@@ -175,8 +175,8 @@ class ScriptDocumentsController extends Controller
 
             return response()->json(
                 [
-                    'code' => 200,
-                    'data' => $script_document,
+                    'code'    => 200,
+                    'data'    => $script_document,
                     'message' => 'Deleted successfully!!!',
                 ]
             );
@@ -185,7 +185,7 @@ class ScriptDocumentsController extends Controller
 
             return response()->json(
                 [
-                    'code' => 500,
+                    'code'    => 500,
                     'message' => $msg,
                 ]
             );
@@ -195,9 +195,9 @@ class ScriptDocumentsController extends Controller
     public function uploadFile(Request $request)
     {
         $request->validate([
-            'images' => 'required',
+            'images'             => 'required',
             'file_creation_date' => 'required',
-            'remarks' => 'sometimes',
+            'remarks'            => 'sometimes',
             'script_document_id' => 'required',
         ]);
 
@@ -205,12 +205,12 @@ class ScriptDocumentsController extends Controller
         try {
             foreach ($data['images'] as $file) {
                 DB::transaction(function () use ($file, $data) {
-                    $scriptDocumentFiles = new ScriptDocumentFiles();
+                    $scriptDocumentFiles            = new ScriptDocumentFiles();
                     $scriptDocumentFiles->file_name = $file->getClientOriginalName();
                     $scriptDocumentFiles->extension = $file->extension();
 
                     $scriptDocumentFiles->script_document_id = $data['script_document_id'];
-                    $scriptDocumentFiles->remarks = $data['remarks'];
+                    $scriptDocumentFiles->remarks            = $data['remarks'];
                     $scriptDocumentFiles->file_creation_date = $data['file_creation_date'];
                     $scriptDocumentFiles->save();
                     UploadGoogleDriveScreencast::dispatchNow($scriptDocumentFiles, $file, 'anyone');
@@ -247,8 +247,8 @@ class ScriptDocumentsController extends Controller
     public function recordScriptDocumentAjax(Request $request)
     {
         $title = 'Script Documents';
-        $page = $_REQUEST['page'];
-        $page = $page * 25;
+        $page  = $_REQUEST['page'];
+        $page  = $page * 25;
 
         $records = ScriptDocuments::select('*', DB::raw('MAX(id) AS id'))->orderBy('id', 'DESC')->offset($page)->limit(25)->groupBy('file');
 
@@ -277,7 +277,7 @@ class ScriptDocumentsController extends Controller
         return view(
             'script-documents.index-ajax', [
                 'title' => $title,
-                'data' => $records,
+                'data'  => $records,
                 'total' => count($records),
             ]
         );
@@ -301,9 +301,9 @@ class ScriptDocumentsController extends Controller
         );
 
         return response()->json([
-            'status' => true,
-            'data' => $records,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $records,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -313,10 +313,10 @@ class ScriptDocumentsController extends Controller
         $scriptDocument = ScriptDocuments::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $scriptDocument,
+            'status'      => true,
+            'data'        => $scriptDocument,
             'last_output' => base64_decode(utf8_encode($scriptDocument['last_output'])),
-            'message' => 'Data get successfully',
+            'message'     => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -326,10 +326,10 @@ class ScriptDocumentsController extends Controller
         $scriptDocument = ScriptsExecutionHistory::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $scriptDocument,
+            'status'      => true,
+            'data'        => $scriptDocument,
             'last_output' => base64_decode(utf8_encode($scriptDocument['run_output'])),
-            'message' => 'Data get successfully',
+            'message'     => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -338,14 +338,14 @@ class ScriptDocumentsController extends Controller
     {
         $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
 
-        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
-        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
-        $taskStatistics = $query->get();
-        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $query               = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query               = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics      = $query->get();
+        $othertask           = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1              = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1              = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
-        $merged = $othertaskStatistics->merge($taskStatistics);
+        $merged              = $othertaskStatistics->merge($taskStatistics);
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }

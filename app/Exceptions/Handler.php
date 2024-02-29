@@ -44,7 +44,7 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  Request  $request
+     * @param Request $request
      */
     public function render($request, Throwable $exception)
     {
@@ -66,10 +66,10 @@ class Handler extends ExceptionHandler
         if ($exception instanceof \Webklex\IMAP\Exceptions\ConnectionFailedException) {
             $email = Email::find($request->route('id'));
             EmailLog::create([
-                'email_id' => $email->id,
-                'email_log' => 'Error in Sending Email',
-                'message' => 'Imap Connection Issue => ' . $exception->getMessage(),
-                'is_error' => 1,
+                'email_id'     => $email->id,
+                'email_log'    => 'Error in Sending Email',
+                'message'      => 'Imap Connection Issue => ' . $exception->getMessage(),
+                'is_error'     => 1,
                 'service_type' => 'IMAP',
             ]);
             $email->error_message = 'Imap Connection Issue => ' . $exception->getMessage();
@@ -81,12 +81,12 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof \Swift_RfcComplianceException) {
             $replymail_id = $request->reply_email_id;
-            $email = Email::find($replymail_id);
+            $email        = Email::find($replymail_id);
             EmailLog::create([
-                'email_id' => $email->id,
-                'email_log' => 'Error in Sending Email',
-                'message' => 'Mail Compliance issue Issue => ' . $exception->getMessage(),
-                'is_error' => 1,
+                'email_id'     => $email->id,
+                'email_log'    => 'Error in Sending Email',
+                'message'      => 'Mail Compliance issue Issue => ' . $exception->getMessage(),
+                'is_error'     => 1,
                 'service_type' => 'SMTP',
             ]);
             $email->error_message = 'Mail Compliance issue Issue => ' . $exception->getMessage();
@@ -104,10 +104,10 @@ class Handler extends ExceptionHandler
 
             $email = Email::find($replymail_id);
             EmailLog::create([
-                'email_id' => $email->id,
-                'email_log' => 'Error in Sending Email',
-                'message' => 'Mail Transport Issue => ' . $exception->getMessage(),
-                'is_error' => 1,
+                'email_id'     => $email->id,
+                'email_log'    => 'Error in Sending Email',
+                'message'      => 'Mail Transport Issue => ' . $exception->getMessage(),
+                'is_error'     => 1,
                 'service_type' => 'SMTP',
             ]);
             $email->error_message = 'Mail Compliance Issue => ' . $exception->getMessage();
@@ -120,10 +120,10 @@ class Handler extends ExceptionHandler
         if (str_contains($exception->getMessage(), 'Failed to authenticate on SMTP server')) {
             try {
                 EmailLog::create([
-                    'email_id' => $request->forward_email_id,
-                    'email_log' => 'Error in Sending Email',
-                    'message' => 'Mail Transport Issue => ' . $exception->getMessage(),
-                    'is_error' => 1,
+                    'email_id'     => $request->forward_email_id,
+                    'email_log'    => 'Error in Sending Email',
+                    'message'      => 'Mail Transport Issue => ' . $exception->getMessage(),
+                    'is_error'     => 1,
                     'service_type' => 'SMTP',
                 ]);
             } catch (Exception $e) {

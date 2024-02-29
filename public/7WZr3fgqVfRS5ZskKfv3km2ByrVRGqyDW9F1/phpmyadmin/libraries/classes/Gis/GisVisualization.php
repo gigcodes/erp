@@ -104,10 +104,11 @@ class GisVisualization
     /**
      * Factory
      *
-     * @param  string  $sql_query SQL to fetch raw data for visualization
-     * @param  array  $options   Users specified options
-     * @param  int  $row       number of rows
-     * @param  int  $pos       start position
+     * @param string $sql_query SQL to fetch raw data for visualization
+     * @param array  $options   Users specified options
+     * @param int    $row       number of rows
+     * @param int    $pos       start position
+     *
      * @return GisVisualization
      */
     public static function get($sql_query, array $options, $row, $pos)
@@ -118,9 +119,10 @@ class GisVisualization
     /**
      * Get visualization
      *
-     * @param  array  $data    Raw data, if set, parameters other than $options will be
+     * @param array $data    Raw data, if set, parameters other than $options will be
      *                       ignored
-     * @param  array  $options Users specified options
+     * @param array $options Users specified options
+     *
      * @return GisVisualization
      */
     public static function getByData(array $data, array $options)
@@ -145,11 +147,11 @@ class GisVisualization
     /**
      * Stores user specified options.
      *
-     * @param  string  $sql_query SQL to fetch raw data for visualization
-     * @param  array  $options   Users specified options
-     * @param  int  $row       number of rows
-     * @param  int  $pos       start position
-     * @param  array|null  $data      raw data. If set, parameters other than $options
+     * @param string     $sql_query SQL to fetch raw data for visualization
+     * @param array      $options   Users specified options
+     * @param int        $row       number of rows
+     * @param int        $pos       start position
+     * @param array|null $data      raw data. If set, parameters other than $options
      *                              will be ignored
      */
     private function __construct($sql_query, array $options, $row, $pos, $data = null)
@@ -159,7 +161,7 @@ class GisVisualization
             $this->data = $data;
         } else {
             $this->modifiedSql = $this->modifySqlQuery($sql_query, $row, $pos);
-            $this->data = $this->fetchRawData();
+            $this->data        = $this->fetchRawData();
         }
     }
 
@@ -174,22 +176,23 @@ class GisVisualization
     /**
      * Returns sql for fetching raw data
      *
-     * @param  string  $sql_query The SQL to modify.
-     * @param  int  $rows      Number of rows.
-     * @param  int  $pos       Start position.
+     * @param string $sql_query The SQL to modify.
+     * @param int    $rows      Number of rows.
+     * @param int    $pos       Start position.
+     *
      * @return string the modified sql query.
      */
     private function modifySqlQuery($sql_query, $rows, $pos)
     {
-        $isMariaDb = $this->userSpecifiedSettings['isMariaDB'] === true;
+        $isMariaDb      = $this->userSpecifiedSettings['isMariaDB'] === true;
         $modified_query = 'SELECT ';
-        $spatialAsText = 'ASTEXT';
-        $spatialSrid = 'SRID';
-        $axisOrder = '';
+        $spatialAsText  = 'ASTEXT';
+        $spatialSrid    = 'SRID';
+        $axisOrder      = '';
 
         if ($this->userSpecifiedSettings['mysqlVersion'] >= 50600) {
             $spatialAsText = 'ST_ASTEXT';
-            $spatialSrid = 'ST_SRID';
+            $spatialSrid   = 'ST_SRID';
         }
 
         // If MYSQL version >= 8.0.1 override default axis order
@@ -265,8 +268,9 @@ class GisVisualization
     /**
      * Sanitizes the file name.
      *
-     * @param  string  $file_name file name
-     * @param  string  $ext       extension of the file
+     * @param string $file_name file name
+     * @param string $ext       extension of the file
+     *
      * @return string the sanitized file name
      */
     private function sanitizeName($file_name, $ext)
@@ -276,8 +280,8 @@ class GisVisualization
         // Check if the user already added extension;
         // get the substring where the extension would be if it was included
         $required_extension = '.' . $ext;
-        $extension_length = mb_strlen($required_extension);
-        $user_extension = mb_substr($file_name, -$extension_length);
+        $extension_length   = mb_strlen($required_extension);
+        $user_extension     = mb_substr($file_name, -$extension_length);
         if (mb_strtolower($user_extension) != $required_extension) {
             $file_name .= $required_extension;
         }
@@ -288,9 +292,9 @@ class GisVisualization
     /**
      * Handles common tasks of writing the visualization to file for various formats.
      *
-     * @param  string  $file_name file name
-     * @param  string  $type      mime type
-     * @param  string  $ext       extension of the file
+     * @param string $file_name file name
+     * @param string $type      mime type
+     * @param string $ext       extension of the file
      */
     private function writeToFile($file_name, $type, $ext): void
     {
@@ -336,7 +340,7 @@ class GisVisualization
     /**
      * Saves as a SVG image to a file.
      *
-     * @param  string  $file_name File name
+     * @param string $file_name File name
      */
     public function toFileAsSvg($file_name): void
     {
@@ -397,7 +401,7 @@ class GisVisualization
     /**
      * Saves as a PNG image to a file.
      *
-     * @param  string  $file_name File name
+     * @param string $file_name File name
      */
     public function toFileAsPng($file_name): void
     {
@@ -422,7 +426,7 @@ class GisVisualization
     {
         $this->init();
         $scale_data = $this->scaleDataSet($this->data);
-        $output = 'function drawOpenLayers() {'
+        $output     = 'function drawOpenLayers() {'
             . 'if (typeof ol !== "undefined") {'
             . 'var olCss = "js/vendor/openlayers/theme/ol.css";'
             . '$(\'head\').append(\'<link rel="stylesheet" type="text/css" href=\'+olCss+\'>\');'
@@ -459,7 +463,7 @@ class GisVisualization
     /**
      * Saves as a PDF to a file.
      *
-     * @param  string  $file_name File name
+     * @param string $file_name File name
      */
     public function toFileAsPdf($file_name): void
     {
@@ -479,7 +483,7 @@ class GisVisualization
         $pdf->AddPage();
 
         $scale_data = $this->scaleDataSet($this->data);
-        $pdf = $this->prepareDataSet($this->data, $scale_data, 'pdf', $pdf);
+        $pdf        = $this->prepareDataSet($this->data, $scale_data, 'pdf', $pdf);
 
         // sanitize file name
         $file_name = $this->sanitizeName($file_name, 'pdf');
@@ -489,7 +493,8 @@ class GisVisualization
     /**
      * Convert file to image
      *
-     * @param  string  $format Output format
+     * @param string $format Output format
+     *
      * @return string File
      */
     public function toImage($format)
@@ -512,8 +517,8 @@ class GisVisualization
     /**
      * Convert file to given format
      *
-     * @param  string  $filename Filename
-     * @param  string  $format   Output format
+     * @param string $filename Filename
+     * @param string $format   Output format
      */
     public function toFile($filename, $format): void
     {
@@ -529,7 +534,8 @@ class GisVisualization
     /**
      * Calculates the scale, horizontal and vertical offset that should be used.
      *
-     * @param  array  $data Row data
+     * @param array $data Row data
+     *
      * @return array an array containing the scale, x and y offsets
      */
     private function scaleDataSet(array $data)
@@ -542,7 +548,7 @@ class GisVisualization
         ];
         $border = 15;
         // effective width and height of the plot
-        $plot_width = $this->settings['width'] - 2 * $border;
+        $plot_width  = $this->settings['width'] - 2 * $border;
         $plot_height = $this->settings['height'] - 2 * $border;
 
         foreach ($data as $row) {
@@ -593,7 +599,7 @@ class GisVisualization
         // scale the visualization
         $x_ratio = ($min_max['maxX'] - $min_max['minX']) / $plot_width;
         $y_ratio = ($min_max['maxY'] - $min_max['minY']) / $plot_height;
-        $ratio = $x_ratio > $y_ratio ? $x_ratio : $y_ratio;
+        $ratio   = $x_ratio > $y_ratio ? $x_ratio : $y_ratio;
 
         $scale = $ratio != 0 ? 1 / $ratio : 1;
 
@@ -610,13 +616,13 @@ class GisVisualization
         }
 
         return [
-            'scale' => $scale,
-            'x' => $x,
-            'y' => $y,
-            'minX' => $min_max['minX'],
-            'maxX' => $min_max['maxX'],
-            'minY' => $min_max['minY'],
-            'maxY' => $min_max['maxY'],
+            'scale'  => $scale,
+            'x'      => $x,
+            'y'      => $y,
+            'minX'   => $min_max['minX'],
+            'maxX'   => $min_max['maxX'],
+            'minY'   => $min_max['minY'],
+            'maxY'   => $min_max['maxY'],
             'height' => $this->settings['height'],
         ];
     }
@@ -624,11 +630,12 @@ class GisVisualization
     /**
      * Prepares and return the dataset as needed by the visualization.
      *
-     * @param  array  $data       Raw data
-     * @param  array  $scale_data Data related to scaling
-     * @param  string  $format     Format of the visualization
-     * @param  ImageWrapper|TCPDF|string|false  $results    Image object in the case of png
+     * @param array                           $data       Raw data
+     * @param array                           $scale_data Data related to scaling
+     * @param string                          $format     Format of the visualization
+     * @param ImageWrapper|TCPDF|string|false $results    Image object in the case of png
      *                                                    TCPDF object in the case of pdf
+     *
      * @return mixed the formatted array of data
      */
     private function prepareDataSet(array $data, array $scale_data, $format, $results)
@@ -704,7 +711,7 @@ class GisVisualization
     /**
      * Set user specified settings
      *
-     * @param  array  $userSpecifiedSettings User specified settings
+     * @param array $userSpecifiedSettings User specified settings
      */
     public function setUserSpecifiedSettings(array $userSpecifiedSettings): void
     {

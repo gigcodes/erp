@@ -47,8 +47,8 @@ class WrapperController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->transformations = $transformations;
-        $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->relation        = $relation;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -171,21 +171,21 @@ class WrapperController extends AbstractController
                 return;
             }
 
-            $srcWidth = $srcImage->width();
+            $srcWidth  = $srcImage->width();
             $srcHeight = $srcImage->height();
 
             // Check to see if the width > height or if width < height
             // if so adjust accordingly to make sure the image
             // stays smaller than the new width and new height
 
-            $ratioWidth = $srcWidth / $_REQUEST['newWidth'];
+            $ratioWidth  = $srcWidth / $_REQUEST['newWidth'];
             $ratioHeight = $srcHeight / $_REQUEST['newHeight'];
 
             if ($ratioWidth < $ratioHeight) {
-                $destWidth = intval(round($srcWidth / $ratioHeight));
+                $destWidth  = intval(round($srcWidth / $ratioHeight));
                 $destHeight = intval($_REQUEST['newHeight']);
             } else {
-                $destWidth = intval($_REQUEST['newWidth']);
+                $destWidth  = intval($_REQUEST['newWidth']);
                 $destHeight = intval(round($srcHeight / $ratioWidth));
             }
 

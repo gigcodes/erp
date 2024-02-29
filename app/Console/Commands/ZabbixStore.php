@@ -58,13 +58,13 @@ class ZabbixStore extends Command
                     } else {
                         $hostarray = [
                             'hostid' => $host->hostid,
-                            'name' => $host->name,
-                            'host' => $host->host,
+                            'name'   => $host->name,
+                            'host'   => $host->host,
                         ];
                         $last_host_id = Host::create($hostarray);
-                        $hostItems[] = [
+                        $hostItems[]  = [
                             'host_id' => $last_host_id->id,
-                            'hostid' => $host->hostid,
+                            'hostid'  => $host->hostid,
                         ];
                     }
                 }
@@ -79,12 +79,12 @@ class ZabbixStore extends Command
     {
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
-        $curl = curl_init($url);
-        $data = [
+        $url       = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl      = curl_init($url);
+        $data      = [
             'jsonrpc' => '2.0',
-            'method' => 'user.login',
-            'params' => [
+            'method'  => 'user.login',
+            'params'  => [
                 'username' => env('ZABBIX_USERNAME'),
                 'password' => env('ZABBIX_PASSWORD'),
             ],
@@ -96,7 +96,7 @@ class ZabbixStore extends Command
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
+        $result   = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'POST', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'login_api');
@@ -127,22 +127,22 @@ class ZabbixStore extends Command
         \Log::error('Start fetching items from Zabbix API (host_api)');
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
-        $curl = curl_init($url);
-        $data = [
+        $url       = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl      = curl_init($url);
+        $data      = [
             'jsonrpc' => '2.0',
-            'method' => 'host.get',
-            'params' => [
+            'method'  => 'host.get',
+            'params'  => [
 
             ],
             'auth' => $auth_key,
-            'id' => 1,
+            'id'   => 1,
         ];
         $datas = json_encode([$data]);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
+        $result   = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'host_api');
@@ -157,22 +157,22 @@ class ZabbixStore extends Command
         \Log::error('Start fetching items from Zabbix API (item_api)');
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
-        $curl = curl_init($url);
-        $data = [
+        $url       = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $curl      = curl_init($url);
+        $data      = [
             'jsonrpc' => '2.0',
-            'method' => 'item.get',
-            'params' => [
+            'method'  => 'item.get',
+            'params'  => [
                 'hostids' => $hostid,
             ],
             'auth' => $auth_key,
-            'id' => 1,
+            'id'   => 1,
         ];
         $datas = json_encode([$data]);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $datas);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
+        $result   = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'item_api');

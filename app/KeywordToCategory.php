@@ -16,20 +16,20 @@ class KeywordToCategory extends Model
         }
 
         return [
-            'Follow up for advance' => 'Follow up for advance',
-            'Proceed without Advance' => 'Proceed without Advance',
-            'Advance received' => 'Advance received',
-            'Cancel' => 'Cancel',
-            'Prepaid' => 'Prepaid',
+            'Follow up for advance'     => 'Follow up for advance',
+            'Proceed without Advance'   => 'Proceed without Advance',
+            'Advance received'          => 'Advance received',
+            'Cancel'                    => 'Cancel',
+            'Prepaid'                   => 'Prepaid',
             'Product Shiped form Italy' => 'Product Shiped form Italy',
-            'In Transist from Italy' => 'In Transist from Italy',
-            'Product shiped to Client' => 'Product shiped to Client',
-            'Delivered' => 'Delivered',
-            'Refund to be processed' => 'Refund to be processed',
-            'Refund Dispatched' => 'Refund Dispatched',
-            'Refund Credited' => 'Refund Credited',
-            'VIP' => 'VIP',
-            'HIGH PRIORITY' => 'HIGH PRIORITY',
+            'In Transist from Italy'    => 'In Transist from Italy',
+            'Product shiped to Client'  => 'Product shiped to Client',
+            'Delivered'                 => 'Delivered',
+            'Refund to be processed'    => 'Refund to be processed',
+            'Refund Dispatched'         => 'Refund Dispatched',
+            'Refund Credited'           => 'Refund Credited',
+            'VIP'                       => 'VIP',
+            'HIGH PRIORITY'             => 'HIGH PRIORITY',
         ][$this->model_id] ?? null;
     }
 

@@ -28,8 +28,8 @@ class DrawioImageController extends Controller
      */
     public function list(Request $request)
     {
-        $page = $request->get('page', 1);
-        $searchTerm = $request->get('search', null);
+        $page             = $request->get('page', 1);
+        $searchTerm       = $request->get('search', null);
         $uploadedToFilter = $request->get('uploaded_to', null);
         $parentTypeFilter = $request->get('filter_type', null);
 
@@ -48,7 +48,7 @@ class DrawioImageController extends Controller
     public function create(Request $request)
     {
         $this->validate($request, [
-            'image' => 'required|string',
+            'image'       => 'required|string',
             'uploaded_to' => 'required|integer',
         ]);
 
@@ -57,7 +57,7 @@ class DrawioImageController extends Controller
 
         try {
             $uploadedTo = $request->get('uploaded_to', 0);
-            $image = $this->imageRepo->saveDrawing($imageBase64Data, $uploadedTo);
+            $image      = $this->imageRepo->saveDrawing($imageBase64Data, $uploadedTo);
         } catch (ImageUploadException $e) {
             return response($e->getMessage(), 500);
         }
@@ -68,12 +68,14 @@ class DrawioImageController extends Controller
     /**
      * Get the content of an image based64 encoded.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\JsonResponse|mixed
      */
     public function getAsBase64($id)
     {
         $image = $this->imageRepo->getById($id);
-        $page = $image->getPage();
+        $page  = $image->getPage();
         if ($image === null || $image->type !== 'drawio' || ! userCan('page-view', $page)) {
             return $this->jsonError('Image data could not be found');
         }

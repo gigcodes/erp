@@ -37,9 +37,9 @@ final class ImportController extends AbstractController
     {
         global $db, $table, $SESSION_KEY, $cfg, $errorUrl;
 
-        $pageSettings = new PageSettings('Import');
+        $pageSettings          = new PageSettings('Import');
         $pageSettingsErrorHtml = $pageSettings->getErrorHTML();
-        $pageSettingsHtml = $pageSettings->getHTML();
+        $pageSettingsHtml      = $pageSettings->getHTML();
 
         $this->addScriptFiles(['import.js']);
         $errorUrl = Url::getFromRoute('/');
@@ -65,54 +65,54 @@ final class ImportController extends AbstractController
             $offset = intval($_REQUEST['offset']);
         }
 
-        $timeoutPassed = $_REQUEST['timeout_passed'] ?? null;
+        $timeoutPassed   = $_REQUEST['timeout_passed'] ?? null;
         $localImportFile = $_REQUEST['local_import_file'] ?? null;
-        $compressions = Import::getCompressions();
+        $compressions    = Import::getCompressions();
 
         $charsets = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
 
-        $idKey = $_SESSION[$SESSION_KEY]['handler']::getIdKey();
+        $idKey        = $_SESSION[$SESSION_KEY]['handler']::getIdKey();
         $hiddenInputs = [
-            $idKey => $uploadId,
+            $idKey        => $uploadId,
             'import_type' => 'server',
         ];
 
-        $default = isset($_GET['format']) ? (string) $_GET['format'] : Plugins::getDefault('Import', 'format');
-        $choice = Plugins::getChoice($importList, $default);
-        $options = Plugins::getOptions('Import', $importList);
-        $skipQueriesDefault = Plugins::getDefault('Import', 'skip_queries');
+        $default                 = isset($_GET['format']) ? (string) $_GET['format'] : Plugins::getDefault('Import', 'format');
+        $choice                  = Plugins::getChoice($importList, $default);
+        $options                 = Plugins::getOptions('Import', $importList);
+        $skipQueriesDefault      = Plugins::getDefault('Import', 'skip_queries');
         $isAllowInterruptChecked = Plugins::checkboxCheck('Import', 'allow_interrupt');
-        $maxUploadSize = (int) $GLOBALS['config']->get('max_upload_size');
+        $maxUploadSize           = (int) $GLOBALS['config']->get('max_upload_size');
 
         $this->render('server/import/index', [
-            'page_settings_error_html' => $pageSettingsErrorHtml,
-            'page_settings_html' => $pageSettingsHtml,
-            'upload_id' => $uploadId,
-            'handler' => $_SESSION[$SESSION_KEY]['handler'],
-            'hidden_inputs' => $hiddenInputs,
-            'db' => $db,
-            'table' => $table,
-            'max_upload_size' => $maxUploadSize,
+            'page_settings_error_html'      => $pageSettingsErrorHtml,
+            'page_settings_html'            => $pageSettingsHtml,
+            'upload_id'                     => $uploadId,
+            'handler'                       => $_SESSION[$SESSION_KEY]['handler'],
+            'hidden_inputs'                 => $hiddenInputs,
+            'db'                            => $db,
+            'table'                         => $table,
+            'max_upload_size'               => $maxUploadSize,
             'formatted_maximum_upload_size' => Util::getFormattedMaximumUploadSize($maxUploadSize),
-            'plugins_choice' => $choice,
-            'options' => $options,
-            'skip_queries_default' => $skipQueriesDefault,
-            'is_allow_interrupt_checked' => $isAllowInterruptChecked,
-            'local_import_file' => $localImportFile,
-            'is_upload' => $GLOBALS['config']->get('enable_upload'),
-            'upload_dir' => $cfg['UploadDir'] ?? null,
-            'timeout_passed_global' => $GLOBALS['timeout_passed'] ?? null,
-            'compressions' => $compressions,
-            'is_encoding_supported' => Encoding::isSupported(),
-            'encodings' => Encoding::listEncodings(),
-            'import_charset' => $cfg['Import']['charset'] ?? null,
-            'timeout_passed' => $timeoutPassed,
-            'offset' => $offset,
-            'can_convert_kanji' => Encoding::canConvertKanji(),
-            'charsets' => $charsets,
-            'is_foreign_key_check' => ForeignKey::isCheckEnabled(),
-            'user_upload_dir' => Util::userDir((string) ($cfg['UploadDir'] ?? '')),
-            'local_files' => Import::getLocalFiles($importList),
+            'plugins_choice'                => $choice,
+            'options'                       => $options,
+            'skip_queries_default'          => $skipQueriesDefault,
+            'is_allow_interrupt_checked'    => $isAllowInterruptChecked,
+            'local_import_file'             => $localImportFile,
+            'is_upload'                     => $GLOBALS['config']->get('enable_upload'),
+            'upload_dir'                    => $cfg['UploadDir'] ?? null,
+            'timeout_passed_global'         => $GLOBALS['timeout_passed'] ?? null,
+            'compressions'                  => $compressions,
+            'is_encoding_supported'         => Encoding::isSupported(),
+            'encodings'                     => Encoding::listEncodings(),
+            'import_charset'                => $cfg['Import']['charset'] ?? null,
+            'timeout_passed'                => $timeoutPassed,
+            'offset'                        => $offset,
+            'can_convert_kanji'             => Encoding::canConvertKanji(),
+            'charsets'                      => $charsets,
+            'is_foreign_key_check'          => ForeignKey::isCheckEnabled(),
+            'user_upload_dir'               => Util::userDir((string) ($cfg['UploadDir'] ?? '')),
+            'local_files'                   => Import::getLocalFiles($importList),
         ]);
     }
 }

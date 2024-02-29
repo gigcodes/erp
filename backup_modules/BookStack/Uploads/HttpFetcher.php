@@ -17,13 +17,13 @@ class HttpFetcher
     {
         $ch = curl_init();
         curl_setopt_array($ch, [
-            CURLOPT_URL => $uri,
+            CURLOPT_URL            => $uri,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_CONNECTTIMEOUT => 5,
         ]);
 
         $data = curl_exec($ch);
-        $err = curl_error($ch);
+        $err  = curl_error($ch);
         curl_close($ch);
 
         if ($err) {

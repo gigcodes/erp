@@ -19,7 +19,8 @@ class UpdateCurrencyCashFlow
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
+     *
      * @return void
      */
     public function handle(CashFlowUpdated $event)
@@ -33,7 +34,7 @@ class UpdateCurrencyCashFlow
 
         if ($cashflow->monetary_account_id > 0 && ($cashflow->type == 'received' || $cashflow->type == 'paid')) {
             $user_id = ! empty(auth()->id) ? auth()->id : 6;
-            $amount = $cashflow->erp_amount;
+            $amount  = $cashflow->erp_amount;
             if ($cashflow->type == 'paid') {
                 $amount = 0 - $cashflow->erp_amount;
             }
@@ -41,21 +42,21 @@ class UpdateCurrencyCashFlow
             $monetaryHistory = \App\MonetaryAccountHistory::where('model_id', $cashflow->id)->where('model_type', \App\CashFlow::class)->first();
             if ($monetaryHistory) {
                 $monetaryHistory->update([
-                    'note' => $cashflow->description,
-                    'model_id' => $cashflow->id,
-                    'model_type' => \App\CashFlow::class,
-                    'amount' => $amount,
+                    'note'                => $cashflow->description,
+                    'model_id'            => $cashflow->id,
+                    'model_type'          => \App\CashFlow::class,
+                    'amount'              => $amount,
                     'monetary_account_id' => $cashflow->monetary_account_id,
-                    'user_id' => $user_id,
+                    'user_id'             => $user_id,
                 ]);
             } else {
                 \App\MonetaryAccountHistory::create([
-                    'note' => $cashflow->description,
-                    'model_id' => $cashflow->id,
-                    'model_type' => \App\CashFlow::class,
-                    'amount' => $amount,
+                    'note'                => $cashflow->description,
+                    'model_id'            => $cashflow->id,
+                    'model_type'          => \App\CashFlow::class,
+                    'amount'              => $amount,
                     'monetary_account_id' => $cashflow->monetary_account_id,
-                    'user_id' => $user_id,
+                    'user_id'             => $user_id,
                 ]);
             }
         }

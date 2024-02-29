@@ -68,7 +68,7 @@ class BrandMergeWithProduct extends Command
 
                 if ($percent >= 60) {
                     $reference = $originalWord;
-                    $brandId = $brandId;
+                    $brandId   = $brandId;
                     //getting references
                     $ref = Brand::find($brandId);
 
@@ -92,8 +92,8 @@ class BrandMergeWithProduct extends Command
                         $product = \App\Product::where('brand', $keyId)->get();
                         if (! $product->isEmpty()) {
                             foreach ($product as $p) {
-                                $lastBrand = $p->brand;
-                                $p->brand = $brandId;
+                                $lastBrand     = $p->brand;
+                                $p->brand      = $brandId;
                                 $p->last_brand = $lastBrand;
                                 $p->save();
                                 \Log::channel('productUpdates')->info("{$brandId} updated with product" . $p->sku);

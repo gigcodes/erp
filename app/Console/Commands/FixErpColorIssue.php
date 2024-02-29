@@ -81,7 +81,7 @@ class FixErpColorIssue extends Command
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Color found for product id:' . $product->id]);
 
                             // check for the auto crop
-                            $product->color = $color;
+                            $product->color    = $color;
                             $needToCheckStatus = [
                                 StatusHelper::$requestForExternalScraper,
                                 StatusHelper::$unknownComposition,

@@ -20,7 +20,7 @@ final class CentralColumnsFeature
 
     public function __construct(DatabaseName $database, TableName $centralColumns)
     {
-        $this->database = $database;
+        $this->database       = $database;
         $this->centralColumns = $centralColumns;
     }
 }

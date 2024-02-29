@@ -42,10 +42,11 @@ class ZipExtension
     /**
      * Gets zip file contents
      *
-     * @param  string  $file          path to zip file
-     * @param  string  $specificEntry regular expression to match a file
+     * @param string $file          path to zip file
+     * @param string $specificEntry regular expression to match a file
+     *
      * @return array ($error_message, $file_data); $error_message
-     *                  is empty if no error
+     *               is empty if no error
      */
     public function getContents($file, $specificEntry = null)
     {
@@ -57,12 +58,12 @@ class ZipExtension
         if ($this->zip === null) {
             return [
                 'error' => sprintf(__('The %s extension is missing. Please check your PHP configuration.'), 'zip'),
-                'data' => '',
+                'data'  => '',
             ];
         }
 
         $errorMessage = '';
-        $fileData = '';
+        $fileData     = '';
 
         $res = $this->zip->open($file);
 
@@ -72,7 +73,7 @@ class ZipExtension
 
             return [
                 'error' => $errorMessage,
-                'data' => $fileData,
+                'data'  => $fileData,
             ];
         }
 
@@ -82,12 +83,12 @@ class ZipExtension
 
             return [
                 'error' => $errorMessage,
-                'data' => $fileData,
+                'data'  => $fileData,
             ];
         }
 
         /* Is the the zip really an ODS file? */
-        $odsMediaType = 'application/vnd.oasis.opendocument.spreadsheet';
+        $odsMediaType  = 'application/vnd.oasis.opendocument.spreadsheet';
         $firstZipEntry = $this->zip->getFromIndex(0);
         if (! strcmp($odsMediaType, (string) $firstZipEntry)) {
             $specificEntry = '/^content\.xml$/';
@@ -99,7 +100,7 @@ class ZipExtension
 
             return [
                 'error' => $errorMessage,
-                'data' => $fileData,
+                'data'  => $fileData,
             ];
         }
 
@@ -121,15 +122,16 @@ class ZipExtension
 
         return [
             'error' => $errorMessage,
-            'data' => $fileData,
+            'data'  => $fileData,
         ];
     }
 
     /**
      * Returns the filename of the first file that matches the given $file_regexp.
      *
-     * @param  string  $file  path to zip file
-     * @param  string  $regex regular expression for the file name to match
+     * @param string $file  path to zip file
+     * @param string $regex regular expression for the file name to match
+     *
      * @return string|false the file name of the first file that matches the given regular expression
      */
     public function findFile($file, $regex)
@@ -157,7 +159,8 @@ class ZipExtension
     /**
      * Returns the number of files in the zip archive.
      *
-     * @param  string  $file path to zip file
+     * @param string $file path to zip file
+     *
      * @return int the number of files in the zip archive or 0, either if there weren't any files or an error occurred.
      */
     public function getNumberOfFiles($file)
@@ -179,8 +182,9 @@ class ZipExtension
     /**
      * Extracts the content of $entry.
      *
-     * @param  string  $file  path to zip file
-     * @param  string  $entry file in the archive that should be extracted
+     * @param string $file  path to zip file
+     * @param string $entry file in the archive that should be extracted
+     *
      * @return string|false data on success, false otherwise
      */
     public function extract($file, $entry)
@@ -206,26 +210,27 @@ class ZipExtension
      * or if $data is an array and $name is an array, but they don't have the
      * same amount of elements.
      *
-     * @param  array|string  $data contents of the file/files
-     * @param  array|string  $name name of the file/files in the archive
-     * @param  int  $time the current timestamp
+     * @param array|string $data contents of the file/files
+     * @param array|string $name name of the file/files in the archive
+     * @param int          $time the current timestamp
+     *
      * @return string|bool the ZIP file contents, or false if there was an error.
      */
     public function createFile($data, $name, $time = 0)
     {
-        $datasec = []; // Array to store compressed data
-        $ctrlDir = []; // Central directory
-        $oldOffset = 0; // Last offset position
+        $datasec    = []; // Array to store compressed data
+        $ctrlDir    = []; // Central directory
+        $oldOffset  = 0; // Last offset position
         $eofCtrlDir = "\x50\x4b\x05\x06\x00\x00\x00\x00"; // End of central directory record
 
         if (is_string($data) && is_string($name)) {
             $data = [$name => $data];
         } elseif (is_array($data) && is_string($name)) {
-            $extPos = (int) strpos($name, '.');
+            $extPos    = (int) strpos($name, '.');
             $extension = substr($name, $extPos);
-            $newData = [];
+            $newData   = [];
             foreach ($data as $key => $value) {
-                $newName = str_replace($extension, '_' . $key . $extension, $name);
+                $newName           = str_replace($extension, '_' . $key . $extension, $name);
                 $newData[$newName] = $value;
             }
 
@@ -244,10 +249,10 @@ class ZipExtension
             $timearray = getdate();
 
             if ($timearray['year'] < 1980) {
-                $timearray['year'] = 1980;
-                $timearray['mon'] = 1;
-                $timearray['mday'] = 1;
-                $timearray['hours'] = 0;
+                $timearray['year']    = 1980;
+                $timearray['mon']     = 1;
+                $timearray['mday']    = 1;
+                $timearray['hours']   = 0;
                 $timearray['minutes'] = 0;
                 $timearray['seconds'] = 0;
             }
@@ -262,11 +267,11 @@ class ZipExtension
             $hexdtime = pack('V', $time);
 
             $uncLen = strlen($dump);
-            $crc = crc32($dump);
-            $zdata = (string) gzcompress($dump);
-            $zdata = substr((string) substr($zdata, 0, strlen($zdata) - 4), 2); // fix crc bug
-            $cLen = strlen($zdata);
-            $fr = "\x50\x4b\x03\x04"
+            $crc    = crc32($dump);
+            $zdata  = (string) gzcompress($dump);
+            $zdata  = substr((string) substr($zdata, 0, strlen($zdata) - 4), 2); // fix crc bug
+            $cLen   = strlen($zdata);
+            $fr     = "\x50\x4b\x03\x04"
                 . "\x14\x00" // ver needed to extract
                 . "\x00\x00" // gen purpose bit flag
                 . "\x08\x00" // compression method
@@ -312,7 +317,7 @@ class ZipExtension
 
         /* Build string to return */
         $tempCtrlDir = implode('', $ctrlDir);
-        $header = $tempCtrlDir .
+        $header      = $tempCtrlDir .
             $eofCtrlDir .
             pack('v', count($ctrlDir)) . //total #of entries "on this disk"
             pack('v', count($ctrlDir)) . //total #of entries overall

@@ -7,7 +7,6 @@ use Session;
 use Response;
 use App\Setting;
 use Illuminate\View\View;
-use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use App\Services\Facebook\FB;
 use App\Social\SocialPostLog;
@@ -72,13 +71,13 @@ class SocialCampaignController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialCampaign';
+        $Log->modal           = 'SocialCampaign';
         $Log->save();
 
         return true;
@@ -104,17 +103,17 @@ class SocialCampaignController extends Controller
     public function store(Request $request)
     {
         $post = SocialCampaign::create([
-            'config_id' => $request->config_id,
-            'name' => $request->name,
+            'config_id'      => $request->config_id,
+            'name'           => $request->name,
             'objective_name' => $request->objective,
-            'buying_type' => $request->buying_type,
-            'daily_budget' => $request->daily_budget,
-            'status' => $request->status,
+            'buying_type'    => $request->buying_type,
+            'daily_budget'   => $request->daily_budget,
+            'status'         => $request->status,
         ]);
 
-        $data['name'] = $request->input('name');
-        $data['objective'] = $request->input('objective');
-        $data['status'] = $request->input('status');
+        $data['name']                  = $request->input('name');
+        $data['objective']             = $request->input('objective');
+        $data['status']                = $request->input('status');
         $data['special_ad_categories'] = json_encode([]);
 
         if ($request->has('buying_type')) {
@@ -127,8 +126,8 @@ class SocialCampaignController extends Controller
         $fb = new FB($config->page_token);
         $this->socialPostLog($config->id, '', 'facebook', 'message', 'get page access token');
         try {
-            $response = $fb->createCampaign($config->ad_account_id, $data);
-            $post->live_status = 'sucess';
+            $response              = $fb->createCampaign($config->ad_account_id, $data);
+            $post->live_status     = 'sucess';
             $post->ref_campaign_id = $response['id'];
             $post->save();
             Session::flash('message', 'Campaign created  successfully');
@@ -147,21 +146,22 @@ class SocialCampaignController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SocialCampaign  $SocialCampaign
+     * @param \App\SocialCampaign $SocialCampaign
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'email'            => 'required',
+            'password'         => 'required',
+            'status'           => 'required',
         ]);
-        $config = SocialCampaign::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $config           = SocialCampaign::findorfail($request->id);
+        $data             = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
@@ -172,7 +172,8 @@ class SocialCampaignController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SocialCampaign  $SocialCampaign
+     * @param \App\SocialCampaign $SocialCampaign
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request)

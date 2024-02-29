@@ -20,10 +20,10 @@ class PlanController extends Controller
 
     public function index()
     {
-        $query = Plan::whereNull('parent_id');
+        $query     = Plan::whereNull('parent_id');
         $basisList = PlanBasisStatus::all();
 
-        $typeList = PlanTypes::all();
+        $typeList     = PlanTypes::all();
         $categoryList = PlanCategories::all();
 
         if (request('status')) {
@@ -60,7 +60,7 @@ class PlanController extends Controller
     {
         $rules = [
             'priority' => 'required',
-            'status' => 'required',
+            'status'   => 'required',
         ];
 
         $validation = validator(
@@ -68,8 +68,8 @@ class PlanController extends Controller
             $rules
         );
         if (isset($request->parent_id)) {
-            $plan = Plan::find($request->parent_id);
-            $type = $plan->type;
+            $plan     = Plan::find($request->parent_id);
+            $type     = $plan->type;
             $category = $plan->category;
         } else {
             $type = PlanTypes::find($request->type);
@@ -100,7 +100,7 @@ class PlanController extends Controller
 
             PlanBasisStatus::insert($data);
         }
-        $typeList = PlanTypes::all();
+        $typeList     = PlanTypes::all();
         $categoryList = PlanCategories::all();
         //If validation fail send back the Input with errors
         if ($validation->fails()) {
@@ -108,17 +108,17 @@ class PlanController extends Controller
             return redirect()->back()->withErrors($validation)->withInput();
         } else {
             $data = [
-                'subject' => $request->subject,
-                'sub_subject' => $request->sub_subject,
-                'description' => $request->description,
-                'priority' => $request->priority,
-                'date' => $request->date,
-                'status' => $request->status,
-                'budget' => $request->budget,
-                'deadline' => $request->deadline,
-                'basis' => $request->basis,
-                'type' => $request->type,
-                'category' => $request->category,
+                'subject'      => $request->subject,
+                'sub_subject'  => $request->sub_subject,
+                'description'  => $request->description,
+                'priority'     => $request->priority,
+                'date'         => $request->date,
+                'status'       => $request->status,
+                'budget'       => $request->budget,
+                'deadline'     => $request->deadline,
+                'basis'        => $request->basis,
+                'type'         => $request->type,
+                'category'     => $request->category,
                 'implications' => $request->implications,
             ];
             if ($request->parent_id) {
@@ -213,13 +213,13 @@ class PlanController extends Controller
         $data = Plan::where('id', $request->id)->first();
         if ($data) {
             return response()->json([
-                'code' => 200,
+                'code'   => 200,
                 'object' => $data,
             ]);
         }
 
         return response()->json([
-            'code' => 500,
+            'code'   => 500,
             'object' => null,
         ]);
     }
@@ -249,10 +249,10 @@ class PlanController extends Controller
     {
         $data = Plan::where('id', $id)
             ->with('getPlanActionStrength', 'getPlanActionWeakness', 'getPlanActionOpportunity', 'getPlanActionThreat')->first();
-        $strengths = $data->getPlanActionStrength;
-        $weaknesses = $data->getPlanActionWeakness;
+        $strengths     = $data->getPlanActionStrength;
+        $weaknesses    = $data->getPlanActionWeakness;
         $opportunities = $data->getPlanActionOpportunity;
-        $threats = $data->getPlanActionThreat;
+        $threats       = $data->getPlanActionThreat;
 
         return view('modal.plan_action', compact('strengths', 'weaknesses', 'opportunities', 'threats'));
     }
@@ -263,7 +263,7 @@ class PlanController extends Controller
 
         //change code by new requirement
         if ($data) {
-            $created_by = \Auth::user()->id;
+            $created_by    = \Auth::user()->id;
             $do_not_delete = [];
 
             //----------------- Edit Process ----------------------------
@@ -304,10 +304,10 @@ class PlanController extends Controller
             if (isset($request->plan_action_strength)) {
                 foreach ($request->plan_action_strength as $plan_action_strength) {
                     $plan_action_strengthData = PlanAction::firstOrCreate([
-                        'plan_id' => $request->id,
-                        'plan_action' => $plan_action_strength,
+                        'plan_id'          => $request->id,
+                        'plan_action'      => $plan_action_strength,
                         'plan_action_type' => 1,
-                        'created_by' => $created_by,
+                        'created_by'       => $created_by,
                     ]);
                     array_push($do_not_delete, $plan_action_strengthData->id);
                 }
@@ -315,10 +315,10 @@ class PlanController extends Controller
             if (isset($request->plan_action_weakness)) {
                 foreach ($request->plan_action_weakness as $plan_action_weakness) {
                     $plan_action_weaknessData = PlanAction::firstOrCreate([
-                        'plan_id' => $request->id,
-                        'plan_action' => $plan_action_weakness,
+                        'plan_id'          => $request->id,
+                        'plan_action'      => $plan_action_weakness,
                         'plan_action_type' => 2,
-                        'created_by' => $created_by,
+                        'created_by'       => $created_by,
                     ]);
                     array_push($do_not_delete, $plan_action_weaknessData->id);
                 }
@@ -326,10 +326,10 @@ class PlanController extends Controller
             if (isset($request->plan_action_opportunity)) {
                 foreach ($request->plan_action_opportunity as $plan_action_opportunity) {
                     $plan_action_opportunityData = PlanAction::firstOrCreate([
-                        'plan_id' => $request->id,
-                        'plan_action' => $plan_action_opportunity,
+                        'plan_id'          => $request->id,
+                        'plan_action'      => $plan_action_opportunity,
                         'plan_action_type' => 3,
-                        'created_by' => $created_by,
+                        'created_by'       => $created_by,
                     ]);
                     array_push($do_not_delete, $plan_action_opportunityData->id);
                 }
@@ -337,10 +337,10 @@ class PlanController extends Controller
             if (isset($request->plan_action_threat)) {
                 foreach ($request->plan_action_threat as $plan_action_threat) {
                     $plan_action_threatData = PlanAction::firstOrCreate([
-                        'plan_id' => $request->id,
-                        'plan_action' => $plan_action_threat,
+                        'plan_id'          => $request->id,
+                        'plan_action'      => $plan_action_threat,
                         'plan_action_type' => 4,
-                        'created_by' => $created_by,
+                        'created_by'       => $created_by,
                     ]);
                     array_push($do_not_delete, $plan_action_threatData->id);
                 }
@@ -361,7 +361,7 @@ class PlanController extends Controller
         if ($request->solution && $request->id) {
             $data = [
                 'solution' => $request->solution,
-                'plan_id' => $request->id,
+                'plan_id'  => $request->id,
             ];
             DB::table('plan_solutions')->insert($data);
 
@@ -384,7 +384,7 @@ class PlanController extends Controller
 
     public function changeStatusCategory(Request $request)
     {
-        $plan = Plan::where('id', $request->plan_id)->first();
+        $plan         = Plan::where('id', $request->plan_id)->first();
         $plan->status = $request->status;
         $plan->update();
 
@@ -393,11 +393,11 @@ class PlanController extends Controller
 
     public function addPlanRemarks(Request $request)
     {
-        $plan = Plan::where('id', $request->plan_id)->first();
+        $plan         = Plan::where('id', $request->plan_id)->first();
         $plan->remark = $request->remark;
         $plan->save();
 
-        $planRemarkhistory = new PlanRemarkHistory();
+        $planRemarkhistory          = new PlanRemarkHistory();
         $planRemarkhistory->plan_id = $request->plan_id;
         $planRemarkhistory->remarks = $request->remark;
         $planRemarkhistory->user_id = \Auth::id();

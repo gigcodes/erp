@@ -48,7 +48,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was updated.']);
@@ -118,16 +118,17 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
     /**
      * @param $message
      * Send message to customer, create message and then approve message...
+     * @param mixed $customer
      */
     private function sendMessage($customer, $message): void
     {
         $params = [
-            'number' => null,
-            'user_id' => 6,
-            'approved' => 1,
-            'status' => 1,
+            'number'      => null,
+            'user_id'     => 6,
+            'approved'    => 1,
+            'status'      => 1,
             'customer_id' => $customer,
-            'message' => $message,
+            'message'     => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

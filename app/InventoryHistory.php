@@ -11,7 +11,6 @@ class InventoryHistory extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="in_stock",type="boolean")
      * @SWG\Property(property="product_id",type="integer")

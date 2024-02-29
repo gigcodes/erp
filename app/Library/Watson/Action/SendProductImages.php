@@ -47,7 +47,7 @@ class SendProductImages
     public function getResults()
     {
         $images = [];
-        $ids = [];
+        $ids    = [];
         // Removed more options from here as we don't need product for now
         $this->products = $products = \App\Product::attachProductChat([$this->brand->id], [$this->category->id], []);
 
@@ -65,8 +65,8 @@ class SendProductImages
 
         return [
             'media_ids' => $images,
-            'params' => [
-                'brands' => [$this->brand->id],
+            'params'    => [
+                'brands'   => [$this->brand->id],
                 'category' => [$this->category->id],
                 'products' => $ids,
             ],
@@ -75,12 +75,14 @@ class SendProductImages
 
     /**
      *  Check brand and category name match
+     *
+     * @param mixed $attributes
      */
     private function excludeAttributes($attributes)
     {
         if (isset($attributes->value)) {
             $brandCatStr = explode(' ', $attributes->value);
-            $brand = isset($brandCatStr[0]) ? $brandCatStr[0] : null;
+            $brand       = isset($brandCatStr[0]) ? $brandCatStr[0] : null;
 
             if (! empty($brand)) {
                 $matchedBrands = Brand::where('name', 'like', "{$brand}")->get();
@@ -90,7 +92,7 @@ class SendProductImages
                 if (! empty($matchedBrands)) {
                     foreach ($matchedBrands as $mBrand) {
                         $categoryMatch = str_replace(strtolower($mBrand->name), '', strtolower($attributes->value));
-                        $category = Category::where('title', trim($categoryMatch));
+                        $category      = Category::where('title', trim($categoryMatch));
                         if (isset($this->params['gender'])) {
                             switch ($this->params['gender']) {
                                 case self::FEMALE_CATEGORY:
@@ -114,7 +116,7 @@ class SendProductImages
 
                         // if category and brand both matched then assign to current object
                         if ($category) {
-                            $this->brand = $mBrand;
+                            $this->brand    = $mBrand;
                             $this->category = $category;
                         }
                     }

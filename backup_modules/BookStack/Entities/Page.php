@@ -29,7 +29,7 @@ class Page extends Entity
      */
     public function toSimpleArray()
     {
-        $array = array_intersect_key($this->toArray(), array_flip($this->simpleAttributes));
+        $array        = array_intersect_key($this->toArray(), array_flip($this->simpleAttributes));
         $array['url'] = $this->getUrl();
 
         return $array;
@@ -98,13 +98,14 @@ class Page extends Entity
     /**
      * Get the url for this page.
      *
-     * @param  string|bool  $path
+     * @param string|bool $path
+     *
      * @return string
      */
     public function getUrl($path = false)
     {
-        $bookSlug = $this->getAttribute('bookSlug') ? $this->getAttribute('bookSlug') : $this->book->slug;
-        $midText = $this->draft ? '/draft/' : '/page/';
+        $bookSlug    = $this->getAttribute('bookSlug') ? $this->getAttribute('bookSlug') : $this->book->slug;
+        $midText     = $this->draft ? '/draft/' : '/page/';
         $idComponent = $this->draft ? $this->id : urlencode($this->slug);
 
         if ($path !== false) {
@@ -117,7 +118,8 @@ class Page extends Entity
     /**
      * Return a generalised, common raw query that can be 'unioned' across entities.
      *
-     * @param  bool  $withContent
+     * @param bool $withContent
+     *
      * @return string
      */
     public function entityRawQuery($withContent = false)

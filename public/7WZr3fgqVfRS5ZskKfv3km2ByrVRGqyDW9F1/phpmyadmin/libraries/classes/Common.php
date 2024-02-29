@@ -179,7 +179,7 @@ final class Common
          *
          * @global integer $server
          */
-        $server = $config->selectServer();
+        $server              = $config->selectServer();
         $urlParams['server'] = $server;
         $containerBuilder->setParameter('server', $server);
         $containerBuilder->setParameter('url_params', $urlParams);
@@ -426,7 +426,7 @@ final class Common
         $container->setParameter('goto', $goto);
 
         if (isset($_REQUEST['goto']) && Core::checkPageValidity($_REQUEST['goto'])) {
-            $goto = $_REQUEST['goto'];
+            $goto              = $_REQUEST['goto'];
             $urlParams['goto'] = $goto;
             $container->setParameter('goto', $goto);
             $container->setParameter('url_params', $urlParams);
@@ -522,7 +522,7 @@ final class Common
             $urlParams = [];
         }
 
-        $urlParams['db'] = $db;
+        $urlParams['db']    = $db;
         $urlParams['table'] = $table;
         $containerBuilder->setParameter('db', $db);
         $containerBuilder->setParameter('table', $table);

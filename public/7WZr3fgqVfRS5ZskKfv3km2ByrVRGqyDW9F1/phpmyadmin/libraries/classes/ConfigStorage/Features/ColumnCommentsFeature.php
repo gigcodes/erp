@@ -20,7 +20,7 @@ final class ColumnCommentsFeature
 
     public function __construct(DatabaseName $database, TableName $columnInfo)
     {
-        $this->database = $database;
+        $this->database   = $database;
         $this->columnInfo = $columnInfo;
     }
 }

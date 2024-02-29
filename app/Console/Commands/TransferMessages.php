@@ -43,7 +43,7 @@ class TransferMessages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -59,13 +59,13 @@ class TransferMessages extends Command
                 }
 
                 $chat_message = ChatMessage::create([
-                    'user_id' => $message->userid,
+                    'user_id'     => $message->userid,
                     'customer_id' => $message->customer_id,
                     'assigned_to' => $message->assigned_to,
-                    'message' => $message->body,
-                    'status' => $status,
-                    'approved' => $status == 2 ? 1 : 0,
-                    'created_at' => $message->created_at,
+                    'message'     => $message->body,
+                    'status'      => $status,
+                    'approved'    => $status == 2 ? 1 : 0,
+                    'created_at'  => $message->created_at,
                 ]);
 
                 if ($message->hasMedia(config('constants.media_tags'))) {

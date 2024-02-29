@@ -81,7 +81,7 @@ final class GisVisualizationController extends AbstractController
         }
 
         // Find the candidate fields for label column and spatial column
-        $labelCandidates = [];
+        $labelCandidates   = [];
         $spatialCandidates = [];
         foreach ($meta as $column_meta) {
             if ($column_meta->isMappedTypeGeometry) {
@@ -102,7 +102,7 @@ final class GisVisualizationController extends AbstractController
 
         // Check mysql version
         $visualizationSettings['mysqlVersion'] = $this->dbi->getVersion();
-        $visualizationSettings['isMariaDB'] = $this->dbi->isMariaDB();
+        $visualizationSettings['isMariaDB']    = $this->dbi->isMariaDB();
 
         if (! isset($visualizationSettings['labelColumn']) && isset($labelCandidates[0])) {
             $visualizationSettings['labelColumn'] = '';
@@ -159,40 +159,40 @@ final class GisVisualizationController extends AbstractController
         /**
          * Displays the page
          */
-        $urlParams['goto'] = Util::getScriptNameForOption($cfg['DefaultTabDatabase'], 'database');
-        $urlParams['back'] = Url::getFromRoute('/sql');
-        $urlParams['sql_query'] = $sqlQuery;
+        $urlParams['goto']          = Util::getScriptNameForOption($cfg['DefaultTabDatabase'], 'database');
+        $urlParams['back']          = Url::getFromRoute('/sql');
+        $urlParams['sql_query']     = $sqlQuery;
         $urlParams['sql_signature'] = Core::signSqlQuery($sqlQuery);
-        $downloadUrl = Url::getFromRoute('/table/gis-visualization', array_merge(
+        $downloadUrl                = Url::getFromRoute('/table/gis-visualization', array_merge(
             $urlParams,
             [
-                'saveToFile' => true,
-                'session_max_rows' => $rows,
-                'pos' => $pos,
+                'saveToFile'                           => true,
+                'session_max_rows'                     => $rows,
+                'pos'                                  => $pos,
                 'visualizationSettings[spatialColumn]' => $visualizationSettings['spatialColumn'],
-                'visualizationSettings[labelColumn]' => $visualizationSettings['labelColumn'],
+                'visualizationSettings[labelColumn]'   => $visualizationSettings['labelColumn'],
             ]
         ));
 
         $startAndNumberOfRowsFieldset = Generator::getStartAndNumberOfRowsFieldsetData($sqlQuery);
 
         $html = $this->template->render('table/gis_visualization/gis_visualization', [
-            'url_params' => $urlParams,
-            'download_url' => $downloadUrl,
-            'label_candidates' => $labelCandidates,
-            'spatial_candidates' => $spatialCandidates,
-            'visualization_settings' => $visualizationSettings,
+            'url_params'                        => $urlParams,
+            'download_url'                      => $downloadUrl,
+            'label_candidates'                  => $labelCandidates,
+            'spatial_candidates'                => $spatialCandidates,
+            'visualization_settings'            => $visualizationSettings,
             'start_and_number_of_rows_fieldset' => $startAndNumberOfRowsFieldset,
-            'visualization' => $this->visualization->toImage('svg'),
-            'draw_ol' => $this->visualization->asOl(),
+            'visualization'                     => $this->visualization->toImage('svg'),
+            'draw_ol'                           => $this->visualization->asOl(),
         ]);
 
         $this->response->addHTML($html);
     }
 
     /**
-     * @param  string  $filename File name
-     * @param  string  $format   Save format
+     * @param string $filename File name
+     * @param string $format   Save format
      */
     private function saveToFile(string $filename, string $format): void
     {

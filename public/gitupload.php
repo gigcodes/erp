@@ -13,24 +13,24 @@ set_time_limit(0);
 
 // FTP Definitions:
 $server = ['quality' => ['host' => 'YOUR-FTP-HOSTING.com',
-    'usr' => 'CHANGE-USERNAME',
-    'pwd' => 'CHANGE-PASSWORD', ],
+    'usr'                       => 'CHANGE-USERNAME',
+    'pwd'                       => 'CHANGE-PASSWORD', ],
     'production' => ['host' => 'ftp.sololuxury.co.in',
-        'usr' => 'Mobicom@sololuxury.co.in',
-        'pwd' => 'mobicom123!@#',
+        'usr'               => 'Mobicom@sololuxury.co.in',
+        'pwd'               => 'mobicom123!@#',
     ], ];
 
 // Misc Definitions:
-$localPath = "F:\xampp\htdocs\sololuxury_app";
+$localPath  = "F:\xampp\htdocs\sololuxury_app";
 $remotePath = '/sololuxury_erp/sololuxury_app';
 
 // This variables are for clean the path url:
-$sanatization = 'M       trunk/web/';
+$sanatization  = 'M       trunk/web/';
 $sanatization2 = 'A       trunk/web/';
 
 // misc internal vars
 $linesSubmited = 0;
-$files2Upload = 0;
+$files2Upload  = 0;
 $filesUploaded = 0;
 
 if (isset($_POST['action']) && $_POST['action'] == 'process') {
@@ -71,7 +71,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'process') {
 
         // perform file upload
         foreach ($sanaticedLines as $fileToUpload) {
-            $fileToUploadLocalPath = $localPath . $fileToUpload;
+            $fileToUploadLocalPath  = $localPath . $fileToUpload;
             $fileToUploadRemotePath = $remotePath . $fileToUpload;
 
             // log

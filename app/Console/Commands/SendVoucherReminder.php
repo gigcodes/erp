@@ -44,11 +44,11 @@ class SendVoucherReminder extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $before = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
+            $before   = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
             $vouchers = Voucher::where('date', '<=', $before)->get();
 
             foreach ($vouchers as $voucher) {

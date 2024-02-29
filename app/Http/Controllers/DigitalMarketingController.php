@@ -13,8 +13,8 @@ class DigitalMarketingController extends Controller
 {
     public function index(Request $request)
     {
-        $title = 'Social-Digital Marketing';
-        $status = \App\DigitalMarketingPlatform::STATUS;
+        $title   = 'Social-Digital Marketing';
+        $status  = \App\DigitalMarketingPlatform::STATUS;
         $records = \App\DigitalMarketingPlatform::get();
 
         return view('digital-marketing.index', compact('records', 'title', 'status'));
@@ -35,7 +35,7 @@ class DigitalMarketingController extends Controller
         $records = $records->get();
 
         foreach ($records as &$rec) {
-            $rec->status_name = isset(\App\DigitalMarketingPlatform::STATUS[$rec->status]) ? \App\DigitalMarketingPlatform::STATUS[$rec->status] : $rec->status;
+            $rec->status_name     = isset(\App\DigitalMarketingPlatform::STATUS[$rec->status]) ? \App\DigitalMarketingPlatform::STATUS[$rec->status] : $rec->status;
             $rec->components_list = implode(',', $rec->components->pluck('name')->toArray());
         }
 
@@ -47,13 +47,13 @@ class DigitalMarketingController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'platform' => 'required',
+            'platform'    => 'required',
             'description' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -80,7 +80,8 @@ class DigitalMarketingController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -95,10 +96,10 @@ class DigitalMarketingController extends Controller
 
     public function saveImages(Request $request)
     {
-        $files = $request->file('file');
+        $files         = $request->file('file');
         $fileNameArray = [];
         foreach ($files as $key => $file) {
-            $fileName = time() . $key . '.' . $file->extension();
+            $fileName        = time() . $key . '.' . $file->extension();
             $fileNameArray[] = $fileName;
             if ($request->type == 'marketing') {
                 $createFile = DigitalMarketingPlatformFile::create(['digital_marketing_platform_id' => $request->id, 'file_name' => $fileName, 'user_id' => \Auth::id()]);
@@ -115,7 +116,8 @@ class DigitalMarketingController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -137,7 +139,7 @@ class DigitalMarketingController extends Controller
 
     public function solution(Request $request, $id)
     {
-        $title = 'Social-Digital Marketing Solution';
+        $title  = 'Social-Digital Marketing Solution';
         $status = \App\DigitalMarketingPlatform::STATUS;
 
         return view('digital-marketing.solution.index', compact('title', 'status', 'id'));
@@ -171,10 +173,10 @@ class DigitalMarketingController extends Controller
         $usps = \App\DigitalMarketingUsp::where('digital_marketing_platform_id', $id)->get();
 
         return response()->json([
-            'code' => 200,
-            'data' => $records,
-            'total' => count($records),
-            'usps' => $usps,
+            'code'      => 200,
+            'data'      => $records,
+            'total'     => count($records),
+            'usps'      => $usps,
             'filledUsp' => $filledUsp,
         ]);
     }
@@ -185,13 +187,13 @@ class DigitalMarketingController extends Controller
 
         $validator = Validator::make($post, [
             'provider' => 'required',
-            'website' => 'required',
-            'contact' => 'required',
+            'website'  => 'required',
+            'contact'  => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -252,7 +254,7 @@ class DigitalMarketingController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -324,8 +326,8 @@ class DigitalMarketingController extends Controller
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $records,
+            'code'  => 200,
+            'data'  => $records,
             'total' => count($records),
         ]);
     }
@@ -335,13 +337,13 @@ class DigitalMarketingController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'subject' => 'required',
+            'subject'  => 'required',
             'priority' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -392,8 +394,8 @@ class DigitalMarketingController extends Controller
 
     public function components(Request $request, $id)
     {
-        $records = [];
-        $records['id'] = $id;
+        $records               = [];
+        $records['id']         = $id;
         $records['components'] = \App\DigitalMarketingPlatformComponent::where('digital_marketing_platform_id', $id)->get()->pluck('name')->toArray();
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -401,11 +403,11 @@ class DigitalMarketingController extends Controller
 
     public function files(Request $request, $id)
     {
-        $records = [];
-        $records['id'] = $id;
+        $records               = [];
+        $records['id']         = $id;
         $records['components'] = \App\DigitalMarketingPlatformFile::where('digital_marketing_platform_id', $id)->get()->transform(function ($files) {
             $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
-            $files->user = \App\User::find($files->user_id)->name;
+            $files->user        = \App\User::find($files->user_id)->name;
 
             return $files;
         });
@@ -415,11 +417,11 @@ class DigitalMarketingController extends Controller
 
     public function filesSolution(Request $request, $id)
     {
-        $records = [];
-        $records['id'] = $id;
+        $records               = [];
+        $records['id']         = $id;
         $records['components'] = \App\DigitalMarketingSolutionFile::where('digital_marketing_solution_id', $id)->get()->transform(function ($files) {
             $files->downloadUrl = config('env.APP_URL') . '/digital_marketing/' . $files->file_name;
-            $files->user = \App\User::find($files->user_id)->name;
+            $files->user        = \App\User::find($files->user_id)->name;
 
             return $files;
         });
@@ -436,7 +438,7 @@ class DigitalMarketingController extends Controller
             foreach ($components as $component) {
                 \App\DigitalMarketingPlatformComponent::create([
                     'digital_marketing_platform_id' => $id,
-                    'name' => $component,
+                    'name'                          => $component,
                 ]);
             }
         }

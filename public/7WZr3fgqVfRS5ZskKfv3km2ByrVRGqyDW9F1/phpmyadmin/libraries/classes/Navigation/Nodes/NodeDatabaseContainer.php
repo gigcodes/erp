@@ -19,7 +19,7 @@ class NodeDatabaseContainer extends Node
     /**
      * Initialises the class
      *
-     * @param  string  $name An identifier for the new node
+     * @param string $name An identifier for the new node
      */
     public function __construct($name)
     {
@@ -34,9 +34,9 @@ class NodeDatabaseContainer extends Node
             return;
         }
 
-        $newLabel = _pgettext('Create new database', 'New');
-        $new = NodeFactory::getInstanceForNewNode($newLabel, 'new_database italics');
-        $new->icon = ['image' => 'b_newdb', 'title' => $newLabel];
+        $newLabel   = _pgettext('Create new database', 'New');
+        $new        = NodeFactory::getInstanceForNewNode($newLabel, 'new_database italics');
+        $new->icon  = ['image' => 'b_newdb', 'title' => $newLabel];
         $new->links = [
             'text' => ['route' => '/server/databases', 'params' => []],
             'icon' => ['route' => '/server/databases', 'params' => []],

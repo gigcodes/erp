@@ -18,7 +18,7 @@ class SopController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::all();
+        $users   = User::all();
         $usersop = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory']);
         if ($request->get('search')) {
             $usersop = $usersop->where('name', 'like', '%' . $request->get('search') . '%')
@@ -32,9 +32,9 @@ class SopController extends Controller
 
         $usersop = $usersop->orderBy('id', 'desc')->limit(25)->paginate(25);
 
-        $total_record = $usersop->total();
+        $total_record    = $usersop->total();
         $category_result = SopCategory::all();
-        $request = $request->all();
+        $request         = $request->all();
 
         return view('products.sop', compact('usersop', 'total_record', 'users', 'category_result', 'request'));
     }
@@ -89,7 +89,7 @@ class SopController extends Controller
     public function store(Request $request)
     {
         $sopType = $request->get('type');
-        $sop = Sop::where('name', $sopType)->first();
+        $sop     = Sop::where('name', $sopType)->first();
 
         $name = Sop::where('name', $request->get('name'))->first();
 
@@ -99,9 +99,9 @@ class SopController extends Controller
 
         $appendData = '';
         if (! $sop) {
-            $category = $request->get('category');
-            $sop = new Sop();
-            $sop->name = $request->get('name');
+            $category     = $request->get('category');
+            $sop          = new Sop();
+            $sop->name    = $request->get('name');
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
@@ -111,15 +111,15 @@ class SopController extends Controller
             }
 
             $params['purchase_product_order_id'] = $sop->id;
-            $params['header_name'] = 'SOP Listing Approve Logs';
-            $params['replace_from'] = '-';
-            $params['replace_to'] = $request->get('name');
-            $params['created_by'] = \Auth::id();
+            $params['header_name']               = 'SOP Listing Approve Logs';
+            $params['replace_from']              = '-';
+            $params['replace_to']                = $request->get('name');
+            $params['created_by']                = \Auth::id();
 
-            $appendsop = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory'])->find($sop->id);
-            $users = User::all();
+            $appendsop  = Sop::with(['purchaseProductOrderLogs', 'user', 'sopCategory'])->find($sop->id);
+            $users      = User::all();
             $appendData = view('products.partials.sop-list-single', compact('appendsop', 'users'))->render();
-            $log = PurchaseProductOrderLog::create($params);
+            $log        = PurchaseProductOrderLog::create($params);
         }
 
         $user_email = User::select('email')->where('id', $sop->user_id)->get();
@@ -143,7 +143,7 @@ class SopController extends Controller
     public function update(Request $request)
     {
         $category = $request->get('category', '');
-        $name = $request->get('name', '');
+        $name     = $request->get('name', '');
 
         $cat = Sop::where('category', $request->get('category'))->where('id', '!=', $request->id)->first();
         if ($cat) {
@@ -152,22 +152,22 @@ class SopController extends Controller
 
         $sopedit = Sop::where('id', $request->id)->first();
         if ($sopedit) {
-            $sopedit->name = $request->get('name', '');
+            $sopedit->name    = $request->get('name', '');
             $sopedit->content = $request->get('content', '');
-            $updatedSop = $sopedit->save();
+            $updatedSop       = $sopedit->save();
 
             $sopedit->hasSopCategory()->delete();
             if (! empty($category) && count($category) > 0) {
                 $sopedit->sopCategory()->attach($category ?? []);
             }
             $params['purchase_product_order_id'] = $request->id;
-            $params['header_name'] = 'SOP Listing Approve Logs';
-            $params['replace_from'] = $request->get('sop_old_name', '');
-            $params['replace_to'] = $request->get('name', '');
-            $params['created_by'] = \Auth::id();
+            $params['header_name']               = 'SOP Listing Approve Logs';
+            $params['replace_from']              = $request->get('sop_old_name', '');
+            $params['replace_to']                = $request->get('name', '');
+            $params['created_by']                = \Auth::id();
 
             if (isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
-                $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
+                $temp                 = $sopedit->sopCategory->pluck('category_name')->toArray();
                 $sopedit->sopCategory = implode(',', $temp);
             }
 
@@ -176,13 +176,13 @@ class SopController extends Controller
             if ($sopedit) {
                 return response()->json([
                     'sopedit' => $sopedit,
-                    'params' => $params,
-                    'type' => 'edit',
+                    'params'  => $params,
+                    'type'    => 'edit',
                 ]);
             }
         } else {
-            $sop = new Sop();
-            $sop->name = $request->get('name');
+            $sop          = new Sop();
+            $sop->name    = $request->get('name');
             $sop->content = $request->get('content');
             $sop->user_id = \Auth::id();
             $sop->save();
@@ -193,27 +193,27 @@ class SopController extends Controller
             }
 
             $params['purchase_product_order_id'] = $sop->id;
-            $params['header_name'] = 'SOP Listing Approve Logs';
-            $params['replace_from'] = '-';
-            $params['replace_to'] = $request->get('name');
-            $params['created_by'] = \Auth::id();
+            $params['header_name']               = 'SOP Listing Approve Logs';
+            $params['replace_from']              = '-';
+            $params['replace_to']                = $request->get('name');
+            $params['created_by']                = \Auth::id();
 
             if (isset($sopedit->sopCategory) && count($sopedit->sopCategory) > 0) {
-                $temp = $sopedit->sopCategory->pluck('category_name')->toArray();
+                $temp                 = $sopedit->sopCategory->pluck('category_name')->toArray();
                 $sopedit->sopCategory = implode(',', $temp);
             }
 
             $log = PurchaseProductOrderLog::create($params);
 
             $user_email = User::select('email')->where('id', $sop->user_id)->get();
-            $only_date = $sop->created_at->todatestring();
+            $only_date  = $sop->created_at->todatestring();
 
             if ($sop) {
                 return response()->json([
-                    'sopedit' => $sop,
-                    'params' => $params,
-                    'type' => 'new',
-                    'only_date' => $only_date,
+                    'sopedit'    => $sop,
+                    'params'     => $params,
+                    'type'       => 'new',
+                    'only_date'  => $only_date,
                     'user_email' => $user_email,
                 ]);
             }
@@ -238,7 +238,7 @@ class SopController extends Controller
     public function search(Request $request)
     {
         $searchsop = $request->get('search');
-        $usersop = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->paginate(10);
+        $usersop   = DB::table('sops')->where('name', 'like', '%' . $searchsop . '%')->paginate(10);
 
         return view('products.sop', compact('usersop'));
     }
@@ -280,11 +280,11 @@ class SopController extends Controller
     {
         $usersop = Sop::where('id', $id)->first();
         if ($usersop) {
-            $data['name'] = $usersop->name;
+            $data['name']    = $usersop->name;
             $data['content'] = $usersop->content;
 
             $html = view('maileclipse::templates.Viewdownload', [
-                'name' => $usersop->name,
+                'name'    => $usersop->name,
                 'content' => $usersop->content,
                 'usersop' => $usersop = Sop::where('id', $usersop->id)->first(),
 
@@ -299,7 +299,7 @@ class SopController extends Controller
 
     public function sopPermissionData(Request $request)
     {
-        $user_id = $request->user_id;
+        $user_id    = $request->user_id;
         $permission = SopPermission::where('user_id', $user_id)->get();
 
         return response()->json(['status' => true, 'permissions' => $permission]);
@@ -308,7 +308,7 @@ class SopController extends Controller
     public function sopPermissionList(Request $request)
     {
         $user_id = $request->user_id;
-        $sop = $request->sop;
+        $sop     = $request->sop;
 
         $permission = SopPermission::where('user_id', $user_id);
         if ($permission->count() > 0) {
@@ -316,9 +316,9 @@ class SopController extends Controller
         }
         if ($sop) {
             foreach ($sop as $sp) {
-                $sopPermission = new SopPermission;
+                $sopPermission          = new SopPermission;
                 $sopPermission->user_id = $user_id;
-                $sopPermission->sop_id = $sp;
+                $sopPermission->sop_id  = $sp;
                 $sopPermission->save();
             }
         }
@@ -328,22 +328,22 @@ class SopController extends Controller
 
     public function sopPermissionUserList(Request $request)
     {
-        $sop = Sop::find($request->sop_id);
+        $sop       = Sop::find($request->sop_id);
         $sop_users = SopPermission::where('sop_id', $request->sop_id)->get()->pluck('user_id');
-        $user = User::all();
+        $user      = User::all();
 
         return response()->json(['user_list' => $sop_users, 'user' => $user, 'sop' => $sop]);
     }
 
     public function sopRemovePermission(Request $request)
     {
-        $user_id = $request->user_id;
-        $sop_id = $request->sop_id;
+        $user_id        = $request->user_id;
+        $sop_id         = $request->sop_id;
         $sop_permission = SopPermission::where('sop_id', $sop_id)->delete();
         if ($user_id) {
             foreach ($user_id as $u_id) {
-                $new_permission = new SopPermission;
-                $new_permission->sop_id = $sop_id;
+                $new_permission          = new SopPermission;
+                $new_permission->sop_id  = $sop_id;
                 $new_permission->user_id = $u_id;
                 $new_permission->save();
             }

@@ -64,8 +64,9 @@ class Generator
     /**
      * Displays a button to copy content to clipboard
      *
-     * @param  string  $text Text to copy to clipboard
-     * @return string  the html link
+     * @param string $text Text to copy to clipboard
+     *
+     * @return string the html link
      */
     public static function showCopyToClipboard(string $text): string
     {
@@ -76,9 +77,10 @@ class Generator
     /**
      * Get a link to variable documentation
      *
-     * @param  string  $name       The variable name
-     * @param  bool  $useMariaDB Use only MariaDB documentation
-     * @param  string  $text       (optional) The text for the link
+     * @param string $name       The variable name
+     * @param bool   $useMariaDB Use only MariaDB documentation
+     * @param string $text       (optional) The text for the link
+     *
      * @return string link or empty string
      */
     public static function linkToVarDocumentation(
@@ -86,7 +88,7 @@ class Generator
         bool $useMariaDB = false,
         ?string $text = null
     ): string {
-        $kbs = ServerVariablesProvider::getImplementation();
+        $kbs  = ServerVariablesProvider::getImplementation();
         $link = $useMariaDB ? $kbs->getDocLinkByNameMariaDb($name) :
                             $kbs->getDocLinkByNameMysql($name);
 
@@ -96,7 +98,7 @@ class Generator
     /**
      * Returns HTML code for a tooltip
      *
-     * @param  string  $message the message for the tooltip
+     * @param string $message the message for the tooltip
      */
     public static function showHint(string $message): string
     {
@@ -115,8 +117,9 @@ class Generator
     /**
      * returns html code for db link to default db page
      *
-     * @param  string  $database database
-     * @return string  html link to default db page
+     * @param string $database database
+     *
+     * @return string html link to default db page
      */
     public static function getDbLink($database = ''): string
     {
@@ -149,10 +152,10 @@ class Generator
      * Prepare a lightbulb hint explaining a known external bug
      * that affects a functionality
      *
-     * @param  string  $functionality  localized message explaining the func.
-     * @param  string  $component      'mysql' (eventually, 'php')
-     * @param  string  $minimumVersion of this component
-     * @param  string  $bugReference   bug reference for this component
+     * @param string $functionality  localized message explaining the func.
+     * @param string $component      'mysql' (eventually, 'php')
+     * @param string $minimumVersion of this component
+     * @param string $bugReference   bug reference for this component
      */
     public static function getExternalBug(
         $functionality,
@@ -182,11 +185,12 @@ class Generator
      * This function takes into account the ActionLinksMode
      * configuration setting and wraps the image tag in a span tag.
      *
-     * @param  string  $icon         name of icon file
-     * @param  string  $alternate    alternate text
-     * @param  bool  $forceText    whether to force alternate text to be displayed
-     * @param  bool  $menuIcon     whether this icon is for the menu bar or not
-     * @param  string  $controlParam which directive controls the display
+     * @param string $icon         name of icon file
+     * @param string $alternate    alternate text
+     * @param bool   $forceText    whether to force alternate text to be displayed
+     * @param bool   $menuIcon     whether this icon is for the menu bar or not
+     * @param string $controlParam which directive controls the display
+     *
      * @return string an html snippet
      */
     public static function getIcon(
@@ -231,7 +235,7 @@ class Generator
     public static function getServerSSL(): string
     {
         $server = $GLOBALS['cfg']['Server'];
-        $class = 'text-danger';
+        $class  = 'text-danger';
         if (! $server['ssl']) {
             $message = __('SSL is not being used');
             if (! empty($server['socket']) || in_array($server['host'], $GLOBALS['cfg']['MysqlSslWarningSafeHosts'])) {
@@ -242,7 +246,7 @@ class Generator
         } elseif (empty($server['ssl_ca'])) {
             $message = __('SSL is used without certification authority');
         } else {
-            $class = '';
+            $class   = '';
             $message = __('SSL is used');
         }
 
@@ -255,9 +259,10 @@ class Generator
     /**
      * Returns default function for a particular column.
      *
-     * @param  array  $field      Data about the column for which
+     * @param array $field      Data about the column for which
      *                          to generate the dropdown
-     * @param  bool  $insertMode Whether the operation is 'insert'
+     * @param bool  $insertMode Whether the operation is 'insert'
+     *
      * @return string An HTML snippet of a dropdown list with function
      *                names appropriate for the requested column.
      *
@@ -320,9 +325,10 @@ class Generator
     /**
      * Creates a dropdown box with MySQL functions for a particular column.
      *
-     * @param  array  $field       Data about the column for which to generate the dropdown
-     * @param  bool  $insertMode  Whether the operation is 'insert'
-     * @param  array  $foreignData Foreign data
+     * @param array $field       Data about the column for which to generate the dropdown
+     * @param bool  $insertMode  Whether the operation is 'insert'
+     * @param array $foreignData Foreign data
+     *
      * @return string An HTML snippet of a dropdown list with function names appropriate for the requested column.
      */
     public static function getFunctionsForField(array $field, $insertMode, array $foreignData): string
@@ -355,16 +361,17 @@ class Generator
     /**
      * Renders a single link for the top of the navigation panel
      *
-     * @param  string  $link        The url for the link
-     * @param  bool  $showText    Whether to show the text or to
+     * @param string $link        The url for the link
+     * @param bool   $showText    Whether to show the text or to
      *                            only use it for title attributes
-     * @param  string  $text        The text to display and use for title attributes
-     * @param  bool  $showIcon    Whether to show the icon
-     * @param  string  $icon        The filename of the icon to show
-     * @param  string  $linkId      Value to use for the ID attribute
-     * @param  bool  $disableAjax Whether to disable ajax page loading for this link
-     * @param  string  $linkTarget  The name of the target frame for the link
-     * @param  array  $classes     HTML classes to apply
+     * @param string $text        The text to display and use for title attributes
+     * @param bool   $showIcon    Whether to show the icon
+     * @param string $icon        The filename of the icon to show
+     * @param string $linkId      Value to use for the ID attribute
+     * @param bool   $disableAjax Whether to disable ajax page loading for this link
+     * @param string $linkTarget  The name of the target frame for the link
+     * @param array  $classes     HTML classes to apply
+     *
      * @return string HTML code for one link
      */
     public static function getNavigationLink(
@@ -424,7 +431,7 @@ class Generator
         } elseif (isset($_SESSION['tmpval']['max_rows']) && $_SESSION['tmpval']['max_rows'] !== 'all') {
             $rows = (int) $_SESSION['tmpval']['max_rows'];
         } else {
-            $rows = (int) $GLOBALS['cfg']['MaxRows'];
+            $rows                           = (int) $GLOBALS['cfg']['MaxRows'];
             $_SESSION['tmpval']['max_rows'] = $rows;
         }
 
@@ -434,7 +441,7 @@ class Generator
         } elseif (isset($_SESSION['tmpval']['pos'])) {
             $pos = (int) $_SESSION['tmpval']['pos'];
         } else {
-            $pos = ((int) ceil($numberOfLine / $rows) - 1) * $rows;
+            $pos                       = ((int) ceil($numberOfLine / $rows) - 1) * $rows;
             $_SESSION['tmpval']['pos'] = $pos;
         }
 
@@ -445,18 +452,19 @@ class Generator
      * Execute an EXPLAIN query and formats results similar to MySQL command line
      * utility.
      *
-     * @param  string  $sqlQuery EXPLAIN query
+     * @param string $sqlQuery EXPLAIN query
+     *
      * @return string query results
      */
     private static function generateRowQueryOutput($sqlQuery): string
     {
         global $dbi;
 
-        $ret = '';
-        $result = $dbi->query($sqlQuery);
-        $devider = '+';
+        $ret         = '';
+        $result      = $dbi->query($sqlQuery);
+        $devider     = '+';
         $columnNames = '|';
-        $fieldsMeta = $dbi->getFieldsMeta($result);
+        $fieldsMeta  = $dbi->getFieldsMeta($result);
         foreach ($fieldsMeta as $meta) {
             $devider .= '---+';
             $columnNames .= ' ' . $meta->name . ' |';
@@ -487,9 +495,9 @@ class Generator
      * Prepare the message and the query
      * usually the message is the result of the query executed
      *
-     * @param  Message|string  $message  the message to display
-     * @param  string  $sqlQuery the query to display
-     * @param  string  $type     the type (level) of the message
+     * @param Message|string $message  the message to display
+     * @param string         $sqlQuery the query to display
+     * @param string         $type     the type (level) of the message
      *
      * @throws Throwable
      * @throws LoaderError
@@ -561,7 +569,7 @@ class Generator
                 // when the query is large (for example an INSERT of binary
                 // data), the parser chokes; so avoid parsing the query
                 $queryTooBig = true;
-                $queryBase = mb_substr($sqlQuery, 0, $cfg['MaxCharactersInDisplayedSQL']) . '[...]';
+                $queryBase   = mb_substr($sqlQuery, 0, $cfg['MaxCharactersInDisplayedSQL']) . '[...]';
             } else {
                 $queryBase = $sqlQuery;
             }
@@ -571,7 +579,7 @@ class Generator
             /* SQL-Parser-Analyzer */
 
             if (! empty($GLOBALS['show_as_php'])) {
-                $newLine = '\\n"<br>' . "\n" . '&nbsp;&nbsp;&nbsp;&nbsp;. "';
+                $newLine   = '\\n"<br>' . "\n" . '&nbsp;&nbsp;&nbsp;&nbsp;. "';
                 $queryBase = htmlspecialchars(addslashes($queryBase));
                 $queryBase = preg_replace('/((\015\012)|(\015)|(\012))/', $newLine, $queryBase);
                 $queryBase = '<code class="php"><pre>' . "\n"
@@ -599,7 +607,7 @@ class Generator
                 $urlParams['db'] = $GLOBALS['db'];
                 if (strlen($GLOBALS['table']) > 0) {
                     $urlParams['table'] = $GLOBALS['table'];
-                    $editLink = Url::getFromRoute('/table/sql');
+                    $editLink           = Url::getFromRoute('/table/sql');
                 } else {
                     $editLink = Url::getFromRoute('/database/sql');
                 }
@@ -611,12 +619,12 @@ class Generator
             // but only explain a SELECT (that has not been explained)
             /* SQL-Parser-Analyzer */
             $explainLink = '';
-            $isSelect = preg_match('@^SELECT[[:space:]]+@i', $sqlQuery);
+            $isSelect    = preg_match('@^SELECT[[:space:]]+@i', $sqlQuery);
             if (! empty($cfg['SQLQuery']['Explain']) && ! $queryTooBig) {
                 $explainParams = $urlParams;
                 if ($isSelect) {
                     $explainParams['sql_query'] = 'EXPLAIN ' . $sqlQuery;
-                    $explainLink = ' [&nbsp;'
+                    $explainLink                = ' [&nbsp;'
                         . self::linkOrButton(
                             Url::getFromRoute('/import'),
                             $explainParams,
@@ -624,7 +632,7 @@ class Generator
                         ) . '&nbsp;]';
                 } elseif (preg_match('@^EXPLAIN[[:space:]]+SELECT[[:space:]]+@i', $sqlQuery)) {
                     $explainParams['sql_query'] = mb_substr($sqlQuery, 8);
-                    $explainLink = ' [&nbsp;'
+                    $explainLink                = ' [&nbsp;'
                         . self::linkOrButton(
                             Url::getFromRoute('/import'),
                             $explainParams,
@@ -645,7 +653,7 @@ class Generator
                 }
             }
 
-            $urlParams['sql_query'] = $sqlQuery;
+            $urlParams['sql_query']  = $sqlQuery;
             $urlParams['show_query'] = 1;
 
             // even if the query is big and was truncated, offer the chance
@@ -678,9 +686,9 @@ class Generator
                         )
                         . '&nbsp;]';
                 } else {
-                    $phpParams = $urlParams;
+                    $phpParams                = $urlParams;
                     $phpParams['show_as_php'] = 1;
-                    $phpLink = ' [&nbsp;'
+                    $phpLink                  = ' [&nbsp;'
                         . self::linkOrButton(
                             Url::getFromRoute('/import'),
                             $phpParams,
@@ -755,8 +763,9 @@ class Generator
     /**
      * Displays a link to the PHP documentation
      *
-     * @param  string  $target anchor in documentation
-     * @return string  the html link
+     * @param string $target anchor in documentation
+     *
+     * @return string the html link
      */
     public static function showPHPDocumentation($target): string
     {
@@ -766,9 +775,10 @@ class Generator
     /**
      * Displays a link to the documentation as an icon
      *
-     * @param  string  $link   documentation link
-     * @param  string  $target optional link target
-     * @param  bool  $bbcode optional flag indicating whether to output bbcode
+     * @param string $link   documentation link
+     * @param string $target optional link target
+     * @param bool   $bbcode optional flag indicating whether to output bbcode
+     *
      * @return string the html link
      */
     public static function showDocumentationLink($link, $target = 'documentation', $bbcode = false): string
@@ -786,11 +796,11 @@ class Generator
      * Displays a MySQL error message in the main panel when $exit is true.
      * Returns the error message otherwise.
      *
-     * @param  string  $serverMessage Server's error message.
-     * @param  string  $sqlQuery      The SQL query that failed.
-     * @param  bool  $isModifyLink  Whether to show a "modify" link or not.
-     * @param  string  $backUrl       URL for the "back" link (full path is not required).
-     * @param  bool  $exit          Whether execution should be stopped or the error message should be returned.
+     * @param string $serverMessage Server's error message.
+     * @param string $sqlQuery      The SQL query that failed.
+     * @param bool   $isModifyLink  Whether to show a "modify" link or not.
+     * @param string $backUrl       URL for the "back" link (full path is not required).
+     * @param bool   $exit          Whether execution should be stopped or the error message should be returned.
      *
      * @global string $table The current table.
      * @global string $db    The current database.
@@ -886,16 +896,16 @@ class Generator
 
             if ($isModifyLink) {
                 $urlParams = [
-                    'sql_query' => $sqlQuery,
+                    'sql_query'  => $sqlQuery,
                     'show_query' => 1,
                 ];
                 if (strlen($table) > 0) {
-                    $urlParams['db'] = $db;
+                    $urlParams['db']    = $db;
                     $urlParams['table'] = $table;
-                    $doEditGoto = '<a href="' . Url::getFromRoute('/table/sql', $urlParams) . '">';
+                    $doEditGoto         = '<a href="' . Url::getFromRoute('/table/sql', $urlParams) . '">';
                 } elseif (strlen($db) > 0) {
                     $urlParams['db'] = $db;
-                    $doEditGoto = '<a href="' . Url::getFromRoute('/database/sql', $urlParams) . '">';
+                    $doEditGoto      = '<a href="' . Url::getFromRoute('/database/sql', $urlParams) . '">';
                 } else {
                     $doEditGoto = '<a href="' . Url::getFromRoute('/server/sql', $urlParams) . '">';
                 }
@@ -985,10 +995,11 @@ class Generator
      *
      * The image name should match CSS class defined in icons.css.php
      *
-     * @param  string  $image      The name of the file to get
-     * @param  string  $alternate  Used to set 'alt' and 'title' attributes
+     * @param string $image      The name of the file to get
+     * @param string $alternate  Used to set 'alt' and 'title' attributes
      *                           of the image
-     * @param  array  $attributes An associative array of other attributes
+     * @param array  $attributes An associative array of other attributes
+     *
      * @return string an html IMG tag
      */
     public static function getImage($image, $alternate = '', array $attributes = []): string
@@ -1032,13 +1043,14 @@ class Generator
      * - URL components are over Suhosin limits
      * - There is SQL query in the parameters
      *
-     * @param  string  $urlPath   the URL
-     * @param  array<int|string, mixed>|null  $urlParams URL parameters
-     * @param  string  $message   the link message
-     * @param  string|array<string, string>  $tagParams string: js confirmation;
+     * @param string                        $urlPath   the URL
+     * @param array<int|string, mixed>|null $urlParams URL parameters
+     * @param string                        $message   the link message
+     * @param string|array<string, string>  $tagParams string: js confirmation;
      *                                                 array: additional tag params (f.e. style="")
-     * @param  string  $target    target
-     * @return string  the results to be echoed or saved in an array
+     * @param string                        $target    target
+     *
+     * @return string the results to be echoed or saved in an array
      */
     public static function linkOrButton(
         $urlPath,
@@ -1056,7 +1068,7 @@ class Generator
         $urlLength = strlen($url);
 
         if (! is_array($tagParams)) {
-            $tmp = $tagParams;
+            $tmp       = $tagParams;
             $tagParams = [];
             if (! empty($tmp)) {
                 $tagParams['onclick'] = 'return Functions.confirmLink(this, \''
@@ -1093,7 +1105,7 @@ class Generator
             }
         }
 
-        $tagParamsStrings = [];
+        $tagParamsStrings          = [];
         $isDataPostFormatSupported = ($urlLength > $GLOBALS['cfg']['LinkLengthLimit'])
                                 || ! $inSuhosinLimits
                                 // Has as sql_query without a signature, to be accepted it needs
@@ -1110,7 +1122,7 @@ class Generator
              * this is handled in js/ajax.js
              */
             $tagParamsStrings[] = 'data-post="' . ($parts[1] ?? '') . '"';
-            $url = $parts[0];
+            $url                = $parts[0];
             if (array_key_exists('class', $tagParams) && str_contains($tagParams['class'], 'create_view')) {
                 $url .= '?' . explode('&', $parts[1], 2)[0];
             }
@@ -1134,15 +1146,16 @@ class Generator
     /**
      * Prepare navigation for a list
      *
-     * @param  int  $count     number of elements in the list
-     * @param  int  $pos       current position in the list
-     * @param  array  $urlParams url parameters
-     * @param  string  $script    script name for form target
-     * @param  string  $frame     target frame
-     * @param  int  $maxCount  maximum number of elements to display from
-     *                             the list
-     * @param  string  $name      the name for the request parameter
-     * @param  string[]  $classes   additional classes for the container
+     * @param int      $count     number of elements in the list
+     * @param int      $pos       current position in the list
+     * @param array    $urlParams url parameters
+     * @param string   $script    script name for form target
+     * @param string   $frame     target frame
+     * @param int      $maxCount  maximum number of elements to display from
+     *                            the list
+     * @param string   $name      the name for the request parameter
+     * @param string[] $classes   additional classes for the container
+     *
      * @return string the  html content
      *
      * @todo    use $pos from $_url_params
@@ -1177,14 +1190,14 @@ class Generator
         }
 
         return (new Template())->render('list_navigator', [
-            'count' => $count,
-            'max_count' => $maxCount,
-            'classes' => $classes,
-            'frame' => $frame,
-            'position' => $pos,
-            'script' => $script,
-            'url_params' => $urlParams,
-            'param_name' => $name,
+            'count'         => $count,
+            'max_count'     => $maxCount,
+            'classes'       => $classes,
+            'frame'         => $frame,
+            'position'      => $pos,
+            'script'        => $script,
+            'url_params'    => $urlParams,
+            'param_name'    => $name,
             'page_selector' => $pageSelector,
         ]);
     }
@@ -1192,8 +1205,9 @@ class Generator
     /**
      * format sql strings
      *
-     * @param  string  $sqlQuery raw SQL string
-     * @param  bool  $truncate truncate the query if it is too long
+     * @param string $sqlQuery raw SQL string
+     * @param bool   $truncate truncate the query if it is too long
+     *
      * @return string the formatted sql
      *
      * @global array  $cfg the configuration array
@@ -1216,7 +1230,7 @@ class Generator
      * as specified in Types->getColumns() and returns an HTML snippet that
      * creates a drop-down list.
      *
-     * @param  string  $selected The value to mark as selected in HTML mode
+     * @param string $selected The value to mark as selected in HTML mode
      */
     public static function getSupportedDatatypes($selected): string
     {

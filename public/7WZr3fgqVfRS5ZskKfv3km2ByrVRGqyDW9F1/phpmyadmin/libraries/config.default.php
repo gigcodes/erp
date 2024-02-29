@@ -2945,11 +2945,11 @@ $cfg['environment'] = 'production';
  * @global array $cfg['DefaultFunctions']
  */
 $cfg['DefaultFunctions'] = [
-    'FUNC_CHAR' => '',
-    'FUNC_DATE' => '',
-    'FUNC_NUMBER' => '',
-    'FUNC_SPATIAL' => 'GeomFromText',
-    'FUNC_UUID' => 'UUID',
+    'FUNC_CHAR'       => '',
+    'FUNC_DATE'       => '',
+    'FUNC_NUMBER'     => '',
+    'FUNC_SPATIAL'    => 'GeomFromText',
+    'FUNC_UUID'       => 'UUID',
     'first_timestamp' => 'NOW',
 ];
 
@@ -2972,7 +2972,7 @@ $cfg['ShowGitRevision'] = true;
  */
 $cfg['MysqlMinVersion'] = [
     'internal' => 50500,
-    'human' => '5.5.0',
+    'human'    => '5.5.0',
 ];
 
 /**
@@ -2988,16 +2988,16 @@ $cfg['DisableShortcutKeys'] = false;
  * This is mostly meant for user preferences.
  */
 $cfg['Console'] = [
-    'StartHistory' => false,
-    'AlwaysExpand' => false,
-    'CurrentQuery' => true,
+    'StartHistory'  => false,
+    'AlwaysExpand'  => false,
+    'CurrentQuery'  => true,
     'EnterExecutes' => false,
-    'DarkTheme' => false,
-    'Mode' => 'info',
-    'Height' => 92,
-    'GroupQueries' => false,
-    'OrderBy' => 'exec',
-    'Order' => 'asc',
+    'DarkTheme'     => false,
+    'Mode'          => 'info',
+    'Height'        => 92,
+    'GroupQueries'  => false,
+    'OrderBy'       => 'exec',
+    'Order'         => 'asc',
 ];
 
 /*******************************************************************************
@@ -3088,7 +3088,7 @@ $cfg['DefaultTransformations']['Inline'] = [
     '100',
     100,
 ];
-$cfg['DefaultTransformations']['Inline']['wrapper_link'] = null;
+$cfg['DefaultTransformations']['Inline']['wrapper_link']   = null;
 $cfg['DefaultTransformations']['Inline']['wrapper_params'] = [];
 
 /**

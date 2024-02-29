@@ -44,7 +44,7 @@ class AddRenamedBrandLogoes extends Command
 
         BrandLogo::truncate();
         try {
-            $files = File::allFiles($path);
+            $files         = File::allFiles($path);
             $fileNameArray = [];
             foreach ($files as $key => $file) {
                 $fileName = basename($file);
@@ -53,7 +53,7 @@ class AddRenamedBrandLogoes extends Command
 
                 if (! $brand_logo) {
                     $params['logo_image_name'] = $fileName;
-                    $params['user_id'] = Auth::id();
+                    $params['user_id']         = Auth::id();
 
                     $log = BrandLogo::create($params);
                 }

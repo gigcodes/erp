@@ -23,7 +23,7 @@ class SettingController extends Controller
         if ($request->type) {
             $query = $query->orWhere('type', 'LIKE', '%' . $request->type . '%');
         }
-        $data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
+        $data     = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
         $settings = Setting::all();
 
         return view('setting.index', compact('data', 'settings'));
@@ -45,12 +45,12 @@ class SettingController extends Controller
 
     public function store(Request $request)
     {
-        $euro_to_inr = $request->input('euro_to_inr');
-        $pagination = $request->input('pagination');
-        $disable_twilio = $request->disable_twilio ? 1 : 0;
-        $incoming_calls_yogesh = $request->incoming_calls_yogesh ? 1 : 0;
-        $incoming_calls_andy = $request->incoming_calls_andy ? 1 : 0;
-        $forward_messages = $request->forward_messages ? 1 : 0;
+        $euro_to_inr            = $request->input('euro_to_inr');
+        $pagination             = $request->input('pagination');
+        $disable_twilio         = $request->disable_twilio ? 1 : 0;
+        $incoming_calls_yogesh  = $request->incoming_calls_yogesh ? 1 : 0;
+        $incoming_calls_andy    = $request->incoming_calls_andy ? 1 : 0;
+        $forward_messages       = $request->forward_messages ? 1 : 0;
         $whatsapp_number_change = $request->whatsapp_number_change ? 1 : 0;
         Setting::add('pagination', $pagination, 'int');
 
@@ -96,9 +96,9 @@ class SettingController extends Controller
 
         if ($request->number[0] != null) {
             foreach ($request->number as $key => $number) {
-                $api_key = new ApiKey;
-                $api_key->number = $number;
-                $api_key->key = $request->key[$key];
+                $api_key          = new ApiKey;
+                $api_key->number  = $number;
+                $api_key->key     = $request->key[$key];
                 $api_key->default = $request->default == ($key + 1) ? 1 : 0;
                 $api_key->save();
             }
@@ -126,7 +126,7 @@ class SettingController extends Controller
         $setting = Setting::where('name', 'telescope_enabled')->first();
 
         if (empty($setting)) {
-            $setting = new Setting;
+            $setting       = new Setting;
             $setting->name = 'telescope_enabled';
             $setting->type = 'tinyint';
         }

@@ -63,6 +63,8 @@ class User implements JsonSerializable
     }
 
     /**
+     * @param ?int $id
+     *
      * @return $this
      */
     public function setId(?int $id): self
@@ -123,6 +125,8 @@ class User implements JsonSerializable
     }
 
     /**
+     * @param ?int $roleId
+     *
      * @return $this
      */
     public function setRoleId(?int $roleId): self
@@ -183,6 +187,8 @@ class User implements JsonSerializable
     }
 
     /**
+     * @param ?int $autologin
+     *
      * @return $this
      */
     public function setAutologin(?int $autologin): self
@@ -197,11 +203,11 @@ class User implements JsonSerializable
         if (! $this->getId()) {
             $this->zabbix->saveUser([
                 'username' => $this->getUsername(),
-                'name' => $this->getName(),
-                'surname' => $this->getSurname(),
-                'roleid' => $this->getRoleId(),
-                'passwd' => $this->getPassword(),
-                'usrgrps' => [
+                'name'     => $this->getName(),
+                'surname'  => $this->getSurname(),
+                'roleid'   => $this->getRoleId(),
+                'passwd'   => $this->getPassword(),
+                'usrgrps'  => [
                     [
                         'usrgrpid' => 7,
                     ],
@@ -211,10 +217,10 @@ class User implements JsonSerializable
             return $this->getById(1);
         } else {
             $this->zabbix->updateUser([
-                'name' => $this->getName(),
+                'name'    => $this->getName(),
                 'surname' => $this->getSurname(),
-                'roleid' => $this->getRoleId(),
-                'userid' => $this->getId(),
+                'roleid'  => $this->getRoleId(),
+                'userid'  => $this->getId(),
             ]);
 
             return $this->getById($this->getId());
@@ -278,14 +284,14 @@ class User implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'surname' => $this->getSurname(),
-            'username' => $this->getUsername(),
-            'url' => $this->getUrl(),
-            'role_id' => $this->getRoleId(),
+            'id'        => $this->getId(),
+            'name'      => $this->getName(),
+            'surname'   => $this->getSurname(),
+            'username'  => $this->getUsername(),
+            'url'       => $this->getUrl(),
+            'role_id'   => $this->getRoleId(),
             'autologin' => $this->getAutologin(),
-            'timezone' => $this->getTimezone(),
+            'timezone'  => $this->getTimezone(),
         ];
     }
 }

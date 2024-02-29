@@ -39,16 +39,16 @@ class UsersFeedbackHrTicketController extends Controller
     public function store(Request $request)
     {
         try {
-            $task = new UsersFeedbackHrTicket();
-            $task->user_id = \Auth::user()->id ?? '';
-            $task->feedback_cat_id = $request->feedback_cat_id;
-            $task->task_subject = $request->task_subject;
-            $task->task_type = $request->task_type;
-            $task->repository_id = $request->repository_id;
-            $task->task_detail = $request->task_detail;
-            $task->cost = $request->cost;
+            $task                    = new UsersFeedbackHrTicket();
+            $task->user_id           = \Auth::user()->id ?? '';
+            $task->feedback_cat_id   = $request->feedback_cat_id;
+            $task->task_subject      = $request->task_subject;
+            $task->task_type         = $request->task_type;
+            $task->repository_id     = $request->repository_id;
+            $task->task_detail       = $request->task_detail;
+            $task->cost              = $request->cost;
             $task->task_asssigned_to = $request->task_asssigned_to;
-            $task->status = 'In progress';
+            $task->status            = 'In progress';
             $task->save();
 
             return response()->json(['code' => '200', 'data' => $task, 'message' => 'Data saved successfully']);
@@ -60,7 +60,8 @@ class UsersFeedbackHrTicketController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\UsersFeedbackHrTicket  $usersFeedbackHrTicket
+     * @param \App\UsersFeedbackHrTicket $usersFeedbackHrTicket
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request)

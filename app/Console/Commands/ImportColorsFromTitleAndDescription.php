@@ -46,7 +46,7 @@ class ImportColorsFromTitleAndDescription extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -116,7 +116,7 @@ class ImportColorsFromTitleAndDescription extends Command
     private function getColorsFromText($text)
     {
         $availableColors = [];
-        $text = strtolower($text);
+        $text            = strtolower($text);
 
         if (strpos($text, 'multi') !== false) {
             return 'Multi';

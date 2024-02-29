@@ -31,10 +31,10 @@ class SaveZoomMeetingRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->zoomkey = config('env.ZOOM_API_KEY');
-        $this->zoomsecret = config('env.ZOOM_API_SECRET');
+        $this->zoomkey       = config('env.ZOOM_API_KEY');
+        $this->zoomsecret    = config('env.ZOOM_API_SECRET');
         $this->zoommeetingid = config('env.ZOOM_MEETING_ID');
-        $this->zoomuserid = config('env.ZOOM_USER');
+        $this->zoomuserid    = config('env.ZOOM_USER');
     }
 
     /**
@@ -46,16 +46,16 @@ class SaveZoomMeetingRecordings extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //   dd($report);
-            $zoomKey = $this->zoomkey;
-            $zoomSecret = $this->zoomsecret;
+            $zoomKey       = $this->zoomkey;
+            $zoomSecret    = $this->zoomsecret;
             $zoommeetingid = $this->zoommeetingid;
-            $zoomuserid = $this->zoomuserid;
-            $meetings = new ZoomMeetings();
-            $date = Carbon::now();
+            $zoomuserid    = $this->zoomuserid;
+            $meetings      = new ZoomMeetings();
+            $date          = Carbon::now();
             $meetings->saveRecordings($zoomKey, $zoomSecret, $date, $zoommeetingid, $zoomuserid);
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

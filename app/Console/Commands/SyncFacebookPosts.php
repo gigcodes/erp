@@ -45,28 +45,28 @@ class SyncFacebookPosts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $configs = SocialConfig::where([
                 'platform' => 'facebook',
-                'status' => 1,
+                'status'   => 1,
             ])->get();
 
             foreach ($configs as $config) {
-                $fb = new FB($config->page_token);
+                $fb       = new FB($config->page_token);
                 $pageInfo = $fb->getPageFeed($config->page_id);
 
                 $posts = $pageInfo['feed'];
 
                 foreach ($posts as $post) {
                     $config->posts()->updateOrCreate(['ref_post_id' => $post['id']], [
-                        'post_body' => $post['message'] ?? '',
-                        'post_by' => $config->page_id,
+                        'post_body'   => $post['message'] ?? '',
+                        'post_by'     => $config->page_id,
                         'ref_post_id' => $post['id'],
-                        'posted_on' => Carbon::parse($post['created_time']),
-                        'status' => 1,
+                        'posted_on'   => Carbon::parse($post['created_time']),
+                        'status'      => 1,
                     ]);
                 }
             }

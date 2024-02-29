@@ -59,8 +59,8 @@ class ScheduleEmails extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $created_date = Carbon::now();
-            $modalType = '';
-            $leads = [];
+            $modalType    = '';
+            $leads        = [];
 
             $leads_new = [];
 
@@ -70,7 +70,7 @@ class ScheduleEmails extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow model query was finished']);
 
             foreach ($flows as $flow) {
-                $flowconditions = FlowCondition::where('flow_name', $flow['name'])->where('status', 1)->get();
+                $flowconditions    = FlowCondition::where('flow_name', $flow['name'])->where('status', 1)->get();
                 $allflowconditions = [];
                 if (! empty($flowconditions)) {
                     foreach ($flowconditions as $key => $flowcondition) {
@@ -93,7 +93,7 @@ class ScheduleEmails extends Command
                 if ($flowActions != null) {
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Flow action records found']);
 
-                    $i = 0;
+                    $i            = 0;
                     $created_date = Carbon::now();
                     foreach ($flowActions as $key => $flowAction) {
                         if ($flowAction['type'] == 'Time Delay') {
@@ -110,7 +110,7 @@ class ScheduleEmails extends Command
 
                         if ($key == 0 and (in_array($flow['name'], $leadsFlowArray))) {
                             $nameInDB = str_replace('_', '-', $flow['name']);
-                            $leads = ErpLeads::select(
+                            $leads    = ErpLeads::select(
                                 'erp_leads.id',
                                 'erp_leads.customer_id',
                                 'erp_leads.created_at as order_date',
@@ -167,7 +167,7 @@ class ScheduleEmails extends Command
                                 $leads = $leads->where('customers.newsletter', 1);
                             }
 
-                            $leads = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+                            $leads     = $leads->select('mailinglists.id', 'customers.email as customer_email', 'customers.id as customer_id')->get();
                             $modalType = Mailinglist::class;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Mailinglist model query finished']);
@@ -198,18 +198,18 @@ class ScheduleEmails extends Command
                                 $leads = $leads->where('orders.date_of_delivery', 'like', Carbon::now()->format('Y-m-d') . '%');
                             }
 
-                            $leads = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
+                            $leads     = $leads->select('orders.id', 'customers.name as customer_name', 'customers.email as customer_email', 'customers.id as customer_id')->get();
                             $modalType = Orders::class;
 
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Orders model query finished']);
                         } elseif ($key == 0 and $flow['name'] == 'customer_post_purchase') { //
-                            $leads = [];
+                            $leads     = [];
                             $modalType = Orders::class;
                         } elseif ($key == 0 and $flow['name'] == 'task_pr') { //
-                            $leads = [];
+                            $leads     = [];
                             $modalType = DeveloperTask::class;
                         } elseif ($key == 0 and $flow['name'] == 'site_dev') { //
-                            $leads = [];
+                            $leads     = [];
                             $modalType = Task::class;
                         } elseif ($key == 0 and in_array($flow['name'], ['order received', 'product shipped to client', 'cancel', 'Refund to be processed', 'Refund Dispatched', 'Refund Credited'])) {
                             //To manage For all the orders Status
@@ -253,30 +253,30 @@ class ScheduleEmails extends Command
                     } else {
                         $arrToReplace = ['{FIRST_NAME}'];
                         $valToReplace = [$lead->customer_name];
-                        $bodyText = str_replace($arrToReplace, $valToReplace, $message['html_content']);
+                        $bodyText     = str_replace($arrToReplace, $valToReplace, $message['html_content']);
                     }
-                    $emailData['subject'] = $message['subject'];
+                    $emailData['subject']  = $message['subject'];
                     $emailData['template'] = $bodyText;
-                    $emailData['from'] = $message['sender_email_address'];
+                    $emailData['from']     = $message['sender_email_address'];
 
                     $emailClass = (new ScheduledEmail($emailData))->build();
-                    $flow_id = $flowAction['id'];
+                    $flow_id    = $flowAction['id'];
                     if (isset($flow) && isset($flow['id'])) {
                         $flow_id = $flow['id'];
                     }
                     $params = [
-                        'model_id' => $lead->id ?? $lead['id'],
-                        'model_type' => $modalType,
-                        'type' => 'outgoing',
-                        'seen' => 0,
-                        'from' => $emailClass->sendFrom,
-                        'to' => $lead['customer_email'],
-                        'subject' => $message['subject'],
-                        'message' => $emailClass->render(),
-                        'template' => 'flow#' . $flow_id,
-                        'schedule_at' => $created_date,
-                        'is_draft' => 1,
-                        'order_id' => $lead['id'] ?? '',
+                        'model_id'     => $lead->id ?? $lead['id'],
+                        'model_type'   => $modalType,
+                        'type'         => 'outgoing',
+                        'seen'         => 0,
+                        'from'         => $emailClass->sendFrom,
+                        'to'           => $lead['customer_email'],
+                        'subject'      => $message['subject'],
+                        'message'      => $emailClass->render(),
+                        'template'     => 'flow#' . $flow_id,
+                        'schedule_at'  => $created_date,
+                        'is_draft'     => 1,
+                        'order_id'     => $lead['id'] ?? '',
                         'order_status' => $lead['order_status'] ?? '',
                     ];
 
@@ -284,36 +284,36 @@ class ScheduleEmails extends Command
 
                     Email::create($params);
                     $flowLogMessage = FlowLogMessages::where([
-                        'flow_action' => $flowAction['type'],
-                        'modalType' => $modalType,
-                        'leads' => $lead->customer_id,
+                        'flow_action'      => $flowAction['type'],
+                        'modalType'        => $modalType,
+                        'leads'            => $lead->customer_id,
                         'store_website_id' => $store_website_id,
-                        'messages' => $bodyText . ' (' . $created_date . ')',
-                        'flow_log_id' => $flow_log_id,
-                        'scraper_id' => $scraper_id,
+                        'messages'         => $bodyText . ' (' . $created_date . ')',
+                        'flow_log_id'      => $flow_log_id,
+                        'scraper_id'       => $scraper_id,
                     ])->first();
 
                     if ($flowLogMessage == null) {
                         FlowLogMessages::log([
-                            'flow_action' => $flowAction['type'],
-                            'modalType' => $modalType,
-                            'leads' => $lead->customer_id,
+                            'flow_action'      => $flowAction['type'],
+                            'modalType'        => $modalType,
+                            'leads'            => $lead->customer_id,
                             'store_website_id' => $store_website_id,
-                            'messages' => $bodyText . ' (' . $created_date . ')',
-                            'flow_log_id' => $flow_log_id,
-                            'scraper_id' => $scraper_id,
+                            'messages'         => $bodyText . ' (' . $created_date . ')',
+                            'flow_log_id'      => $flow_log_id,
+                            'scraper_id'       => $scraper_id,
                         ]);
                     }
                 }
             } else {
                 FlowLogMessages::log([
-                    'flow_action' => $flowAction['type'],
-                    'modalType' => $modalType,
-                    'leads' => '',
+                    'flow_action'      => $flowAction['type'],
+                    'modalType'        => $modalType,
+                    'leads'            => '',
                     'store_website_id' => $store_website_id,
-                    'messages' => 'flow Message is not found for email - ' . $flowAction['action_id'],
-                    'flow_log_id' => $flow_log_id,
-                    'scraper_id' => $scraper_id,
+                    'messages'         => 'flow Message is not found for email - ' . $flowAction['action_id'],
+                    'flow_log_id'      => $flow_log_id,
+                    'scraper_id'       => $scraper_id,
                 ]);
             }
         } elseif ($flowAction['type'] == 'Whatsapp' || $flowAction['type'] == 'SMS') {
@@ -343,66 +343,66 @@ class ScheduleEmails extends Command
 
                 if ($leadType == 'customer') {
                     $insertParams = [
-                        'message' => $flowAction['message_title'],
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 0,
-                        'number' => null,
+                        'message'                => $flowAction['message_title'],
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 0,
+                        'number'                 => null,
                         'message_application_id' => $messageApplicationId,
-                        'scheduled_at' => $created_date,
-                        'flow_exit' => 1,  /* if the message is coming from flow */
-                        'order_id' => $lead['id'] ?? '',
-                        'order_status' => $lead['order_status'] ?? '',
+                        'scheduled_at'           => $created_date,
+                        'flow_exit'              => 1,  /* if the message is coming from flow */
+                        'order_id'               => $lead['id'] ?? '',
+                        'order_status'           => $lead['order_status'] ?? '',
                     ];
-                    $order_id = $lead['id'] ?? '';
+                    $order_id     = $lead['id'] ?? '';
                     $order_status = $lead['order_status'] ?? '';
                     $createParams = array_merge($extraParams, $insertParams);
-                    $chatMessage = \App\ChatMessage::updateOrCreate(['customer_id' => $lead->customer_id,
-                        'message' => $flowAction['message_title'], 'status' => 1, 'is_queue' => 1,
-                        'approved' => 1, 'message_application_id' => $messageApplicationId, 'order_id' => $order_id, 'order_status' => $order_status, ], $createParams);
+                    $chatMessage  = \App\ChatMessage::updateOrCreate(['customer_id' => $lead->customer_id,
+                        'message'                                                   => $flowAction['message_title'], 'status' => 1, 'is_queue' => 1,
+                        'approved'                                                  => 1, 'message_application_id' => $messageApplicationId, 'order_id' => $order_id, 'order_status' => $order_status, ], $createParams);
                 } else {
-                    $order_id = $lead['id'] ?? '';
+                    $order_id     = $lead['id'] ?? '';
                     $order_status = $lead['order_status'] ?? '';
 
                     $insertParams = [
-                        'user_id' => $lead->customer_id,
-                        'message' => $flowAction['message_title'],
-                        'status' => 1,
-                        'is_queue' => 1,
-                        'approved' => 0,
-                        'number' => null,
+                        'user_id'                => $lead->customer_id,
+                        'message'                => $flowAction['message_title'],
+                        'status'                 => 1,
+                        'is_queue'               => 1,
+                        'approved'               => 0,
+                        'number'                 => null,
                         'message_application_id' => $messageApplicationId,
-                        'scheduled_at' => $created_date,
-                        'flow_exit' => 1,  /* if the message is coming from flow */
-                        'order_id' => $order_id,
-                        'order_status' => $order_status,
+                        'scheduled_at'           => $created_date,
+                        'flow_exit'              => 1,  /* if the message is coming from flow */
+                        'order_id'               => $order_id,
+                        'order_status'           => $order_status,
 
                     ];
 
                     $createParams = array_merge($extraParams, $insertParams);
-                    $chatMessage = \App\ChatMessage::updateOrCreate(['user_id' => $lead->customer_id, 'message' => $flowAction['message_title'],
-                        'status' => 1, 'is_queue' => 1, 'approved' => 1, 'message_application_id' => $messageApplicationId, 'order_id' => $order_id, 'order_status' => $order_status, ], $createParams);
+                    $chatMessage  = \App\ChatMessage::updateOrCreate(['user_id' => $lead->customer_id, 'message' => $flowAction['message_title'],
+                        'status'                                                => 1, 'is_queue' => 1, 'approved' => 1, 'message_application_id' => $messageApplicationId, 'order_id' => $order_id, 'order_status' => $order_status, ], $createParams);
                 }
 
                 $flowLogMessage = FlowLogMessages::where([
-                    'flow_action' => $flowAction['type'],
-                    'modalType' => $modalType,
-                    'leads' => $lead->customer_id,
+                    'flow_action'      => $flowAction['type'],
+                    'modalType'        => $modalType,
+                    'leads'            => $lead->customer_id,
                     'store_website_id' => $store_website_id,
-                    'messages' => $flowAction['message_title'] . ' (' . $created_date . ')',
-                    'flow_log_id' => $flow_log_id,
-                    'scraper_id' => $scraper_id,
+                    'messages'         => $flowAction['message_title'] . ' (' . $created_date . ')',
+                    'flow_log_id'      => $flow_log_id,
+                    'scraper_id'       => $scraper_id,
                 ])->first();
 
                 if ($flowLogMessage == null) {
                     FlowLogMessages::log([
-                        'flow_action' => $flowAction['type'],
-                        'modalType' => $modalType,
-                        'leads' => $lead->customer_id,
+                        'flow_action'      => $flowAction['type'],
+                        'modalType'        => $modalType,
+                        'leads'            => $lead->customer_id,
                         'store_website_id' => $store_website_id,
-                        'messages' => $flowAction['message_title'] . ' (' . $created_date . ')',
-                        'flow_log_id' => $flow_log_id,
-                        'scraper_id' => $scraper_id,
+                        'messages'         => $flowAction['message_title'] . ' (' . $created_date . ')',
+                        'flow_log_id'      => $flow_log_id,
+                        'scraper_id'       => $scraper_id,
                     ]);
                 }
             }
@@ -478,7 +478,7 @@ class ScheduleEmails extends Command
                     }
                 }
             } elseif ($flowAction['condition'] == 'check_scrapper_error_logs') {
-                $leads = [];
+                $leads        = [];
                 $flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
                     ->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
                     ->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
@@ -509,7 +509,7 @@ class ScheduleEmails extends Command
                     }
                 }
             } elseif ($flowAction['condition'] == 'check_if_design_task_done') {
-                $leads = [];
+                $leads        = [];
                 $flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
                     ->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
                     ->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
@@ -521,7 +521,7 @@ class ScheduleEmails extends Command
                     $designCategoryId = \App\TaskCategory::where('title', 'like', 'Design%')->pluck('id')->first();
                     if ($path_for == 'yes') {
                         $parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
-                        $tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
+                        $tasks         = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
                             ->whereDate('tasks.is_completed', '<=', $created_date)
                             ->where('category', $designCategoryId)
                             ->whereNotNull('is_completed')
@@ -533,18 +533,18 @@ class ScheduleEmails extends Command
                             $ifAlreadyCreated = Task::where('parent_task_id', $task['id'])->first();
                             if ($ifAlreadyCreated == null) {
                                 $requests = [
-                                    'task_subject' => $task['task_subject'] . ' Development',
-                                    'task_detail' => $task['task_details'],
-                                    'task_asssigned_to' => 6,
+                                    'task_subject'        => $task['task_subject'] . ' Development',
+                                    'task_detail'         => $task['task_details'],
+                                    'task_asssigned_to'   => 6,
                                     'task_asssigned_from' => 6,
-                                    'category_id' => $devCategoryId,
-                                    'site_id' => $task['site_developement_id'],
-                                    'task_type' => 0,
-                                    'repository_id' => null,
-                                    'cost' => null,
-                                    'task_id' => null,
-                                    'customer_id' => null,
-                                    'parent_task_id' => $task['id'],
+                                    'category_id'         => $devCategoryId,
+                                    'site_id'             => $task['site_developement_id'],
+                                    'task_type'           => 0,
+                                    'repository_id'       => null,
+                                    'cost'                => null,
+                                    'task_id'             => null,
+                                    'customer_id'         => null,
+                                    'parent_task_id'      => $task['id'],
                                 ];
                                 $check = (new Task)->createTaskFromSortcuts($requests);
                             }
@@ -560,7 +560,7 @@ class ScheduleEmails extends Command
                     }
                 }
             } elseif ($flowAction['condition'] == 'check_if_development_task_done') {
-                $leads = [];
+                $leads        = [];
                 $flowPathsNew = FlowAction::join('flow_paths', 'flow_actions.path_id', '=', 'flow_paths.id')
                     ->join('flows', 'flow_paths.flow_id', '=', 'flows.id')
                     ->join('flow_types', 'flow_types.id', '=', 'flow_actions.type_id')
@@ -576,7 +576,7 @@ class ScheduleEmails extends Command
                             ->select('tasks.id', 'users.name as customer_name', 'users.email as customer_email', 'users.id as customer_id')->get();
                     } else {
                         $parentTaskIds = Task::whereNotNull('parent_task_id')->pluck('parent_task_id')->toArray();
-                        $tasks = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
+                        $tasks         = Task::leftJoin('users', 'users.id', '=', 'tasks.assign_to')
                             ->whereDate('tasks.is_completed', '<=', $created_date)
                             ->where('category', $devCategoryId)
                             ->whereNotNull('is_completed')
@@ -588,19 +588,19 @@ class ScheduleEmails extends Command
                                 $ifAlreadyCreated = Task::where('parent_task_id', $task['id'])->first();
                                 if ($ifAlreadyCreated == null) {
                                     $requests = [
-                                        'task_subject' => $task['task_subject'],
-                                        'task_subject' => $task['task_subject'] . ' QA',
-                                        'task_detail' => $task['task_details'],
-                                        'task_asssigned_to' => 6,
+                                        'task_subject'        => $task['task_subject'],
+                                        'task_subject'        => $task['task_subject'] . ' QA',
+                                        'task_detail'         => $task['task_details'],
+                                        'task_asssigned_to'   => 6,
                                         'task_asssigned_from' => 6,
-                                        'category_id' => $qaCatId,
-                                        'site_id' => $task['site_developement_id'],
-                                        'task_type' => 0,
-                                        'repository_id' => null,
-                                        'cost' => null,
-                                        'task_id' => null,
-                                        'customer_id' => null,
-                                        'parent_task_id' => $task['id'],
+                                        'category_id'         => $qaCatId,
+                                        'site_id'             => $task['site_developement_id'],
+                                        'task_type'           => 0,
+                                        'repository_id'       => null,
+                                        'cost'                => null,
+                                        'task_id'             => null,
+                                        'customer_id'         => null,
+                                        'parent_task_id'      => $task['id'],
                                     ];
                                     $check = (new Task)->createTaskFromSortcuts($requests);
                                 }

@@ -20,7 +20,7 @@ class ContentStatusController extends Controller
 
         return datatables()->eloquent($status)
             ->addColumn('action', function ($val) {
-                $action = '';
+                $action  = '';
                 $editUrl = route('seo.content-status.edit', $val->id);
                 $action .= "<buttonc type='button' data-url='$editUrl' class='btn btn-secondary btn-sm editStatusBtn'>Edit</button>";
 
@@ -44,12 +44,12 @@ class ContentStatusController extends Controller
     public function create()
     {
         $data['actionUrl'] = route('seo.content-status.store');
-        $html = view("{$this->view}/ajax/status-form", $data)->render();
+        $html              = view("{$this->view}/ajax/status-form", $data)->render();
 
         return response()->json([
             'success' => true,
-            'data' => $html,
-            'title' => 'Add Status',
+            'data'    => $html,
+            'title'   => 'Add Status',
         ]);
     }
 
@@ -57,7 +57,7 @@ class ContentStatusController extends Controller
     {
         $status = SeoProcessStatus::create([
             'label' => $request->label,
-            'type' => $request->type,
+            'type'  => $request->type,
         ]);
 
         return response()->json([
@@ -67,14 +67,14 @@ class ContentStatusController extends Controller
 
     public function edit(int $id)
     {
-        $data['status'] = SeoProcessStatus::find($id);
+        $data['status']    = SeoProcessStatus::find($id);
         $data['actionUrl'] = route('seo.content-status.update', $id);
-        $html = view("{$this->view}/ajax/status-form", $data)->render();
+        $html              = view("{$this->view}/ajax/status-form", $data)->render();
 
         return response()->json([
             'success' => true,
-            'data' => $html,
-            'title' => 'Edit Status',
+            'data'    => $html,
+            'title'   => 'Edit Status',
         ]);
     }
 
@@ -82,7 +82,7 @@ class ContentStatusController extends Controller
     {
         SeoProcessStatus::findOrFail($id)->update([
             'label' => $request->label,
-            'type' => $request->type,
+            'type'  => $request->type,
         ]);
 
         return response()->json([

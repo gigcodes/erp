@@ -12,9 +12,9 @@
 // Split out configuration into an array
 if (env('REDIS_SERVERS', false)) {
     $redisDefaults = ['host' => '127.0.0.1', 'port' => '6379', 'database' => '0', 'password' => null];
-    $redisServers = explode(',', trim(env('REDIS_SERVERS', '127.0.0.1:6379:0'), ','));
-    $redisConfig = [];
-    $cluster = count($redisServers) > 1;
+    $redisServers  = explode(',', trim(env('REDIS_SERVERS', '127.0.0.1:6379:0'), ','));
+    $redisConfig   = [];
+    $cluster       = count($redisServers) > 1;
 
     if ($cluster) {
         $redisConfig['clusters'] = ['default' => []];
@@ -24,7 +24,7 @@ if (env('REDIS_SERVERS', false)) {
         $redisServerDetails = explode(':', $redisServer);
 
         $serverConfig = [];
-        $configIndex = 0;
+        $configIndex  = 0;
         foreach ($redisDefaults as $configKey => $configDefault) {
             $serverConfig[$configKey] = ($redisServerDetails[$configIndex] ?? $configDefault);
             $configIndex++;
@@ -40,9 +40,9 @@ if (env('REDIS_SERVERS', false)) {
 
 // MYSQL
 // Split out port from host if set
-$mysql_host = env('DB_HOST', 'localhost');
+$mysql_host          = env('DB_HOST', 'localhost');
 $mysql_host_exploded = explode(':', $mysql_host);
-$mysql_port = env('DB_PORT', 3306);
+$mysql_port          = env('DB_PORT', 3306);
 if (count($mysql_host_exploded) > 1) {
     $mysql_host = $mysql_host_exploded[0];
     $mysql_port = intval($mysql_host_exploded[1]);
@@ -59,57 +59,57 @@ return [
     'connections' => [
 
         'sqlite' => [
-            'driver' => 'sqlite',
+            'driver'   => 'sqlite',
             'database' => storage_path('database.sqlite'),
-            'prefix' => '',
+            'prefix'   => '',
         ],
 
         'mysql' => [
-            'driver' => 'mysql',
-            'host' => $mysql_host,
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            'driver'      => 'mysql',
+            'host'        => $mysql_host,
+            'database'    => env('DB_DATABASE', 'forge'),
+            'username'    => env('DB_USERNAME', 'forge'),
+            'password'    => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
-            'port' => $mysql_port,
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
-            'engine' => null,
+            'port'        => $mysql_port,
+            'charset'     => 'utf8mb4',
+            'collation'   => 'utf8mb4_unicode_ci',
+            'prefix'      => '',
+            'strict'      => false,
+            'engine'      => null,
         ],
 
         'mysql_testing' => [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'database' => 'bookstack-test',
-            'username' => env('MYSQL_USER', 'bookstack-test'),
-            'password' => env('MYSQL_PASSWORD', 'bookstack-test'),
-            'charset' => 'utf8',
+            'driver'    => 'mysql',
+            'host'      => '127.0.0.1',
+            'database'  => 'bookstack-test',
+            'username'  => env('MYSQL_USER', 'bookstack-test'),
+            'password'  => env('MYSQL_PASSWORD', 'bookstack-test'),
+            'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
+            'prefix'    => '',
+            'strict'    => false,
         ],
 
         'pgsql' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'localhost'),
+            'driver'   => 'pgsql',
+            'host'     => env('DB_HOST', 'localhost'),
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'schema' => 'public',
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'schema'   => 'public',
         ],
 
         'sqlsrv' => [
-            'driver' => 'sqlsrv',
-            'host' => env('DB_HOST', 'localhost'),
+            'driver'   => 'sqlsrv',
+            'host'     => env('DB_HOST', 'localhost'),
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
-            'prefix' => '',
+            'charset'  => 'utf8',
+            'prefix'   => '',
         ],
 
     ],

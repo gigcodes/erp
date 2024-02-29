@@ -29,17 +29,17 @@ class GoogleScreencastController extends Controller
             return $query->select('id', 'name');
         }])->orderBy('id', 'desc');
         //fetch task list
-        $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+        $taskList    = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
         $generalTask = Task::orderBy('id', 'desc');
         if (! Auth::user()->isAdmin()) {
-            $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $taskList    = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
             $generalTask = $generalTask->where('assign_to', Auth::id());
         }
-        $tasks = $taskList->select('id', 'subject')->get();
+        $tasks       = $taskList->select('id', 'subject')->get();
         $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
 
         $taskIds = $taskList->pluck('id');
-        $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+        $users   = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('file_name', 'LIKE', "%$keyword%");
@@ -53,12 +53,12 @@ class GoogleScreencastController extends Controller
         if ($keyword = request('task_id')) {
             if (str_contains($keyword, 'TASK-')) {
                 $keyword = trim($keyword, 'TASK-');
-                $data = $data->where(function ($q) use ($keyword) {
+                $data    = $data->where(function ($q) use ($keyword) {
                     $q->where('belongable_id', $keyword);
                 });
             } else {
                 $keyword = trim($keyword, 'DEV-');
-                $data = $data->where(function ($q) use ($keyword) {
+                $data    = $data->where(function ($q) use ($keyword) {
                     $q->where('developer_task_id', $keyword);
                 });
             }
@@ -95,12 +95,12 @@ class GoogleScreencastController extends Controller
         $isAdmin = Auth::user()->isAdmin();
 
         $validationRules = [
-            'file' => ['required'],
-            'file.*' => ['required'],
+            'file'               => ['required'],
+            'file.*'             => ['required'],
             'file_creation_date' => ['required'],
-            'file_read' => ['sometimes'],
-            'file_write' => ['sometimes'],
-            'remarks' => ['sometimes'],
+            'file_read'          => ['sometimes'],
+            'file_write'         => ['sometimes'],
+            'remarks'            => ['sometimes'],
         ];
 
         if ($isAdmin) {
@@ -115,31 +115,31 @@ class GoogleScreencastController extends Controller
             $class = '';
 
             if (str_contains($data['task_id'], 'TASK-')) {
-                $class = Task::class;
+                $class           = Task::class;
                 $data['task_id'] = trim($data['task_id'], 'TASK-');
             } else {
                 $class = DeveloperTask::class;
             }
 
             DB::transaction(function () use ($file, $data, $class) {
-                $googleScreencast = new GoogleScreencast();
+                $googleScreencast            = new GoogleScreencast();
                 $googleScreencast->file_name = $file->getClientOriginalName();
                 $googleScreencast->extension = $file->extension();
-                $googleScreencast->user_id = Auth::id();
+                $googleScreencast->user_id   = Auth::id();
                 if (isset($data['file_read'])) {
                     $googleScreencast->read = implode(',', $data['file_read']);
                 }
                 if (isset($data['file_write'])) {
                     $googleScreencast->write = implode(',', $data['file_write']);
                 }
-                $googleScreencast->remarks = $data['remarks'];
+                $googleScreencast->remarks            = $data['remarks'];
                 $googleScreencast->file_creation_date = $data['file_creation_date'];
 
                 if ($class == "App\DeveloperTask") {
                     $googleScreencast->developer_task_id = $data['task_id'];
                 }
                 if ($class == "App\Task") {
-                    $googleScreencast->belongable_id = $data['task_id'];
+                    $googleScreencast->belongable_id   = $data['task_id'];
                     $googleScreencast->belongable_type = $class;
                 }
 
@@ -162,8 +162,8 @@ class GoogleScreencastController extends Controller
                 $message .= "File Link: {$fileLink}";
 
                 // Assign the formatted message to the 'message' key in the $params array
-                $params['message'] = $message;
-                $params['user_id'] = Auth::user()->id;
+                $params['message']           = $message;
+                $params['user_id']           = Auth::user()->id;
                 $params['developer_task_id'] = $data['task_id'];
                 ChatMessage::create($params);
             });
@@ -185,7 +185,8 @@ class GoogleScreencastController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -196,7 +197,8 @@ class GoogleScreencastController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -207,23 +209,24 @@ class GoogleScreencastController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $data = $this->validate($request, [
-            'id' => ['required'],
-            'file_name' => ['required'],
-            'file_id' => ['required'],
+            'id'          => ['required'],
+            'file_name'   => ['required'],
+            'file_id'     => ['required'],
             'file_remark' => ['required'],
         ]);
 
         try {
-            $googlescreencast = GoogleScreencast::find(request('id'));
-            $googlescreencast->file_name = $request->file_name;
+            $googlescreencast                       = GoogleScreencast::find(request('id'));
+            $googlescreencast->file_name            = $request->file_name;
             $googlescreencast->google_drive_file_id = $request->file_id;
-            $googlescreencast->remarks = $request->file_remark;
+            $googlescreencast->remarks              = $request->file_remark;
             $googlescreencast->save();
 
             return back()->with('success', 'Data updated successfully.');
@@ -234,12 +237,12 @@ class GoogleScreencastController extends Controller
 
     public function driveFilePermissionUpdate(Request $request)
     {
-        $fileId = request('file_id');
-        $fileData = GoogleScreencast::find(request('id'));
-        $readData = request('read');
-        $writeData = request('write');
+        $fileId           = request('file_id');
+        $fileData         = GoogleScreencast::find(request('id'));
+        $readData         = request('read');
+        $writeData        = request('write');
         $permissionEmails = [];
-        $client = new Client();
+        $client           = new Client();
         $client->useApplicationDefaultCredentials();
         $client->addScope(Drive::DRIVE);
         $driveService = new Drive($client);
@@ -264,8 +267,8 @@ class GoogleScreencastController extends Controller
             $batch = $driveService->createBatch();
             foreach ($readData as $email) {
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'reader',
+                    'type'         => 'user',
+                    'role'         => 'reader',
                     'emailAddress' => $email,
                 ]);
 
@@ -279,8 +282,8 @@ class GoogleScreencastController extends Controller
             $batch = $driveService->createBatch();
             foreach ($writeData as $email) {
                 $userPermission = new Drive\Permission([
-                    'type' => 'user',
-                    'role' => 'writer',
+                    'type'         => 'user',
+                    'role'         => 'writer',
                     'emailAddress' => $email,
                 ]);
 
@@ -290,7 +293,7 @@ class GoogleScreencastController extends Controller
             }
             $results = $batch->execute();
         }
-        $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+        $fileData->read  = ! empty($readData) ? implode(',', $readData) : null;
         $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
         $fileData->save();
 
@@ -300,7 +303,8 @@ class GoogleScreencastController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -321,6 +325,8 @@ class GoogleScreencastController extends Controller
 
     /**
      * Get drive files for requested task
+     *
+     * @param mixed $taskId
      */
     public function getTaskDriveFiles($taskId)
     {
@@ -360,16 +366,16 @@ class GoogleScreencastController extends Controller
 
     public function getDropdownDatas(Request $request)
     {
-        $taskList = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
+        $taskList    = DeveloperTask::where('task_type_id', 1)->orderBy('id', 'desc');
         $generalTask = Task::orderBy('id', 'desc');
 
         if (! Auth::user()->isAdmin()) {
-            $taskList = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
+            $taskList    = $taskList->where('user_id', Auth::id())->orWhere('assigned_to', Auth::id())->orWhere('tester_id', Auth::id())->orWhere('team_lead_id', Auth::id());
             $generalTask = $generalTask->where('assign_to', Auth::id());
         }
-        $tasks = $taskList->select('id', 'subject')->get();
+        $tasks       = $taskList->select('id', 'subject')->get();
         $generalTask = $generalTask->select('id', 'task_subject as subject')->get();
-        $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
+        $users       = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
         return response()->json(['tasks' => $tasks, 'users' => $users, 'generalTask' => $generalTask]);
     }
@@ -378,15 +384,15 @@ class GoogleScreencastController extends Controller
     {
         $filePKIds = explode(',', request('multiple_file_id'));
         $filePKIds = array_map('intval', $filePKIds);
-        $readData = request('read');
+        $readData  = request('read');
         $writeData = request('write');
 
         foreach ($filePKIds as $filePKId) {
             $fileData = GoogleScreencast::find($filePKId);
-            $fileId = $fileData->google_drive_file_id;
+            $fileId   = $fileData->google_drive_file_id;
 
             $permissionEmails = [];
-            $client = new Client();
+            $client           = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -411,8 +417,8 @@ class GoogleScreencastController extends Controller
                 $batch = $driveService->createBatch();
                 foreach ($readData as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'reader',
+                        'type'         => 'user',
+                        'role'         => 'reader',
                         'emailAddress' => $email,
                     ]);
 
@@ -426,8 +432,8 @@ class GoogleScreencastController extends Controller
                 $batch = $driveService->createBatch();
                 foreach ($writeData as $email) {
                     $userPermission = new Drive\Permission([
-                        'type' => 'user',
-                        'role' => 'writer',
+                        'type'         => 'user',
+                        'role'         => 'writer',
                         'emailAddress' => $email,
                     ]);
 
@@ -437,7 +443,7 @@ class GoogleScreencastController extends Controller
                 }
                 $results = $batch->execute();
             }
-            $fileData->read = ! empty($readData) ? implode(',', $readData) : null;
+            $fileData->read  = ! empty($readData) ? implode(',', $readData) : null;
             $fileData->write = ! empty($writeData) ? implode(',', $writeData) : null;
             $fileData->save();
         }
@@ -447,15 +453,15 @@ class GoogleScreencastController extends Controller
 
     public function driveFileRemovePermission(Request $request)
     {
-        $fileIds = explode(',', request('remove_file_ids'));
-        $fileIds = array_map('intval', $fileIds);
-        $readArray = request('read');
+        $fileIds    = explode(',', request('remove_file_ids'));
+        $fileIds    = array_map('intval', $fileIds);
+        $readArray  = request('read');
         $writeArray = request('write');
 
         foreach ($fileIds as $fileId) {
-            $file = GoogleScreencast::find($fileId);
+            $file             = GoogleScreencast::find($fileId);
             $permissionEmails = [];
-            $client = new Client();
+            $client           = new Client();
             $client->useApplicationDefaultCredentials();
             $client->addScope(Drive::DRIVE);
             $driveService = new Drive($client);
@@ -474,9 +480,9 @@ class GoogleScreencastController extends Controller
                     $driveService->permissions->delete($file->google_drive_file_id, $permission['id']);
                 }
             }
-            $readUsers = array_diff(explode(',', $file->read), $readArray);
-            $writeUsers = array_diff(explode(',', $file->write), $writeArray);
-            $file->read = implode(',', $readUsers);
+            $readUsers   = array_diff(explode(',', $file->read), $readArray);
+            $writeUsers  = array_diff(explode(',', $file->write), $writeArray);
+            $file->read  = implode(',', $readUsers);
             $file->write = implode(',', $writeUsers);
             $file->save();
         }

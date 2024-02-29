@@ -25,16 +25,16 @@ class StoreWebsiteCountryShippingController extends Controller
         if ($request->post()) {
             $rules = [
                 'store_website_id' => 'required',
-                'country_name' => 'required',
-                'price' => 'required|integer',
-                'currency' => 'required',
+                'country_name'     => 'required',
+                'price'            => 'required|integer',
+                'currency'         => 'required',
             ];
 
             $messages = [
                 'store_website_id' => 'Website field is required.',
-                'country_name' => 'Country name field is required.',
-                'price' => 'Price field is required.',
-                'currency' => 'Price field is required.',
+                'country_name'     => 'Country name field is required.',
+                'price'            => 'Price field is required.',
+                'currency'         => 'Price field is required.',
             ];
 
             $validation = validator(
@@ -47,21 +47,21 @@ class StoreWebsiteCountryShippingController extends Controller
                 //withInput keep the users info
                 return redirect()->back()->withErrors($validation)->withInput();
             } else {
-                $countyCode = SimplyDutyCountry::where('country_name', $request->country_name)->first();
+                $countyCode    = SimplyDutyCountry::where('country_name', $request->country_name)->first();
                 $storeWebsites = StoreWebsite::where('id', $request->store_website_id)->first();
-                $url = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/';
-                $api_key = $storeWebsites->api_token;
+                $url           = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/';
+                $api_key       = $storeWebsites->api_token;
 
                 $headers = [
                     'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json',
+                    'Content-Type'  => 'application/json',
                 ];
 
                 $pushMagentoArr = [
                     'shippingCountryCode' => $countyCode->country_code,
                     'shippingCountryName' => $request->country_name,
-                    'shippingPrice' => $request->price,
-                    'shippingCurrency' => $request->currency,
+                    'shippingPrice'       => $request->price,
+                    'shippingCurrency'    => $request->currency,
                 ];
 
                 if ($request->id) {
@@ -69,9 +69,9 @@ class StoreWebsiteCountryShippingController extends Controller
                     unset($updatedData['_token']);
                     if ($request->ship_id) {
                         $url .= 'update';
-                        $pushMagentoArr['ship_id'] = $request->ship_id;
+                        $pushMagentoArr['ship_id']              = $request->ship_id;
                         $pushMagentoArr['updatedShippingPrice'] = $request->price;
-                        $response = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);
+                        $response                               = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);
                         if (isset($response[0]->status)) {
                             StoreWebsitesCountryShipping::whereId($request->id)->update($updatedData);
                         } else {
@@ -96,7 +96,7 @@ class StoreWebsiteCountryShippingController extends Controller
                 }
             }
         } else {
-            $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
+            $storeWebsites     = StoreWebsite::where('deleted_at', null)->get();
             $simplyDutyCountry = SimplyDutyCountry::get();
 
             return view('store-website-country-shipping.create', compact('storeWebsites', 'simplyDutyCountry'));
@@ -105,8 +105,8 @@ class StoreWebsiteCountryShippingController extends Controller
 
     public function edit($id = null)
     {
-        $data = StoreWebsitesCountryShipping::whereId($id)->first();
-        $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
+        $data              = StoreWebsitesCountryShipping::whereId($id)->first();
+        $storeWebsites     = StoreWebsite::where('deleted_at', null)->get();
         $simplyDutyCountry = SimplyDutyCountry::get();
 
         return view('store-website-country-shipping.edit', compact('data', 'storeWebsites', 'simplyDutyCountry'));
@@ -114,16 +114,16 @@ class StoreWebsiteCountryShippingController extends Controller
 
     public function delete($id = null)
     {
-        $data = StoreWebsitesCountryShipping::whereId($id)->first();
+        $data          = StoreWebsitesCountryShipping::whereId($id)->first();
         $storeWebsites = StoreWebsite::where('id', $data->store_website_id)->first();
 
-        $url = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/delete';
+        $url     = $storeWebsites->magento_url . '/default/rest/all/V1/shippingcost/delete';
         $api_key = $storeWebsites->api_token;
 
         $pushMagentoArr = ['ship_id' => $data->ship_id];
-        $headers = [
+        $headers        = [
             'Authorization' => 'Bearer ' . $api_key,
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
         ];
         $response = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);
         if (isset($response[0]->status)) {

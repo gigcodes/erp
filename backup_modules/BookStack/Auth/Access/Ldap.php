@@ -12,8 +12,9 @@ class Ldap
     /**
      * Connect to a LDAP server.
      *
-     * @param  string  $hostName
-     * @param  int  $port
+     * @param string $hostName
+     * @param int    $port
+     *
      * @return resource
      */
     public function connect($hostName, $port)
@@ -24,9 +25,10 @@ class Ldap
     /**
      * Set the value of a LDAP option for the given connection.
      *
-     * @param  resource  $ldapConnection
-     * @param  int  $option
-     * @param  mixed  $value
+     * @param resource $ldapConnection
+     * @param int      $option
+     * @param mixed    $value
+     *
      * @return bool
      */
     public function setOption($ldapConnection, $option, $value)
@@ -36,6 +38,9 @@ class Ldap
 
     /**
      * Set the version number for the given ldap connection.
+     *
+     * @param mixed $ldapConnection
+     * @param mixed $version
      *
      * @return bool
      */
@@ -47,9 +52,10 @@ class Ldap
     /**
      * Search LDAP tree using the provided filter.
      *
-     * @param  resource  $ldapConnection
-     * @param  string  $baseDn
-     * @param  string  $filter
+     * @param resource $ldapConnection
+     * @param string   $baseDn
+     * @param string   $filter
+     *
      * @return resource
      */
     public function search($ldapConnection, $baseDn, $filter, array $attributes = null)
@@ -60,8 +66,9 @@ class Ldap
     /**
      * Get entries from an ldap search result.
      *
-     * @param  resource  $ldapConnection
-     * @param  resource  $ldapSearchResult
+     * @param resource $ldapConnection
+     * @param resource $ldapSearchResult
+     *
      * @return array
      */
     public function getEntries($ldapConnection, $ldapSearchResult)
@@ -72,9 +79,10 @@ class Ldap
     /**
      * Search and get entries immediately.
      *
-     * @param  resource  $ldapConnection
-     * @param  string  $baseDn
-     * @param  string  $filter
+     * @param resource $ldapConnection
+     * @param string   $baseDn
+     * @param string   $filter
+     *
      * @return resource
      */
     public function searchAndGetEntries($ldapConnection, $baseDn, $filter, array $attributes = null)
@@ -87,9 +95,10 @@ class Ldap
     /**
      * Bind to LDAP directory.
      *
-     * @param  resource  $ldapConnection
-     * @param  string  $bindRdn
-     * @param  string  $bindPassword
+     * @param resource $ldapConnection
+     * @param string   $bindRdn
+     * @param string   $bindPassword
+     *
      * @return bool
      */
     public function bind($ldapConnection, $bindRdn = null, $bindPassword = null)

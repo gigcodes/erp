@@ -20,11 +20,13 @@ class OrderStatusChangeMail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
-        $this->order = $data;
+        $this->order      = $data;
         $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
@@ -35,8 +37,8 @@ class OrderStatusChangeMail extends Mailable
             $matches = $matches[0];
             foreach ($matches as $match) {
                 $matchString = str_replace(['{{', '}}'], '', $match);
-                $value = Arr::get($order, trim($matchString));
-                $htmlData = str_replace($match, $value, $htmlData);
+                $value       = Arr::get($order, trim($matchString));
+                $htmlData    = str_replace($match, $value, $htmlData);
             }
         }
 
@@ -51,16 +53,16 @@ class OrderStatusChangeMail extends Mailable
     public function build()
     {
         $subject = 'Order # ' . $this->order->order_id . ' Status has been changed';
-        $order = $this->order;
+        $order   = $this->order;
 
-        $customer = $order->customer;
+        $customer       = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
-        $order_status = $order->order_status;
+        $order_status      = $order->order_status;
         if ($storeWebsiteOrder) {
             $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
             if ($emailAddress) {
@@ -84,7 +86,7 @@ class OrderStatusChangeMail extends Mailable
             if (! empty($template->mail_tpl)) {
                 if (! empty($template->html_text)) {
                     $htmlData = $template->html_text;
-                    $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
+                    $re       = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
                     preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
                     if (count($matches) != 0) {
                         foreach ($matches as $index => $match) {
@@ -115,7 +117,7 @@ class OrderStatusChangeMail extends Mailable
             } else {
                 if (! empty($template->html_text)) {
                     $htmlData = $template->html_text;
-                    $re = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
+                    $re       = '/<loop-orderProducts>((.|\n)*?)<\/loop-orderProducts>/m';
                     preg_match_all($re, $htmlData, $matches, PREG_SET_ORDER, 0);
                     if (count($matches) != 0) {
                         foreach ($matches as $index => $match) {
@@ -134,10 +136,10 @@ class OrderStatusChangeMail extends Mailable
                         ->subject($this->subject)
                         ->view('email-templates.content', compact('content'));
                 } else {
-                    $content = $template->static_template;
+                    $content      = $template->static_template;
                     $arrToReplace = ['{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'];
                     $valToReplace = [$order->customer->name, $order->order_status, $order->order_id];
-                    $content = str_replace($arrToReplace, $valToReplace, $content);
+                    $content      = str_replace($arrToReplace, $valToReplace, $content);
 
                     return $this->from($this->fromMailer)->subject($this->subject)
                         ->view('emails.blank_content', compact(

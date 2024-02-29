@@ -19,7 +19,7 @@ class AddIsRootColumnInThemeStructureTable extends Migration
         });
 
         ThemeStructure::create([
-            'name' => 'Root Folder',
+            'name'    => 'Root Folder',
             'is_file' => 0,
             'is_root' => 1,
         ]);

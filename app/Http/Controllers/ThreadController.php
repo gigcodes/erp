@@ -35,17 +35,17 @@ class ThreadController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'customer_id' => 'sometimes|nullable|integer',
-            'platform' => 'sometimes|nullable|string',
-            'complaint' => 'required|string|min:3',
-            'thread.*' => 'sometimes|nullable|string',
-            'account_id.*' => 'sometimes|nullable|numeric',
-            'link' => 'sometimes|nullable|url',
-            'where' => 'sometimes|nullable|string',
-            'username' => 'sometimes|nullable|string',
-            'name' => 'sometimes|nullable|string',
+            'customer_id'    => 'sometimes|nullable|integer',
+            'platform'       => 'sometimes|nullable|string',
+            'complaint'      => 'required|string|min:3',
+            'thread.*'       => 'sometimes|nullable|string',
+            'account_id.*'   => 'sometimes|nullable|numeric',
+            'link'           => 'sometimes|nullable|url',
+            'where'          => 'sometimes|nullable|string',
+            'username'       => 'sometimes|nullable|string',
+            'name'           => 'sometimes|nullable|string',
             'plan_of_action' => 'sometimes|nullable|string',
-            'date' => 'required|date',
+            'date'           => 'required|date',
         ]);
 
         $data = $request->except('_token');
@@ -56,8 +56,8 @@ class ThreadController extends Controller
             foreach ($request->thread as $key => $thread) {
                 ComplaintThread::create([
                     'complaint_id' => $complaint->id,
-                    'account_id' => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
-                    'thread' => $thread,
+                    'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
+                    'thread'       => $thread,
                 ]);
             }
         }
@@ -75,7 +75,8 @@ class ThreadController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -86,7 +87,8 @@ class ThreadController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -97,23 +99,24 @@ class ThreadController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'customer_id' => 'sometimes|nullable|integer',
-            'platform' => 'sometimes|nullable|string',
-            'complaint' => 'required|string|min:3',
-            'thread.*' => 'sometimes|nullable|string',
-            'account_id.*' => 'sometimes|nullable|numeric',
-            'link' => 'sometimes|nullable|url',
-            'where' => 'sometimes|nullable|string',
-            'username' => 'sometimes|nullable|string',
-            'name' => 'sometimes|nullable|string',
+            'customer_id'    => 'sometimes|nullable|integer',
+            'platform'       => 'sometimes|nullable|string',
+            'complaint'      => 'required|string|min:3',
+            'thread.*'       => 'sometimes|nullable|string',
+            'account_id.*'   => 'sometimes|nullable|numeric',
+            'link'           => 'sometimes|nullable|url',
+            'where'          => 'sometimes|nullable|string',
+            'username'       => 'sometimes|nullable|string',
+            'name'           => 'sometimes|nullable|string',
             'plan_of_action' => 'sometimes|nullable|string',
-            'date' => 'required|date',
+            'date'           => 'required|date',
         ]);
 
         $data = $request->except('_token');
@@ -127,8 +130,8 @@ class ThreadController extends Controller
             foreach ($request->thread as $key => $thread) {
                 ComplaintThread::create([
                     'complaint_id' => $complaint->id,
-                    'account_id' => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
-                    'thread' => $thread,
+                    'account_id'   => array_key_exists($key, $request->account_id) ? $request->account_id[$key] : '',
+                    'thread'       => $thread,
                 ]);
             }
         }
@@ -148,11 +151,11 @@ class ThreadController extends Controller
         $complaint = Complaint::find($id);
 
         StatusChange::create([
-            'model_id' => $complaint->id,
-            'model_type' => Complaint::class,
-            'user_id' => Auth::id(),
+            'model_id'    => $complaint->id,
+            'model_type'  => Complaint::class,
+            'user_id'     => Auth::id(),
             'from_status' => $complaint->status,
-            'to_status' => $request->status,
+            'to_status'   => $request->status,
         ]);
 
         $complaint->status = $request->status;
@@ -164,7 +167,8 @@ class ThreadController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

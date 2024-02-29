@@ -32,6 +32,8 @@ class ViewInvoice extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $params
+     *
      * @return void
      */
     public function __construct($params)
@@ -50,7 +52,7 @@ class ViewInvoice extends Mailable
         }
 
         if (! empty($params['orders'])) {
-            $order_pro = $this->orders[0]->order_product;
+            $order_pro         = $this->orders[0]->order_product;
             $website_code_data = $this->viewDutyTax($this->orders);
 
             $duty_shipping = 0;
@@ -59,10 +61,10 @@ class ViewInvoice extends Mailable
 
                 $code = $website_code_data->website_code->code;
 
-                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $duty_countries     = $website_code_data->website_code->duty_of_country;
                 $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
 
-                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $duty_amount     = ($duty_countries->default_duty * $product_qty);
                 $shipping_amount = ($shipping_countries->price * $product_qty);
 
                 if ($duty_amount + $shipping_amount != '' && $duty_amount + $shipping_amount != 'undefined' && $duty_amount + $shipping_amount != null) {
@@ -74,22 +76,22 @@ class ViewInvoice extends Mailable
         }
 
         $this->customer = $this->orders !== null ? $this->getCustomerDetails($this->orders[0]) : null;
-        $this->billing = $this->orders !== null ? $this->getBillingDetails($this->orders[0]) : null;
+        $this->billing  = $this->orders !== null ? $this->getBillingDetails($this->orders[0]) : null;
         $this->shipping = $this->orders !== null ? $this->getShippingDetails($this->orders[0]) : null;
     }
 
     public function preview()
     {
         return view('maileclipse::templates.viewInvoice', [
-            'orderItems' => $this->orderItems,
-            'customer' => $this->customer,
-            'orders' => $this->orders,
-            'orderTotal' => $this->orderTotal,
-            'invoice' => $this->invoice,
+            'orderItems'   => $this->orderItems,
+            'customer'     => $this->customer,
+            'orders'       => $this->orders,
+            'orderTotal'   => $this->orderTotal,
+            'invoice'      => $this->invoice,
             'buyerDetails' => $this->customer,
-            'order' => $this->orders[0],
-            'billing' => $this->billing,
-            'shipping' => $this->shipping,
+            'order'        => $this->orders[0],
+            'billing'      => $this->billing,
+            'shipping'     => $this->shipping,
         ]);
     }
 
@@ -97,16 +99,16 @@ class ViewInvoice extends Mailable
     public function download()
     {
         $html = view('maileclipse::templates.orderInvoice', [
-            'orderItems' => $this->orderItems,
-            'customer' => $this->customer,
-            'orders' => $this->orders,
-            'order' => $this->orders[0],
-            'orderTotal' => $this->orderTotal,
+            'orderItems'   => $this->orderItems,
+            'customer'     => $this->customer,
+            'orders'       => $this->orders,
+            'order'        => $this->orders[0],
+            'orderTotal'   => $this->orderTotal,
             'buyerDetails' => $this->customer,
-            'billing' => $this->billing,
-            'shipping' => $this->shipping,
-            'invoice' => $this->invoice,
-            'duty_tax' => $this->duty_tax,
+            'billing'      => $this->billing,
+            'shipping'     => $this->shipping,
+            'invoice'      => $this->invoice,
+            'duty_tax'     => $this->duty_tax,
         ]);
         $pdf = new Dompdf();
         $pdf->loadHtml($html);

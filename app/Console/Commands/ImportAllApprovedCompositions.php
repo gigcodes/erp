@@ -43,7 +43,7 @@ class ImportAllApprovedCompositions extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,7 +67,7 @@ class ImportAllApprovedCompositions extends Command
 
                     dump('Adding ' . $cmp);
 
-                    $cmpr = new Compositions();
+                    $cmpr       = new Compositions();
                     $cmpr->name = trim($cmp);
                     $cmpr->save();
                 }

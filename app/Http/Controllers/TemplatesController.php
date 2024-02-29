@@ -35,13 +35,13 @@ class TemplatesController extends Controller
     {
         $records = \App\Template::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
         foreach ($records as &$item) {
-            $media = $item->lastMedia(config('constants.media_tags'));
+            $media       = $item->lastMedia(config('constants.media_tags'));
             $item->image = ($media) ? getMediaUrl($media) : '';
         }
 
         return response()->json([
-            'code' => 1,
-            'result' => $records,
+            'code'       => 1,
+            'result'     => $records,
             'pagination' => (string) $records->links(),
         ]);
     }
@@ -64,7 +64,7 @@ class TemplatesController extends Controller
 
         $headers = [
             'Authorization' => 'Bearer ' . $api_key,
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
         ];
 
         $response = GuzzleHelper::patch($url, $body, $headers);
@@ -80,7 +80,7 @@ class TemplatesController extends Controller
 
         $headers = [
             'Authorization' => 'Bearer ' . $api_key,
-            'Content-Type' => 'application/json',
+            'Content-Type'  => 'application/json',
         ];
 
         $response = GuzzleHelper::get($url, $headers);
@@ -175,7 +175,8 @@ class TemplatesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -197,7 +198,7 @@ class TemplatesController extends Controller
         } else {
             $template->auto_generate_product = 0;
         }
-        $template->name = $request->name;
+        $template->name         = $request->name;
         $template->no_of_images = $request->number;
         $template->update();
 
@@ -253,21 +254,21 @@ class TemplatesController extends Controller
                                     $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();
 
                                     if ($temp == 0) {
-                                        $productTemplate = new ProductTemplate;
-                                        $productTemplate->template_no = $template->id;
-                                        $productTemplate->product_title = '';
-                                        $productTemplate->brand_id = $product->brand;
-                                        $productTemplate->currency = 'eur';
-                                        $productTemplate->price = '';
+                                        $productTemplate                   = new ProductTemplate;
+                                        $productTemplate->template_no      = $template->id;
+                                        $productTemplate->product_title    = '';
+                                        $productTemplate->brand_id         = $product->brand;
+                                        $productTemplate->currency         = 'eur';
+                                        $productTemplate->price            = '';
                                         $productTemplate->discounted_price = '';
-                                        $productTemplate->category_id = $product->category;
-                                        $productTemplate->product_id = '';
-                                        $productTemplate->is_processed = 0;
-                                        $productTemplate->type = 1;
+                                        $productTemplate->category_id      = $product->category;
+                                        $productTemplate->product_id       = '';
+                                        $productTemplate->is_processed     = 0;
+                                        $productTemplate->type             = 1;
                                         $productTemplate->save();
                                         $media = $product->getMedia(config('constants.media_tags'))->first();
                                         $media = Media::find($media->id);
-                                        $tag = 'template-image';
+                                        $tag   = 'template-image';
                                         try {
                                             $productTemplate->attachMedia($media, $tag);
                                         } catch (\Exception $e) {
@@ -277,7 +278,7 @@ class TemplatesController extends Controller
                                 } else {
                                     $media = $product->getMedia(config('constants.media_tags'))->first();
                                     $media = Media::find($media->id);
-                                    $tag = 'template-image';
+                                    $tag   = 'template-image';
                                     try {
                                         $oldTemplate->attachMedia($media, $tag);
                                     } catch (\Exception $e) {
@@ -288,21 +289,21 @@ class TemplatesController extends Controller
                                 //check if Product Template Already Exist
                                 $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();
                                 if ($temp == 0) {
-                                    $productTemplate = new ProductTemplate;
-                                    $productTemplate->template_no = $template->id;
-                                    $productTemplate->product_title = '';
-                                    $productTemplate->brand_id = $product->brand;
-                                    $productTemplate->currency = 'eur';
-                                    $productTemplate->price = '';
+                                    $productTemplate                   = new ProductTemplate;
+                                    $productTemplate->template_no      = $template->id;
+                                    $productTemplate->product_title    = '';
+                                    $productTemplate->brand_id         = $product->brand;
+                                    $productTemplate->currency         = 'eur';
+                                    $productTemplate->price            = '';
                                     $productTemplate->discounted_price = '';
-                                    $productTemplate->category_id = $product->category;
-                                    $productTemplate->product_id = '';
-                                    $productTemplate->is_processed = 0;
-                                    $productTemplate->type = 1;
+                                    $productTemplate->category_id      = $product->category;
+                                    $productTemplate->product_id       = '';
+                                    $productTemplate->is_processed     = 0;
+                                    $productTemplate->type             = 1;
                                     $productTemplate->save();
                                     $media = $product->getMedia(config('constants.media_tags'))->first();
                                     $media = Media::find($media->id);
-                                    $tag = 'template-image';
+                                    $tag   = 'template-image';
                                     try {
                                         $productTemplate->attachMedia($media, $tag);
                                     } catch (\Exception $e) {
@@ -321,15 +322,15 @@ class TemplatesController extends Controller
 
     public function getTemplateProduct(request $request)
     {
-        $id = $request->input('productid');
-        $productData = product::find($id);
-        $image = $productData->getMedia(\Config('constants.media_original_tag'))->first();
+        $id           = $request->input('productid');
+        $productData  = product::find($id);
+        $image        = $productData->getMedia(\Config('constants.media_original_tag'))->first();
         $responseData = [
-            'status' => 'success',
-            'productName' => $productData->name,
+            'status'            => 'success',
+            'productName'       => $productData->name,
             'short_description' => Str::limit($productData->short_description, 20, $end = '...'),
-            'price' => '$' . $productData->price,
-            'product_url' => 'www.test.com',
+            'price'             => '$' . $productData->price,
+            'product_url'       => 'www.test.com',
         ];
         if ($image) {
             $responseData['product_image'] = getMediaUrl($image);
@@ -345,7 +346,7 @@ class TemplatesController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        $result = Http::get($url);
+        $result   = Http::get($url);
         $response = $result->json();
 
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $result->status(), TemplatesController::class, 'report');

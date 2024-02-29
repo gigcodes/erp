@@ -42,10 +42,10 @@ class MagentoModuleController extends Controller
     public function __construct()
     {
         //view files
-        $this->index_view = 'magento_module.index';
+        $this->index_view  = 'magento_module.index';
         $this->create_view = 'magento_module.create';
         $this->detail_view = 'magento_module.details';
-        $this->edit_view = 'magento_module.edit';
+        $this->edit_view   = 'magento_module.edit';
     }
 
     /**
@@ -60,19 +60,19 @@ class MagentoModuleController extends Controller
         } else {
             $users = User::select('name', 'id')->where('is_active', 1)->orderby('name', 'asc')->get();
         }
-        $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
-        $module_locations = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
+        $module_categories               = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
+        $module_locations                = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
         $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::select('return_type_name', 'id')->get();
-        $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
-        $task_statuses = TaskStatus::select('name', 'id')->get();
-        $store_websites = StoreWebsite::select('website', 'id')->get();
-        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
-        $verified_status_array = $verified_status->pluck('name', 'id');
-        $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
-        $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
-        $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        $magento_module_types            = MagentoModuleType::select('magento_module_type', 'id')->get();
+        $task_statuses                   = TaskStatus::select('name', 'id')->get();
+        $store_websites                  = StoreWebsite::select('website', 'id')->get();
+        $verified_status                 = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
+        $verified_status_array           = $verified_status->pluck('name', 'id');
+        $m2_error_status                 = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
+        $m2_error_status_array           = $m2_error_status->pluck('m2_error_status_name', 'id');
+        $unit_test_status                = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
         //get column visbilities
-        $columns = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
+        $columns     = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
         $hideColumns = $columns->columns ?? '';
 
         $moduleNames = MagentoModule::with(['lastRemark'])
@@ -87,13 +87,13 @@ class MagentoModuleController extends Controller
             ->pluck('module', 'module')
             ->toArray();
 
-        $title = 'Magento Module';
-        $users = $users->pluck('name', 'id');
-        $module_categories = $module_categories->pluck('category_name', 'id');
-        $module_locations = $module_locations->pluck('magento_module_locations', 'id');
-        $magento_module_types = $magento_module_types->pluck('magento_module_type', 'id');
-        $task_statuses = $task_statuses->pluck('name', 'id');
-        $store_websites = $store_websites->pluck('website', 'id');
+        $title                           = 'Magento Module';
+        $users                           = $users->pluck('name', 'id');
+        $module_categories               = $module_categories->pluck('category_name', 'id');
+        $module_locations                = $module_locations->pluck('magento_module_locations', 'id');
+        $magento_module_types            = $magento_module_types->pluck('magento_module_type', 'id');
+        $task_statuses                   = $task_statuses->pluck('name', 'id');
+        $store_websites                  = $store_websites->pluck('website', 'id');
         $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
         return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors', 'unit_test_status', 'hideColumns'));
@@ -107,18 +107,18 @@ class MagentoModuleController extends Controller
             $users = User::select('name', 'id')->where('is_active', 1)->orderby('name', 'asc')->get();
         }
 
-        $module_categories = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
-        $module_locations = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
+        $module_categories               = MagentoModuleCategory::select('category_name', 'id')->where('status', 1)->get();
+        $module_locations                = MagentoModuleLocation::select('magento_module_locations', 'id')->get();
         $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::select('return_type_name', 'id')->get();
-        $magento_module_types = MagentoModuleType::select('magento_module_type', 'id')->get();
-        $store_websites = StoreWebsite::select('website', 'id')->get();
-        $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
-        $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
-        $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
-        $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        $magento_module_types            = MagentoModuleType::select('magento_module_type', 'id')->get();
+        $store_websites                  = StoreWebsite::select('website', 'id')->get();
+        $verified_status                 = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
+        $m2_error_status                 = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
+        $m2_error_status_array           = $m2_error_status->pluck('m2_error_status_name', 'id');
+        $unit_test_status                = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
 
         //get column visbilities
-        $columns = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
+        $columns     = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
         $hideColumns = $columns->columns ?? '';
 
         $items = MagentoModule::with(['lastRemark'])
@@ -207,12 +207,12 @@ class MagentoModuleController extends Controller
      */
     public function create()
     {
-        $title = 'Magento Module';
+        $title             = 'Magento Module';
         $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $module_locations = MagentoModuleLocation::pluck('magento_module_locations', 'id');
+        $module_locations  = MagentoModuleLocation::pluck('magento_module_locations', 'id');
 
         $magento_module_types = MagentoModuleType::get()->pluck('magento_module_type', 'id');
-        $task_statuses = TaskStatus::pluck('name', 'id');
+        $task_statuses        = TaskStatus::pluck('name', 'id');
 
         return view($this->create_view, compact('module_categories', 'title', 'task_statuses', 'magento_module_types', 'module_locations'));
     }
@@ -220,7 +220,8 @@ class MagentoModuleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(MagentoModuleRequest $request)
@@ -230,20 +231,20 @@ class MagentoModuleController extends Controller
         $data = MagentoModule::create($input);
 
         if ($data) {
-            $input_data = $data->toArray();
+            $input_data                      = $data->toArray();
             $input_data['magento_module_id'] = $data->id;
             unset($input_data['id']);
             $input_data['user_id'] = auth()->user()->id;
             MagentoModuleHistory::create($input_data);
 
             // New Script
-            $moduleName = $data->module;
-            $website = $data->store_website->title;
-            $server = $data->store_website->server_ip;
-            $rootDir = $data->store_website->working_directory;
+            $moduleName              = $data->module;
+            $website                 = $data->store_website->title;
+            $server                  = $data->store_website->server_ip;
+            $rootDir                 = $data->store_website->working_directory;
             $websiteStoreProjectName = $data->store_website->websiteStoreProject->name ?? null;
-            $action = 'add';
-            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+            $action                  = 'add';
+            $scriptsPath             = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
             $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
             if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
@@ -286,15 +287,15 @@ class MagentoModuleController extends Controller
             }
 
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Magento Module saved successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Magento Module saved successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -303,7 +304,8 @@ class MagentoModuleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(MagentoModule $magento_module)
@@ -312,15 +314,15 @@ class MagentoModuleController extends Controller
 
         if (request()->ajax() && $magento_module) {
             return response()->json([
-                'data' => view('magento_module.partials.data', compact('magento_module'))->render(),
+                'data'  => view('magento_module.partials.data', compact('magento_module'))->render(),
                 'title' => $title,
-                'code' => 200,
+                'code'  => 200,
             ], 200);
         } else {
             return response()->json([
-                'data' => '',
+                'data'  => '',
                 'title' => $title,
-                'code' => 500,
+                'code'  => 500,
             ], 500);
         }
 
@@ -330,15 +332,16 @@ class MagentoModuleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(MagentoModule $magento_module)
     {
-        $title = 'Magento Module';
-        $module_categories = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
-        $module_locations = MagentoModuleLocation::pluck('module_locations', 'id');
-        $task_statuses = TaskStatus::pluck('name', 'id');
+        $title                           = 'Magento Module';
+        $module_categories               = MagentoModuleCategory::where('status', 1)->get()->pluck('category_name', 'id');
+        $module_locations                = MagentoModuleLocation::pluck('module_locations', 'id');
+        $task_statuses                   = TaskStatus::pluck('name', 'id');
         $module_return_type_statuserrors = MagentoModuleReturnTypeErrorStatus::pluck('return_type_name', 'id')->get();
 
         return view($this->edit_view, compact('module_categories', 'title', 'magento_module', 'task_statuses', 'module_locations', 'module_return_type_statuserrors'));
@@ -347,30 +350,31 @@ class MagentoModuleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(MagentoModuleRequest $request, MagentoModule $magento_module)
     {
         $input = $request->except(['_token']);
-        $data = $magento_module->update($input);
+        $data  = $magento_module->update($input);
 
         if ($data) {
-            $input_data = $magento_module->toArray();
+            $input_data                      = $magento_module->toArray();
             $input_data['magento_module_id'] = $magento_module->id;
             unset($input_data['id']);
             $input_data['user_id'] = auth()->user()->id;
             MagentoModuleHistory::create($input_data);
 
             return response()->json([
-                'status' => true,
-                'message' => 'Updated successfully',
+                'status'      => true,
+                'message'     => 'Updated successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Updated unsuccessfully',
+                'status'      => false,
+                'message'     => 'Updated unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -387,14 +391,14 @@ class MagentoModuleController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'message' => 'Deleted successfully',
+                'status'      => true,
+                'message'     => 'Deleted successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Deleted unsuccessfully',
+                'status'      => false,
+                'message'     => 'Deleted unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -403,12 +407,13 @@ class MagentoModuleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function storeRemark(MagentoModuleRemarkRequest $request)
     {
-        $input = $request->except(['_token']);
+        $input            = $request->except(['_token']);
         $input['user_id'] = Auth::user()->id;
 
         $magento_module_remark = MagentoModuleRemark::create($input);
@@ -420,30 +425,30 @@ class MagentoModuleController extends Controller
             }
             if ($input['type'] == 'dev') {
                 $message = 'Developer Remark';
-                $update = MagentoModule::where('id', $request->magento_module_id)->update(['dev_last_remark' => $request->remark]);
+                $update  = MagentoModule::where('id', $request->magento_module_id)->update(['dev_last_remark' => $request->remark]);
             }
             if ($input['type'] == 'lead') {
                 $message = 'Lead Remark';
-                $update = MagentoModule::where('id', $request->magento_module_id)->update(['lead_last_remark' => $request->remark]);
+                $update  = MagentoModule::where('id', $request->magento_module_id)->update(['lead_last_remark' => $request->remark]);
             }
             if ($input['type'] == 'return_type_error') {
                 $message = 'Return Type Error';
-                $update = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error' => $request->remark]);
+                $update  = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error' => $request->remark]);
             }
             if ($input['type'] == 'return_type_error_status') {
                 $message = 'Return Type Error Status';
-                $update = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error_status' => $request->remark]);
+                $update  = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error_status' => $request->remark]);
             }
 
             return response()->json([
-                'status' => true,
-                'message' => "{$message} added successfully",
+                'status'      => true,
+                'message'     => "{$message} added successfully",
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => "{$message} added unsuccessfully",
+                'status'      => false,
+                'message'     => "{$message} added unsuccessfully",
                 'status_name' => 'error',
             ], 500);
         }
@@ -452,7 +457,10 @@ class MagentoModuleController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     * @param mixed                    $magento_module
+     * @param mixed                    $type
+     *
      * @return \Illuminate\Http\Response
      */
     public function getRemarks($magento_module, $type = 'general')
@@ -460,9 +468,9 @@ class MagentoModuleController extends Controller
         $remarks = MagentoModuleRemark::with(['user'])->where('magento_module_id', $magento_module)->where('type', $type)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -472,9 +480,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleApiValueHistory::with(['user'])->where('magento_module_id', $magento_module)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get verified status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get verified status',
             'status_name' => 'success',
         ], 200);
     }
@@ -484,9 +492,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleM2ErrorStatusHistory::with(['user', 'newM2ErrorStatus', 'oldM2ErrorStatus'])->where('magento_module_id', $magento_module)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get verified status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get verified status',
             'status_name' => 'success',
         ], 200);
     }
@@ -496,20 +504,20 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleVerifiedStatusHistory::with(['user', 'newStatus', 'oldStatus'])->where('magento_module_id', $magento_module)->where('type', $type)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get verified status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get verified status',
             'status_name' => 'success',
         ], 200);
     }
 
     public function updateMagentoModuleOptions(Request $request)
     {
-        $oldData = MagentoModule::where('id', (int) $request->id)->first();
+        $oldData             = MagentoModule::where('id', (int) $request->id)->first();
         $updateMagentoModule = MagentoModule::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
-        $newData = MagentoModule::where('id', (int) $request->id)->first();
+        $newData             = MagentoModule::where('id', (int) $request->id)->first();
 
-        $input_data = $newData->toArray();
+        $input_data                      = $newData->toArray();
         $input_data['magento_module_id'] = $newData->id;
         unset($input_data['id']);
         $input_data['user_id'] = auth()->user()->id;
@@ -517,11 +525,11 @@ class MagentoModuleController extends Controller
 
         if ($request->columnName == 'dev_verified_status_id' || $request->columnName == 'lead_verified_status_id') {
             if ($request->columnName == 'dev_verified_status_id') {
-                $type = 'dev';
+                $type        = 'dev';
                 $oldStatusId = $oldData->dev_verified_status_id;
             }
             if ($request->columnName == 'lead_verified_status_id') {
-                $type = 'lead';
+                $type        = 'lead';
                 $oldStatusId = $oldData->lead_verified_status_id;
             }
             $this->saveVerifiedStatusHistory($oldData, $oldStatusId, $request->data, $type);
@@ -529,11 +537,11 @@ class MagentoModuleController extends Controller
 
         if ($request->columnName == 'dev_verified_by' || $request->columnName == 'lead_verified_by') {
             if ($request->columnName == 'dev_verified_by') {
-                $type = 'dev';
+                $type        = 'dev';
                 $oldStatusId = $oldData->dev_verified_by;
             }
             if ($request->columnName == 'lead_verified_by') {
-                $type = 'lead';
+                $type        = 'lead';
                 $oldStatusId = $oldData->lead_verified_by;
             }
 
@@ -575,25 +583,25 @@ class MagentoModuleController extends Controller
         }
 
         if ($request->columnName == 'api') {
-            $history = new MagentoModuleApiValueHistory();
+            $history                    = new MagentoModuleApiValueHistory();
             $history->magento_module_id = $request->id;
-            $history->old_value = $oldData->api;
-            $history->new_value = $request->data;
-            $history->user_id = Auth::user()->id;
+            $history->old_value         = $oldData->api;
+            $history->new_value         = $request->data;
+            $history->user_id           = Auth::user()->id;
             $history->save();
         }
 
         if ($updateMagentoModule) {
             return response()->json([
-                'status' => true,
-                'message' => 'Updated successfully',
+                'status'      => true,
+                'message'     => 'Updated successfully',
                 'status_name' => 'success',
-                'code' => 200,
+                'code'        => 200,
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Updated unsuccessfully',
+                'status'      => false,
+                'message'     => 'Updated unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -601,10 +609,10 @@ class MagentoModuleController extends Controller
 
     protected function savereviewStandard($magentoModule, $reviewValue)
     {
-        $history = new MagnetoReviewStandardHistory();
+        $history                    = new MagnetoReviewStandardHistory();
         $history->magento_module_id = $magentoModule->id;
-        $history->review_standard = $reviewValue;
-        $history->user_id = Auth::user()->id;
+        $history->review_standard   = $reviewValue;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return true;
@@ -612,11 +620,11 @@ class MagentoModuleController extends Controller
 
     protected function saveReturnTypeHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagentoModuleReturnTypeErrorHistoryStatus();
+        $history                    = new MagentoModuleReturnTypeErrorHistoryStatus();
         $history->magento_module_id = $magentoModule->id;
-        $history->old_location_id = $oldStatusId;
-        $history->new_location_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->old_location_id   = $oldStatusId;
+        $history->new_location_id   = $newStatusId;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return true;
@@ -624,11 +632,11 @@ class MagentoModuleController extends Controller
 
     protected function saveM2ErrorStatusHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagentoModuleM2ErrorStatusHistory();
-        $history->magento_module_id = $magentoModule->id;
+        $history                         = new MagentoModuleM2ErrorStatusHistory();
+        $history->magento_module_id      = $magentoModule->id;
         $history->old_m2_error_status_id = $oldStatusId;
         $history->new_m2_error_status_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->user_id                = Auth::user()->id;
         $history->save();
 
         return true;
@@ -660,48 +668,48 @@ class MagentoModuleController extends Controller
                         $mmInCheckStoreWebsite = MagentoModule::where('module', $value->module)->where('store_website_id', $valueStoreWebsite)->select('id')->first();
 
                         if (empty($mmInCheckStoreWebsite)) {
-                            $mm_create = [];
-                            $mm_create['store_website_id'] = $valueStoreWebsite;
-                            $mm_create['module_category_id'] = $value['module_category_id'];
-                            $mm_create['module'] = $value['module'];
-                            $mm_create['module_description'] = $value['module_description'];
-                            $mm_create['current_version'] = $value['current_version'];
-                            $mm_create['module_type'] = $value['module_type'];
-                            $mm_create['status'] = 0;
-                            $mm_create['payment_status'] = $value['payment_status'];
-                            $mm_create['developer_name'] = $value['developer_name'];
-                            $mm_create['dev_verified_by'] = $value['dev_verified_by'];
-                            $mm_create['dev_verified_status_id'] = $value['dev_verified_status_id'];
-                            $mm_create['lead_verified_by'] = $value['lead_verified_by'];
-                            $mm_create['lead_verified_status_id'] = $value['lead_verified_status_id'];
-                            $mm_create['created_at'] = $value['created_at'];
-                            $mm_create['updated_at'] = $value['updated_at'];
-                            $mm_create['last_message'] = $value['last_message'];
-                            $mm_create['dev_last_remark'] = $value['dev_last_remark'];
-                            $mm_create['lead_last_remark'] = $value['lead_last_remark'];
-                            $mm_create['cron_time'] = $value['cron_time'];
-                            $mm_create['task_status'] = $value['task_status'];
-                            $mm_create['is_sql'] = $value['is_sql'];
-                            $mm_create['is_third_party_plugin'] = $value['is_third_party_plugin'];
-                            $mm_create['is_third_party_js'] = $value['is_third_party_js'];
-                            $mm_create['is_js_css'] = $value['is_js_css'];
-                            $mm_create['api'] = $value['api'];
-                            $mm_create['cron_job'] = $value['cron_job'];
-                            $mm_create['site_impact'] = $value['site_impact'];
-                            $mm_create['dependency'] = $value['dependency'];
-                            $mm_create['composer'] = $value['composer'];
-                            $mm_create['magneto_location_id'] = $value['magneto_location_id'];
-                            $mm_create['module_review_standard'] = $value['module_review_standard'];
-                            $mm_create['used_at'] = $value['used_at'];
-                            $mm_create['return_type_error'] = $value['return_type_error'];
+                            $mm_create                             = [];
+                            $mm_create['store_website_id']         = $valueStoreWebsite;
+                            $mm_create['module_category_id']       = $value['module_category_id'];
+                            $mm_create['module']                   = $value['module'];
+                            $mm_create['module_description']       = $value['module_description'];
+                            $mm_create['current_version']          = $value['current_version'];
+                            $mm_create['module_type']              = $value['module_type'];
+                            $mm_create['status']                   = 0;
+                            $mm_create['payment_status']           = $value['payment_status'];
+                            $mm_create['developer_name']           = $value['developer_name'];
+                            $mm_create['dev_verified_by']          = $value['dev_verified_by'];
+                            $mm_create['dev_verified_status_id']   = $value['dev_verified_status_id'];
+                            $mm_create['lead_verified_by']         = $value['lead_verified_by'];
+                            $mm_create['lead_verified_status_id']  = $value['lead_verified_status_id'];
+                            $mm_create['created_at']               = $value['created_at'];
+                            $mm_create['updated_at']               = $value['updated_at'];
+                            $mm_create['last_message']             = $value['last_message'];
+                            $mm_create['dev_last_remark']          = $value['dev_last_remark'];
+                            $mm_create['lead_last_remark']         = $value['lead_last_remark'];
+                            $mm_create['cron_time']                = $value['cron_time'];
+                            $mm_create['task_status']              = $value['task_status'];
+                            $mm_create['is_sql']                   = $value['is_sql'];
+                            $mm_create['is_third_party_plugin']    = $value['is_third_party_plugin'];
+                            $mm_create['is_third_party_js']        = $value['is_third_party_js'];
+                            $mm_create['is_js_css']                = $value['is_js_css'];
+                            $mm_create['api']                      = $value['api'];
+                            $mm_create['cron_job']                 = $value['cron_job'];
+                            $mm_create['site_impact']              = $value['site_impact'];
+                            $mm_create['dependency']               = $value['dependency'];
+                            $mm_create['composer']                 = $value['composer'];
+                            $mm_create['magneto_location_id']      = $value['magneto_location_id'];
+                            $mm_create['module_review_standard']   = $value['module_review_standard'];
+                            $mm_create['used_at']                  = $value['used_at'];
+                            $mm_create['return_type_error']        = $value['return_type_error'];
                             $mm_create['return_type_error_status'] = $value['return_type_error_status'];
-                            $mm_create['magento_dependency'] = $value['magento_dependency'];
-                            $mm_create['m2_error_status_id'] = $value['m2_error_status_id'];
-                            $mm_create['m2_error_assignee'] = $value['m2_error_assignee'];
-                            $mm_create['m2_error_remark'] = $value['m2_error_remark'];
-                            $mm_create['unit_test_status_id'] = $value['unit_test_status_id'];
-                            $mm_create['unit_test_remark'] = $value['unit_test_remark'];
-                            $mm_create['unit_test_user_id'] = $value['unit_test_user_id'];
+                            $mm_create['magento_dependency']       = $value['magento_dependency'];
+                            $mm_create['m2_error_status_id']       = $value['m2_error_status_id'];
+                            $mm_create['m2_error_assignee']        = $value['m2_error_assignee'];
+                            $mm_create['m2_error_remark']          = $value['m2_error_remark'];
+                            $mm_create['unit_test_status_id']      = $value['unit_test_status_id'];
+                            $mm_create['unit_test_remark']         = $value['unit_test_remark'];
+                            $mm_create['unit_test_user_id']        = $value['unit_test_user_id'];
                             MagentoModule::create($mm_create);
                         }
                     }
@@ -731,10 +739,10 @@ class MagentoModuleController extends Controller
 
         $magento_modules_array = $result;
 
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
+        $datatableModel       = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
         $dynamicColumnsToShow = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns          = $datatableModel->column_name ?? '';
             $dynamicColumnsToShow = json_decode($hideColumns, true);
         }
 
@@ -766,7 +774,7 @@ class MagentoModuleController extends Controller
     public function magentoModuleListLogsAjax(Request $request)
     {
         $magento_modules_q = new MagentoModuleLogs();
-        $perPage = 2;
+        $perPage           = 2;
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
             $magento_modules_q = $magento_modules_q->where('module', 'LIKE', '%' . $request->module_name_sync . '%');
@@ -800,14 +808,14 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleUpdateStatuslogs(Request $request)
     {
-        $store_website_id = $request->store_website_id;
+        $store_website_id  = $request->store_website_id;
         $magento_module_id = $request->magento_module_id;
 
         $histories = \App\MagentoModuleLogs::select('magento_module_logs.*', 'u.name AS userName')->leftJoin('users AS u', 'u.id', 'magento_module_logs.updated_by')->where('magento_module_id', $magento_module_id)->where('store_website_id', $store_website_id)->latest()->get();
 
         foreach ($histories as $logs) {
             if ($logs->store_website_id != '' && $logs->job_id != '') {
-                $storeWebsite = StoreWebsite::where('id', $logs->store_website_id)->first();
+                $storeWebsite  = StoreWebsite::where('id', $logs->store_website_id)->first();
                 $assetsmanager = new AssetsManager;
                 if ($storeWebsite) {
                     $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
@@ -815,9 +823,9 @@ class MagentoModuleController extends Controller
 
                 if ($assetsmanager && $assetsmanager->client_id != '') {
                     $client_id = $assetsmanager->client_id;
-                    $job_id = $logs->job_id;
-                    $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                    $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                    $job_id    = $logs->job_id;
+                    $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                    $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
@@ -825,17 +833,17 @@ class MagentoModuleController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Basic ' . $key;
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     \Log::info('API Response: ' . $result);
                     if (isset($response->data) && isset($response->data->result)) {
                         $logs->status = $response->data->status;
-                        $result = $response->data->result;
-                        $message = '';
+                        $result       = $response->data->result;
+                        $message      = '';
                         if (isset($result->stdout) && $result->stdout != '') {
                             $message .= 'Output: ' . $result->stdout;
                         }
@@ -861,7 +869,7 @@ class MagentoModuleController extends Controller
     public function runMagentoCacheFlushCommand($magento_module_id, $store_website_id, $client_id, $cwd)
     {
         $updated_by = auth()->user()->id;
-        $cmd = 'bin/magento cache:flush';
+        $cmd        = 'bin/magento cache:flush';
         \Log::info('Start cache:flush');
 
         $website = StoreWebsite::where('id', $store_website_id)->first();
@@ -875,15 +883,15 @@ class MagentoModuleController extends Controller
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $parameters = [
-            'command' => $cmd,
-            'dir' => $cwd,
-            'is_sudo' => true,
+            'command'     => $cmd,
+            'dir'         => $cwd,
+            'is_sudo'     => true,
             'timeout_sec' => 300,
-            'server' => $website->server_ip,
+            'server'      => $website->server_ip,
         ];
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-        $headers = [];
+        $headers   = [];
         $headers[] = 'Authorization: Basic ' . $key;
         $headers[] = 'Content-Type: application/json';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -939,8 +947,8 @@ class MagentoModuleController extends Controller
         \Log::info('########## Database Password in env: ' . env('DB_PASSWORD'));
         if ($request->has('store_website_id') && $request->store_website_id != '') {
             \Log::info('selected websites:' . print_r($request->store_website_id, true));
-            $return_data = [];
-            $updated_by = auth()->user()->id;
+            $return_data   = [];
+            $updated_by    = auth()->user()->id;
             $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
             \Log::info('Database name after StoreWebsite.' . \DB::connection()->getDatabaseName());
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -961,10 +969,10 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleUpdateStatus(Request $request)
     {
-        $store_website_id = $request->store_website_id;
+        $store_website_id  = $request->store_website_id;
         $magento_module_id = $request->magento_module_id;
-        $status = $request->status;
-        $magento_modules = MagentoModule::where('id', $magento_module_id)->where('store_website_id', $store_website_id)->first();
+        $status            = $request->status;
+        $magento_modules   = MagentoModule::where('id', $magento_module_id)->where('store_website_id', $store_website_id)->first();
         if (! $magento_modules) {
             return response()->json(['code' => 500, 'message' => 'The Magento module is not found on the store website!']);
         }
@@ -975,7 +983,7 @@ class MagentoModuleController extends Controller
             $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
         }
         $updated_by = auth()->user()->id;
-        $cmd = 'bin/magento module:disable ' . $magento_modules->module;
+        $cmd        = 'bin/magento module:disable ' . $magento_modules->module;
 
         if ($status) {
             $cmd = 'bin/magento module:enable ' . $magento_modules->module;
@@ -987,22 +995,22 @@ class MagentoModuleController extends Controller
             \Log::info('Start Magento module change status');
             \Log::info('Store Website:' . $storeWebsite->id);
             $store_website_id = $storeWebsite->id;
-            $magento_modules = MagentoModule::where('module', $search_module)->where('store_website_id', $store_website_id)->first();
+            $magento_modules  = MagentoModule::where('module', $search_module)->where('store_website_id', $store_website_id)->first();
             if (! $magento_modules) {
                 Log::info($search_module . ' is not found in store website');
 
                 continue;
             }
             $magento_module_id = $magento_modules->id;
-            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-            $moduleName = $magento_modules->module;
+            $scriptsPath       = getenv('DEPLOYMENT_SCRIPTS_PATH');
+            $moduleName        = $magento_modules->module;
 
             // New Script
-            $website = $storeWebsite->title;
-            $server = $storeWebsite->server_ip;
-            $rootDir = $storeWebsite->working_directory;
+            $website                 = $storeWebsite->title;
+            $server                  = $storeWebsite->server_ip;
+            $rootDir                 = $storeWebsite->working_directory;
             $websiteStoreProjectName = $storeWebsite->websiteStoreProject->name ?? null;
-            $action = 'disable';
+            $action                  = 'disable';
             if ($status) {
                 $action = 'enable';
             }
@@ -1074,15 +1082,15 @@ class MagentoModuleController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -1100,15 +1108,15 @@ class MagentoModuleController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -1126,15 +1134,15 @@ class MagentoModuleController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -1142,12 +1150,12 @@ class MagentoModuleController extends Controller
 
     protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
-        $history = new MagentoModuleVerifiedStatusHistory();
+        $history                    = new MagentoModuleVerifiedStatusHistory();
         $history->magento_module_id = $magentoModule->id;
-        $history->old_status_id = $oldStatusId;
-        $history->new_status_id = $newStatusId;
-        $history->type = $statusType;
-        $history->user_id = Auth::user()->id;
+        $history->old_status_id     = $oldStatusId;
+        $history->new_status_id     = $newStatusId;
+        $history->type              = $statusType;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1155,12 +1163,12 @@ class MagentoModuleController extends Controller
 
     protected function saveVerifiedByHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
-        $history = new MagentoModuleVerifiedBy();
-        $history->magento_module_id = $magentoModule->id;
+        $history                     = new MagentoModuleVerifiedBy();
+        $history->magento_module_id  = $magentoModule->id;
         $history->old_verified_by_id = $oldStatusId;
         $history->new_verified_by_id = $newStatusId;
-        $history->type = $statusType;
-        $history->user_id = Auth::user()->id;
+        $history->type               = $statusType;
+        $history->user_id            = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1168,11 +1176,11 @@ class MagentoModuleController extends Controller
 
     protected function saveM2ErrorAssigneeHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagentoModuleM2ErrorAssigneeHistory();
+        $history                    = new MagentoModuleM2ErrorAssigneeHistory();
         $history->magento_module_id = $magentoModule->id;
-        $history->old_assignee_id = $oldStatusId;
-        $history->new_assignee_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->old_assignee_id   = $oldStatusId;
+        $history->new_assignee_id   = $newStatusId;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1180,11 +1188,11 @@ class MagentoModuleController extends Controller
 
     protected function saveUnitTeststatusHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagentoModuleUnitTestStatusHistory();
-        $history->magento_module_id = $magentoModule->id;
+        $history                          = new MagentoModuleUnitTestStatusHistory();
+        $history->magento_module_id       = $magentoModule->id;
         $history->old_unit_test_status_id = $oldStatusId;
         $history->new_unit_test_status_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->user_id                 = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1192,11 +1200,11 @@ class MagentoModuleController extends Controller
 
     protected function saveUnitTestUserHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagentoModuleUnitTestUserHistory();
-        $history->magento_module_id = $magentoModule->id;
+        $history                        = new MagentoModuleUnitTestUserHistory();
+        $history->magento_module_id     = $magentoModule->id;
         $history->old_unit_test_user_id = $oldStatusId;
         $history->new_unit_test_user_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->user_id               = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1205,9 +1213,9 @@ class MagentoModuleController extends Controller
     public function verifiedStatusUpdate(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoModuleVerifiedStatus = MagentoModuleVerifiedStatus::find($key);
+            $magentoModuleVerifiedStatus        = MagentoModuleVerifiedStatus::find($key);
             $magentoModuleVerifiedStatus->color = $value;
             $magentoModuleVerifiedStatus->save();
         }
@@ -1220,9 +1228,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleM2ErrorAssigneeHistory::with(['user', 'newAssignee', 'oldAssignee'])->where('magento_module_id', $request->id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get histories',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get histories',
             'status_name' => 'success',
         ], 200);
     }
@@ -1232,9 +1240,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleVerifiedBy::with(['user', 'newVerifiedBy', 'oldVerifiedBy'])->where('magento_module_id', $request->id)->where('type', $request->type)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get verified status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get verified status',
             'status_name' => 'success',
         ], 200);
     }
@@ -1244,9 +1252,9 @@ class MagentoModuleController extends Controller
         $histories = MagnetoReviewStandardHistory::with(['user'])->where('magento_module_id', $request->id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get review status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get review status',
             'status_name' => 'success',
         ], 200);
     }
@@ -1256,9 +1264,9 @@ class MagentoModuleController extends Controller
         $histories = MagnetoLocationHistory::with(['newLocation', 'oldLocation', 'user'])->where('magento_module_id', $request->id)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history status',
             'status_name' => 'success',
         ], 200);
     }
@@ -1268,9 +1276,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleHistory::with(['user'])->where('magento_module_id', $request->id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history',
             'status_name' => 'success',
         ], 200);
     }
@@ -1280,9 +1288,9 @@ class MagentoModuleController extends Controller
         $histories = MagentoModuleHistory::with(['user'])->whereNotNull('used_at')->where('magento_module_id', $request->id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history',
+            'status'      => true,
+            'data'        => $histories,
+            'message'     => 'Successfully get history',
             'status_name' => 'success',
         ], 200);
     }
@@ -1300,14 +1308,14 @@ class MagentoModuleController extends Controller
 
     public function storedependency(Request $request)
     {
-        $remark = $request->remark;
-        $moduleDependency = new  MagentoModuleDependency();
-        $moduleDependency->magento_module_id = $request->magento_module_id;
-        $moduleDependency->depency_remark = $remark;
+        $remark                                  = $request->remark;
+        $moduleDependency                        = new  MagentoModuleDependency();
+        $moduleDependency->magento_module_id     = $request->magento_module_id;
+        $moduleDependency->depency_remark        = $remark;
         $moduleDependency->depency_module_issues = $request->module_issues;
-        $moduleDependency->depency_api_issues = $request->api_issues;
-        $moduleDependency->depency_theme_issues = $request->theme_issues;
-        $moduleDependency->user_id = Auth::user()->id;
+        $moduleDependency->depency_api_issues    = $request->api_issues;
+        $moduleDependency->depency_theme_issues  = $request->theme_issues;
+        $moduleDependency->user_id               = Auth::user()->id;
         $moduleDependency->save();
 
         if ($remark) {
@@ -1315,14 +1323,14 @@ class MagentoModuleController extends Controller
             MagentoModule::where('id', $request->magento_module_id)->update(['magento_dependency' => $remark]);
 
             return response()->json([
-                'status' => true,
-                'message' => "{$message} added successfully",
+                'status'      => true,
+                'message'     => "{$message} added successfully",
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Remark filed is Required',
+                'status'      => false,
+                'message'     => 'Remark filed is Required',
                 'status_name' => 'error',
             ], 500);
         }
@@ -1333,30 +1341,30 @@ class MagentoModuleController extends Controller
         $dependencyRemarks = MagentoModuleDependency::with(['user'])->where('magento_module_id', $id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $dependencyRemarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $dependencyRemarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function storeM2Remark(Request $request)
     {
-        $magentoModule = MagentoModule::find($request->magento_module_id);
-        $oldM2ErrorRemark = $magentoModule->m2_error_remark;
+        $magentoModule                  = MagentoModule::find($request->magento_module_id);
+        $oldM2ErrorRemark               = $magentoModule->m2_error_remark;
         $magentoModule->m2_error_remark = $request->remark;
         $magentoModule->save();
 
-        $m2ErrorRemarkHistory = new MagentoModuleM2RemarkHistory();
-        $m2ErrorRemarkHistory->magento_module_id = $request->magento_module_id;
+        $m2ErrorRemarkHistory                      = new MagentoModuleM2RemarkHistory();
+        $m2ErrorRemarkHistory->magento_module_id   = $request->magento_module_id;
         $m2ErrorRemarkHistory->old_m2_error_remark = $oldM2ErrorRemark;
         $m2ErrorRemarkHistory->new_m2_error_remark = $request->remark;
-        $m2ErrorRemarkHistory->user_id = Auth::user()->id;
+        $m2ErrorRemarkHistory->user_id             = Auth::user()->id;
         $m2ErrorRemarkHistory->save();
 
         return response()->json([
-            'status' => true,
-            'message' => ' M2 remark Added Successfully',
+            'status'      => true,
+            'message'     => ' M2 remark Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1364,22 +1372,22 @@ class MagentoModuleController extends Controller
     public function getUnitTestUserHistories(Request $request)
     {
         try {
-            $id = $request->id;
+            $id        = $request->id;
             $histories = MagentoModuleUnitTestUserHistory::with(['user', 'newTestUser', 'oldTestUser'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get histories',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get histories',
                 'status_name' => 'success',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'error' => $e->getMessage(),
+                'error'  => $e->getMessage(),
             ], 500);
         }
     }
@@ -1387,22 +1395,22 @@ class MagentoModuleController extends Controller
     public function getUnitTestRemarkHistories(Request $request)
     {
         try {
-            $id = $request->id;
+            $id        = $request->id;
             $histories = MagentoModuleUnitTestRemarkHistory::with(['user'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get histories',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get histories',
                 'status_name' => 'success',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'error' => $e->getMessage(),
+                'error'  => $e->getMessage(),
             ], 500);
         }
     }
@@ -1410,22 +1418,22 @@ class MagentoModuleController extends Controller
     public function getM2RemarkHistories(Request $request)
     {
         try {
-            $id = $request->id;
+            $id        = $request->id;
             $histories = MagentoModuleM2RemarkHistory::with(['user'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get histories',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get histories',
                 'status_name' => 'success',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'error' => $e->getMessage(),
+                'error'  => $e->getMessage(),
             ], 500);
         }
     }
@@ -1433,43 +1441,43 @@ class MagentoModuleController extends Controller
     public function getUnitTestStatusHistories(Request $request)
     {
         try {
-            $id = $request->id;
+            $id        = $request->id;
             $histories = MagentoModuleUnitTestStatusHistory::with(['user', 'newTestStatus', 'oldTestStatus'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
 
             return response()->json([
-                'status' => true,
-                'data' => $histories,
-                'message' => 'Successfully get histories',
+                'status'      => true,
+                'data'        => $histories,
+                'message'     => 'Successfully get histories',
                 'status_name' => 'success',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'error' => $e->getMessage(),
+                'error'  => $e->getMessage(),
             ], 500);
         }
     }
 
     public function storeUniTestRemark(Request $request)
     {
-        $magentoModule = MagentoModule::find($request->magento_module_id);
-        $oldM2ErrorRemark = $magentoModule->unit_test_remark;
+        $magentoModule                   = MagentoModule::find($request->magento_module_id);
+        $oldM2ErrorRemark                = $magentoModule->unit_test_remark;
         $magentoModule->unit_test_remark = $request->remark;
         $magentoModule->save();
 
-        $unittestRemarkHistory = new MagentoModuleUnitTestRemarkHistory();
-        $unittestRemarkHistory->magento_module_id = $request->magento_module_id;
+        $unittestRemarkHistory                       = new MagentoModuleUnitTestRemarkHistory();
+        $unittestRemarkHistory->magento_module_id    = $request->magento_module_id;
         $unittestRemarkHistory->old_unit_test_remark = $oldM2ErrorRemark;
         $unittestRemarkHistory->new_unit_test_remark = $request->remark;
-        $unittestRemarkHistory->user_id = Auth::user()->id;
+        $unittestRemarkHistory->user_id              = Auth::user()->id;
         $unittestRemarkHistory->save();
 
         return response()->json([
-            'status' => true,
-            'message' => ' Unit test remark Added Successfully',
+            'status'      => true,
+            'message'     => ' Unit test remark Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1479,30 +1487,30 @@ class MagentoModuleController extends Controller
         $userCheck = ColumnVisbility::where('user_id', auth()->user()->id)->first();
 
         if ($userCheck) {
-            $column = ColumnVisbility::find($userCheck->id);
+            $column          = ColumnVisbility::find($userCheck->id);
             $column->columns = json_encode($request->columns);
             $column->save();
         } else {
-            $column = new ColumnVisbility();
+            $column          = new ColumnVisbility();
             $column->columns = json_encode($request->columns);
             $column->user_id = Auth::user()->id;
             $column->save();
         }
 
         return response()->json([
-            'status' => true,
-            'message' => ' column visiblity Added Successfully',
+            'status'      => true,
+            'message'     => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     protected function saveLocationHistory($magentoModule, $oldStatusId, $newStatusId)
     {
-        $history = new MagnetoLocationHistory();
+        $history                    = new MagnetoLocationHistory();
         $history->magento_module_id = $magentoModule->id;
-        $history->old_location_id = $oldStatusId;
-        $history->new_location_id = $newStatusId;
-        $history->user_id = Auth::user()->id;
+        $history->old_location_id   = $oldStatusId;
+        $history->new_location_id   = $newStatusId;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return true;
@@ -1513,28 +1521,28 @@ class MagentoModuleController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'magento-modules-sync_logs';
-            $column->column_name = json_encode($request->columns);
+            $column->column_name  = json_encode($request->columns);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'magento-modules-sync_logs';
-            $column->column_name = json_encode($request->columns);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->columns);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
         return response()->json([
-            'status' => true,
-            'message' => ' column visiblity Added Successfully',
+            'status'      => true,
+            'message'     => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function magentoModuleCheckStatus(Request $request)
     {
-        $store_website_id = $request->store_website_id;
+        $store_website_id  = $request->store_website_id;
         $magento_module_id = $request->magento_module_id;
 
         $data = MagentoModule::where('id', (int) $magento_module_id)->first();
@@ -1542,13 +1550,13 @@ class MagentoModuleController extends Controller
         $store_website = StoreWebsite::select('title', 'server_ip', 'working_directory')->where('id', $store_website_id)->first();
 
         // New Script
-        $moduleName = $data->module;
-        $website = $store_website->title;
-        $server = $store_website->server_ip;
-        $rootDir = $store_website->working_directory;
+        $moduleName              = $data->module;
+        $website                 = $store_website->title;
+        $server                  = $store_website->server_ip;
+        $rootDir                 = $store_website->working_directory;
         $websiteStoreProjectName = null;
-        $action = 'status';
-        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+        $action                  = 'status';
+        $scriptsPath             = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
         $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
 
@@ -1565,9 +1573,9 @@ class MagentoModuleController extends Controller
         $MagentoModuleLogs = MagentoModuleLogs::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $MagentoModuleLogs,
-            'message' => 'Data get successfully',
+            'status'      => true,
+            'data'        => $MagentoModuleLogs,
+            'message'     => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }

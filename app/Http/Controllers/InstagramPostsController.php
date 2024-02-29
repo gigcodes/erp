@@ -24,7 +24,7 @@ class InstagramPostsController extends Controller
 
     public function post(Request $request)
     {
-        $images = $request->get('images', false);
+        $images   = $request->get('images', false);
         $mediaIds = $request->get('media_ids', false);
 
         $productArr = null;
@@ -68,23 +68,23 @@ class InstagramPostsController extends Controller
         }
         $posts = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 
-        $used_space = 0;
+        $used_space    = 0;
         $storage_limit = 0;
-        $contents = StoreSocialContent::query();
-        $contents = $contents->get();
-        $records = [];
+        $contents      = StoreSocialContent::query();
+        $contents      = $contents->get();
+        $records       = [];
         foreach ($contents as $site) {
             if ($site) {
                 if ($site->hasMedia(config('constants.media_tags'))) {
                     foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                         $records[] = [
-                            'id' => $media->id,
+                            'id'        => $media->id,
                             'extension' => strtolower($media->extension),
                             'file_name' => $media->filename,
                             'mime_type' => $media->mime_type,
-                            'size' => $media->size,
-                            'thumb' => getMediaUrl($media),
-                            'original' => getMediaUrl($media),
+                            'size'      => $media->size,
+                            'thumb'     => getMediaUrl($media),
+                            'original'  => getMediaUrl($media),
                         ];
                     }
                 }
@@ -120,14 +120,14 @@ class InstagramPostsController extends Controller
         if ($request->media) {
             foreach ($request->media as $media) {
                 $mediaFile = Media::where('id', $media)->first();
-                $image = self::resize_image_crop($mediaFile, 640, 640);
+                $image     = self::resize_image_crop($mediaFile, 640, 640);
             }
         }
 
         if ($request->postId) {
             $userPost = InstagramPosts::find($request->postId);
             foreach ($userPost->getMedia('instagram') as $media) {
-                $image = self::resize_image_crop($media, 640, 640);
+                $image     = self::resize_image_crop($media, 640, 640);
                 $mediaPost = $media->id;
                 break;
             }
@@ -149,17 +149,17 @@ class InstagramPostsController extends Controller
             $hashtag = $request->hashtags;
         }
 
-        $post = new Post();
+        $post             = new Post();
         $post->account_id = $request->account;
-        $post->type = $request->type;
-        $post->caption = $request->caption . ' ' . $hashtag;
-        $ig = [
-            'media' => $mediaPost,
+        $post->type       = $request->type;
+        $post->caption    = $request->caption . ' ' . $hashtag;
+        $ig               = [
+            'media'    => $mediaPost,
             'location' => $location,
         ];
-        $post->ig = json_encode($ig);
-        $post->location = $location;
-        $post->hashtags = $hashtag;
+        $post->ig           = json_encode($ig);
+        $post->location     = $location;
+        $post->hashtags     = $hashtag;
         $post->scheduled_at = $request->scheduled_at;
         $post->save();
         $newPost = Post::find($post->id);
@@ -167,9 +167,9 @@ class InstagramPostsController extends Controller
         $media = json_decode($newPost->ig, true);
 
         $ig = [
-            'media' => $media['media'],
+            'media'    => $media['media'],
             'location' => $location,
-            'hashtag' => $hashtag,
+            'hashtag'  => $hashtag,
         ];
         $newPost->ig = $ig;
 
@@ -250,6 +250,8 @@ class InstagramPostsController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $token
      */
     public function sendAccount($token)
     {
@@ -273,6 +275,8 @@ class InstagramPostsController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $username
      */
     public function getComments($username)
     {
@@ -405,7 +409,7 @@ class InstagramPostsController extends Controller
     public function hashtag(Request $request, $word)
     {
         if (strlen($word) >= 3) {
-            $url = sprintf('https://api.ritekit.com/v1/stats/auto-hashtag?post=' . $word . '&maxHashtags=50&hashtagPosition=auto?&client_id=7b3d825c32da1a4eb611bf1eba9706165cfe61a098ae');
+            $url      = sprintf('https://api.ritekit.com/v1/stats/auto-hashtag?post=' . $word . '&maxHashtags=50&hashtagPosition=auto?&client_id=7b3d825c32da1a4eb611bf1eba9706165cfe61a098ae');
             $response = SocialHelper::curlGetRequest($url);
 
             return $response;
@@ -423,15 +427,15 @@ class InstagramPostsController extends Controller
         if ($token) {
             return $token;
         } else {
-            $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
+            $consumerKey    = env('HASTAGIFY_CONSUMER_KEY');
             $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
 
             \Log::error(' hashtagify credentials: ' . $consumerKey . ', ' . $consumerSecret);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             $data = [
-                'grant_type' => 'client_credentials',
-                'client_id' => $consumerKey,
+                'grant_type'    => 'client_credentials',
+                'client_id'     => $consumerKey,
                 'client_secret' => $consumerSecret,
             ];
             $url = 'https://api.hashtagify.me/oauth/token';
@@ -465,21 +469,21 @@ class InstagramPostsController extends Controller
     public function getImages(Request $request)
     {
         if ($request->type == 'user') {
-            $number = rand(1, 500);
+            $number   = rand(1, 500);
             $response = UnsplashSearch::users($request->keyword, ['page' => $number]);
-            $content = $response->getContents();
-            $lists = json_decode($content);
-            $images = [];
+            $content  = $response->getContents();
+            $lists    = json_decode($content);
+            $images   = [];
             foreach ($lists->results as $list) {
                 $images[] = $list->urls->full;
             }
 
             return $images ? $images : null;
         } elseif ($request->type == 'collection') {
-            $number = rand(1, 500);
+            $number   = rand(1, 500);
             $response = UnsplashSearch::collections($request->keyword, ['page' => $number]);
-            $content = $response->getContents();
-            $lists = json_decode($content);
+            $content  = $response->getContents();
+            $lists    = json_decode($content);
 
             $images = [];
             foreach ($lists->results as $list) {
@@ -488,10 +492,10 @@ class InstagramPostsController extends Controller
 
             return $images ? $images : null;
         } else {
-            $number = rand(1, 500);
+            $number   = rand(1, 500);
             $response = UnsplashSearch::photos($request->keyword, ['page' => $number, 'order_by' => 'latest']);
-            $content = $response->getContents();
-            $lists = json_decode($content);
+            $content  = $response->getContents();
+            $lists    = json_decode($content);
 
             $images = [];
             foreach ($lists->results as $list) {
@@ -545,9 +549,9 @@ class InstagramPostsController extends Controller
 
     public function messageQueueApproved(Request $request)
     {
-        $chatMessage = ChatMessage::find($request->chat_id);
+        $chatMessage           = ChatMessage::find($request->chat_id);
         $chatMessage->is_queue = 1;
-        $result = $chatMessage->save();
+        $result                = $chatMessage->save();
 
         if ($result) {
             return response()->json(['message' => 'Approved Successfully']);

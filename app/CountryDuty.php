@@ -11,7 +11,6 @@ class CountryDuty extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="hs_code",type="string")
      * @SWG\Property(property="origin",type="string")

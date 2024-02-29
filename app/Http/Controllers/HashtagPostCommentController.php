@@ -69,7 +69,9 @@ class HashtagPostCommentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\HashtagPostComment  $hashtagPostComment
+     * @param \App\HashtagPostComment $hashtagPostComment
+     * @param mixed                   $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

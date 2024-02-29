@@ -41,7 +41,7 @@ class KeywordController extends Controller
     public function save(Request $request)
     {
         dd('We are not using this page anymore');
-        $params = $request->all();
+        $params            = $request->all();
         $params['keyword'] = str_replace(' ', '_', preg_replace('/\s+/', ' ', $params['keyword']));
 
         $validator = Validator::make($params, [
@@ -58,16 +58,16 @@ class KeywordController extends Controller
 
         if (array_key_exists('value', $params) && $params['value'] != null) {
             $params['chatbot_keyword_id'] = $chatbotKeyword->id;
-            $chatbotKeywordValue = new ChatbotKeywordValue;
+            $chatbotKeywordValue          = new ChatbotKeywordValue;
             $chatbotKeywordValue->fill($params);
             $chatbotKeywordValue->save();
 
-            $valueType = [];
+            $valueType                             = [];
             $valueType['chatbot_keyword_value_id'] = $chatbotKeywordValue->id;
             if (! empty($params['type'])) {
                 foreach ($params['type'] as $value) {
                     if ($value != null) {
-                        $valueType['type'] = $value;
+                        $valueType['type']        = $value;
                         $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
                         $chatbotKeywordValueTypes->fill($valueType);
                         $chatbotKeywordValueTypes->save();
@@ -118,7 +118,7 @@ class KeywordController extends Controller
         // dd($request->all());
         $params = $request->all();
         // $params["keyword"]            = str_replace(" ", "_", $params["keyword"]);
-        $params['value'] = str_replace(' ', '_', $params['value']);
+        $params['value']              = str_replace(' ', '_', $params['value']);
         $params['chatbot_keyword_id'] = $id;
 
         // $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
@@ -128,17 +128,17 @@ class KeywordController extends Controller
             $chatbotKeyword->fill($params);
             $chatbotKeyword->save();
             if ($params['value_name'] != null) {
-                $chatbotKeywordValue = new ChatbotKeywordValue;
-                $chatbotKeywordValue->value = $params['value_name'];
+                $chatbotKeywordValue                     = new ChatbotKeywordValue;
+                $chatbotKeywordValue->value              = $params['value_name'];
                 $chatbotKeywordValue->chatbot_keyword_id = $params['chatbot_keyword_id'];
-                $chatbotKeywordValue->types = $params['types'];
+                $chatbotKeywordValue->types              = $params['types'];
                 $chatbotKeywordValue->save();
 
-                $valueType = [];
+                $valueType                             = [];
                 $valueType['chatbot_keyword_value_id'] = $chatbotKeywordValue->id;
                 foreach ($params['type'] as $value) {
                     if ($value != null) {
-                        $valueType['type'] = $value;
+                        $valueType['type']        = $value;
                         $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
                         $chatbotKeywordValueTypes->fill($valueType);
                         $chatbotKeywordValueTypes->save();
@@ -165,9 +165,9 @@ class KeywordController extends Controller
     public function saveAjax()
     {
         dd('We are not using this page anymore');
-        $params = $request->all();
+        $params            = $request->all();
         $params['keyword'] = str_replace(' ', '_', preg_replace('/\s+/', ' ', $params['keyword']));
-        $values = $request->get('values');
+        $values            = $request->get('values');
 
         $validator = Validator::make($params, [
             'keyword' => 'required|unique:chatbot_keywords|max:255',
@@ -194,7 +194,7 @@ class KeywordController extends Controller
     public function search(Request $request)
     {
         dd('We are not using this page anymore');
-        $keyword = request('term', '');
+        $keyword    = request('term', '');
         $allKeyword = ChatbotKeyword::where('keyword', 'like', '%' . $keyword . '%')->limit(10)->get();
 
         $allKeywordList = [];

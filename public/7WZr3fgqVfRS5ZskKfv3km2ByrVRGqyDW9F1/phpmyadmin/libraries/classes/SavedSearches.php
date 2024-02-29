@@ -60,7 +60,8 @@ class SavedSearches
     /**
      * Setter of id
      *
-     * @param  int|null  $searchId Id of search
+     * @param int|null $searchId Id of search
+     *
      * @return static
      */
     public function setId($searchId)
@@ -88,7 +89,8 @@ class SavedSearches
     /**
      * Setter of searchName
      *
-     * @param  string  $searchName Saved search name
+     * @param string $searchName Saved search name
+     *
      * @return static
      */
     public function setSearchName($searchName)
@@ -111,8 +113,9 @@ class SavedSearches
     /**
      * Setter for criterias
      *
-     * @param  array|string  $criterias Criterias of saved searches
-     * @param  bool  $json      Criterias are in JSON format
+     * @param array|string $criterias Criterias of saved searches
+     * @param bool         $json      Criterias are in JSON format
+     *
      * @return static
      */
     public function setCriterias($criterias, $json = false)
@@ -178,7 +181,8 @@ class SavedSearches
     /**
      * Setter for username
      *
-     * @param  string  $username Username
+     * @param string $username Username
+     *
      * @return static
      */
     public function setUsername($username)
@@ -201,7 +205,8 @@ class SavedSearches
     /**
      * Setter for DB name
      *
-     * @param  string  $dbname DB name
+     * @param string $dbname DB name
+     *
      * @return static
      */
     public function setDbname($dbname)
@@ -372,11 +377,11 @@ class SavedSearches
             . 'FROM ' . $savedSearchesTbl . ' '
             . "WHERE id = '" . $dbi->escapeString((string) $this->getId()) . "' ";
 
-        $resList = $dbi->queryAsControlUser($sqlQuery);
+        $resList   = $dbi->queryAsControlUser($sqlQuery);
         $oneResult = $resList->fetchAssoc();
 
         if ($oneResult === []) {
-            $message = Message::error(__('Error while loading the search.'));
+            $message  = Message::error(__('Error while loading the search.'));
             $response = ResponseRenderer::getInstance();
             $response->setRequestStatus($message->isSuccess());
             $response->addJSON('fieldWithError', 'searchId');
@@ -393,7 +398,8 @@ class SavedSearches
     /**
      * Get the list of saved searches of a user on a DB
      *
-     * @param  string[]  $wheres List of filters
+     * @param string[] $wheres List of filters
+     *
      * @return array List of saved searches or empty array on failure
      */
     public function getList(SavedQueryByExampleSearchesFeature $savedQueryByExampleSearchesFeature, array $wheres = [])

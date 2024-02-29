@@ -27,14 +27,14 @@ final class DropColumnConfirmationController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $this->db, 'table' => $this->table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
 
         $this->render('table/structure/drop_confirm', [
-            'db' => $this->db,
-            'table' => $this->table,
+            'db'     => $this->db,
+            'table'  => $this->table,
             'fields' => $selected,
         ]);
     }

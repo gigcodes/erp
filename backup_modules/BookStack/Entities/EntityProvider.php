@@ -46,10 +46,10 @@ class EntityProvider
         Page $page,
         PageRevision $pageRevision
     ) {
-        $this->bookshelf = $bookshelf;
-        $this->book = $book;
-        $this->chapter = $chapter;
-        $this->page = $page;
+        $this->bookshelf    = $bookshelf;
+        $this->book         = $book;
+        $this->chapter      = $chapter;
+        $this->page         = $page;
         $this->pageRevision = $pageRevision;
     }
 
@@ -63,9 +63,9 @@ class EntityProvider
     {
         return [
             'bookshelf' => $this->bookshelf,
-            'book' => $this->book,
-            'chapter' => $this->chapter,
-            'page' => $this->page,
+            'book'      => $this->book,
+            'chapter'   => $this->chapter,
+            'page'      => $this->page,
         ];
     }
 
@@ -84,7 +84,8 @@ class EntityProvider
     /**
      * Get the morph classes, as an array, for a single or multiple types.
      *
-     * @param  string|array  $types
+     * @param string|array $types
+     *
      * @return array<string>
      */
     public function getMorphClasses($types)
@@ -95,7 +96,7 @@ class EntityProvider
 
         $morphClasses = [];
         foreach ($types as $type) {
-            $model = $this->get($type);
+            $model          = $this->get($type);
             $morphClasses[] = $model->getMorphClass();
         }
 

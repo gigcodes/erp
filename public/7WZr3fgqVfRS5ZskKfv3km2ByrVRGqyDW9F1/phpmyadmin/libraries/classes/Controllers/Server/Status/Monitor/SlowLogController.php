@@ -29,7 +29,7 @@ final class SlowLogController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->monitor = $monitor;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
@@ -38,7 +38,7 @@ final class SlowLogController extends AbstractController
 
         $params = [
             'time_start' => $_POST['time_start'] ?? null,
-            'time_end' => $_POST['time_end'] ?? null,
+            'time_end'   => $_POST['time_end'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');
 

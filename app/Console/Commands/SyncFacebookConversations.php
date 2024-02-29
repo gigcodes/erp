@@ -44,37 +44,37 @@ class SyncFacebookConversations extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $configs = SocialConfig::where([
-                'page_id' => $this->argument('page_id'),
+                'page_id'  => $this->argument('page_id'),
                 'platform' => 'facebook',
-                'status' => 1,
+                'status'   => 1,
             ])->get();
 
             foreach ($configs as $config) {
-                $fb = new FB($config->page_token);
+                $fb            = new FB($config->page_token);
                 $conversations = $fb->getConversations($config->page_id);
 
                 foreach ($conversations['conversations'] as $convo) {
                     $contact = $config->contacts()->updateOrCreate(['conversation_id' => $convo['id']], [
-                        'account_id' => $comment['message'] ?? '',
+                        'account_id'       => $comment['message'] ?? '',
                         'social_config_id' => $config->id,
-                        'platform' => 2,
-                        'can_reply' => $convo['can_reply'],
+                        'platform'         => 2,
+                        'can_reply'        => $convo['can_reply'],
                     ]);
 
                     foreach ($convo['messages'] as $message) {
                         $contact->messages()->updateOrCreate(['message_id' => $message['id']], [
-                            'from' => $message['from'],
-                            'to' => $message['to'],
-                            'message' => $message['message'],
-                            'reactions' => $message['reactions'] ?? null,
+                            'from'           => $message['from'],
+                            'to'             => $message['to'],
+                            'message'        => $message['message'],
+                            'reactions'      => $message['reactions'] ?? null,
                             'is_unsupported' => $message['is_unsupported'] ?? false,
-                            'attachments' => $message['attachments'] ?? null,
-                            'created_time' => $message['created_time'],
+                            'attachments'    => $message['attachments'] ?? null,
+                            'created_time'   => $message['created_time'],
                         ]);
                     }
                 }

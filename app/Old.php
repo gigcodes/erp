@@ -49,7 +49,7 @@ class Old extends Model
     /**
      * Protected Date
      *
-     * @var    array
+     * @var array
      */
     /**
      * Get Status

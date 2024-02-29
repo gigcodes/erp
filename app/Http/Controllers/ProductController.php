@@ -105,7 +105,7 @@ class ProductController extends Controller
         } else {
             $products = Product::latest()->select(['id', 'sku', 'name']);
         }
-        $term = $request->term;
+        $term     = $request->term;
         $archived = $request->archived;
 
         if (! empty($term)) {
@@ -117,7 +117,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $products->paginate(Setting::get('pagination'));
+        $products    = $products->paginate(Setting::get('pagination'));
         $websiteList = \App\Helpers\ProductHelper::storeWebsite();
 
         return view('products.index', compact('products', 'term', 'archived', 'websiteList'))
@@ -127,9 +127,9 @@ class ProductController extends Controller
     public function customerReviews(Request $request)
     {
         $reviews = \App\CustomerReview::with('storeWebsite')->latest();
-        $email = '';
-        $name = '';
-        $store = '';
+        $email   = '';
+        $name    = '';
+        $store   = '';
         if (! empty($request->email)) {
             $email = $request->email;
             $reviews->where('email', 'LIKE', '%' . $request->email . '%');
@@ -153,7 +153,7 @@ class ProductController extends Controller
     public function deleteReview(Request $request)
     {
         $reviewID = $request->id;
-        $delete = \App\CustomerReview::where('id', $request->id)->delete();
+        $delete   = \App\CustomerReview::where('id', $request->id)->delete();
 
         return response()->json(['code' => 200, 'message' => 'Review deleted successfully']);
     }
@@ -162,9 +162,9 @@ class ProductController extends Controller
     {
         ini_set('memory_limit', '-1');
 
-        $data = ['platform_id' => $request->platform_id, 'status' => 1];
-        $data = json_encode($data);
-        $url = $request->base_url . '/testimonial/index/statusupdate';
+        $data  = ['platform_id' => $request->platform_id, 'status' => 1];
+        $data  = json_encode($data);
+        $url   = $request->base_url . '/testimonial/index/statusupdate';
         $token = $request->token;
 
         $ch = curl_init($url);
@@ -173,7 +173,7 @@ class ProductController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json', 'Authorization: Bearer ' . $token]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $result = curl_exec($ch);
-        $err = curl_error($ch);
+        $err    = curl_error($ch);
         \Log::channel('approveReview')->info(json_encode([$url, $token, $data, $result, 'approveReview']));
         $response = json_decode($result);
 
@@ -191,15 +191,15 @@ class ProductController extends Controller
         } else {
             $auto_push_product = Setting::get('auto_push_product');
         }
-        $cropped = $request->cropped;
-        $colors = (new Colors)->all();
-        $categories = Category::with('parent')->get();
-        $category_tree = [];
-        $categories_array = [];
+        $cropped                = $request->cropped;
+        $colors                 = (new Colors)->all();
+        $categories             = Category::with('parent')->get();
+        $category_tree          = [];
+        $categories_array       = [];
         $categories_paths_array = [];
-        $siteCroppedImages = [];
-        $brands = Brand::getAll();
-        $storeWebsites = StoreWebsite::get();
+        $siteCroppedImages      = [];
+        $brands                 = Brand::getAll();
+        $storeWebsites          = StoreWebsite::get();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -231,7 +231,7 @@ class ProductController extends Controller
                 }
             }
 
-            $categories_array[$category->id] = $category->parent_id;
+            $categories_array[$category->id]       = $category->parent_id;
             $categories_paths_array[$category->id] = $categoryPath;
         }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
@@ -241,7 +241,7 @@ class ProductController extends Controller
         }
 
         if ($request->get('status_id') != null) {
-            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $statusList  = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
             $newProducts = $newProducts->whereIn('status_id', $statusList); //dd($newProducts->limit(10)->get());
         } else {
             if ($request->get('submit_for_approval') == 'on') {
@@ -251,12 +251,12 @@ class ProductController extends Controller
             }
         }
         // Run through query helper
-        $term = $request->input('term');
-        $brand = '';
-        $category = '';
-        $color = '';
-        $supplier = [];
-        $type = '';
+        $term              = $request->input('term');
+        $brand             = '';
+        $category          = '';
+        $color             = '';
+        $supplier          = [];
+        $type              = '';
         $assigned_to_users = '';
 
         if (is_array($request->brand) && $request->brand[0] != null) {
@@ -294,7 +294,7 @@ class ProductController extends Controller
             }
 
             $newProducts = $newProducts->whereIn('products.category', $category_children);
-            $category = $request->category[0];
+            $category    = $request->category[0];
         }
         if ($request->type != '') {
             if ($request->type == 'Not Listed') {
@@ -359,9 +359,9 @@ class ProductController extends Controller
         }
 
         $selected_categories = $request->category ? $request->category : [1];
-        $category_array = Category::renderAsArray();
-        $users = User::all();
-        $newProducts = $newProducts->leftJoin('product_verifying_users as pvu', function ($join) {
+        $category_array      = Category::renderAsArray();
+        $users               = User::all();
+        $newProducts         = $newProducts->leftJoin('product_verifying_users as pvu', function ($join) {
             $join->on('pvu.product_id', 'products.id');
             $join->where('pvu.user_id', '!=', auth()->user()->id);
         });
@@ -388,8 +388,8 @@ class ProductController extends Controller
         $newProducts = $newProducts->where('isUploaded', 0);
 
         if ($request->crop_start_date != null && $request->crop_end_date != null) {
-            $startDate = $request->crop_start_date;
-            $endDate = $request->crop_end_date;
+            $startDate   = $request->crop_start_date;
+            $endDate     = $request->crop_end_date;
             $newProducts = $newProducts->leftJoin('cropped_image_references as cri', function ($join) use ($startDate, $endDate) {
                 $join->on('cri.product_id', 'products.id');
                 $join->whereDate('cri.created_at', '>=', $startDate)->whereDate('cri.created_at', '<=', $endDate);
@@ -401,7 +401,7 @@ class ProductController extends Controller
 
         if ($request->store_website_id > 0) {
             $storeWebsiteID = $request->store_website_id;
-            $newProducts = $newProducts->join('store_website_categories as swc', function ($join) use ($storeWebsiteID) {
+            $newProducts    = $newProducts->join('store_website_categories as swc', function ($join) use ($storeWebsiteID) {
                 $join->on('swc.category_id', 'products.category');
                 $join->where('swc.store_website_id', $storeWebsiteID)->where('swc.remote_id', '>', 0);
             });
@@ -424,7 +424,7 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                     ]);
                     $productVerify->product_id = $product->id;
-                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->user_id    = auth()->user()->id;
                     $productVerify->save();
                     $i++;
                     // if more then 15 records then break
@@ -447,7 +447,7 @@ class ProductController extends Controller
 
         $dynamicColumnsToShowPlf = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns             = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowPlf = json_decode($hideColumns, true);
         }
 
@@ -458,34 +458,34 @@ class ProductController extends Controller
             $viewpath = ($pageType == 'images') ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
 
             return view($viewpath, [
-                'users_list' => $users->pluck('name', 'id'),
-                'products' => $newProducts,
-                'products_count' => $newProducts->total(),
-                'colors' => $colors,
-                'brands' => $brands,
-                'suppliers' => $suppliers,
-                'categories' => $categories,
-                'category_tree' => $category_tree,
-                'categories_array' => $categories_array,
-                'term' => $term,
-                'brand' => $brand,
-                'category' => $category,
-                'color' => $color,
-                'supplier' => $supplier,
-                'type' => $type,
-                'users' => $users,
-                'assigned_to_users' => $assigned_to_users,
-                'cropped' => $cropped,
-                'category_array' => $category_array,
-                'selected_categories' => $selected_categories,
-                'store_websites' => $storeWebsites,
-                'type' => $pageType,
-                'auto_push_product' => $auto_push_product,
-                'user_id' => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
-                'request' => $request->all(),
-                'categories_paths_array' => $categories_paths_array,
-                'siteCroppedImages' => $siteCroppedImages,
-                'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+                'users_list'                 => $users->pluck('name', 'id'),
+                'products'                   => $newProducts,
+                'products_count'             => $newProducts->total(),
+                'colors'                     => $colors,
+                'brands'                     => $brands,
+                'suppliers'                  => $suppliers,
+                'categories'                 => $categories,
+                'category_tree'              => $category_tree,
+                'categories_array'           => $categories_array,
+                'term'                       => $term,
+                'brand'                      => $brand,
+                'category'                   => $category,
+                'color'                      => $color,
+                'supplier'                   => $supplier,
+                'type'                       => $type,
+                'users'                      => $users,
+                'assigned_to_users'          => $assigned_to_users,
+                'cropped'                    => $cropped,
+                'category_array'             => $category_array,
+                'selected_categories'        => $selected_categories,
+                'store_websites'             => $storeWebsites,
+                'type'                       => $pageType,
+                'auto_push_product'          => $auto_push_product,
+                'user_id'                    => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
+                'request'                    => $request->all(),
+                'categories_paths_array'     => $categories_paths_array,
+                'siteCroppedImages'          => $siteCroppedImages,
+                'dynamicColumnsToShowPlf'    => $dynamicColumnsToShowPlf,
                 'statusProductsListingFinal' => $statusProductsListingFinal,
             ]);
         }
@@ -493,37 +493,37 @@ class ProductController extends Controller
         $viewpath = 'products.final_listing';
 
         return view($viewpath, [
-            'users_list' => $users->pluck('name', 'id'),
-            'products' => $newProducts,
-            'products_count' => $newProducts->total(),
-            'colors' => $colors,
-            'brands' => $brands,
-            'suppliers' => $suppliers,
-            'categories' => $categories,
-            'category_tree' => $category_tree,
+            'users_list'       => $users->pluck('name', 'id'),
+            'products'         => $newProducts,
+            'products_count'   => $newProducts->total(),
+            'colors'           => $colors,
+            'brands'           => $brands,
+            'suppliers'        => $suppliers,
+            'categories'       => $categories,
+            'category_tree'    => $category_tree,
             'categories_array' => $categories_array,
-            'user_id' => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
+            'user_id'          => ($request->get('user_id') > 0) ? $request->get('user_id') : '',
             // 'category_selection' => $category_selection,
             // 'category_search'    => $category_search,
-            'term' => $term,
-            'brand' => $brand,
-            'category' => $category,
-            'color' => $color,
-            'supplier' => $supplier,
-            'type' => $type,
-            'users' => $users,
+            'term'              => $term,
+            'brand'             => $brand,
+            'category'          => $category,
+            'color'             => $color,
+            'supplier'          => $supplier,
+            'type'              => $type,
+            'users'             => $users,
             'assigned_to_users' => $assigned_to_users,
-            'cropped' => $cropped,
+            'cropped'           => $cropped,
             //            'left_for_users'  => $left_for_users,
-            'category_array' => $category_array,
+            'category_array'      => $category_array,
             'selected_categories' => $selected_categories,
-            'store_websites' => $storeWebsites,
-            'pageType' => $pageType,
-            'auto_push_product' => $auto_push_product,
+            'store_websites'      => $storeWebsites,
+            'pageType'            => $pageType,
+            'auto_push_product'   => $auto_push_product,
             //'store_website_count' => StoreWebsite::count(),
-            'categories_paths_array' => $categories_paths_array,
-            'siteCroppedImages' => $siteCroppedImages,
-            'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+            'categories_paths_array'     => $categories_paths_array,
+            'siteCroppedImages'          => $siteCroppedImages,
+            'dynamicColumnsToShowPlf'    => $dynamicColumnsToShowPlf,
             'statusProductsListingFinal' => $statusProductsListingFinal,
         ]);
     }
@@ -533,15 +533,15 @@ class ProductController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'products-listing-final')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'products-listing-final';
-            $column->column_name = json_encode($request->column_plf);
+            $column->column_name  = json_encode($request->column_plf);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'products-listing-final';
-            $column->column_name = json_encode($request->column_plf);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_plf);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -551,9 +551,9 @@ class ProductController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = ProductListingFinalStatus::find($key);
+            $bugstatus               = ProductListingFinalStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
         }
@@ -563,12 +563,12 @@ class ProductController extends Controller
 
     public function getFinalApporvalImages(Request $request)
     {
-        $cropped = $request->cropped;
-        $colors = (new Colors)->all();
-        $categories = Category::all();
-        $category_tree = [];
+        $cropped          = $request->cropped;
+        $colors           = (new Colors)->all();
+        $categories       = Category::all();
+        $category_tree    = [];
         $categories_array = [];
-        $brands = Brand::getAll();
+        $brands           = Brand::getAll();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -603,7 +603,7 @@ class ProductController extends Controller
         }
 
         if ($request->get('status_id') != null) {
-            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $statusList  = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
             $newProducts = $newProducts->whereIn('status_id', $statusList);
         } else {
             if ($request->get('submit_for_approval') == 'on') {
@@ -614,13 +614,13 @@ class ProductController extends Controller
         }
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
-        $term = $request->input('term');
-        $brand = '';
-        $category = '';
-        $color = '';
-        $supplier = [];
-        $type = '';
+        $newProducts       = QueryHelper::approvedListingOrder($newProducts);
+        $term              = $request->input('term');
+        $brand             = '';
+        $category          = '';
+        $color             = '';
+        $supplier          = [];
+        $type              = '';
         $assigned_to_users = '';
 
         if (is_array($request->brand) && $request->brand[0] != null) {
@@ -658,7 +658,7 @@ class ProductController extends Controller
             }
 
             $newProducts = $newProducts->whereIn('category', $category_children);
-            $category = $request->category[0];
+            $category    = $request->category[0];
         }
         if ($request->type != '') {
             if ($request->type == 'Not Listed') {
@@ -716,8 +716,8 @@ class ProductController extends Controller
         }
 
         $selected_categories = $request->category ? $request->category : [1];
-        $category_array = Category::renderAsArray();
-        $users = User::all();
+        $category_array      = Category::renderAsArray();
+        $users               = User::all();
 
         $newProducts = $newProducts->leftJoin('product_verifying_users as pvu', function ($join) {
             $join->on('pvu.product_id', 'products.id');
@@ -749,7 +749,7 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                     ]);
                     $productVerify->product_id = $product->id;
-                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->user_id    = auth()->user()->id;
                     $productVerify->save();
                     $i++;
                     // if more then 15 records then break
@@ -766,66 +766,66 @@ class ProductController extends Controller
         }
         if ($request->ajax()) {
             return view('products.final_listing_ajax', [
-                'products' => $newProducts,
-                'products_count' => $newProducts->total(),
-                'colors' => $colors,
-                'brands' => $brands,
-                'suppliers' => $suppliers,
-                'categories' => $categories,
-                'category_tree' => $category_tree,
-                'categories_array' => $categories_array,
-                'term' => $term,
-                'brand' => $brand,
-                'category' => $category,
-                'color' => $color,
-                'supplier' => $supplier,
-                'type' => $type,
-                'users' => $users,
-                'assigned_to_users' => $assigned_to_users,
-                'cropped' => $cropped,
-                'category_array' => $category_array,
+                'products'            => $newProducts,
+                'products_count'      => $newProducts->total(),
+                'colors'              => $colors,
+                'brands'              => $brands,
+                'suppliers'           => $suppliers,
+                'categories'          => $categories,
+                'category_tree'       => $category_tree,
+                'categories_array'    => $categories_array,
+                'term'                => $term,
+                'brand'               => $brand,
+                'category'            => $category,
+                'color'               => $color,
+                'supplier'            => $supplier,
+                'type'                => $type,
+                'users'               => $users,
+                'assigned_to_users'   => $assigned_to_users,
+                'cropped'             => $cropped,
+                'category_array'      => $category_array,
                 'selected_categories' => $selected_categories,
-                'store_websites' => StoreWebsite::all(),
-                'auto_push_product' => $auto_push_product,
+                'store_websites'      => StoreWebsite::all(),
+                'auto_push_product'   => $auto_push_product,
             ]);
         }
 
         return view('products.final_approval_images', [
-            'products' => $newProducts,
-            'products_count' => $newProducts->total(),
-            'colors' => $colors,
-            'brands' => $brands,
-            'suppliers' => $suppliers,
-            'categories' => $categories,
-            'category_tree' => $category_tree,
+            'products'         => $newProducts,
+            'products_count'   => $newProducts->total(),
+            'colors'           => $colors,
+            'brands'           => $brands,
+            'suppliers'        => $suppliers,
+            'categories'       => $categories,
+            'category_tree'    => $category_tree,
             'categories_array' => $categories_array,
             // 'category_selection' => $category_selection,
             // 'category_search'    => $category_search,
-            'term' => $term,
-            'brand' => $brand,
-            'category' => $category,
-            'color' => $color,
-            'supplier' => $supplier,
-            'type' => $type,
-            'users' => $users,
+            'term'              => $term,
+            'brand'             => $brand,
+            'category'          => $category,
+            'color'             => $color,
+            'supplier'          => $supplier,
+            'type'              => $type,
+            'users'             => $users,
             'assigned_to_users' => $assigned_to_users,
-            'cropped' => $cropped,
+            'cropped'           => $cropped,
             //            'left_for_users'  => $left_for_users,
-            'category_array' => $category_array,
+            'category_array'      => $category_array,
             'selected_categories' => $selected_categories,
-            'store_websites' => StoreWebsite::all(),
-            'auto_push_product' => $auto_push_product,
+            'store_websites'      => StoreWebsite::all(),
+            'auto_push_product'   => $auto_push_product,
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
 
     public function approvedListingCropConfirmation(Request $request)
     {
-        $colors = (new Colors)->all();
-        $categories = Category::all();
-        $category_tree = [];
+        $colors           = (new Colors)->all();
+        $categories       = Category::all();
+        $category_tree    = [];
         $categories_array = [];
-        $brands = Brand::getAll();
+        $brands           = Brand::getAll();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -855,12 +855,12 @@ class ProductController extends Controller
 
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
-        $term = $request->input('term');
-        $brand = '';
-        $category = '';
-        $color = '';
-        $supplier = [];
-        $type = '';
+        $term              = $request->input('term');
+        $brand             = '';
+        $category          = '';
+        $color             = '';
+        $supplier          = [];
+        $type              = '';
         $assigned_to_users = '';
 
         if ($request->brand[0] != null) {
@@ -898,7 +898,7 @@ class ProductController extends Controller
             }
 
             $newProducts = $newProducts->whereIn('category', $category_children);
-            $category = $request->category[0];
+            $category    = $request->category[0];
         }
         if ($request->type != '') {
             if ($request->type == 'Not Listed') {
@@ -931,35 +931,35 @@ class ProductController extends Controller
         }
 
         $selected_categories = $request->category ? $request->category : [1];
-        $category_array = Category::renderAsArray();
-        $users = User::all();
+        $category_array      = Category::renderAsArray();
+        $users               = User::all();
 
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
         $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(50);
 
         return view('products.final_crop_confirmation', [
-            'products' => $newProducts,
-            'products_count' => $newProducts->total(),
-            'colors' => $colors,
-            'brands' => $brands,
-            'suppliers' => $suppliers,
-            'categories' => $categories,
-            'category_tree' => $category_tree,
+            'products'         => $newProducts,
+            'products_count'   => $newProducts->total(),
+            'colors'           => $colors,
+            'brands'           => $brands,
+            'suppliers'        => $suppliers,
+            'categories'       => $categories,
+            'category_tree'    => $category_tree,
             'categories_array' => $categories_array,
             // 'category_selection' => $category_selection,
             // 'category_search'    => $category_search,
-            'term' => $term,
-            'brand' => $brand,
-            'category' => $category,
-            'color' => $color,
-            'supplier' => $supplier,
-            'type' => $type,
-            'users' => $users,
+            'term'              => $term,
+            'brand'             => $brand,
+            'category'          => $category,
+            'color'             => $color,
+            'supplier'          => $supplier,
+            'type'              => $type,
+            'users'             => $users,
             'assigned_to_users' => $assigned_to_users,
             //            'cropped' => $cropped,
             //            'left_for_users'  => $left_for_users,
-            'category_array' => $category_array,
+            'category_array'      => $category_array,
             'selected_categories' => $selected_categories,
         ]);
     }
@@ -969,11 +969,11 @@ class ProductController extends Controller
         // Get queue count
         $queueSize = Queue::size('listMagento');
 
-        $colors = (new Colors)->all();
-        $categories = Category::all();
-        $category_tree = [];
+        $colors           = (new Colors)->all();
+        $categories       = Category::all();
+        $category_tree    = [];
         $categories_array = [];
-        $brands = Brand::getAll();
+        $brands           = Brand::getAll();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -1002,12 +1002,12 @@ class ProductController extends Controller
 
         $newProducts = Product::where('isUploaded', 1)->orderBy('listing_approved_at', 'DESC');
 
-        $term = $request->input('term');
-        $brand = '';
-        $category = '';
-        $color = '';
-        $supplier = [];
-        $type = '';
+        $term              = $request->input('term');
+        $brand             = '';
+        $category          = '';
+        $color             = '';
+        $supplier          = [];
+        $type              = '';
         $assigned_to_users = '';
 
         if (isset($request->brand[0]) && $request->brand[0] != null) {
@@ -1045,7 +1045,7 @@ class ProductController extends Controller
             }
 
             $newProducts = $newProducts->whereIn('category', $category_children);
-            $category = $request->category[0];
+            $category    = $request->category[0];
         }
         if ($request->type != '') {
             if ($request->type == 'Not Listed') {
@@ -1077,35 +1077,35 @@ class ProductController extends Controller
         }
 
         $selected_categories = $request->category ? $request->category : [1];
-        $category_array = Category::renderAsArray();
-        $users = User::all();
+        $category_array      = Category::renderAsArray();
+        $users               = User::all();
 
         $newProducts = $newProducts->with(['media', 'brands'])->paginate(50);
 
         return view('products.in_magento', [
-            'products' => $newProducts,
-            'products_count' => $newProducts->total(),
-            'colors' => $colors,
-            'brands' => $brands,
-            'suppliers' => $suppliers,
-            'categories' => $categories,
-            'category_tree' => $category_tree,
+            'products'         => $newProducts,
+            'products_count'   => $newProducts->total(),
+            'colors'           => $colors,
+            'brands'           => $brands,
+            'suppliers'        => $suppliers,
+            'categories'       => $categories,
+            'category_tree'    => $category_tree,
             'categories_array' => $categories_array,
             // 'category_selection' => $category_selection,
             // 'category_search'    => $category_search,
-            'term' => $term,
-            'brand' => $brand,
-            'category' => $category,
-            'color' => $color,
-            'supplier' => $supplier,
-            'type' => $type,
-            'users' => $users,
+            'term'              => $term,
+            'brand'             => $brand,
+            'category'          => $category,
+            'color'             => $color,
+            'supplier'          => $supplier,
+            'type'              => $type,
+            'users'             => $users,
             'assigned_to_users' => $assigned_to_users,
             //            'cropped' => $cropped,
             //            'left_for_users'  => $left_for_users,
-            'category_array' => $category_array,
+            'category_array'      => $category_array,
             'selected_categories' => $selected_categories,
-            'queueSize' => $queueSize,
+            'queueSize'           => $queueSize,
         ]);
     }
 
@@ -1132,11 +1132,11 @@ class ProductController extends Controller
 
     public function listing(Request $request, Stage $stage)
     {
-        $colors = (new Colors)->all();
-        $categories = Category::all();
-        $category_tree = [];
+        $colors           = (new Colors)->all();
+        $categories       = Category::all();
+        $category_tree    = [];
         $categories_array = [];
-        $brands = Brand::getAll();
+        $brands           = Brand::getAll();
 
         $suppliers = DB::select('
                 SELECT id, supplier
@@ -1161,35 +1161,35 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        $term = $request->input('term');
-        $brand = '';
-        $category = '';
-        $color = '';
-        $supplier = [];
-        $type = '';
+        $term              = $request->input('term');
+        $brand             = '';
+        $category          = '';
+        $color             = '';
+        $supplier          = [];
+        $type              = '';
         $assigned_to_users = '';
 
-        $brandWhereClause = '';
-        $colorWhereClause = '';
+        $brandWhereClause    = '';
+        $colorWhereClause    = '';
         $categoryWhereClause = '';
         $supplierWhereClause = '';
-        $typeWhereClause = '';
-        $termWhereClause = '';
-        $croppedWhereClause = '';
-        $stockWhereClause = ' AND stock >= 1';
+        $typeWhereClause     = '';
+        $termWhereClause     = '';
+        $croppedWhereClause  = '';
+        $stockWhereClause    = ' AND stock >= 1';
 
         $userWhereClause = '';
         if (is_array($request->brand) && $request->brand[0] != null) {
             $brands_list = implode(',', $request->brand);
 
-            $brand = $request->brand[0];
+            $brand            = $request->brand[0];
             $brandWhereClause = " AND brand IN ($brands_list)";
         }
 
         if (is_array($request->color) && $request->color[0] != null) {
             $colors_list = implode(',', $request->color);
 
-            $color = $request->color[0];
+            $color            = $request->color[0];
             $colorWhereClause = " AND color IN ($colors_list)";
         }
         if (is_array($request->category) && $request->category[0] != null && $request->category[0] != 1) {
@@ -1221,12 +1221,12 @@ class ProductController extends Controller
 
             $category_list = implode(',', $category_children);
 
-            $category = $request->category[0];
+            $category            = $request->category[0];
             $categoryWhereClause = " AND category IN ($category_list)";
         }
         if (is_array($request->supplier) && $request->supplier[0] != null) {
-            $suppliers_list = implode(',', $request->supplier);
-            $supplier = $request->supplier;
+            $suppliers_list      = implode(',', $request->supplier);
+            $supplier            = $request->supplier;
             $supplierWhereClause = " AND products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))";
         }
         if ($request->type != '') {
@@ -1259,22 +1259,22 @@ class ProductController extends Controller
 
         if ($request->users == 'on') {
             $users_products = User::role('Products Lister')->pluck('id');
-            $users = [];
+            $users          = [];
             foreach ($users_products as $user) {
                 $users[] = $user;
             }
             $users_list = implode(',', $users);
 
-            $userWhereClause = " AND products.id IN (SELECT product_id FROM user_products WHERE user_id IN ($users_list))";
-            $stockWhereClause = '';
+            $userWhereClause   = " AND products.id IN (SELECT product_id FROM user_products WHERE user_id IN ($users_list))";
+            $stockWhereClause  = '';
             $assigned_to_users = 'on';
         }
 
         $left_for_users = '';
         if ($request->left_products == 'on') {
-            $userWhereClause = ' AND products.id NOT IN (SELECT product_id FROM user_products)';
+            $userWhereClause  = ' AND products.id NOT IN (SELECT product_id FROM user_products)';
             $stockWhereClause = ' AND stock >= 1 AND is_crop_approved = 1 AND is_crop_ordered = 1 AND is_image_processed = 1 AND isUploaded = 0 AND isFinal = 0';
-            $left_for_users = 'on';
+            $left_for_users   = 'on';
         }
 
         $messages = UserProductFeedback::where('action', 'LISTING_APPROVAL_REJECTED')->where('user_id', Auth::id())->with('product')->get();
@@ -1321,9 +1321,9 @@ class ProductController extends Controller
         $new_products = DB::select($sql);
 
         $products_count = count($new_products);
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
-        $currentItems = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
+        $currentPage    = LengthAwarePaginator::resolveCurrentPage();
+        $perPage        = Setting::get('pagination');
+        $currentItems   = array_slice($new_products, $perPage * ($currentPage - 1), $perPage);
 
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
@@ -1333,41 +1333,41 @@ class ProductController extends Controller
 
         $category_array = Category::renderAsArray();
 
-        $userStats = [];
+        $userStats             = [];
         $userStats['approved'] = ListingHistory::where('action', 'LISTING_APPROVAL')->where('user_id', Auth::user()->id)->count();
         $userStats['rejected'] = ListingHistory::where('action', 'LISTING_REJECTED')->where('user_id', Auth::user()->id)->count();
 
         return view('products.listing', [
-            'products' => $new_products,
-            'products_count' => $products_count,
-            'colors' => $colors,
-            'brands' => $brands,
-            'suppliers' => $suppliers,
-            'categories' => $categories,
-            'category_tree' => $category_tree,
-            'categories_array' => $categories_array,
-            'term' => $term,
-            'brand' => $brand,
-            'category' => $category,
-            'color' => $color,
-            'supplier' => $supplier,
-            'type' => $type,
-            'assigned_to_users' => $assigned_to_users,
-            'cropped' => $cropped,
-            'left_for_users' => $left_for_users,
-            'category_array' => $category_array,
+            'products'            => $new_products,
+            'products_count'      => $products_count,
+            'colors'              => $colors,
+            'brands'              => $brands,
+            'suppliers'           => $suppliers,
+            'categories'          => $categories,
+            'category_tree'       => $category_tree,
+            'categories_array'    => $categories_array,
+            'term'                => $term,
+            'brand'               => $brand,
+            'category'            => $category,
+            'color'               => $color,
+            'supplier'            => $supplier,
+            'type'                => $type,
+            'assigned_to_users'   => $assigned_to_users,
+            'cropped'             => $cropped,
+            'left_for_users'      => $left_for_users,
+            'category_array'      => $category_array,
             'selected_categories' => $selected_categories,
-            'messages' => $messages,
-            'userStatus' => $userStats,
+            'messages'            => $messages,
+            'userStatus'          => $userStats,
         ]);
     }
 
     public function magentoConditionsCheck(Request $request)
     {
         if ($request->ajax()) {
-            $query = $request->get('fieldname');
+            $query     = $request->get('fieldname');
             $fieldName = $request->get('filedname');
-            $value = $request->get('value');
+            $value     = $request->get('value');
 
             $products = Product::query();
 
@@ -1424,13 +1424,13 @@ class ProductController extends Controller
                     $products = $products->where("products.$fieldName", 'LIKE', "%$value%");
                 }
             }
-            $products = $products->orderBy('llm_id', 'desc');
-            $products = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title', 'SW.id as sw_id']);
-            $products = $products->paginate(20);
-            $productsCount = $products->total();
+            $products         = $products->orderBy('llm_id', 'desc');
+            $products         = $products->select(['products.*', 's.name as product_status', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.title as sw_title', 'SW.id as sw_id']);
+            $products         = $products->paginate(20);
+            $productsCount    = $products->total();
             $imageCropperRole = auth()->user()->hasRole('ImageCropers');
-            $categoryArray = Category::renderAsArray();
-            $colors = (new Colors)->all();
+            $categoryArray    = Category::renderAsArray();
+            $colors           = (new Colors)->all();
             if (! Setting::has('auto_push_product')) {
                 $auto_push_product = Setting::add('auto_push_product', 0, 'int');
             } else {
@@ -1438,8 +1438,8 @@ class ProductController extends Controller
             }
             $users = User::all();
 
-            $view = (string) view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
-            $return['view'] = $view;
+            $view                    = (string) view('products.magento_conditions_check.list', compact('products', 'imageCropperRole', 'categoryArray', 'colors', 'auto_push_product', 'users', 'productsCount'));
+            $return['view']          = $view;
             $return['productsCount'] = $productsCount;
 
             return response()->json(['status' => 200, 'data' => $return]);
@@ -1450,9 +1450,9 @@ class ProductController extends Controller
 
     public function autocompleteForFilter(Request $request)
     {
-        $query = $request->get('fieldname');
+        $query  = $request->get('fieldname');
         $search = $request->get('filedname');
-        $value = $request->get('value');
+        $value  = $request->get('value');
 
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $products = Product::query();
@@ -1488,12 +1488,12 @@ class ProductController extends Controller
             $products = $products->where("products.$search", 'LIKE', "%$value%");
         }
 
-        $products = $products->groupBy('LLM.product_id', 'LLM.store_website_id');
-        $productsCount = count($products->get());
-        $products = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->get()->toArray();
+        $products         = $products->groupBy('LLM.product_id', 'LLM.store_website_id');
+        $productsCount    = count($products->get());
+        $products         = $products->select(['products.*', 'LLM.id as llm_id', 'LLM.message as llm_message', 'SW.id as sw_id', 'SW.title as sw_title'])->get()->toArray();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
-        $categoryArray = Category::renderAsArray();
-        $colors = (new Colors)->all();
+        $categoryArray    = Category::renderAsArray();
+        $colors           = (new Colors)->all();
         if (! Setting::has('auto_push_product')) {
             $auto_push_product = Setting::add('auto_push_product', 0, 'int');
         } else {
@@ -1506,7 +1506,7 @@ class ProductController extends Controller
     public function magentoPushStatusForMagentoCheck(Request $request)
     {
         if ($request->ajax()) {
-            $value = $request->get('value');
+            $value  = $request->get('value');
             $search = $request->get('fieldname');
 
             $products = Product::query();
@@ -1541,7 +1541,7 @@ class ProductController extends Controller
             }
             if ($request->get('composition') != '') {
                 $composition = $request->get('compositon');
-                $products = $products->where('products.composition', 'LIKE', "%$composition%");
+                $products    = $products->where('products.composition', 'LIKE', "%$composition%");
             }
             if ($request->get('status') != '') {
                 $products = $products->where('products.status', $request->get('status'));
@@ -1563,11 +1563,11 @@ class ProductController extends Controller
                 }
             }
 
-            $products = $products->select(['products.*', 's.name as product_status'])->paginate(10);
-            $productsCount = $products->total();
+            $products         = $products->select(['products.*', 's.name as product_status'])->paginate(10);
+            $productsCount    = $products->total();
             $imageCropperRole = auth()->user()->hasRole('ImageCropers');
-            $categoryArray = Category::renderAsArray();
-            $colors = (new Colors)->all();
+            $categoryArray    = Category::renderAsArray();
+            $colors           = (new Colors)->all();
             if (! Setting::has('auto_push_product')) {
                 $auto_push_product = Setting::add('auto_push_product', 0, 'int');
             } else {
@@ -1588,7 +1588,7 @@ class ProductController extends Controller
         } else {
             $products = Product::query()->where('assigned_to', auth()->user()->id);
         }
-        $search = $request->get('filedname');
+        $search   = $request->get('filedname');
         $products = $products->where(function ($query) {
             $query->where('status_id', StatusHelper::$pushToMagento);
             $query->orWhere('status_id', StatusHelper::$inMagento);
@@ -1599,8 +1599,8 @@ class ProductController extends Controller
         $products = $products->join('log_list_magentos as LLM', 'products.id', '=', 'LLM.product_id');
         $products = $products->leftJoin('store_websites as SW', 'LLM.store_website_id', '=', 'SW.id');
 
-        $products = $products->where('isUploaded', 0);
-        $products = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
+        $products    = $products->where('isUploaded', 0);
+        $products    = $products->leftJoin('categories as c', 'c.id', '=', 'products.category');
         $searchValue = $request->get('search_value');
 
         if (isset($search)) {
@@ -1614,11 +1614,11 @@ class ProductController extends Controller
             }
         }
 
-        $products = $products->select(['products.*', 's.name as product_status']);
-        $products = $products->get()->toArray();
+        $products         = $products->select(['products.*', 's.name as product_status']);
+        $products         = $products->get()->toArray();
         $imageCropperRole = auth()->user()->hasRole('ImageCropers');
-        $categoryArray = Category::renderAsArray();
-        $colors = (new Colors)->all();
+        $categoryArray    = Category::renderAsArray();
+        $colors           = (new Colors)->all();
 
         if (! Setting::has('auto_push_product')) {
             $auto_push_product = Setting::add('auto_push_product', 0, 'int');
@@ -1655,47 +1655,47 @@ class ProductController extends Controller
     {
         $data = [];
 
-        $data['dnf'] = $product->dnf;
-        $data['id'] = $product->id;
-        $data['name'] = $product->name;
+        $data['dnf']               = $product->dnf;
+        $data['id']                = $product->id;
+        $data['name']              = $product->name;
         $data['short_description'] = $product->short_description;
-        $data['activities'] = $product->activities;
-        $data['scraped'] = $product->scraped_products;
+        $data['activities']        = $product->activities;
+        $data['scraped']           = $product->scraped_products;
 
         $data['measurement_size_type'] = $product->measurement_size_type;
-        $data['lmeasurement'] = $product->lmeasurement;
-        $data['hmeasurement'] = $product->hmeasurement;
-        $data['dmeasurement'] = $product->dmeasurement;
+        $data['lmeasurement']          = $product->lmeasurement;
+        $data['hmeasurement']          = $product->hmeasurement;
+        $data['dmeasurement']          = $product->dmeasurement;
 
-        $data['size'] = $product->size;
-        $data['size_value'] = $product->size_value;
+        $data['size']        = $product->size;
+        $data['size_value']  = $product->size_value;
         $data['sizes_array'] = $sizes->all();
 
-        $data['composition'] = $product->composition;
-        $data['sku'] = $product->sku;
-        $data['made_in'] = $product->made_in;
-        $data['brand'] = $product->brand;
-        $data['color'] = $product->color;
-        $data['price'] = $product->price;
-        $data['status'] = $product->status_id;
-        $data['euro_to_inr'] = $product->euro_to_inr;
-        $data['price_inr'] = $product->price_inr;
+        $data['composition']       = $product->composition;
+        $data['sku']               = $product->sku;
+        $data['made_in']           = $product->made_in;
+        $data['brand']             = $product->brand;
+        $data['color']             = $product->color;
+        $data['price']             = $product->price;
+        $data['status']            = $product->status_id;
+        $data['euro_to_inr']       = $product->euro_to_inr;
+        $data['price_inr']         = $product->price_inr;
         $data['price_inr_special'] = $product->price_inr_special;
 
-        $data['isApproved'] = $product->isApproved;
+        $data['isApproved']    = $product->isApproved;
         $data['rejected_note'] = $product->rejected_note;
-        $data['isUploaded'] = $product->isUploaded;
-        $data['isFinal'] = $product->isFinal;
-        $data['stock'] = $product->stock;
-        $data['reason'] = $product->rejected_note;
+        $data['isUploaded']    = $product->isUploaded;
+        $data['isFinal']       = $product->isFinal;
+        $data['stock']         = $product->stock;
+        $data['reason']        = $product->rejected_note;
 
-        $data['product_link'] = $product->product_link;
-        $data['supplier'] = $product->supplier;
-        $data['supplier_link'] = $product->supplier_link;
+        $data['product_link']     = $product->product_link;
+        $data['supplier']         = $product->supplier;
+        $data['supplier_link']    = $product->supplier_link;
         $data['description_link'] = $product->description_link;
-        $data['location'] = $product->location;
+        $data['location']         = $product->location;
 
-        $data['suppliers'] = '';
+        $data['suppliers']      = '';
         $data['more_suppliers'] = [];
 
         foreach ($product->suppliers as $key => $supplier) {
@@ -1726,17 +1726,17 @@ class ProductController extends Controller
     public function bulkUpdate(Request $request)
     {
         $selected_products = json_decode($request->selected_products, true);
-        $category = $request->category[0];
+        $category          = $request->category[0];
 
         foreach ($selected_products as $id) {
-            $product = Product::find($id);
+            $product           = Product::find($id);
             $product->category = $category;
             $product->save();
 
-            $lh = new ListingHistory();
-            $lh->user_id = Auth::user()->id;
+            $lh             = new ListingHistory();
+            $lh->user_id    = Auth::user()->id;
             $lh->product_id = $id;
-            $lh->content = ['Category updated', $category];
+            $lh->content    = ['Category updated', $category];
             $lh->save();
         }
 
@@ -1745,14 +1745,14 @@ class ProductController extends Controller
 
     public function updateName(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product       = Product::find($id);
         $product->name = $request->name;
         $product->save();
 
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Name updated', $request->get('name')];
+        $lh->content    = ['Name updated', $request->get('name')];
         $lh->save();
 
         return response('success');
@@ -1760,14 +1760,14 @@ class ProductController extends Controller
 
     public function updateDescription(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product                    = Product::find($id);
         $product->short_description = $request->description;
         $product->save();
 
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Description updated', $request->get('description')];
+        $lh->content    = ['Description updated', $request->get('description')];
         $lh->save();
 
         return response('success');
@@ -1775,14 +1775,14 @@ class ProductController extends Controller
 
     public function updateComposition(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product              = Product::find($id);
         $product->composition = $request->composition;
         $product->save();
 
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Composition updated', $request->get('composition')];
+        $lh->content    = ['Composition updated', $request->get('composition')];
         $lh->save();
 
         return response('success');
@@ -1793,24 +1793,24 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if ($product) {
-            $productColHis = new \App\ProductColorHistory;
-            $productColHis->user_id = \Auth::user()->id;
-            $productColHis->color = $request->color;
-            $productColHis->old_color = $product->color;
+            $productColHis             = new \App\ProductColorHistory;
+            $productColHis->user_id    = \Auth::user()->id;
+            $productColHis->color      = $request->color;
+            $productColHis->old_color  = $product->color;
             $productColHis->product_id = $product->id;
             $productColHis->save();
         }
 
-        $originalColor = $product->color;
+        $originalColor  = $product->color;
         $product->color = $request->color;
         $product->save();
 
         \App\ProductStatus::pushRecord($product->id, 'MANUAL_COLOR');
 
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Color updated', $request->get('color')];
+        $lh->content    = ['Color updated', $request->get('color')];
         $lh->save();
 
         if (! $originalColor) {
@@ -1827,10 +1827,10 @@ class ProductController extends Controller
             return response('success');
         }
 
-        $colorReference = new ColorReference();
+        $colorReference                 = new ColorReference();
         $colorReference->original_color = $originalColor;
-        $colorReference->brand_id = $product->brand;
-        $colorReference->erp_color = $request->get('color');
+        $colorReference->brand_id       = $product->brand;
+        $colorReference->erp_color      = $request->get('color');
         $colorReference->save();
 
         return response('success');
@@ -1841,21 +1841,21 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if ($product) {
-            $productCatHis = new \App\ProductCategoryHistory;
-            $productCatHis->user_id = \Auth::user()->id;
-            $productCatHis->category_id = $request->category;
+            $productCatHis                  = new \App\ProductCategoryHistory;
+            $productCatHis->user_id         = \Auth::user()->id;
+            $productCatHis->category_id     = $request->category;
             $productCatHis->old_category_id = $product->category;
-            $productCatHis->product_id = $product->id;
+            $productCatHis->product_id      = $product->id;
             $productCatHis->save();
 
             \App\ProductStatus::pushRecord($product->id, 'MANUAL_CATEGORY');
         }
         $product->category = $request->category;
         $product->save();
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Category updated', $request->get('category')];
+        $lh->content    = ['Category updated', $request->get('category')];
         $lh->save();
 
         return response('success');
@@ -1863,17 +1863,17 @@ class ProductController extends Controller
 
     public function updateSize(Request $request, $id)
     {
-        $product = Product::find($id);
-        $product->size = is_array($request->size) && count($request->size) > 0 ? implode(',', $request->size) : '';
+        $product               = Product::find($id);
+        $product->size         = is_array($request->size) && count($request->size) > 0 ? implode(',', $request->size) : '';
         $product->lmeasurement = $request->lmeasurement;
         $product->hmeasurement = $request->hmeasurement;
         $product->dmeasurement = $request->dmeasurement;
         $product->save();
 
-        $lh = new ListingHistory();
-        $lh->user_id = Auth::user()->id;
+        $lh             = new ListingHistory();
+        $lh->user_id    = Auth::user()->id;
         $lh->product_id = $id;
-        $lh->content = ['Sizes updated', $request->get('lmeasurement') . ' X ' . $request->get('hmeasurement') . ' X ' . $request->get('dmeasurement')];
+        $lh->content    = ['Sizes updated', $request->get('lmeasurement') . ' X ' . $request->get('hmeasurement') . ' X ' . $request->get('dmeasurement')];
         $lh->save();
 
         return response('success');
@@ -1881,23 +1881,23 @@ class ProductController extends Controller
 
     public function updatePrice(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product        = Product::find($id);
         $product->price = $request->price;
 
         if (! empty($product->brand)) {
-            $product->price_inr = $this->euroToInr($product->price, $product->brand);
+            $product->price_inr         = $this->euroToInr($product->price, $product->brand);
             $product->price_inr_special = $this->calculateSpecialDiscount($product->price_inr_special, $product->brand);
         }
 
         $product->save();
 
-        $l = new ListingHistory();
-        $l->user_id = Auth::user()->id;
+        $l             = new ListingHistory();
+        $l->user_id    = Auth::user()->id;
         $l->product_id = $id;
-        $l->content = ['Price updated', $product->price];
+        $l->content    = ['Price updated', $product->price];
 
         return response()->json([
-            'price_inr' => $product->price_inr,
+            'price_inr'         => $product->price_inr,
             'price_inr_special' => $product->price_inr_special,
         ]);
     }
@@ -1920,7 +1920,7 @@ class ProductController extends Controller
 
     public function quickUpload(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product   = Product::find($id);
         $image_url = '';
 
         if ($request->hasFile('images')) {
@@ -1942,14 +1942,14 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'image_url' => $image_url,
+            'image_url'         => $image_url,
             'last_imagecropper' => $product->last_imagecropper,
         ]);
     }
 
     public function calculateSpecialDiscount($price, $brand)
     {
-        $dis_per = BrandController::getDeductionPercentage($brand);
+        $dis_per   = BrandController::getDeductionPercentage($brand);
         $dis_price = $price - ($price * $dis_per) / 100;
 
         return round($dis_price, -3);
@@ -1998,7 +1998,7 @@ class ProductController extends Controller
     {
         try {
             $products = ProductHelper::getProducts(StatusHelper::$finalApproval, 1);
-            $product = $products->first();
+            $product  = $products->first();
             TestPushProductOnlyJob::dispatchSync($product);
 
             return Redirect::Back()->with('success', 'Push product test initiated for this product #' . $product->id . '. You can check the logs on <a href="' . route('list.magento.logging') . '">Log List Magento</a> page.');
@@ -2021,7 +2021,7 @@ class ProductController extends Controller
             try {
                 //code...
                 // Get product by ID
-                $mode = $request->get('mode', 'product-push');
+                $mode    = $request->get('mode', 'product-push');
                 $product = Product::find($id);
                 //check for hscode
                 $hsCode = $product->hsCode($product->category, $product->composition);
@@ -2030,12 +2030,12 @@ class ProductController extends Controller
                 if ($product !== null) {
                     // Dispatch the job to the queue
                     $category = $product->category;
-                    $brand = $product->brand;
+                    $brand    = $product->brand;
                     //website search
                     $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
                     if (count($websiteArrays) == 0) {
                         \Log::info('Product started ' . $product->id . ' No website found');
-                        $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
+                        $msg   = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
                         $logId = LogListMagento::log($product->id, 'No website found ' . $product->id, 'info');
                         ProductPushErrorLog::log('', $product->id, $msg, 'error', $logId->store_website_id, '', '', $logId->id);
                         $this->updateLogUserId($logId);
@@ -2048,7 +2048,7 @@ class ProductController extends Controller
                                 $log = LogListMagento::log($product->id, 'Start push to magento for product id ' . $product->id, 'info', $website->id, 'waiting');
                                 //currently we have 3 queues assigned for this task.
                                 $log->sync_status = 'waiting';
-                                $log->queue = \App\Helpers::createQueueName($website->title);
+                                $log->queue       = \App\Helpers::createQueueName($website->title);
                                 $log->save();
                                 PushToMagento::dispatch($product, $website, $log, $mode)->onQueue($log->queue);
                                 $i++;
@@ -2092,9 +2092,9 @@ class ProductController extends Controller
 
     public function unlistMagento(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product       = Product::find($id);
         $magentoHelper = new MagentoHelper;
-        $result = $magentoHelper->magentoUnlistProduct($product);
+        $result        = $magentoHelper->magentoUnlistProduct($product);
 
         return response()->json([
             'result' => $result,
@@ -2104,9 +2104,9 @@ class ProductController extends Controller
 
     public function approveMagento(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product       = Product::find($id);
         $magentoHelper = new MagentoHelper;
-        $result = $magentoHelper->magentoUpdateStatus($product);
+        $result        = $magentoHelper->magentoUpdateStatus($product);
 
         return response()->json([
             'result' => $result,
@@ -2116,9 +2116,9 @@ class ProductController extends Controller
 
     public function updateMagento(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product       = Product::find($id);
         $magentoHelper = new MagentoHelper;
-        $result = $magentoHelper->magentoProductUpdate($product);
+        $result        = $magentoHelper->magentoProductUpdate($product);
 
         return response()->json([
             'result' => $result[1],
@@ -2131,38 +2131,38 @@ class ProductController extends Controller
         $product = Product::find($request->update_product_id);
 
         //////      Update Local Product    //////
-        $product->name = $request->name;
-        $product->price = $request->price;
-        $product->price_eur_special = $request->price_eur_special;
-        $product->price_eur_discounted = $request->price_eur_discounted;
-        $product->price_inr = $request->price_inr;
-        $product->price_inr_special = $request->price_inr_special;
-        $product->price_inr_discounted = $request->price_inr_discounted;
+        $product->name                  = $request->name;
+        $product->price                 = $request->price;
+        $product->price_eur_special     = $request->price_eur_special;
+        $product->price_eur_discounted  = $request->price_eur_discounted;
+        $product->price_inr             = $request->price_inr;
+        $product->price_inr_special     = $request->price_inr_special;
+        $product->price_inr_discounted  = $request->price_inr_discounted;
         $product->measurement_size_type = $request->measurement_size_type;
-        $product->lmeasurement = $request->lmeasurement;
-        $product->hmeasurement = $request->hmeasurement;
-        $product->dmeasurement = $request->dmeasurement;
-        $product->composition = $request->composition;
-        $product->size = $request->size;
-        $product->short_description = $request->short_description;
-        $product->made_in = $request->made_in;
-        $product->brand = $request->brand;
-        $product->category = $request->category;
-        $product->supplier = $request->supplier;
-        $product->supplier_link = $request->supplier_link;
-        $product->product_link = $request->product_link;
-        $product->updated_at = time();
+        $product->lmeasurement          = $request->lmeasurement;
+        $product->hmeasurement          = $request->hmeasurement;
+        $product->dmeasurement          = $request->dmeasurement;
+        $product->composition           = $request->composition;
+        $product->size                  = $request->size;
+        $product->short_description     = $request->short_description;
+        $product->made_in               = $request->made_in;
+        $product->brand                 = $request->brand;
+        $product->category              = $request->category;
+        $product->supplier              = $request->supplier;
+        $product->supplier_link         = $request->supplier_link;
+        $product->product_link          = $request->product_link;
+        $product->updated_at            = time();
 
         if ($product->update()) {
             if ($product->status_id == 12) {
                 ///////     Update Magento Product  //////
                 $options = [
-                    'trace' => true,
+                    'trace'              => true,
                     'connection_timeout' => 120,
-                    'wsdl_cache' => WSDL_CACHE_NONE,
+                    'wsdl_cache'         => WSDL_CACHE_NONE,
                 ];
 
-                $proxy = new \SoapClient(config('magentoapi.url'), $options);
+                $proxy     = new \SoapClient(config('magentoapi.url'), $options);
                 $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
                 $sku = $product->sku . $product->color;
@@ -2171,9 +2171,9 @@ class ProductController extends Controller
                     if ($magento_product) {
                         if (! empty($product->size)) {
                             $associated_skus = [];
-                            $new_variations = 0;
-                            $sizes_array = explode(',', $product->size);
-                            $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+                            $new_variations  = 0;
+                            $sizes_array     = explode(',', $product->size);
+                            $categories      = CategoryController::getCategoryTreeMagentoIds($product->category);
 
                             //////      Add new Variations  //////
                             foreach ($sizes_array as $key2 => $size) {
@@ -2188,11 +2188,11 @@ class ProductController extends Controller
                                 if ($error_message == 'Product not exists.') {
                                     // CREATE VARIATION
                                     $productData = [
-                                        'categories' => $categories,
-                                        'name' => $product->name,
-                                        'description' => '<p></p>',
+                                        'categories'        => $categories,
+                                        'name'              => $product->name,
+                                        'description'       => '<p></p>',
                                         'short_description' => $product->short_description,
-                                        'website_ids' => [1],
+                                        'website_ids'       => [1],
                                         // Id or code of website
                                         'status' => $magento_product['status'],
                                         // 1 = Enabled, 2 = Disabled
@@ -2200,14 +2200,14 @@ class ProductController extends Controller
                                         // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
                                         'tax_class_id' => 2,
                                         // Default VAT
-                                        'weight' => 0,
+                                        'weight'     => 0,
                                         'stock_data' => [
                                             'use_config_manage_stock' => 1,
-                                            'manage_stock' => 1,
+                                            'manage_stock'            => 1,
                                         ],
                                         'price' => $product->price_eur_special,
                                         // Same price than configurable product, no price change
-                                        'special_price' => $product->price_eur_discounted,
+                                        'special_price'         => $product->price_eur_discounted,
                                         'additional_attributes' => [
                                             'single_data' => [
                                                 ['key' => 'msrp', 'value' => $product->price],
@@ -2220,7 +2220,7 @@ class ProductController extends Controller
                                         ],
                                     ];
                                     // Creation of product simple
-                                    $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
+                                    $result         = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
                                     $new_variations = 1;
                                 } else {
                                     // SIMPLE PRODUCT EXISTS
@@ -2284,16 +2284,16 @@ class ProductController extends Controller
         if ($id !== null) {
             $product = Product::find($id);
 
-            $product->is_approved = 1;
-            $product->approved_by = Auth::user()->id;
+            $product->is_approved         = 1;
+            $product->approved_by         = Auth::user()->id;
             $product->listing_approved_at = Carbon::now()->toDateTimeString();
             $product->save();
 
-            $l = new ListingHistory();
-            $l->user_id = Auth::user()->id;
+            $l             = new ListingHistory();
+            $l->user_id    = Auth::user()->id;
             $l->product_id = $product->id;
-            $l->action = 'LISTING_APPROVAL';
-            $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
+            $l->action     = 'LISTING_APPROVAL';
+            $l->content    = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
             $l->save();
 
             // once product approved the remove from the edititing list
@@ -2304,19 +2304,19 @@ class ProductController extends Controller
 
             ActivityConroller::create($product->id, 'productlister', 'create');
         } else {
-            $ids = $request->ids;
+            $ids      = $request->ids;
             $products = Product::whereIn('id', explode(',', $ids))->get();
             foreach ($products as $product) {
-                $product->is_approved = 1;
-                $product->approved_by = Auth::user()->id;
+                $product->is_approved         = 1;
+                $product->approved_by         = Auth::user()->id;
                 $product->listing_approved_at = Carbon::now()->toDateTimeString();
                 $product->save();
 
-                $l = new ListingHistory();
-                $l->user_id = Auth::user()->id;
+                $l             = new ListingHistory();
+                $l->user_id    = Auth::user()->id;
                 $l->product_id = $product->id;
-                $l->action = 'LISTING_APPROVAL';
-                $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
+                $l->action     = 'LISTING_APPROVAL';
+                $l->content    = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
                 $l->save();
 
                 // once product approved the remove from the edititing list
@@ -2336,23 +2336,23 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'result' => true,
-            'status' => 'is_approved',
+            'result'  => true,
+            'status'  => 'is_approved',
             'success' => 'Products Approved successfully',
         ]);
     }
 
     public function submitForApproval(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product         = Product::find($id);
         $product->status = StatusHelper::$submitForApproval;
         $product->save();
 
-        $l = new ListingHistory();
-        $l->user_id = Auth::user()->id;
+        $l             = new ListingHistory();
+        $l->user_id    = Auth::user()->id;
         $l->product_id = $product->id;
-        $l->action = 'SUBMIT_FOR_APPROVAL';
-        $l->content = ['action' => 'SUBMIT_FOR_APPROVAL', 'message' => 'User has submitted for approval!'];
+        $l->action     = 'SUBMIT_FOR_APPROVAL';
+        $l->content    = ['action' => 'SUBMIT_FOR_APPROVAL', 'message' => 'User has submitted for approval!'];
         $l->save();
 
         return response()->json([
@@ -2390,7 +2390,7 @@ class ProductController extends Controller
 
     public function originalCategory($id)
     {
-        $product = Product::find($id);
+        $product            = Product::find($id);
         $referencesCategory = '';
 
         if (isset($product->scraped_products)) {
@@ -2406,7 +2406,7 @@ class ProductController extends Controller
 
             if (! empty($referencesCategory)) {
                 $productSupplier = $product->supplier;
-                $supplier = Supplier::where('supplier', $productSupplier)->first();
+                $supplier        = Supplier::where('supplier', $productSupplier)->first();
                 if ($supplier && $supplier->scraper) {
                     $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
                     foreach ($scrapedProducts as $scrapedProduct) {
@@ -2434,9 +2434,9 @@ class ProductController extends Controller
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
         \App\Jobs\UpdateScrapedCategory::dispatch([
-            'product_id' => $id,
+            'product_id'  => $id,
             'category_id' => $request->category,
-            'user_id' => Auth::user()->id,
+            'user_id'     => Auth::user()->id,
         ])->onQueue('supplier_products');
 
         return response()->json(['success', 'Product category has been sent for the update']);
@@ -2461,7 +2461,7 @@ class ProductController extends Controller
 
         if ($model_type == 'broadcast-images') {
             $attachImages = true;
-            $doSelection = false;
+            $doSelection  = false;
         }
 
         if (Order::find($model_id)) {
@@ -2485,7 +2485,7 @@ class ProductController extends Controller
             $customerId = null;
         }
         $roletype = $request->input('roletype') ?? 'Sale';
-        $term = $request->input('term');
+        $term     = $request->input('term');
         if ($request->total_images) {
             $perPageLimit = $request->total_images;
         } else {
@@ -2681,7 +2681,7 @@ class ProductController extends Controller
         // brand filter count start
         $brandGroups = clone $products;
         $brandGroups = $brandGroups->groupBy('brand')->select([\DB::raw('count(id) as total_product'), 'brand'])->pluck('total_product', 'brand')->toArray();
-        $brandIds = array_values(array_filter(array_keys($brandGroups)));
+        $brandIds    = array_values(array_filter(array_keys($brandGroups)));
 
         $brandsModel = \App\Brand::whereIn('id', $brandIds)->pluck('name', 'id')->toArray();
 
@@ -2689,8 +2689,8 @@ class ProductController extends Controller
         if (! empty($brandGroups) && ! empty($brandsModel)) {
             foreach ($brandGroups as $key => $count) {
                 $countBrands[] = [
-                    'id' => $key,
-                    'name' => ! empty($brandsModel[$key]) ? $brandsModel[$key] : 'N/A',
+                    'id'    => $key,
+                    'name'  => ! empty($brandsModel[$key]) ? $brandsModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -2712,15 +2712,15 @@ class ProductController extends Controller
         // category filter start count
         $categoryGroups = clone $products;
         $categoryGroups = $categoryGroups->groupBy('category')->select([\DB::raw('count(id) as total_product'), 'category'])->pluck('total_product', 'category')->toArray();
-        $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
+        $categoryIds    = array_values(array_filter(array_keys($categoryGroups)));
 
         $categoryModel = \DB::table('categories')->whereIn('id', $categoryIds)->pluck('title', 'id')->toArray();
         $countCategory = [];
         if (! empty($categoryGroups) && ! empty($categoryModel)) {
             foreach ($categoryGroups as $key => $count) {
                 $countCategory[] = [
-                    'id' => $key,
-                    'name' => ! empty($categoryModel[$key]) ? $categoryModel[$key] : 'N/A',
+                    'id'    => $key,
+                    'name'  => ! empty($categoryModel[$key]) ? $categoryModel[$key] : 'N/A',
                     'count' => $count,
                 ];
             }
@@ -2729,7 +2729,7 @@ class ProductController extends Controller
         // suppliers filter start count/
         $suppliersGroups = clone $products;
         $all_product_ids = $suppliersGroups->pluck('id')->toArray();
-        $countSuppliers = [];
+        $countSuppliers  = [];
         if (! empty($all_product_ids)) {
             $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
                 ->where('products.id', $all_product_ids)
@@ -2737,14 +2737,14 @@ class ProductController extends Controller
                 ->select([\DB::raw('count(products.id) as total_product'), 'product_suppliers.supplier_id'])
                 ->pluck('total_product', 'supplier_id')
                 ->toArray();
-            $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
+            $suppliersIds   = array_values(array_filter(array_keys($suppliersGroups)));
             $suppliersModel = \App\Supplier::whereIn('id', $suppliersIds)->pluck('supplier', 'id')->toArray();
 
             if (! empty($suppliersGroups)) {
                 foreach ($suppliersGroups as $key => $count) {
                     $countSuppliers[] = [
-                        'id' => $key,
-                        'name' => ! empty($suppliersModel[$key]) ? $suppliersModel[$key] : 'N/A',
+                        'id'    => $key,
+                        'name'  => ! empty($suppliersModel[$key]) ? $suppliersModel[$key] : 'N/A',
                         'count' => $count,
                     ];
                 }
@@ -2785,22 +2785,22 @@ class ProductController extends Controller
             $products = $products->paginate($perPageLimit);
         }
 
-        $brand = $request->brand;
-        $products_count = $products->total();
+        $brand           = $request->brand;
+        $products_count  = $products->total();
         $all_product_ids = [];
-        $from = request('from', '');
+        $from            = request('from', '');
         if ($request->submit_type == 'send-to-approval') {
             $products_ids_cloned = clone $products;
-            $product_ids = $products_ids_cloned->pluck('id');
-            $inserted = 0;
+            $product_ids         = $products_ids_cloned->pluck('id');
+            $inserted            = 0;
             if (count($product_ids) > 0 && $customerId) {
-                $json_brands = json_encode($request->brand);
-                $json_categories = json_encode($request->category);
-                $json_supplier = json_encode($request->supplier);
-                $json_color = json_encode($request->color);
-                $json_location = json_encode($request->location);
-                $size = $request->size;
-                $suggestedProducts = new \App\SuggestedProduct;
+                $json_brands                    = json_encode($request->brand);
+                $json_categories                = json_encode($request->category);
+                $json_supplier                  = json_encode($request->supplier);
+                $json_color                     = json_encode($request->color);
+                $json_location                  = json_encode($request->location);
+                $size                           = $request->size;
+                $suggestedProducts              = new \App\SuggestedProduct;
                 $suggestedProducts->customer_id = $customerId;
                 if ($json_brands != 'null' && $json_brands != '') {
                     $suggestedProducts->brands = $json_brands;
@@ -2817,7 +2817,7 @@ class ProductController extends Controller
                 if ($json_location != 'null' && $json_location != '') {
                     $suggestedProducts->location = $json_location;
                 }
-                $suggestedProducts->size = $size;
+                $suggestedProducts->size  = $size;
                 $suggestedProducts->total = $perPageLimit;
                 $suggestedProducts->save();
                 $suggestedProductId = $suggestedProducts->id;
@@ -2830,23 +2830,23 @@ class ProductController extends Controller
                         if ($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
                                 'suggested_products_id' => $suggestedProductId,
-                                'customer_id' => $customerId,
-                                'product_id' => $id,
-                                'date' => date('Y-m-d'),
+                                'customer_id'           => $customerId,
+                                'product_id'            => $id,
+                                'date'                  => date('Y-m-d'),
                             ];
                         }
                         $category_brand_count = ErpLeads::where('category_id', $pr->category)->where('brand_id', $pr->brand)->count();
                         if ($category_brand_count === 0) {
-                            $erp_lead = new ErpLeads;
-                            $erp_lead->lead_status_id = 1;
-                            $erp_lead->customer_id = $customerId;
-                            $erp_lead->product_id = $id;
+                            $erp_lead                   = new ErpLeads;
+                            $erp_lead->lead_status_id   = 1;
+                            $erp_lead->customer_id      = $customerId;
+                            $erp_lead->product_id       = $id;
                             $erp_lead->store_website_id = 15;
-                            $erp_lead->category_id = $pr->category;
-                            $erp_lead->brand_id = $pr->brand;
-                            $erp_lead->type = 'attach-images-for-product';
-                            $erp_lead->min_price = ! empty($request->price_min) ? $request->price_min : 0;
-                            $erp_lead->max_price = ! empty($request->price_max) ? $request->price_max : 0;
+                            $erp_lead->category_id      = $pr->category;
+                            $erp_lead->brand_id         = $pr->brand;
+                            $erp_lead->type             = 'attach-images-for-product';
+                            $erp_lead->min_price        = ! empty($request->price_min) ? $request->price_min : 0;
+                            $erp_lead->max_price        = ! empty($request->price_max) ? $request->price_max : 0;
                             $erp_lead->save();
                         }
                     }
@@ -2860,10 +2860,10 @@ class ProductController extends Controller
             //
             if ($request->need_to_send_message == 1) {
                 \App\ChatMessage::create([
-                    'message' => "Total product found '" . count($product_ids) . "' for the keyword message : {$request->keyword_matched}",
+                    'message'     => "Total product found '" . count($product_ids) . "' for the keyword message : {$request->keyword_matched}",
                     'customer_id' => $model_id,
-                    'status' => 2,
-                    'approved' => 1,
+                    'status'      => 2,
+                    'approved'    => 1,
                 ]);
 
                 return ['total_product' => count($product_ids)];
@@ -2874,7 +2874,7 @@ class ProductController extends Controller
         }
 
         $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic', false);
-        $rViewMail = [];
+        $rViewMail      = [];
         if (! empty($mailEclipseTpl)) {
             foreach ($mailEclipseTpl as $mTpl) {
                 $rViewMail[$mTpl->template_slug] = $mTpl->template_name . ' [' . $mTpl->template_description . ']';
@@ -2883,16 +2883,16 @@ class ProductController extends Controller
 
         if ($request->ajax()) {
             $html = view('partials.image-load', [
-                'products' => $products,
-                'all_product_ids' => $all_product_ids,
+                'products'          => $products,
+                'all_product_ids'   => $all_product_ids,
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
-                'model_type' => $model_type,
-                'countBrands' => $countBrands,
-                'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers,
-                'customerId' => $customerId,
-                'categoryArray' => $categoryArray,
-                'rViewMail' => $rViewMail,
+                'model_type'        => $model_type,
+                'countBrands'       => $countBrands,
+                'countCategory'     => $countCategory,
+                'countSuppliers'    => $countSuppliers,
+                'customerId'        => $customerId,
+                'categoryArray'     => $categoryArray,
+                'rViewMail'         => $rViewMail,
             ])->render();
 
             if (! empty($from) && $from == 'attach-image') {
@@ -2950,7 +2950,7 @@ class ProductController extends Controller
                 $action = SaleController::attachProduct($model_id, $product_id);
                 break;
             case 'stock':
-                $stock = Stock::find($model_id);
+                $stock   = Stock::find($model_id);
                 $product = Product::find($product_id);
 
                 $stock->products()->attach($product);
@@ -2995,12 +2995,12 @@ class ProductController extends Controller
 
         $product = new Product;
 
-        $product->name = $request->name;
-        $product->sku = $request->sku;
-        $size = ! is_array($request->size) ? [$request->size] : $request->size;
-        $product->size = implode(',', $size);
-        $product->brand = $request->brand;
-        $product->color = $request->color;
+        $product->name     = $request->name;
+        $product->sku      = $request->sku;
+        $size              = ! is_array($request->size) ? [$request->size] : $request->size;
+        $product->size     = implode(',', $size);
+        $product->brand    = $request->brand;
+        $product->color    = $request->color;
         $product->supplier = $request->supplier;
         $product->location = $request->location;
         $product->category = $request->category ?? 1;
@@ -3021,8 +3021,8 @@ class ProductController extends Controller
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $deduction_percentage = $brand && $brand->deduction_percentage ? $brand->deduction_percentage : 1;
-            $product->price_inr = round($product->price_inr, -3);
+            $deduction_percentage       = $brand && $brand->deduction_percentage ? $brand->deduction_percentage : 1;
+            $product->price_inr         = round($product->price_inr, -3);
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);
@@ -3054,13 +3054,13 @@ class ProductController extends Controller
         if ($request->order_id) {
             $order_product = new OrderProduct;
 
-            $order_product->order_id = $request->order_id;
-            $order_product->sku = $request->sku;
+            $order_product->order_id      = $request->order_id;
+            $order_product->sku           = $request->sku;
             $order_product->product_price = $product->price_inr_special;
-            $order_product->size = $request->size;
-            $order_product->color = $request->color;
-            $order_product->qty = $request->quantity;
-            $order_product->product_id = $product->id;
+            $order_product->size          = $request->size;
+            $order_product->color         = $request->color;
+            $order_product->qty           = $request->quantity;
+            $order_product->product_id    = $product->id;
             $order_product->save();
 
             return response(['product' => $product, 'order' => $order_product, 'quantity' => $request->quantity, 'product_image' => $product_image]);
@@ -3106,28 +3106,28 @@ class ProductController extends Controller
     public function giveImage(Request $request)
     {
         \Log::info('crop_image_start_time: ' . date('Y-m-d H:i:s'));
-        $productId = request('product_id', null);
+        $productId  = request('product_id', null);
         $supplierId = request('supplier_id', null);
         if ($productId != null) {
             $product = Product::where('id', $productId)->first();
             if ($product) {
                 //set initial pending status for isBeingCropped
                 $scrap_status_data = [
-                    'product_id' => $product->id,
-                    'old_status' => $product->status_id,
-                    'new_status' => StatusHelper::$isBeingCropped,
+                    'product_id'     => $product->id,
+                    'old_status'     => $product->status_id,
+                    'new_status'     => StatusHelper::$isBeingCropped,
                     'pending_status' => 1,
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_at'     => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
 
                 //set initial pending status for pending products with category(attributeRejectCategory)
                 $scrap_status_data = [
-                    'product_id' => $product->id,
-                    'old_status' => $product->status_id,
-                    'new_status' => StatusHelper::$attributeRejectCategory,
+                    'product_id'     => $product->id,
+                    'old_status'     => $product->status_id,
+                    'new_status'     => StatusHelper::$attributeRejectCategory,
                     'pending_status' => 1,
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_at'     => date('Y-m-d H:i:s'),
                 ];
                 \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
             }
@@ -3155,7 +3155,7 @@ class ProductController extends Controller
                 ->select('products.*');
             // Prioritize suppliers
             $prioritizeSuppliers = "CASE WHEN brand IN (4,13,15,18,20,21,24,25,27,30,32,144,145) AND category IN (11,39,5,41,14,42,60,17,31,63) AND products.supplier IN ('G & B Negozionline', 'Tory Burch', 'Wise Boutique', 'Biffi Boutique (S.P.A.)', 'MARIA STORE', 'Lino Ricci Lei', 'Al Duca d\'Aosta', 'Tiziana Fausti', 'Leam') THEN 0 ELSE 1 END";
-            $product = $product->orderByRaw($prioritizeSuppliers);
+            $product             = $product->orderByRaw($prioritizeSuppliers);
             // Show on sale products first
             $product = $product->orderBy('is_on_sale', 'DESC');
             // Show latest approvals first
@@ -3231,17 +3231,17 @@ class ProductController extends Controller
         $category = $product->product_category;
 
         // Get other information related to category
-        $cat = $category->title;
+        $cat    = $category->title;
         $parent = '';
-        $child = '';
+        $child  = '';
         try {
             if ($cat != 'Select Category') {
                 if ($category->isParent($category->id)) {
                     $parent = $cat;
-                    $child = $cat;
+                    $child  = $cat;
                 } else {
                     $parent = $category->parent()->first()->title;
-                    $child = $cat;
+                    $child  = $cat;
                 }
             }
         } catch (\ErrorException $e) {
@@ -3262,16 +3262,16 @@ class ProductController extends Controller
                     if (! $isCropped) {
                         [$r, $g, $b] = sscanf($website->cropper_color, '#%02x%02x%02x');
                         if (! empty($r) && ! empty($g) && ! empty($b)) {
-                            $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
+                            $hexcode  = '(' . $r . ',' . $g . ',' . $b . ')';
                             $colors[] = [
-                                'code' => $hexcode,
-                                'color' => $website->cropper_color_name,
-                                'size' => $website->cropping_size,
-                                'store' => $website->title,
-                                'logo_color' => $website->logo_color,
+                                'code'              => $hexcode,
+                                'color'             => $website->cropper_color_name,
+                                'size'              => $website->cropping_size,
+                                'store'             => $website->title,
+                                'logo_color'        => $website->logo_color,
                                 'logo_border_color' => $website->logo_border_color,
-                                'text_color' => $website->text_color,
-                                'border_color' => ['color' => $website->border_color, 'thickness' => $website->border_thickness],
+                                'text_color'        => $website->text_color,
+                                'border_color'      => ['color' => $website->border_color, 'thickness' => $website->border_thickness],
                             ];
                         }
                     }
@@ -3307,19 +3307,19 @@ class ProductController extends Controller
                 $category_text = $parent . ' ' . $child;
             }
             $res = [
-                'product_id' => $product->id,
-                'image_urls' => $images,
+                'product_id'    => $product->id,
+                'image_urls'    => $images,
                 'l_measurement' => $product->lmeasurement,
                 'h_measurement' => $product->hmeasurement,
                 'd_measurement' => $product->dmeasurement,
-                'category' => $category_text,
-                'colors' => $colors,
+                'category'      => $category_text,
+                'colors'        => $colors,
             ];
 
             $http = CropImageGetRequest::create([
                 'product_id' => $product->id,
-                'request' => json_encode($request->all()),
-                'response' => json_encode($res),
+                'request'    => json_encode($request->all()),
+                'response'   => json_encode($res),
             ]);
 
             $res['token'] = $http->id;
@@ -3387,7 +3387,7 @@ class ProductController extends Controller
 
         $httpHistory = CropImageHttpRequestResponse::create([
             'crop_image_get_request_id' => $request->token,
-            'request' => json_encode($req),
+            'request'                   => json_encode($req),
         ]);
         try {
             // Find the product or fail
@@ -3395,7 +3395,7 @@ class ProductController extends Controller
 
             if (! $product) {
                 $res = [
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Unknown product with ID:' . $request->get('product_id'),
                 ];
 
@@ -3406,11 +3406,11 @@ class ProductController extends Controller
 
             //sets initial status pending for finalApproval in product status histroy
             $data = [
-                'product_id' => $product->id,
-                'old_status' => $product->status_id,
-                'new_status' => StatusHelper::$finalApproval,
+                'product_id'     => $product->id,
+                'old_status'     => $product->status_id,
+                'new_status'     => StatusHelper::$finalApproval,
                 'pending_status' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
+                'created_at'     => date('Y-m-d H:i:s'),
             ];
             \App\ProductStatusHistory::addStatusToProduct($data);
 
@@ -3420,7 +3420,7 @@ class ProductController extends Controller
 
                 //Get the last image of the product.
                 $allMediaIds = [];
-                $pMedia = $product->getMedia(config('constants.media_original_tag'));
+                $pMedia      = $product->getMedia(config('constants.media_original_tag'));
                 if (! $pMedia->isEmpty()) {
                     foreach ($pMedia as $m) {
                         $allMediaIds[] = $m->id;
@@ -3436,10 +3436,10 @@ class ProductController extends Controller
                 $colorName = null;
                 if ($request->get('color')) {
                     $colorCode = str_replace(['(', ')'], '', $request->get('color'));
-                    $rgbarr = explode(',', $colorCode, 3);
-                    $hex = sprintf('#%02x%02x%02x', $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                    $rgbarr    = explode(',', $colorCode, 3);
+                    $hex       = sprintf('#%02x%02x%02x', $rgbarr[0], $rgbarr[1], $rgbarr[2]);
                     $colorName = $hex;
-                    $tag = 'gallery_' . $hex;
+                    $tag       = 'gallery_' . $hex;
 
                     // check the store website count is existed with the total image
                     $storeWebCount = $product->getMedia($tag)->count();
@@ -3469,15 +3469,15 @@ class ProductController extends Controller
                 $product->crop_count = $product->crop_count + 1;
                 $product->save();
 
-                $imageReference = new CroppedImageReference();
-                $imageReference->original_media_id = $request->get('media_id');
-                $imageReference->new_media_id = $media->id;
+                $imageReference                      = new CroppedImageReference();
+                $imageReference->original_media_id   = $request->get('media_id');
+                $imageReference->new_media_id        = $media->id;
                 $imageReference->original_media_name = $request->get('filename');
-                $imageReference->new_media_name = $media->filename . '.' . $media->extension;
-                $imageReference->speed = $request->get('time');
-                $imageReference->product_id = $product->id;
-                $imageReference->color = $colorName;
-                $imageReference->instance_id = $request->get('instance_id');
+                $imageReference->new_media_name      = $media->filename . '.' . $media->extension;
+                $imageReference->speed               = $request->get('time');
+                $imageReference->product_id          = $product->id;
+                $imageReference->color               = $colorName;
+                $imageReference->instance_id         = $request->get('instance_id');
                 $imageReference->save();
 
                 $httpHistory->update(['cropped_image_reference_id' => $imageReference->id]);
@@ -3537,10 +3537,10 @@ class ProductController extends Controller
             return response()->json($res);
         } catch (\Exception $e) {
             $res = [
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => $e->getMessage(),
                 'line_no' => $e->getLine(),
-                'file' => $e->getFile(),
+                'file'    => $e->getFile(),
             ];
 
             $httpHistory->update(['response' => json_encode($res)]);
@@ -3559,34 +3559,34 @@ class ProductController extends Controller
     public function addListingRemarkToProduct(Request $request)
     {
         $productId = $request->get('product_id');
-        $remark = $request->get('remark');
+        $remark    = $request->get('remark');
 
         $product = Product::find($productId);
         if ($product) {
-            $product->listing_remark = $remark;
+            $product->listing_remark      = $remark;
             $product->is_listing_rejected = $request->get('rejected');
             $product->listing_rejected_by = Auth::user()->id;
-            $product->is_approved = 0;
+            $product->is_approved         = 0;
             $product->listing_rejected_on = date('Y-m-d');
             $product->save();
         }
 
         if ($request->get('senior') && $product) {
-            $s = new UserProductFeedback();
-            $s->user_id = $product->approved_by;
+            $s                 = new UserProductFeedback();
+            $s->user_id        = $product->approved_by;
             $s->senior_user_id = Auth::user()->id;
-            $s->action = 'LISTING_APPROVAL_REJECTED';
-            $s->content = ['action' => 'LISTING_APPROVAL_REJECTED', 'previous_action' => 'LISTING_APPROVAL', 'current_action' => 'LISTING_REJECTED', 'message' => 'Your listing has been rejected because of : ' . $remark];
-            $s->message = "Your listing approval has been discarded by the Admin because of this issue: $remark. Please make sure you check these details before approving any future product.";
-            $s->product_id = $product->id;
+            $s->action         = 'LISTING_APPROVAL_REJECTED';
+            $s->content        = ['action' => 'LISTING_APPROVAL_REJECTED', 'previous_action' => 'LISTING_APPROVAL', 'current_action' => 'LISTING_REJECTED', 'message' => 'Your listing has been rejected because of : ' . $remark];
+            $s->message        = "Your listing approval has been discarded by the Admin because of this issue: $remark. Please make sure you check these details before approving any future product.";
+            $s->product_id     = $product->id;
             $s->save();
         }
 
         if ($request->get('rejected') && $product) {
-            $l = new ListingHistory();
-            $l->action = 'LISTING_REJECTED';
-            $l->content = ['action' => 'LISTING_REJECTED', 'page' => 'LISTING'];
-            $l->user_id = Auth::user()->id;
+            $l             = new ListingHistory();
+            $l->action     = 'LISTING_REJECTED';
+            $l->content    = ['action' => 'LISTING_REJECTED', 'page' => 'LISTING'];
+            $l->user_id    = Auth::user()->id;
             $l->product_id = $product->id;
             $l->save();
         }
@@ -3599,20 +3599,20 @@ class ProductController extends Controller
     public function showAutoRejectedProducts()
     {
         $totalRemaining = Product::where('stock', '>=', 1)->where('is_listing_rejected_automatically', 1)->count();
-        $totalDone = Product::where('stock', '>=', 1)->where('was_auto_rejected', 1)->count();
+        $totalDone      = Product::where('stock', '>=', 1)->where('was_auto_rejected', 1)->count();
 
         return view('products.auto_rejected_stats', compact('totalDone', 'totalRemaining'));
     }
 
     public function affiliateProducts(Request $request)
     {
-        $colors = (new Colors)->all();
+        $colors        = (new Colors)->all();
         $category_tree = [];
-        $brands = Brand::all();
-        $brand = null;
-        $price = null;
-        $color = [];
-        $products = Product::where('is_without_image', 0);
+        $brands        = Brand::all();
+        $brand         = null;
+        $price         = null;
+        $color         = [];
+        $products      = Product::where('is_without_image', 0);
 
         if ($request->get('sku')) {
             $products = $products->where(function ($query) use ($request) {
@@ -3637,7 +3637,7 @@ class ProductController extends Controller
         }
 
         if ($request->get('brand') > 0) {
-            $brand = $request->get('brand');
+            $brand    = $request->get('brand');
             $products = $products->where('brand', $brand);
         }
 
@@ -3674,12 +3674,12 @@ class ProductController extends Controller
 
         if ($request->color[0] != null) {
             $products = $products->whereIn('color', $request->color);
-            $color = $request->color;
+            $color    = $request->color;
         }
 
         if ($request->get('price')[0] !== null) {
-            $price = $request->get('price');
-            $price = explode(',', $price);
+            $price    = $request->get('price');
+            $price    = explode(',', $price);
             $products = $products->whereBetween('price_inr_special', [$price[0], $price[1]]);
         }
 
@@ -3694,24 +3694,24 @@ class ProductController extends Controller
 
     public function showRejectedListedProducts(Request $request)
     {
-        $products = new Product;
-        $products = $products->where('stock', '>=', 1);
-        $reason = '';
-        $supplier = [];
+        $products            = new Product;
+        $products            = $products->where('stock', '>=', 1);
+        $reason              = '';
+        $supplier            = [];
         $selected_categories = [];
 
         if ($request->get('reason') !== '') {
-            $reason = $request->get('reason');
+            $reason   = $request->get('reason');
             $products = $products->where('listing_remark', 'LIKE', "%$reason%");
         }
 
         if ($request->get('date') !== '') {
-            $date = $request->get('date');
+            $date     = $request->get('date');
             $products = $products->where('listing_rejected_on', 'LIKE', "%$date%");
         }
 
         if ($request->get('id') !== '') {
-            $id = $request->get('id');
+            $id       = $request->get('id');
             $products = $products->where('id', $id)->orWhere('sku', 'LIKE', "%$id%");
         }
 
@@ -3765,7 +3765,7 @@ class ProductController extends Controller
                     array_push($category_children, $category);
                 }
             }
-            $products = $products->whereIn('category', $category_children);
+            $products            = $products->whereIn('category', $category_children);
             $selected_categories = [$request->get('category')[0]];
         }
         $users = User::all();
@@ -3783,7 +3783,7 @@ class ProductController extends Controller
     {
         $product = Product::find($request->get('product_id'));
         if ($product) {
-            $product->is_corrected = $request->get('is_corrected');
+            $product->is_corrected        = $request->get('is_corrected');
             $product->is_script_corrected = $request->get('is_script_corrected');
             $product->save();
         }
@@ -3809,7 +3809,7 @@ class ProductController extends Controller
                 $product->forceDelete();
             }
         } else {
-            $ids = $request->ids;
+            $ids             = $request->ids;
             $delete_products = Product::whereIn('id', explode(',', $ids))->get();
             foreach ($delete_products as $delete_product) {
                 $delete_product->deleted_at = date('Y-m-d H:i:s');
@@ -3818,7 +3818,7 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'status' => 'Products Deleted successfully',
+            'status'  => 'Products Deleted successfully',
             'success' => 'Products Deleted successfully',
         ]);
     }
@@ -3850,7 +3850,7 @@ class ProductController extends Controller
 
     public function productMultiDescriptionCheck(Request $request)
     {
-        $sku = $request->input('sku');
+        $sku          = $request->input('sku');
         $productCount = Product::where('sku', $sku)->count();
 
         return response()->json(['result' => $productCount]);
@@ -3858,7 +3858,7 @@ class ProductController extends Controller
 
     public function productMultiDescriptionSku(Request $request)
     {
-        $sku = $request->id;
+        $sku      = $request->id;
         $products = \App\ScrapedProducts::selectRaw('scraped_products.id as sid, scraped_products.sort_order as sort_order, scraped_products.description, scraped_products.brand_id, scraped_products.website as website, products.name as pname, brands.name as bname')
             ->join('products', 'scraped_products.product_id', '=', 'products.id')
             ->join('brands', 'scraped_products.brand_id', '=', 'brands.id')
@@ -3870,8 +3870,8 @@ class ProductController extends Controller
 
     public function productMultiDescriptionUpdate(Request $request)
     {
-        $updates = $request->productData;
-        $sku = $request->sku;
+        $updates   = $request->productData;
+        $sku       = $request->sku;
         $condition = $request->condition;
         foreach ($updates as $update) {
             $productId = $update['id'];
@@ -3908,9 +3908,9 @@ class ProductController extends Controller
         }
 
         // // Add the groupBy clause here
-        $supplier = Supplier::select('id', 'supplier')->get();
+        $supplier       = Supplier::select('id', 'supplier')->get();
         $products_count = $query->count();
-        $products = $query->paginate(50);
+        $products       = $query->paginate(50);
 
         return view('products.size', compact('products', 'products_count', 'request', 'supplier'));
     }
@@ -3982,29 +3982,29 @@ class ProductController extends Controller
         }
 
         $products_count = $query->count();
-        $products = $query->orderBy('product_id', 'DESC')->paginate(50);
+        $products       = $query->orderBy('product_id', 'DESC')->paginate(50);
 
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
     }
 
     public function productDescriptionUpdate(Request $request)
     {
-        $ids = $request->ids;
+        $ids  = $request->ids;
         $from = $request->from;
-        $to = $request->to;
+        $to   = $request->to;
         DescriptionChange::create([
-            'keyword' => $from,
+            'keyword'      => $from,
             'replace_with' => $to,
         ]);
         foreach ($ids as $id) {
-            $prod = ProductSupplier::where('product_id', $id)->first();
-            $description = str_replace($from, $to, $prod->description);
+            $prod              = ProductSupplier::where('product_id', $id)->first();
+            $description       = str_replace($from, $to, $prod->description);
             $prod->description = $description;
             $prod->save();
         }
 
         return response()->json([
-            'code' => 200,
+            'code'    => 200,
             'message' => 'Your request has been update successfully',
         ]);
     }
@@ -4037,10 +4037,10 @@ class ProductController extends Controller
 
         $products->getCollection()->transform(function ($getproduct) {
             $getproduct->total_count = $getproduct->productstatushistory->count();
-            $history_log = [];
-            $productstatushistory = $getproduct->productstatushistory->toArray();
+            $history_log             = [];
+            $productstatushistory    = $getproduct->productstatushistory->toArray();
             foreach ($productstatushistory as $key => $history) {
-                $history['created_at'] = Carbon::parse($history['created_at'])->format('H:i');
+                $history['created_at']               = Carbon::parse($history['created_at'])->format('H:i');
                 $history_log[$history['new_status']] = $history;
             }
             $getproduct->alllog_status = $history_log;
@@ -4054,7 +4054,7 @@ class ProductController extends Controller
 
         $dynamicColumnsToShowp = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowp = json_decode($hideColumns, true);
         }
 
@@ -4066,15 +4066,15 @@ class ProductController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'products-status-history')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'products-status-history';
-            $column->column_name = json_encode($request->column_p);
+            $column->column_name  = json_encode($request->column_p);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'products-status-history';
-            $column->column_name = json_encode($request->column_p);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_p);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -4086,7 +4086,7 @@ class ProductController extends Controller
         $products = Product::orderBy('updated_at', 'DESC');
 
         if ($request->get('status') != '') {
-            $status = $request->get('status') == 'approved' ? 1 : 0;
+            $status   = $request->get('status') == 'approved' ? 1 : 0;
             $products = $products->where('is_approved', $status);
         }
         if ($request->has('user_id') >= 1) {
@@ -4101,7 +4101,7 @@ class ProductController extends Controller
         $sku = '';
 
         if ($request->get('sku') != '') {
-            $sku = $request->get('sku');
+            $sku      = $request->get('sku');
             $products = $products->where('sku', 'LIKE', "%$sku%");
         }
 
@@ -4125,7 +4125,7 @@ class ProductController extends Controller
         }
 
         $products = $products->paginate(50);
-        $users = User::all();
+        $users    = User::all();
 
         return view('products.stats', compact('products', 'sku', 'users', 'request'));
     }
@@ -4133,11 +4133,11 @@ class ProductController extends Controller
     public function showSOP(Request $request)
     {
         $sopType = $request->get('type');
-        $sop = Sop::where('name', $sopType)->first();
+        $sop     = Sop::where('name', $sopType)->first();
 
         if (! $sop) {
-            $sop = new Sop();
-            $sop->name = $request->name;
+            $sop          = new Sop();
+            $sop->name    = $request->name;
             $sop->content = $request->content;
 
             $sop->save();
@@ -4154,11 +4154,11 @@ class ProductController extends Controller
     public function deleteImage()
     {
         $productId = request('product_id', 0);
-        $mediaId = request('media_id', 0);
+        $mediaId   = request('media_id', 0);
         $mediaType = request('media_type', 'gallery');
 
         $cond = Db::table('mediables')->where([
-            'media_id' => $mediaId,
+            'media_id'    => $mediaId,
             'mediable_id' => $productId,
             //"tag" => $mediaType,
             'mediable_type' => \App\Product::class,
@@ -4173,9 +4173,9 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-        $params = request()->all();
+        $params            = request()->all();
         $params['user_id'] = \Auth::id();
-        $params['status'] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
+        $params['status']  = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request('customer_token', '');
 
@@ -4193,7 +4193,7 @@ class ProductController extends Controller
 
         $params['customer_ids'] = $customerIds;
 
-        $groupId = \DB::table('chat_messages')->max('group_id');
+        $groupId            = \DB::table('chat_messages')->max('group_id');
         $params['group_id'] = ($groupId > 0) ? $groupId + 1 : 1;
         $params['is_queue'] = request('is_queue', 0);
 
@@ -4229,7 +4229,7 @@ class ProductController extends Controller
 
     public function createGroupSelectedCustomer(Request $request)
     {
-        $params = request()->all();
+        $params            = request()->all();
         $params['user_id'] = \Auth::id();
 
         $token = request('customer_token', '');
@@ -4249,9 +4249,9 @@ class ProductController extends Controller
         $params['customer_ids'] = $customerIds;
 
         $data = \App\MessagingGroup::create([
-            'name' => $request->name,
+            'name'             => $request->name,
             'store_website_id' => $request->store_website_id,
-            'service_id' => $request->service_id,
+            'service_id'       => $request->service_id,
         ]);
 
         $customers = \App\Customer::whereIn('id', $params['customer_ids'])->update(['store_website_id' => $params['store_website_id']]);
@@ -4273,7 +4273,11 @@ class ProductController extends Controller
      * This function is use for create suggested product log
      *
      * @param type [array] inputArray
-     * @param  Request  $request Request
+     * @param Request $request  Request
+     * @param mixed   $log
+     * @param mixed   $type
+     * @param mixed   $parentId
+     *
      * @return void;
      */
     public function createSuggestedProductLog($log = '', $type = '', $parentId = '')
@@ -4281,8 +4285,8 @@ class ProductController extends Controller
         try {
             $prod = ProductSuggestedLog::create([
                 'parent_id' => $parentId,
-                'log' => $log,
-                'type' => $type,
+                'log'       => $log,
+                'type'      => $type,
             ]);
         } catch (\Exception $e) {
             $prod = ProductSuggestedLog::create(['parent_id' => $parentId, 'log' => $e->getMessage(), 'type' => 'not catch']);
@@ -4297,16 +4301,16 @@ class ProductController extends Controller
             if ($request->is_queue == 2) {
                 return $this->sendNowCustomerAttachImages($request);
             } else {
-                $data['_token'] = $request->_token;
-                $data['send_pdf'] = $request->send_pdf;
-                $data['pdf_file_name'] = ! empty($request->pdf_file_name) ? $request->pdf_file_name : '';
-                $data['images'] = $request->images;
-                $data['image'] = $request->image;
+                $data['_token']          = $request->_token;
+                $data['send_pdf']        = $request->send_pdf;
+                $data['pdf_file_name']   = ! empty($request->pdf_file_name) ? $request->pdf_file_name : '';
+                $data['images']          = $request->images;
+                $data['image']           = $request->image;
                 $data['screenshot_path'] = $request->screenshot_path;
-                $data['message'] = $request->message;
-                $data['customer_id'] = $request->customer_id;
-                $data['status'] = $request->status;
-                $data['type'] = $request->type;
+                $data['message']         = $request->message;
+                $data['customer_id']     = $request->customer_id;
+                $data['status']          = $request->status;
+                $data['type']            = $request->type;
                 \App\Jobs\AttachImagesSend::dispatch($data)->onQueue('customer_message');
 
                 $json = request()->get('json', false);
@@ -4339,16 +4343,16 @@ class ProductController extends Controller
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                '_token' => $request->_token,
-                'send_pdf' => $request->send_pdf,
-                'pdf_file_name' => $request->pdf_file_name,
-                'images' => $request->images,
-                'image' => $request->image,
+                '_token'          => $request->_token,
+                'send_pdf'        => $request->send_pdf,
+                'pdf_file_name'   => $request->pdf_file_name,
+                'images'          => $request->images,
+                'image'           => $request->image,
                 'screenshot_path' => $request->screenshot_path,
-                'message' => $request->message,
-                'customer_id' => $request->customer_id,
-                'status' => $request->status,
-                'type' => $request->type,
+                'message'         => $request->message,
+                'customer_id'     => $request->customer_id,
+                'status'          => $request->status,
+                'type'            => $request->type,
             ]);
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
@@ -4370,14 +4374,14 @@ class ProductController extends Controller
 
     public function cropImage(Request $request)
     {
-        $id = $request->id;
-        $img = $request->img;
-        $style = $request->style;
-        $style = explode(' ', $style);
-        $name = str_replace(['scale(', ')'], '', $style[4]);
-        $newHeight = (($name * 3.333333) * 1000);
+        $id               = $request->id;
+        $img              = $request->img;
+        $style            = $request->style;
+        $style            = explode(' ', $style);
+        $name             = str_replace(['scale(', ')'], '', $style[4]);
+        $newHeight        = (($name * 3.333333) * 1000);
         [$width, $height] = getimagesize($img);
-        $thumb = imagecreatetruecolor($newHeight, $newHeight);
+        $thumb            = imagecreatetruecolor($newHeight, $newHeight);
         try {
             $source = imagecreatefromjpeg($img);
         } catch (\Exception $e) {
@@ -4387,7 +4391,7 @@ class ProductController extends Controller
         // Resize
         imagecopyresized($thumb, $source, 0, 0, 0, 0, $newHeight, $newHeight, $width, $height);
 
-        $thumbWidth = imagesx($thumb);
+        $thumbWidth  = imagesx($thumb);
         $thumbHeight = imagesy($thumb);
 
         $canvasImage = imagecreatetruecolor(1000, 1000); // Creates a black image
@@ -4397,7 +4401,7 @@ class ProductController extends Controller
         imagefill($canvasImage, 0, 0, $gray);
 
         imagecopy($canvasImage, $thumb, (1000 - $thumbWidth) / 2, (1000 - $thumbHeight) / 2, 0, 0, $thumbWidth, $thumbHeight);
-        $url = config('env.APP_URL');
+        $url  = config('env.APP_URL');
         $path = str_replace($url, '', $img);
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
@@ -4418,16 +4422,16 @@ class ProductController extends Controller
                         $childCategory = implode(' > ', $categoryTree);
                     }
 
-                    $cat = Category::findOrFail($request->category[0]);
+                    $cat            = Category::findOrFail($request->category[0]);
                     $parentCategory = $cat->title;
 
                     if ($product->composition != null) {
                         if ($request->group == 'on') {
-                            $composition = strip_tags($product->composition);
+                            $composition    = strip_tags($product->composition);
                             $compositions[] = str_replace(['&nbsp;', '/span>'], ' ', $composition);
                         } else {
                             if ($product->isGroupExist($product->category, $product->composition, $parentCategory, $childCategory)) {
-                                $composition = strip_tags($product->composition);
+                                $composition    = strip_tags($product->composition);
                                 $compositions[] = str_replace(['&nbsp;', '/span>'], ' ', $composition);
                             }
                         }
@@ -4435,51 +4439,51 @@ class ProductController extends Controller
                 }
             }
             if (! isset($compositions)) {
-                $compositions = [];
-                $childCategory = '';
+                $compositions   = [];
+                $childCategory  = '';
                 $parentCategory = '';
             }
-            $keyword = $request->keyword;
+            $keyword       = $request->keyword;
             $groupSelected = $request->group;
         } else {
-            $keyword = '';
-            $compositions = [];
-            $childCategory = '';
+            $keyword        = '';
+            $compositions   = [];
+            $childCategory  = '';
             $parentCategory = '';
-            $groupSelected = '';
+            $groupSelected  = '';
         }
         $selected_categories = $request->category ? $request->category : 1;
 
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple2', 'id' => 'category_value'])
             ->selected($selected_categories)
             ->renderAsDropdown();
-        $hscodes = SimplyDutyCategory::all();
-        $categories = Category::all();
-        $groups = HsCodeGroup::all();
-        $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
-        $pendingCategory = Category::all()->except($cate);
+        $hscodes              = SimplyDutyCategory::all();
+        $categories           = Category::all();
+        $groups               = HsCodeGroup::all();
+        $cate                 = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $pendingCategory      = Category::all()->except($cate);
         $pendingCategoryCount = $pendingCategory->count();
-        $setting = HsCodeSetting::first();
-        $countries = SimplyDutyCountry::all();
+        $setting              = HsCodeSetting::first();
+        $countries            = SimplyDutyCountry::all();
 
         return view('products.hscode', compact('keyword', 'compositions', 'childCategory', 'parentCategory', 'category_selection', 'hscodes', 'categories', 'groups', 'groupSelected', 'pendingCategoryCount', 'setting', 'countries'));
     }
 
     public function saveGroupHsCode(Request $request)
     {
-        $name = $request->name;
+        $name         = $request->name;
         $compositions = $request->compositions;
-        $key = HsCodeSetting::first();
+        $key          = HsCodeSetting::first();
         if ($key == null) {
             return response()->json(['Please Update the Hscode Setting']);
         }
-        $api = $key->key;
-        $fromCountry = $key->from_country;
+        $api                = $key->key;
+        $fromCountry        = $key->from_country;
         $destinationCountry = $key->destination_country;
         if ($api == null || $fromCountry == null || $destinationCountry == null) {
             return response()->json(['Please Update the Hscode Setting']);
         }
-        $category = Category::select('id', 'title')->where('id', $request->category)->first();
+        $category   = Category::select('id', 'title')->where('id', $request->category)->first();
         $categoryId = $category->id;
 
         if ($request->composition) {
@@ -4497,8 +4501,8 @@ class ProductController extends Controller
         $hscodeSearchString = urlencode($hscodeSearchString);
 
         $searchString = 'https://www.api.simplyduty.com/api/classification/get-hscode?APIKey=' . $api . '&fullDescription=' . $hscodeSearchString . '&originCountry=' . $fromCountry . '&destinationCountry=' . $destinationCountry . '&getduty=false';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $startTime    = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch           = curl_init();
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $searchString);
@@ -4507,7 +4511,7 @@ class ProductController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $searchString, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\ProductController::class, 'saveGroupHsCode');
 
@@ -4520,17 +4524,17 @@ class ProductController extends Controller
             return response()->json(['error' => 'Something is wrong with the API. Please check the balance.']);
         } else {
             if ($categories->HSCode != null) {
-                $hscode = new HsCode();
-                $hscode->code = $categories->HSCode;
+                $hscode              = new HsCode();
+                $hscode->code        = $categories->HSCode;
                 $hscode->description = urldecode($hscodeSearchString);
                 $hscode->save();
 
                 if ($request->existing_group != null) {
                     $group = HsCodeGroup::find($request->existing_group);
                 } else {
-                    $group = new HsCodeGroup();
-                    $group->hs_code_id = $hscode->id;
-                    $group->name = $name . ' > ' . $category->title;
+                    $group              = new HsCodeGroup();
+                    $group->hs_code_id  = $hscode->id;
+                    $group->name        = $name . ' > ' . $category->title;
                     $group->composition = $request->composition;
                     $group->save();
                 }
@@ -4538,10 +4542,10 @@ class ProductController extends Controller
                 $id = $group->id;
                 if ($request->compositions) {
                     foreach ($compositions as $composition) {
-                        $comp = new HsCodeGroupsCategoriesComposition();
+                        $comp                   = new HsCodeGroupsCategoriesComposition();
                         $comp->hs_code_group_id = $id;
-                        $comp->category_id = $categoryId;
-                        $comp->composition = $composition;
+                        $comp->category_id      = $categoryId;
+                        $comp->composition      = $composition;
                         $comp->save();
                     }
                 }
@@ -4553,9 +4557,9 @@ class ProductController extends Controller
 
     public function editGroup(Request $request)
     {
-        $group = HsCodeGroup::find($request->id);
-        $group->hs_code_id = $request->hscode;
-        $group->name = $request->name;
+        $group              = HsCodeGroup::find($request->id);
+        $group->hs_code_id  = $request->hscode;
+        $group->name        = $request->name;
         $group->composition = $request->composition;
         $group->save();
 
@@ -4564,10 +4568,10 @@ class ProductController extends Controller
 
     public function productTranslation(Request $request)
     {
-        $term = $request->term;
-        $language = $request->language;
+        $term        = $request->term;
+        $language    = $request->language;
         $is_rejected = $request->input('is_rejected', '0');
-        $query = new Product_translation();
+        $query       = new Product_translation();
         if (! empty($term)) {
             $query = $query->where(function ($q) use ($request) {
                 $q->where('title', 'LIKE', '%' . $request->term . '%')
@@ -4609,7 +4613,7 @@ class ProductController extends Controller
     {
         $this->validate($request, [
             'locale' => 'sometimes|nullable|string|max:255',
-            'code' => 'required',
+            'code'   => 'required',
         ]);
 
         $data = $request->except('_token');
@@ -4622,33 +4626,33 @@ class ProductController extends Controller
 
     public function productTranslationRejection(Request $request)
     {
-        $product_translation = Product_translation::find($request->product_translation_id);
+        $product_translation              = Product_translation::find($request->product_translation_id);
         $product_translation->is_rejected = $request->value;
         $product_translation->save();
-        $product_translation_history = new ProductTranslationHistory;
-        $product_translation_history->is_rejected = $request->value;
-        $product_translation_history->user_id = Auth::user()->id;
+        $product_translation_history                         = new ProductTranslationHistory;
+        $product_translation_history->is_rejected            = $request->value;
+        $product_translation_history->user_id                = Auth::user()->id;
         $product_translation_history->product_translation_id = $request->product_translation_id;
         $product_translation_history->save();
 
         return response()->json([
             'message' => 'Rejected Successfully',
-            'value' => $request->value,
+            'value'   => $request->value,
         ]);
     }
 
     public function viewProductTranslation($id)
     {
-        $locales = Product_translation::groupBy('locale')->pluck('locale');
-        $languages = Language::get();
-        $sites = StoreWebsite::get();
+        $locales             = Product_translation::groupBy('locale')->pluck('locale');
+        $languages           = Language::get();
+        $sites               = StoreWebsite::get();
         $product_translation = Product_translation::find($id);
 
         return view('products.translations.view-or-edit', [
             'product_translation' => $product_translation,
-            'locales' => $locales,
-            'sites' => $sites,
-            'languages' => $languages,
+            'locales'             => $locales,
+            'sites'               => $sites,
+            'languages'           => $languages,
         ]);
     }
 
@@ -4665,11 +4669,11 @@ class ProductController extends Controller
     {
         Product_translation::where('id', $id)->update(['locale' => $request->language, 'title' => $request->title, 'description' => $request->description, 'site_id' => $request->site_id]);
         ProductTranslationHistory::insert([
-            'user_id' => Auth::user()->id,
+            'user_id'                => Auth::user()->id,
             'product_translation_id' => $id,
-            'locale' => $request->language,
-            'title' => $request->title,
-            'description' => $request->description,
+            'locale'                 => $request->language,
+            'title'                  => $request->title,
+            'description'            => $request->description,
         ]);
 
         return response()->json([
@@ -4679,15 +4683,15 @@ class ProductController extends Controller
 
     public function published(Request $request)
     {
-        $id = $request->get('id');
+        $id      = $request->get('id');
         $website = $request->get('website', []);
 
         \App\WebsiteProduct::where('product_id', $id)->delete();
 
         if (! empty($website)) {
             foreach ($website as $web) {
-                $website = new \App\WebsiteProduct;
-                $website->product_id = $id;
+                $website                   = new \App\WebsiteProduct;
+                $website->product_id       = $id;
                 $website->store_website_id = $web;
                 $website->save();
             }
@@ -4698,7 +4702,7 @@ class ProductController extends Controller
 
     public function originalColor($id)
     {
-        $product = Product::find($id);
+        $product         = Product::find($id);
         $referencesColor = '';
         if (isset($product->scraped_products)) {
             // starting to see that howmany color we going to update
@@ -4725,7 +4729,7 @@ class ProductController extends Controller
 
             if (! empty($referencesColor)) {
                 $productSupplier = $product->supplier;
-                $supplier = Supplier::where('supplier', $productSupplier)->first();
+                $supplier        = Supplier::where('supplier', $productSupplier)->first();
                 if ($supplier && $supplier->scraper) {
                     $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
                     foreach ($scrapedProducts as $scrapedProduct) {
@@ -4760,8 +4764,8 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedColor::dispatch([
             'product_id' => $id,
-            'color' => $request->color,
-            'user_id' => \Auth::user()->id,
+            'color'      => $request->color,
+            'user_id'    => \Auth::user()->id,
         ])->onQueue('supplier_products');
 
         return response()->json(['success', 'Product color has been sent for the update']);
@@ -4774,12 +4778,12 @@ class ProductController extends Controller
             foreach ($websites as $website) {
                 $storeWebsitePA = \App\StoreWebsiteProductAttribute::where('product_id', $request->product_id)->where('store_website_id', $website)->first();
                 if (! $storeWebsitePA) {
-                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
-                    $storeWebsitePA->product_id = $request->product_id;
+                    $storeWebsitePA                   = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id       = $request->product_id;
                     $storeWebsitePA->store_website_id = $website;
                 }
                 $storeWebsitePA->store_website_id = $website;
-                $storeWebsitePA->description = $request->description;
+                $storeWebsitePA->description      = $request->description;
                 $storeWebsitePA->save();
 
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Store website description stored successfully']);
@@ -4805,12 +4809,12 @@ class ProductController extends Controller
     {
         $limit = $request->get('no_of_product', config('constants.no_of_product'));
         // Mode($mode) defines the whether it's a condition check or product push.
-        $mode = $request->get('mode', config('constants.mode'));
+        $mode     = $request->get('mode', config('constants.mode'));
         $products = ProductHelper::getProducts(StatusHelper::$finalApproval, $limit);
         \Log::info('Product push star time: ' . date('Y-m-d H:i:s'));
         $no_of_product = count($products);
         foreach ($products as $key => $product) {
-            $details = [];
+            $details                  = [];
             $details['product_index'] = ($key) + 1;
             $details['no_of_product'] = $no_of_product;
 
@@ -4835,7 +4839,7 @@ class ProductController extends Controller
 
         $no_of_product = count($products);
         foreach ($products as $key => $product) {
-            $details = [];
+            $details                  = [];
             $details['product_index'] = ($key) + 1;
             $details['no_of_product'] = $no_of_product;
             Flow2ConditionCheckProductOnly::dispatch($product, $details)->onQueue('conditioncheckonly');
@@ -4853,8 +4857,8 @@ class ProductController extends Controller
      */
     public function pushProductsToMagento(Request $request)
     {
-        $mode = 'product-push';
-        $limit = $request->get('no_of_product', config('constants.no_of_product'));
+        $mode     = 'product-push';
+        $limit    = $request->get('no_of_product', config('constants.no_of_product'));
         $products = ProductHelper::getProducts(StatusHelper::$productConditionsChecked, $limit);
         if ($products->count() == 0) {
             return response()->json(['code' => 500, 'message' => 'No products found!']);
@@ -4862,7 +4866,7 @@ class ProductController extends Controller
 
         $no_of_product = count($products);
         foreach ($products as $key => $product) {
-            $details = [];
+            $details                  = [];
             $details['product_index'] = ($key) + 1;
             $details['no_of_product'] = $no_of_product;
 
@@ -4947,8 +4951,8 @@ class ProductController extends Controller
 
     public function assignProduct(Request $request)
     {
-        $category = $request->category;
-        $brand = $request->brand;
+        $category    = $request->category;
+        $brand       = $request->brand;
         $assigned_to = $request->assigned_to;
         if (! $assigned_to) {
             return response()->json(['message' => 'Select one user'], 500);
@@ -4963,11 +4967,11 @@ class ProductController extends Controller
             $product->update(['assigned_to' => $assigned_to]);
         }
 
-        $data['assign_from'] = Auth::id();
+        $data['assign_from']  = Auth::id();
         $data['is_statutory'] = 2;
         $data['task_details'] = 'Final Approval Assignment';
         $data['task_subject'] = 'Final Approval Assignment';
-        $data['assign_to'] = $assigned_to;
+        $data['assign_to']    = $assigned_to;
 
         $task = Task::create($data);
         if (! empty($task)) {
@@ -4981,14 +4985,14 @@ class ProductController extends Controller
         }
 
         $params = [
-            'number' => null,
-            'user_id' => Auth::id(),
+            'number'   => null,
+            'user_id'  => Auth::id(),
             'approved' => 1,
-            'status' => 2,
-            'task_id' => $task->id,
-            'message' => $message,
+            'status'   => 2,
+            'task_id'  => $task->id,
+            'message'  => $message,
         ];
-        $user = User::find($assigned_to);
+        $user               = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
@@ -5007,7 +5011,7 @@ class ProductController extends Controller
     public function assignProductNoWise(Request $request)
     {
         $no_of_product_assign = $request->get('no_of_product_assign', 0);
-        $assigned_to = $request->assigned_to;
+        $assigned_to          = $request->assigned_to;
         if (! $assigned_to) {
             return redirect()->back()->withErrors('Select one user');
         }
@@ -5028,11 +5032,11 @@ class ProductController extends Controller
             $product->update(['assigned_to' => $assigned_to]);
         }
 
-        $data['assign_from'] = Auth::id();
+        $data['assign_from']  = Auth::id();
         $data['is_statutory'] = 2;
         $data['task_details'] = 'Final Approval Assignment';
         $data['task_subject'] = 'Final Approval Assignment';
-        $data['assign_to'] = $assigned_to;
+        $data['assign_to']    = $assigned_to;
 
         $task = Task::create($data);
         if (! empty($task)) {
@@ -5046,15 +5050,15 @@ class ProductController extends Controller
         }
 
         $params = [
-            'number' => null,
-            'user_id' => Auth::id(),
+            'number'   => null,
+            'user_id'  => Auth::id(),
             'approved' => 1,
-            'status' => 2,
-            'task_id' => $task->id,
-            'message' => $message,
+            'status'   => 2,
+            'task_id'  => $task->id,
+            'message'  => $message,
         ];
 
-        $user = User::find($assigned_to);
+        $user               = User::find($assigned_to);
         $params['erp_user'] = $assigned_to;
         app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
 
@@ -5171,18 +5175,18 @@ class ProductController extends Controller
     public function createTemplate(Request $request)
     {
         $this->validate($request, [
-            'template_no' => 'required',
+            'template_no'      => 'required',
             'product_media_id' => 'required',
-            'background' => 'required',
-            'text' => 'required',
+            'background'       => 'required',
+            'text'             => 'required',
         ]);
 
-        $product_media_id = explode(',', $request->product_media_id);
-        $template = new \App\ProductTemplate;
-        $template->template_no = $request->template_no;
-        $template->text = $request->text;
+        $product_media_id           = explode(',', $request->product_media_id);
+        $template                   = new \App\ProductTemplate;
+        $template->template_no      = $request->template_no;
+        $template->text             = $request->text;
         $template->background_color = $request->background;
-        $template->template_status = 'python';
+        $template->template_status  = 'python';
 
         if ($template->save()) {
             if (! empty($request->get('product_media_id')) && is_array($request->get('product_media_id'))) {
@@ -5203,12 +5207,14 @@ class ProductController extends Controller
     /**
      * This funcrtion is use for delete product suggested
      *
+     * @param mixed $ids
+     *
      * @return JsonResponse
      */
     public function deleteSuggestedProduct(Request $request, $ids = '')
     {
         try {
-            $idArr = explode(',', $request->ids);
+            $idArr   = explode(',', $request->ids);
             $sugProd = \App\SuggestedProduct::whereIn('id', $idArr)->delete();
             if ($sugProd != 0) {
                 return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);
@@ -5277,7 +5283,7 @@ class ProductController extends Controller
 
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
-        $term = $request->input('term');
+        $term     = $request->input('term');
         if ($request->total_images) {
             $perPageLimit = $request->total_images;
         } else {
@@ -5312,7 +5318,7 @@ class ProductController extends Controller
             });
         }
 
-        $loggedInUser = auth()->user();
+        $loggedInUser        = auth()->user();
         $isInCustomerService = $loggedInUser->isInCustomerService();
         if ($isInCustomerService) {
             $suggestedProducts = $suggestedProducts->where('c.user_id', $loggedInUser->id);
@@ -5345,28 +5351,28 @@ class ProductController extends Controller
 
         $templateArr = \App\Template::all();
 
-        $all_product_ids = [];
-        $model_type = 'customer';
-        $countBrands = 0;
-        $countCategory = 0;
-        $countSuppliers = 0;
-        $categoryArray = [];
-        $from = '';
-        $products_count = 0;
+        $all_product_ids   = [];
+        $model_type        = 'customer';
+        $countBrands       = 0;
+        $countCategory     = 0;
+        $countSuppliers    = 0;
+        $categoryArray     = [];
+        $from              = '';
+        $products_count    = 0;
         $selected_products = [];
-        $brand = $request->brand;
+        $brand             = $request->brand;
         if ($request->ajax()) {
             $html = view('partials.attached-image-load', [
                 'suggestedProducts' => $suggestedProducts,
-                'all_product_ids' => $all_product_ids,
-                'brand' => $brand,
+                'all_product_ids'   => $all_product_ids,
+                'brand'             => $brand,
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
-                'model_type' => $model_type,
-                'countBrands' => $countBrands,
-                'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers,
-                'customerId' => $customerId,
-                'categoryArray' => $categoryArray,
+                'model_type'        => $model_type,
+                'countBrands'       => $countBrands,
+                'countCategory'     => $countCategory,
+                'countSuppliers'    => $countSuppliers,
+                'customerId'        => $customerId,
+                'categoryArray'     => $categoryArray,
             ])->render();
             if (! empty($from) && $from == 'attach-image') {
                 return $html;
@@ -5385,7 +5391,7 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
-        $customers = \App\Customer::pluck('name', 'id');
+        $customers         = \App\Customer::pluck('name', 'id');
 
         return view('partials.attached-image-grid', compact(
             'suggestedProducts', 'templateArr', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term', 'customers'
@@ -5448,11 +5454,11 @@ class ProductController extends Controller
     public function attachMoreProducts($suggested_products_id)
     {
         $lastSuggestion = \App\SuggestedProduct::where('id', $suggested_products_id)->orderBy('created_at', 'desc')->first();
-        $customerId = $lastSuggestion->customer_id;
-        $brands = [];
-        $categories = [];
-        $term = '';
-        $limit = 10;
+        $customerId     = $lastSuggestion->customer_id;
+        $brands         = [];
+        $categories     = [];
+        $term           = '';
+        $limit          = 10;
         if ($lastSuggestion) {
             if ($lastSuggestion->brands) {
                 $brands = json_decode($lastSuggestion->brands);
@@ -5460,7 +5466,7 @@ class ProductController extends Controller
             if ($lastSuggestion->categories) {
                 $categories = json_decode($lastSuggestion->categories);
             }
-            $term = $lastSuggestion->keyword;
+            $term  = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
         $remove_ids = \App\SuggestedProductList::where('suggested_products_id', $suggested_products_id)->pluck('product_id as id');
@@ -5542,9 +5548,9 @@ class ProductController extends Controller
                     if ($pr->hasMedia(config('constants.attach_image_tag'))) {
                         $data_to_insert[] = [
                             'suggested_products_id' => $suggested_products_id,
-                            'customer_id' => $customerId,
-                            'product_id' => $product->id,
-                            'date' => date('Y-m-d'),
+                            'customer_id'           => $customerId,
+                            'product_id'            => $product->id,
+                            'date'                  => date('Y-m-d'),
                         ];
                     }
                 }
@@ -5569,7 +5575,7 @@ class ProductController extends Controller
             }
         }
         $roletype = $request->input('roletype') ?? 'Sale';
-        $term = $request->input('term');
+        $term     = $request->input('term');
         if ($request->total_images) {
             $perPageLimit = $request->total_images;
         } else {
@@ -5617,28 +5623,28 @@ class ProductController extends Controller
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        $all_product_ids = [];
-        $model_type = 'customer';
-        $countBrands = 0;
-        $countCategory = 0;
-        $countSuppliers = 0;
-        $categoryArray = [];
-        $from = '';
-        $products_count = 0;
+        $all_product_ids   = [];
+        $model_type        = 'customer';
+        $countBrands       = 0;
+        $countCategory     = 0;
+        $countSuppliers    = 0;
+        $categoryArray     = [];
+        $from              = '';
+        $products_count    = 0;
         $selected_products = [];
-        $brand = $request->brand;
+        $brand             = $request->brand;
         if ($request->ajax()) {
             $html = view('partials.suggested-image-load', [
                 'suggestedProducts' => $suggestedProducts,
-                'all_product_ids' => $all_product_ids,
+                'all_product_ids'   => $all_product_ids,
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
-                'model_type' => $model_type,
-                'countBrands' => $countBrands,
-                'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers,
-                'customerId' => $customerId,
-                'categoryArray' => $categoryArray,
-                'brand' => $brand,
+                'model_type'        => $model_type,
+                'countBrands'       => $countBrands,
+                'countCategory'     => $countCategory,
+                'countSuppliers'    => $countSuppliers,
+                'customerId'        => $customerId,
+                'categoryArray'     => $categoryArray,
+                'brand'             => $brand,
             ])->render();
 
             if (! empty($from) && $from == 'attach-image') {
@@ -5733,30 +5739,30 @@ class ProductController extends Controller
         }
 
         $products = json_decode($request->products, true);
-        $total = count($products);
+        $total    = count($products);
 
         if ($suggestedProducts) {
             $suggestedProducts->touch();
             $new_suggestedproductid = $suggestedProducts->id;
         } else {
-            $suggestedProducts = new \App\SuggestedProduct;
+            $suggestedProducts              = new \App\SuggestedProduct;
             $suggestedProducts->customer_id = $customerId;
-            $suggestedProducts->total = $total;
+            $suggestedProducts->total       = $total;
             $suggestedProducts->save();
             $new_suggestedproductid = $suggestedProducts->id;
         }
 
-        $listIds = json_decode($request->products, true);
+        $listIds        = json_decode($request->products, true);
         $data_to_insert = [];
-        $inserted = 0;
+        $inserted       = 0;
 
         if (! empty($listIds) && is_array($listIds)) {
             foreach ($listIds as $listedImage) {
-                $productList = \App\SuggestedProductList::find($listedImage);
-                $product = Product::find($productList->product_id);
+                $productList  = \App\SuggestedProductList::find($listedImage);
+                $product      = Product::find($productList->product_id);
                 $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
-                $image_key = $imageDetails->getKey();
-                $media = Media::find($image_key);
+                $image_key    = $imageDetails->getKey();
+                $media        = Media::find($image_key);
                 if ($media) {
                     $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', \App\Product::class)->first();
                     if ($mediable) {
@@ -5766,9 +5772,9 @@ class ProductController extends Controller
                             if ($pr->hasMedia(config('constants.attach_image_tag'))) {
                                 $data_to_insert[] = [
                                     'suggested_products_id' => $new_suggestedproductid,
-                                    'customer_id' => $customerId,
-                                    'product_id' => $mediable->mediable_id,
-                                    'date' => date('Y-m-d'),
+                                    'customer_id'           => $customerId,
+                                    'product_id'            => $mediable->mediable_id,
+                                    'date'                  => date('Y-m-d'),
                                 ];
                             }
                         }
@@ -5782,16 +5788,16 @@ class ProductController extends Controller
             }
 
             if ($request->type == 'forward') {
-                $data['_token'] = $request->_token;
-                $data['send_pdf'] = 0;
-                $data['pdf_file_name'] = '';
-                $data['images'] = $request->products;
-                $data['image'] = null;
+                $data['_token']          = $request->_token;
+                $data['send_pdf']        = 0;
+                $data['pdf_file_name']   = '';
+                $data['images']          = $request->products;
+                $data['image']           = null;
                 $data['screenshot_path'] = null;
-                $data['message'] = null;
-                $data['customer_id'] = $customerId;
-                $data['status'] = 2;
-                $data['type'] = 'customer-attach';
+                $data['message']         = null;
+                $data['customer_id']     = $customerId;
+                $data['status']          = 2;
+                $data['type']            = 'customer-attach';
                 \App\Jobs\AttachImagesSend::dispatch($data)->onQueue('customer_message');
             }
         }
@@ -5803,20 +5809,20 @@ class ProductController extends Controller
     public function resendProducts($suggestedproductid, Request $request)
     {
         $suggestedProducts = \App\SuggestedProduct::where('id', $suggestedproductid)->orderBy('created_at', 'desc')->first();
-        $customer_id = $suggestedProducts->customer_id;
-        $products = json_decode($request->products, true);
+        $customer_id       = $suggestedProducts->customer_id;
+        $products          = json_decode($request->products, true);
         $suggestedProducts->touch();
 
-        $data['_token'] = $request->_token;
-        $data['send_pdf'] = 0;
-        $data['pdf_file_name'] = '';
-        $data['images'] = $request->products;
-        $data['image'] = null;
+        $data['_token']          = $request->_token;
+        $data['send_pdf']        = 0;
+        $data['pdf_file_name']   = '';
+        $data['images']          = $request->products;
+        $data['image']           = null;
         $data['screenshot_path'] = null;
-        $data['message'] = null;
-        $data['customer_id'] = $customer_id;
-        $data['status'] = 2;
-        $data['type'] = 'customer-attach';
+        $data['message']         = null;
+        $data['customer_id']     = $customer_id;
+        $data['status']          = 2;
+        $data['type']            = 'customer-attach';
         \App\Jobs\AttachImagesSend::dispatch($data)->onQueue('customer_message');
         $msg = ' Images Resend successfully';
 
@@ -5915,7 +5921,7 @@ class ProductController extends Controller
             $suggestion->products = $products->select('products.*', 'suggested_product_lists.created_at as sort', 'suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
         }
         $selected_products = [];
-        $model_type = 'customer';
+        $model_type        = 'customer';
         if ($type == 'attach') {
             return view('partials.attached-image-products', compact('productsLists', 'customer_id', 'selected_products', 'model_type', 'suggested_products_id', 'customer', 'suggestedProductsLists'));
         } else {
@@ -5929,22 +5935,22 @@ class ProductController extends Controller
 
         $group = \App\QuickSellGroup::orderBy('id', 'desc')->first();
         if ($group != null) {
-            $group_create = new \App\QuickSellGroup();
-            $incrementId = ($group->group + 1);
+            $group_create        = new \App\QuickSellGroup();
+            $incrementId         = ($group->group + 1);
             $group_create->group = $incrementId;
-            $group_create->name = $post['groupName'];
+            $group_create->name  = $post['groupName'];
             $group_create->save();
             $group_id = $group_create->group;
         } else {
-            $group = new \App\QuickSellGroup();
+            $group        = new \App\QuickSellGroup();
             $group->group = 1;
-            $group->name = $post['groupName'];
+            $group->name  = $post['groupName'];
             $group->save();
             $group_id = $group->group;
         }
         foreach ($request->products as $id) {
-            $group = new \App\ProductQuicksellGroup();
-            $group->product_id = $id;
+            $group                     = new \App\ProductQuicksellGroup();
+            $group->product_id         = $id;
             $group->quicksell_group_id = $group_id;
             $group->save();
         }
@@ -5958,10 +5964,10 @@ class ProductController extends Controller
         $product = Product::where('id', $request->productid)->first();
         if ($product !== null) {
             $image = $product->getMedia(config('constants.attach_image_tag'))->first();
-            $data = [
-                'title' => $product->name,
-                'url' => getMediaUrl($image),
-                'amount' => $product->price,
+            $data  = [
+                'title'       => $product->name,
+                'url'         => getMediaUrl($image),
+                'amount'      => $product->price,
                 'description' => $product->short_description,
             ];
         } else {
@@ -5983,7 +5989,7 @@ class ProductController extends Controller
         $customers = \App\Customer::find($def_cust_id);
 
         $statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
-        $nextId = 0;
+        $nextId    = 0;
         if (! empty($statement)) {
             $nextId = $statement[0]->Auto_increment;
         }
@@ -5992,8 +5998,8 @@ class ProductController extends Controller
 
         $order_data = [
             'customer_id' => $def_cust_id,
-            'order_id' => $order_id,
-            'order_date' => date('Y-m-d'),
+            'order_id'    => $order_id,
+            'order_date'  => date('Y-m-d'),
             'client_name' => $customers->name,
         ];
         $order = Order::create($order_data);
@@ -6001,9 +6007,9 @@ class ProductController extends Controller
         $order_id = $order->id;
 
         $orderproduct_data = [
-            'order_id' => $order_id,
-            'sku' => $product->sku,
-            'product_id' => $product->id,
+            'order_id'      => $order_id,
+            'sku'           => $product->sku,
+            'product_id'    => $product->id,
             'product_price' => $product->price,
         ];
 
@@ -6031,7 +6037,7 @@ class ProductController extends Controller
     {
         $productId = $request->get('product_id');
         if ($productId > 0) {
-            $websites = \App\Helpers\ProductHelper::getStoreWebsiteName($productId);
+            $websites     = \App\Helpers\ProductHelper::getStoreWebsiteName($productId);
             $websitesList = \App\StoreWebsite::whereIn('id', $websites)->get();
             if (! $websitesList->isEmpty()) {
                 return response()->json(['code' => 200, 'data' => $websitesList]);
@@ -6078,10 +6084,10 @@ class ProductController extends Controller
             $products->where('products.brand', $request->brand);
         }
         $products->orderBy('created_at', 'desc');
-        $products = $products->paginate(Setting::get('pagination'));
-        $websiteList = \App\StoreWebsite::get();
+        $products     = $products->paginate(Setting::get('pagination'));
+        $websiteList  = \App\StoreWebsite::get();
         $categoryList = \App\Category::all();
-        $brandList = \App\Brand::get();
+        $brandList    = \App\Brand::get();
 
         return view('products.pushproductlist', compact('products', 'categoryList', 'brandList', 'websiteList'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
@@ -6120,11 +6126,11 @@ class ProductController extends Controller
             } elseif ($request->si_status == 4) {
                 $images = $images->where('manually_approve_flag', 1);
             } else {
-                $images = $images->where('si_status', 1);
+                $images   = $images->where('si_status', 1);
                 $checking = 1;
             }
         } else {
-            $images = $images->where('si_status', 1);
+            $images   = $images->where('si_status', 1);
             $checking = 1;
         }
 
@@ -6146,8 +6152,8 @@ class ProductController extends Controller
             $viewpath = 'products.scrapper_listing_image_ajax';
 
             return view($viewpath, [
-                'checking' => $checking,
-                'products' => $images,
+                'checking'       => $checking,
+                'products'       => $images,
                 'products_count' => $images->total(),
             ]);
         }
@@ -6155,10 +6161,10 @@ class ProductController extends Controller
         $viewpath = 'products.scrapper_listing';
 
         return view($viewpath, [
-            'checking' => $checking,
-            'products' => $images,
+            'checking'           => $checking,
+            'products'           => $images,
             'all_store_websites' => $all_store_websites,
-            'products_count' => $images->total(),
+            'products_count'     => $images->total(),
         ]);
     }
 
@@ -6167,7 +6173,7 @@ class ProductController extends Controller
         $datas = Product::with('suppliers_name')->select('id', 'supplier')->where('id', $request->product_id)->first();
 
         $suppliers = [];
-        $supplier = '';
+        $supplier  = '';
         if (! empty($datas)) {
             if (! empty($datas['suppliers_name'])) {
                 $suppliers = $datas['suppliers_name'];
@@ -6179,10 +6185,10 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'status' => true,
-            'data' => $suppliers,
-            'supplier' => $supplier,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $suppliers,
+            'supplier'    => $supplier,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -6203,7 +6209,7 @@ class ProductController extends Controller
                     $viewpath = 'products.scrapper_listing_image_ajax_compare';
 
                     return view($viewpath, [
-                        'products' => $images,
+                        'products'       => $images,
                         'products_count' => $images->total(),
                     ]);
                 }
@@ -6211,7 +6217,7 @@ class ProductController extends Controller
                 $viewpath = 'products.scrapper_listing_compare';
 
                 return view($viewpath, [
-                    'products' => $images,
+                    'products'       => $images,
                     'products_count' => $images->total(),
                 ]);
             }
@@ -6234,8 +6240,8 @@ class ProductController extends Controller
         DB::statement('TRUNCATE TABLE scraper_imags');
 
         return response()->json([
-            'status' => true,
-            'message' => ' Your selected batabase tables has been truncate successfully',
+            'status'      => true,
+            'message'     => ' Your selected batabase tables has been truncate successfully',
             'status_name' => 'success',
         ], 200);
     }

@@ -32,7 +32,7 @@ final class UserGroupsFormController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     public function __invoke(): void
@@ -86,8 +86,8 @@ final class UserGroupsFormController extends AbstractController
         $userGroup = $this->dbi->fetchValue($sqlQuery, 0, DatabaseInterface::CONNECT_CONTROL);
 
         $allUserGroups = [];
-        $sqlQuery = 'SELECT DISTINCT `usergroup` FROM ' . $groupTable;
-        $result = $this->dbi->tryQueryAsControlUser($sqlQuery);
+        $sqlQuery      = 'SELECT DISTINCT `usergroup` FROM ' . $groupTable;
+        $result        = $this->dbi->tryQueryAsControlUser($sqlQuery);
         if ($result) {
             while ($row = $result->fetchRow()) {
                 $allUserGroups[$row[0]] = $row[0];
@@ -96,8 +96,8 @@ final class UserGroupsFormController extends AbstractController
 
         return $this->template->render('server/privileges/choose_user_group', [
             'all_user_groups' => $allUserGroups,
-            'user_group' => $userGroup,
-            'params' => ['username' => $username],
+            'user_group'      => $userGroup,
+            'params'          => ['username' => $username],
         ]);
     }
 }

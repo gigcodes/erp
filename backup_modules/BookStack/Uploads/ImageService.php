@@ -31,17 +31,18 @@ class ImageService extends UploadService
      */
     public function __construct(Image $image, ImageManager $imageTool, FileSystem $fileSystem, Cache $cache, HttpFetcher $http)
     {
-        $this->image = $image;
+        $this->image     = $image;
         $this->imageTool = $imageTool;
-        $this->cache = $cache;
-        $this->http = $http;
+        $this->cache     = $cache;
+        $this->http      = $http;
         parent::__construct($fileSystem);
     }
 
     /**
      * Get the storage that will be used for storing images.
      *
-     * @param  string  $type
+     * @param string $type
+     *
      * @return \Illuminate\Contracts\Filesystem\Filesystem
      */
     protected function getStorage($type = '')
@@ -84,7 +85,8 @@ class ImageService extends UploadService
     /**
      * Save a new image from a uri-encoded base64 string of data.
      *
-     * @param  int  $uploadedTo
+     * @param int $uploadedTo
+     *
      * @return Image
      *
      * @throws ImageUploadException
@@ -103,8 +105,10 @@ class ImageService extends UploadService
     /**
      * Gets an image from url and saves it to the database.
      *
-     * @param  string  $type
-     * @param  bool|string  $imageName
+     * @param string      $type
+     * @param bool|string $imageName
+     * @param mixed       $url
+     *
      * @return mixed
      *
      * @throws \Exception
@@ -124,19 +128,20 @@ class ImageService extends UploadService
     /**
      * Saves a new image
      *
-     * @param  string  $imageName
-     * @param  string  $imageData
-     * @param  string  $type
-     * @param  int  $uploadedTo
+     * @param string $imageName
+     * @param string $imageData
+     * @param string $type
+     * @param int    $uploadedTo
+     *
      * @return Image
      *
      * @throws ImageUploadException
      */
     private function saveNew($imageName, $imageData, $type, $uploadedTo = 0)
     {
-        $storage = $this->getStorage($type);
+        $storage       = $this->getStorage($type);
         $secureUploads = setting('app-secure-images');
-        $imageName = str_replace(' ', '-', $imageName);
+        $imageName     = str_replace(' ', '-', $imageName);
 
         $imagePath = '/uploads/images/' . $type . '/' . date('Y-m') . '/';
 
@@ -157,15 +162,15 @@ class ImageService extends UploadService
         }
 
         $imageDetails = [
-            'name' => $imageName,
-            'path' => $fullPath,
-            'url' => $this->getPublicUrl($fullPath),
-            'type' => $type,
+            'name'        => $imageName,
+            'path'        => $fullPath,
+            'url'         => $this->getPublicUrl($fullPath),
+            'type'        => $type,
             'uploaded_to' => $uploadedTo,
         ];
 
         if (user()->id !== 0) {
-            $userId = user()->id;
+            $userId                     = user()->id;
             $imageDetails['created_by'] = $userId;
             $imageDetails['updated_by'] = $userId;
         }
@@ -191,9 +196,10 @@ class ImageService extends UploadService
      * If $keepRatio is true only the width will be used.
      * Checks the cache then storage to avoid creating / accessing the filesystem on every check.
      *
-     * @param  int  $width
-     * @param  int  $height
-     * @param  bool  $keepRatio
+     * @param int  $width
+     * @param int  $height
+     * @param bool $keepRatio
+     *
      * @return string
      *
      * @throws Exception
@@ -205,8 +211,8 @@ class ImageService extends UploadService
             return $this->getPublicUrl($image->path);
         }
 
-        $thumbDirName = '/' . ($keepRatio ? 'scaled-' : 'thumbs-') . $width . '-' . $height . '/';
-        $imagePath = $image->path;
+        $thumbDirName  = '/' . ($keepRatio ? 'scaled-' : 'thumbs-') . $width . '-' . $height . '/';
+        $imagePath     = $image->path;
         $thumbFilePath = dirname($imagePath) . $thumbDirName . basename($imagePath);
 
         if ($this->cache->has('images-' . $image->id . '-' . $thumbFilePath) && $this->cache->get('images-' . $thumbFilePath)) {
@@ -230,8 +236,9 @@ class ImageService extends UploadService
     /**
      * Resize image data.
      *
-     * @param  int  $width
-     * @param  int  $height
+     * @param int $width
+     * @param int $height
+     *
      * @return string
      *
      * @throws ImageUploadException
@@ -269,7 +276,7 @@ class ImageService extends UploadService
     public function getImageData(Image $image)
     {
         $imagePath = $image->path;
-        $storage = $this->getStorage();
+        $storage   = $this->getStorage();
 
         return $storage->get($imagePath);
     }
@@ -296,9 +303,9 @@ class ImageService extends UploadService
     {
         $storage = $this->getStorage();
 
-        $imageFolder = dirname($path);
+        $imageFolder   = dirname($path);
         $imageFileName = basename($path);
-        $allImages = collect($storage->allFiles($imageFolder));
+        $allImages     = collect($storage->allFiles($imageFolder));
 
         // Delete image files
         $imagesToDelete = $allImages->filter(function ($imagePath) use ($imageFileName) {
@@ -322,8 +329,9 @@ class ImageService extends UploadService
     /**
      * Save an avatar image from an external service.
      *
-     * @param  \BookStack\Auth\User  $user
-     * @param  int  $size
+     * @param \BookStack\Auth\User $user
+     * @param int                  $size
+     *
      * @return Image
      *
      * @throws Exception
@@ -331,19 +339,19 @@ class ImageService extends UploadService
     public function saveUserAvatar(User $user, $size = 500)
     {
         $avatarUrl = $this->getAvatarUrl();
-        $email = strtolower(trim($user->email));
+        $email     = strtolower(trim($user->email));
 
         $replacements = [
-            '${hash}' => md5($email),
-            '${size}' => $size,
+            '${hash}'  => md5($email),
+            '${size}'  => $size,
             '${email}' => urlencode($email),
         ];
 
-        $userAvatarUrl = strtr($avatarUrl, $replacements);
-        $imageName = str_replace(' ', '-', $user->name . '-avatar.png');
-        $image = $this->saveNewFromUrl($userAvatarUrl, 'user', $imageName);
-        $image->created_by = $user->id;
-        $image->updated_by = $user->id;
+        $userAvatarUrl      = strtr($avatarUrl, $replacements);
+        $imageName          = str_replace(' ', '-', $user->name . '-avatar.png');
+        $image              = $this->saveNewFromUrl($userAvatarUrl, 'user', $imageName);
+        $image->created_by  = $user->id;
+        $image->updated_by  = $user->id;
         $image->uploaded_to = $user->id;
         $image->save();
 
@@ -385,21 +393,22 @@ class ImageService extends UploadService
      *
      * Returns the path of the images that would be/have been deleted.
      *
-     * @param  bool  $checkRevisions
-     * @param  bool  $dryRun
-     * @param  array  $types
+     * @param bool  $checkRevisions
+     * @param bool  $dryRun
+     * @param array $types
+     *
      * @return array
      */
     public function deleteUnusedImages($checkRevisions = true, $dryRun = true, $types = ['gallery', 'drawio'])
     {
-        $types = array_intersect($types, ['gallery', 'drawio']);
+        $types        = array_intersect($types, ['gallery', 'drawio']);
         $deletedPaths = [];
 
         $this->image->newQuery()->whereIn('type', $types)
             ->chunk(1000, function ($images) use ($checkRevisions, &$deletedPaths, $dryRun) {
                 foreach ($images as $image) {
                     $searchQuery = '%' . basename($image->path) . '%';
-                    $inPage = DB::table('pages')
+                    $inPage      = DB::table('pages')
                          ->where('html', 'like', $searchQuery)->count() > 0;
                     $inRevision = false;
                     if ($checkRevisions) {
@@ -435,13 +444,13 @@ class ImageService extends UploadService
         $base = url('/');
         if (! $isLocal && strpos($uri, $base) === 0) {
             $isLocal = true;
-            $uri = str_replace($base, '', $uri);
+            $uri     = str_replace($base, '', $uri);
         }
 
         $imageData = null;
 
         if ($isLocal) {
-            $uri = trim($uri, '/');
+            $uri     = trim($uri, '/');
             $storage = $this->getStorage();
             if ($storage->exists($uri)) {
                 $imageData = $storage->get($uri);
@@ -468,7 +477,8 @@ class ImageService extends UploadService
     /**
      * Gets a public facing url for an image by checking relevant environment variables.
      *
-     * @param  string  $filePath
+     * @param string $filePath
+     *
      * @return string
      */
     private function getPublicUrl($filePath)

@@ -18,14 +18,14 @@ class ViewService
     /**
      * ViewService constructor.
      *
-     * @param  \BookStack\Actions\View  $view
-     * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
+     * @param \BookStack\Actions\View                       $view
+     * @param \BookStack\Auth\Permissions\PermissionService $permissionService
      */
     public function __construct(View $view, PermissionService $permissionService, EntityProvider $entityProvider)
     {
-        $this->view = $view;
+        $this->view              = $view;
         $this->permissionService = $permissionService;
-        $this->entityProvider = $entityProvider;
+        $this->entityProvider    = $entityProvider;
     }
 
     /**
@@ -50,7 +50,7 @@ class ViewService
         // Otherwise create new view count
         $entity->views()->save($this->view->create([
             'user_id' => $user->id,
-            'views' => 1,
+            'views'   => 1,
         ]));
 
         return 1;
@@ -59,14 +59,15 @@ class ViewService
     /**
      * Get the entities with the most views.
      *
-     * @param  string|array  $filterModels
-     * @param  string  $action - used for permission checking
+     * @param string|array $filterModels
+     * @param string       $action       - used for permission checking
+     *
      * @return Collection
      */
     public function getPopular(int $count = 10, int $page = 0, $filterModels = null, string $action = 'view')
     {
         $skipCount = $count * $page;
-        $query = $this->permissionService
+        $query     = $this->permissionService
             ->filterRestrictedEntityRelations($this->view, 'views', 'viewable_id', 'viewable_type', $action)
             ->select('*', 'viewable_id', 'viewable_type', \DB::raw('SUM(views) as view_count'))
             ->groupBy('viewable_id', 'viewable_type')
@@ -82,9 +83,10 @@ class ViewService
     /**
      * Get all recently viewed entities for the current user.
      *
-     * @param  int  $count
-     * @param  int  $page
-     * @param  Entity|bool  $filterModel
+     * @param int         $count
+     * @param int         $page
+     * @param Entity|bool $filterModel
+     *
      * @return mixed
      */
     public function getUserRecentlyViewed($count = 10, $page = 0, $filterModel = false)

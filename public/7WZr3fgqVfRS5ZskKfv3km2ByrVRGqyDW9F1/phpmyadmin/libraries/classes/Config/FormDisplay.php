@@ -107,12 +107,12 @@ class FormDisplay
     private $formDisplayTemplate;
 
     /**
-     * @param  ConfigFile  $cf Config file instance
+     * @param ConfigFile $cf Config file instance
      */
     public function __construct(ConfigFile $cf)
     {
         $this->formDisplayTemplate = new FormDisplayTemplate($GLOBALS['config']);
-        $this->configFile = $cf;
+        $this->configFile          = $cf;
         // initialize validators
         Validator::getValidators($this->configFile);
     }
@@ -130,19 +130,19 @@ class FormDisplay
     /**
      * Registers form in form manager
      *
-     * @param  string  $formName Form name
-     * @param  array  $form     Form data
-     * @param  int  $serverId 0 if new server, validation; >= 1 if editing a server
+     * @param string $formName Form name
+     * @param array  $form     Form data
+     * @param int    $serverId 0 if new server, validation; >= 1 if editing a server
      */
     public function registerForm($formName, array $form, $serverId = null): void
     {
         $this->forms[$formName] = new Form($formName, $form, $this->configFile, $serverId);
-        $this->isValidated = false;
+        $this->isValidated      = false;
         foreach ($this->forms[$formName]->fields as $path) {
             $workPath = $serverId === null
                 ? $path
                 : str_replace('Servers/1/', 'Servers/' . $serverId . '/', $path);
-            $this->systemPaths[$workPath] = $path;
+            $this->systemPaths[$workPath]     = $path;
             $this->translatedPaths[$workPath] = str_replace('/', '-', $workPath);
         }
     }
@@ -150,9 +150,9 @@ class FormDisplay
     /**
      * Processes forms, returns true on successful save
      *
-     * @param  bool  $allowPartialSave allows for partial form saving
+     * @param bool $allowPartialSave allows for partial form saving
      *                               on failed validation
-     * @param  bool  $checkFormSubmit  whether check for $_POST['submit_save']
+     * @param bool $checkFormSubmit  whether check for $_POST['submit_save']
      */
     public function process($allowPartialSave = true, $checkFormSubmit = true): bool
     {
@@ -177,15 +177,15 @@ class FormDisplay
             return;
         }
 
-        $paths = [];
+        $paths  = [];
         $values = [];
         foreach ($this->forms as $form) {
             $paths[] = $form->name;
             // collect values and paths
             foreach ($form->fields as $path) {
-                $workPath = array_search($path, $this->systemPaths);
+                $workPath      = array_search($path, $this->systemPaths);
                 $values[$path] = $this->configFile->getValue($workPath);
-                $paths[] = $path;
+                $paths[]       = $path;
             }
         }
 
@@ -213,10 +213,11 @@ class FormDisplay
     /**
      * Outputs HTML for forms
      *
-     * @param  bool  $showButtons  whether show submit and reset button
-     * @param  string  $formAction   action attribute for the form
-     * @param  array|null  $hiddenFields array of form hidden fields (key: field
+     * @param bool       $showButtons  whether show submit and reset button
+     * @param string     $formAction   action attribute for the form
+     * @param array|null $hiddenFields array of form hidden fields (key: field
      *                                 name)
+     *
      * @return string HTML for forms
      */
     public function getDisplay(
@@ -224,7 +225,7 @@ class FormDisplay
         $formAction = null,
         $hiddenFields = null
     ) {
-        $js = [];
+        $js        = [];
         $jsDefault = [];
 
         /**
@@ -258,22 +259,22 @@ class FormDisplay
         $this->loadUserprefsInfo();
 
         $validators = Validator::getValidators($this->configFile);
-        $forms = [];
+        $forms      = [];
 
         foreach ($this->forms as $key => $form) {
             $this->formDisplayTemplate->group = 0;
-            $forms[$key] = [
-                'name' => $form->name,
+            $forms[$key]                      = [
+                'name'         => $form->name,
                 'descriptions' => [
                     'name' => Descriptions::get('Form_' . $form->name, 'name'),
                     'desc' => Descriptions::get('Form_' . $form->name, 'desc'),
                 ],
-                'errors' => $this->errors[$form->name] ?? null,
+                'errors'      => $this->errors[$form->name] ?? null,
                 'fields_html' => '',
             ];
 
             foreach ($form->fields as $field => $path) {
-                $workPath = array_search($path, $this->systemPaths);
+                $workPath       = array_search($path, $this->systemPaths);
                 $translatedPath = $this->translatedPaths[$workPath];
                 // always true/false for user preferences display
                 // otherwise null
@@ -301,33 +302,34 @@ class FormDisplay
         }
 
         return $this->formDisplayTemplate->display([
-            'action' => $formAction,
+            'action'                 => $formAction,
             'has_check_page_refresh' => $hasCheckPageRefresh,
-            'hidden_fields' => (array) $hiddenFields,
-            'tabs' => $tabs,
-            'forms' => $forms,
-            'show_buttons' => $showButtons,
-            'js_array' => $js,
-            'js_default' => $jsDefault,
+            'hidden_fields'          => (array) $hiddenFields,
+            'tabs'                   => $tabs,
+            'forms'                  => $forms,
+            'show_buttons'           => $showButtons,
+            'js_array'               => $js,
+            'js_default'             => $jsDefault,
         ]);
     }
 
     /**
      * Prepares data for input field display and outputs HTML code
      *
-     * @param  Form  $form               Form object
-     * @param  string  $field              field name as it appears in $form
-     * @param  string  $systemPath         field path, eg. Servers/1/verbose
-     * @param  string  $workPath           work path, eg. Servers/4/verbose
-     * @param  string  $translatedPath     work path changed so that it can be
+     * @param Form      $form               Form object
+     * @param string    $field              field name as it appears in $form
+     * @param string    $systemPath         field path, eg. Servers/1/verbose
+     * @param string    $workPath           work path, eg. Servers/4/verbose
+     * @param string    $translatedPath     work path changed so that it can be
      *                                      used as XHTML id
-     * @param  bool  $showRestoreDefault whether show "restore default" button
+     * @param bool      $showRestoreDefault whether show "restore default" button
      *                                      besides the input field
-     * @param  bool|null  $userPrefsAllow     whether user preferences are enabled
+     * @param bool|null $userPrefsAllow     whether user preferences are enabled
      *                                      for this field (null - no support,
      *                                      true/false - enabled/disabled)
-     * @param  array  $jsDefault          array which stores JavaScript code
+     * @param array     $jsDefault          array which stores JavaScript code
      *                                      to be displayed
+     *
      * @return string|null HTML for input field
      */
     private function displayFieldInput(
@@ -340,22 +342,22 @@ class FormDisplay
         $userPrefsAllow,
         array &$jsDefault
     ) {
-        $name = Descriptions::get($systemPath);
+        $name        = Descriptions::get($systemPath);
         $description = Descriptions::get($systemPath, 'desc');
 
-        $value = $this->configFile->get($workPath);
-        $valueDefault = $this->configFile->getDefault($systemPath);
+        $value          = $this->configFile->get($workPath);
+        $valueDefault   = $this->configFile->getDefault($systemPath);
         $valueIsDefault = false;
         if ($value === null || $value === $valueDefault) {
-            $value = $valueDefault;
+            $value          = $valueDefault;
             $valueIsDefault = true;
         }
 
         $opts = [
-            'doc' => $this->getDocLink($systemPath),
+            'doc'                  => $this->getDocLink($systemPath),
             'show_restore_default' => $showRestoreDefault,
-            'userprefs_allow' => $userPrefsAllow,
-            'userprefs_comment' => Descriptions::get($systemPath, 'cmt'),
+            'userprefs_allow'      => $userPrefsAllow,
+            'userprefs_comment'    => Descriptions::get($systemPath, 'cmt'),
         ];
         if (isset($form->default[$systemPath])) {
             $opts['setvalue'] = (string) $form->default[$systemPath];
@@ -381,12 +383,12 @@ class FormDisplay
                 $type = 'checkbox';
                 break;
             case 'select':
-                $type = 'select';
+                $type           = 'select';
                 $opts['values'] = $form->getOptionValueList($form->fields[$field]);
                 break;
             case 'array':
-                $type = 'list';
-                $value = (array) $value;
+                $type         = 'list';
+                $value        = (array) $value;
                 $valueDefault = (array) $valueDefault;
                 break;
             case 'group':
@@ -524,8 +526,8 @@ class FormDisplay
     /**
      * Validates select field and casts $value to correct type
      *
-     * @param  string|bool  $value   Current value
-     * @param  array  $allowed List of allowed values
+     * @param string|bool $value   Current value
+     * @param array       $allowed List of allowed values
      */
     private function validateSelect(&$value, array $allowed): bool
     {
@@ -555,17 +557,17 @@ class FormDisplay
     /**
      * Validates and saves form data to session
      *
-     * @param  array|string  $forms            array of form names
-     * @param  bool  $allowPartialSave allows for partial form saving on
+     * @param array|string $forms            array of form names
+     * @param bool         $allowPartialSave allows for partial form saving on
      *                                       failed validation
      */
     public function save($forms, $allowPartialSave = true): bool
     {
         $result = true;
-        $forms = (array) $forms;
+        $forms  = (array) $forms;
 
-        $values = [];
-        $toSave = [];
+        $values        = [];
+        $toSave        = [];
         $isSetupScript = $GLOBALS['config']->get('is_setup');
         if ($isSetupScript) {
             $this->loadUserprefsInfo();
@@ -585,8 +587,8 @@ class FormDisplay
             // grab POST values
             foreach ($form->fields as $field => $systemPath) {
                 $workPath = array_search($systemPath, $this->systemPaths);
-                $key = $this->translatedPaths[$workPath];
-                $type = (string) $form->getOptionType($field);
+                $key      = $this->translatedPaths[$workPath];
+                $type     = (string) $form->getOptionType($field);
 
                 // skip groups
                 if ($type === 'group') {
@@ -641,7 +643,7 @@ class FormDisplay
                         );
                         if (! $successfullyValidated) {
                             $this->errors[$workPath][] = __('Incorrect value!');
-                            $result = false;
+                            $result                    = false;
                             // "continue" for the $form->fields foreach-loop
                             continue 2;
                         }
@@ -687,13 +689,13 @@ class FormDisplay
             // TrustedProxies requires changes before saving
             if ($path === 'TrustedProxies') {
                 $proxies = [];
-                $i = 0;
+                $i       = 0;
                 foreach ($values[$path] as $value) {
                     $matches = [];
-                    $match = preg_match('/^(.+):(?:[ ]?)(\\w+)$/', $value, $matches);
+                    $match   = preg_match('/^(.+):(?:[ ]?)(\\w+)$/', $value, $matches);
                     if ($match) {
                         // correct 'IP: HTTP header' pair
-                        $ip = trim($matches[1]);
+                        $ip           = trim($matches[1]);
                         $proxies[$ip] = trim($matches[2]);
                     } else {
                         // save also incorrect values
@@ -732,7 +734,8 @@ class FormDisplay
     /**
      * Returns link to documentation
      *
-     * @param  string  $path Path to documentation
+     * @param string $path Path to documentation
+     *
      * @return string
      */
     public function getDocLink($path)
@@ -752,7 +755,8 @@ class FormDisplay
     /**
      * Changes path so it can be used in URLs
      *
-     * @param  string  $path Path
+     * @param string $path Path
+     *
      * @return string
      */
     private function getOptName($path)
@@ -780,8 +784,8 @@ class FormDisplay
     /**
      * Sets field comments and warnings based on current environment
      *
-     * @param  string  $systemPath Path to settings
-     * @param  array  $opts       Chosen options
+     * @param string $systemPath Path to settings
+     * @param array  $opts       Chosen options
      */
     private function setComments($systemPath, array &$opts): void
     {
@@ -807,14 +811,14 @@ class FormDisplay
             }
 
             /* mbstring is always there thanks to polyfill */
-            $opts['comment'] = $comment;
+            $opts['comment']         = $comment;
             $opts['comment_warning'] = true;
         }
 
         // ZipDump, GZipDump, BZipDump - check function availability
         if ($systemPath === 'ZipDump' || $systemPath === 'GZipDump' || $systemPath === 'BZipDump') {
             $comment = '';
-            $funcs = [
+            $funcs   = [
                 'ZipDump' => [
                     'zip_open',
                     'gzcompress',
@@ -846,7 +850,7 @@ class FormDisplay
                 );
             }
 
-            $opts['comment'] = $comment;
+            $opts['comment']         = $comment;
             $opts['comment_warning'] = true;
         }
 
@@ -867,8 +871,8 @@ class FormDisplay
     /**
      * Copy items of an array to $_POST variable
      *
-     * @param  array  $postValues List of parameters
-     * @param  string  $key        Array key
+     * @param array  $postValues List of parameters
+     * @param string $key        Array key
      */
     private function fillPostArrayParameters(array $postValues, $key): void
     {

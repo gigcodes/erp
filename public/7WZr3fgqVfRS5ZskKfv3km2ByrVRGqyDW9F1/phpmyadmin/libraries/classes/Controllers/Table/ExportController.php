@@ -41,16 +41,16 @@ class ExportController extends AbstractController
         global $db, $urlParams, $table, $replaces, $cfg, $errorUrl;
         global $sql_query, $where_clause, $num_tables, $unlim_num_rows;
 
-        $pageSettings = new PageSettings('Export');
+        $pageSettings          = new PageSettings('Export');
         $pageSettingsErrorHtml = $pageSettings->getErrorHTML();
-        $pageSettingsHtml = $pageSettings->getHTML();
+        $pageSettingsHtml      = $pageSettings->getHTML();
 
         $this->addScriptFiles(['export.js']);
 
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         $urlParams['goto'] = Url::getFromRoute('/table/export');
@@ -106,7 +106,7 @@ class ExportController extends AbstractController
             return;
         }
 
-        $exportType = 'table';
+        $exportType                = 'table';
         $isReturnBackFromRawExport = isset($_POST['export_type']) && $_POST['export_type'] === 'raw';
         if (isset($_POST['raw_query']) || $isReturnBackFromRawExport) {
             $exportType = 'raw';
@@ -123,9 +123,9 @@ class ExportController extends AbstractController
         );
 
         $this->render('table/export/index', array_merge($options, [
-            'export_type' => $exportType,
+            'export_type'              => $exportType,
             'page_settings_error_html' => $pageSettingsErrorHtml,
-            'page_settings_html' => $pageSettingsHtml,
+            'page_settings_html'       => $pageSettingsHtml,
         ]));
     }
 }

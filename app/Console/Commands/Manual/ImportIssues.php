@@ -44,27 +44,27 @@ class ImportIssues extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $issues = Issue::all();
-            $data = [];
+            $data   = [];
 
             foreach ($issues as $issue) {
-                $developer_task = new DeveloperTask();
-                $developer_task->user_id = $issue->user_id;
-                $developer_task->module_id = $issue->module;
-                $developer_task->priority = $issue->priority;
-                $developer_task->subject = $issue->subject;
-                $developer_task->task = $issue->issue;
-                $developer_task->status = $issue->is_resolved == 1 ? 'Done' : 'Planned';
-                $developer_task->created_by = ! empty($issue->submitted_by) ? $issue->submitted_by : 6;
-                $developer_task->is_resolved = $issue->is_resolved;
-                $developer_task->estimate_time = $issue->estimate_time;
-                $developer_task->cost = $issue->estimate_time;
-                $developer_task->task_type_id = 3;
+                $developer_task                      = new DeveloperTask();
+                $developer_task->user_id             = $issue->user_id;
+                $developer_task->module_id           = $issue->module;
+                $developer_task->priority            = $issue->priority;
+                $developer_task->subject             = $issue->subject;
+                $developer_task->task                = $issue->issue;
+                $developer_task->status              = $issue->is_resolved == 1 ? 'Done' : 'Planned';
+                $developer_task->created_by          = ! empty($issue->submitted_by) ? $issue->submitted_by : 6;
+                $developer_task->is_resolved         = $issue->is_resolved;
+                $developer_task->estimate_time       = $issue->estimate_time;
+                $developer_task->cost                = $issue->estimate_time;
+                $developer_task->task_type_id        = 3;
                 $developer_task->responsible_user_id = ! is_null($issue->responsible_user_id) ? $issue->responsible_user_id : '';
-                $developer_task->created_at = $issue->created_at;
+                $developer_task->created_at          = $issue->created_at;
                 $developer_task->save();
                 $new_issue_id = $developer_task->id;
 
@@ -77,7 +77,7 @@ class ImportIssues extends Command
                 // need to move priority as well
                 $priority = ErpPriority::where('model_id', $issue->id)->where('model_type', Issue::class)->first();
                 if ($priority) {
-                    $priority->model_id = $new_issue_id;
+                    $priority->model_id   = $new_issue_id;
                     $priority->model_type = DeveloperTask::class;
                     $priority->save();
                 }

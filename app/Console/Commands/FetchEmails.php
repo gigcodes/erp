@@ -47,19 +47,19 @@ class FetchEmails extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
-            $cm = new ClientManager();
+            $cm   = new ClientManager();
             $imap = $cm->make([
-                'host' => env('IMAP_HOST_PURCHASE'),
-                'port' => env('IMAP_PORT_PURCHASE'),
-                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+                'host'          => env('IMAP_HOST_PURCHASE'),
+                'port'          => env('IMAP_PORT_PURCHASE'),
+                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username' => env('IMAP_USERNAME_PURCHASE'),
-                'password' => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+                'username'      => env('IMAP_USERNAME_PURCHASE'),
+                'password'      => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();
@@ -73,20 +73,20 @@ class FetchEmails extends Command
             $types = [
                 'inbox' => [
                     'inbox_name' => 'INBOX',
-                    'direction' => 'from',
-                    'type' => 'incoming',
+                    'direction'  => 'from',
+                    'type'       => 'incoming',
                 ],
                 'sent' => [
                     'inbox_name' => 'INBOX.Sent',
-                    'direction' => 'to',
-                    'type' => 'outgoing',
+                    'direction'  => 'to',
+                    'type'       => 'outgoing',
                 ],
             ];
 
             foreach ($suppliers as $supplier) {
                 foreach ($types as $type) {
                     dump($type['type']);
-                    $inbox = $imap->getFolder($type['inbox_name']);
+                    $inbox        = $imap->getFolder($type['inbox_name']);
                     $latest_email = Email::where('type', $type['type'])->where('model_id', $supplier->id)->where(function ($query) {
                         $query->where('model_type', \App\Supplier::class)->orWhere('model_type', \App\Purchase::class);
                     })->latest()->first();
@@ -121,7 +121,7 @@ class FetchEmails extends Command
                                         if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
                                             dump('NEW EMAIL First');
                                             $attachments_array = [];
-                                            $attachments = $email->getAttachments();
+                                            $attachments       = $email->getAttachments();
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
@@ -135,8 +135,8 @@ class FetchEmails extends Command
                                                     }
                                                 } elseif ($attachment->getExtension() == 'zip') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                                        $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                        $excel             = $supplier->getSupplierExcelFromSupplierEmail();
+                                                        $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                         $attachments_array = $attachments;
                                                     }
                                                 }
@@ -145,21 +145,21 @@ class FetchEmails extends Command
                                             });
 
                                             $emailData = explode('@', $email->getFrom()[0]->mail);
-                                            $name = $emailData[0];
+                                            $name      = $emailData[0];
 
                                             $params = [
-                                                'model_id' => $supplier->id,
-                                                'model_type' => Supplier::class,
-                                                'type' => $type['type'],
-                                                'seen' => $email->getFlags()['seen'],
-                                                'from' => $email->getFrom()[0]->mail,
-                                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                                'subject' => $email->getSubject(),
-                                                'message' => $content,
-                                                'template' => 'customer-simple',
+                                                'model_id'        => $supplier->id,
+                                                'model_type'      => Supplier::class,
+                                                'type'            => $type['type'],
+                                                'seen'            => $email->getFlags()['seen'],
+                                                'from'            => $email->getFrom()[0]->mail,
+                                                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                                'subject'         => $email->getSubject(),
+                                                'message'         => $content,
+                                                'template'        => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                                'created_at' => $email->getDate(),
-                                                'name' => $name,
+                                                'created_at'      => $email->getDate(),
+                                                'name'            => $name,
                                             ];
 
                                             Email::create($params);
@@ -182,7 +182,7 @@ class FetchEmails extends Command
                                             dump('NEW EMAIL Second');
 
                                             $attachments_array = [];
-                                            $attachments = $email->getAttachments();
+                                            $attachments       = $email->getAttachments();
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
@@ -196,8 +196,8 @@ class FetchEmails extends Command
                                                     }
                                                 } elseif ($attachment->getExtension() == 'zip') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                                        $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                        $excel             = $supplier->getSupplierExcelFromSupplierEmail();
+                                                        $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                         $attachments_array = $attachments;
                                                     }
                                                 }
@@ -206,21 +206,21 @@ class FetchEmails extends Command
                                             });
 
                                             $emailData = explode('@', $email->getFrom()[0]->mail);
-                                            $name = $emailData[0];
+                                            $name      = $emailData[0];
 
                                             $params = [
-                                                'model_id' => $supplier->id,
-                                                'model_type' => Supplier::class,
-                                                'type' => $type['type'],
-                                                'seen' => $email->getFlags()['seen'],
-                                                'from' => $email->getFrom()[0]->mail,
-                                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                                'subject' => $email->getSubject(),
-                                                'message' => $content,
-                                                'template' => 'customer-simple',
+                                                'model_id'        => $supplier->id,
+                                                'model_type'      => Supplier::class,
+                                                'type'            => $type['type'],
+                                                'seen'            => $email->getFlags()['seen'],
+                                                'from'            => $email->getFrom()[0]->mail,
+                                                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                                'subject'         => $email->getSubject(),
+                                                'message'         => $content,
+                                                'template'        => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                                'created_at' => $email->getDate(),
-                                                'name' => $name,
+                                                'created_at'      => $email->getDate(),
+                                                'name'            => $name,
                                             ];
 
                                             Email::create($params);
@@ -249,7 +249,7 @@ class FetchEmails extends Command
                                     dump('NEW EMAIL third');
 
                                     $attachments_array = [];
-                                    $attachments = $email->getAttachments();
+                                    $attachments       = $email->getAttachments();
 
                                     $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                         $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
@@ -264,8 +264,8 @@ class FetchEmails extends Command
                                             }
                                         } elseif ($attachment->getExtension() == 'zip') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                                $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                $excel             = $supplier->getSupplierExcelFromSupplierEmail();
+                                                $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                 $attachments_array = $attachments;
                                             }
                                         }
@@ -273,21 +273,21 @@ class FetchEmails extends Command
                                     });
 
                                     $emailData = explode('@', $email->getFrom()[0]->mail);
-                                    $name = $emailData[0];
+                                    $name      = $emailData[0];
 
                                     $params = [
-                                        'model_id' => $supplier->id,
-                                        'model_type' => Supplier::class,
-                                        'type' => $type['type'],
-                                        'seen' => $email->getFlags()['seen'],
-                                        'from' => $email->getFrom()[0]->mail,
-                                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                        'subject' => $email->getSubject(),
-                                        'message' => $content,
-                                        'template' => 'customer-simple',
+                                        'model_id'        => $supplier->id,
+                                        'model_type'      => Supplier::class,
+                                        'type'            => $type['type'],
+                                        'seen'            => $email->getFlags()['seen'],
+                                        'from'            => $email->getFrom()[0]->mail,
+                                        'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'subject'         => $email->getSubject(),
+                                        'message'         => $content,
+                                        'template'        => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                        'created_at' => $email->getDate(),
-                                        'name' => $name,
+                                        'created_at'      => $email->getDate(),
+                                        'name'            => $name,
                                     ];
 
                                     Email::create($params);
@@ -318,7 +318,7 @@ class FetchEmails extends Command
 
                                 if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
                                     $attachments_array = [];
-                                    $attachments = $email->getAttachments();
+                                    $attachments       = $email->getAttachments();
 
                                     $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                         $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
@@ -332,8 +332,8 @@ class FetchEmails extends Command
                                             }
                                         } elseif ($attachment->getExtension() == 'zip') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                                $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                $excel             = $supplier->getSupplierExcelFromSupplierEmail();
+                                                $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                 $attachments_array = $attachments;
                                             }
                                         }
@@ -342,21 +342,21 @@ class FetchEmails extends Command
                                     });
 
                                     $emailData = explode('@', $email->getFrom()[0]->mail);
-                                    $name = $emailData[0];
+                                    $name      = $emailData[0];
 
                                     $params = [
-                                        'model_id' => $supplier->id,
-                                        'model_type' => Supplier::class,
-                                        'type' => $type['type'],
-                                        'seen' => $email->getFlags()['seen'],
-                                        'from' => $email->getFrom()[0]->mail,
-                                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                        'subject' => $email->getSubject(),
-                                        'message' => $content,
-                                        'template' => 'customer-simple',
+                                        'model_id'        => $supplier->id,
+                                        'model_type'      => Supplier::class,
+                                        'type'            => $type['type'],
+                                        'seen'            => $email->getFlags()['seen'],
+                                        'from'            => $email->getFrom()[0]->mail,
+                                        'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'subject'         => $email->getSubject(),
+                                        'message'         => $content,
+                                        'template'        => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                        'created_at' => $email->getDate(),
-                                        'name' => $name,
+                                        'created_at'      => $email->getDate(),
+                                        'name'            => $name,
                                     ];
 
                                     Email::create($params);

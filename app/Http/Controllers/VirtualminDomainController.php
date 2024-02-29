@@ -54,8 +54,8 @@ class VirtualminDomainController extends Controller
                     $domainsDnsRecordsData->identifier_id = $zone['id'];
                     $domainsDnsRecordsData->save();
                 } else {
-                    $VirtualminDomainD = new VirtualminDomain();
-                    $VirtualminDomainD->name = $zone['name'];
+                    $VirtualminDomainD                = new VirtualminDomain();
+                    $VirtualminDomainD->name          = $zone['name'];
                     $VirtualminDomainD->identifier_id = $zone['id'];
                     $VirtualminDomainD->save();
                 }
@@ -63,7 +63,7 @@ class VirtualminDomainController extends Controller
         }
 
         $keyword = $request->get('keyword');
-        $status = $request->get('status');
+        $status  = $request->get('status');
 
         // data search action
         $domains = VirtualminDomain::latest();
@@ -99,15 +99,15 @@ class VirtualminDomainController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
             $account['id'] = getenv('CLOUDFLARE_ACCOUNT_ID');
-            $parameters = [
-                'name' => $request->name,
+            $parameters    = [
+                'name'       => $request->name,
                 'jump_start' => true,
-                'account' => $account,
+                'account'    => $account,
             ];
 
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-            $headers = [];
+            $headers   = [];
             $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
             $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
             $headers[] = 'Content-Type: application/json';
@@ -123,17 +123,17 @@ class VirtualminDomainController extends Controller
             curl_close($ch);
 
             if (! empty($response->success)) {
-                $VirtualminDomain = new VirtualminDomain();
+                $VirtualminDomain       = new VirtualminDomain();
                 $VirtualminDomain->name = $request->name;
                 $VirtualminDomain->save();
 
-                $virtualminDomainHistory = new VirtualminDomainHistory();
+                $virtualminDomainHistory                        = new VirtualminDomainHistory();
                 $virtualminDomainHistory->Virtual_min_domain_id = $VirtualminDomain->id;
-                $virtualminDomainHistory->user_id = Auth::user()->id;
-                $virtualminDomainHistory->command = json_encode($parameters);
-                $virtualminDomainHistory->error = $result['error'] ?? null;
-                $virtualminDomainHistory->output = $result;
-                $virtualminDomainHistory->status = $response->result->status;
+                $virtualminDomainHistory->user_id               = Auth::user()->id;
+                $virtualminDomainHistory->command               = json_encode($parameters);
+                $virtualminDomainHistory->error                 = $result['error'] ?? null;
+                $virtualminDomainHistory->output                = $result;
+                $virtualminDomainHistory->status                = $response->result->status;
                 $virtualminDomainHistory->save();
 
                 //create virtual server
@@ -144,9 +144,9 @@ class VirtualminDomainController extends Controller
                 // Parameters
                 $params = [
                     'program' => 'create-domain',
-                    'domain' => $request->name,
-                    'user' => 'adminuser',
-                    'pass' => 'adminpassword',
+                    'domain'  => $request->name,
+                    'user'    => 'adminuser',
+                    'pass'    => 'adminpassword',
                 ];
 
                 // Append parameters to URL
@@ -185,9 +185,9 @@ class VirtualminDomainController extends Controller
         try {
             $this->validate($request, [
                 'Virtual_min_domain_id' => 'required',
-                'name' => 'required',
-                'type' => 'required',
-                'ip_address' => 'required',
+                'name'                  => 'required',
+                'type'                  => 'required',
+                'ip_address'            => 'required',
             ]);
 
             $domain = VirtualminDomain::findOrFail($request->Virtual_min_domain_id);
@@ -201,11 +201,11 @@ class VirtualminDomainController extends Controller
                 curl_setopt($ch, CURLOPT_POST, 0);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                $headers = [];
+                $headers   = [];
                 $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                $result = curl_exec($ch);
+                $result   = curl_exec($ch);
                 $response = json_decode($result);
                 curl_close($ch);
 
@@ -218,11 +218,11 @@ class VirtualminDomainController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     curl_close($ch);
 
@@ -246,9 +246,9 @@ class VirtualminDomainController extends Controller
 
                         $parameters = [
                             'content' => $request->ip_address,
-                            'name' => $request->name . '.' . $domain->name,
+                            'name'    => $request->name . '.' . $domain->name,
                             'proxied' => ($request->proxied == 1) ? true : false,
-                            'type' => $request->type,
+                            'type'    => $request->type,
                         ];
 
                         if ($request->dns_type == 'MX') {
@@ -257,7 +257,7 @@ class VirtualminDomainController extends Controller
 
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -272,24 +272,24 @@ class VirtualminDomainController extends Controller
                         curl_close($ch);
 
                         if (! empty($response->success)) {
-                            $VirtualminDomainDnsRecords = new VirtualminDomainDnsRecords();
+                            $VirtualminDomainDnsRecords                        = new VirtualminDomainDnsRecords();
                             $VirtualminDomainDnsRecords->Virtual_min_domain_id = $request->Virtual_min_domain_id;
-                            $VirtualminDomainDnsRecords->identifier_id = $response->result->id;
-                            $VirtualminDomainDnsRecords->dns_type = $request->dns_type;
-                            $VirtualminDomainDnsRecords->type = $request->type;
-                            $VirtualminDomainDnsRecords->priority = ! empty($request->priority) ? $request->priority : null;
-                            $VirtualminDomainDnsRecords->content = $request->ip_address;
-                            $VirtualminDomainDnsRecords->name = $request->name;
-                            $VirtualminDomainDnsRecords->domain_with_dns_name = $request->name . '.' . $domain->name;
-                            $VirtualminDomainDnsRecords->proxied = ($request->proxied == 1) ? true : false;
+                            $VirtualminDomainDnsRecords->identifier_id         = $response->result->id;
+                            $VirtualminDomainDnsRecords->dns_type              = $request->dns_type;
+                            $VirtualminDomainDnsRecords->type                  = $request->type;
+                            $VirtualminDomainDnsRecords->priority              = ! empty($request->priority) ? $request->priority : null;
+                            $VirtualminDomainDnsRecords->content               = $request->ip_address;
+                            $VirtualminDomainDnsRecords->name                  = $request->name;
+                            $VirtualminDomainDnsRecords->domain_with_dns_name  = $request->name . '.' . $domain->name;
+                            $VirtualminDomainDnsRecords->proxied               = ($request->proxied == 1) ? true : false;
                             $VirtualminDomainDnsRecords->save();
 
-                            $VirtualminDomainDnsRecordsHistory = new VirtualminDomainDnsRecordsHistory();
+                            $VirtualminDomainDnsRecordsHistory                        = new VirtualminDomainDnsRecordsHistory();
                             $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $VirtualminDomainDnsRecords->id;
-                            $VirtualminDomainDnsRecordsHistory->user_id = Auth::user()->id;
-                            $VirtualminDomainDnsRecordsHistory->command = json_encode($parameters);
-                            $VirtualminDomainDnsRecordsHistory->error = $result['error'] ?? null;
-                            $VirtualminDomainDnsRecordsHistory->output = $result;
+                            $VirtualminDomainDnsRecordsHistory->user_id               = Auth::user()->id;
+                            $VirtualminDomainDnsRecordsHistory->command               = json_encode($parameters);
+                            $VirtualminDomainDnsRecordsHistory->error                 = $result['error'] ?? null;
+                            $VirtualminDomainDnsRecordsHistory->output                = $result;
                             $VirtualminDomainDnsRecordsHistory->save();
 
                             return response()->json(['code' => 200, 'message' => 'Domain DNS Create successfully']);
@@ -429,11 +429,11 @@ class VirtualminDomainController extends Controller
                 curl_setopt($ch, CURLOPT_POST, 0);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                $headers = [];
+                $headers   = [];
                 $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                $result = curl_exec($ch);
+                $result   = curl_exec($ch);
                 $response = json_decode($result);
                 curl_close($ch);
 
@@ -446,11 +446,11 @@ class VirtualminDomainController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     curl_close($ch);
 
@@ -497,9 +497,9 @@ class VirtualminDomainController extends Controller
                                 $domainsDnsRecordsData = VirtualminDomainDnsRecords::where('identifier_id', $value['id'])->first();
 
                                 if (empty($domainsDnsRecordsData)) {
-                                    $domainsDnsRecordsCreate = new VirtualminDomainDnsRecords();
+                                    $domainsDnsRecordsCreate                        = new VirtualminDomainDnsRecords();
                                     $domainsDnsRecordsCreate->Virtual_min_domain_id = $id;
-                                    $domainsDnsRecordsCreate->identifier_id = $value['id'];
+                                    $domainsDnsRecordsCreate->identifier_id         = $value['id'];
 
                                     if ($value['type'] == 'A' || $value['type'] == 'CNAME') {
                                         $domainsDnsRecordsCreate->dns_type = 'A';
@@ -509,20 +509,20 @@ class VirtualminDomainController extends Controller
                                         $domainsDnsRecordsCreate->dns_type = 'TXT';
                                     }
 
-                                    $domainsDnsRecordsCreate->type = $value['type'];
-                                    $domainsDnsRecordsCreate->priority = ! empty($value['priority']) ? $value['priority'] : null;
-                                    $domainsDnsRecordsCreate->content = $value['content'];
-                                    $domainsDnsRecordsCreate->name = str_replace('.' . $value['zone_name'], '', $value['name']);
+                                    $domainsDnsRecordsCreate->type                 = $value['type'];
+                                    $domainsDnsRecordsCreate->priority             = ! empty($value['priority']) ? $value['priority'] : null;
+                                    $domainsDnsRecordsCreate->content              = $value['content'];
+                                    $domainsDnsRecordsCreate->name                 = str_replace('.' . $value['zone_name'], '', $value['name']);
                                     $domainsDnsRecordsCreate->domain_with_dns_name = $value['name'];
-                                    $domainsDnsRecordsCreate->proxied = $value['proxied'];
+                                    $domainsDnsRecordsCreate->proxied              = $value['proxied'];
                                     $domainsDnsRecordsCreate->save();
 
-                                    $VirtualminDomainDnsRecordsHistory = new VirtualminDomainDnsRecordsHistory();
+                                    $VirtualminDomainDnsRecordsHistory                        = new VirtualminDomainDnsRecordsHistory();
                                     $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $domainsDnsRecordsCreate->id;
-                                    $VirtualminDomainDnsRecordsHistory->user_id = Auth::user()->id;
-                                    $VirtualminDomainDnsRecordsHistory->command = '';
-                                    $VirtualminDomainDnsRecordsHistory->error = null;
-                                    $VirtualminDomainDnsRecordsHistory->output = 'Sync Record';
+                                    $VirtualminDomainDnsRecordsHistory->user_id               = Auth::user()->id;
+                                    $VirtualminDomainDnsRecordsHistory->command               = '';
+                                    $VirtualminDomainDnsRecordsHistory->error                 = null;
+                                    $VirtualminDomainDnsRecordsHistory->output                = 'Sync Record';
                                     $VirtualminDomainDnsRecordsHistory->save();
                                 }
                             }
@@ -535,7 +535,7 @@ class VirtualminDomainController extends Controller
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
                         $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
                         $headers[] = 'Content-Type: application/json';
@@ -558,7 +558,7 @@ class VirtualminDomainController extends Controller
                 }
             }
 
-            $keyword = $request->get('keyword');
+            $keyword  = $request->get('keyword');
             $dns_type = $request->get('dns_type');
 
             // data search action
@@ -598,11 +598,11 @@ class VirtualminDomainController extends Controller
                 curl_setopt($ch, CURLOPT_POST, 0);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                $headers = [];
+                $headers   = [];
                 $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                $result = curl_exec($ch);
+                $result   = curl_exec($ch);
                 $response = json_decode($result);
                 curl_close($ch);
 
@@ -615,11 +615,11 @@ class VirtualminDomainController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     curl_close($ch);
 
@@ -641,7 +641,7 @@ class VirtualminDomainController extends Controller
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -699,7 +699,7 @@ class VirtualminDomainController extends Controller
 
     public function dnsedit(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id                         = $request->get('id', 0);
         $VirtualminDomainDnsRecords = VirtualminDomainDnsRecords::where('id', $id)->first();
         if ($VirtualminDomainDnsRecords) {
             if ($VirtualminDomainDnsRecords->dns_type == 'A') {
@@ -719,10 +719,10 @@ class VirtualminDomainController extends Controller
         try {
             $this->validate($request, [
                 'Virtual_min_domain_id' => 'required',
-                'name' => 'required',
-                'type' => 'required',
-                'ip_address' => 'required',
-                'id' => 'required',
+                'name'                  => 'required',
+                'type'                  => 'required',
+                'ip_address'            => 'required',
+                'id'                    => 'required',
             ]);
 
             $domain = VirtualminDomain::findOrFail($request->Virtual_min_domain_id);
@@ -739,11 +739,11 @@ class VirtualminDomainController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     curl_close($ch);
 
@@ -756,11 +756,11 @@ class VirtualminDomainController extends Controller
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $response = json_decode($result);
                         curl_close($ch);
 
@@ -784,9 +784,9 @@ class VirtualminDomainController extends Controller
 
                             $parameters = [
                                 'content' => $request->ip_address,
-                                'name' => $request->name . '.' . $domain->name,
+                                'name'    => $request->name . '.' . $domain->name,
                                 'proxied' => ($request->proxied == 1) ? true : false,
-                                'type' => $request->type,
+                                'type'    => $request->type,
                             ];
 
                             if ($request->dns_type == 'MX') {
@@ -795,7 +795,7 @@ class VirtualminDomainController extends Controller
 
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-                            $headers = [];
+                            $headers   = [];
                             $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                             $headers[] = 'Content-Type: application/json';
                             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -811,22 +811,22 @@ class VirtualminDomainController extends Controller
 
                             if (! empty($response->success)) {
                                 $domainsDnsRecords->Virtual_min_domain_id = $request->Virtual_min_domain_id;
-                                $domainsDnsRecords->identifier_id = $response->result->id;
-                                $domainsDnsRecords->dns_type = $request->dns_type;
-                                $domainsDnsRecords->type = $request->type;
-                                $domainsDnsRecords->priority = ! empty($request->priority) ? $request->priority : null;
-                                $domainsDnsRecords->content = $request->ip_address;
-                                $domainsDnsRecords->name = $request->name;
-                                $domainsDnsRecords->domain_with_dns_name = $request->name . '.' . $domain->name;
-                                $domainsDnsRecords->proxied = ($request->proxied == 1) ? true : false;
+                                $domainsDnsRecords->identifier_id         = $response->result->id;
+                                $domainsDnsRecords->dns_type              = $request->dns_type;
+                                $domainsDnsRecords->type                  = $request->type;
+                                $domainsDnsRecords->priority              = ! empty($request->priority) ? $request->priority : null;
+                                $domainsDnsRecords->content               = $request->ip_address;
+                                $domainsDnsRecords->name                  = $request->name;
+                                $domainsDnsRecords->domain_with_dns_name  = $request->name . '.' . $domain->name;
+                                $domainsDnsRecords->proxied               = ($request->proxied == 1) ? true : false;
                                 $domainsDnsRecords->save();
 
-                                $VirtualminDomainDnsRecordsHistory = new VirtualminDomainDnsRecordsHistory();
+                                $VirtualminDomainDnsRecordsHistory                        = new VirtualminDomainDnsRecordsHistory();
                                 $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $domainsDnsRecords->id;
-                                $VirtualminDomainDnsRecordsHistory->user_id = Auth::user()->id;
-                                $VirtualminDomainDnsRecordsHistory->command = json_encode($parameters);
-                                $VirtualminDomainDnsRecordsHistory->error = $result['error'] ?? null;
-                                $VirtualminDomainDnsRecordsHistory->output = $result;
+                                $VirtualminDomainDnsRecordsHistory->user_id               = Auth::user()->id;
+                                $VirtualminDomainDnsRecordsHistory->command               = json_encode($parameters);
+                                $VirtualminDomainDnsRecordsHistory->error                 = $result['error'] ?? null;
+                                $VirtualminDomainDnsRecordsHistory->output                = $result;
                                 $VirtualminDomainDnsRecordsHistory->save();
 
                                 return response()->json(['code' => 200, 'message' => 'Domain DNS updated successfully']);
@@ -852,16 +852,16 @@ class VirtualminDomainController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-        $id = $request->get('id', 0);
+        $id        = $request->get('id', 0);
         $pageNotes = \App\PageNotes::where('id', $id)->first();
         if ($pageNotes) {
-            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->user_id     = \Auth::user()->id;
             $pageNotes->category_id = $request->get('category_id', null);
-            $pageNotes->note = $request->get('note', '');
+            $pageNotes->note        = $request->get('note', '');
 
             if ($pageNotes->save()) {
-                $list = $pageNotes->getAttributes();
-                $list['name'] = $pageNotes->user->name;
+                $list                  = $pageNotes->getAttributes();
+                $list['name']          = $pageNotes->user->name;
                 $list['category_name'] = ! empty($pageNotes->pageNotesCategories->name) ? $pageNotes->pageNotesCategories->name : '';
 
                 return response()->json(['code' => 1, 'notes' => $list]);
@@ -875,7 +875,7 @@ class VirtualminDomainController extends Controller
     {
         try {
             $this->validate($request, [
-                'id' => 'required',
+                'id'    => 'required',
                 'value' => 'required',
             ]);
 
@@ -890,11 +890,11 @@ class VirtualminDomainController extends Controller
                 curl_setopt($ch, CURLOPT_POST, 0);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                $headers = [];
+                $headers   = [];
                 $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                $result = curl_exec($ch);
+                $result   = curl_exec($ch);
                 $response = json_decode($result);
                 curl_close($ch);
 
@@ -907,11 +907,11 @@ class VirtualminDomainController extends Controller
                     curl_setopt($ch, CURLOPT_POST, 0);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                    $headers = [];
+                    $headers   = [];
                     $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                    $result = curl_exec($ch);
+                    $result   = curl_exec($ch);
                     $response = json_decode($result);
                     curl_close($ch);
 
@@ -939,7 +939,7 @@ class VirtualminDomainController extends Controller
 
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
                         $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
                         $headers[] = 'Content-Type: application/json';
@@ -976,16 +976,16 @@ class VirtualminDomainController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-        $id = $request->get('id', 0);
+        $id        = $request->get('id', 0);
         $pageNotes = \App\PageNotes::where('id', $id)->first();
         if ($pageNotes) {
-            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->user_id     = \Auth::user()->id;
             $pageNotes->category_id = $request->get('category_id', null);
-            $pageNotes->note = $request->get('note', '');
+            $pageNotes->note        = $request->get('note', '');
 
             if ($pageNotes->save()) {
-                $list = $pageNotes->getAttributes();
-                $list['name'] = $pageNotes->user->name;
+                $list                  = $pageNotes->getAttributes();
+                $list['name']          = $pageNotes->user->name;
                 $list['category_name'] = ! empty($pageNotes->pageNotesCategories->name) ? $pageNotes->pageNotesCategories->name : '';
 
                 return response()->json(['code' => 1, 'notes' => $list]);

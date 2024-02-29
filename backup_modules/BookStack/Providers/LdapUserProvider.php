@@ -23,11 +23,12 @@ class LdapUserProvider implements UserProvider
     /**
      * LdapUserProvider constructor.
      *
-     * @param  \BookStack\Auth\LdapService  $ldapService
+     * @param \BookStack\Auth\LdapService $ldapService
+     * @param mixed                       $model
      */
     public function __construct($model, LdapService $ldapService)
     {
-        $this->model = $model;
+        $this->model       = $model;
         $this->ldapService = $ldapService;
     }
 
@@ -46,7 +47,8 @@ class LdapUserProvider implements UserProvider
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param  mixed  $identifier
+     * @param mixed $identifier
+     *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveById($identifier)
@@ -57,8 +59,9 @@ class LdapUserProvider implements UserProvider
     /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
-     * @param  mixed  $identifier
-     * @param  string  $token
+     * @param mixed  $identifier
+     * @param string $token
+     *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function retrieveByToken($identifier, $token)
@@ -74,7 +77,8 @@ class LdapUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  string  $token
+     * @param string $token
+     *
      * @return void
      */
     public function updateRememberToken(Authenticatable $user, $token)
@@ -99,7 +103,7 @@ class LdapUserProvider implements UserProvider
         }
 
         // Search current user base by looking up a uid
-        $model = $this->createModel();
+        $model       = $this->createModel();
         $currentUser = $model->newQuery()
             ->where('external_auth_id', $userDetails['uid'])
             ->first();
@@ -108,10 +112,10 @@ class LdapUserProvider implements UserProvider
             return $currentUser;
         }
 
-        $model->name = $userDetails['name'];
+        $model->name             = $userDetails['name'];
         $model->external_auth_id = $userDetails['uid'];
-        $model->email = $userDetails['email'];
-        $model->email_confirmed = false;
+        $model->email            = $userDetails['email'];
+        $model->email_confirmed  = false;
 
         return $model;
     }

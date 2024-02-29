@@ -37,8 +37,8 @@ final class DropTableController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
-        $this->relationCleanup = $relationCleanup;
+        $this->dbi                 = $dbi;
+        $this->relationCleanup     = $relationCleanup;
         $this->structureController = $structureController;
     }
 
@@ -46,8 +46,8 @@ final class DropTableController extends AbstractController
     {
         global $db, $message, $reload, $sql_query;
 
-        $reload = $_POST['reload'] ?? $reload ?? null;
-        $multBtn = $_POST['mult_btn'] ?? '';
+        $reload   = $_POST['reload'] ?? $reload ?? null;
+        $multBtn  = $_POST['mult_btn'] ?? '';
         $selected = $_POST['selected'] ?? [];
 
         $views = $this->dbi->getVirtualTables($db);
@@ -67,9 +67,9 @@ final class DropTableController extends AbstractController
         }
 
         $defaultFkCheckValue = ForeignKey::handleDisableCheckInit();
-        $sql_query = '';
-        $sqlQueryViews = '';
-        $selectedCount = count($selected);
+        $sql_query           = '';
+        $sqlQueryViews       = '';
+        $selectedCount       = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {
             $this->relationCleanup->table($db, $selected[$i]);

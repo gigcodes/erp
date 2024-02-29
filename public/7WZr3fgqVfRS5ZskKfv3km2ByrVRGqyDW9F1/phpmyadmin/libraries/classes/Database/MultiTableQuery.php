@@ -56,10 +56,10 @@ class MultiTableQuery
     public $template;
 
     /**
-     * @param  DatabaseInterface  $dbi                DatabaseInterface instance
-     * @param  Template  $template           Template instance
-     * @param  string  $dbName             Database name
-     * @param  int  $defaultNoOfColumns Default number of columns
+     * @param DatabaseInterface $dbi                DatabaseInterface instance
+     * @param Template          $template           Template instance
+     * @param string            $dbName             Database name
+     * @param int               $defaultNoOfColumns Default number of columns
      */
     public function __construct(
         DatabaseInterface $dbi,
@@ -67,8 +67,8 @@ class MultiTableQuery
         $dbName,
         $defaultNoOfColumns = 3
     ) {
-        $this->dbi = $dbi;
-        $this->db = $dbName;
+        $this->dbi                = $dbi;
+        $this->db                 = $dbName;
         $this->defaultNoOfColumns = $defaultNoOfColumns;
 
         $this->template = $template;
@@ -85,15 +85,15 @@ class MultiTableQuery
     {
         $tables = [];
         foreach ($this->tables as $table) {
-            $tables[$table]['hash'] = md5($table);
+            $tables[$table]['hash']    = md5($table);
             $tables[$table]['columns'] = array_keys(
                 $this->dbi->getColumns($this->db, $table)
             );
         }
 
         return $this->template->render('database/multi_table_query/form', [
-            'db' => $this->db,
-            'tables' => $tables,
+            'db'                    => $this->db,
+            'tables'                => $tables,
             'default_no_of_columns' => $this->defaultNoOfColumns,
         ]);
     }
@@ -101,8 +101,8 @@ class MultiTableQuery
     /**
      * Displays multi-table query results
      *
-     * @param  string  $sqlQuery The query to parse
-     * @param  string  $db       The current database
+     * @param string $sqlQuery The query to parse
+     * @param string $db       The current database
      */
     public static function displayResults($sqlQuery, $db): string
     {
@@ -113,7 +113,7 @@ class MultiTableQuery
         $goto = Url::getFromRoute('/database/multi-table-query');
 
         $relation = new Relation($dbi);
-        $sql = new Sql(
+        $sql      = new Sql(
             $dbi,
             $relation,
             new RelationCleanup($dbi, $relation),

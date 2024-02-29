@@ -55,20 +55,20 @@ class MagentoProductPushErrors extends Controller
 
         if (! empty($request->response_status)) {
             $response_status = $request->response_status;
-            $records = $records->where(function ($q) use ($response_status) {
+            $records         = $records->where(function ($q) use ($response_status) {
                 $q->where('response_status', 'LIKE', $response_status);
             });
         }
 
         if (! empty($request->log_date)) {
             $log_date = date('Y-m-d', strtotime($request->log_date));
-            $records = $records->whereBetween('created_at', [$log_date . ' 00:00:00', $log_date . ' 23:59:59']);
+            $records  = $records->whereBetween('created_at', [$log_date . ' 00:00:00', $log_date . ' 23:59:59']);
         }
 
         $records = $records->latest()->paginate(50);
 
         $recorsArray = [];
-        $conditions = PushToMagentoCondition::pluck('condition', 'id')->toArray();
+        $conditions  = PushToMagentoCondition::pluck('condition', 'id')->toArray();
 
         foreach ($records as $row) {
             $condition = '';
@@ -76,14 +76,14 @@ class MagentoProductPushErrors extends Controller
                 $condition = $conditions[$row->condition_id];
             }
             $recorsArray[] = [
-                'product_id' => '<a class="show-product-information" data-id="' . $row->product_id . '" href="/products/' . $row->product_id . '" target="__blank">' . $row->product_id . '</a>',
-                'updated_at' => $row->created_at->format('d-m-y H:i:s'),
+                'product_id'    => '<a class="show-product-information" data-id="' . $row->product_id . '" href="/products/' . $row->product_id . '" target="__blank">' . $row->product_id . '</a>',
+                'updated_at'    => $row->created_at->format('d-m-y H:i:s'),
                 'store_website' => ($row->store_website) ? $row->store_website->title : '-',
-                'message' => Str::limit(strip_tags($row->message), 30,
+                'message'       => Str::limit(strip_tags($row->message), 30,
                     '<a data-logid=' . $row->id . ' class="message_load">...</a>'),
                 'request_data' => Str::limit($row->request_data, 30,
                     '<a data-logid=' . $row->id . ' class="request_data_load">...</a>'),
-                'condition_id' => $condition,
+                'condition_id'  => $condition,
                 'response_data' => Str::limit($row->response_data, 30,
                     '<a data-logid=' . $row->id . ' class="response_data_load">...</a>'),
                 'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="' . $row->id . '">
@@ -101,11 +101,11 @@ class MagentoProductPushErrors extends Controller
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $recorsArray,
+            'code'       => 200,
+            'data'       => $recorsArray,
             'pagination' => (string) $records->links(),
-            'total' => $records->total(),
-            'page' => $records->currentPage(),
+            'total'      => $records->total(),
+            'page'       => $records->currentPage(),
         ]);
     }
 
@@ -132,18 +132,18 @@ class MagentoProductPushErrors extends Controller
         foreach ($records as $row) {
             if (strpos($row->message, 'Failed readiness') !== false) {
                 if (array_key_exists('Failed_readiness', $recordsArr)) {
-                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['count']   = $recordsArr['Failed_readiness']['count'] + 1;
                     $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
                 } else {
                     $recordsArr['Failed_readiness'] = [
-                        'count' => 1,
+                        'count'   => 1,
                         'message' => $row->message,
 
                     ];
                 }
             } else {
                 $recordsArr[] = [
-                    'count' => $row->count,
+                    'count'   => $row->count,
                     'message' => $row->message,
 
                 ];
@@ -181,20 +181,20 @@ class MagentoProductPushErrors extends Controller
         foreach ($records as $key => $row) {
             if (strpos($row->message, 'Failed readiness') !== false) {
                 if (array_key_exists('Failed_readiness_' . $row->response_status, $recordsArr)) {
-                    $recordsArr['Failed_readiness_' . $row->response_status]['count'] = $recordsArr['Failed_readiness_' . $row->response_status]['count'] + 1;
+                    $recordsArr['Failed_readiness_' . $row->response_status]['count']   = $recordsArr['Failed_readiness_' . $row->response_status]['count'] + 1;
                     $recordsArr['Failed_readiness_' . $row->response_status]['message'] = 'Failed readiness';
                 } else {
                     $recordsArr['Failed_readiness_' . $row->response_status] = [
-                        'count' => 1,
+                        'count'   => 1,
                         'message' => $row->message,
-                        'status' => $row->response_status,
+                        'status'  => $row->response_status,
                     ];
                 }
             } else {
                 $recordsArr[] = [
-                    'count' => $row->count,
+                    'count'   => $row->count,
                     'message' => $row->message,
-                    'status' => $row->response_status,
+                    'status'  => $row->response_status,
                 ];
             }
         }
@@ -223,10 +223,10 @@ class MagentoProductPushErrors extends Controller
 
     public function changeStatus(Request $request, $id)
     {
-        $log = ProductPushErrorLog::where('id', $id)->first();
+        $log         = ProductPushErrorLog::where('id', $id)->first();
         $logged_user = $request->user();
 
-        $newtime = strtotime($log->created_at);
+        $newtime    = strtotime($log->created_at);
         $created_at = date('Y-m-d', $newtime);
 
         if ($log) {
@@ -237,8 +237,8 @@ class MagentoProductPushErrors extends Controller
 
                 $old_value = $value->response_status;
                 MagentoLogHistory::create([
-                    'log_id' => $value->id,
-                    'user_id' => $logged_user->id,
+                    'log_id'    => $value->id,
+                    'user_id'   => $logged_user->id,
                     'old_value' => $old_value,
                     'new_value' => $request->type,
                 ]);

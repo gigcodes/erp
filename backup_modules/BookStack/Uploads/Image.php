@@ -15,9 +15,10 @@ class Image extends Ownable
     /**
      * Get a thumbnail for this image.
      *
-     * @param  int  $width
-     * @param  int  $height
-     * @param  bool|false  $keepRatio
+     * @param int        $width
+     * @param int        $height
+     * @param bool|false $keepRatio
+     *
      * @return string
      *
      * @throws \Exception

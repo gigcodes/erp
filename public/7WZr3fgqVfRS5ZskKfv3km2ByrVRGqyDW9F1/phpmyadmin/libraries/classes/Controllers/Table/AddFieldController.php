@@ -53,9 +53,9 @@ class AddFieldController extends AbstractController
     ) {
         parent::__construct($response, $template, $db, $table);
         $this->transformations = $transformations;
-        $this->config = $config;
-        $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->config          = $config;
+        $this->relation        = $relation;
+        $this->dbi             = $dbi;
     }
 
     public function __invoke(): void
@@ -74,7 +74,7 @@ class AddFieldController extends AbstractController
          * Defines the url to return to in case of error in a sql statement
          */
         $errorUrl = Url::getFromRoute('/table/sql', [
-            'db' => $db,
+            'db'    => $db,
             'table' => $table,
         ]);
 
@@ -159,8 +159,8 @@ class AddFieldController extends AbstractController
             $this->response->addJSON(
                 'structure_refresh_route',
                 Url::getFromRoute('/table/structure', [
-                    'db' => $db,
-                    'table' => $table,
+                    'db'           => $db,
+                    'table'        => $table,
                     'ajax_request' => '1',
                 ])
             );
@@ -169,7 +169,7 @@ class AddFieldController extends AbstractController
         }
 
         $url_params = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl   = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($url_params, '&');
 
         DbTableExists::check();

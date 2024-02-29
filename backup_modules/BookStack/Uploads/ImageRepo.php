@@ -20,8 +20,8 @@ class ImageRepo
     /**
      * ImageRepo constructor.
      *
-     * @param  \BookStack\Auth\Permissions\PermissionService  $permissionService
-     * @param  \BookStack\Entities\Page  $page
+     * @param \BookStack\Auth\Permissions\PermissionService $permissionService
+     * @param \BookStack\Entities\Page                      $page
      */
     public function __construct(
         Image $image,
@@ -29,14 +29,16 @@ class ImageRepo
         PermissionService $permissionService,
         Page $page
     ) {
-        $this->image = $image;
-        $this->imageService = $imageService;
+        $this->image              = $image;
+        $this->imageService       = $imageService;
         $this->restrictionService = $permissionService;
-        $this->page = $page;
+        $this->page               = $page;
     }
 
     /**
      * Get an image with the given id.
+     *
+     * @param mixed $id
      *
      * @return Image
      */
@@ -49,14 +51,16 @@ class ImageRepo
      * Execute a paginated query, returning in a standard format.
      * Also runs the query through the restriction system.
      *
-     * @param  int  $page
-     * @param  int  $pageSize
-     * @param  bool  $filterOnPage
+     * @param int   $page
+     * @param int   $pageSize
+     * @param bool  $filterOnPage
+     * @param mixed $query
+     *
      * @return array
      */
     private function returnPaginated($query, $page = 1, $pageSize = 24)
     {
-        $images = $query->orderBy('created_at', 'desc')->skip($pageSize * ($page - 1))->take($pageSize + 1)->get();
+        $images  = $query->orderBy('created_at', 'desc')->skip($pageSize * ($page - 1))->take($pageSize + 1)->get();
         $hasMore = count($images) > $pageSize;
 
         $returnImages = $images->take($pageSize);
@@ -65,7 +69,7 @@ class ImageRepo
         });
 
         return [
-            'images' => $returnImages,
+            'images'   => $returnImages,
             'has_more' => $hasMore,
         ];
     }
@@ -74,7 +78,8 @@ class ImageRepo
      * Fetch a list of images in a paginated format, filtered by image type.
      * Can be filtered by uploaded to and also by name.
      *
-     * @param  int  $uploadedTo
+     * @param int $uploadedTo
+     *
      * @return array
      */
     public function getPaginatedByType(
@@ -108,7 +113,8 @@ class ImageRepo
     /**
      * Get paginated gallery images within a specific page or book.
      *
-     * @param  string  $filterType
+     * @param string $filterType
+     *
      * @return array
      */
     public function getEntityFiltered(
@@ -119,7 +125,7 @@ class ImageRepo
         int $uploadedTo = null,
         string $search = null
     ) {
-        $contextPage = $this->page->findOrFail($uploadedTo);
+        $contextPage  = $this->page->findOrFail($uploadedTo);
         $parentFilter = null;
 
         if ($filterType === 'book' || $filterType === 'page') {
@@ -139,8 +145,9 @@ class ImageRepo
     /**
      * Save a new image into storage and return the new image.
      *
-     * @param  string  $type
-     * @param  int  $uploadedTo
+     * @param string $type
+     * @param int    $uploadedTo
+     *
      * @return Image
      *
      * @throws \BookStack\Exceptions\ImageUploadException
@@ -162,7 +169,7 @@ class ImageRepo
      */
     public function saveDrawing(string $base64Uri, int $uploadedTo)
     {
-        $name = 'Drawing-' . user()->getShortName(40) . '-' . strval(time()) . '.png';
+        $name  = 'Drawing-' . user()->getShortName(40) . '-' . strval(time()) . '.png';
         $image = $this->imageService->saveNewFromBase64Uri($base64Uri, $name, 'drawio', $uploadedTo);
 
         return $image;
@@ -171,7 +178,8 @@ class ImageRepo
     /**
      * Update the details of an image via an array of properties.
      *
-     * @param  array  $updateDetails
+     * @param array $updateDetails
+     *
      * @return Image
      *
      * @throws \BookStack\Exceptions\ImageUploadException
@@ -189,7 +197,8 @@ class ImageRepo
     /**
      * Destroys an Image object along with its revisions, files and thumbnails.
      *
-     * @param  Image  $image
+     * @param Image $image
+     *
      * @return bool
      *
      * @throws \Exception
@@ -237,9 +246,10 @@ class ImageRepo
      * If $keepRatio is true only the width will be used.
      * Checks the cache then storage to avoid creating / accessing the filesystem on every check.
      *
-     * @param  int  $width
-     * @param  int  $height
-     * @param  bool  $keepRatio
+     * @param int  $width
+     * @param int  $height
+     * @param bool $keepRatio
+     *
      * @return string
      *
      * @throws \BookStack\Exceptions\ImageUploadException

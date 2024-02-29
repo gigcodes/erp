@@ -126,6 +126,8 @@ class UserTableSeeder extends Seeder
 
     /**
      * Create a user with given role
+     *
+     * @param mixed $role
      */
     private function createUser($role)
     {

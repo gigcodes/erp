@@ -10,6 +10,9 @@ class KeywordsChecker
 {
     /**
      * @purpose This method gets the messages, and then checks if keywords is in that string or not...
+     *
+     * @param mixed $keywords
+     * @param mixed $customers
      */
     public function assignCustomerAndKeyword($keywords, $customers): void
     {
@@ -25,6 +28,10 @@ class KeywordsChecker
 
     /**
      * @purpose Checks if the message is in string, and creates keywords like that...
+     *
+     * @param mixed $customer
+     * @param mixed $message
+     * @param mixed $keywords
      */
     private function makeKeywordEntryForCustomer($customer, $message, $keywords): void
     {
@@ -48,6 +55,9 @@ class KeywordsChecker
 
     /**
      * @purpose create customer and keyword relationship for new incoming messages...
+     *
+     * @param mixed $message
+     * @param mixed $customer
      */
     public function assignCustomerAndKeywordForNewMessage($message, $customer): void
     {
@@ -57,11 +67,13 @@ class KeywordsChecker
 
     /**
      * @purpose To return the latest 3 non-replied messages, this will ignore the auto-generated message...
+     *
+     * @param mixed $customer
      */
     private function getCustomerMessages($customer): string
     {
         $messageText = '';
-        $messages = ChatMessage::whereNotIn('status', [7, 8, 9, 10])->where('customer_id', $customer->id)->orderBy('id', 'DESC')->take(3)->get();
+        $messages    = ChatMessage::whereNotIn('status', [7, 8, 9, 10])->where('customer_id', $customer->id)->orderBy('id', 'DESC')->take(3)->get();
 
         foreach ($messages as $message) {
             if ($message->user_id) {

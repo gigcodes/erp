@@ -67,7 +67,7 @@ abstract class PluginPropertyItem extends PropertyItem
     /**
      * Sets the text
      *
-     * @param  string  $text text
+     * @param string $text text
      */
     public function setText($text): void
     {
@@ -87,7 +87,7 @@ abstract class PluginPropertyItem extends PropertyItem
     /**
      * Sets the extension
      *
-     * @param  string  $extension extension
+     * @param string $extension extension
      */
     public function setExtension($extension): void
     {
@@ -107,7 +107,7 @@ abstract class PluginPropertyItem extends PropertyItem
     /**
      * Sets the options
      *
-     * @param  OptionsPropertyRootGroup  $options options
+     * @param OptionsPropertyRootGroup $options options
      */
     public function setOptions($options): void
     {
@@ -127,7 +127,7 @@ abstract class PluginPropertyItem extends PropertyItem
     /**
      * Sets the options text
      *
-     * @param  string  $optionsText optionsText
+     * @param string $optionsText optionsText
      */
     public function setOptionsText($optionsText): void
     {
@@ -147,7 +147,7 @@ abstract class PluginPropertyItem extends PropertyItem
     /**
      * Sets the MIME type
      *
-     * @param  string  $mimeType MIME type
+     * @param string $mimeType MIME type
      */
     public function setMimeType($mimeType): void
     {

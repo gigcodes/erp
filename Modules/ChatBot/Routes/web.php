@@ -21,7 +21,7 @@ use Modules\ChatBot\Http\Controllers\AnalyticsController;
 
 Route::group([
     'middleware' => 'auth',
-    'prefix' => 'chatbot',
+    'prefix'     => 'chatbot',
 ], function () {
     Route::get('/', [ChatBotController::class, 'index']);
     Route::post('/edit-message', [ChatBotController::class, 'editMessage'])->name('chatbot.edit.message');

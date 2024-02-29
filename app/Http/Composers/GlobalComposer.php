@@ -15,13 +15,13 @@ class GlobalComposer
     {
         if (auth()->check() == true) {
             $currentPath = Route::getFacadeRoot()->current()->uri();
-            $permission = new PermissionCheck();
-            $per = $permission->checkUser($currentPath);
+            $permission  = new PermissionCheck();
+            $per         = $permission->checkUser($currentPath);
             if ($per == true) {
                 $view->with('currentUser', Auth::user());
             } else {
-                $url = explode('/', $currentPath);
-                $model = $url[0];
+                $url     = explode('/', $currentPath);
+                $model   = $url[0];
                 $actions = end($url);
                 if ($model != '') {
                     if ($model == $actions) {
@@ -36,13 +36,13 @@ class GlobalComposer
                 $permission = Permission::where('route', $genUrl)->first();
                 if (isset($permission->route)) {
                     PermissionRequest::updateOrcreate([
-                        'user_id' => Auth::user()->id,
+                        'user_id'       => Auth::user()->id,
                         'permission_id' => $permission->id,
                     ],
                         [
-                            'user_id' => Auth::user()->id,
-                            'permission_id' => $permission->id,
-                            'request_date' => date('Y-m-d H:i:s'),
+                            'user_id'         => Auth::user()->id,
+                            'permission_id'   => $permission->id,
+                            'request_date'    => date('Y-m-d H:i:s'),
                             'permission_name' => $permission->route,
                         ]);
                     echo 'unauthorized permission name ' . $permission->route;

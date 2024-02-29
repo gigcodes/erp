@@ -25,17 +25,17 @@ class TestCaseController extends Controller
 {
     public function index(Request $request)
     {
-        $title = 'Test Cases';
+        $title            = 'Test Cases';
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->get();
+        $filterWebsites   = StoreWebsite::orderBy('website')->get();
         $testCaseStatuses = TestCaseStatus::get();
-        $users = User::get();
+        $users            = User::get();
 
         return view('test-cases.index', [
-            'title' => $title,
+            'title'            => $title,
             'filterCategories' => $filterCategories,
-            'filterWebsites' => $filterWebsites,
-            'users' => $users,
+            'filterWebsites'   => $filterWebsites,
+            'users'            => $users,
             'testCaseStatuses' => $testCaseStatuses,
         ]);
     }
@@ -43,23 +43,23 @@ class TestCaseController extends Controller
     public function create()
     {
         $testCaseStatuses = TestCaseStatus::get();
-        $users = User::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        $filterWebsites   = StoreWebsite::orderBy('website')->pluck('website')->toArray();
 
         return view('test-cases.create', compact('testCaseStatuses', 'users', 'filterCategories', 'filterWebsites'));
     }
 
     public function status(Request $request)
     {
-        $status = $request->all();
+        $status    = $request->all();
         $validator = Validator::make($status, [
             'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['code' => 500, 'error' => 'Name is required']);
         }
-        $data = $request->except('_token');
+        $data    = $request->except('_token');
         $records = TestCaseStatus::create($data);
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -67,22 +67,22 @@ class TestCaseController extends Controller
 
     public function store(Request $request)
     {
-        $test = $request->except('_token');
+        $test      = $request->except('_token');
         $validator = Validator::make($test, [
-            'name' => 'required|string',
-            'suite' => 'required|string',
-            'module_id' => 'required|string',
-            'precondition' => 'required|string',
+            'name'              => 'required|string',
+            'suite'             => 'required|string',
+            'module_id'         => 'required|string',
+            'precondition'      => 'required|string',
             'step_to_reproduce' => 'required|string',
-            'expected_result' => 'required|string',
-            'test_status_id' => 'required|string',
-            'website' => 'required|string',
+            'expected_result'   => 'required|string',
+            'test_status_id'    => 'required|string',
+            'website'           => 'required|string',
 
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -103,25 +103,25 @@ class TestCaseController extends Controller
         $records->fill($test);
         $records->save();
         $test['test_case_id'] = $records->id;
-        $params = ChatMessage::create([
-            'user_id' => \Auth::user()->id,
-            'test_case_id' => $records->id,
+        $params               = ChatMessage::create([
+            'user_id'         => \Auth::user()->id,
+            'test_case_id'    => $records->id,
             'sent_to_user_id' => ($request->assign_to != \Auth::user()->id) ? $request->assign_to : \Auth::user()->id,
-            'approved' => '1',
-            'status' => '2',
-            'message' => $request->name,
+            'approved'        => '1',
+            'status'          => '2',
+            'message'         => $request->name,
         ]);
         $testCaseHistory = TestCaseHistory::create($test);
 
         $usertestHistory = [
             'test_case_id' => $records->id,
-            'new_user' => $request->assign_to,
-            'updated_by' => \Auth::user()->id,
+            'new_user'     => $request->assign_to,
+            'updated_by'   => \Auth::user()->id,
         ];
         $userteststatusHistory = [
             'test_case_id' => $records->id,
-            'new_status' => $request->test_status_id,
-            'updated_by' => \Auth::user()->id,
+            'new_status'   => $request->test_status_id,
+            'updated_by'   => \Auth::user()->id,
         ];
         TestCaseHistory::create($usertestHistory);
         TestCaseStatusHistory::create($userteststatusHistory);
@@ -133,9 +133,9 @@ class TestCaseController extends Controller
     {
         $testcaseusers = TestCaseUserHistory::where('test_case_id', $id)->get();
         $testcaseusers = $testcaseusers->map(function ($testcaseuser) {
-            $testcaseuser->new_user = User::where('id', $testcaseuser->new_user)->value('name');
-            $testcaseuser->old_user = User::where('id', $testcaseuser->old_user)->value('name');
-            $testcaseuser->updated_by = User::where('id', $testcaseuser->updated_by)->value('name');
+            $testcaseuser->new_user        = User::where('id', $testcaseuser->new_user)->value('name');
+            $testcaseuser->old_user        = User::where('id', $testcaseuser->old_user)->value('name');
+            $testcaseuser->updated_by      = User::where('id', $testcaseuser->updated_by)->value('name');
             $testcaseuser->created_at_date = $testcaseuser->created_at;
 
             return $testcaseuser;
@@ -148,9 +148,9 @@ class TestCaseController extends Controller
     {
         $testcasestatus = TestCaseStatusHistory::where('test_case_id', $id)->get();
         $testcasestatus = $testcasestatus->map(function ($testcaseuserstatus) {
-            $testcaseuserstatus->new_status = TestCaseStatus::where('id', $testcaseuserstatus->new_status)->value('name');
-            $testcaseuserstatus->old_status = TestCaseStatus::where('id', $testcaseuserstatus->old_status)->value('name');
-            $testcaseuserstatus->updated_by = User::where('id', $testcaseuserstatus->updated_by)->value('name');
+            $testcaseuserstatus->new_status      = TestCaseStatus::where('id', $testcaseuserstatus->new_status)->value('name');
+            $testcaseuserstatus->old_status      = TestCaseStatus::where('id', $testcaseuserstatus->old_status)->value('name');
+            $testcaseuserstatus->updated_by      = User::where('id', $testcaseuserstatus->updated_by)->value('name');
             $testcaseuserstatus->created_at_date = $testcaseuserstatus->created_at;
 
             return $testcaseuserstatus;
@@ -226,9 +226,9 @@ class TestCaseController extends Controller
         }
         $records = $records->get();
         $records = $records->map(function ($testCase) {
-            $testCase->created_by = User::where('id', $testCase->created_by)->value('name');
-            $testCase->created_at_date = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y');
-            $testCase->website = StoreWebsite::where('id', $testCase->website)->value('title');
+            $testCase->created_by              = User::where('id', $testCase->created_by)->value('name');
+            $testCase->created_at_date         = \Carbon\Carbon::parse($testCase->created_at)->format('d-m-Y');
+            $testCase->website                 = StoreWebsite::where('id', $testCase->website)->value('title');
             $testCase->step_to_reproduce_short = Str::limit($testCase->step_to_reproduce, 5, '..');
 
             return $testCase;
@@ -239,19 +239,19 @@ class TestCaseController extends Controller
 
     public function edit($id)
     {
-        $testCase = TestCase::findorFail($id);
+        $testCase         = TestCase::findorFail($id);
         $testCaseStatuses = TestCaseStatus::get();
-        $users = User::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        $filterWebsites   = StoreWebsite::orderBy('website')->pluck('website')->toArray();
         if ($testCase) {
             return response()->json([
-                'code' => 200,
-                'data' => $testCase,
+                'code'             => 200,
+                'data'             => $testCase,
                 'testCaseStatuses' => $testCaseStatuses,
                 'filterCategories' => $filterCategories,
-                'users' => $users,
-                'filterWebsites' => $filterWebsites, ]
+                'users'            => $users,
+                'filterWebsites'   => $filterWebsites, ]
             );
         }
 
@@ -260,31 +260,31 @@ class TestCaseController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request->except('_token', 'id');
+        $data      = $request->except('_token', 'id');
         $validator = Validator::make($data, [
-            'name' => 'required|string',
-            'suite' => 'required|string',
-            'module_id' => 'required|string',
-            'precondition' => 'required|string',
+            'name'              => 'required|string',
+            'suite'             => 'required|string',
+            'module_id'         => 'required|string',
+            'precondition'      => 'required|string',
             'step_to_reproduce' => 'required|string',
-            'expected_result' => 'required|string',
-            'test_status_id' => 'required|string',
-            'website' => 'required|string',
+            'expected_result'   => 'required|string',
+            'test_status_id'    => 'required|string',
+            'website'           => 'required|string',
 
         ]);
 
-        $data = $request->except('_token', 'id');
+        $data     = $request->except('_token', 'id');
         $testCase = TestCase::where('id', $request->id)->first();
 
         $data['created_by'] = \Auth::user()->id;
         $data['updated_by'] = \Auth::user()->id;
-        $params = ChatMessage::create([
-            'user_id' => \Auth::user()->id,
-            'test_case_id' => $testCase->id,
+        $params             = ChatMessage::create([
+            'user_id'         => \Auth::user()->id,
+            'test_case_id'    => $testCase->id,
             'sent_to_user_id' => ($request->assign_to != \Auth::user()->id) ? $request->assign_to : \Auth::user()->id,
-            'approved' => '1',
-            'status' => '2',
-            'message' => $request->name,
+            'approved'        => '1',
+            'status'          => '2',
+            'message'         => $request->name,
         ]);
         $testCase->update($data);
         $data['test_case_id'] = $request->id;
@@ -297,8 +297,8 @@ class TestCaseController extends Controller
     {
         $testCaseHistory = TestCaseHistory::where('test_case_id', $id)->orderBy('id', 'desc')->get();
         $testCaseHistory = $testCaseHistory->map(function ($testCase) {
-            $testCase->assign_to = User::where('id', $testCase->assign_to)->value('name');
-            $testCase->updated_by = User::where('id', $testCase->updated_by)->value('name');
+            $testCase->assign_to      = User::where('id', $testCase->assign_to)->value('name');
+            $testCase->updated_by     = User::where('id', $testCase->updated_by)->value('name');
             $testCase->test_status_id = TestCaseStatus::where('id', $testCase->test_status_id)->value('name');
 
             return $testCase;
@@ -310,7 +310,7 @@ class TestCaseController extends Controller
     public function destroy(TestCase $testCase, Request $request)
     {
         try {
-            $testCase = TestCase::where('id', '=', $request->id)->delete();
+            $testCase        = TestCase::where('id', '=', $request->id)->delete();
             $testCaseHistory = TestCaseHistory::where('test_case_id', '=', $request->id)->delete();
 
             return response()->json(['code' => 200, 'data' => $testCase, 'message' => 'Deleted successfully!!!']);
@@ -338,7 +338,7 @@ class TestCaseController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id;
         $user = Auth::user();
         $test = TestCase::find($request->id);
 
@@ -348,13 +348,13 @@ class TestCaseController extends Controller
 
         if ($user) {
             $params = ChatMessage::create([
-                'user_id' => $userid,
-                'erp_user' => $userid,
-                'test_case_id' => $test->id,
+                'user_id'         => $userid,
+                'erp_user'        => $userid,
+                'test_case_id'    => $test->id,
                 'sent_to_user_id' => ($test->assign_to != $user->id) ? $test->assign_to : $test->created_by,
-                'approved' => '1',
-                'status' => '2',
-                'message' => $taskdata,
+                'approved'        => '1',
+                'status'          => '2',
+                'message'         => $taskdata,
             ]);
 
             if ($params) {
@@ -372,26 +372,26 @@ class TestCaseController extends Controller
     public function assignUser(Request $request)
     {
         $testCase = TestCase::where('id', $request->id)->first();
-        $record = [
-            'old_user' => $testCase->assign_to,
-            'new_user' => $request->user_id,
+        $record   = [
+            'old_user'     => $testCase->assign_to,
+            'new_user'     => $request->user_id,
             'test_case_id' => $testCase->id,
-            'updated_by' => \Auth::user()->id,
+            'updated_by'   => \Auth::user()->id,
         ];
         $testCase->assign_to = $request->user_id;
         $testCase->save();
         $data = [
-            'test_case_id' => $testCase->id,
-            'name' => $testCase->name,
+            'test_case_id'      => $testCase->id,
+            'name'              => $testCase->name,
             'step_to_reproduce' => $testCase->step_to_reproduce,
-            'suite' => $testCase->suite,
-            'precondition' => $testCase->precondition,
-            'assign_to' => $testCase->assign_to,
-            'expected_result' => $testCase->expected_result,
-            'test_status_id' => $testCase->test_status_id,
-            'module_id' => $testCase->module_id,
-            'created_by' => $testCase->created_by,
-            'updated_by' => \Auth::user()->id,
+            'suite'             => $testCase->suite,
+            'precondition'      => $testCase->precondition,
+            'assign_to'         => $testCase->assign_to,
+            'expected_result'   => $testCase->expected_result,
+            'test_status_id'    => $testCase->test_status_id,
+            'module_id'         => $testCase->module_id,
+            'created_by'        => $testCase->created_by,
+            'updated_by'        => \Auth::user()->id,
         ];
         TestCaseHistory::create($data);
         TestCaseUserHistory::create($record);
@@ -402,27 +402,27 @@ class TestCaseController extends Controller
     public function statusUser(Request $request)
     {
         $testCase = TestCase::where('id', $request->id)->first();
-        $record = [
-            'old_status' => $testCase->test_status_id,
-            'new_status' => $request->status_id,
+        $record   = [
+            'old_status'   => $testCase->test_status_id,
+            'new_status'   => $request->status_id,
             'test_case_id' => $testCase->id,
-            'updated_by' => \Auth::user()->id,
+            'updated_by'   => \Auth::user()->id,
         ];
         $testCase->test_status_id = $request->status_id;
         $testCase->save();
 
         $data = [
-            'test_case_id' => $testCase->id,
-            'name' => $testCase->name,
+            'test_case_id'      => $testCase->id,
+            'name'              => $testCase->name,
             'step_to_reproduce' => $testCase->step_to_reproduce,
-            'suite' => $testCase->suite,
-            'precondition' => $testCase->precondition,
-            'assign_to' => $testCase->assign_to,
-            'expected_result' => $testCase->expected_result,
-            'test_status_id' => $testCase->test_status_id,
-            'module_id' => $testCase->module_id,
-            'created_by' => $testCase->created_by,
-            'updated_by' => \Auth::user()->id,
+            'suite'             => $testCase->suite,
+            'precondition'      => $testCase->precondition,
+            'assign_to'         => $testCase->assign_to,
+            'expected_result'   => $testCase->expected_result,
+            'test_status_id'    => $testCase->test_status_id,
+            'module_id'         => $testCase->module_id,
+            'created_by'        => $testCase->created_by,
+            'updated_by'        => \Auth::user()->id,
         ];
         TestCaseHistory::create($data);
         TestCaseStatusHistory::create($record);
@@ -437,44 +437,44 @@ class TestCaseController extends Controller
             $bugStatus = BugStatus::where('name', 'In Test')->first();
             if (count($testCases) > 0) {
                 foreach ($testCases as $testCase) {
-                    $bugTracking = new BugTracker();
-                    $bugTracking->module_id = $testCase->module_id;
+                    $bugTracking                    = new BugTracker();
+                    $bugTracking->module_id         = $testCase->module_id;
                     $bugTracking->step_to_reproduce = $testCase->step_to_reproduce;
-                    $bugTracking->expected_result = $testCase->expected_result;
-                    $bugTracking->test_case_id = $testCase->id;
-                    $bugTracking->website = $request->bug_website;
-                    $bugTracking->created_by = Auth::user()->id;
-                    $bugTracking->assign_to = $request->assign_to_test_case;
-                    $bugTracking->bug_status_id = $bugStatus->id;
+                    $bugTracking->expected_result   = $testCase->expected_result;
+                    $bugTracking->test_case_id      = $testCase->id;
+                    $bugTracking->website           = $request->bug_website;
+                    $bugTracking->created_by        = Auth::user()->id;
+                    $bugTracking->assign_to         = $request->assign_to_test_case;
+                    $bugTracking->bug_status_id     = $bugStatus->id;
                     $bugTracking->save();
                     $params = ChatMessage::create([
-                        'user_id' => \Auth::user()->id,
-                        'bug_id' => $bugTracking->id,
+                        'user_id'         => \Auth::user()->id,
+                        'bug_id'          => $bugTracking->id,
                         'sent_to_user_id' => $request->assign_to_test_case,
-                        'approved' => '1',
-                        'status' => '2',
-                        'message' => $testCase->name,
+                        'approved'        => '1',
+                        'status'          => '2',
+                        'message'         => $testCase->name,
                     ]);
-                    $bugTrackingHistory = new BugTrackerHistory();
-                    $bugTrackingHistory->bug_id = $bugTracking->id;
-                    $bugTrackingHistory->module_id = $testCase->module_id;
-                    $bugTrackingHistory->expected_result = $testCase->expected_result;
-                    $bugTrackingHistory->test_case_id = $testCase->id;
+                    $bugTrackingHistory                    = new BugTrackerHistory();
+                    $bugTrackingHistory->bug_id            = $bugTracking->id;
+                    $bugTrackingHistory->module_id         = $testCase->module_id;
+                    $bugTrackingHistory->expected_result   = $testCase->expected_result;
+                    $bugTrackingHistory->test_case_id      = $testCase->id;
                     $bugTrackingHistory->step_to_reproduce = $testCase->step_to_reproduce;
-                    $bugTrackingHistory->website = $request->bug_website;
-                    $bugTrackingHistory->assign_to = $request->assign_to_test_case;
-                    $bugTrackingHistory->created_by = Auth::user()->id;
-                    $bugTrackingHistory->bug_status_id = $bugStatus->id;
+                    $bugTrackingHistory->website           = $request->bug_website;
+                    $bugTrackingHistory->assign_to         = $request->assign_to_test_case;
+                    $bugTrackingHistory->created_by        = Auth::user()->id;
+                    $bugTrackingHistory->bug_status_id     = $bugStatus->id;
                     $bugTrackingHistory->save();
                     $statusHistory = [
-                        'bug_id' => $bugTracking->id,
+                        'bug_id'     => $bugTracking->id,
                         'new_status' => $bugStatus->id,
                         'updated_by' => \Auth::user()->id,
                     ];
                     BugStatusHistory::create($statusHistory);
                     $record = [
-                        'new_user' => $request->assign_to_test_case,
-                        'bug_id' => $bugTracking->id,
+                        'new_user'   => $request->assign_to_test_case,
+                        'bug_id'     => $bugTracking->id,
                         'updated_by' => \Auth::user()->id,
                     ];
                     BugUserHistory::create($record);

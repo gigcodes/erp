@@ -152,24 +152,24 @@ class DeveloperTask extends Model
     const DEV_TASK_STATUS_APPROVED = 'Approved';
 
     const DEV_TASK_STATUS_FILTER = [
-        'DONE' => 'Done',
-        'DISCUSSING' => 'Discussing',
-        'IN_PROGRESS' => 'In Progress',
-        'ISSUE' => 'Issue',
-        'PLANNED' => 'Planned',
-        'DISCUSS_WITH_LEAD' => 'Discuss with Lead',
-        'NOTE' => 'Note',
-        'LEAD_RESPONSE_NEEDED' => 'Lead Response Needed',
-        'ERRORS_IN_TASK' => 'Errors in Task',
-        'IN_REVIEW' => 'In Review',
-        'PRIORITY' => 'Priority',
-        'HIGH_PRIORITY' => 'High Priority',
+        'DONE'                  => 'Done',
+        'DISCUSSING'            => 'Discussing',
+        'IN_PROGRESS'           => 'In Progress',
+        'ISSUE'                 => 'Issue',
+        'PLANNED'               => 'Planned',
+        'DISCUSS_WITH_LEAD'     => 'Discuss with Lead',
+        'NOTE'                  => 'Note',
+        'LEAD_RESPONSE_NEEDED'  => 'Lead Response Needed',
+        'ERRORS_IN_TASK'        => 'Errors in Task',
+        'IN_REVIEW'             => 'In Review',
+        'PRIORITY'              => 'Priority',
+        'HIGH_PRIORITY'         => 'High Priority',
         'REVIEW_ESTIMATED_TIME' => 'Review Estimated Time',
-        'USER_COMPLETE' => 'User Complete',
-        'USER_ESTIMATED' => 'User Estimated',
-        'DECLINE' => 'Decline',
-        'REOPEN' => 'Reopen',
-        'APPROVED' => 'Approved',
+        'USER_COMPLETE'         => 'User Complete',
+        'USER_ESTIMATED'        => 'User Estimated',
+        'DECLINE'               => 'Decline',
+        'REOPEN'                => 'Reopen',
+        'APPROVED'              => 'Approved',
     ];
 
     public function user()
@@ -329,11 +329,11 @@ class DeveloperTask extends Model
         if ($oldValue != $newValue) {
             DeveloperTaskHistory::create([
                 'developer_task_id' => $this->id,
-                'model' => \App\DeveloperTask::class,
-                'attribute' => $type,
-                'old_value' => $oldValue,
-                'new_value' => $newValue,
-                'user_id' => \Auth::id(),
+                'model'             => \App\DeveloperTask::class,
+                'attribute'         => $type,
+                'old_value'         => $oldValue,
+                'new_value'         => $newValue,
+                'user_id'           => \Auth::id(),
             ]);
         }
     }
@@ -341,7 +341,7 @@ class DeveloperTask extends Model
     public function updateStartDate($new)
     {
         $type = 'start_date';
-        $old = $this->start_date;
+        $old  = $this->start_date;
 
         if (isset($this->estimate_date) && $this->estimate_date != '0000-00-00 00:00:00' && isset($new)) {
             $newStartDate = Carbon::parse($new);
@@ -369,10 +369,10 @@ class DeveloperTask extends Model
     public function updateEstimateDate($new)
     {
         $type = 'estimate_date';
-        $old = $this->estimate_date;
+        $old  = $this->estimate_date;
 
         if (isset($this->start_date) && $this->start_date != '0000-00-00 00:00:00' && isset($new)) {
-            $startDate = Carbon::parse($this->start_date);
+            $startDate       = Carbon::parse($this->start_date);
             $newEstimateDate = Carbon::parse($new);
             if ($newEstimateDate->lte($startDate)) {
                 throw new Exception('Estimate end date time must be greater then Estimate start date time.');
@@ -397,7 +397,7 @@ class DeveloperTask extends Model
     public function updateEstimateDueDate($new)
     {
         $type = 'due_date';
-        $old = $this->due_date;
+        $old  = $this->due_date;
 
         $count = DeveloperTaskHistory::query()
             ->where('model', \App\DeveloperTask::class)

@@ -39,7 +39,7 @@ class WindowsNt extends Base
 
         // initialize the wmi object
         $objLocator = new COM('WbemScripting.SWbemLocator');
-        $this->wmi = $objLocator->ConnectServer();
+        $this->wmi  = $objLocator->ConnectServer();
     }
 
     /**
@@ -49,7 +49,7 @@ class WindowsNt extends Base
      */
     public function loadavg()
     {
-        $sum = 0;
+        $sum    = 0;
         $buffer = $this->getWMI('Win32_Processor', ['LoadPercentage']);
 
         foreach ($buffer as $load) {
@@ -71,8 +71,9 @@ class WindowsNt extends Base
     /**
      * Reads data from WMI
      *
-     * @param  string  $strClass Class to read
-     * @param  array  $strValue Values to read
+     * @param string $strClass Class to read
+     * @param array  $strValue Values to read
+     *
      * @return array with results
      */
     private function getWMI($strClass, array $strValue = [])
@@ -81,7 +82,7 @@ class WindowsNt extends Base
 
         $objWEBM = $this->wmi->Get($strClass);
         // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-        $arrProp = $objWEBM->Properties_;
+        $arrProp    = $objWEBM->Properties_;
         $arrWEBMCol = $objWEBM->Instances_();
         foreach ($arrWEBMCol as $objItem) {
             $arrInstance = [];
@@ -120,16 +121,16 @@ class WindowsNt extends Base
                 'FreePhysicalMemory',
             ]
         );
-        $mem = [];
+        $mem             = [];
         $mem['MemTotal'] = $buffer[0]['TotalVisibleMemorySize'];
-        $mem['MemFree'] = $buffer[0]['FreePhysicalMemory'];
-        $mem['MemUsed'] = $mem['MemTotal'] - $mem['MemFree'];
+        $mem['MemFree']  = $buffer[0]['FreePhysicalMemory'];
+        $mem['MemUsed']  = $mem['MemTotal'] - $mem['MemFree'];
 
         $buffer = $this->getWMI('Win32_PageFileUsage');
 
         $mem['SwapTotal'] = 0;
-        $mem['SwapUsed'] = 0;
-        $mem['SwapPeak'] = 0;
+        $mem['SwapUsed']  = 0;
+        $mem['SwapPeak']  = 0;
 
         foreach ($buffer as $swapdevice) {
             $mem['SwapTotal'] += $swapdevice['AllocatedBaseSize'] * 1024;

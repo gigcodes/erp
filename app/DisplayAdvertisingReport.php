@@ -19,7 +19,7 @@ class DisplayAdvertisingReport extends Model
 
     public function displayAdvertisingReportSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'publisher_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_text_ads',
 
@@ -160,7 +160,7 @@ urbandictionary.com;1916819;1687303;229516;1368921600000;1471910400000;78970987;
 
     public function displayAdvertisingReportAhrefsApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'publisher_display_ads' => '',
 

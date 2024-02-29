@@ -43,7 +43,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -80,36 +80,37 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
      * @param $taskId
      * @param $message
      * create chat message entry and then approve the message and send the message...
+     * @param mixed $task
      */
     private function sendMessage($task, $message)
     {
         $params = [
-            'number' => null,
-            'user_id' => $task->assign_to,
+            'number'   => null,
+            'user_id'  => $task->assign_to,
             'erp_user' => $task->assign_to,
             'approved' => 0,
-            'status' => 1,
-            'task_id' => $task->id,
-            'message' => $message,
+            'status'   => 1,
+            'task_id'  => $task->id,
+            'message'  => $message,
         ];
 
         $chat_message = ChatMessage::create($params);
 
         \App\ChatbotReply::create([
-            'question' => $message,
+            'question'        => $message,
             'replied_chat_id' => $chat_message->id,
-            'chat_id' => $chat_message->id,
-            'reply_from' => 'reminder',
+            'chat_id'         => $chat_message->id,
+            'reply_from'      => 'reminder',
         ]);
 
         if ($task->master_user_id > 0) {
             $params['erp_user'] = $task->master_user_id;
-            $chat_message = ChatMessage::create($params);
+            $chat_message       = ChatMessage::create($params);
             \App\ChatbotReply::create([
-                'question' => $message,
+                'question'        => $message,
                 'replied_chat_id' => $chat_message->id,
-                'chat_id' => $chat_message->id,
-                'reply_from' => 'reminder',
+                'chat_id'         => $chat_message->id,
+                'reply_from'      => 'reminder',
             ]);
         }
     }

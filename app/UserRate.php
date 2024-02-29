@@ -29,8 +29,8 @@ class UserRate extends Model
     public static function ratesForWeek($week, $year)
     {
         $result = getStartAndEndDate($week, $year);
-        $start = $result['week_start'];
-        $end = $result['week_end'];
+        $start  = $result['week_start'];
+        $end    = $result['week_end'];
 
         return self::where('start_date', '>=', $start)
           ->where('start_date', '<', $end)
@@ -46,12 +46,15 @@ class UserRate extends Model
 
     /**
      * Carry forward the rates from last week to be a part of calculation
+     *
+     * @param mixed $week
+     * @param mixed $year
      */
     public static function latestRatesForWeek($week, $year)
     {
         $result = getStartAndEndDate($week, $year);
-        $start = $result['week_start'];
-        $end = $result['week_end'];
+        $start  = $result['week_start'];
+        $end    = $result['week_end'];
 
         $query = "SELECT
         *

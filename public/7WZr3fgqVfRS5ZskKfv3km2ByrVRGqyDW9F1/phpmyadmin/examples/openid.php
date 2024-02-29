@@ -26,7 +26,7 @@ $secure_cookie = false;
  */
 $AUTH_MAP = [
     'https://launchpad.net/~username' => [
-        'user' => 'root',
+        'user'     => 'root',
         'password' => '',
     ],
 ];
@@ -36,7 +36,7 @@ $AUTH_MAP = [
 /**
  * Simple function to show HTML page with given content.
  *
- * @param  string  $contents Content to include in page
+ * @param string $contents Content to include in page
  */
 function Show_page($contents): void
 {
@@ -65,7 +65,7 @@ function Show_page($contents): void
 /**
  * Display error and exit
  *
- * @param  Exception  $e Exception object
+ * @param Exception $e Exception object
  */
 function Die_error($e): void
 {
@@ -93,7 +93,7 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 
 $base .= '://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'];
 
-$realm = $base . '/';
+$realm    = $base . '/';
 $returnTo = $base . dirname($_SERVER['PHP_SELF']);
 if ($returnTo[strlen($returnTo) - 1] !== '/') {
     $returnTo .= '/';
@@ -163,8 +163,8 @@ if (empty($id) || ! isset($AUTH_MAP[$id])) {
     exit;
 }
 
-$_SESSION['PMA_single_signon_user'] = $AUTH_MAP[$id]['user'];
-$_SESSION['PMA_single_signon_password'] = $AUTH_MAP[$id]['password'];
+$_SESSION['PMA_single_signon_user']        = $AUTH_MAP[$id]['user'];
+$_SESSION['PMA_single_signon_password']    = $AUTH_MAP[$id]['password'];
 $_SESSION['PMA_single_signon_HMAC_secret'] = hash('sha1', uniqid(strval(random_int(0, mt_getrandmax())), true));
 session_write_close();
 /* Redirect to phpMyAdmin (should use absolute URL here!) */

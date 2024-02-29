@@ -15,6 +15,9 @@ class CaseBilled
     /**
      * Create a new event instance.
      *
+     * @param publicLegalCase $case
+     * @param public          $bill
+     *
      * @return void
      */
     public function __construct(public LegalCase $case, public $bill)

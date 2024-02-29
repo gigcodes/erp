@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Social\SocialConfig;
 use App\StoreWebsite;
+use App\Social\SocialConfig;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialAdAccount extends Model

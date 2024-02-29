@@ -29,7 +29,7 @@ class UserAvaibilityController extends Controller
         }
         $list = $q->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -45,7 +45,7 @@ class UserAvaibilityController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
-                $html[] = '<tr>
+                $html[]     = '<tr>
                     <td>' . $single->id . '</td>
                     <td>' . $single->from . ' - ' . $single->to . '</td>
                     <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
@@ -78,25 +78,25 @@ class UserAvaibilityController extends Controller
             }
 
             $errors = reqValidate(request()->all(), [
-                'day' => 'required',
-                'from' => 'required|date_format:Y-m-d',
-                'to' => 'required|date_format:Y-m-d',
+                'day'             => 'required',
+                'from'            => 'required|date_format:Y-m-d',
+                'to'              => 'required|date_format:Y-m-d',
                 'lunch_time_from' => 'required|date_format:H:i:s',
-                'lunch_time_to' => 'required|date_format:H:i:s',
-                'start_time' => 'required|date_format:H:i:s',
-                'end_time' => 'required|date_format:H:i:s',
+                'lunch_time_to'   => 'required|date_format:H:i:s',
+                'start_time'      => 'required|date_format:H:i:s',
+                'end_time'        => 'required|date_format:H:i:s',
             ], [
-                'day.required' => 'Days is required, please select atleast one.',
-                'from.required' => 'From date is required.',
-                'to.required' => 'To date is required.',
+                'day.required'           => 'Days is required, please select atleast one.',
+                'from.required'          => 'From date is required.',
+                'to.required'            => 'To date is required.',
                 'start_time.date_format' => 'Start time is invalid.',
-                'end_time.date_format' => 'End time is invalid.',
+                'end_time.date_format'   => 'End time is invalid.',
             ]);
             if ($errors) {
                 return respJson(400, $errors[0]);
             }
 
-            $to = Carbon::createFromFormat('Y-m-d', request('to'));
+            $to   = Carbon::createFromFormat('Y-m-d', request('to'));
             $from = Carbon::createFromFormat('Y-m-d', request('from'));
             if ($to->lte($from)) {
                 return respJson(400, 'From date must be grater then To date');
@@ -113,34 +113,34 @@ class UserAvaibilityController extends Controller
             $recData = UserAvaibility::find(request('id'));
 
             if ($recData) {
-                $recData = UserAvaibility::find(request('id'));
-                $recData->user_id = $user_id;
-                $recData->from = request('from');
-                $recData->to = request('to');
-                $recData->date = implode(',', request('day'));
-                $recData->start_time = request('start_time');
-                $recData->end_time = request('end_time');
-                $recData->lunch_time = request('lunch_time') ?: null;
+                $recData                  = UserAvaibility::find(request('id'));
+                $recData->user_id         = $user_id;
+                $recData->from            = request('from');
+                $recData->to              = request('to');
+                $recData->date            = implode(',', request('day'));
+                $recData->start_time      = request('start_time');
+                $recData->end_time        = request('end_time');
+                $recData->lunch_time      = request('lunch_time') ?: null;
                 $recData->lunch_time_from = request('lunch_time_from') ?: null;
-                $recData->lunch_time_to = request('lunch_time_to') ?: null;
+                $recData->lunch_time_to   = request('lunch_time_to') ?: null;
                 $recData->save();
                 $this->userAvaibilityHistory();
             } else {
                 UserAvaibility::where('user_id', $user_id)->update(['is_latest' => 0]);
 
                 UserAvaibility::create([
-                    'user_id' => $user_id,
-                    'from' => request('from'),
-                    'to' => request('to'),
-                    'status' => 1,
-                    'note' => null,
-                    'date' => implode(',', request('day')),
-                    'start_time' => request('start_time'),
-                    'end_time' => request('end_time'),
-                    'lunch_time' => request('lunch_time') ?: null,
+                    'user_id'         => $user_id,
+                    'from'            => request('from'),
+                    'to'              => request('to'),
+                    'status'          => 1,
+                    'note'            => null,
+                    'date'            => implode(',', request('day')),
+                    'start_time'      => request('start_time'),
+                    'end_time'        => request('end_time'),
+                    'lunch_time'      => request('lunch_time') ?: null,
                     'lunch_time_from' => request('lunch_time_from') ?: null,
-                    'lunch_time_to' => request('lunch_time_to') ?: null,
-                    'is_latest' => 1,
+                    'lunch_time_to'   => request('lunch_time_to') ?: null,
+                    'is_latest'       => 1,
                 ]);
             }
 
@@ -156,17 +156,17 @@ class UserAvaibilityController extends Controller
     {
         UserAvaibilityHistory::create([
             'user_avaibility_id' => request('id'),
-            'user_id' => \Auth::user()->id ?? request('user_id'),
-            'from' => request('from'),
-            'to' => request('to'),
-            'status' => request('status'),
-            'note' => request('note'),
-            'date' => implode(',', request('day')),
-            'start_time' => request('start_time'),
-            'end_time' => request('end_time'),
-            'lunch_time' => request('lunch_time') ?: null,
-            'lunch_time_from' => request('lunch_time_from') ?: null,
-            'lunch_time_to' => request('lunch_time_to') ?: null,
+            'user_id'            => \Auth::user()->id ?? request('user_id'),
+            'from'               => request('from'),
+            'to'                 => request('to'),
+            'status'             => request('status'),
+            'note'               => request('note'),
+            'date'               => implode(',', request('day')),
+            'start_time'         => request('start_time'),
+            'end_time'           => request('end_time'),
+            'lunch_time'         => request('lunch_time') ?: null,
+            'lunch_time_from'    => request('lunch_time_from') ?: null,
+            'lunch_time_to'      => request('lunch_time_to') ?: null,
         ]);
     }
 
@@ -176,7 +176,7 @@ class UserAvaibilityController extends Controller
         $q->where('user_avaibility_id', request('id'));
         $list = $q->orderBy('id', 'DESC')->get();
 
-        $html = [];
+        $html   = [];
         $html[] = '<table class="table table-bordered">';
         $html[] = '<thead>
             <tr>
@@ -192,7 +192,7 @@ class UserAvaibilityController extends Controller
         if ($list->count()) {
             foreach ($list as $single) {
                 $lunch_time = ($single->lunch_time_from && $single->lunch_time_to) ? $single->lunch_time_from . ' - ' . $single->lunch_time_to : '-';
-                $html[] = '<tr>
+                $html[]     = '<tr>
                     <td>' . $single->id . '</td>
                     <td>' . $single->from . ' - ' . $single->to . '</td>
                     <td>' . $single->start_time . ' - ' . $single->end_time . '</td>
@@ -223,7 +223,7 @@ class UserAvaibilityController extends Controller
             if ($useravaibility && count($useravaibility) > 0) {
                 foreach ($useravaibility as $key => $avaibility) {
                     $lunch_time = ($avaibility->lunch_time_from && $avaibility->lunch_time_to) ? $avaibility->lunch_time_from . ' - ' . $avaibility->lunch_time_to : '-';
-                    $html[] = '<tr>
+                    $html[]     = '<tr>
                         <td>' . ($key + 1) . '</td>
                         <td>' . $avaibility->from . ' - ' . $avaibility->to . '</td>
                         <td>' . $avaibility->start_time . ' - ' . $avaibility->end_time . '</td>
@@ -239,18 +239,18 @@ class UserAvaibilityController extends Controller
             }
 
             return response()->json([
-                'status' => 200,
-                'message' => 'Schedule successfully fetched',
-                'data' => implode('', $html),
+                'status'    => 200,
+                'message'   => 'Schedule successfully fetched',
+                'data'      => implode('', $html),
                 'addButton' => '<button type="button" class="btn btn-secondary" onclick="funUserAvailabilityAddShortcut(' . $request->user_id . ')">Add
                 New</button>',
             ]);
         } else {
             return response()->json([
-                'status' => 400,
-                'data' => '',
+                'status'    => 400,
+                'data'      => '',
                 'addButton' => '',
-                'message' => 'Something went wrong',
+                'message'   => 'Something went wrong',
             ]);
         }
     }

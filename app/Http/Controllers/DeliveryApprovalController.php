@@ -21,11 +21,11 @@ class DeliveryApprovalController extends Controller
     public function index()
     {
         $delivery_approvals = DeliveryApproval::all();
-        $users_array = Helpers::getUserArray(User::all());
+        $users_array        = Helpers::getUserArray(User::all());
 
         return view('deliveryapprovals.index', [
             'delivery_approvals' => $delivery_approvals,
-            'users_array' => $users_array,
+            'users_array'        => $users_array,
         ]);
     }
 
@@ -52,7 +52,8 @@ class DeliveryApprovalController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -63,7 +64,8 @@ class DeliveryApprovalController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -74,7 +76,8 @@ class DeliveryApprovalController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -87,11 +90,11 @@ class DeliveryApprovalController extends Controller
         $delivery_approval = DeliveryApproval::find($id);
 
         StatusChange::create([
-            'model_id' => $delivery_approval->id,
-            'model_type' => DeliveryApproval::class,
-            'user_id' => Auth::id(),
+            'model_id'    => $delivery_approval->id,
+            'model_type'  => DeliveryApproval::class,
+            'user_id'     => Auth::id(),
             'from_status' => $delivery_approval->status,
-            'to_status' => $request->status,
+            'to_status'   => $request->status,
         ]);
 
         $delivery_approval->status = $request->status;
@@ -103,12 +106,12 @@ class DeliveryApprovalController extends Controller
 
             // Message to Customer
             $params = [
-                'number' => null,
-                'user_id' => Auth::id(),
+                'number'      => null,
+                'user_id'     => Auth::id(),
                 'customer_id' => $delivery_approval->private_view->customer_id,
-                'message' => 'This product has been delivered. Thank you for your business',
-                'approved' => 0,
-                'status' => 1,
+                'message'     => 'This product has been delivered. Thank you for your business',
+                'approved'    => 0,
+                'status'      => 1,
             ];
 
             $chat_message = ChatMessage::create($params);
@@ -118,11 +121,11 @@ class DeliveryApprovalController extends Controller
 
             // Message to Stock Coordinator
             $params = [
-                'number' => null,
-                'user_id' => Auth::id(),
-                'message' => 'This product will be sent back',
+                'number'   => null,
+                'user_id'  => Auth::id(),
+                'message'  => 'This product will be sent back',
                 'approved' => 0,
-                'status' => 1,
+                'status'   => 1,
             ];
 
             $chat_message = ChatMessage::create($params);
@@ -133,7 +136,7 @@ class DeliveryApprovalController extends Controller
 
             foreach ($stock_coordinators as $coordinator) {
                 $params['erp_user'] = $coordinator->id;
-                $chat_message = ChatMessage::create($params);
+                $chat_message       = ChatMessage::create($params);
 
                 $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -141,7 +144,7 @@ class DeliveryApprovalController extends Controller
 
                 $chat_message->update([
                     'approved' => 1,
-                    'status' => 2,
+                    'status'   => 2,
                 ]);
             }
 
@@ -150,7 +153,7 @@ class DeliveryApprovalController extends Controller
 
             foreach ($coordinators as $coordinator) {
                 $params['erp_user'] = $coordinator->id;
-                $chat_message = ChatMessage::create($params);
+                $chat_message       = ChatMessage::create($params);
 
                 $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
@@ -158,7 +161,7 @@ class DeliveryApprovalController extends Controller
 
                 $chat_message->update([
                     'approved' => 1,
-                    'status' => 2,
+                    'status'   => 2,
                 ]);
             }
         }
@@ -168,11 +171,11 @@ class DeliveryApprovalController extends Controller
             $delivery_approval->private_view->save();
 
             StatusChange::create([
-                'model_id' => $delivery_approval->private_view->id,
-                'model_type' => PrivateView::class,
-                'user_id' => Auth::id(),
+                'model_id'    => $delivery_approval->private_view->id,
+                'model_type'  => PrivateView::class,
+                'user_id'     => Auth::id(),
                 'from_status' => $delivery_approval->private_view->status,
-                'to_status' => $request->status,
+                'to_status'   => $request->status,
             ]);
         }
 
@@ -182,7 +185,8 @@ class DeliveryApprovalController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

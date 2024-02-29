@@ -20,6 +20,8 @@ class PinterestPinsController extends Controller
     /**
      * Get all pins for a account.
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function pinsIndex(Request $request, $id)
@@ -56,6 +58,8 @@ class PinterestPinsController extends Controller
 
     /**
      * Create a new Pin.
+     *
+     * @param mixed $id
      */
     public function createPin(Request $request, $id): RedirectResponse
     {
@@ -66,15 +70,15 @@ class PinterestPinsController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'link' => 'sometimes|max:2048|url|nullable',
-                'title' => 'sometimes|max:100',
-                'description' => 'sometimes|max:500',
-                'alt_text' => 'sometimes|max:500',
-                'pinterest_board_id' => 'required',
+                'link'                       => 'sometimes|max:2048|url|nullable',
+                'title'                      => 'sometimes|max:100',
+                'description'                => 'sometimes|max:500',
+                'alt_text'                   => 'sometimes|max:500',
+                'pinterest_board_id'         => 'required',
                 'pinterest_board_section_id' => 'sometimes',
-                'media_source_type' => 'required',
-                'media_content_type' => 'required|in:image/jpeg,image/png,image/jpg',
-                'media_data' => 'required',
+                'media_source_type'          => 'required',
+                'media_content_type'         => 'required|in:image/jpeg,image/png,image/jpg',
+                'media_data'                 => 'required',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('pinterest.accounts.pin.index', [$id])
@@ -82,29 +86,29 @@ class PinterestPinsController extends Controller
                     ->withErrors($validator)
                     ->withInput();
             }
-            $pinterestBoard = PinterestBoards::with('account')->where('id', $request->get('pinterest_board_id'))->first();
+            $pinterestBoard        = PinterestBoards::with('account')->where('id', $request->get('pinterest_board_id'))->first();
             $pinterestBoardSection = PinterestBoardSections::where('id', $request->get('pinterest_board_section_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->createPin([
-                'link' => $request->has('link') ? $request->get('link') : null,
-                'title' => $request->has('title') ? $request->get('title') : null,
-                'description' => $request->has('description') ? $request->get('description') : null,
-                'alt_text' => $request->has('alt_text') ? $request->get('alt_text') : null,
-                'board_id' => $pinterestBoard->board_id,
+            $pinterest             = $this->getPinterestClient($pinterestAccount);
+            $response              = $pinterest->createPin([
+                'link'             => $request->has('link') ? $request->get('link') : null,
+                'title'            => $request->has('title') ? $request->get('title') : null,
+                'description'      => $request->has('description') ? $request->get('description') : null,
+                'alt_text'         => $request->has('alt_text') ? $request->get('alt_text') : null,
+                'board_id'         => $pinterestBoard->board_id,
                 'board_section_id' => $pinterestBoardSection ? $pinterestBoardSection->board_section_id : null,
-                'media_source' => $this->buildMedia($request->all()),
+                'media_source'     => $this->buildMedia($request->all()),
             ], ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
             if ($response['status']) {
                 PinterestPins::create([
-                    'link' => $request->has('link') ? $request->get('link') : null,
-                    'title' => $request->has('title') ? $request->get('title') : null,
-                    'description' => $request->has('description') ? $request->get('description') : null,
-                    'alt_text' => $request->has('alt_text') ? $request->get('alt_text') : null,
-                    'pinterest_board_id' => $pinterestBoard->id,
+                    'link'                       => $request->has('link') ? $request->get('link') : null,
+                    'title'                      => $request->has('title') ? $request->get('title') : null,
+                    'description'                => $request->has('description') ? $request->get('description') : null,
+                    'alt_text'                   => $request->has('alt_text') ? $request->get('alt_text') : null,
+                    'pinterest_board_id'         => $pinterestBoard->id,
                     'pinterest_board_section_id' => $pinterestBoardSection ? $pinterestBoardSection->id : null,
-                    'media_source' => json_encode($this->buildMedia($request->all())),
-                    'pinterest_ads_account_id' => $pinterestBoard->account->id,
-                    'pin_id' => $response['data']['id'],
+                    'media_source'               => json_encode($this->buildMedia($request->all())),
+                    'pinterest_ads_account_id'   => $pinterestBoard->account->id,
+                    'pin_id'                     => $response['data']['id'],
                 ]);
 
                 return Redirect::route('pinterest.accounts.pin.index', [$id])
@@ -121,6 +125,8 @@ class PinterestPinsController extends Controller
 
     /**
      * Get media parameters
+     *
+     * @param mixed $params
      */
     public function buildMedia($params): array
     {
@@ -133,39 +139,39 @@ class PinterestPinsController extends Controller
                 $items = [];
                 foreach ($params['media_items'] as $item) {
                     $item[] = [
-                        'title' => $item['title'],
+                        'title'       => $item['title'],
                         'description' => $item['description'],
-                        'link' => $item['link'],
-                        'url' => $item['url'],
+                        'link'        => $item['link'],
+                        'url'         => $item['url'],
                     ];
                 }
                 $mediaParams = [
                     'source_type' => $params['media_source_type'],
-                    'items' => $items,
-                    'index' => 0,
+                    'items'       => $items,
+                    'index'       => 0,
                 ];
                 break;
             case 'image_base64':
                 $mediaParams = [
-                    'source_type' => $params['media_source_type'],
+                    'source_type'  => $params['media_source_type'],
                     'content_type' => $params['media_content_type'],
-                    'data' => $params['media_data'],
+                    'data'         => $params['media_data'],
                 ];
                 break;
             case 'multiple_image_base64':
                 $items = [];
                 foreach ($params['media_items'] as $item) {
                     $item[] = [
-                        'title' => $item['title'],
-                        'description' => $item['description'],
+                        'title'        => $item['title'],
+                        'description'  => $item['description'],
                         'content_type' => $item['content_type'],
-                        'data' => $item['data'],
+                        'data'         => $item['data'],
                     ];
                 }
                 $mediaParams = [
                     'source_type' => $params['media_source_type'],
-                    'items' => $items,
-                    'index' => 0,
+                    'items'       => $items,
+                    'index'       => 0,
                 ];
                 break;
         }
@@ -175,6 +181,9 @@ class PinterestPinsController extends Controller
 
     /**
      * Get Pin Details
+     *
+     * @param mixed $id
+     * @param mixed $pinId
      */
     public function getPin($id, $pinId): JsonResponse
     {
@@ -197,6 +206,8 @@ class PinterestPinsController extends Controller
 
     /**
      * Update a Pin.
+     *
+     * @param mixed $id
      */
     public function updatePin(Request $request, $id): RedirectResponse
     {
@@ -207,12 +218,12 @@ class PinterestPinsController extends Controller
                     ->with('error', 'No account found');
             }
             $validator = Validator::make($request->all(), [
-                'edit_pin_id' => 'required',
-                'edit_link' => 'sometimes|max:2048|url|nullable',
-                'edit_title' => 'sometimes|max:100',
-                'edit_description' => 'sometimes|max:500',
-                'edit_alt_text' => 'sometimes|max:500',
-                'edit_pinterest_board_id' => 'sometimes',
+                'edit_pin_id'                     => 'required',
+                'edit_link'                       => 'sometimes|max:2048|url|nullable',
+                'edit_title'                      => 'sometimes|max:100',
+                'edit_description'                => 'sometimes|max:500',
+                'edit_alt_text'                   => 'sometimes|max:500',
+                'edit_pinterest_board_id'         => 'sometimes',
                 'edit_pinterest_board_section_id' => 'sometimes',
             ]);
             if ($validator->fails()) {
@@ -220,26 +231,26 @@ class PinterestPinsController extends Controller
                     ->withErrors($validator)
                     ->withInput();
             }
-            $pinterestBoard = PinterestBoards::with('account')->where('id', $request->get('edit_pinterest_board_id'))->first();
+            $pinterestBoard        = PinterestBoards::with('account')->where('id', $request->get('edit_pinterest_board_id'))->first();
             $pinterestBoardSection = PinterestBoardSections::where('id', $request->get('edit_pinterest_board_section_id'))->first();
-            $pin = PinterestPins::where('id', $request->get('edit_pin_id'))->first();
-            $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->updatePin($pin->pin_id, [
-                'link' => $request->has('edit_link') ? $request->get('edit_link') : null,
-                'title' => $request->has('edit_title') ? $request->get('edit_title') : null,
-                'description' => $request->has('edit_description') ? $request->get('edit_description') : null,
-                'alt_text' => $request->has('edit_alt_text') ? $request->get('edit_alt_text') : null,
-                'pinterest_board_id' => $pinterestBoard->board_id,
+            $pin                   = PinterestPins::where('id', $request->get('edit_pin_id'))->first();
+            $pinterest             = $this->getPinterestClient($pinterestAccount);
+            $response              = $pinterest->updatePin($pin->pin_id, [
+                'link'                       => $request->has('edit_link') ? $request->get('edit_link') : null,
+                'title'                      => $request->has('edit_title') ? $request->get('edit_title') : null,
+                'description'                => $request->has('edit_description') ? $request->get('edit_description') : null,
+                'alt_text'                   => $request->has('edit_alt_text') ? $request->get('edit_alt_text') : null,
+                'pinterest_board_id'         => $pinterestBoard->board_id,
                 'pinterest_board_section_id' => $pinterestBoardSection ? $pinterestBoardSection->board_section_id : null,
             ], ['ad_account_id' => $pinterestBoard->account->ads_account_id]);
             if ($response['status']) {
-                $pin->link = $request->has('edit_link') ? $request->get('edit_link') : null;
-                $pin->title = $request->has('edit_title') ? $request->get('edit_title') : null;
-                $pin->description = $request->has('edit_description') ? $request->get('edit_description') : null;
-                $pin->alt_text = $request->has('edit_alt_text') ? $request->get('edit_alt_text') : null;
-                $pin->pinterest_board_id = $pinterestBoard->id;
+                $pin->link                       = $request->has('edit_link') ? $request->get('edit_link') : null;
+                $pin->title                      = $request->has('edit_title') ? $request->get('edit_title') : null;
+                $pin->description                = $request->has('edit_description') ? $request->get('edit_description') : null;
+                $pin->alt_text                   = $request->has('edit_alt_text') ? $request->get('edit_alt_text') : null;
+                $pin->pinterest_board_id         = $pinterestBoard->id;
                 $pin->pinterest_board_section_id = $pinterestBoardSection ? $pinterestBoardSection->id : null;
-                $pin->pinterest_ads_account_id = $pinterestBoard->account->id;
+                $pin->pinterest_ads_account_id   = $pinterestBoard->account->id;
                 $pin->save();
 
                 return Redirect::route('pinterest.accounts.pin.index', [$id])
@@ -256,6 +267,9 @@ class PinterestPinsController extends Controller
 
     /**
      * Delete Pin
+     *
+     * @param mixed $id
+     * @param mixed $pinId
      */
     public function deletePin($id, $pinId): RedirectResponse
     {
@@ -271,7 +285,7 @@ class PinterestPinsController extends Controller
                     ->with('error', 'Pin not found');
             }
             $pinterest = $this->getPinterestClient($pinterestAccount);
-            $response = $pinterest->deletePin($pin->pin_id, ['ad_account_id' => $pin->account->ads_account_id]);
+            $response  = $pinterest->deletePin($pin->pin_id, ['ad_account_id' => $pin->account->ads_account_id]);
             if ($response['status']) {
                 $pin->delete();
 
@@ -289,6 +303,9 @@ class PinterestPinsController extends Controller
 
     /**
      * Get Board Sections by boardId.
+     *
+     * @param mixed $id
+     * @param mixed $boardId
      */
     public function getBoardSections($id, $boardId): JsonResponse
     {
@@ -307,6 +324,8 @@ class PinterestPinsController extends Controller
 
     /**
      * Get Pinterest Client
+     *
+     * @param mixed $pinterestAccount
      *
      * @throws \Exception
      */

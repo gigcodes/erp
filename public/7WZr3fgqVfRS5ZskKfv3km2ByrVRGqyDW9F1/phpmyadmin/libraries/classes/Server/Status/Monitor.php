@@ -34,7 +34,7 @@ class Monitor
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi DatabaseInterface instance
+     * @param DatabaseInterface $dbi DatabaseInterface instance
      */
     public function __construct($dbi)
     {
@@ -44,15 +44,16 @@ class Monitor
     /**
      * Returns JSON for real-time charting data
      *
-     * @param  string  $requiredData Required data
+     * @param string $requiredData Required data
+     *
      * @return array JSON
      */
     public function getJsonForChartingData(string $requiredData): array
     {
-        $ret = json_decode($requiredData, true);
+        $ret        = json_decode($requiredData, true);
         $statusVars = [];
         $serverVars = [];
-        $sysinfo = $cpuload = $memory = 0;
+        $sysinfo    = $cpuload = $memory = 0;
 
         /* Accumulate all required variables and data */
         [$serverVars, $statusVars, $ret] = $this->getJsonForChartingDataGet(
@@ -97,9 +98,9 @@ class Monitor
     /**
      * Assign the variables for real-time charting data
      *
-     * @param  array  $ret             Real-time charting data
-     * @param  array  $statusVarValues Status variable values
-     * @param  array  $serverVarValues Server variable values
+     * @param array $ret             Real-time charting data
+     * @param array $statusVarValues Status variable values
+     * @param array $serverVarValues Server variable values
      */
     private function getJsonForChartingDataSet(
         array $ret,
@@ -127,12 +128,13 @@ class Monitor
     /**
      * Get called to get JSON for charting data
      *
-     * @param  array  $ret        Real-time charting data
-     * @param  array  $serverVars Server variable values
-     * @param  array  $statusVars Status variable values
-     * @param  mixed  $sysinfo    System info
-     * @param  mixed  $cpuload    CPU load
-     * @param  mixed  $memory     Memory
+     * @param array $ret        Real-time charting data
+     * @param array $serverVars Server variable values
+     * @param array $statusVars Status variable values
+     * @param mixed $sysinfo    System info
+     * @param mixed $cpuload    CPU load
+     * @param mixed $memory     Memory
+     *
      * @return array
      */
     private function getJsonForChartingDataGet(
@@ -173,14 +175,15 @@ class Monitor
     /**
      * Switch called to get JSON for charting data
      *
-     * @param  string  $type       Type
-     * @param  string  $pName      Name
-     * @param  array  $serverVars Server variable values
-     * @param  array  $statusVars Status variable values
-     * @param  array  $ret        Real-time charting data
-     * @param  mixed  $sysinfo    System info
-     * @param  mixed  $cpuload    CPU load
-     * @param  mixed  $memory     Memory
+     * @param string $type       Type
+     * @param string $pName      Name
+     * @param array  $serverVars Server variable values
+     * @param array  $statusVars Status variable values
+     * @param array  $ret        Real-time charting data
+     * @param mixed  $sysinfo    System info
+     * @param mixed  $cpuload    CPU load
+     * @param mixed  $memory     Memory
+     *
      * @return array
      */
     private function getJsonForChartingDataSwitch(
@@ -213,7 +216,7 @@ class Monitor
                 break;
 
             case 'proc':
-                $result = $this->dbi->query('SHOW PROCESSLIST');
+                $result       = $this->dbi->query('SHOW PROCESSLIST');
                 $ret['value'] = $result->numRows();
                 break;
 
@@ -258,8 +261,8 @@ class Monitor
     /**
      * Returns JSON for log data with type: slow
      *
-     * @param  int  $start Unix Time: Start time for query
-     * @param  int  $end   Unix Time: End time for query
+     * @param int $start Unix Time: Start time for query
+     * @param int $end   Unix Time: End time for query
      */
     public function getJsonForLogDataTypeSlow(int $start, int $end): array
     {
@@ -278,7 +281,7 @@ class Monitor
 
         $return = [
             'rows' => [],
-            'sum' => [],
+            'sum'  => [],
         ];
 
         while ($row = $result->fetchAssoc()) {
@@ -321,7 +324,7 @@ class Monitor
         }
 
         $return['sum']['TOTAL'] = array_sum($return['sum']);
-        $return['numRows'] = count($return['rows']);
+        $return['numRows']      = count($return['rows']);
 
         return $return;
     }
@@ -329,10 +332,10 @@ class Monitor
     /**
      * Returns JSon for log data with type: general
      *
-     * @param  int  $start           Unix Time: Start time for query
-     * @param  int  $end             Unix Time: End time for query
-     * @param  bool  $isTypesLimited  Whether to limit types or not
-     * @param  bool  $removeVariables Whether to remove variables or not
+     * @param int  $start           Unix Time: Start time for query
+     * @param int  $end             Unix Time: End time for query
+     * @param bool $isTypesLimited  Whether to limit types or not
+     * @param bool $removeVariables Whether to remove variables or not
      */
     public function getJsonForLogDataTypeGeneral(
         int $start,
@@ -358,11 +361,11 @@ class Monitor
 
         $return = [
             'rows' => [],
-            'sum' => [],
+            'sum'  => [],
         ];
-        $insertTables = [];
+        $insertTables      = [];
         $insertTablesFirst = -1;
-        $i = 0;
+        $i                 = 0;
 
         while ($row = $result->fetchAssoc()) {
             preg_match('/^(\w+)\s/', $row['argument'], $match);
@@ -434,7 +437,7 @@ class Monitor
         }
 
         $return['sum']['TOTAL'] = array_sum($return['sum']);
-        $return['numRows'] = count($return['rows']);
+        $return['numRows']      = count($return['rows']);
 
         return $return;
     }
@@ -442,7 +445,8 @@ class Monitor
     /**
      * Return suspension points if needed
      *
-     * @param  string  $lastChar Last char
+     * @param string $lastChar Last char
+     *
      * @return string Return suspension points if needed
      */
     private function getSuspensionPoints(string $lastChar): string
@@ -457,8 +461,9 @@ class Monitor
     /**
      * Returns JSON for logging vars
      *
-     * @param  string|null  $name  Variable name
-     * @param  string|null  $value Variable value
+     * @param string|null $name  Variable name
+     * @param string|null $value Variable value
+     *
      * @return array JSON
      */
     public function getJsonForLoggingVars(?string $name, ?string $value): array
@@ -485,8 +490,9 @@ class Monitor
     /**
      * Returns JSON for query_analyzer
      *
-     * @param  string  $database Database name
-     * @param  string  $query    SQL query
+     * @param string $database Database name
+     * @param string $query    SQL query
+     *
      * @return array JSON
      */
     public function getJsonForQueryAnalyzer(
@@ -523,7 +529,7 @@ class Monitor
 
         if ($profiling) {
             $return['profiling'] = [];
-            $result = $this->dbi->tryQuery(
+            $result              = $this->dbi->tryQuery(
                 'SELECT seq,state,duration FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=1 ORDER BY seq'
             );
             if ($result !== false) {

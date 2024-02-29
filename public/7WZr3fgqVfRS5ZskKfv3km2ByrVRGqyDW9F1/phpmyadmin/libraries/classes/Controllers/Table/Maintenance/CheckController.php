@@ -36,7 +36,7 @@ final class CheckController extends AbstractController
         Config $config
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->model = $model;
+        $this->model  = $model;
         $this->config = $config;
     }
 
@@ -56,7 +56,7 @@ final class CheckController extends AbstractController
         }
 
         try {
-            $database = DatabaseName::fromValue($request->getParam('db'));
+            $database       = DatabaseName::fromValue($request->getParam('db'));
             $selectedTables = [];
             foreach ($selectedTablesParam as $table) {
                 $selectedTables[] = TableName::fromValue($table);
@@ -87,8 +87,8 @@ final class CheckController extends AbstractController
         $indexesProblems = $this->model->getIndexesProblems($database, $selectedTables);
 
         $this->render('table/maintenance/check', [
-            'message' => $message,
-            'rows' => $rows,
+            'message'          => $message,
+            'rows'             => $rows,
             'indexes_problems' => $indexesProblems,
         ]);
     }

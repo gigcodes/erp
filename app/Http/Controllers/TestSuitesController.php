@@ -23,23 +23,23 @@ class TestSuitesController extends Controller
     {
         $title = 'Test Suites';
 
-        $bugStatuses = BugStatus::get();
-        $bugEnvironments = BugEnvironment::get();
-        $bugSeveritys = BugSeverity::get();
-        $bugTypes = BugType::get();
-        $users = User::get();
+        $bugStatuses      = BugStatus::get();
+        $bugEnvironments  = BugEnvironment::get();
+        $bugSeveritys     = BugSeverity::get();
+        $bugTypes         = BugType::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->get();
+        $filterWebsites   = StoreWebsite::orderBy('website')->get();
 
         return view('test-suites.index', [
-            'title' => $title,
-            'bugTypes' => $bugTypes,
-            'bugEnvironments' => $bugEnvironments,
-            'bugSeveritys' => $bugSeveritys,
-            'bugStatuses' => $bugStatuses,
+            'title'            => $title,
+            'bugTypes'         => $bugTypes,
+            'bugEnvironments'  => $bugEnvironments,
+            'bugSeveritys'     => $bugSeveritys,
+            'bugStatuses'      => $bugStatuses,
             'filterCategories' => $filterCategories,
-            'users' => $users,
-            'filterWebsites' => $filterWebsites,
+            'users'            => $users,
+            'filterWebsites'   => $filterWebsites,
         ]);
     }
 
@@ -101,15 +101,15 @@ class TestSuitesController extends Controller
         }
         $records = $records->get();
         $records = $records->map(function ($bug) {
-            $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
-            $bug->created_by = User::where('id', $bug->created_by)->value('name');
-            $bug->created_at_date = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
-            $bug->bug_history = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
-            $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
-            $bug->name_short = Str::limit($bug->name, 5, '..');
-            $bug->test_cases_short = Str::limit($bug->test_cases, 5, '..');
+            $bug->bug_environment_id      = BugEnvironment::where('id', $bug->bug_environment_id)->value('name');
+            $bug->created_by              = User::where('id', $bug->created_by)->value('name');
+            $bug->created_at_date         = \Carbon\Carbon::parse($bug->created_at)->format('d-m-Y  H:i');
+            $bug->bug_history             = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
+            $bug->website                 = StoreWebsite::where('id', $bug->website)->value('title');
+            $bug->name_short              = Str::limit($bug->name, 5, '..');
+            $bug->test_cases_short        = Str::limit($bug->test_cases, 5, '..');
             $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 5, '..');
-            $bug->url_short = Str::limit($bug->url, 5, '..');
+            $bug->url_short               = Str::limit($bug->url, 5, '..');
 
             return $bug;
         });
@@ -119,38 +119,38 @@ class TestSuitesController extends Controller
 
     public function create()
     {
-        $bugStatuses = BugStatus::get();
-        $bugEnvironments = BugEnvironment::get();
-        $bugSeveritys = BugSeverity::get();
-        $bugTypes = BugType::get();
-        $users = User::get();
+        $bugStatuses      = BugStatus::get();
+        $bugEnvironments  = BugEnvironment::get();
+        $bugSeveritys     = BugSeverity::get();
+        $bugTypes         = BugType::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        $filterWebsites   = StoreWebsite::orderBy('website')->pluck('website')->toArray();
 
         return view('test-suites.create', compact('bugStatuses', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'users', 'filterCategories', 'filterWebsites'));
     }
 
     public function edit($id)
     {
-        $TestSuites = TestSuites::findorFail($id);
-        $bugStatuses = BugStatus::get();
-        $bugEnvironments = BugEnvironment::get();
-        $bugSeveritys = BugSeverity::get();
-        $bugTypes = BugType::get();
-        $users = User::get();
+        $TestSuites       = TestSuites::findorFail($id);
+        $bugStatuses      = BugStatus::get();
+        $bugEnvironments  = BugEnvironment::get();
+        $bugSeveritys     = BugSeverity::get();
+        $bugTypes         = BugType::get();
+        $users            = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        $filterWebsites   = StoreWebsite::orderBy('website')->pluck('website')->toArray();
         if ($TestSuites) {
             return response()->json([
-                'code' => 200,
-                'data' => $TestSuites,
-                'bugTypes' => $bugTypes,
-                'bugEnvironments' => $bugEnvironments,
-                'bugSeveritys' => $bugSeveritys,
-                'bugStatuses' => $bugStatuses,
+                'code'             => 200,
+                'data'             => $TestSuites,
+                'bugTypes'         => $bugTypes,
+                'bugEnvironments'  => $bugEnvironments,
+                'bugSeveritys'     => $bugSeveritys,
+                'bugStatuses'      => $bugStatuses,
                 'filterCategories' => $filterCategories,
-                'users' => $users,
-                'filterWebsites' => $filterWebsites, ]
+                'users'            => $users,
+                'filterWebsites'   => $filterWebsites, ]
             );
         }
 
@@ -159,14 +159,14 @@ class TestSuitesController extends Controller
 
     public function status(Request $request)
     {
-        $status = $request->all();
+        $status    = $request->all();
         $validator = Validator::make($status, [
             'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['code' => 500, 'error' => 'Name is required']);
         }
-        $data = $request->except('_token');
+        $data    = $request->except('_token');
         $records = BugStatus::create($data);
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -175,13 +175,13 @@ class TestSuitesController extends Controller
     public function environment(Request $request)
     {
         $environment = $request->all();
-        $validator = Validator::make($environment, [
+        $validator   = Validator::make($environment, [
             'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['code' => 500, 'error' => 'Name is required']);
         }
-        $data = $request->except('_token');
+        $data    = $request->except('_token');
         $records = BugEnvironment::create($data);
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -189,14 +189,14 @@ class TestSuitesController extends Controller
 
     public function type(Request $request)
     {
-        $type = $request->all();
+        $type      = $request->all();
         $validator = Validator::make($type, [
             'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['code' => 500, 'error' => 'Name is required']);
         }
-        $data = $request->except('_token');
+        $data    = $request->except('_token');
         $records = BugType::create($data);
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -204,14 +204,14 @@ class TestSuitesController extends Controller
 
     public function severity(Request $request)
     {
-        $severity = $request->all();
+        $severity  = $request->all();
         $validator = Validator::make($severity, [
             'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['code' => 500, 'error' => 'Name is required']);
         }
-        $data = $request->except('_token');
+        $data    = $request->except('_token');
         $records = BugSeverity::create($data);
 
         return response()->json(['code' => 200, 'data' => $records]);
@@ -219,23 +219,23 @@ class TestSuitesController extends Controller
 
     public function store(Request $request)
     {
-        $bug = $request->all();
+        $bug       = $request->all();
         $validator = Validator::make($bug, [
-            'name' => 'required|string',
-            'step_to_reproduce' => 'required|string',
-            'url' => 'required|string',
+            'name'               => 'required|string',
+            'step_to_reproduce'  => 'required|string',
+            'url'                => 'required|string',
             'bug_environment_id' => 'required|string',
-            'assign_to' => 'required|string',
-            'bug_status_id' => 'required|string',
-            'module_id' => 'required|string',
-            'remark' => 'required|string',
-            'website' => 'required|string',
+            'assign_to'          => 'required|string',
+            'bug_status_id'      => 'required|string',
+            'module_id'          => 'required|string',
+            'remark'             => 'required|string',
+            'website'            => 'required|string',
 
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -252,25 +252,25 @@ class TestSuitesController extends Controller
         if (! $records) {
             $records = new TestSuites();
         }
-        $bug['created_by'] = \Auth::user()->id;
-        $bug['name'] = str_replace("\n", '<br/>', $bug['name']);
-        $bug['test_cases'] = str_replace("\n", '<br/>', $bug['test_cases']);
+        $bug['created_by']        = \Auth::user()->id;
+        $bug['name']              = str_replace("\n", '<br/>', $bug['name']);
+        $bug['test_cases']        = str_replace("\n", '<br/>', $bug['test_cases']);
         $bug['step_to_reproduce'] = str_replace("\n", '<br/>', $bug['step_to_reproduce']);
         $records->fill($bug);
 
         $records->save();
 
         $params = ChatMessage::create([
-            'user_id' => \Auth::user()->id,
-            'test_suites_id' => $records->id,
+            'user_id'         => \Auth::user()->id,
+            'test_suites_id'  => $records->id,
             'sent_to_user_id' => ($records->assign_to != \Auth::user()->id) ? $records->assign_to : \Auth::user()->id,
-            'approved' => '1',
-            'status' => '2',
-            'message' => $records->remark,
+            'approved'        => '1',
+            'status'          => '2',
+            'message'         => $records->remark,
         ]);
         $bug['test_suites_id'] = $records->id;
-        $bug['updated_by'] = \Auth::user()->id;
-        $TestSuitesHistory = TestSuitesHistory::create($bug);
+        $bug['updated_by']     = \Auth::user()->id;
+        $TestSuitesHistory     = TestSuitesHistory::create($bug);
 
         return redirect()->back();
     }
@@ -278,7 +278,7 @@ class TestSuitesController extends Controller
     public function destroy(TestSuites $TestSuites, Request $request)
     {
         try {
-            $bug = TestSuites::where('id', '=', $request->id)->delete();
+            $bug               = TestSuites::where('id', '=', $request->id)->delete();
             $TestSuitesHistory = TestSuitesHistory::where('test_suites_id', '=', $request->id)->delete();
 
             return response()->json(['code' => 200, 'data' => $bug, 'message' => 'Deleted successfully!!!']);
@@ -294,34 +294,34 @@ class TestSuitesController extends Controller
     public function update(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string',
-            'step_to_reproduce' => 'required|string',
-            'url' => 'required|string',
+            'name'               => 'required|string',
+            'step_to_reproduce'  => 'required|string',
+            'url'                => 'required|string',
             'bug_environment_id' => 'required|string',
-            'assign_to' => 'required|string',
-            'bug_status_id' => 'required|string',
-            'module_id' => 'required|string',
-            'remark' => 'required|string',
-            'website' => 'required|string',
+            'assign_to'          => 'required|string',
+            'bug_status_id'      => 'required|string',
+            'module_id'          => 'required|string',
+            'remark'             => 'required|string',
+            'website'            => 'required|string',
 
         ]);
 
         $data = $request->except('_token', 'id');
-        $bug = TestSuites::where('id', $request->id)->first();
+        $bug  = TestSuites::where('id', $request->id)->first();
 
         $data['created_by'] = \Auth::user()->id;
-        $bug['updated_by'] = \Auth::user()->id;
+        $bug['updated_by']  = \Auth::user()->id;
 
         $params = ChatMessage::create([
-            'user_id' => \Auth::user()->id,
-            'test_suites_id' => $bug->id,
+            'user_id'         => \Auth::user()->id,
+            'test_suites_id'  => $bug->id,
             'sent_to_user_id' => ($request->assign_to != \Auth::user()->id) ? $request->assign_to : \Auth::user()->id,
-            'approved' => '1',
-            'status' => '2',
-            'message' => $request->remark,
+            'approved'        => '1',
+            'status'          => '2',
+            'message'         => $request->remark,
         ]);
-        $data['name'] = str_replace("\n", '<br/>', $request->name);
-        $data['test_cases'] = str_replace("\n", '<br/>', $request->test_cases);
+        $data['name']              = str_replace("\n", '<br/>', $request->name);
+        $data['test_cases']        = str_replace("\n", '<br/>', $request->test_cases);
         $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
 
         $bug->update($data);
@@ -337,10 +337,10 @@ class TestSuitesController extends Controller
         $bugHistory = TestSuitesHistory::where('test_suites_id', $id)->get();
         $bugHistory = $bugHistory->map(function ($bug) {
             $bug->bug_environment_id = BugEnvironment::where('id', $bug->bug_environment_id)->value('name') . ' ' . $bug->bug_environment_ver;
-            $bug->assign_to = User::where('id', $bug->assign_to)->value('name');
-            $bug->updated_by = User::where('id', $bug->updated_by)->value('name');
-            $bug->bug_status_id = BugStatus::where('id', $bug->bug_status_id)->value('name');
-            $bug->bug_history = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
+            $bug->assign_to          = User::where('id', $bug->assign_to)->value('name');
+            $bug->updated_by         = User::where('id', $bug->updated_by)->value('name');
+            $bug->bug_status_id      = BugStatus::where('id', $bug->bug_status_id)->value('name');
+            $bug->bug_history        = TestSuitesHistory::where('test_suites_id', $bug->id)->get();
 
             return $bug;
         });
@@ -350,22 +350,22 @@ class TestSuitesController extends Controller
 
     public function assignUser(Request $request)
     {
-        $TestSuites = TestSuites::where('id', $request->id)->first();
+        $TestSuites            = TestSuites::where('id', $request->id)->first();
         $TestSuites->assign_to = $request->user_id;
         $TestSuites->save();
         $data = [
-            'name' => $TestSuites->name,
-            'test_cases' => $TestSuites->test_cases,
-            'step_to_reproduce' => $TestSuites->step_to_reproduce,
-            'url' => $TestSuites->url,
+            'name'               => $TestSuites->name,
+            'test_cases'         => $TestSuites->test_cases,
+            'step_to_reproduce'  => $TestSuites->step_to_reproduce,
+            'url'                => $TestSuites->url,
             'bug_environment_id' => $TestSuites->bug_environment_id,
-            'assign_to' => $TestSuites->assign_to,
-            'bug_status_id' => $TestSuites->bug_status_id,
-            'module_id' => $TestSuites->module_id,
-            'remark' => $TestSuites->remark,
-            'website' => $TestSuites->website,
-            'test_suites_id' => $TestSuites->id,
-            'updated_by' => \Auth::user()->id,
+            'assign_to'          => $TestSuites->assign_to,
+            'bug_status_id'      => $TestSuites->bug_status_id,
+            'module_id'          => $TestSuites->module_id,
+            'remark'             => $TestSuites->remark,
+            'website'            => $TestSuites->website,
+            'test_suites_id'     => $TestSuites->id,
+            'updated_by'         => \Auth::user()->id,
         ];
         TestSuitesHistory::create($data);
 
@@ -374,22 +374,22 @@ class TestSuitesController extends Controller
 
     public function severityUser(Request $request)
     {
-        $TestSuites = TestSuites::where('id', $request->id)->first();
+        $TestSuites                  = TestSuites::where('id', $request->id)->first();
         $TestSuites->bug_severity_id = $request->severity_id;
         $TestSuites->save();
         $data = [
-            'step_to_reproduce' => $TestSuites->step_to_reproduce,
-            'url' => $TestSuites->url,
-            'name' => $TestSuites->name,
-            'test_cases' => $TestSuites->test_cases,
+            'step_to_reproduce'  => $TestSuites->step_to_reproduce,
+            'url'                => $TestSuites->url,
+            'name'               => $TestSuites->name,
+            'test_cases'         => $TestSuites->test_cases,
             'bug_environment_id' => $TestSuites->bug_environment_id,
-            'assign_to' => $TestSuites->assign_to,
-            'bug_status_id' => $TestSuites->bug_status_id,
-            'module_id' => $TestSuites->module_id,
-            'remark' => $TestSuites->remark,
-            'website' => $TestSuites->website,
-            'test_suites_id' => $TestSuites->id,
-            'updated_by' => \Auth::user()->id,
+            'assign_to'          => $TestSuites->assign_to,
+            'bug_status_id'      => $TestSuites->bug_status_id,
+            'module_id'          => $TestSuites->module_id,
+            'remark'             => $TestSuites->remark,
+            'website'            => $TestSuites->website,
+            'test_suites_id'     => $TestSuites->id,
+            'updated_by'         => \Auth::user()->id,
         ];
         TestSuitesHistory::create($data);
 
@@ -398,23 +398,23 @@ class TestSuitesController extends Controller
 
     public function statusUser(Request $request)
     {
-        $TestSuites = TestSuites::where('id', $request->id)->first();
+        $TestSuites                = TestSuites::where('id', $request->id)->first();
         $TestSuites->bug_status_id = $request->status_id;
         $TestSuites->save();
 
         $data = [
-            'name' => $TestSuites->name,
-            'test_cases' => $TestSuites->test_cases,
-            'step_to_reproduce' => $TestSuites->step_to_reproduce,
-            'url' => $TestSuites->url,
+            'name'               => $TestSuites->name,
+            'test_cases'         => $TestSuites->test_cases,
+            'step_to_reproduce'  => $TestSuites->step_to_reproduce,
+            'url'                => $TestSuites->url,
             'bug_environment_id' => $TestSuites->bug_environment_id,
-            'assign_to' => $TestSuites->assign_to,
-            'bug_status_id' => $TestSuites->bug_status_id,
-            'module_id' => $TestSuites->module_id,
-            'remark' => $TestSuites->remark,
-            'website' => $TestSuites->website,
-            'test_suites_id' => $TestSuites->id,
-            'updated_by' => \Auth::user()->id,
+            'assign_to'          => $TestSuites->assign_to,
+            'bug_status_id'      => $TestSuites->bug_status_id,
+            'module_id'          => $TestSuites->module_id,
+            'remark'             => $TestSuites->remark,
+            'website'            => $TestSuites->website,
+            'test_suites_id'     => $TestSuites->id,
+            'updated_by'         => \Auth::user()->id,
         ];
         TestSuitesHistory::create($data);
 
@@ -423,7 +423,7 @@ class TestSuitesController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $id = $request->id;
+        $id   = $request->id;
         $user = Auth::user();
         $task = TestSuites::find($request->id);
 
@@ -433,14 +433,14 @@ class TestSuitesController extends Controller
 
         if ($user) {
             $params = ChatMessage::create([
-                'user_id' => $userid,
-                'erp_user' => $userid,
-                'test_suites_id' => $task->id,
+                'user_id'         => $userid,
+                'erp_user'        => $userid,
+                'test_suites_id'  => $task->id,
                 'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
                 'sent_to_user_id' => ($task->assign_to != $user->id) ? $task->assign_to : $task->created_by,
-                'approved' => '1',
-                'status' => '2',
-                'message' => $taskdata,
+                'approved'        => '1',
+                'status'          => '2',
+                'message'         => $taskdata,
             ]);
 
             if ($params) {

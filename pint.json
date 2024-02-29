@@ -4,9 +4,6 @@
     "array_syntax": {
       "syntax": "short"
     },
-    "binary_operator_spaces": {
-      "default": "single_space"
-    },
     "braces": {
       "position_after_functions_and_oop_constructs": "same"
     },
@@ -33,6 +30,21 @@
     },
     "ternary_operator_spaces": true,
     "trailing_comma_in_multiline": true,
-    "trim_array_spaces": true
+    "trim_array_spaces": true,
+    "binary_operator_spaces": {
+      "default"   : "single_space",
+      "operators" : {
+        "=>" : "align",
+        "="  : "align"
+      }
+    },
+    "phpdoc_separation": true,
+    "phpdoc_align": {
+      "align": "vertical"
+    },
+    "phpdoc_add_missing_param_annotation": {
+      "only_untyped": false
+    },
+    "psr_autoloading": false
   }
 }

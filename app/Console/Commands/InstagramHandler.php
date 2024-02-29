@@ -40,13 +40,13 @@ class InstagramHandler extends Command
      */
     public function handle()
     {
-        $query = Account::query();
+        $query    = Account::query();
         $accounts = $query->orderBy('id', 'desc')->get();
         foreach ($accounts as $key => $account) {
             $diff_in_minutes = 0;
             if (! empty($account->last_cron_time)) {
-                $to = Carbon::createFromFormat('Y-m-d H:i:s', Carbon::now());
-                $from = Carbon::createFromFormat('Y-m-d H:i:s', $account->last_cron_time);
+                $to              = Carbon::createFromFormat('Y-m-d H:i:s', Carbon::now());
+                $from            = Carbon::createFromFormat('Y-m-d H:i:s', $account->last_cron_time);
                 $diff_in_minutes = $to->diffInMinutes($from);
             }
             if ($diff_in_minutes > $account->frequency || $diff_in_minutes == 0) {
@@ -58,9 +58,9 @@ class InstagramHandler extends Command
                 $InstagramPostsController->likeUserPost($myRequest);
                 $InstagramPostsController->sendRequest($myRequest);
                 $InstagramPostsController->acceptRequest($myRequest);
-                $get_images = [];
-                $get_caption = [];
-                $selected_images = [];
+                $get_images       = [];
+                $get_caption      = [];
+                $selected_images  = [];
                 $selected_caption = [];
                 if (! empty($get_caption)) {
                     $selected_caption[] = $get_caption[0]['id'];

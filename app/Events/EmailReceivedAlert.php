@@ -16,6 +16,8 @@ class EmailReceivedAlert implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      *
+     * @param privateEmail $email
+     *
      * @return void
      */
     public function __construct(private Email $email)
@@ -25,11 +27,11 @@ class EmailReceivedAlert implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return ['email' => [
-            'id' => $this->email->id,
-            'subject' => $this->email->subject,
-            'message' => $this->email->message,
-            'from' => $this->email->from,
-            'to' => $this->email->to,
+            'id'         => $this->email->id,
+            'subject'    => $this->email->subject,
+            'message'    => $this->email->message,
+            'from'       => $this->email->from,
+            'to'         => $this->email->to,
             'created_at' => $this->email->created_at,
         ],
 

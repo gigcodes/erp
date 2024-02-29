@@ -248,6 +248,8 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * We can use this function to give same page rights like admin
+     *
+     * @param mixed $page
      */
     public function isReviwerLikeAdmin($page = '')
     {
@@ -282,6 +284,8 @@ class User extends Authenticatable implements JWTSubject
      * The attributes helps to check if User has Permission Using Route To Check Page.
      *
      * @var array
+     *
+     * @param mixed $name
      */
     public function hasPermission($name)
     {
@@ -289,8 +293,8 @@ class User extends Authenticatable implements JWTSubject
             $genUrl = 'mastercontrol';
             header('Location: /development/list');
         } else {
-            $url = explode('/', $name);
-            $model = $url[0];
+            $url     = explode('/', $name);
+            $model   = $url[0];
             $actions = end($url);
             if ($model != '') {
                 if ($model == $actions) {
@@ -313,8 +317,8 @@ class User extends Authenticatable implements JWTSubject
 
         if (empty($permission)) {
             echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
-            $per = new Permission;
-            $per->name = $genUrl;
+            $per        = new Permission;
+            $per->name  = $genUrl;
             $per->route = $genUrl;
             $per->save();
             exit();
@@ -365,6 +369,8 @@ class User extends Authenticatable implements JWTSubject
      * The attributes helps to check if User has Permission Using Permission Name.
      *
      * @var array
+     *
+     * @param mixed $permission
      */
     public function checkPermission($permission)
     {
@@ -379,7 +385,7 @@ class User extends Authenticatable implements JWTSubject
         if ($permission == null && $permission == '') {
             return true;
         }
-        $role = $permission->getRoleIdsInArray();
+        $role      = $permission->getRoleIdsInArray();
         $user_role = $this->roles()->pluck('id')->unique()->toArray();
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
@@ -405,6 +411,9 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Check if the user has a particular permission.
+     *
+     * @param mixed $permissionName
+     * @param mixed $arguements
      *
      * @return bool
      */
@@ -439,7 +448,8 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Returns the user's avatar,
      *
-     * @param  int  $size
+     * @param int $size
+     *
      * @return string
      */
     public function getAvatar($size = 50)
@@ -462,7 +472,8 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Get a shortened version of the user's name.
      *
-     * @param  int  $chars
+     * @param int $chars
+     *
      * @return string
      */
     public function getShortName($chars = 8)
@@ -557,7 +568,7 @@ class User extends Authenticatable implements JWTSubject
     public function previousDue($lastPaidOn)
     {
         $pendingPyments = HubstaffPaymentAccount::where('user_id', $this->id)->where('billing_start', '>', $lastPaidOn)->get();
-        $total = 0;
+        $total          = 0;
         foreach ($pendingPyments as $pending) {
             $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
         }

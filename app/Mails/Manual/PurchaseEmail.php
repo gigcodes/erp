@@ -25,9 +25,9 @@ class PurchaseEmail extends Mailable
 
     public function __construct(string $subject, string $message, array $file_paths, $customConfig = [])
     {
-        $this->subject = $subject;
-        $this->message = $message;
-        $this->file_paths = $file_paths;
+        $this->subject      = $subject;
+        $this->message      = $message;
+        $this->file_paths   = $file_paths;
         $this->customConfig = $customConfig;
     }
 
@@ -45,7 +45,7 @@ class PurchaseEmail extends Mailable
             $email = $email->from($this->customConfig['from']);
         } else {
             $from_email = \App\Helpers::getFromEmail();
-            $email = $email->from($from_email);
+            $email      = $email->from($from_email);
         }
 
         if (count($this->file_paths) > 0) {

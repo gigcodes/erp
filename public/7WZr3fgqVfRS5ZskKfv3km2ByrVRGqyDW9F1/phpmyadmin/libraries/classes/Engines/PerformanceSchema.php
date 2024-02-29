@@ -18,7 +18,7 @@ class PerformanceSchema extends StorageEngine
      * Returns string with filename for the MySQL helppage
      * about this storage engine
      *
-     * @return string  mysql helppage filename
+     * @return string mysql helppage filename
      */
     public function getMysqlHelpPage()
     {

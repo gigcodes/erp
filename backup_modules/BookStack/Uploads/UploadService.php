@@ -35,11 +35,13 @@ abstract class UploadService
     /**
      * Check whether or not a folder is empty.
      *
+     * @param mixed $path
+     *
      * @return bool
      */
     protected function isFolderEmpty($path)
     {
-        $files = $this->getStorage()->files($path);
+        $files   = $this->getStorage()->files($path);
         $folders = $this->getStorage()->directories($path);
 
         return count($files) === 0 && count($folders) === 0;

@@ -19,7 +19,7 @@ class UsersAutoCommentHistoriesController extends Controller
     public function index()
     {
         $autoCommentHistories = new AutoCommentHistory();
-        $user = Auth::user();
+        $user                 = Auth::user();
         if (! $user->hasRole('Admin')) {
             $autoCommentHistories = $autoCommentHistories->whereIn('id', DB::table('users_auto_comment_histories')
                 ->where('user_id', $user->id)
@@ -48,10 +48,10 @@ class UsersAutoCommentHistoriesController extends Controller
 
         foreach ($autoCommentHistory as $ach) {
             DB::table('users_auto_comment_histories')->insert([
-                'user_id' => $user->id,
+                'user_id'                 => $user->id,
                 'auto_comment_history_id' => $ach->id,
-                'created_at' => Carbon::now()->toDateTimeString(),
-                'updated_at' => Carbon::now()->toDateTimeString(),
+                'created_at'              => Carbon::now()->toDateTimeString(),
+                'updated_at'              => Carbon::now()->toDateTimeString(),
             ]);
             $productsAttached++;
         }
@@ -62,7 +62,7 @@ class UsersAutoCommentHistoriesController extends Controller
     public function sendMessagesToWhatsappToScrap(Request $request)
     {
         $posts = $request->get('posts');
-        $user = Auth::user();
+        $user  = Auth::user();
 
         $message = 'The comments to be posted on posts are: ';
 
@@ -74,10 +74,10 @@ class UsersAutoCommentHistoriesController extends Controller
         $myRequest = new Request();
         $myRequest->setMethod('POST');
         $myRequest->request->add([
-            'vendor_id' => $user->id,
-            'message' => $message,
+            'vendor_id'      => $user->id,
+            'message'        => $message,
             'is_vendor_user' => 'yes',
-            'status' => 1,
+            'status'         => 1,
         ]);
 
         app(WhatsAppController::class)->sendMessage($myRequest, 'vendor');
@@ -110,7 +110,8 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -121,7 +122,8 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -132,7 +134,8 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -143,7 +146,8 @@ class UsersAutoCommentHistoriesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

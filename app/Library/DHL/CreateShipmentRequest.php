@@ -67,11 +67,11 @@ class CreateShipmentRequest extends APIAbstract
     {
         parent::__construct();
         $this->fromCountryCode = config('env.DHL_COUNTRYCODE') ?: config('dhl.tas.DHL_COUNTRYCODE');
-        $this->fromPostalCode = config('env.DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
-        $this->fromCity = config('env.DHL_CITY') ?: config('dhl.tas.DHL_CITY');
-        $this->timeZone = '+02:00';
-        $this->dimensionUnit = 'CM';
-        $this->weightUnit = 'KG';
+        $this->fromPostalCode  = config('env.DHL_POSTALCODE') ?: config('dhl.tas.DHL_POSTALCODE');
+        $this->fromCity        = config('env.DHL_CITY') ?: config('dhl.tas.DHL_CITY');
+        $this->timeZone        = '+02:00';
+        $this->dimensionUnit   = 'CM';
+        $this->weightUnit      = 'KG';
         $this->setType($requestType);
     }
 
@@ -434,7 +434,7 @@ class CreateShipmentRequest extends APIAbstract
         $email = '';
         if (! empty($this->recipient)) {
             $recipient = $this->recipient;
-            $email = ! empty($recipient['email']) ? $recipient['email'] : '';
+            $email     = ! empty($recipient['email']) ? $recipient['email'] : '';
             $xml->startElement('Recipient');
             $xml->startElement('Contact');
             $xml->writeElement('PersonName', ! empty($recipient['person_name']) ? $recipient['person_name'] : '');

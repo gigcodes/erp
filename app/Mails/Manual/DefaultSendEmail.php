@@ -23,16 +23,23 @@ class DefaultSendEmail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed      $email
+     * @param mixed      $attchments
+     * @param null|mixed $template
+     * @param mixed      $dataArr
+     * @param null|mixed $rxProducts
+     * @param null|mixed $fromMailer
+     *
      * @return void
      */
     public function __construct($email, $attchments, $template = null, $dataArr = [], $rxProducts = null, $fromMailer = null)
     {
-        $this->email = $email;
-        $this->attchments = $attchments;
-        $this->template = $template;
-        $this->dataArr = $dataArr;
+        $this->email                  = $email;
+        $this->attchments             = $attchments;
+        $this->template               = $template;
+        $this->dataArr                = $dataArr;
         $this->returnExchangeProducts = $rxProducts;
-        $this->fromMailer = $fromMailer;
+        $this->fromMailer             = $fromMailer;
     }
 
     /**
@@ -42,8 +49,8 @@ class DefaultSendEmail extends Mailable
      */
     public function build()
     {
-        $email = $this->email;
-        $content = $email->message;
+        $email      = $this->email;
+        $content    = $email->message;
         $headerData = [
             'unique_args' => [
                 'email_id' => $email->id,
@@ -51,35 +58,35 @@ class DefaultSendEmail extends Mailable
         ];
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Header Data being attached in email from DefaultSendeEmail',
-            'message' => json_encode($headerData),
+            'message'   => json_encode($headerData),
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Sending Email From',
-            'message' => $email->from,
+            'message'   => $email->from,
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Sending Email To',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Sending Email Subject',
-            'message' => $email->subject,
+            'message'   => $email->subject,
         ]);
 
         $header = $this->asString($headerData);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Header Data attached in email',
-            'message' => $header,
+            'message'   => $header,
         ]);
 
         $this->withSwiftMessage(function ($message) use ($header) {
@@ -92,17 +99,17 @@ class DefaultSendEmail extends Mailable
         ->view('emails.blank_content', compact('content'));	//->with([ 'custom_args' => $this->email ]);
 
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Mail Object Created in DefaultSendEmail',
-            'message' => json_encode($mailObj),
+            'message'   => json_encode($mailObj),
         ]);
 
         foreach ($this->attchments as $attchment) {
             $mailObj->attachFromStorageDisk('files', $attchment);
             \App\EmailLog::create([
-                'email_id' => $email->id,
+                'email_id'  => $email->id,
                 'email_log' => 'attachment added in DefaultSendEmail',
-                'message' => $attchment,
+                'message'   => $attchment,
             ]);
         }
 

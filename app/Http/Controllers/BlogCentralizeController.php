@@ -17,9 +17,9 @@ class BlogCentralizeController extends Controller
      */
     public function index(Request $request)
     {
-        $page_val = config('constants.paginate');
+        $page_val          = config('constants.paginate');
         $allblogCentralize = BlogCentralize::orderBy('id', 'desc')->paginate($page_val)->appends(request()->except(['page']));
-        $emailReceivRec = EmailReceiverMaster::where('module_name', 'blog')->first();
+        $emailReceivRec    = EmailReceiverMaster::where('module_name', 'blog')->first();
 
         if ($request->ajax()) {
             return response()->json([

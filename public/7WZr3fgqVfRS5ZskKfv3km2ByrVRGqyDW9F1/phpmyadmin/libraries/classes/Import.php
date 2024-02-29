@@ -118,9 +118,9 @@ class Import
      * Runs query inside import buffer. This is needed to allow displaying
      * of last SELECT, SHOW or HANDLER results and similar nice stuff.
      *
-     * @param  string  $sql     query to run
-     * @param  string  $full    query to display, this might be commented
-     * @param  array  $sqlData SQL parse data storage
+     * @param string $sql     query to run
+     * @param string $full    query to display, this might be commented
+     * @param array  $sqlData SQL parse data storage
      */
     public function executeQuery(string $sql, string $full, array &$sqlData): void
     {
@@ -139,7 +139,7 @@ class Import
             }
 
             $my_die[] = [
-                'sql' => $full,
+                'sql'   => $full,
                 'error' => $dbi->getError(),
             ];
 
@@ -151,7 +151,7 @@ class Import
                 return;
             }
         } else {
-            $aNumRows = (int) $result->numRows();
+            $aNumRows      = (int) $result->numRows();
             $aAffectedRows = (int) @$dbi->affectedRows();
             if ($aNumRows > 0) {
                 $msg .= __('Rows') . ': ' . $aNumRows;
@@ -194,9 +194,9 @@ class Import
      * Runs query inside import buffer. This is needed to allow displaying
      * of last SELECT, SHOW or HANDLER results and similar nice stuff.
      *
-     * @param  string  $sql     query to run
-     * @param  string  $full    query to display, this might be commented
-     * @param  array  $sqlData SQL parse data storage
+     * @param string $sql     query to run
+     * @param string $full    query to display, this might be commented
+     * @param array  $sqlData SQL parse data storage
      */
     public function runQuery(
         string $sql = '',
@@ -238,14 +238,14 @@ class Import
 
                 if (! $sql_query_disabled) {
                     $complete_query = $sql_query;
-                    $display_query = $sql_query;
+                    $display_query  = $sql_query;
                 } else {
                     $complete_query = '';
-                    $display_query = '';
+                    $display_query  = '';
                 }
 
-                $sql_query = $import_run_buffer['sql'];
-                $sqlData['valid_sql'][] = $import_run_buffer['sql'];
+                $sql_query               = $import_run_buffer['sql'];
+                $sqlData['valid_sql'][]  = $import_run_buffer['sql'];
                 $sqlData['valid_full'][] = $import_run_buffer['full'];
                 if (! isset($sqlData['valid_queries'])) {
                     $sqlData['valid_queries'] = 0;
@@ -256,11 +256,11 @@ class Import
                 /* Handle rollback from go_sql */
                 if ($go_sql && isset($sqlData['valid_full'])) {
                     $queries = $sqlData['valid_sql'];
-                    $fulls = $sqlData['valid_full'];
-                    $count = $sqlData['valid_queries'];
-                    $go_sql = false;
+                    $fulls   = $sqlData['valid_full'];
+                    $count   = $sqlData['valid_queries'];
+                    $go_sql  = false;
 
-                    $sqlData['valid_sql'] = [];
+                    $sqlData['valid_sql']     = [];
                     $sqlData['valid_queries'] = 0;
                     unset($sqlData['valid_full']);
                     for ($i = 0; $i < $count; $i++) {
@@ -284,7 +284,7 @@ class Import
         // the complete query in the textarea)
         if (! $go_sql && $run_query && ! empty($sql_query)) {
             if (mb_strlen($sql_query) > 50000 || $executed_queries > 50 || $max_sql_len > 1000) {
-                $sql_query = '';
+                $sql_query          = '';
                 $sql_query_disabled = true;
             }
         }
@@ -303,9 +303,10 @@ class Import
     /**
      * Return import run buffer
      *
-     * @param  array  $importRunBuffer Buffer of queries for import
-     * @param  string  $sql             SQL query
-     * @param  string  $full            Query to display
+     * @param array  $importRunBuffer Buffer of queries for import
+     * @param string $sql             SQL query
+     * @param string $full            Query to display
+     *
      * @return array Buffer of queries for import
      */
     public function runQueryPost(
@@ -315,7 +316,7 @@ class Import
     ): ?array {
         if (! empty($sql) || ! empty($full)) {
             return [
-                'sql' => $sql . ';',
+                'sql'  => $sql . ';',
                 'full' => $full . ';',
             ];
         }
@@ -328,9 +329,10 @@ class Import
     /**
      * Looks for the presence of USE to possibly change current db
      *
-     * @param  string  $buffer buffer to examine
-     * @param  string  $db     current db
-     * @param  bool  $reload reload
+     * @param string $buffer buffer to examine
+     * @param string $db     current db
+     * @param bool   $reload reload
+     *
      * @return array (current or new db, whether to reload)
      */
     public function lookForUse(?string $buffer, ?string $db, ?bool $reload): array
@@ -356,7 +358,9 @@ class Import
     /**
      * Returns next part of imported file/buffer
      *
-     * @param  int  $size size of buffer to read (this is maximal size function will return)
+     * @param int   $size         size of buffer to read (this is maximal size function will return)
+     * @param ?File $importHandle
+     *
      * @return string|bool part of file/buffer
      */
     public function getNextChunk(?File $importHandle = null, int $size = 32768)
@@ -405,7 +409,7 @@ class Import
             return false;
         }
 
-        $result = $importHandle->read($size);
+        $result              = $importHandle->read($size);
         $GLOBALS['finished'] = $importHandle->eof();
         $GLOBALS['offset'] += $size;
 
@@ -432,7 +436,7 @@ class Import
      * charsets, but feel free to add more, you can use wikipedia for
      * reference: <https://en.wikipedia.org/wiki/Byte_Order_Mark>)
      *
-     * @param  string  $contents The contents to strip BOM
+     * @param string $contents The contents to strip BOM
      *
      * @todo BOM could be used for charset autodetection
      */
@@ -474,16 +478,17 @@ class Import
      * When the first function is reached, the last character is added and the complete
      * column name is returned.
      *
-     * @param  int  $num the column number
+     * @param int $num the column number
+     *
      * @return string The column's "Excel" name
      */
     public function getColumnAlphaName(int $num): string
     {
         $capitalA = 65; // ASCII value for capital "A"
-        $colName = '';
+        $colName  = '';
 
         if ($num > 26) {
-            $div = (int) ($num / 26);
+            $div    = (int) ($num / 26);
             $remain = $num % 26;
 
             // subtract 1 of divided value in case the modulus is 0,
@@ -519,7 +524,8 @@ class Import
      * calculates the corresponding value, based on character value
      * (A = 1, ..., Z = 26) and position in the string.
      *
-     * @param  string  $name column name(i.e. "A", or "BC", etc.)
+     * @param string $name column name(i.e. "A", or "BC", etc.)
+     *
      * @return int The column number
      */
     public function getColumnNumberFromName(string $name): int
@@ -528,8 +534,8 @@ class Import
             return 0;
         }
 
-        $name = mb_strtoupper($name);
-        $numChars = mb_strlen($name);
+        $name         = mb_strtoupper($name);
+        $numChars     = mb_strlen($name);
         $columnNumber = 0;
         for ($i = 0; $i < $numChars; $i++) {
             // read string from back to front
@@ -553,7 +559,8 @@ class Import
     /**
      * Obtains the precision (total # of digits) from a size of type decimal
      *
-     * @param  string  $lastCumulativeSize Size of type decimal
+     * @param string $lastCumulativeSize Size of type decimal
+     *
      * @return int Precision of the given decimal size notation
      */
     public function getDecimalPrecision(string $lastCumulativeSize): int
@@ -569,7 +576,8 @@ class Import
      * Obtains the scale (# of digits to the right of the decimal point)
      * from a size of type decimal
      *
-     * @param  string  $lastCumulativeSize Size of type decimal
+     * @param string $lastCumulativeSize Size of type decimal
+     *
      * @return int Scale of the given decimal size notation
      */
     public function getDecimalScale(string $lastCumulativeSize): int
@@ -584,14 +592,15 @@ class Import
     /**
      * Obtains the decimal size of a given cell
      *
-     * @param  string  $cell cell content
+     * @param string $cell cell content
+     *
      * @return array Contains the precision, scale, and full size
-     *                representation of the given decimal cell
+     *               representation of the given decimal cell
      */
     public function getDecimalSize(string $cell): array
     {
-        $currSize = mb_strlen($cell);
-        $decPos = mb_strpos($cell, '.');
+        $currSize     = mb_strlen($cell);
+        $decPos       = mb_strpos($cell, '.');
         $decPrecision = $currSize - 1 - $decPos;
 
         $m = $currSize - 1;
@@ -607,10 +616,11 @@ class Import
     /**
      * Obtains the size of the given cell
      *
-     * @param  string|int  $lastCumulativeSize Last cumulative column size
-     * @param  int|null  $lastCumulativeType Last cumulative column type (NONE or VARCHAR or DECIMAL or INT or BIGINT)
-     * @param  int  $currentCellType    Type of the current cell (NONE or VARCHAR or DECIMAL or INT or BIGINT)
-     * @param  string  $cell               The current cell
+     * @param string|int $lastCumulativeSize Last cumulative column size
+     * @param int|null   $lastCumulativeType Last cumulative column type (NONE or VARCHAR or DECIMAL or INT or BIGINT)
+     * @param int        $currentCellType    Type of the current cell (NONE or VARCHAR or DECIMAL or INT or BIGINT)
+     * @param string     $cell               The current cell
+     *
      * @return string|int Size of the given cell in the type-appropriate format
      *
      * @todo    Handle the error cases more elegantly
@@ -776,8 +786,8 @@ class Import
                 /**
                  * The last cumulative type was DECIMAL
                  */
-                $oldM = $this->getDecimalPrecision($lastCumulativeSize);
-                $oldD = $this->getDecimalScale($lastCumulativeSize);
+                $oldM   = $this->getDecimalPrecision($lastCumulativeSize);
+                $oldD   = $this->getDecimalScale($lastCumulativeSize);
                 $oldInt = $oldM - $oldD;
                 $newInt = mb_strlen((string) $cell);
 
@@ -832,12 +842,13 @@ class Import
     /**
      * Determines what MySQL type a cell is
      *
-     * @param  int  $lastCumulativeType Last cumulative column type
+     * @param int         $lastCumulativeType Last cumulative column type
      *                                        (VARCHAR or INT or BIGINT or DECIMAL or NONE)
-     * @param  string|null  $cell               String representation of the cell for which
+     * @param string|null $cell               String representation of the cell for which
      *                                        a best-fit type is to be determined
-     * @return int  The MySQL type representation
-     *               (VARCHAR or INT or BIGINT or DECIMAL or NONE)
+     *
+     * @return int The MySQL type representation
+     *             (VARCHAR or INT or BIGINT or DECIMAL or NONE)
      */
     public function detectType(?int $lastCumulativeType, ?string $cell): int
     {
@@ -881,7 +892,8 @@ class Import
      *
      * @link https://wiki.phpmyadmin.net/pma/Import
      *
-     * @param  array  $table array(string $table_name, array $col_names, array $rows)
+     * @param array $table array(string $table_name, array $col_names, array $rows)
+     *
      * @return array|bool array(array $types, array $sizes)
      *
      * @todo    Handle the error case more elegantly
@@ -978,12 +990,12 @@ class Import
      *
      * @link https://wiki.phpmyadmin.net/pma/Import
      *
-     * @param  string  $dbName        Name of the database
-     * @param  array  $tables        Array of tables for the specified database
-     * @param  array|null  $analyses      Analyses of the tables
-     * @param  array|null  $additionalSql Additional SQL statements to be executed
-     * @param  array|null  $options       Associative array of options
-     * @param  array  $sqlData       2-element array with sql data
+     * @param string     $dbName        Name of the database
+     * @param array      $tables        Array of tables for the specified database
+     * @param array|null $analyses      Analyses of the tables
+     * @param array|null $additionalSql Additional SQL statements to be executed
+     * @param array|null $options       Associative array of options
+     * @param array      $sqlData       2-element array with sql data
      */
     public function buildSql(
         string $dbName,
@@ -1000,8 +1012,8 @@ class Import
 
         /* Take care of the options */
         $collation = $options['db_collation'] ?? 'utf8_general_ci';
-        $charset = $options['db_charset'] ?? 'utf8';
-        $createDb = $options['create_db'] ?? true;
+        $charset   = $options['db_charset'] ?? 'utf8';
+        $createDb  = $options['create_db'] ?? true;
 
         /**
          * Create SQL code to handle the database
@@ -1048,7 +1060,7 @@ class Import
              *
              * $pattern = 'CREATE (TABLE|VIEW|TRIGGER|FUNCTION|PROCEDURE)';
              */
-            $pattern = '/CREATE [^`]*(TABLE)/';
+            $pattern     = '/CREATE [^`]*(TABLE)/';
             $replacement = 'CREATE \\1 IF NOT EXISTS';
 
             /* Change CREATE statements to CREATE IF NOT EXISTS to support
@@ -1063,11 +1075,11 @@ class Import
 
         if ($analyses != null) {
             $typeArray = [
-                self::NONE => 'NULL',
-                self::VARCHAR => 'varchar',
-                self::INT => 'int',
-                self::DECIMAL => 'decimal',
-                self::BIGINT => 'bigint',
+                self::NONE     => 'NULL',
+                self::VARCHAR  => 'varchar',
+                self::INT      => 'int',
+                self::DECIMAL  => 'decimal',
+                self::BIGINT   => 'bigint',
                 self::GEOMETRY => 'geometry',
             ];
 
@@ -1079,7 +1091,7 @@ class Import
             /* Create SQL code to create the tables */
             $numTables = count($tables);
             for ($i = 0; $i < $numTables; $i++) {
-                $numCols = count($tables[$i][self::COL_NAMES]);
+                $numCols    = count($tables[$i][self::COL_NAMES]);
                 $tempSQLStr = 'CREATE TABLE IF NOT EXISTS '
                 . Util::backquote($dbName)
                 . '.' . Util::backquote($tables[$i][self::TBL_NAME]) . ' (';
@@ -1120,8 +1132,8 @@ class Import
          * Only one insert query is formed for each table
          */
         $tempSQLStr = '';
-        $colCount = 0;
-        $numTables = count($tables);
+        $colCount   = 0;
+        $numTables  = count($tables);
         for ($i = 0; $i < $numTables; $i++) {
             $numCols = count($tables[$i][self::COL_NAMES]);
             $numRows = count($tables[$i][self::ROWS]);
@@ -1216,7 +1228,7 @@ class Import
          * Add the viewable structures from $additional_sql
          * to $tables so they are also displayed
          */
-        $viewPattern = '@VIEW `[^`]+`\.`([^`]+)@';
+        $viewPattern  = '@VIEW `[^`]+`\.`([^`]+)@';
         $tablePattern = '@CREATE TABLE IF NOT EXISTS `([^`]+)`@';
         /* Check a third pattern to make sure its not a "USE `db_name`;" statement */
 
@@ -1246,12 +1258,12 @@ class Import
             }
 
             /* Reset the array */
-            $regs = [];
+            $regs     = [];
             $inTables = false;
         }
 
-        $params = ['db' => $dbName];
-        $dbUrl = Url::getFromRoute('/database/structure', $params);
+        $params          = ['db' => $dbName];
+        $dbUrl           = Url::getFromRoute('/database/structure', $params);
         $dbOperationsUrl = Url::getFromRoute('/database/operations', $params);
 
         $message = '<br><br>';
@@ -1284,12 +1296,12 @@ class Import
 
         foreach ($tables as $table) {
             $params = [
-                'db' => $dbName,
+                'db'    => $dbName,
                 'table' => (string) $table[self::TBL_NAME],
             ];
-            $tblUrl = Url::getFromRoute('/sql', $params);
+            $tblUrl       = Url::getFromRoute('/sql', $params);
             $tblStructUrl = Url::getFromRoute('/table/structure', $params);
-            $tblOpsUrl = Url::getFromRoute('/table/operations', $params);
+            $tblOpsUrl    = Url::getFromRoute('/table/operations', $params);
 
             unset($params);
 
@@ -1345,16 +1357,16 @@ class Import
     /**
      * Handles request for ROLLBACK.
      *
-     * @param  string  $sqlQuery SQL query(s)
+     * @param string $sqlQuery SQL query(s)
      */
     public function handleRollbackRequest(string $sqlQuery): void
     {
         global $dbi;
 
         $sqlDelimiter = $_POST['sql_delimiter'];
-        $queries = explode($sqlDelimiter, $sqlQuery);
-        $error = false;
-        $errorMsg = __(
+        $queries      = explode($sqlDelimiter, $sqlQuery);
+        $error        = false;
+        $errorMsg     = __(
             'Only INSERT, UPDATE, DELETE and REPLACE '
             . 'SQL queries containing transactional engine tables can be rolled back.'
         );
@@ -1381,7 +1393,7 @@ class Import
         if ($error) {
             unset($_POST['rollback_query']);
             $response = ResponseRenderer::getInstance();
-            $message = Message::rawError($error);
+            $message  = Message::rawError($error);
             $response->addJSON('message', $message);
             exit;
         }
@@ -1393,7 +1405,7 @@ class Import
     /**
      * Checks if ROLLBACK is possible for a SQL query or not.
      *
-     * @param  string  $sqlQuery SQL query
+     * @param string $sqlQuery SQL query
      */
     public function checkIfRollbackPossible(string $sqlQuery): bool
     {
@@ -1431,7 +1443,7 @@ class Import
     /**
      * Checks if a table is 'InnoDB' or not.
      *
-     * @param  string  $table Table details
+     * @param string $table Table details
      */
     public function isTableTransactional(string $table): bool
     {
@@ -1439,10 +1451,10 @@ class Import
 
         $table = explode('.', $table);
         if (count($table) === 2) {
-            $db = Util::unQuote($table[0]);
+            $db    = Util::unQuote($table[0]);
             $table = Util::unQuote($table[1]);
         } else {
-            $db = $GLOBALS['db'];
+            $db    = $GLOBALS['db'];
             $table = Util::unQuote($table[0]);
         }
 
@@ -1505,7 +1517,8 @@ class Import
     }
 
     /**
-     * @param  array  $importList List of plugin instances.
+     * @param array $importList List of plugin instances.
+     *
      * @return false|string
      */
     public static function getLocalFiles(array $importList)

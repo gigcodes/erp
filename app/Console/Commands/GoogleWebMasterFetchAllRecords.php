@@ -65,23 +65,23 @@ class GoogleWebMasterFetchAllRecords extends Command
                         $details = $this->updateSitesData($token);
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Updated sites data']);
 
-                        $url = 'https://www.googleapis.com/webmasters/v3/sites/';
+                        $url  = 'https://www.googleapis.com/webmasters/v3/sites/';
                         $curl = curl_init();
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => $url,
+                            CURLOPT_URL            => $url,
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 30,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'GET',
-                            CURLOPT_HTTPHEADER => [
+                            CURLOPT_ENCODING       => '',
+                            CURLOPT_MAXREDIRS      => 10,
+                            CURLOPT_TIMEOUT        => 30,
+                            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST  => 'GET',
+                            CURLOPT_HTTPHEADER     => [
                                 'authorization:Bearer ' . $this->client->getAccessToken()['access_token'],
                             ],
                         ]);
 
                         $response = curl_exec($curl);
-                        $err = curl_error($curl);
+                        $err      = curl_error($curl);
 
                         if (curl_errno($curl)) {
                             $error_msg = curl_error($curl);
@@ -119,21 +119,21 @@ class GoogleWebMasterFetchAllRecords extends Command
                                     //replace website name with code coming form site list
                                     $url = "https://www.googleapis.com/webmasters/v3/sites/' . urlencode($site->siteUrl) . '/sitemaps";
                                     curl_setopt_array($curl1, [
-                                        CURLOPT_URL => $url,
+                                        CURLOPT_URL            => $url,
                                         CURLOPT_RETURNTRANSFER => true,
-                                        CURLOPT_ENCODING => '',
-                                        CURLOPT_MAXREDIRS => 10,
-                                        CURLOPT_TIMEOUT => 30,
-                                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                        CURLOPT_CUSTOMREQUEST => 'GET',
-                                        CURLOPT_HTTPHEADER => [
+                                        CURLOPT_ENCODING       => '',
+                                        CURLOPT_MAXREDIRS      => 10,
+                                        CURLOPT_TIMEOUT        => 30,
+                                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                                        CURLOPT_CUSTOMREQUEST  => 'GET',
+                                        CURLOPT_HTTPHEADER     => [
                                             'authorization: Bearer ' . $this->client->getAccessToken()['access_token'],
                                         ],
                                     ]);
 
                                     $response1 = curl_exec($curl1);
-                                    $err = curl_error($curl1);
-                                    $httpcode = curl_getinfo($curl1, CURLINFO_HTTP_CODE);
+                                    $err       = curl_error($curl1);
+                                    $httpcode  = curl_getinfo($curl1, CURLINFO_HTTP_CODE);
                                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response1), $httpcode, \App\Console\Commands\GoogleWebMasterFetchAllRecords::class, 'handle');
 
                                     if ($err) {
@@ -172,26 +172,26 @@ class GoogleWebMasterFetchAllRecords extends Command
         $GOOGLE_CLIENT_MULTIPLE_KEYS = config('google.GOOGLE_CLIENT_MULTIPLE_KEYS');
 
         $google_keys = explode(',', $GOOGLE_CLIENT_MULTIPLE_KEYS);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime   = date('Y-m-d H:i:s', LARAVEL_START);
 
         //$token = $request->session()->get('token');
         foreach ($google_keys as $google_key) {
             if ($google_key) {
-                $this->apiKey = $google_key;
+                $this->apiKey      = $google_key;
                 $this->googleToken = $token['access_token'];
-                $url_for_sites = 'https://www.googleapis.com/webmasters/v3/sites?key=' . $this->apiKey . '<br>';
-                $curl = curl_init();
+                $url_for_sites     = 'https://www.googleapis.com/webmasters/v3/sites?key=' . $this->apiKey . '<br>';
+                $curl              = curl_init();
 
                 //replace website name with code coming form site list
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $url_for_sites,
+                    CURLOPT_URL            => $url_for_sites,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 30,
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'GET',
+                    CURLOPT_HTTPHEADER     => [
                         'authorization: Bearer ' . $this->googleToken,
 
                     ],
@@ -242,8 +242,8 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function SearchAnalyticsBysearchApperiance($siteUrl, $siteID)
     {
-        $params['startDate'] = '2000-01-01';
-        $params['endDate'] = date('Y-m-d');
+        $params['startDate']  = '2000-01-01';
+        $params['endDate']    = date('Y-m-d');
         $params['dimensions'] = ['searchAppearance'];
 
         $response = $this->googleResultForAnaylist($siteUrl, $params);
@@ -259,7 +259,7 @@ class GoogleWebMasterFetchAllRecords extends Command
             $record = ['clicks' => $row->clicks, 'impressions' => $row->impressions, 'position' => $row->position, 'ctr' => $row->ctr, 'site_id' => $siteID];
 
             $record['search_apperiance'] = $row->keys[0];
-            $rowData = new GoogleSearchAnalytics;
+            $rowData                     = new GoogleSearchAnalytics;
 
             foreach ($record as $col => $val) {
                 $rowData = $rowData->where($col, $val);
@@ -274,8 +274,8 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function SearchAnalytics($siteUrl, $siteID)
     {
-        $params['startDate'] = '2000-01-01';
-        $params['endDate'] = date('Y-m-d');
+        $params['startDate']  = '2000-01-01';
+        $params['endDate']    = date('Y-m-d');
         $params['dimensions'] = ['country', 'device', 'page', 'query', 'date'];
 
         $response = $this->googleResultForAnaylist($siteUrl, $params);
@@ -291,10 +291,10 @@ class GoogleWebMasterFetchAllRecords extends Command
             $record = ['clicks' => $row->clicks, 'impressions' => $row->impressions, 'position' => $row->position, 'ctr' => $row->ctr, 'site_id' => $siteID];
 
             $record['country'] = $row->keys[0];
-            $record['device'] = $row->keys[1];
-            $record['page'] = $row->keys[2];
-            $record['query'] = $row->keys[3];
-            $record['date'] = $row->keys[4];
+            $record['device']  = $row->keys[1];
+            $record['page']    = $row->keys[2];
+            $record['query']   = $row->keys[3];
+            $record['date']    = $row->keys[4];
 
             $rowData = new GoogleSearchAnalytics;
 
@@ -311,18 +311,18 @@ class GoogleWebMasterFetchAllRecords extends Command
 
     public function googleResultForAnaylist($siteUrl, $params)
     {
-        $url = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
+        $url       = 'https://www.googleapis.com/webmasters/v3/sites/' . urlencode($siteUrl) . '/searchAnalytics/query';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
             //  CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_HTTPHEADER => [

@@ -84,15 +84,15 @@ class ReplyCategory extends Model
     public function parentList()
     {
         $parent = $this->parent;
-        $arr = [];
+        $arr    = [];
         if ($parent) {
-            $arr[] = $parent->name;
+            $arr[]  = $parent->name;
             $parent = $parent->parent;
             if ($parent) {
-                $arr[] = $parent->name;
+                $arr[]  = $parent->name;
                 $parent = $parent->parent;
                 if ($parent) {
-                    $arr[] = $parent->name;
+                    $arr[]  = $parent->name;
                     $parent = $parent->parent;
                 }
             }

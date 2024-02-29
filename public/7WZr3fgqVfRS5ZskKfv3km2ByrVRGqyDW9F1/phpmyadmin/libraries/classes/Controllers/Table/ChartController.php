@@ -86,7 +86,7 @@ class ChartController extends AbstractController
             Util::checkParameters(['db', 'table']);
 
             $url_params = ['db' => $db, 'table' => $table];
-            $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+            $errorUrl   = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
             $errorUrl .= Url::getCommon($url_params, '&');
 
             DbTableExists::check();
@@ -109,21 +109,21 @@ class ChartController extends AbstractController
         } else {
             $url_params['goto'] = Util::getScriptNameForOption($cfg['DefaultTabServer'], 'server');
             $url_params['back'] = Url::getFromRoute('/sql');
-            $errorUrl = Url::getFromRoute('/');
+            $errorUrl           = Url::getFromRoute('/');
 
             if ($this->dbi->isSuperUser()) {
                 $this->dbi->selectDb('mysql');
             }
         }
 
-        $result = $this->dbi->tryQuery($sql_query);
+        $result      = $this->dbi->tryQuery($sql_query);
         $fields_meta = $row = [];
         if ($result !== false) {
             $fields_meta = $this->dbi->getFieldsMeta($result);
-            $row = $result->fetchAssoc();
+            $row         = $result->fetchAssoc();
         }
 
-        $keys = array_keys($row);
+        $keys               = array_keys($row);
         $numericColumnFound = false;
         foreach (array_keys($keys) as $idx) {
             if (
@@ -147,7 +147,7 @@ class ChartController extends AbstractController
             return;
         }
 
-        $url_params['db'] = $db;
+        $url_params['db']     = $db;
         $url_params['reload'] = 1;
 
         $startAndNumberOfRowsFieldset = Generator::getStartAndNumberOfRowsFieldsetData($sql_query);
@@ -156,10 +156,10 @@ class ChartController extends AbstractController
          * Displays the page
          */
         $this->render('table/chart/tbl_chart', [
-            'url_params' => $url_params,
-            'keys' => $keys,
-            'fields_meta' => $fields_meta,
-            'table_has_a_numeric_column' => $numericColumnFound,
+            'url_params'                        => $url_params,
+            'keys'                              => $keys,
+            'fields_meta'                       => $fields_meta,
+            'table_has_a_numeric_column'        => $numericColumnFound,
             'start_and_number_of_rows_fieldset' => $startAndNumberOfRowsFieldset,
         ]);
     }
@@ -175,7 +175,7 @@ class ChartController extends AbstractController
             Util::checkParameters(['db', 'table']);
 
             $urlParams = ['db' => $db, 'table' => $table];
-            $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+            $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
             $errorUrl .= Url::getCommon($urlParams, '&');
 
             DbTableExists::check();
@@ -189,15 +189,15 @@ class ChartController extends AbstractController
         if (empty($statement->limit)) {
             $statement->limit = new Limit($_REQUEST['session_max_rows'], $_REQUEST['pos']);
         } else {
-            $start = $statement->limit->offset + $_REQUEST['pos'];
-            $rows = min($_REQUEST['session_max_rows'], $statement->limit->rowCount - $_REQUEST['pos']);
+            $start            = $statement->limit->offset + $_REQUEST['pos'];
+            $rows             = min($_REQUEST['session_max_rows'], $statement->limit->rowCount - $_REQUEST['pos']);
             $statement->limit = new Limit($rows, $start);
         }
 
         $sql_with_limit = $statement->build();
 
         $result = $this->dbi->tryQuery($sql_with_limit);
-        $data = [];
+        $data   = [];
         if ($result !== false) {
             $data = $result->fetchAllAssoc();
         }
@@ -214,7 +214,7 @@ class ChartController extends AbstractController
         foreach ($data as $data_row) {
             $tmp_row = [];
             foreach ($data_row as $data_column => $data_value) {
-                $escaped_value = $data_value === null ? null : htmlspecialchars($data_value);
+                $escaped_value                           = $data_value === null ? null : htmlspecialchars($data_value);
                 $tmp_row[htmlspecialchars($data_column)] = $escaped_value;
             }
 

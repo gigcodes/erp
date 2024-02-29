@@ -97,18 +97,18 @@ class RunErpLeads extends Command
 
                 if (! empty($products)) {
                     $allProdCounts = count($allProduts);
-                    $newProdArr = [];
+                    $newProdArr    = [];
                     for ($i = 0; $i < $allProdCounts; $i++) {
                         //add data to erp_lead_sending_histories tables
                         $ErpLeadSendingHistory = new ErpLeadSendingHistory;
-                        $checkCustomerExist = $ErpLeadSendingHistory::where('customer_id', '=', $lead->customer_id)
+                        $checkCustomerExist    = $ErpLeadSendingHistory::where('customer_id', '=', $lead->customer_id)
                             ->where('product_id', '=', $allProduts[$i])
                             ->where('lead_id', '=', $lead->id)
                             ->count();
                         if ($checkCustomerExist == 0) {
-                            $ErpLeadSendingHistory->product_id = $allProduts[$i];
+                            $ErpLeadSendingHistory->product_id  = $allProduts[$i];
                             $ErpLeadSendingHistory->customer_id = $lead->customer_id;
-                            $ErpLeadSendingHistory->lead_id = $lead->id;
+                            $ErpLeadSendingHistory->lead_id     = $lead->id;
                             $ErpLeadSendingHistory->save();
                             $newProdArr[$i] = $allProduts[$i];
                         }
@@ -118,11 +118,11 @@ class RunErpLeads extends Command
 
                     if (count($newProdArr) > 0) {
                         $suggestedProduct = \App\SuggestedProduct::create([
-                            'brands' => json_encode([$lead->brand_id]),
-                            'categories' => json_encode([$lead->category_id]),
+                            'brands'      => json_encode([$lead->brand_id]),
+                            'categories'  => json_encode([$lead->category_id]),
                             'customer_id' => $lead->customer_id,
-                            'total' => count($newProdArr),
-                            'platform' => 'lead',
+                            'total'       => count($newProdArr),
+                            'platform'    => 'lead',
                             'platform_id' => $lead->id,
                         ]);
 
@@ -131,9 +131,9 @@ class RunErpLeads extends Command
                             foreach ($newProdArr as $new) {
                                 \App\SuggestedProductList::create([
                                     'suggested_products_id' => $suggestedProduct->id,
-                                    'customer_id' => $lead->customer_id,
-                                    'product_id' => $new,
-                                    'date' => date('Y-m-d'),
+                                    'customer_id'           => $lead->customer_id,
+                                    'product_id'            => $new,
+                                    'date'                  => date('Y-m-d'),
                                 ]);
                             }
                         }

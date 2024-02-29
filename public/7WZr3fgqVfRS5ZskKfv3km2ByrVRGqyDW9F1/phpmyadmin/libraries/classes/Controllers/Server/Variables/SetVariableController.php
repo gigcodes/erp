@@ -33,7 +33,7 @@ final class SetVariableController extends AbstractController
     /**
      * Handle the AJAX request for setting value for a single variable
      *
-     * @param  array  $vars Request parameters
+     * @param array $vars Request parameters
      */
     public function __invoke(ServerRequest $request, array $vars): void
     {
@@ -41,9 +41,9 @@ final class SetVariableController extends AbstractController
             return;
         }
 
-        $value = (string) $request->getParsedBodyParam('varValue');
+        $value        = (string) $request->getParsedBodyParam('varValue');
         $variableName = (string) $vars['name'];
-        $matches = [];
+        $matches      = [];
         $variableType = ServerVariablesProvider::getImplementation()->getVariableType($variableName);
 
         if (
@@ -54,11 +54,11 @@ final class SetVariableController extends AbstractController
             )
         ) {
             $exp = [
-                'kb' => 1,
+                'kb'  => 1,
                 'kib' => 1,
-                'mb' => 2,
+                'mb'  => 2,
                 'mib' => 2,
-                'gb' => 3,
+                'gb'  => 3,
                 'gib' => 3,
             ];
             $value = (float) $matches[1] * 1024 ** $exp[mb_strtolower($matches[3])];
@@ -98,14 +98,15 @@ final class SetVariableController extends AbstractController
     /**
      * Format Variable
      *
-     * @param  string  $name  variable name
-     * @param  int|string  $value variable value
+     * @param string     $name  variable name
+     * @param int|string $value variable value
+     *
      * @return array formatted string and bool if string is HTML formatted
      */
     private function formatVariable($name, $value): array
     {
         $isHtmlFormatted = false;
-        $formattedValue = $value;
+        $formattedValue  = $value;
 
         if (is_numeric($value)) {
             $variableType = ServerVariablesProvider::getImplementation()->getVariableType($name);
@@ -113,13 +114,13 @@ final class SetVariableController extends AbstractController
             if ($variableType === 'byte') {
                 $isHtmlFormatted = true;
                 /** @var string[] $bytes */
-                $bytes = Util::formatByteDown($value, 3, 3);
+                $bytes          = Util::formatByteDown($value, 3, 3);
                 $formattedValue = trim(
                     $this->template->render(
                         'server/variables/format_variable',
                         [
                             'valueTitle' => Util::formatNumber($value, 0),
-                            'value' => implode(' ', $bytes),
+                            'value'      => implode(' ', $bytes),
                         ]
                     )
                 );

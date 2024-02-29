@@ -48,7 +48,7 @@ class SendProductSuggestion extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,10 +60,10 @@ class SendProductSuggestion extends Command
                 $customer = Customer::find($suggestion->customer_id);
 
                 if ($customer) {
-                    $brands = json_decode($suggestion->brands);
+                    $brands     = json_decode($suggestion->brands);
                     $categories = json_decode($suggestion->categories);
-                    $sizes = json_decode($suggestion->size);
-                    $suppliers = json_decode($suggestion->supplier);
+                    $sizes      = json_decode($suggestion->size);
+                    $suppliers  = json_decode($suggestion->supplier);
 
                     if ($brands[0] != null) {
                         $products = Product::whereIn('brand', $brands);
@@ -129,11 +129,11 @@ class SendProductSuggestion extends Command
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Products records found']);
 
                         $params = [
-                            'number' => null,
-                            'user_id' => 6,
-                            'approved' => 0,
-                            'status' => 1,
-                            'message' => 'Suggested images',
+                            'number'      => null,
+                            'user_id'     => 6,
+                            'approved'    => 0,
+                            'status'      => 1,
+                            'message'     => 'Suggested images',
                             'customer_id' => $customer->id,
                         ];
 

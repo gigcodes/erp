@@ -26,7 +26,8 @@ class Linter
     /**
      * Gets the starting position of each line.
      *
-     * @param  string|UtfString  $str String to be analyzed.
+     * @param string|UtfString $str String to be analyzed.
+     *
      * @return array
      */
     public static function getLines($str)
@@ -68,8 +69,9 @@ class Linter
     /**
      * Computes the number of the line and column given an absolute position.
      *
-     * @param  array  $lines The starting position of each line.
-     * @param  int  $pos   The absolute position
+     * @param array $lines The starting position of each line.
+     * @param int   $pos   The absolute position
+     *
      * @return array
      */
     public static function findLineNumberAndColumn(array $lines, $pos)
@@ -92,7 +94,8 @@ class Linter
     /**
      * Runs the linting process.
      *
-     * @param  string  $query The query to be checked.
+     * @param string $query The query to be checked.
+     *
      * @return array
      */
     public static function lint($query)
@@ -101,12 +104,12 @@ class Linter
         if (mb_strlen($query) > 10000) {
             return [
                 [
-                    'message' => __('Linting is disabled for this query because it exceeds the maximum length.'),
-                    'fromLine' => 0,
+                    'message'    => __('Linting is disabled for this query because it exceeds the maximum length.'),
+                    'fromLine'   => 0,
                     'fromColumn' => 0,
-                    'toLine' => 0,
-                    'toColumn' => 0,
-                    'severity' => 'warning',
+                    'toLine'     => 0,
+                    'toColumn'   => 0,
+                    'severity'   => 'warning',
                 ],
             ];
         }
@@ -159,11 +162,11 @@ class Linter
                     htmlspecialchars((string) $error[0]),
                     htmlspecialchars((string) $error[2])
                 ),
-                'fromLine' => $fromLine,
+                'fromLine'   => $fromLine,
                 'fromColumn' => $fromColumn,
-                'toLine' => $toLine,
-                'toColumn' => $toColumn,
-                'severity' => 'error',
+                'toLine'     => $toLine,
+                'toColumn'   => $toColumn,
+                'severity'   => 'error',
             ];
         }
 

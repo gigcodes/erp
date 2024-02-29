@@ -24,7 +24,7 @@ class MagentoModuleRemarkRequest extends FormRequest
     public function rules()
     {
         return [
-            'remark' => 'required',
+            'remark'            => 'required',
             'magento_module_id' => 'required',
         ];
     }
@@ -32,7 +32,7 @@ class MagentoModuleRemarkRequest extends FormRequest
     public function messages()
     {
         return [
-            'remark.required' => __('validation.required', ['attribute' => 'remark']),
+            'remark.required'            => __('validation.required', ['attribute' => 'remark']),
             'magento_module_id.required' => __('validation.required', ['attribute' => 'module']),
         ];
     }

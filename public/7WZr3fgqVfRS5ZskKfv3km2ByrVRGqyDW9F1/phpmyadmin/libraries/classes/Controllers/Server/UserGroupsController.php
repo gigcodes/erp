@@ -32,7 +32,7 @@ class UserGroupsController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
     }
 
     public function __invoke(): void
@@ -57,7 +57,7 @@ class UserGroupsController extends AbstractController
 
         $this->response->addHTML('<div class="container-fluid">');
         $this->render('server/privileges/subnav', [
-            'active' => 'user-groups',
+            'active'        => 'user-groups',
             'is_super_user' => $this->dbi->isSuperUser(),
         ]);
 

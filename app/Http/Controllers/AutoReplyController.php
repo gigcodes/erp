@@ -51,8 +51,8 @@ class AutoReplyController extends Controller
 
         $show_automated_messages = Setting::get('show_automated_messages');
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
         $currentItems = array_slice($simple_auto_replies, $perPage * ($currentPage - 1), $perPage);
 
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
@@ -60,10 +60,10 @@ class AutoReplyController extends Controller
         ]);
 
         return view('autoreplies.index', [
-            'auto_replies' => $auto_replies,
-            'simple_auto_replies' => $simple_auto_replies,
+            'auto_replies'               => $auto_replies,
+            'simple_auto_replies'        => $simple_auto_replies,
             'priority_customers_replies' => $priority_customers_replies,
-            'show_automated_messages' => $show_automated_messages,
+            'show_automated_messages'    => $show_automated_messages,
         ]);
     }
 
@@ -85,24 +85,24 @@ class AutoReplyController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'type' => 'required|string',
-            'keyword' => 'sometimes|nullable|string',
-            'reply' => 'required|min:3|string',
+            'type'         => 'required|string',
+            'keyword'      => 'sometimes|nullable|string',
+            'reply'        => 'required|min:3|string',
             'sending_time' => 'sometimes|nullable|date',
-            'repeat' => 'sometimes|nullable|string',
-            'is_active' => 'sometimes|nullable|integer',
+            'repeat'       => 'sometimes|nullable|string',
+            'is_active'    => 'sometimes|nullable|integer',
         ]);
 
         $exploded = explode(',', $request->keyword);
 
         foreach ($exploded as $keyword) {
-            $auto_reply = new AutoReply;
-            $auto_reply->type = $request->type;
-            $auto_reply->keyword = trim($keyword);
-            $auto_reply->reply = $request->reply;
+            $auto_reply               = new AutoReply;
+            $auto_reply->type         = $request->type;
+            $auto_reply->keyword      = trim($keyword);
+            $auto_reply->reply        = $request->reply;
             $auto_reply->sending_time = $request->sending_time;
-            $auto_reply->repeat = $request->repeat;
-            $auto_reply->is_active = $request->is_active;
+            $auto_reply->repeat       = $request->repeat;
+            $auto_reply->is_active    = $request->is_active;
             $auto_reply->save();
         }
 
@@ -112,9 +112,9 @@ class AutoReplyController extends Controller
 
                 foreach ($customers as $customer) {
                     ScheduledMessage::create([
-                        'user_id' => Auth::id(),
-                        'customer_id' => $customer->id,
-                        'message' => $auto_reply->reply,
+                        'user_id'      => Auth::id(),
+                        'customer_id'  => $customer->id,
+                        'message'      => $auto_reply->reply,
                         'sending_time' => $request->sending_time,
                     ]);
                 }
@@ -127,7 +127,8 @@ class AutoReplyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -138,7 +139,8 @@ class AutoReplyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -149,27 +151,28 @@ class AutoReplyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'type' => 'required|string',
-            'keyword' => 'sometimes|nullable|string',
-            'reply' => 'required|min:3|string',
+            'type'         => 'required|string',
+            'keyword'      => 'sometimes|nullable|string',
+            'reply'        => 'required|min:3|string',
             'sending_time' => 'sometimes|nullable|date',
-            'repeat' => 'sometimes|nullable|string',
-            'is_active' => 'sometimes|nullable|integer',
+            'repeat'       => 'sometimes|nullable|string',
+            'is_active'    => 'sometimes|nullable|integer',
         ]);
 
-        $auto_reply = AutoReply::find($id);
-        $auto_reply->type = $request->type;
-        $auto_reply->keyword = $request->keyword;
-        $auto_reply->reply = $request->reply;
+        $auto_reply               = AutoReply::find($id);
+        $auto_reply->type         = $request->type;
+        $auto_reply->keyword      = $request->keyword;
+        $auto_reply->reply        = $request->reply;
         $auto_reply->sending_time = $request->sending_time;
-        $auto_reply->repeat = $request->repeat;
-        $auto_reply->is_active = $request->is_active;
+        $auto_reply->repeat       = $request->repeat;
+        $auto_reply->is_active    = $request->is_active;
         $auto_reply->save();
 
         return redirect()->route('autoreply.index')->withSuccess('You have successfully updated auto reply!');
@@ -177,7 +180,7 @@ class AutoReplyController extends Controller
 
     public function updateReply(Request $request, $id)
     {
-        $auto_reply = AutoReply::find($id);
+        $auto_reply        = AutoReply::find($id);
         $auto_reply->reply = $request->reply;
         $auto_reply->save();
 
@@ -187,7 +190,8 @@ class AutoReplyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -233,15 +237,15 @@ class AutoReplyController extends Controller
     public function saveByQuestion(Request $request)
     {
         $question = $request->get('q');
-        $answer = $request->get('a');
+        $answer   = $request->get('a');
 
         \App\AutoReply::updateOrCreate([
-            'type' => 'auto-reply',
+            'type'    => 'auto-reply',
             'keyword' => $question,
         ], [
-            'type' => 'auto-reply',
+            'type'    => 'auto-reply',
             'keyword' => $question,
-            'reply' => $answer,
+            'reply'   => $answer,
         ]);
 
         return response()->json(['code' => 200]);
@@ -250,16 +254,16 @@ class AutoReplyController extends Controller
     public function saveGroup(Request $request)
     {
         $keywords = $request->id;
-        $name = $request->name;
-        $group = $request->keyword_group;
+        $name     = $request->name;
+        $group    = $request->keyword_group;
 
         //Check Existing Group
         if ($group != '') {
-            $group = ChatbotKeyword::find($group);
+            $group   = ChatbotKeyword::find($group);
             $groupId = $group->id;
         } else {
             //Create Group
-            $group = new ChatbotKeyword();
+            $group          = new ChatbotKeyword();
             $group->keyword = str_replace(' ', '_', preg_replace('/\s+/', ' ', $name));
             $group->save();
             $groupId = $group->id;
@@ -272,9 +276,9 @@ class AutoReplyController extends Controller
                     //Check If Group ALready Exist
                     $checkExistingGroup = ChatbotKeywordValue::where('chatbot_keyword_id', $groupId)->where('value', $word->word)->first();
                     if ($checkExistingGroup == null) {
-                        $keywordSave = new ChatbotKeywordValue();
+                        $keywordSave                     = new ChatbotKeywordValue();
                         $keywordSave->chatbot_keyword_id = $groupId;
-                        $keywordSave->value = preg_replace("/\s+/", ' ', $word->word);
+                        $keywordSave->value              = preg_replace("/\s+/", ' ', $word->word);
                         $keywordSave->save();
                     }
                 }
@@ -288,19 +292,19 @@ class AutoReplyController extends Controller
 
     public function saveGroupPhrases(Request $request)
     {
-        $phrasesReq = $request->phraseId;
-        $keyword = $request->keyword;
-        $erp_or_watson = $request->erp_or_watson;
-        $group = $request->phrase_group;
+        $phrasesReq     = $request->phraseId;
+        $keyword        = $request->keyword;
+        $erp_or_watson  = $request->erp_or_watson;
+        $group          = $request->phrase_group;
         $suggestedReply = $request->reply;
-        $auto_approve = $request->auto_approve;
-        $category_id = $request->category_id;
+        $auto_approve   = $request->auto_approve;
+        $category_id    = $request->category_id;
 
         if ($group && $group != '') {
             if (is_numeric($group)) {
                 $chatbotQuestion = ChatbotQuestion::find($group);
             } else {
-                $chatbotQuestion = new ChatbotQuestion;
+                $chatbotQuestion        = new ChatbotQuestion;
                 $chatbotQuestion->value = str_replace(' ', '_', preg_replace('/\s+/', ' ', $group));
             }
         } else {
@@ -310,11 +314,11 @@ class AutoReplyController extends Controller
         if ($category_id) {
             $chatbotQuestion->category_id = $category_id;
         }
-        $chatbotQuestion->erp_or_watson = $erp_or_watson;
-        $chatbotQuestion->auto_approve = $auto_approve;
-        $chatbotQuestion->suggested_reply = $suggestedReply;
+        $chatbotQuestion->erp_or_watson       = $erp_or_watson;
+        $chatbotQuestion->auto_approve        = $auto_approve;
+        $chatbotQuestion->suggested_reply     = $suggestedReply;
         $chatbotQuestion->keyword_or_question = 'intent';
-        $chatbotQuestion->is_active = 1;
+        $chatbotQuestion->is_active           = 1;
         $chatbotQuestion->save();
 
         //Getting Phrase in array
@@ -325,12 +329,12 @@ class AutoReplyController extends Controller
                     $checkExistingGroup = ChatbotQuestionExample::where('chatbot_question_id', $chatbotQuestion->id)->where('question', $rec->phrase)->first();
                     if ($checkExistingGroup == null) {
                         //Place Api Here For Keywords
-                        $phraseSave = new ChatbotQuestionExample();
+                        $phraseSave                      = new ChatbotQuestionExample();
                         $phraseSave->chatbot_question_id = $chatbotQuestion->id;
-                        $phraseSave->question = preg_replace("/\s+/", ' ', $rec->phrase);
+                        $phraseSave->question            = preg_replace("/\s+/", ' ', $rec->phrase);
                         $phraseSave->save();
                     }
-                    $value = $rec->phrase;
+                    $value           = $rec->phrase;
                     $rec->deleted_by = \Auth::user()->id;
                     $rec->save();
                     $rec->delete();
@@ -346,8 +350,8 @@ class AutoReplyController extends Controller
             $watson_account_ids = WatsonAccount::all();
             foreach ($watson_account_ids as $id) {
                 $data_to_insert[] = [
-                    'suggested_reply' => $suggestedReply,
-                    'store_website_id' => $id->store_website_id,
+                    'suggested_reply'     => $suggestedReply,
+                    'store_website_id'    => $id->store_website_id,
                     'chatbot_question_id' => $chatbotQuestion->id,
                 ];
             }
@@ -360,7 +364,7 @@ class AutoReplyController extends Controller
     public function mostUsedWords(Request $request)
     {
         $groupKeywords = \App\ChatbotKeyword::all();
-        $groupPhrases = \App\ChatbotQuestion::all();
+        $groupPhrases  = \App\ChatbotQuestion::all();
 
         $keyword = request('keyword', '');
 
@@ -377,16 +381,16 @@ class AutoReplyController extends Controller
         $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
 
         return view('autoreplies.most-used-words', [
-            'mostUsedWords' => $mostUsedWords,
-            'groupPhrases' => $groupPhrases,
-            'groupKeywords' => $groupKeywords,
+            'mostUsedWords'       => $mostUsedWords,
+            'groupPhrases'        => $groupPhrases,
+            'groupKeywords'       => $groupKeywords,
             'allSuggestedOptions' => $allSuggestedOptions,
         ]);
     }
 
     public function getPhrases(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id      = $request->get('id', 0);
         $keyword = $request->get('keyword', '');
 
         $phrases = \App\ChatMessagePhrase::where('word_id', $id)->where('phrase', '!=', '')->groupBy('phrase');
@@ -404,8 +408,8 @@ class AutoReplyController extends Controller
 
     public function mostUsedPhrases(Request $request)
     {
-        $groupPhrases = \App\ChatbotQuestion::all();
-        $allCategory = ChatbotCategory::all();
+        $groupPhrases    = \App\ChatbotQuestion::all();
+        $allCategory     = ChatbotCategory::all();
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
@@ -432,28 +436,28 @@ class AutoReplyController extends Controller
         $mostUsedPhrases = $mostUsedPhrases->orderBy('total_count', 'desc');
 
         $mostUsedPhrases = $mostUsedPhrases->paginate(10);
-        $multiple = 100;
+        $multiple        = 100;
 
         $recordsNeedToBeShown = floor($mostUsedPhrases->lastPage() / $multiple);
-        $activeNo = floor($mostUsedPhrases->currentPage() / $multiple);
+        $activeNo             = floor($mostUsedPhrases->currentPage() / $multiple);
 
         $allSuggestedOptions = \App\ChatbotDialog::allSuggestedOptions();
 
         return view('autoreplies.most-used-phrases', [
-            'mostUsedPhrases' => $mostUsedPhrases,
-            'groupPhrases' => $groupPhrases,
-            'groupKeywords' => [],
-            'allSuggestedOptions' => $allSuggestedOptions,
+            'mostUsedPhrases'      => $mostUsedPhrases,
+            'groupPhrases'         => $groupPhrases,
+            'groupKeywords'        => [],
+            'allSuggestedOptions'  => $allSuggestedOptions,
             'recordsNeedToBeShown' => $recordsNeedToBeShown,
-            'multiple' => $multiple,
-            'activeNo' => $activeNo,
-            'allCategoryList' => $allCategoryList,
+            'multiple'             => $multiple,
+            'activeNo'             => $activeNo,
+            'allCategoryList'      => $allCategoryList,
         ]);
     }
 
     public function deleteMostUsedPharses(Request $request)
     {
-        $id = $request->id;
+        $id      = $request->id;
         $phrases = \App\ChatMessagePhrase::find($id);
         if ($phrases) {
             $phrases = \App\ChatMessagePhrase::where('phrase', $phrases->phrase)->forceDelete();
@@ -486,9 +490,9 @@ class AutoReplyController extends Controller
         $history = $history->paginate(\App\Setting::get('pagination'));
 
         return response()->json([
-            'code' => 200,
-            'data' => $history->items(),
-            'total' => $history->total(),
+            'code'       => 200,
+            'data'       => $history->items(),
+            'total'      => $history->total(),
             'pagination' => (string) $history->render(),
         ]);
     }
@@ -496,7 +500,7 @@ class AutoReplyController extends Controller
     public function getPhrasesReply(Request $request)
     {
         $messageIds = $request->get('message_ids', []);
-        $answers = [];
+        $answers    = [];
         if (! empty($messageIds)) {
             foreach ($messageIds as $id) {
                 $lastReplies = \App\ChatMessage::join('customers', 'customers.id', 'chat_messages.customer_id')->where('chat_messages.id', '>', $id)

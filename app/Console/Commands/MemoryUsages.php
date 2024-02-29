@@ -40,19 +40,19 @@ class MemoryUsages extends Command
     {
         MemoryUsage::where('updated_at', '<', now()->subDays(7))->delete();
 
-        $free = shell_exec('free -m');
-        $free = (string) trim($free);
+        $free     = shell_exec('free -m');
+        $free     = (string) trim($free);
         $free_arr = explode("\n", $free);
-        $mem = explode(' ', $free_arr[1]);
-        $mem = array_filter($mem);
-        $mem = array_merge($mem);
+        $mem      = explode(' ', $free_arr[1]);
+        $mem      = array_filter($mem);
+        $mem      = array_merge($mem);
 
-        $memory_usage = new MemoryUsage;
-        $memory_usage->total = $mem[1];
-        $memory_usage->used = $mem[2];
-        $memory_usage->free = $mem[3];
+        $memory_usage             = new MemoryUsage;
+        $memory_usage->total      = $mem[1];
+        $memory_usage->used       = $mem[2];
+        $memory_usage->free       = $mem[3];
         $memory_usage->buff_cache = $mem[4];
-        $memory_usage->available = $mem[5];
+        $memory_usage->available  = $mem[5];
 
         $memory_usage->save();
 

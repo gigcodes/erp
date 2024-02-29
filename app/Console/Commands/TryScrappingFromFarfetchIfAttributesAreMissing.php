@@ -43,13 +43,13 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $content = $this->getDetailsFromFarfetch('');
-            $c = new HtmlPageCrawler($content);
-            $data = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
+            $c       = new HtmlPageCrawler($content);
+            $data    = $c->filter('._659731 div p._87b3a2')->getInnerHtml();
 
             dd($data);
 
@@ -61,7 +61,7 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
 
     public function getDetailsFromFarfetch($url)
     {
-        $request = new Client();
+        $request  = new Client();
         $response = $request->get('https://www.farfetch.com/ae/shopping/men/balenciaga-rhino-t-shirt-item-13445516.aspx?storeid=10952');
 
         return $response->getBody()->getContents();

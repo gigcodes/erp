@@ -11,8 +11,8 @@ if (count($args) === 0) {
 }
 
 // Get content from files
-$lang = formatLang($args[0]);
-$enContent = loadLang('en');
+$lang        = formatLang($args[0]);
+$enContent   = loadLang('en');
 $langContent = loadLang($lang);
 
 if (count($langContent) === 0) {
@@ -56,8 +56,8 @@ function outputFlatArray($arr, $lang)
     $grouped = [];
     foreach ($arr as $key => $val) {
         $explodedKey = explode('.', $key);
-        $group = $explodedKey[0];
-        $path = implode('.', array_slice($explodedKey, 1));
+        $group       = $explodedKey[0];
+        $path        = implode('.', array_slice($explodedKey, 1));
         if (! isset($grouped[$group])) {
             $grouped[$group] = [];
         }
@@ -71,7 +71,7 @@ function outputFlatArray($arr, $lang)
 
 function formatLang($lang)
 {
-    $langParts = explode('_', strtoupper($lang));
+    $langParts    = explode('_', strtoupper($lang));
     $langParts[0] = strtolower($langParts[0]);
 
     return implode('_', $langParts);
@@ -84,13 +84,13 @@ function loadLang(string $lang)
         errorOut("Expected directory '{$dir}' does not exist");
     }
     $files = scandir($dir);
-    $data = [];
+    $data  = [];
     foreach ($files as $file) {
         if (substr($file, -4) !== '.php') {
             continue;
         }
-        $fileData = include $dir . '/' . $file;
-        $name = substr($file, 0, -4);
+        $fileData    = include $dir . '/' . $file;
+        $name        = substr($file, 0, -4);
         $data[$name] = $fileData;
     }
 

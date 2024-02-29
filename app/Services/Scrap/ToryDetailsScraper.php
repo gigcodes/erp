@@ -31,14 +31,14 @@ class ToryDetailsScraper extends Scraper
             return;
         }
 
-        $c = new HtmlPageCrawler($content);
-        $title = $this->getTitle($c);
-        $brand = 'TORY BURCH';
-        $price = $this->getPrice($c);
+        $c           = new HtmlPageCrawler($content);
+        $title       = $this->getTitle($c);
+        $brand       = 'TORY BURCH';
+        $price       = $this->getPrice($c);
         $description = $this->getDescription($c);
-        $properties = $this->getProperties($c);
-        $sku = $this->getSku($c);
-        $images = $this->getImages($c);
+        $properties  = $this->getProperties($c);
+        $sku         = $this->getSku($c);
+        $images      = $this->getImages($c);
 
         if (! $images || ! $title) {
             $scrapEntry->delete();
@@ -66,19 +66,19 @@ class ToryDetailsScraper extends Scraper
             $image = new ScrapedProducts();
         }
 
-        $image->brand_id = $brandId;
-        $image->sku = $sku;
-        $image->website = 'Tory';
-        $image->title = $title;
+        $image->brand_id    = $brandId;
+        $image->sku         = $sku;
+        $image->website     = 'Tory';
+        $image->title       = $title;
         $image->description = $description;
-        $image->images = $images;
-        $image->price = $price;
+        $image->images      = $images;
+        $image->price       = $price;
         if ($sku != 'N/A') {
             $image->has_sku = 1;
         }
         $image->is_price_updated = 1;
-        $image->url = $scrapEntry->url;
-        $image->properties = $properties;
+        $image->url              = $scrapEntry->url;
+        $image->properties       = $properties;
         $image->save();
 
         $scrapEntry->is_scraped = 1;
@@ -114,7 +114,7 @@ class ToryDetailsScraper extends Scraper
     {
         try {
             $properties = $c->filter('div.styleNumber span')->getInnerHtml();
-            $sku = str_replace('Codice Prodotto', '', $properties);
+            $sku        = str_replace('Codice Prodotto', '', $properties);
         } catch (\Exception $exception) {
             $sku = 'N/A';
         }
@@ -137,7 +137,7 @@ class ToryDetailsScraper extends Scraper
 
     private function getImages(HtmlPageCrawler $c)
     {
-        $images = $c->filter('div.thumbnail-list__item img')->getIterator();
+        $images  = $c->filter('div.thumbnail-list__item img')->getIterator();
         $content = [];
 
         foreach ($images as $image) {
@@ -163,7 +163,7 @@ class ToryDetailsScraper extends Scraper
         $images = [];
         foreach ($data as $key => $datum) {
             try {
-                $datum = $this->getImageUrl($datum);
+                $datum   = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
@@ -180,9 +180,9 @@ class ToryDetailsScraper extends Scraper
 
     private function getProperties(HtmlPageCrawler $c)
     {
-        $properties = [];
+        $properties    = [];
         $propertiesRaw = $c->filter('div#longDescription ul li')->getIterator();
-        $colorData = $c->filter('div#pdpATCDivsubProductDiv div.variation-attributes div.swatches div.swatches__disp-name')->getInnerHtml();
+        $colorData     = $c->filter('div#pdpATCDivsubProductDiv div.variation-attributes div.swatches div.swatches__disp-name')->getInnerHtml();
 
         if ($colorData) {
             $properties['color'] = trim($colorData);
@@ -190,7 +190,7 @@ class ToryDetailsScraper extends Scraper
 
         foreach ($propertiesRaw as $p) {
             $pStr = str_replace('\n', '', $p->textContent);
-            $p = explode(';', $pStr);
+            $p    = explode(';', $pStr);
             if (count($p) === 1) {
                 $properties[] = $pStr;
 

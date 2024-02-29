@@ -19,9 +19,9 @@ class BingWebMasterController extends Controller
 
     public function index(Request $request)
     {
-        $getSites = BingSite::paginate(Setting::get('pagination'), ['*'], 'crawls_per_page');
-        $sites = BingSite::select('id', 'site_url')->get();
-        $logs = Activity::where('log_name', 'bing_sites')->orWhere('log_name', 'bing_search_analytics')->latest()->paginate(Setting::get('pagination'), ['*'], 'logs_per_page');
+        $getSites       = BingSite::paginate(Setting::get('pagination'), ['*'], 'crawls_per_page');
+        $sites          = BingSite::select('id', 'site_url')->get();
+        $logs           = Activity::where('log_name', 'bing_sites')->orWhere('log_name', 'bing_search_analytics')->latest()->paginate(Setting::get('pagination'), ['*'], 'logs_per_page');
         $webmaster_logs = BingWebmasterLog::latest()->paginate(Setting::get('pagination'), ['*'], 'webmaster_logs_per_page');
 
         $SearchAnalytics = new BingSearchAnalytics;
@@ -86,9 +86,9 @@ class BingWebMasterController extends Controller
     {
         BingWebmasterLog::create([
             'user_name' => Auth::user()->name,
-            'name' => $name,
-            'status' => $status,
-            'message' => $message,
+            'name'      => $name,
+            'status'    => $status,
+            'message'   => $message,
         ]);
     }
 
@@ -98,7 +98,7 @@ class BingWebMasterController extends Controller
     public function connectAccount(Request $request, $id)
     {
         $bing_client_account = BingClientAccount::find($id);
-        $bing_redirect_url = urlencode(route('bingwebmaster.get-access-token'));
+        $bing_redirect_url   = urlencode(route('bingwebmaster.get-access-token'));
         \Cache::forever('bing_client_account_id', $id);
         $authUrl = "https://www.bing.com/webmasters/OAuth/authorize?response_type=code&client_id=$bing_client_account->bing_client_id&redirect_uri=$bing_redirect_url&scope=webmaster.manage";
         $this->createLog($authUrl, 'Attempt To Connect Account');
@@ -123,20 +123,20 @@ class BingWebMasterController extends Controller
      * */
     public function bingLogin(Request $request)
     {
-        $bing_redirect_url = route('bingwebmaster.get-access-token');
-        $id = \Cache::get('bing_client_account_id');
+        $bing_redirect_url   = route('bingwebmaster.get-access-token');
+        $id                  = \Cache::get('bing_client_account_id');
         $bing_client_account = BingClientAccount::find($id);
-        $params = 'code=' . $request->get('code') . "&client_id=$bing_client_account->bing_client_id&client_secret=$bing_client_account->bing_client_secret&redirect_uri=$bing_redirect_url&grant_type=authorization_code";
-        $response = $this->getAccessTokenFromBing($params);
+        $params              = 'code=' . $request->get('code') . "&client_id=$bing_client_account->bing_client_id&client_secret=$bing_client_account->bing_client_secret&redirect_uri=$bing_redirect_url&grant_type=authorization_code";
+        $response            = $this->getAccessTokenFromBing($params);
         if (! isset($response->access_token)) {
             $this->createLog(json_encode($response), 'Failed To Connect Account');
 
             return redirect()->route('bingwebmaster.index')->with('Error', 'Failed to connect account!');
         }
         BingClientAccountMail::where('bing_client_account_id', $id)->delete();
-        $mail_acc = new BingClientAccountMail();
-        $mail_acc->bing_account = 'Bing Account User';
-        $mail_acc->bing_client_account_id = $id;
+        $mail_acc                           = new BingClientAccountMail();
+        $mail_acc->bing_account             = 'Bing Account User';
+        $mail_acc->bing_client_account_id   = $id;
         $mail_acc->bing_client_access_token = $response->access_token;
         if (! empty($response->refresh_token)) {
             $mail_acc->bing_client_refresh_token = $response->refresh_token;
@@ -184,37 +184,37 @@ class BingWebMasterController extends Controller
     public function updateSites($sites)
     {
         foreach ($sites as $site) {
-            $siteData = BingSite::whereSiteUrl($site->Url)->first();
+            $siteData  = BingSite::whereSiteUrl($site->Url)->first();
             $site_date = $this->getDataFromBing("GetQueryStats?siteUrl=$site->Url");
-            $matrix = isset($site_date->d[0]) ? $site_date->d[0] : null;
-            $record = [
-                'clicks' => $matrix ? $matrix->Clicks : 0,
+            $matrix    = isset($site_date->d[0]) ? $site_date->d[0] : null;
+            $record    = [
+                'clicks'     => $matrix ? $matrix->Clicks : 0,
                 'impression' => $matrix ? $matrix->Impressions : 0,
-                'site_id' => $siteData->id,
-                'ctr' => 0,
-                'position' => $matrix ? $matrix->AvgImpressionPosition : 0,
-                'query' => $matrix ? $matrix->Query : '',
-                'page' => $site->Url,
-                'date' => $matrix ? date('Y-m-d', strtotime($matrix->Date)) : date('Y-m-d'),
+                'site_id'    => $siteData->id,
+                'ctr'        => 0,
+                'position'   => $matrix ? $matrix->AvgImpressionPosition : 0,
+                'query'      => $matrix ? $matrix->Query : '',
+                'page'       => $site->Url,
+                'date'       => $matrix ? date('Y-m-d', strtotime($matrix->Date)) : date('Y-m-d'),
             ];
 
-            $crawl_stats = $this->getDataFromBing("GetCrawlStats?siteUrl=$site->Url");
-            $crawl_stats_matrix = isset($crawl_stats->d[0]) ? $crawl_stats->d[0] : null;
+            $crawl_stats              = $this->getDataFromBing("GetCrawlStats?siteUrl=$site->Url");
+            $crawl_stats_matrix       = isset($crawl_stats->d[0]) ? $crawl_stats->d[0] : null;
             $record['crawl_requests'] = $crawl_stats_matrix ? $crawl_stats_matrix->CrawledPages : 0;
-            $record['crawl_errors'] = $crawl_stats_matrix ? $crawl_stats_matrix->CrawlErrors : 0;
-            $record['index_pages'] = $crawl_stats_matrix ? $crawl_stats_matrix->InIndex : 0;
+            $record['crawl_errors']   = $crawl_stats_matrix ? $crawl_stats_matrix->CrawlErrors : 0;
+            $record['index_pages']    = $crawl_stats_matrix ? $crawl_stats_matrix->InIndex : 0;
 
             $query = parse_url($site->Url)['host'];
             if ($record['query']) {
                 $query = $record['query'];
             }
-            $keyword_stats = $this->getDataFromBing('GetKeywordStats?q=' . $query);
+            $keyword_stats        = $this->getDataFromBing('GetKeywordStats?q=' . $query);
             $keyword_stats_matrix = isset($keyword_stats->d[0]) ? $keyword_stats->d[0] : null;
-            $record['keywords'] = $keyword_stats_matrix ? $keyword_stats_matrix->Query : '';
+            $record['keywords']   = $keyword_stats_matrix ? $keyword_stats_matrix->Query : '';
 
-            $page_stats = $this->getDataFromBing("GetLinkCounts?siteUrl=$site->Url");
+            $page_stats        = $this->getDataFromBing("GetLinkCounts?siteUrl=$site->Url");
             $page_stats_matrix = isset($page_stats->d) ? $page_stats->d : null;
-            $record['pages'] = 0;
+            $record['pages']   = 0;
             if (isset($page_stats_matrix)) {
                 foreach ($page_stats_matrix->Links as $link) {
                     $record['pages'] = $record['pages'] + $link->Count;
@@ -240,27 +240,27 @@ class BingWebMasterController extends Controller
     public function getAccessToken($id)
     {
         $account = BingClientAccountMail::with('bing_client_account')->where('id', $id)->first();
-        $params = [
-            'client_id' => $account->bing_client_account->bing_client_id,
+        $params  = [
+            'client_id'     => $account->bing_client_account->bing_client_id,
             'client_secret' => $account->bing_client_account->bing_client_secret,
-            'grant_type' => 'refresh_token',
+            'grant_type'    => 'refresh_token',
             'refresh_token' => $account->bing_client_refresh_token,
         ];
-        $params = 'client_id=' . $params['client_id'] . '&client_secret=' . $params['client_secret'] . '&grant_type=' . $params['grant_type'] . '&refresh_token=' . $params['refresh_token'];
-        $url = 'https://www.bing.com/webmasters/oauth/token';
+        $params    = 'client_id=' . $params['client_id'] . '&client_secret=' . $params['client_secret'] . '&grant_type=' . $params['grant_type'] . '&refresh_token=' . $params['refresh_token'];
+        $url       = 'https://www.bing.com/webmasters/oauth/token';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_POSTFIELDS => $params,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_POSTFIELDS     => $params,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/x-www-form-urlencoded',
             ],
         ]);
@@ -287,8 +287,8 @@ class BingWebMasterController extends Controller
 
             return null;
         }
-        $account->bing_client_access_token = $response->access_token;
-        $account->expires_in = $response->expires_in;
+        $account->bing_client_access_token  = $response->access_token;
+        $account->expires_in                = $response->expires_in;
         $account->bing_client_refresh_token = $response->refresh_token;
         $account->save();
 
@@ -301,7 +301,7 @@ class BingWebMasterController extends Controller
     public function deleteSiteFromWebmaster(Request $request)
     {
         $delete = false;
-        $site = BingSite::find($request->id);
+        $site   = BingSite::find($request->id);
         if ($site) {
             $bing_acc = BingClientAccountMail::with('bing_client_account')->get();
             foreach ($bing_acc as $bing_ac) {
@@ -343,20 +343,20 @@ class BingWebMasterController extends Controller
      * */
     private function getAccessTokenFromBing($params = [])
     {
-        $url = 'https://www.bing.com/webmasters/oauth/token';
+        $url       = 'https://www.bing.com/webmasters/oauth/token';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_POSTFIELDS => $params,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_POSTFIELDS     => $params,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/x-www-form-urlencoded',
             ],
         ]);
@@ -388,21 +388,21 @@ class BingWebMasterController extends Controller
      * */
     private function getDataFromBing($method, $params = [], $request_type = 'GET')
     {
-        $url = 'https://ssl.bing.com/webmaster/api.svc/json/' . $method;
+        $url       = 'https://ssl.bing.com/webmaster/api.svc/json/' . $method;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $curl = curl_init();
         //replace website name with code coming form site list
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_POSTFIELDS => json_encode($params),
-            CURLOPT_CUSTOMREQUEST => $request_type,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_POSTFIELDS     => json_encode($params),
+            CURLOPT_CUSTOMREQUEST  => $request_type,
+            CURLOPT_HTTPHEADER     => [
                 'authorization: Bearer ' . $this->bingToken,
                 'Content-Type: application/json',
             ],

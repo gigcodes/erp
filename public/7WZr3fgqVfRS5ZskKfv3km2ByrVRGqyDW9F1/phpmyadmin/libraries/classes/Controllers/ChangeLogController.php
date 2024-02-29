@@ -59,7 +59,7 @@ class ChangeLogController extends AbstractController
         $changelog = htmlspecialchars((string) $changelog);
 
         $github_url = 'https://github.com/phpmyadmin/phpmyadmin/';
-        $faq_url = 'https://docs.phpmyadmin.net/en/latest/faq.html';
+        $faq_url    = 'https://docs.phpmyadmin.net/en/latest/faq.html';
 
         $replaces = [
             '@(https?://[./a-zA-Z0-9.-_-]*[/a-zA-Z0-9_])@' => '<a href="url.php?url=\\1">\\1</a>',

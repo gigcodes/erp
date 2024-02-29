@@ -206,7 +206,7 @@ class LogScraperVsAi extends Model
             }
 
             // Set new parent ID
-            $parentId = $category->parent_id;
+            $parentId   = $category->parent_id;
             $categoryId = $category->id;
         }
 

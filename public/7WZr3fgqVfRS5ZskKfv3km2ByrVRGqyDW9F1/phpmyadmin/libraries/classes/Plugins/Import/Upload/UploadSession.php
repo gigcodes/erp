@@ -33,7 +33,8 @@ class UploadSession implements UploadInterface
      *
      * This is implementation for session.upload_progress in PHP 5.4+.
      *
-     * @param  string  $id upload id
+     * @param string $id upload id
+     *
      * @return array|null
      */
     public static function getUploadStatus($id)
@@ -46,12 +47,12 @@ class UploadSession implements UploadInterface
 
         if (! array_key_exists($id, $_SESSION[$SESSION_KEY])) {
             $_SESSION[$SESSION_KEY][$id] = [
-                'id' => $id,
+                'id'       => $id,
                 'finished' => false,
-                'percent' => 0,
-                'total' => 0,
+                'percent'  => 0,
+                'total'    => 0,
                 'complete' => 0,
-                'plugin' => self::getIdKey(),
+                'plugin'   => self::getIdKey(),
             ];
         }
 
@@ -61,7 +62,7 @@ class UploadSession implements UploadInterface
             return $ret;
         }
 
-        $status = false;
+        $status     = false;
         $sessionkey = ini_get('session.upload_progress.prefix') . $id;
 
         if (isset($_SESSION[$sessionkey])) {
@@ -70,7 +71,7 @@ class UploadSession implements UploadInterface
 
         if ($status) {
             $ret['finished'] = $status['done'];
-            $ret['total'] = $status['content_length'];
+            $ret['total']    = $status['content_length'];
             $ret['complete'] = $status['bytes_processed'];
 
             if ($ret['total'] > 0) {
@@ -78,12 +79,12 @@ class UploadSession implements UploadInterface
             }
         } else {
             $ret = [
-                'id' => $id,
+                'id'       => $id,
                 'finished' => true,
-                'percent' => 100,
-                'total' => $ret['total'],
+                'percent'  => 100,
+                'total'    => $ret['total'],
                 'complete' => $ret['total'],
-                'plugin' => self::getIdKey(),
+                'plugin'   => self::getIdKey(),
             ];
         }
 

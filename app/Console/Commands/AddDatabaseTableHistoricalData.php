@@ -47,7 +47,7 @@ class AddDatabaseTableHistoricalData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -61,8 +61,8 @@ class AddDatabaseTableHistoricalData extends Command
                 foreach ($db as $d) {
                     DatabaseTableHistoricalRecord::create([
                         'database_name' => $d->db_name,
-                        'size' => $d->db_size,
-                        'database_id' => $lastDb->id,
+                        'size'          => $d->db_size,
+                        'database_id'   => $lastDb->id,
                     ]);
                 }
             }

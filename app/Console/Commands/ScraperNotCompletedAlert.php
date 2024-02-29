@@ -52,7 +52,7 @@ class ScraperNotCompletedAlert extends Command
                 foreach ($scrapers as $key => $item) {
                     $remark_entry = ScrapRemark::create([
                         'scraper_name' => $item->scraper_name,
-                        'remark' => 'Scraper not completed',
+                        'remark'       => 'Scraper not completed',
                     ]);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scrap remark added.']);
                 }

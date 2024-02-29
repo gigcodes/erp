@@ -20,7 +20,7 @@ final class UserPreferencesFeature
 
     public function __construct(DatabaseName $database, TableName $userConfig)
     {
-        $this->database = $database;
+        $this->database   = $database;
         $this->userConfig = $userConfig;
     }
 }

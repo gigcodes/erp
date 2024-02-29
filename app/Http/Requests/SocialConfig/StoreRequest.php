@@ -25,14 +25,14 @@ class StoreRequest extends FormRequest
     {
         return [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'status' => 'required',
-            'page_id' => 'required',
-            'account_id' => 'required',
-            'page_token' => 'required',
-            'webhook_token' => 'nullable',
-            'ad_account_id' => 'nullable|exists:social_ad_accounts,id',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'status'           => 'required',
+            'page_id'          => 'required',
+            'account_id'       => 'required',
+            'page_token'       => 'required',
+            'webhook_token'    => 'nullable',
+            'ad_account_id'    => 'nullable|exists:social_ad_accounts,id',
         ];
     }
 }

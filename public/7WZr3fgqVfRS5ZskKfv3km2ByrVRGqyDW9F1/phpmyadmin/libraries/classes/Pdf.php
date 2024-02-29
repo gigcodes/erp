@@ -34,13 +34,13 @@ class Pdf extends TCPDF
     /**
      * Constructs PDF and configures standard parameters.
      *
-     * @param  string  $orientation page orientation
-     * @param  string  $unit        unit
-     * @param  string  $format      the format used for pages
-     * @param  bool  $unicode     true means that the input text is unicode
-     * @param  string  $encoding    charset encoding; default is UTF-8.
-     * @param  bool  $diskcache   DEPRECATED TCPDF FEATURE
-     * @param  false|int  $pdfa        If not false, set the document to PDF/A mode and the good version (1 or 3)
+     * @param string    $orientation page orientation
+     * @param string    $unit        unit
+     * @param string    $format      the format used for pages
+     * @param bool      $unicode     true means that the input text is unicode
+     * @param string    $encoding    charset encoding; default is UTF-8.
+     * @param bool      $diskcache   DEPRECATED TCPDF FEATURE
+     * @param false|int $pdfa        If not false, set the document to PDF/A mode and the good version (1 or 3)
      *
      * @throws Exception
      */
@@ -93,13 +93,13 @@ class Pdf extends TCPDF
     /**
      * Function to set alias which will be expanded on page rendering.
      *
-     * @param  string  $name  name of the alias
-     * @param  string  $value value of the alias
+     * @param string $name  name of the alias
+     * @param string $value value of the alias
      */
     public function setAlias($name, $value): void
     {
         // phpcs:disable Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-        $name = TCPDF_FONTS::UTF8ToUTF16BE($name, false, true, $this->CurrentFont);
+        $name               = TCPDF_FONTS::UTF8ToUTF16BE($name, false, true, $this->CurrentFont);
         $this->alias[$name] = TCPDF_FONTS::UTF8ToUTF16BE($value, false, true, $this->CurrentFont);
         // phpcs:enable
     }
@@ -126,7 +126,7 @@ class Pdf extends TCPDF
     /**
      * Displays an error message
      *
-     * @param  string  $error_message the error message
+     * @param string $error_message the error message
      */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function Error($error_message = ''): void
@@ -140,7 +140,7 @@ class Pdf extends TCPDF
     /**
      * Sends file as a download to user.
      *
-     * @param  string  $filename file name
+     * @param string $filename file name
      */
     public function download($filename): void
     {

@@ -41,11 +41,11 @@ class ExecuteQueueCommand extends Command
     {
         try {
             $queue = RedisQueue::find($this->argument('id'));
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'horizon.sh ' . $this->argument('command_tail');
+            $cmd   = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'horizon.sh ' . $this->argument('command_tail');
 
-            $allOutput = [];
+            $allOutput   = [];
             $allOutput[] = $cmd;
-            $result = exec($cmd, $allOutput);
+            $result      = exec($cmd, $allOutput);
             if ($result == '') {
                 $result = 'No response';
             } elseif ($result == 0) {
@@ -56,21 +56,21 @@ class ExecuteQueueCommand extends Command
                 $result = is_array($result) ? json_encode($result, true) : $result;
             }
 
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
+            $command                 = new RedisQueueCommandExecutionLog();
+            $command->user_id        = \Auth::user()->id;
             $command->redis_queue_id = $queue->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $result;
+            $command->command        = $cmd;
+            $command->server_ip      = env('SERVER_IP');
+            $command->response       = $result;
             $command->save();
         } catch (\Exception $e) {
             echo 4;
-            $command = new RedisQueueCommandExecutionLog();
-            $command->user_id = \Auth::user()->id;
+            $command                 = new RedisQueueCommandExecutionLog();
+            $command->user_id        = \Auth::user()->id;
             $command->redis_queue_id = $queue->id;
-            $command->command = $cmd;
-            $command->server_ip = env('SERVER_IP');
-            $command->response = $result;
+            $command->command        = $cmd;
+            $command->server_ip      = env('SERVER_IP');
+            $command->response       = $result;
             $command->save();
         }
     }

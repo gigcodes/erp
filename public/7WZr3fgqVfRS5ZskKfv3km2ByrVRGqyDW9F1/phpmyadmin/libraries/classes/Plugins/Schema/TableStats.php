@@ -75,14 +75,14 @@ abstract class TableStats
     protected $font;
 
     /**
-     * @param  Pdf\Pdf|Svg\Svg|Eps\Eps|Dia\Dia  $diagram        schema diagram
-     * @param  string  $db             current db name
-     * @param  int  $pageNumber     current page number (from the
+     * @param Pdf\Pdf|Svg\Svg|Eps\Eps|Dia\Dia $diagram        schema diagram
+     * @param string                          $db             current db name
+     * @param int                             $pageNumber     current page number (from the
      *                                                        $cfg['Servers'][$i]['table_coords'] table)
-     * @param  string  $tableName      table name
-     * @param  bool  $showKeys       whether to display keys or not
-     * @param  bool  $tableDimension whether to display table position or not
-     * @param  bool  $offline        whether the coordinates are sent from the browser
+     * @param string                          $tableName      table name
+     * @param bool                            $showKeys       whether to display keys or not
+     * @param bool                            $tableDimension whether to display table position or not
+     * @param bool                            $offline        whether the coordinates are sent from the browser
      */
     public function __construct(
         $diagram,
@@ -95,18 +95,18 @@ abstract class TableStats
     ) {
         global $dbi;
 
-        $this->diagram = $diagram;
-        $this->db = $db;
+        $this->diagram    = $diagram;
+        $this->db         = $db;
         $this->pageNumber = $pageNumber;
-        $this->tableName = $tableName;
+        $this->tableName  = $tableName;
 
-        $this->showKeys = $showKeys;
+        $this->showKeys       = $showKeys;
         $this->tableDimension = $tableDimension;
 
         $this->offline = $offline;
 
         $this->relation = new Relation($dbi);
-        $this->font = new Font();
+        $this->font     = new Font();
 
         // checks whether the table exists
         // and loads fields
@@ -126,7 +126,7 @@ abstract class TableStats
     {
         global $dbi;
 
-        $sql = 'DESCRIBE ' . Util::backquote($this->tableName);
+        $sql    = 'DESCRIBE ' . Util::backquote($this->tableName);
         $result = $dbi->tryQuery($sql);
         if (! $result || ! $result->numRows()) {
             $this->showMissingTableError();
@@ -134,7 +134,7 @@ abstract class TableStats
         }
 
         if ($this->showKeys) {
-            $indexes = Index::getFromTable($this->tableName, $this->db);
+            $indexes     = Index::getFromTable($this->tableName, $this->db);
             $all_columns = [];
             foreach ($indexes as $index) {
                 $all_columns = array_merge(
@@ -164,7 +164,7 @@ abstract class TableStats
         }
 
         foreach (array_keys($_POST['t_h']) as $key) {
-            $db = rawurldecode($_POST['t_db'][$key]);
+            $db  = rawurldecode($_POST['t_db'][$key]);
             $tbl = rawurldecode($_POST['t_tbl'][$key]);
             if ($this->db . '.' . $this->tableName === $db . '.' . $tbl) {
                 $this->x = (float) $_POST['t_x'][$key];

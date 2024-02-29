@@ -21,9 +21,9 @@ class LeadQueueController extends Controller
         $leadList = ChatMessage::pendingQueueLeadList([
             'is_queue' => 1,
         ]);
-        $sendingLimit = ChatMessage::getQueueLimit();
+        $sendingLimit  = ChatMessage::getQueueLimit();
         $sendStartTime = ChatMessage::getStartTime();
-        $sendEndTime = ChatMessage::getEndTime();
+        $sendEndTime   = ChatMessage::getEndTime();
 
         $allWhatsappNo = config('apiwha.instances');
 
@@ -31,9 +31,9 @@ class LeadQueueController extends Controller
         //if(env("APP_ENV") != "local") {
         if (! empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no = ($no == 0) ? $dataInstance['number'] : $no;
-                $chatApi = new ChatApi;
-                $waitingMessage = $chatApi->waitingLimit($no);
+                $no                   = ($no == 0) ? $dataInstance['number'] : $no;
+                $chatApi              = new ChatApi;
+                $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
             }
         }
@@ -55,12 +55,12 @@ class LeadQueueController extends Controller
      */
     public function approve(Request $request)
     {
-        $lead_id = $request->lead_id;
+        $lead_id       = $request->lead_id;
         $customer_name = $request->customer_name;
-        $message = $request->message;
+        $message       = $request->message;
         //\DB::enableQueryLog();
         $customerId = '';
-        $leadList = ChatMessage::select('lead_id')->distinct('lead_id')->where('is_queue', 0)->where('lead_id', '!=', '')->where('lead_id', '!=', null)->get();
+        $leadList   = ChatMessage::select('lead_id')->distinct('lead_id')->where('is_queue', 0)->where('lead_id', '!=', '')->where('lead_id', '!=', null)->get();
         if ($request->customer_id) {
             $explode = explode('/', $request->customer_id);
             if (count($explode) > 1) {
@@ -109,10 +109,10 @@ class LeadQueueController extends Controller
         ->get();
 
         $messageData_arr = $messageData->toArray();
-        $cust_id_arr = array_column($messageData_arr, 'cust_id');
+        $cust_id_arr     = array_column($messageData_arr, 'cust_id');
 
         // $lead_group = ChatMessage::whereIn('customer_id',$cust_id_arr)->where("lead_id" , '!=' ,NULL)->where("lead_id" , '!=' ,'')->get()->unique('lead_id')->toArray();
-        $lead_group = $Data->unique('lead_id')->toArray();
+        $lead_group       = $Data->unique('lead_id')->toArray();
         $lead_group_array = [];
         foreach ($lead_group as $key => $val) {
             if (array_key_exists($val['customer_id'], $lead_group_array)) {
@@ -122,7 +122,7 @@ class LeadQueueController extends Controller
             }
         }
 
-        $message = $Data->unique('message')->toArray();
+        $message       = $Data->unique('message')->toArray();
         $message_array = [];
 
         foreach ($message as $key => $val) {
@@ -133,7 +133,7 @@ class LeadQueueController extends Controller
             }
         }
 
-        $chat = $Data->toArray();
+        $chat       = $Data->toArray();
         $chat_array = [];
 
         foreach ($chat as $key => $val) {
@@ -164,11 +164,11 @@ class LeadQueueController extends Controller
 
     public function records()
     {
-        $from = request('from', '');
-        $to = request('to', '');
-        $limit = request('limit', config('erp-customer.pagination'));
+        $from         = request('from', '');
+        $to           = request('to', '');
+        $limit        = request('limit', config('erp-customer.pagination'));
         $customerName = request('customer_name', '');
-        $leadId = request('lead_id', 0);
+        $leadId       = request('lead_id', 0);
 
         $chatMessage = ChatMessage::join('customers as c', 'c.id', 'chat_messages.customer_id')
             ->where('is_queue', '>', 0)
@@ -217,18 +217,18 @@ class LeadQueueController extends Controller
             }
             $items->long_message = $chat;
 
-            $media = explode(',', $items->media_url);
+            $media            = explode(',', $items->media_url);
             $items->media_url = $media;
 
             $itemsList[] = $items;
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $itemsList,
+            'code'       => 200,
+            'data'       => $itemsList,
             'pagination' => (string) $chatMessage->links(),
-            'total' => $chatMessage->total(),
-            'page' => $chatMessage->currentPage(),
+            'total'      => $chatMessage->total(),
+            'page'       => $chatMessage->currentPage(),
         ]);
     }
 
@@ -249,7 +249,7 @@ class LeadQueueController extends Controller
     public function actionHandler(Request $request)
     {
         $action = $request->get('action', '');
-        $ids = $request->get('ids', []);
+        $ids    = $request->get('ids', []);
         switch ($action) {
             case 'change_to_broadcast':
                 if (! empty($ids) && is_array($ids)) {
@@ -291,9 +291,9 @@ class LeadQueueController extends Controller
 
     public function updateLimit(Request $request)
     {
-        $limit = $request->get('message_sending_limit', []);
+        $limit     = $request->get('message_sending_limit', []);
         $startTime = $request->get('send_start_time', '');
-        $endTime = $request->get('send_end_time', '');
+        $endTime   = $request->get('send_end_time', '');
 
         \App\Setting::updateOrCreate(
             ['name' => 'is_queue_sending_limit'],
@@ -320,7 +320,7 @@ class LeadQueueController extends Controller
     public function report(Request $request)
     {
         $customerRange = request('customrange');
-        $starRange = explode(' - ', $customerRange);
+        $starRange     = explode(' - ', $customerRange);
 
         $chatMessage = new ChatMessage;
 
@@ -346,7 +346,7 @@ class LeadQueueController extends Controller
     public function recall(Request $request)
     {
         $no = $request->get('send_number');
-        $i = 0;
+        $i  = 0;
         if (! empty($no)) {
             $queue = ChatApi::chatQueue($no);
             if (! empty($queue) && ! empty($queue['first100'])) {
@@ -372,10 +372,10 @@ class LeadQueueController extends Controller
     public function status()
     {
         $waitingMessages = [];
-        $allWhatsappNo = config('apiwha.instances');
+        $allWhatsappNo   = config('apiwha.instances');
         if (! empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no = ($no == 0) ? $dataInstance['number'] : $no;
+                $no    = ($no == 0) ? $dataInstance['number'] : $no;
                 $limit = (new ChatApi)->waitingLimit($no);
                 if ($limit > config('apiwha.message_queue_limit')) {
                     $waitingMessages[$no] = $limit;

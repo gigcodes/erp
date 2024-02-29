@@ -47,7 +47,7 @@ class CreateCustomerFromFacebook extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,7 +55,7 @@ class CreateCustomerFromFacebook extends Command
 
             foreach ($conversations['data'] as $conversation) {
                 $participants = $conversation['participants']['data'];
-                $participant = $this->extractParticipant($participants);
+                $participant  = $this->extractParticipant($participants);
 
                 if ($participant === false) {
                     continue;
@@ -84,8 +84,8 @@ class CreateCustomerFromFacebook extends Command
             return false;
         }
 
-        $customer = new Customer();
-        $customer->name = $name;
+        $customer              = new Customer();
+        $customer->name        = $name;
         $customer->facebook_id = $facebookId;
         $customer->save();
 
@@ -99,20 +99,20 @@ class CreateCustomerFromFacebook extends Command
 
         foreach ($messages as $message) {
             $is_from_me = 0;
-            $text = $message['message'];
-            $from = $message['from']['id'];
-            $to = $message['to']['data'][0]['id'];
+            $text       = $message['message'];
+            $from       = $message['from']['id'];
+            $to         = $message['to']['data'][0]['id'];
 
             if ($from === '507935072915757') {
                 $is_from_me = 1;
             }
 
-            $fbMessage = new FacebookMessages();
-            $fbMessage->customer_id = $customer->id;
-            $fbMessage->sender = $from;
-            $fbMessage->receiver = $to;
+            $fbMessage                = new FacebookMessages();
+            $fbMessage->customer_id   = $customer->id;
+            $fbMessage->sender        = $from;
+            $fbMessage->receiver      = $to;
             $fbMessage->is_sent_by_me = $is_from_me;
-            $fbMessage->message = $text;
+            $fbMessage->message       = $text;
             $fbMessage->save();
 
             dump('saved message...');

@@ -97,7 +97,8 @@ class ImportOds extends ImportPlugin
     /**
      * Handles the whole import logic
      *
-     * @param  array  $sql_data 2-element array with sql data
+     * @param array $sql_data     2-element array with sql data
+     * @param ?File $importHandle
      */
     public function doImport(?File $importHandle = null, array &$sql_data = []): void
     {
@@ -145,7 +146,7 @@ class ImportOds extends ImportPlugin
         unset($buffer);
 
         if ($xml === false) {
-            $sheets = [];
+            $sheets             = [];
             $GLOBALS['message'] = Message::error(
                 __(
                     'The XML file specified was either malformed or incomplete. Please correct the issue and try again.'
@@ -156,7 +157,7 @@ class ImportOds extends ImportPlugin
             /** @var SimpleXMLElement $root */
             $root = $xml->children('office', true)->{'body'}->{'spreadsheet'};
             if (empty($root)) {
-                $sheets = [];
+                $sheets             = [];
                 $GLOBALS['message'] = Message::error(
                     __('Could not parse OpenDocument Spreadsheet!')
                 );
@@ -230,8 +231,9 @@ class ImportOds extends ImportPlugin
     /**
      * Get value
      *
-     * @param  SimpleXMLElement  $cell_attrs Cell attributes
-     * @param  SimpleXMLElement  $text       Texts
+     * @param SimpleXMLElement $cell_attrs Cell attributes
+     * @param SimpleXMLElement $text       Texts
+     *
      * @return float|string
      */
     protected function getValue($cell_attrs, $text)
@@ -278,15 +280,15 @@ class ImportOds extends ImportPlugin
         int $col_count
     ): array {
         $cellCount = $row->count();
-        $a = 0;
+        $a         = 0;
         foreach ($row as $cell) {
             $a++;
-            $text = $cell->children('text', true);
+            $text       = $cell->children('text', true);
             $cell_attrs = $cell->attributes('office', true);
 
             if ($text->count() != 0) {
-                $attr = $cell->attributes('table', true);
-                $num_repeat = (int) $attr['number-columns-repeated'];
+                $attr           = $cell->attributes('table', true);
+                $num_repeat     = (int) $attr['number-columns-repeated'];
                 $num_iterations = $num_repeat ?: 1;
 
                 for ($k = 0; $k < $num_iterations; $k++) {
@@ -310,7 +312,7 @@ class ImportOds extends ImportPlugin
                 continue;
             }
 
-            $attr = $cell->attributes('table', true);
+            $attr     = $cell->attributes('table', true);
             $num_null = (int) $attr['number-columns-repeated'];
 
             if ($num_null) {
@@ -381,27 +383,28 @@ class ImportOds extends ImportPlugin
                 }
             }
 
-            $col_count = 0;
+            $col_count              = 0;
             $col_names_in_first_row = false;
-            $tempRow = [];
+            $tempRow                = [];
         }
 
         return [$tempRow, $col_names, $max_cols, $tempRows];
     }
 
     /**
-     * @param  array|SimpleXMLElement  $sheets Sheets of the spreadsheet.
+     * @param array|SimpleXMLElement $sheets Sheets of the spreadsheet.
+     *
      * @return array|array[]
      */
     private function iterateOverTables($sheets): array
     {
-        $tables = [];
-        $max_cols = 0;
+        $tables    = [];
+        $max_cols  = 0;
         $col_count = 0;
         $col_names = [];
-        $tempRow = [];
-        $tempRows = [];
-        $rows = [];
+        $tempRow   = [];
+        $tempRows  = [];
+        $rows      = [];
 
         /** @var SimpleXMLElement $sheet */
         foreach ($sheets as $sheet) {
@@ -420,8 +423,8 @@ class ImportOds extends ImportPlugin
             /* Skip over empty sheets */
             if (count($tempRows) == 0 || count($tempRows[0]) === 0) {
                 $col_names = [];
-                $tempRow = [];
-                $tempRows = [];
+                $tempRow   = [];
+                $tempRows  = [];
 
                 continue;
             }
@@ -455,9 +458,9 @@ class ImportOds extends ImportPlugin
                 $col_names,
                 $tempRows,
             ];
-            $tempRows = [];
+            $tempRows  = [];
             $col_names = [];
-            $max_cols = 0;
+            $max_cols  = 0;
         }
 
         return [$tables, $rows];

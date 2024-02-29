@@ -107,7 +107,7 @@ class MessageHelper
 
         //rows here should be replaced by the SQL result
         $wordTotals = [];
-        $phrases = [];
+        $phrases    = [];
         foreach ($chatMessages as $id => $row) {
             $words = explode(' ', $row);
             foreach ($words as $word) {
@@ -129,7 +129,7 @@ class MessageHelper
         $records = [];
         foreach ($wordTotals as $word => $count) {
             $records['words'][$word] = [
-                'word' => $word,
+                'word'  => $word,
                 'total' => $count,
             ];
 
@@ -146,6 +146,11 @@ class MessageHelper
      *
      * @param $customer [ object ]
      * @param $message [ string ]
+     * @param null|mixed $sendMsg
+     * @param null|mixed $messageModel
+     * @param null|mixed $isEmail
+     * @param null|mixed $parentMessage
+     *
      * @return mixed
      */
     public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
@@ -156,7 +161,7 @@ class MessageHelper
             //START - Purpose : Add Data in array - DEVTASK-4233
             $log_comment = 'whatsAppSend : ';
             if (! empty($messageModel)) {
-                $temp_log_params['model'] = $messageModel->getTable();
+                $temp_log_params['model']    = $messageModel->getTable();
                 $temp_log_params['model_id'] = $messageModel->id;
             }
             //END - DEVTASK-4233
@@ -171,7 +176,7 @@ class MessageHelper
                     ->get();
 
                 if (count($keywordassign) > 0) {
-                    $log_comment = $log_comment . ' Keyword is ' . $exp_mesaages[$i];
+                    $log_comment                      = $log_comment . ' Keyword is ' . $exp_mesaages[$i];
                     $temp_log_params['keyword_match'] = $keywordassign[0]->task_description;
                     $j++;
                     break;
@@ -191,22 +196,22 @@ class MessageHelper
                 //END - DEVTASK-4233
 
                 $task_array = [
-                    'category' => 42,
+                    'category'     => 42,
                     'is_statutory' => 0,
                     'task_subject' => '#' . $customer->id . '-' . $keywordassign[0]->task_description,
                     'task_details' => $keywordassign[0]->task_description,
-                    'assign_from' => \App\User::USER_ADMIN_ID,
-                    'assign_to' => $keywordassign[0]->assign_to,
-                    'customer_id' => $customer->id,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
+                    'assign_from'  => \App\User::USER_ADMIN_ID,
+                    'assign_to'    => $keywordassign[0]->assign_to,
+                    'customer_id'  => $customer->id,
+                    'created_at'   => date('Y-m-d H:i:s'),
+                    'updated_at'   => date('Y-m-d H:i:s'),
                 ];
                 DB::table('tasks')->insert($task_array);
-                $taskid = DB::getPdo()->lastInsertId();
+                $taskid           = DB::getPdo()->lastInsertId();
                 $task_users_array = [
                     'task_id' => $taskid,
                     'user_id' => $keywordassign[0]->assign_to,
-                    'type' => \App\User::class,
+                    'type'    => \App\User::class,
                 ];
                 DB::table('task_users')->insert($task_users_array);
 
@@ -274,12 +279,12 @@ class MessageHelper
                         //END - DEVTASK-4233
 
                         $params_task = [
-                            'number' => null,
-                            'user_id' => $users_info[0]->id,
-                            'approved' => 1,
-                            'status' => 2,
-                            'task_id' => $taskid,
-                            'message' => $task_info[0]->task_details,
+                            'number'            => null,
+                            'user_id'           => $users_info[0]->id,
+                            'approved'          => 1,
+                            'status'            => 2,
+                            'task_id'           => $taskid,
+                            'message'           => $task_info[0]->task_details,
                             'quoted_message_id' => ($messageModel) ? $messageModel->quoted_message_id : null,
                         ];
 
@@ -289,10 +294,10 @@ class MessageHelper
 
                         $chat_message = \App\ChatMessage::create($params_task);
                         \App\ChatMessagesQuickData::updateOrCreate([
-                            'model' => \App\Task::class,
+                            'model'    => \App\Task::class,
                             'model_id' => $taskid,
                         ], [
-                            'last_communicated_message' => $task_info[0]->task_details,
+                            'last_communicated_message'    => $task_info[0]->task_details,
                             'last_communicated_message_at' => $chat_message->created_at,
                             'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                         ]);
@@ -318,7 +323,7 @@ class MessageHelper
             }
 
             //START - Purpose : Log Comment , add data - DEVTASK-4233
-            $log_comment = $log_comment . ' . ';
+            $log_comment                = $log_comment . ' . ';
             $temp_log_params['comment'] = $log_comment;
 
             if (! empty($temp_log_params['keyword_match']) && $temp_log_params['keyword_match'] != '') {
@@ -333,6 +338,13 @@ class MessageHelper
      *
      * @param $Custmoer [ Object ]
      * @param $message [ string ]
+     * @param null|mixed $customer
+     * @param null|mixed $sendMsg
+     * @param null|mixed $messageModel
+     * @param mixed      $params
+     * @param null|mixed $isEmail
+     * @param null|mixed $userType
+     *
      * @return mixed
      */
     public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null, $params = [], $isEmail = null, $userType = null)
@@ -340,7 +352,7 @@ class MessageHelper
         //START - Purpose : add data in array - DEVTASK-4233
         $log_comment = 'sendwatson : ';
         if (! empty($messageModel)) {
-            $temp_log_params['model'] = $messageModel->getTable();
+            $temp_log_params['model']    = $messageModel->getTable();
             $temp_log_params['model_id'] = $messageModel->id;
         }
         //END - DEVTASK-4233
@@ -348,9 +360,9 @@ class MessageHelper
         if (isset($params['chat_message_log_id'])) {
             \App\ChatbotMessageLogResponse::StoreLogResponse([
                 'chatbot_message_log_id' => $params['chat_message_log_id'],
-                'request' => '',
-                'response' => 'Send watson message function started',
-                'status' => 'success',
+                'request'                => '',
+                'response'               => 'Send watson message function started',
+                'status'                 => 'success',
             ]);
         } else {
             $log_comment = $log_comment . ' Chat message log ID not found and no entry has been created for chat message ';
@@ -364,7 +376,7 @@ class MessageHelper
                 //START - Purpose : Log Comment , get task discription - DEVTASK-4233
                 // $log_comment = $log_comment.' Keyword Match >> ';
 
-                $exp_mesaages = explode(' ', $message);
+                $exp_mesaages               = explode(' ', $message);
                 $temp_log_params['keyword'] = implode(', ', $exp_mesaages);
 
                 for ($i = 0; $i < count($exp_mesaages); $i++) {
@@ -380,9 +392,9 @@ class MessageHelper
                 if (isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $params['chat_message_log_id'],
-                        'request' => '',
-                        'response' => 'Keyword assign match section started',
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Keyword assign match section started',
+                        'status'                 => 'success',
                     ]);
                 }
 
@@ -395,9 +407,9 @@ class MessageHelper
                     if (isset($params['chat_message_log_id'])) {
                         \App\ChatbotMessageLogResponse::StoreLogResponse([
                             'chatbot_message_log_id' => $params['chat_message_log_id'],
-                            'request' => '',
-                            'response' => 'Keyword assign match found : ' . $keywordassign[0]->task_description,
-                            'status' => 'success',
+                            'request'                => '',
+                            'response'               => 'Keyword assign match found : ' . $keywordassign[0]->task_description,
+                            'status'                 => 'success',
                         ]);
                     }
                 }
@@ -448,23 +460,23 @@ class MessageHelper
                                     $product = \App\Product::find($mediable->mediable_id);
                                     if (! empty($product)) {
                                         \Log::info('#9 last message product found');
-                                        $priceO = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
-                                        $selected_products[] = $product->id;
-                                        $temp_img_params = $params;
-                                        $temp_img_params['message'] = 'Price : ' . $priceO;
+                                        $priceO                       = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
+                                        $selected_products[]          = $product->id;
+                                        $temp_img_params              = $params;
+                                        $temp_img_params['message']   = 'Price : ' . $priceO;
                                         $temp_img_params['media_url'] = null;
-                                        $temp_img_params['status'] = 2;
-                                        $temp_img_params['is_email'] = ($isEmail == 1) ? 1 : 0;
-                                        $temp_img_params['is_draft'] = ($isEmail == 1) ? 1 : 0;
+                                        $temp_img_params['status']    = 2;
+                                        $temp_img_params['is_email']  = ($isEmail == 1) ? 1 : 0;
+                                        $temp_img_params['is_draft']  = ($isEmail == 1) ? 1 : 0;
                                         // Create new message
                                         \App\ChatMessage::create($temp_img_params);
 
                                         if (isset($params['chat_message_log_id'])) {
                                             $data = [
                                                 'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                                'request' => '',
-                                                'response' => 'Chat Message is created.',
-                                                'status' => 'success',
+                                                'request'                => '',
+                                                'response'               => 'Chat Message is created.',
+                                                'status'                 => 'success',
                                             ];
                                             $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                                         }
@@ -476,27 +488,27 @@ class MessageHelper
 
                     if (! empty($selected_products) && $messageSentLast) {
                         foreach ($selected_products as $pid) {
-                            $product = \App\Product::where('id', $pid)->first();
+                            $product    = \App\Product::where('id', $pid)->first();
                             $quick_lead = \App\ErpLeads::create([
-                                'customer_id' => $customer->id,
+                                'customer_id'    => $customer->id,
                                 'lead_status_id' => 3,
-                                'product_id' => $pid,
-                                'brand_id' => $product ? $product->brand : null,
-                                'category_id' => $product ? $product->category : null,
-                                'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
-                                'color' => $customer->color,
-                                'size' => $customer->size,
-                                'type' => 'send-watson-reply',
-                                'created_at' => Carbon::now(),
+                                'product_id'     => $pid,
+                                'brand_id'       => $product ? $product->brand : null,
+                                'category_id'    => $product ? $product->category : null,
+                                'brand_segment'  => $product && $product->brands ? $product->brands->brand_segment : null,
+                                'color'          => $customer->color,
+                                'size'           => $customer->size,
+                                'type'           => 'send-watson-reply',
+                                'created_at'     => Carbon::now(),
                             ]);
 
                             $log_comment = $log_comment . ' Create ERP lead lead id is ' . $quick_lead->id; //Purpose : Log Comment - DEVTASK-4233
                             if (isset($params['chat_message_log_id'])) {
                                 $data = [
                                     'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                    'request' => '',
-                                    'response' => 'Erp Lead is generated.',
-                                    'status' => 'success',
+                                    'request'                => '',
+                                    'response'               => 'Erp Lead is generated.',
+                                    'status'                 => 'success',
                                 ];
                                 $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                             }
@@ -505,9 +517,9 @@ class MessageHelper
                         if (isset($params['chat_message_log_id'])) {
                             $data = [
                                 'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                'request' => '',
-                                'response' => 'Lead price send to customer.',
-                                'status' => 'success',
+                                'request'                => '',
+                                'response'               => 'Lead price send to customer.',
+                                'status'                 => 'success',
                             ];
                             $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                         }
@@ -521,26 +533,26 @@ class MessageHelper
                         if (isset($params['chat_message_log_id'])) {
                             $data = [
                                 'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                'request' => $requestData,
-                                'response' => $response,
-                                'status' => 'success',
+                                'request'                => $requestData,
+                                'response'               => $response,
+                                'status'                 => 'success',
                             ];
                             $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                         }
 
                         \App\CommunicationHistory::create([
-                            'model_id' => $messageSentLast->id,
+                            'model_id'   => $messageSentLast->id,
                             'model_type' => \App\MessageQueue::class,
-                            'type' => 'broadcast-prices',
-                            'method' => 'email',
+                            'type'       => 'broadcast-prices',
+                            'method'     => 'email',
                         ]);
                     }
 
                     \App\Instruction::create([
-                        'customer_id' => $customer->id,
-                        'instruction' => 'Please send the prices',
-                        'category_id' => 1,
-                        'assigned_to' => 7,
+                        'customer_id'   => $customer->id,
+                        'instruction'   => 'Please send the prices',
+                        'category_id'   => 1,
+                        'assigned_to'   => 7,
                         'assigned_from' => 6,
                     ]);
                 }
@@ -558,11 +570,11 @@ class MessageHelper
             if (! $auto_replies->isEmpty()) {
                 foreach ($auto_replies as $auto_reply) {
                     if (preg_match("/{$auto_reply->keyword}/i", strtolower(trim($message))) && $auto_reply->reply) {
-                        $temp_params = $params;
-                        $temp_params['message'] = $auto_reply->reply;
+                        $temp_params              = $params;
+                        $temp_params['message']   = $auto_reply->reply;
                         $temp_params['media_url'] = null;
-                        $temp_params['status'] = 2;
-                        $temp_params['approved'] = 1;
+                        $temp_params['status']    = 2;
+                        $temp_params['approved']  = 1;
                         // Create new message
                         $messageModel = ChatMessage::create($temp_params);
 
@@ -570,9 +582,9 @@ class MessageHelper
                         if (isset($params['chat_message_log_id'])) {
                             $data = [
                                 'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                'request' => '',
-                                'response' => 'Empty message received then automated reply from ChatMessage table',
-                                'status' => 'success',
+                                'request'                => '',
+                                'response'               => 'Empty message received then automated reply from ChatMessage table',
+                                'status'                 => 'success',
                             ];
                             $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                         } else {
@@ -593,7 +605,7 @@ class MessageHelper
 
             if ($messageModel) {
                 $chatbotReply = \App\ChatbotReply::create([
-                    'question' => $message,
+                    'question'        => $message,
                     'replied_chat_id' => $messageModel->id,
                 ]);
 
@@ -607,28 +619,28 @@ class MessageHelper
                     if ($message != '' && $customer) {
                         $keyword = $reply->question;
                         if (($keyword == $message || strpos(strtolower(trim($message)), strtolower(trim($keyword))) !== false) && $reply->suggested_reply) {
-                            $status = ChatMessage::CHAT_AUTO_WATSON_REPLY;
-                            $temp_params = $params;
-                            $temp_params['message'] = $reply->suggested_reply;
-                            $temp_params['media_url'] = null;
-                            $temp_params['status'] = $status;
+                            $status                     = ChatMessage::CHAT_AUTO_WATSON_REPLY;
+                            $temp_params                = $params;
+                            $temp_params['message']     = $reply->suggested_reply;
+                            $temp_params['media_url']   = null;
+                            $temp_params['status']      = $status;
                             $temp_params['question_id'] = $reply->id;
 
                             // Create new message
                             $message = ChatMessage::create($temp_params);
 
                             if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                                $chatbotReply->chat_id = $message->id;
-                                $chatbotReply->answer = $reply->suggested_reply;
-                                $chatbotReply->reply = '{"output":{"database":[{"response_type":"text","text":"' . $reply->suggested_reply . '"}]}}';
+                                $chatbotReply->chat_id    = $message->id;
+                                $chatbotReply->answer     = $reply->suggested_reply;
+                                $chatbotReply->reply      = '{"output":{"database":[{"response_type":"text","text":"' . $reply->suggested_reply . '"}]}}';
                                 $chatbotReply->reply_from = 'erp';
                                 $chatbotReply->save();
                                 if (isset($params['chat_message_log_id'])) {
                                     $data = [
                                         'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                        'request' => '',
-                                        'response' => 'CHAT_AUTO_WATSON_REPLY: ' . $chatbotReply->reply,
-                                        'status' => 'success',
+                                        'request'                => '',
+                                        'response'               => 'CHAT_AUTO_WATSON_REPLY: ' . $chatbotReply->reply,
+                                        'status'                 => 'success',
                                     ];
                                     $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                                 }
@@ -655,9 +667,9 @@ class MessageHelper
                                     if (isset($params['chat_message_log_id'])) {
                                         $data = [
                                             'chatbot_message_log_id' => $params['chat_message_log_id'],
-                                            'request' => '',
-                                            'response' => $sendResult,
-                                            'status' => 'success',
+                                            'request'                => '',
+                                            'response'               => $sendResult,
+                                            'status'                 => 'success',
                                         ];
                                         $chat_message_log = \App\ChatbotMessageLogResponse::StoreLogResponse($data);
                                     } else {
@@ -686,9 +698,9 @@ class MessageHelper
             if (isset($params['chat_message_log_id'])) {
                 \App\ChatbotMessageLogResponse::StoreLogResponse([
                     'chatbot_message_log_id' => $params['chat_message_log_id'],
-                    'request' => '',
-                    'response' => 'Auto replied match found : ' . $isReplied . ' and  customer store website id ' . $customer->store_website_id,
-                    'status' => 'success',
+                    'request'                => '',
+                    'response'               => 'Auto replied match found : ' . $isReplied . ' and  customer store website id ' . $customer->store_website_id,
+                    'status'                 => 'success',
                 ]);
             } else {
                 $log_comment = $log_comment . ' Chat message log ID not found ';
@@ -698,9 +710,9 @@ class MessageHelper
                 if (isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $params['chat_message_log_id'],
-                        'request' => '',
-                        'response' => 'Watson manager send function started',
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Watson manager send function started',
+                        'status'                 => 'success',
                     ]);
                 } else {
                     $log_comment = $log_comment . ' Chat message log ID not found ';
@@ -711,9 +723,9 @@ class MessageHelper
                 if (isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $params['chat_message_log_id'],
-                        'request' => '',
-                        'response' => 'Watson manager send function finished',
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Watson manager send function finished',
+                        'status'                 => 'success',
                     ]);
                 } else {
                     $log_comment = $log_comment . ' Chat message log ID not found ';
@@ -724,9 +736,9 @@ class MessageHelper
                 if (isset($params['chat_message_log_id'])) {
                     \App\ChatbotMessageLogResponse::StoreLogResponse([
                         'chatbot_message_log_id' => $params['chat_message_log_id'],
-                        'request' => '',
-                        'response' => 'Watson manager send function end replied found',
-                        'status' => 'success',
+                        'request'                => '',
+                        'response'               => 'Watson manager send function end replied found',
+                        'status'                 => 'success',
                     ]);
                 } else {
                     $log_comment = $log_comment . ' Chat message log ID not found ';
@@ -735,7 +747,7 @@ class MessageHelper
         }
 
         //START - Purpose : Log Comment ,Add Data - DEVTASK-4233
-        $log_comment = $log_comment . ' . ';
+        $log_comment                = $log_comment . ' . ';
         $temp_log_params['comment'] = $log_comment;
 
         if (! empty($temp_log_params['keyword_match']) && $temp_log_params['keyword_match'] != '') {
@@ -761,9 +773,9 @@ class MessageHelper
                 $webhookClient = new GuzzleClient();
 
                 $webhookClient->{$webhookNotification->method}($webhookNotification->url, [
-                    'body' => str_replace('[MESSAGE]', $message, $webhookNotification->payload),
+                    'body'            => str_replace('[MESSAGE]', $message, $webhookNotification->payload),
                     'connect_timeout' => 3,
-                    'headers' => ['Content-Type' => $webhookNotification->content_type],
+                    'headers'         => ['Content-Type' => $webhookNotification->content_type],
                 ]);
             }
         } catch (\Exception $e) {

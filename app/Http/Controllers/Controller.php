@@ -76,17 +76,17 @@ class Controller extends BaseController
                 $local_code = Language::where('name', $lan_name->name)->first();
 
                 if (isset($local_code->locale)) {
-                    $googleTranslate = new GoogleTranslate();
+                    $googleTranslate   = new GoogleTranslate();
                     $translationString = GoogleTranslateController::translateProducts($googleTranslate, $local_code->locale, [$message]);
 
                     if ($translationString) {
                         $message = $translationString;
                         ApiResponseMessagesTranslation::create([
                             'store_website_id' => $store_website_id,
-                            'key' => $key,
-                            'lang_code' => $lang_code,
-                            'lang_name' => $lan_name->name,
-                            'value' => $message,
+                            'key'              => $key,
+                            'lang_code'        => $lang_code,
+                            'lang_name'        => $lan_name->name,
+                            'value'            => $message,
                         ]);
                     }
                 }

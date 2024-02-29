@@ -42,17 +42,17 @@ class FixSpecialCharactersInDescription extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             Product::where('is_approved', 0)->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     dump($product->id);
-                    $description = str_replace(['&nbsp;', '\n', "\n", '&eacute;', '&egrave;', '&Egrave;'], ' ', $product->short_description);
-                    $composition = str_replace(['&nbsp;', '\n', "\n", '&eacute;', '&egrave;', '&Egrave;'], ' ', $product->composition);
+                    $description                = str_replace(['&nbsp;', '\n', "\n", '&eacute;', '&egrave;', '&Egrave;'], ' ', $product->short_description);
+                    $composition                = str_replace(['&nbsp;', '\n', "\n", '&eacute;', '&egrave;', '&Egrave;'], ' ', $product->composition);
                     $product->short_description = $description;
-                    $product->composition = $composition;
+                    $product->composition       = $composition;
                     $product->save();
                 }
             });

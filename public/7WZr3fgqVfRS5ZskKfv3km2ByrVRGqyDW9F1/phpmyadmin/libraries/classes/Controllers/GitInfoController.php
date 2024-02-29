@@ -42,7 +42,7 @@ final class GitInfoController extends AbstractController
             return;
         }
 
-        $commit['author']['date'] = Util::localisedDate(strtotime($commit['author']['date']));
+        $commit['author']['date']    = Util::localisedDate(strtotime($commit['author']['date']));
         $commit['committer']['date'] = Util::localisedDate(strtotime($commit['committer']['date']));
 
         $this->render('home/git_info', $commit);

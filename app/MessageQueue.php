@@ -49,7 +49,7 @@ class MessageQueue extends Model
                 if (! empty($content['linked_images'])) {
                     foreach ($content['linked_images'] as $image) {
                         if (is_array($image)) {
-                            $image_key = $image['key'];
+                            $image_key     = $image['key'];
                             $mediable_type = 'BroadcastImage';
 
                             $broadcast = \App\BroadcastImage::with('Media')
@@ -57,17 +57,17 @@ class MessageQueue extends Model
                                 ->first();
 
                             $return[] = [
-                                'key' => $image_key,
-                                'image' => @$image['url'],
+                                'key'      => $image_key,
+                                'image'    => @$image['url'],
                                 'products' => ($broadcast) ? json_decode($broadcast->products, true) : [],
                             ];
                         } else {
                             $broadcast_image = \App\BroadcastImage::find($image);
-                            $product_ids = ($broadcast_image) ? json_decode($broadcast_image->products, true) : [];
+                            $product_ids     = ($broadcast_image) ? json_decode($broadcast_image->products, true) : [];
 
                             $return[] = [
-                                'key' => null,
-                                'image' => '',
+                                'key'      => null,
+                                'image'    => '',
                                 'products' => $product_ids,
                             ];
                         }

@@ -41,12 +41,12 @@ final class BrowseController extends AbstractController
     /**
      * Function to display table browse for selected columns
      *
-     * @param  string  $goto goto page url
+     * @param string $goto goto page url
      */
     private function displayTableBrowseForSelectedColumns($goto): void
     {
         $GLOBALS['active_page'] = Url::getFromRoute('/sql');
-        $fields = [];
+        $fields                 = [];
         foreach ($_POST['selected_fld'] as $sval) {
             $fields[] = Util::backquote($sval);
         }

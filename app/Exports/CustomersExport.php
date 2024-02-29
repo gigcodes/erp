@@ -20,9 +20,9 @@ class CustomersExport implements FromArray, ShouldAutoSize
 
         foreach ($this->customers as $key => $customer) {
             $filtered = str_replace('-', ' ', $customer['name']);
-            $explode = explode(' ', $filtered);
+            $explode  = explode(' ', $filtered);
 
-            $new_customers[$key]['name'] = $explode[0] . (array_key_exists(1, $explode) ? (' ' . $explode[1]) : '');
+            $new_customers[$key]['name']  = $explode[0] . (array_key_exists(1, $explode) ? (' ' . $explode[1]) : '');
             $new_customers[$key]['phone'] = $customer['phone'];
         }
 

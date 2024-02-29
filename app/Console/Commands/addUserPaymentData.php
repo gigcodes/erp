@@ -67,12 +67,12 @@ class addUserPaymentData extends Command
             }
 
             $dev_task_payment = PaymentReceipt::updateOrCreate(['user_id' => $dev_task_user->id, 'developer_task_id' => $dev_task->id], [
-                'status' => 'Pending',
-                'rate_estimated' => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
-                'date' => date('Y-m-d'),
-                'currency' => '',
-                'user_id' => $dev_task_user->id,
-                'by_command' => 1,
+                'status'            => 'Pending',
+                'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
+                'date'              => date('Y-m-d'),
+                'currency'          => '',
+                'user_id'           => $dev_task_user->id,
+                'by_command'        => 1,
                 'developer_task_id' => $dev_task->id,
             ]);
 
@@ -106,13 +106,13 @@ class addUserPaymentData extends Command
             }
 
             $task_payment = PaymentReceipt::updateOrCreate(['task_id' => $task->id, 'user_id' => $task_user->id], [
-                'status' => 'Pending',
+                'status'         => 'Pending',
                 'rate_estimated' => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
-                'date' => date('Y-m-d'),
-                'currency' => '',
-                'user_id' => $task_user->id,
-                'by_command' => 1,
-                'task_id' => $task->id,
+                'date'           => date('Y-m-d'),
+                'currency'       => '',
+                'user_id'        => $task_user->id,
+                'by_command'     => 1,
+                'task_id'        => $task->id,
             ]);
             if ($task_payment) {
                 dump('task-id - ' . $task->id . ' payment-id - ' . $task_payment->id . ' is done');

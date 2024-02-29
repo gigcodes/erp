@@ -11,16 +11,16 @@ class PositionController extends Controller
     public function store(Request $request)
     {
         $request_object = $request->all();
-        $position = [
+        $position       = [
             'user_id' => \Auth::id(),
-            'title' => $request_object['title'],
+            'title'   => $request_object['title'],
         ];
         $position_id = Position::create($position);
         if (! empty($request_object['criteria'])) {
             $request_object['criteria'] = explode(',', $request_object['criteria']);
             foreach ($request_object['criteria'] as $criteria) {
                 $criteria_array = [
-                    'title' => $criteria,
+                    'title'       => $criteria,
                     'position_id' => $position_id->id,
                 ];
                 Criteria::create($criteria_array);

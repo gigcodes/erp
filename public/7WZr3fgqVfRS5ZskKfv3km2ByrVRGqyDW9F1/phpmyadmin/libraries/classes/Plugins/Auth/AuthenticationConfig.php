@@ -58,7 +58,7 @@ class AuthenticationConfig extends AuthenticationPlugin
             return false;
         }
 
-        $this->user = $GLOBALS['cfg']['Server']['user'];
+        $this->user     = $GLOBALS['cfg']['Server']['user'];
         $this->password = $GLOBALS['cfg']['Server']['password'];
 
         return true;
@@ -67,7 +67,7 @@ class AuthenticationConfig extends AuthenticationPlugin
     /**
      * User is not allowed to login to MySQL -> authentication failed
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
      */
     public function showFailure($failure): void
     {

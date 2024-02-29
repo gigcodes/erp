@@ -10,7 +10,7 @@ class ChatBotController extends Controller
 {
     public function connection(Request $request)
     {
-        $customer = \App\Customer::find(2001);
+        $customer      = \App\Customer::find(2001);
         $watsonManager = WatsonManager::sendMessage($customer, 'weather');
 
         echo '<pre>';
@@ -27,7 +27,7 @@ class ChatBotController extends Controller
             '9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC'
         );
         $result = $watson->create('19cf3225-f007-4332-8013-74443d36a3f7', [
-            'intent' => 'hello',
+            'intent'   => 'hello',
             'examples' => [
                 ['text' => 'Good morning'],
                 ['text' => 'hi there'],

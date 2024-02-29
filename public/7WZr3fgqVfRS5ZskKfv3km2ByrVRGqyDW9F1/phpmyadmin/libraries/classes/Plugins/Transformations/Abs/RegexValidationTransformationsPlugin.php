@@ -37,9 +37,10 @@ abstract class RegexValidationTransformationsPlugin extends IOTransformationsPlu
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
@@ -48,7 +49,7 @@ abstract class RegexValidationTransformationsPlugin extends IOTransformationsPlu
         $this->reset();
         if (! empty($options[0]) && ! preg_match($options[0], $buffer)) {
             $this->success = false;
-            $this->error = sprintf(
+            $this->error   = sprintf(
                 __('Validation failed for the input string %s.'),
                 htmlspecialchars($buffer)
             );

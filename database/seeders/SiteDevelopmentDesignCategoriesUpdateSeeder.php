@@ -117,15 +117,15 @@ class SiteDevelopmentDesignCategoriesUpdateSeeder extends Seeder
         foreach ($lists as $list) {
             $develop = SiteDevelopmentCategory::firstOrCreate([
                 'master_category_id' => $siteDevelopmentMasterCategory->id,
-                'title' => $list,
+                'title'              => $list,
             ]);
 
             if ($develop) {
                 foreach ($all_website as $key => $value) {
                     SiteDevelopment::firstOrCreate([
-                        'site_development_category_id' => $develop->id,
+                        'site_development_category_id'        => $develop->id,
                         'site_development_master_category_id' => $develop->master_category_id,
-                        'website_id' => $value->id,
+                        'website_id'                          => $value->id,
                     ]);
                 }
             }

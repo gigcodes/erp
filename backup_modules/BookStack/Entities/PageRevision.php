@@ -32,7 +32,8 @@ class PageRevision extends Model
     /**
      * Get the url for this revision.
      *
-     * @param  null|string  $path
+     * @param null|string $path
+     *
      * @return string
      */
     public function getUrl($path = null)
@@ -63,6 +64,8 @@ class PageRevision extends Model
      * Allows checking of the exact class, Used to check entity type.
      * Included here to align with entities in similar use cases.
      * (Yup, Bit of an awkward hack)
+     *
+     * @param mixed $type
      *
      * @return bool
      */

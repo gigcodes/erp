@@ -28,7 +28,7 @@ class RoutesController extends Controller
         }
         if ($request->search) {
             $request->search = preg_replace('/[\s]+/', '/', $request->search);
-            $query = $query->whereRaw("MATCH(url)AGAINST('" . $request->search . "')")
+            $query           = $query->whereRaw("MATCH(url)AGAINST('" . $request->search . "')")
                 ->orWhereRaw("MATCH(page_title, page_description)AGAINST('" . $request->search . "')");
         }
         $routesData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
@@ -57,6 +57,8 @@ class RoutesController extends Controller
      * It skip if any route entry is already exist
      * $param String $request
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -80,13 +82,14 @@ class RoutesController extends Controller
         return view('routes.update', compact('routes'));
     }
 
-    public function updateEmailAlert(Request $request){
+    public function updateEmailAlert(Request $request)
+    {
         $result = null;
 
         if ($request->post('type') == 'single') {
-            $routes = Routes::find((int) $request->post('id'));
+            $routes              = Routes::find((int) $request->post('id'));
             $routes->email_alert = ($request->post('email_alert') == 'true') ? 1 : 0;
-            $result = $routes->update();
+            $result              = $routes->update();
         }
 
         if ($request->post('type') == 'all') {

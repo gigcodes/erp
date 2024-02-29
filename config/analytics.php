@@ -28,7 +28,7 @@ return [
      * Optional parameters: "lifetime", "prefix"
      */
     'cache' => [
-        'store' => 'file',
+        'store'    => 'file',
         'lifetime' => 30,
     ],
 ];

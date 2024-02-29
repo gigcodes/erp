@@ -109,7 +109,7 @@ class TwigLintCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io               = new SymfonyStyle($input, $output);
         $showDeprecations = $input->getOption('show-deprecations');
 
         if ($showDeprecations) {
@@ -142,7 +142,7 @@ class TwigLintCommand extends Command
 
     protected function getFilesInfo(string $templatesPath): array
     {
-        $filesInfo = [];
+        $filesInfo  = [];
         $filesFound = $this->findFiles($templatesPath);
         foreach ($filesFound as $file) {
             $filesInfo[] = $this->validate($this->getTemplateContents($file), $file);
@@ -174,10 +174,10 @@ class TwigLintCommand extends Command
             $twig->setLoader($realLoader);
 
             return [
-                'template' => $template,
-                'file' => $file,
-                'line' => $e->getTemplateLine(),
-                'valid' => false,
+                'template'  => $template,
+                'file'      => $file,
+                'line'      => $e->getTemplateLine(),
+                'valid'     => false,
                 'exception' => $e,
             ];
         }
@@ -257,7 +257,7 @@ class TwigLintCommand extends Command
         $lines = explode("\n", $template);
 
         $position = max(0, $line - $context);
-        $max = min(count($lines), $line - 1 + $context);
+        $max      = min(count($lines), $line - 1 + $context);
 
         $result = [];
         while ($position < $max) {

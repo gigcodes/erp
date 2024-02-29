@@ -35,16 +35,16 @@ class DeveloperTaskHistory extends Model
     {
         $single = self::create([
             'developer_task_id' => $taskId,
-            'model' => \App\DeveloperTask::class,
-            'attribute' => $type,
-            'old_value' => $old,
-            'new_value' => $new,
-            'user_id' => loginId(),
-            'is_approved' => $approved ? 1 : 0,
+            'model'             => \App\DeveloperTask::class,
+            'attribute'         => $type,
+            'old_value'         => $old,
+            'new_value'         => $new,
+            'user_id'           => loginId(),
+            'is_approved'       => $approved ? 1 : 0,
         ]);
         if ($approved) {
             DeveloperTasksHistoryApprovals::create([
-                'parent_id' => $single->id,
+                'parent_id'   => $single->id,
                 'approved_by' => loginId(),
             ]);
         }
@@ -58,7 +58,7 @@ class DeveloperTaskHistory extends Model
 
         DeveloperTask::where('id', $single->developer_task_id)->update([$type => $single->new_value]);
         DeveloperTasksHistoryApprovals::create([
-            'parent_id' => $single->id,
+            'parent_id'   => $single->id,
             'approved_by' => loginId(),
         ]);
     }

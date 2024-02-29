@@ -41,7 +41,7 @@ class FetchScrapeMissing extends Command
      */
     public function handle()
     {
-        $date = date('Y-m-d');
+        $date           = date('Y-m-d');
         $scrapped_query = DB::table('scraped_products as p')
             ->selectRaw(' count(*) as total_product ,
 				   sum(CASE WHEN p.category = ""
@@ -69,17 +69,17 @@ class FetchScrapeMissing extends Command
         $scrappedReportData = $scrapped_query->get();
         foreach ($scrappedReportData as $d) {
             $missingdata = '';
-            $data = [
-                'website' => $d->website,
-                'total_product' => $d->total_product,
-                'missing_category' => $d->missing_category,
-                'missing_color' => $d->missing_color,
-                'missing_composition' => $d->missing_composition,
-                'missing_name' => $d->missing_name,
+            $data        = [
+                'website'                   => $d->website,
+                'total_product'             => $d->total_product,
+                'missing_category'          => $d->missing_category,
+                'missing_color'             => $d->missing_color,
+                'missing_composition'       => $d->missing_composition,
+                'missing_name'              => $d->missing_name,
                 'missing_short_description' => $d->missing_short_description,
-                'missing_price' => $d->missing_price,
-                'missing_size' => $d->missing_size,
-                'created_at' => date('Y-m-d H:m'),
+                'missing_price'             => $d->missing_price,
+                'missing_size'              => $d->missing_size,
+                'created_at'                => date('Y-m-d H:m'),
             ];
 
             $missingdata .= 'Total Product - ' . $d->total_product . ', ';
@@ -96,7 +96,7 @@ class FetchScrapeMissing extends Command
                 $hasAssignedIssue = \App\DeveloperTask::where('scraper_id', $scrapperDetails->id)
                     ->whereNotNull('assigned_to')->where('is_resolved', 0)->first();
                 if ($hasAssignedIssue != null) {
-                    $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
+                    $userName    = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => 'Missing data', 'status' => 1]);

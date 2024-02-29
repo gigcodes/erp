@@ -20,6 +20,8 @@ class PushMagentoCssVariables implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $magentoCssVariable
+     *
      * @return void
      */
     public function __construct(protected $magentoCssVariable)
@@ -40,10 +42,10 @@ class PushMagentoCssVariables implements ShouldQueue
 
             // Load product and website
             $magentoCssVariable = $this->magentoCssVariable;
-            $project_name = optional($magentoCssVariable->project)->name;
-            $filepath = $magentoCssVariable->file_path;
-            $key = $magentoCssVariable->variable;
-            $value = $magentoCssVariable->value;
+            $project_name       = optional($magentoCssVariable->project)->name;
+            $filepath           = $magentoCssVariable->file_path;
+            $key                = $magentoCssVariable->variable;
+            $value              = $magentoCssVariable->value;
 
             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -p "' . $project_name . '" -f "' . $filepath . '" -k "' . $key . '" -v "' . $value . '" 2>&1';
             \Log::info('Start Magento Css Variable Update Vaule');
@@ -56,9 +58,9 @@ class PushMagentoCssVariables implements ShouldQueue
                 // Maintain Error Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Error',
                 ]);
             }
 
@@ -71,9 +73,9 @@ class PushMagentoCssVariables implements ShouldQueue
                 // Maintain Success Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Success',
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Success',
                 ]);
             } else {
                 $message = 'Something Went Wrong! Please check Logs for more details';
@@ -83,9 +85,9 @@ class PushMagentoCssVariables implements ShouldQueue
                 // Maintain Error Log here in new table.
                 MagentoCssVariableJobLog::create([
                     'magento_css_variable_id' => $magentoCssVariable->id,
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Error',
                 ]);
             }
         } catch (\Exception $e) {

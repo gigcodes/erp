@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 class PushProductCsvImport implements ToCollection
 {
     /**
-     * @param  Collection  $collection
+     * @param Collection $collection
      */
     public function collection(Collection $rows)
     {

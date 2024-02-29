@@ -39,7 +39,7 @@ class SyncInstagramMessage extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,6 +67,8 @@ class SyncInstagramMessage extends Command
     }
 
     /**
+     * @param mixed $user
+     *
      * @return Customer|void
      */
     private function createCustomer($user)
@@ -79,12 +81,12 @@ class SyncInstagramMessage extends Command
         $customer = Customer::where('ig_username', $user['username'])->first();
 
         if (! $customer) {
-            $customer = new Customer();
+            $customer       = new Customer();
             $customer->name = $user['full_name'];
         }
 
         $customer->instahandler = $user['pk'];
-        $customer->ig_username = $user['username'];
+        $customer->ig_username  = $user['username'];
         $customer->save();
 
         return $customer;

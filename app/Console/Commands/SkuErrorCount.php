@@ -40,12 +40,12 @@ class SkuErrorCount extends Command
     public function handle()
     {
         try {
-            $errorCount = 0;
-            $logs = ScrapedProducts::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
-            $data = new HistorialData();
-            $data->object = 'sku_log';
+            $errorCount            = 0;
+            $logs                  = ScrapedProducts::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+            $data                  = new HistorialData();
+            $data->object          = 'sku_log';
             $data->measuring_point = now() . ' ' . $logs;
-            $data->value = $logs;
+            $data->value           = $logs;
             $data->save();
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

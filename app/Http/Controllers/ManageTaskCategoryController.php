@@ -46,7 +46,7 @@ class ManageTaskCategoryController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -101,7 +101,8 @@ class ManageTaskCategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -112,7 +113,8 @@ class ManageTaskCategoryController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -128,7 +130,8 @@ class ManageTaskCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -139,7 +142,8 @@ class ManageTaskCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -150,7 +154,8 @@ class ManageTaskCategoryController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -172,7 +177,7 @@ class ManageTaskCategoryController extends Controller
 
     public function mergeModule(Request $request)
     {
-        $toCategory = $request->get('to_category');
+        $toCategory   = $request->get('to_category');
         $fromCategory = $request->get('from_category');
 
         if (empty($toCategory)) {
@@ -187,7 +192,7 @@ class ManageTaskCategoryController extends Controller
             return response()->json(['code' => 500, 'error' => 'Merge category can not be same']);
         }
 
-        $taskCategory = \App\TaskCategory::where('id', $toCategory)->first();
+        $taskCategory     = \App\TaskCategory::where('id', $toCategory)->first();
         $allMergeCategory = \App\Task::whereIn('category', $fromCategory)->get();
 
         if ($taskCategory) {

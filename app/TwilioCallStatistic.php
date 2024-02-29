@@ -9,7 +9,7 @@ class TwilioCallStatistic extends Model
     protected $guarded = [];
 
     const DIRECTION = [
-        'inbound' => 1,
+        'inbound'  => 1,
         'outbound' => 2,
     ];
 }

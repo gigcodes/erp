@@ -44,22 +44,22 @@ class ErrorReport
     private $config;
 
     /**
-     * @param  HttpRequest  $httpRequest HttpRequest instance
-     * @param  Relation  $relation    Relation instance
-     * @param  Template  $template    Template instance
+     * @param HttpRequest $httpRequest HttpRequest instance
+     * @param Relation    $relation    Relation instance
+     * @param Template    $template    Template instance
      */
     public function __construct(HttpRequest $httpRequest, Relation $relation, Template $template, Config $config)
     {
         $this->httpRequest = $httpRequest;
-        $this->relation = $relation;
-        $this->template = $template;
-        $this->config = $config;
+        $this->relation    = $relation;
+        $this->template    = $template;
+        $this->config      = $config;
     }
 
     /**
      * Set the URL where to submit reports to
      *
-     * @param  string  $submissionUrl Submission URL
+     * @param string $submissionUrl Submission URL
      */
     public function setSubmissionUrl(string $submissionUrl): void
     {
@@ -70,7 +70,8 @@ class ErrorReport
      * Returns the error report data collected from the current configuration or
      * from the request parameters sent by the error reporting js code.
      *
-     * @param  string  $exceptionType whether exception is 'js' or 'php'
+     * @param string $exceptionType whether exception is 'js' or 'php'
+     *
      * @return array error report if success, Empty Array otherwise
      */
     public function getData(string $exceptionType = 'js'): array
@@ -78,15 +79,15 @@ class ErrorReport
         $relationParameters = $this->relation->getRelationParameters();
         // common params for both, php & js exceptions
         $report = [
-            'pma_version' => Version::VERSION,
-            'browser_name' => $this->config->get('PMA_USR_BROWSER_AGENT'),
-            'browser_version' => $this->config->get('PMA_USR_BROWSER_VER'),
-            'user_os' => $this->config->get('PMA_USR_OS'),
-            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? null,
-            'user_agent_string' => $_SERVER['HTTP_USER_AGENT'],
-            'locale' => $this->config->getCookie('pma_lang'),
+            'pma_version'           => Version::VERSION,
+            'browser_name'          => $this->config->get('PMA_USR_BROWSER_AGENT'),
+            'browser_version'       => $this->config->get('PMA_USR_BROWSER_VER'),
+            'user_os'               => $this->config->get('PMA_USR_OS'),
+            'server_software'       => $_SERVER['SERVER_SOFTWARE'] ?? null,
+            'user_agent_string'     => $_SERVER['HTTP_USER_AGENT'],
+            'locale'                => $this->config->getCookie('pma_lang'),
             'configuration_storage' => $relationParameters->db === null ? 'disabled' : 'enabled',
-            'php_version' => PHP_VERSION,
+            'php_version'           => PHP_VERSION,
         ];
 
         if ($exceptionType === 'js') {
@@ -101,13 +102,13 @@ class ErrorReport
             }
 
             if (isset($exception['url'])) {
-                [$uri, $scriptName] = $this->sanitizeUrl($exception['url']);
-                $exception['uri'] = $uri;
+                [$uri, $scriptName]    = $this->sanitizeUrl($exception['url']);
+                $exception['uri']      = $uri;
                 $report['script_name'] = $scriptName;
                 unset($exception['url']);
             } elseif (isset($_POST['url'])) {
-                [$uri, $scriptName] = $this->sanitizeUrl($_POST['url']);
-                $exception['uri'] = $uri;
+                [$uri, $scriptName]    = $this->sanitizeUrl($_POST['url']);
+                $exception['uri']      = $uri;
                 $report['script_name'] = $scriptName;
                 unset($_POST['url']);
             } else {
@@ -115,7 +116,7 @@ class ErrorReport
             }
 
             $report['exception_type'] = 'js';
-            $report['exception'] = $exception;
+            $report['exception']      = $exception;
 
             if (! empty($_POST['description'])) {
                 $report['steps'] = $_POST['description'];
@@ -135,12 +136,12 @@ class ErrorReport
                 }
 
                 $errors[$i++] = [
-                    'lineNum' => $errorObj->getLine(),
-                    'file' => $errorObj->getFile(),
-                    'type' => $errorObj->getType(),
-                    'msg' => $errorObj->getOnlyMessage(),
+                    'lineNum'    => $errorObj->getLine(),
+                    'file'       => $errorObj->getFile(),
+                    'type'       => $errorObj->getType(),
+                    'msg'        => $errorObj->getOnlyMessage(),
                     'stackTrace' => $errorObj->getBacktrace(5),
-                    'stackhash' => $errorObj->getHash(),
+                    'stackhash'  => $errorObj->getHash(),
                 ];
             }
 
@@ -150,7 +151,7 @@ class ErrorReport
             }
 
             $report['exception_type'] = 'php';
-            $report['errors'] = $errors;
+            $report['errors']         = $errors;
         } else {
             return [];
         }
@@ -166,7 +167,8 @@ class ErrorReport
      * hostname and identifying query params. The second is the name of the
      * php script in the url
      *
-     * @param  string  $url the url to sanitize
+     * @param string $url the url to sanitize
+     *
      * @return array the uri and script name
      */
     private function sanitizeUrl(string $url): array
@@ -178,8 +180,8 @@ class ErrorReport
         }
 
         if (isset($components['fragment']) && preg_match('<PMAURL-\d+:>', $components['fragment'], $matches)) {
-            $uri = str_replace($matches[0], '', $components['fragment']);
-            $url = 'https://example.com/' . $uri;
+            $uri        = str_replace($matches[0], '', $components['fragment']);
+            $url        = 'https://example.com/' . $uri;
             $components = parse_url($url);
 
             if (! is_array($components)) {
@@ -216,7 +218,8 @@ class ErrorReport
     /**
      * Sends report data to the error reporting server
      *
-     * @param  array  $report the report info to be sent
+     * @param array $report the report info to be sent
+     *
      * @return string|bool|null the reply of the server
      */
     public function send(array $report)
@@ -234,7 +237,8 @@ class ErrorReport
      * Translates the cumulative line numbers in the stack trace as well as sanitize
      * urls and trim long lines in the context
      *
-     * @param  array  $stack the stack trace
+     * @param array $stack the stack trace
+     *
      * @return array the modified stack trace
      */
     private function translateStacktrace(array $stack): array
@@ -248,8 +252,8 @@ class ErrorReport
                 $line = mb_substr($line, 0, 75) . '//...';
             }
 
-            [$uri, $scriptName] = $this->sanitizeUrl($level['url']);
-            $level['uri'] = $uri;
+            [$uri, $scriptName]  = $this->sanitizeUrl($level['url']);
+            $level['uri']        = $uri;
             $level['scriptname'] = $scriptName;
             unset($level['url']);
         }
@@ -270,9 +274,9 @@ class ErrorReport
         $reportData = $this->getData();
 
         $datas = [
-            'report_data' => $reportData,
-            'hidden_inputs' => Url::getHiddenInputs(),
-            'hidden_fields' => null,
+            'report_data'                   => $reportData,
+            'hidden_inputs'                 => Url::getHiddenInputs(),
+            'hidden_fields'                 => null,
             'allowed_to_send_error_reports' => $this->config->get('SendErrorReports') !== 'never',
         ];
 

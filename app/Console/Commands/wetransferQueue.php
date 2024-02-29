@@ -49,7 +49,7 @@ class wetransferQueue extends Command
                     $extension = last(explode('.', $file));
                     if ($extension == 'zip') {
                         $filename_list = [];
-                        $zip = new \ZipArchive;
+                        $zip           = new \ZipArchive;
 
                         if ($zip->open(public_path('wetransfer/' . $file)) === true) {
                             for ($i = 0; $i < $zip->count(); $i++) {
@@ -59,8 +59,8 @@ class wetransferQueue extends Command
                         }
 
                         $update = [
-                            'files_count' => $zip->count(),
-                            'files_list' => json_encode($filename_list),
+                            'files_count'  => $zip->count(),
+                            'files_list'   => json_encode($filename_list),
                             'is_processed' => 2,
                         ];
 
@@ -68,8 +68,8 @@ class wetransferQueue extends Command
                         Wetransfer::where('id', $list['id'])->update($update);
                     } else {
                         $update = [
-                            'files_count' => 1,
-                            'files_list' => json_encode([$file]),
+                            'files_count'  => 1,
+                            'files_list'   => json_encode([$file]),
                             'is_processed' => 2,
                         ];
                         Wetransfer::where('id', $list['id'])->update($update);
@@ -84,12 +84,14 @@ class wetransferQueue extends Command
     /**
      * Download Wefransfer Files
      *
+     * @param null|mixed $url
+     *
      * @return mixed
      */
     private function downloadWetransferFiles($url = null)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime          = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             if (strpos($url, 'https://we.tl/') !== false) {
                 $ch = curl_init($url);
@@ -119,25 +121,25 @@ class wetransferQueue extends Command
 
             if (count($dataArray) == 2) {
                 $securityhash = $dataArray[1];
-                $transferId = $dataArray[0];
+                $transferId   = $dataArray[0];
             } elseif (count($dataArray) == 3) {
                 $securityhash = $dataArray[2];
-                $recieptId = $dataArray[1];
-                $transferId = $dataArray[0];
+                $recieptId    = $dataArray[1];
+                $transferId   = $dataArray[0];
             } else {
                 exit('Something is wrong with url');
             }
 
             //making post request to get the url
-            $data = [];
-            $data['intent'] = 'entire_transfer';
+            $data                  = [];
+            $data['intent']        = 'entire_transfer';
             $data['security_hash'] = $securityhash;
 
             $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
             $cookie = 'cookie.txt';
-            $url = 'https://wetransfer.com/';
-            $ch = curl_init();
+            $url    = 'https://wetransfer.com/';
+            $ch     = curl_init();
 
             curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -171,7 +173,7 @@ class wetransferQueue extends Command
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-            $real = curl_exec($ch);
+            $real     = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\wetransferQueue::class, 'handle');
 

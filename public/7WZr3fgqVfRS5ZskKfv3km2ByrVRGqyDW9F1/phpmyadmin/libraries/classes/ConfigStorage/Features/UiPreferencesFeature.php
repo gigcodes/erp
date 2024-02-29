@@ -20,7 +20,7 @@ final class UiPreferencesFeature
 
     public function __construct(DatabaseName $database, TableName $tableUiPrefs)
     {
-        $this->database = $database;
+        $this->database     = $database;
         $this->tableUiPrefs = $tableUiPrefs;
     }
 }

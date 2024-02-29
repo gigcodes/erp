@@ -21,12 +21,12 @@ class Zabbix
      */
     public function getLoginApi()
     {
-        $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
+        $url  = env('ZABBIX_HOST') . '/api_jsonrpc.php';
         $curl = curl_init($url);
         $data = [
             'jsonrpc' => '2.0',
-            'method' => 'user.login',
-            'params' => [
+            'method'  => 'user.login',
+            'params'  => [
                 'username' => env('ZABBIX_USERNAME'),
                 'password' => env('ZABBIX_PASSWORD'),
             ],
@@ -72,12 +72,12 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.get',
-                'params' => [
+                'method'  => 'user.get',
+                'params'  => [
 
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -87,6 +87,8 @@ class Zabbix
     }
 
     /**
+     * @param mixed $id
+     *
      * @return mixed|null
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -96,12 +98,12 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.get',
-                'params' => [
+                'method'  => 'user.get',
+                'params'  => [
                     'userids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -115,12 +117,12 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'role.get',
-                'params' => [
+                'method'  => 'role.get',
+                'params'  => [
                     'roleids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -134,6 +136,8 @@ class Zabbix
     }
 
     /**
+     * @param mixed $id
+     *
      * @return mixed|null
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -143,12 +147,12 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.get',
-                'params' => [
+                'method'  => 'item.get',
+                'params'  => [
                     'itemids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -162,13 +166,13 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'hostinterface.get',
-                'params' => [
-                    'output' => 'extend',
+                'method'  => 'hostinterface.get',
+                'params'  => [
+                    'output'  => 'extend',
                     'hostids' => $id,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -188,10 +192,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.create',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'user.create',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -212,10 +216,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.delete',
-                'params' => [$id],
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'user.delete',
+                'params'  => [$id],
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -233,10 +237,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'host.delete',
-                'params' => [$id],
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'host.delete',
+                'params'  => [$id],
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -254,10 +258,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => "role.$action",
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => "role.$action",
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -275,10 +279,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => "host.$action",
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => "host.$action",
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -296,10 +300,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.delete',
-                'params' => [$id],
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'item.delete',
+                'params'  => [$id],
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -317,10 +321,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'trigger.update',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'trigger.update',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -344,10 +348,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.update',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'user.update',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -365,10 +369,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'trigger.create',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'trigger.create',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -386,10 +390,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.create',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'item.create',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -407,10 +411,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.update',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'item.update',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -428,10 +432,10 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'trigger.update',
-                'params' => $params,
-                'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'method'  => 'trigger.update',
+                'params'  => $params,
+                'auth'    => $this->getLoginApi(),
+                'id'      => self::ZABBIX_ID,
             ],
         ]);
 
@@ -454,15 +458,15 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.get',
-                'params' => [
-                    'limit' => 50,
+                'method'  => 'item.get',
+                'params'  => [
+                    'limit'     => 50,
                     'sortfield' => 'itemid',
                     'sortorder' => 'DESC',
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -481,14 +485,14 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'item.get',
-                'params' => [
-                    'limit' => 1000,
+                'method'  => 'item.get',
+                'params'  => [
+                    'limit'   => 1000,
                     'hostids' => $hostId,
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -502,11 +506,11 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'role.get',
-                'params' => [
+                'method'  => 'role.get',
+                'params'  => [
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -520,11 +524,11 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'trigger.get',
-                'params' => [
+                'method'  => 'trigger.get',
+                'params'  => [
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -538,12 +542,12 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'template.get',
-                'params' => [
+                'method'  => 'template.get',
+                'params'  => [
                     'limit' => 20000,
                 ],
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 
@@ -561,13 +565,13 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'trigger.get',
-                'params' => [
+                'method'  => 'trigger.get',
+                'params'  => [
                     'triggerids' => $id,
                 ],
 
                 'auth' => $this->getLoginApi(),
-                'id' => self::ZABBIX_ID,
+                'id'   => self::ZABBIX_ID,
             ],
         ]);
 

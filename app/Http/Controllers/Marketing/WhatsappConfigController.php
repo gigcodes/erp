@@ -80,8 +80,8 @@ class WhatsappConfigController extends Controller
         }
 
         return view('marketing.whatsapp-configs.index', [
-            'whatsAppConfigs' => $whatsAppConfigs,
-            'storeData' => $storeData,
+            'whatsAppConfigs'  => $whatsAppConfigs,
+            'storeData'        => $storeData,
             'businessAccounts' => $businessAccounts,
         ]);
     }
@@ -105,20 +105,20 @@ class WhatsappConfigController extends Controller
     {
         //dd($request);
         $this->validate($request, [
-            'number' => 'required|max:13|unique:whatsapp_configs,number',
-            'provider' => 'required',
+            'number'           => 'required|max:13|unique:whatsapp_configs,number',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
         $requestData = $request->all();
-        $defaultFor = implode(',', isset($requestData['default_for']) ? $requestData['default_for'] : []);
+        $defaultFor  = implode(',', isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
-        $data = $request->except('_token', 'default_for');
+        $data                        = $request->except('_token', 'default_for');
         $data['is_customer_support'] = $request->customer_support;
-        $data['default_for'] = $defaultFor;
+        $data['default_for']         = $defaultFor;
         WhatsappConfig::create($data);
 
         \Artisan::call('config:clear');
@@ -129,7 +129,8 @@ class WhatsappConfigController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\WhatsappConfig  $whatsAppConfig
+     * @param \App\WhatsappConfig $whatsAppConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(WhatsappConfig $whatsAppConfig)
@@ -140,19 +141,20 @@ class WhatsappConfigController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\WhatsappConfig  $whatsAppConfig
+     * @param \App\WhatsappConfig $whatsAppConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         $this->validate($request, [
-            'number' => 'required|max:13',
-            'provider' => 'required',
+            'number'           => 'required|max:13',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
 
@@ -160,9 +162,9 @@ class WhatsappConfigController extends Controller
 
         $defaultFor = implode(',', isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
-        $data = $request->except('_token', 'id', 'default_for');
+        $data                        = $request->except('_token', 'id', 'default_for');
         $data['is_customer_support'] = $request->customer_support;
-        $data['default_for'] = $defaultFor;
+        $data['default_for']         = $defaultFor;
 
         $config->update($data);
 
@@ -174,7 +176,8 @@ class WhatsappConfigController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\WhatsappConfig  $whatsAppConfig
+     * @param \App\WhatsappConfig $whatsAppConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, WhatsappConfig $whatsAppConfig)
@@ -185,7 +188,8 @@ class WhatsappConfigController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\WhatsappConfig  $whatsAppConfig
+     * @param \App\WhatsappConfig $whatsAppConfig
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -204,14 +208,16 @@ class WhatsappConfigController extends Controller
     /**
      * Show history page
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function history($id, Request $request)
     {
-        $term = $request->term;
-        $date = $request->date;
-        $config = WhatsappConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = WhatsappConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
 
         if ($config->provider === 'py-whatsapp') {
@@ -235,14 +241,16 @@ class WhatsappConfigController extends Controller
     /**
      * Show queue page
      *
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function queue($id, Request $request)
     {
-        $term = $request->term;
-        $date = $request->date;
-        $config = WhatsappConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = WhatsappConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
         if ($config->provider === 'py-whatsapp') {
             $data = ImQueue::whereNull('sent_at')->with('marketingMessageTypes')->where('number_from', $config->number)->orderBy('created_at', 'desc');
@@ -265,12 +273,14 @@ class WhatsappConfigController extends Controller
     /**
      * Delete all queues from Chat-Api
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|void
      */
     public function clearMessagesQueue($id)
     {
         $config = WhatsappConfig::find($id);
-        $data = ChatApi::deleteQueues($config->number);
+        $data   = ChatApi::deleteQueues($config->number);
 
         return redirect('/marketing/whatsapp-config');
     }
@@ -311,8 +321,8 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch             = curl_init();
 
         $url = 'http://136.244.118.102:81/get-barcode';
 
@@ -356,7 +366,7 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
 
         if ($whatsappConfig) {
             $ch = curl_init();
@@ -372,7 +382,7 @@ class WhatsappConfigController extends Controller
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             // $output contains the output string
-            $output = curl_exec($ch);
+            $output   = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
             // close curl resource to free up system resources
@@ -400,8 +410,8 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch             = curl_init();
 
         $url = env('WHATSAPP_BARCODE_IP') . ':' . $whatsappConfig->username . '/delete-chrome-data';
 
@@ -412,7 +422,7 @@ class WhatsappConfigController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         // close curl resource to free up system resources
@@ -438,7 +448,7 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
 
         $ch = curl_init();
 
@@ -455,7 +465,7 @@ class WhatsappConfigController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         // close curl resource to free up system resources
@@ -485,7 +495,7 @@ class WhatsappConfigController extends Controller
 
             //Making DND for last 30 numbers
             $maxCount = 30;
-            $count = 0;
+            $count    = 0;
             //Making 30 customer numbers to DND
             foreach ($queues as $queue) {
                 $customer = Customer::where('phone', $queue->number_to)->first();
@@ -494,7 +504,7 @@ class WhatsappConfigController extends Controller
                 }
                 if (! empty($customer)) {
                     $customer->do_not_disturb = 1;
-                    $customer->phone = '-' . $customer->phone;
+                    $customer->phone          = '-' . $customer->phone;
                     $customer->update();
                     $count++;
                 }
@@ -508,25 +518,25 @@ class WhatsappConfigController extends Controller
     {
         //get all providers
         $allWhatsappInstances = WhatsappConfig::select()->where(['provider' => 'Chat-API'])->get();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime            = date('Y-m-d H:i:s', LARAVEL_START);
         try {
             foreach ($allWhatsappInstances as $instanceDetails) {
                 $instanceId = $instanceDetails->instance_id;
-                $token = $instanceDetails->token;
-                $sentTo = 6;
+                $token      = $instanceDetails->token;
+                $sentTo     = 6;
                 if ($instanceId) {
                     $curl = curl_init();
-                    $url = "https://api.chat-api.com/instance$instanceId/status?token";
+                    $url  = "https://api.chat-api.com/instance$instanceId/status?token";
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 300,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
-                        CURLOPT_HTTPHEADER => [
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 300,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
+                        CURLOPT_HTTPHEADER     => [
                             'content-type: application/json',
                         ],
                     ]);
@@ -538,13 +548,13 @@ class WhatsappConfigController extends Controller
                         $resInArr = json_decode($response, true);
                         if (isset($resInArr) && isset($resInArr['accountStatus']) && $resInArr['accountStatus'] != 'authenticated') {
                             Notification::create([
-                                'role' => 'Whatsapp Config Proivders Authentication',
-                                'message' => 'Current Status : ' . $resInArr['accountStatus'],
+                                'role'       => 'Whatsapp Config Proivders Authentication',
+                                'message'    => 'Current Status : ' . $resInArr['accountStatus'],
                                 'product_id' => '',
-                                'user_id' => $instanceDetails->id,
-                                'sale_id' => '',
-                                'task_id' => '',
-                                'sent_to' => $sentTo,
+                                'user_id'    => $instanceDetails->id,
+                                'sale_id'    => '',
+                                'task_id'    => '',
+                                'sent_to'    => $sentTo,
                             ]);
                         }
                     }
@@ -561,17 +571,17 @@ class WhatsappConfigController extends Controller
 
     public function logoutScript(Request $request)
     {
-        $id = $request->id;
+        $id             = $request->id;
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch             = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:83/logout?instanceId=' . $whatsappConfig->instance_id;
             curl_setopt($ch, CURLOPT_URL, $url);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             // $output contains the output string
-            $output = curl_exec($ch);
+            $output   = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             // close curl resource to free up system resources
             curl_close($ch);
@@ -591,17 +601,17 @@ class WhatsappConfigController extends Controller
 
     public function getStatusInfo(Request $request)
     {
-        $id = $request->id;
+        $id             = $request->id;
         $whatsappConfig = WhatsappConfig::find($id);
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
+        $startTime      = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch             = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
             $url = 'http://167.86.89.241:81/get-status?instanceId=' . $whatsappConfig->instance_id;
             curl_setopt($ch, CURLOPT_URL, $url);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             // $output contains the output string
-            $output = curl_exec($ch);
+            $output   = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             // close curl resource to free up system resources
             curl_close($ch);

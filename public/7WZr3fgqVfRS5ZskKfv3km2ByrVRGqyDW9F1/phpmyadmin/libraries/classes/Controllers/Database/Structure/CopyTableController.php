@@ -29,7 +29,7 @@ final class CopyTableController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->operations = $operations;
+        $this->operations          = $operations;
         $this->structureController = $structureController;
     }
 
@@ -37,8 +37,8 @@ final class CopyTableController extends AbstractController
     {
         global $db, $message;
 
-        $selected = $_POST['selected'] ?? [];
-        $targetDb = $_POST['target_db'] ?? null;
+        $selected      = $_POST['selected'] ?? [];
+        $targetDb      = $_POST['target_db'] ?? null;
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {

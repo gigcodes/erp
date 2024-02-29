@@ -15,8 +15,8 @@ class ChatMessage extends Model
     // this is guessing status since it is not declared anywhere so
     const MESSAGE_STATUS = [
         '11' => 'Watson Reply',
-        '5' => 'Read',
-        '0' => 'Unread',
+        '5'  => 'Read',
+        '0'  => 'Unread',
         '12' => 'Suggested Images',
     ];
 
@@ -98,9 +98,11 @@ class ChatMessage extends Model
     /**
      * Send WhatsApp message via Chat-Api
      *
-     * @param  null  $whatsAppNumber
-     * @param  null  $message
-     * @param  null  $file
+     * @param null  $whatsAppNumber
+     * @param null  $message
+     * @param null  $file
+     * @param mixed $number
+     *
      * @return bool|mixed
      */
     public static function sendWithChatApi($number, $whatsAppNumber = null, $message = null, $file = null)
@@ -111,10 +113,10 @@ class ChatMessage extends Model
         // Set instanceId and token
         if (isset($config[$whatsAppNumber])) {
             $instanceId = $config[$whatsAppNumber]['instance_id'];
-            $token = $config[$whatsAppNumber]['token'];
+            $token      = $config[$whatsAppNumber]['token'];
         } else {
             $instanceId = $config[0]['instance_id'];
-            $token = $config[0]['token'];
+            $token      = $config[0]['token'];
         }
 
         // Add plus to number and add to array
@@ -124,14 +126,14 @@ class ChatMessage extends Model
 
         if ($message != null && $file == null) {
             $chatApiArray['body'] = $message;
-            $link = 'sendMessage';
+            $link                 = 'sendMessage';
         } else {
-            $exploded = explode('/', $file);
-            $filename = end($exploded);
-            $chatApiArray['body'] = $file;
+            $exploded                 = explode('/', $file);
+            $filename                 = end($exploded);
+            $chatApiArray['body']     = $file;
             $chatApiArray['filename'] = $filename;
-            $link = 'sendFile';
-            $chatApiArray['caption'] = $message;
+            $link                     = 'sendFile';
+            $chatApiArray['caption']  = $message;
         }
 
         $url = "https://api.chat-api.com/instance$instanceId/$link?token=" . $token;
@@ -171,6 +173,8 @@ class ChatMessage extends Model
 
     /**
      * Handle Chat-Api ACK-message
+     *
+     * @param mixed $json
      */
     public static function handleChatApiAck($json)
     {
@@ -191,7 +195,7 @@ class ChatMessage extends Model
                     // Set views
                     if ($chatApiAck['status'] == 'viewed') {
                         $chatMessage->is_delivered = 1;
-                        $chatMessage->is_read = 1;
+                        $chatMessage->is_read      = 1;
                         $chatMessage->save();
                     }
                 }
@@ -359,6 +363,10 @@ class ChatMessage extends Model
      *  Get information by ids
      *
      * @param []
+     * @param mixed $ids
+     * @param mixed $fields
+     * @param mixed $toArray
+     *
      * @return mixed
      */
     public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)
@@ -376,6 +384,9 @@ class ChatMessage extends Model
      *  Get information by ids
      *
      * @param []
+     * @param mixed $ids
+     * @param mixed $toArray
+     *
      * @return mixed
      */
     public static function getGroupImagesByIds($ids, $toArray = false)
@@ -398,6 +409,12 @@ class ChatMessage extends Model
      *  Get information by ids
      *
      * @param []
+     * @param mixed $field
+     * @param mixed $ids
+     * @param mixed $fields
+     * @param mixed $params
+     * @param mixed $toArray
+     *
      * @return mixed
      */
     public static function getInfoByObjectIds($field, $ids, $fields = ['*'], $params = [], $toArray = false)
@@ -433,6 +450,9 @@ class ChatMessage extends Model
      * Check send lead price
      * $customer object
      * customer
+     *
+     * @param mixed $customer
+     * @param mixed $log_comment
      **/
     public function sendLeadPrice($customer, $log_comment = '')
     {
@@ -440,7 +460,7 @@ class ChatMessage extends Model
         if ($media) {
             \Log::channel('customer')->info('Media image found for customer id : ' . $customer->id);
             $log_comment = $log_comment . ' Media image found for customer with ID : ' . $customer->id;
-            $mediable = \DB::table('mediables')->where('media_id', $media->id)
+            $mediable    = \DB::table('mediables')->where('media_id', $media->id)
                 ->where('mediable_type', \App\Product::class)
                 ->first();
             if (! empty($mediable)) {
@@ -464,6 +484,8 @@ class ChatMessage extends Model
      * Check send lead dimention
      * $customer object
      * customer
+     *
+     * @param mixed $customer
      **/
     public function sendLeadDimention($customer)
     {

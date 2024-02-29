@@ -32,7 +32,7 @@ class UpdateDoubleProducts extends Command
     /**
      * Create a new command instance.
      *
-     * @param  GebnegozionlineProductDetailsScraper  $scraper
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct()
     {
@@ -48,7 +48,7 @@ class UpdateDoubleProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,13 +56,13 @@ class UpdateDoubleProducts extends Command
 
             foreach ($products as $product) {
                 if ($old_product = Product::where('sku', $product->sku)->first()) {
-                    $old_product->sku = str_replace(' ', '', $product->sku);
-                    $old_product->brand = $product->brand_id;
-                    $old_product->supplier = 'Double F';
-                    $old_product->name = $product->title;
+                    $old_product->sku               = str_replace(' ', '', $product->sku);
+                    $old_product->brand             = $product->brand_id;
+                    $old_product->supplier          = 'Double F';
+                    $old_product->name              = $product->title;
                     $old_product->short_description = $product->description;
-                    $old_product->supplier_link = $product->url;
-                    $old_product->stage = 3;
+                    $old_product->supplier_link     = $product->url;
+                    $old_product->stage             = 3;
 
                     $properties_array = $product->properties ?? [];
 
@@ -79,7 +79,7 @@ class UpdateDoubleProducts extends Command
                     }
 
                     if (array_key_exists('category', $properties_array)) {
-                        $categories = Category::all();
+                        $categories  = Category::all();
                         $category_id = 1;
 
                         foreach ($properties_array['category'] as $cat) {
@@ -121,7 +121,7 @@ class UpdateDoubleProducts extends Command
                         $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
                     }
 
-                    $old_product->price_inr = round($old_product->price_inr, -3);
+                    $old_product->price_inr         = round($old_product->price_inr, -3);
                     $old_product->price_inr_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
 
                     $old_product->price_inr_special = round($old_product->price_inr_special, -3);

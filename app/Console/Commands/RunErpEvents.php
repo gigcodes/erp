@@ -42,29 +42,29 @@ class RunErpEvents extends Command
         try {
             // disable all events which is past if still active
             $startDate = date('Y-m-d H:i:s');
-            $endDate = date('Y-m-d H:i:s', strtotime($startDate . '+5 minutes'));
+            $endDate   = date('Y-m-d H:i:s', strtotime($startDate . '+5 minutes'));
 
             $events = \App\ErpEvents::where('next_run_date', '>=', $startDate)->where('next_run_date', '<=', $endDate)->get();
 
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {
-                    $brandIds = explode(',', $event->brand_id);
+                    $brandIds    = explode(',', $event->brand_id);
                     $categoryIds = explode(',', $event->category_id);
 
                     if (! empty($brandIds) || ! empty($categoryIds)) {
-                        $leads = new \App\ErpLeads;
+                        $leads    = new \App\ErpLeads;
                         $products = \App\Product::where(function ($q) {
                             $q->where('stock', '>', 0)->orWhere('supplier', 'in-stock');
                         });
 
                         // check all realted brands
                         if (! empty($brandIds)) {
-                            $leads = $leads->whereIn('brand_id', $brandIds);
+                            $leads    = $leads->whereIn('brand_id', $brandIds);
                             $products = $products->whereIn('brand', $brandIds);
                         }
                         // check all related categories
                         if (! empty($categoryIds)) {
-                            $leads = $leads->whereIn('category_id', $categoryIds);
+                            $leads    = $leads->whereIn('category_id', $categoryIds);
                             $products = $products->join('categories as c', 'c.title', 'products.category')->whereIn('c.id', $categoryIds);
                         }
 

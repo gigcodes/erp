@@ -7,12 +7,14 @@ namespace App\plesk;
 class PleskServer extends \PleskX\Api\Operator\Server
 {
     /**
+     * @param mixed $name
+     *
      * @return array
      */
     public function getDomain($name)
     {
         $packet = $this->_client->getPacket();
-        $site = $packet->addChild('site')->addChild('get');
+        $site   = $packet->addChild('site')->addChild('get');
         $site->addChild('filter')->addChild('name', $name);
         $site->addChild('dataset')->addChild('hosting');
         $response = $this->_client->request($packet);
@@ -23,7 +25,7 @@ class PleskServer extends \PleskX\Api\Operator\Server
     public function getDomainById($id)
     {
         $packet = $this->_client->getPacket();
-        $site = $packet->addChild('site')->addChild('get');
+        $site   = $packet->addChild('site')->addChild('get');
         $site->addChild('filter')->addChild('site-id', $id);
         $site->addChild('dataset')->addChild('hosting');
         $response = $this->_client->request($packet);

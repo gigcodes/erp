@@ -18,7 +18,7 @@ class DailyActivityController extends Controller
                 DailyActivity::updateOrCreate(['id' => $item['id']], $item);
             } else {
                 $item['for_date'] = date('Y-m-d');
-                $item['user_id'] = \Auth::id();
+                $item['user_id']  = \Auth::id();
                 DailyActivity::create($item);
             }
         }
@@ -41,17 +41,17 @@ class DailyActivityController extends Controller
 
         // Save the data in user event
         $schedultDate = Carbon::parse($request->for_date);
-        $timeSlotArr = explode('-', $request->time_slot);
-        $c_start_at = Carbon::parse("$request->for_date " . $timeSlotArr[0]);
-        $c_end_at = Carbon::parse("$request->for_date " . $timeSlotArr[1]);
+        $timeSlotArr  = explode('-', $request->time_slot);
+        $c_start_at   = Carbon::parse("$request->for_date " . $timeSlotArr[0]);
+        $c_end_at     = Carbon::parse("$request->for_date " . $timeSlotArr[1]);
 
-        $userEvent = new UserEvent();
-        $userEvent->user_id = $request->user_id;
+        $userEvent              = new UserEvent();
+        $userEvent->user_id     = $request->user_id;
         $userEvent->description = trim($timeSlotArr[0]) . '-' . trim($timeSlotArr[1]) . ', ' . $schedultDate->format('l') . ', ' . $schedultDate->toDateString();
-        $userEvent->subject = $request->activity;
-        $userEvent->date = $schedultDate;
-        $userEvent->start = $c_start_at->toDateTime();
-        $userEvent->end = $c_end_at->toDateTime();
+        $userEvent->subject     = $request->activity;
+        $userEvent->date        = $schedultDate;
+        $userEvent->start       = $c_start_at->toDateTime();
+        $userEvent->end         = $c_end_at->toDateTime();
         $userEvent->save();
 
         $activity = DailyActivity::create($data);
@@ -63,7 +63,7 @@ class DailyActivityController extends Controller
 
     public function complete(Request $request, $id)
     {
-        $activity = DailyActivity::find($id);
+        $activity               = DailyActivity::find($id);
         $activity->is_completed = Carbon::now();
         $activity->save();
 
@@ -72,7 +72,7 @@ class DailyActivityController extends Controller
 
     public function start(Request $request, $id)
     {
-        $activity = DailyActivity::find($id);
+        $activity                    = DailyActivity::find($id);
         $activity->actual_start_date = Carbon::now();
         $activity->save();
 
@@ -82,7 +82,7 @@ class DailyActivityController extends Controller
     public function get(Request $request)
     {
         $selected_user = $request->input('selected_user');
-        $user_id = $selected_user ?? \Auth::id();
+        $user_id       = $selected_user ?? \Auth::id();
 
         $activities = DailyActivity::where('user_id', $user_id)
             ->where('for_date', $request->daily_activity_date)->get()->toArray();

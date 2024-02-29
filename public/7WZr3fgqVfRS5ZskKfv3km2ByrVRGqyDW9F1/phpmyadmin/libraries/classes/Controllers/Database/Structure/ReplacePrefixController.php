@@ -31,7 +31,7 @@ final class ReplacePrefixController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db);
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
         $this->structureController = $structureController;
     }
 
@@ -39,15 +39,15 @@ final class ReplacePrefixController extends AbstractController
     {
         global $db, $message, $sql_query;
 
-        $selected = $_POST['selected'] ?? [];
+        $selected   = $_POST['selected'] ?? [];
         $fromPrefix = $_POST['from_prefix'] ?? '';
-        $toPrefix = $_POST['to_prefix'] ?? '';
+        $toPrefix   = $_POST['to_prefix'] ?? '';
 
-        $sql_query = '';
+        $sql_query     = '';
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {
-            $current = $selected[$i];
+            $current       = $selected[$i];
             $subFromPrefix = mb_substr($current, 0, mb_strlen((string) $fromPrefix));
 
             if ($subFromPrefix === $fromPrefix) {

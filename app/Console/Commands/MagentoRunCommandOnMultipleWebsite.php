@@ -48,9 +48,9 @@ class MagentoRunCommandOnMultipleWebsite extends Command
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info('Start Rum Magento Command On Multiple Website');
         try {
-            $command_id = $this->argument('id');
+            $command_id   = $this->argument('id');
             $websites_ids = $this->argument('websites_ids');
-            $magCom = MagentoCommand::find($command_id);
+            $magCom       = MagentoCommand::find($command_id);
             Log::info('Magento Command ID: ' . $command_id);
             Log::info('Magento Command Type: ' . $magCom->command_type);
             Log::info('Magento Command Name: ' . $magCom->command_name);
@@ -61,21 +61,21 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                     $cmd = $magCom->command_type;
                     if ($magCom->website_ids == 'ERP' && $magCom->assets_manager_id) {
                         $assets_manager_id = $magCom->assets_manager_id;
-                        $assetsmanager = AssetsManager::where('id', $assets_manager_id)->first();
+                        $assetsmanager     = AssetsManager::where('id', $assets_manager_id)->first();
                     } else {
                         $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
                     }
 
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         Log::info('client_id: ' . $assetsmanager->client_id);
-                        $client_id = $assetsmanager->client_id;
-                        $url = getenv('MAGENTO_COMMAND_API_URL');
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $client_id     = $assetsmanager->client_id;
+                        $url           = getenv('MAGENTO_COMMAND_API_URL');
+                        $key           = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $requestParams = [
                             'command' => $magCom->command_type,
-                            'dir' => $magCom->working_directory,
+                            'dir'     => $magCom->working_directory,
                             'is_sudo' => true,
-                            'server' => $magCom->server_ip,
+                            'server'  => $magCom->server_ip,
                         ];
 
                         $ch = curl_init();
@@ -85,7 +85,7 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -96,13 +96,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             Log::info('API Error: ' . curl_error($ch));
                             MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => 'ERP',
+                                    'command_id'   => $magCom->id,
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => 'ERP',
                                     'command_name' => $magCom->command_type,
-                                    'server_ip' => '',
+                                    'server_ip'    => '',
                                     'command_type' => $magCom->command_type,
-                                    'response' => curl_error($ch),
+                                    'response'     => curl_error($ch),
                                 ]
                             );
                         }
@@ -118,13 +118,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 Log::info('API Response Error: ' . $message);
                                 MagentoCommandRunLog::create(
                                     [
-                                        'command_id' => $magCom->id,
-                                        'user_id' => \Auth::user()->id ?? '',
-                                        'website_ids' => 'ERP',
+                                        'command_id'   => $magCom->id,
+                                        'user_id'      => \Auth::user()->id ?? '',
+                                        'website_ids'  => 'ERP',
                                         'command_name' => $magCom->command_type,
-                                        'server_ip' => '',
+                                        'server_ip'    => '',
                                         'command_type' => $magCom->command_type,
-                                        'response' => $message,
+                                        'response'     => $message,
                                     ]
                                 );
                             }
@@ -138,13 +138,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                     } else {
                         MagentoCommandRunLog::create(
                             [
-                                'command_id' => $magCom->id,
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => 'ERP',
+                                'command_id'   => $magCom->id,
+                                'user_id'      => \Auth::user()->id ?? '',
+                                'website_ids'  => 'ERP',
                                 'command_name' => $magCom->command_name,
-                                'server_ip' => '',
+                                'server_ip'    => '',
                                 'command_type' => $magCom->command_type,
-                                'response' => 'Assets Manager & Client id not found for ERP!',
+                                'response'     => 'Assets Manager & Client id not found for ERP!',
                             ]
                         );
                         Log::info('Assets Manager & Client id not found for ERP!');
@@ -160,10 +160,10 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             $result = $e->getMessage();
                         }
                     } else {
-                        $cmd = 'cd ' . base_path() . ' ' . $cmd;
-                        $allOutput = [];
+                        $cmd         = 'cd ' . base_path() . ' ' . $cmd;
+                        $allOutput   = [];
                         $allOutput[] = $cmd;
-                        $result = exec($cmd, $allOutput, $statusCode);
+                        $result      = exec($cmd, $allOutput, $statusCode);
                         if ($statusCode == '') {
                             $result = 'Not any response';
                         } elseif ($statusCode == 0) {
@@ -176,14 +176,14 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                     }
                     MagentoCommandRunLog::create(
                         [
-                            'command_id' => $magCom->id,
-                            'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => 'ERP',
+                            'command_id'   => $magCom->id,
+                            'user_id'      => \Auth::user()->id ?? '',
+                            'website_ids'  => 'ERP',
                             'command_name' => $cmd,
-                            'server_ip' => '',
+                            'server_ip'    => '',
                             'command_type' => $magCom->command_type,
-                            'response' => $result,
-                            'job_id' => $job_id,
+                            'response'     => $result,
+                            'job_id'       => $job_id,
                         ]
                     );
                     Log::info('End Rum Magento Command for website_id: ERP');
@@ -192,13 +192,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                     if ($websites->isEmpty()) {
                         MagentoCommandRunLog::create(
                             [
-                                'command_id' => $magCom->id,
-                                'user_id' => \Auth::user()->id ?? '',
-                                'website_ids' => $websites_id,
+                                'command_id'   => $magCom->id,
+                                'user_id'      => \Auth::user()->id ?? '',
+                                'website_ids'  => $websites_id,
                                 'command_name' => $magCom->command_name,
-                                'server_ip' => '',
+                                'server_ip'    => '',
                                 'command_type' => $magCom->command_type,
-                                'response' => 'The website is not found!',
+                                'response'     => 'The website is not found!',
                             ]
                         );
                     }
@@ -207,19 +207,19 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                         if ($magCom->command_name != '' && $website->server_ip != '') {
                             Log::info('Command Name: ' . $magCom->command_name);
                             Log::info('website server_ip: ' . $website->server_ip);
-                            $job_id = '';
-                            $website_id = $website->id;
+                            $job_id        = '';
+                            $website_id    = $website->id;
                             $assetsmanager = AssetsManager::where('id', $website->assets_manager_id)->first();
                             if ($assetsmanager && $assetsmanager->client_id != '') {
                                 Log::info('client_id: ' . $assetsmanager->client_id);
-                                $client_id = $assetsmanager->client_id;
-                                $url = getenv('MAGENTO_COMMAND_API_URL');
-                                $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                                $client_id     = $assetsmanager->client_id;
+                                $url           = getenv('MAGENTO_COMMAND_API_URL');
+                                $key           = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                                 $requestParams = [
                                     'command' => $magCom->command_type,
-                                    'dir' => $website->working_directory,
+                                    'dir'     => $website->working_directory,
                                     'is_sudo' => true,
-                                    'server' => $website->server_ip,
+                                    'server'  => $website->server_ip,
                                 ];
 
                                 $ch = curl_init();
@@ -229,7 +229,7 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestParams));
 
-                                $headers = [];
+                                $headers   = [];
                                 $headers[] = 'Authorization: Basic ' . $key;
                                 $headers[] = 'Content-Type: application/json';
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -240,13 +240,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                     Log::info('API Error: ' . curl_error($ch));
                                     MagentoCommandRunLog::create(
                                         [
-                                            'command_id' => $magCom->id,
-                                            'user_id' => \Auth::user()->id ?? '',
-                                            'website_ids' => $website->id,
+                                            'command_id'   => $magCom->id,
+                                            'user_id'      => \Auth::user()->id ?? '',
+                                            'website_ids'  => $website->id,
                                             'command_name' => $magCom->command_type,
-                                            'server_ip' => $website->server_ip,
+                                            'server_ip'    => $website->server_ip,
                                             'command_type' => $magCom->command_type,
-                                            'response' => curl_error($ch),
+                                            'response'     => curl_error($ch),
                                         ]
                                     );
                                 }
@@ -262,13 +262,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                                         Log::info('API Response Error: ' . $message);
                                         MagentoCommandRunLog::create(
                                             [
-                                                'command_id' => $magCom->id,
-                                                'user_id' => \Auth::user()->id ?? '',
-                                                'website_ids' => $website->id,
+                                                'command_id'   => $magCom->id,
+                                                'user_id'      => \Auth::user()->id ?? '',
+                                                'website_ids'  => $website->id,
                                                 'command_name' => $magCom->command_type,
-                                                'server_ip' => $website->server_ip,
+                                                'server_ip'    => $website->server_ip,
                                                 'command_type' => $magCom->command_type,
-                                                'response' => $message,
+                                                'response'     => $message,
                                             ]
                                         );
                                     }
@@ -282,13 +282,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             } else {
                                 MagentoCommandRunLog::create(
                                     [
-                                        'command_id' => $magCom->id,
-                                        'user_id' => \Auth::user()->id ?? '',
-                                        'website_ids' => $website_id,
+                                        'command_id'   => $magCom->id,
+                                        'user_id'      => \Auth::user()->id ?? '',
+                                        'website_ids'  => $website_id,
                                         'command_name' => $magCom->command_name,
-                                        'server_ip' => '',
+                                        'server_ip'    => '',
                                         'command_type' => $magCom->command_type,
-                                        'response' => 'Assets Manager & Client id not found for this website-' . $website_id,
+                                        'response'     => 'Assets Manager & Client id not found for this website-' . $website_id,
                                     ]
                                 );
                                 Log::info('Assets Manager & Client id not found for website!-' . $website_id);
@@ -298,9 +298,9 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
                                 $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
                             }
-                            $allOutput = [];
+                            $allOutput   = [];
                             $allOutput[] = $cmd;
-                            $result = exec($cmd, $allOutput, $statusCode);
+                            $result      = exec($cmd, $allOutput, $statusCode);
                             if ($statusCode == '') {
                                 $result = 'Not any response';
                             } elseif ($statusCode == 0) {
@@ -312,26 +312,26 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             }
                             MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id,
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => $website->id,
+                                    'command_id'   => $magCom->id,
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => $website->id,
                                     'command_name' => $cmd,
-                                    'server_ip' => $website->server_ip,
+                                    'server_ip'    => $website->server_ip,
                                     'command_type' => $magCom->command_type,
-                                    'response' => $result,
-                                    'job_id' => $job_id,
+                                    'response'     => $result,
+                                    'job_id'       => $job_id,
                                 ]
                             );
                         } else {
                             $add = MagentoCommandRunLog::create(
                                 [
-                                    'command_id' => $magCom->id ?? '',
-                                    'user_id' => \Auth::user()->id ?? '',
-                                    'website_ids' => $website->id,
+                                    'command_id'   => $magCom->id ?? '',
+                                    'user_id'      => \Auth::user()->id ?? '',
+                                    'website_ids'  => $website->id,
                                     'command_name' => $cmd ?? '',
-                                    'server_ip' => $website->server_ip ?? '',
+                                    'server_ip'    => $website->server_ip ?? '',
                                     'command_type' => $magCom->command_type ?? '',
-                                    'response' => 'Server IP and Command not found',
+                                    'response'     => 'Server IP and Command not found',
                                 ]);
                             Log::info('Server IP and Command not found');
                         }
@@ -344,13 +344,13 @@ class MagentoRunCommandOnMultipleWebsite extends Command
             Log::info(' Error on Rum Magento Command On Multiple Websit: ' . $e->getMessage());
             MagentoDevScripUpdateLog::create(
                 [
-                    'command_id' => $command_id,
-                    'user_id' => \Auth::user()->id ?? '',
-                    'website_ids' => '',
+                    'command_id'   => $command_id,
+                    'user_id'      => \Auth::user()->id ?? '',
+                    'website_ids'  => '',
                     'command_name' => '',
-                    'server_ip' => '',
+                    'server_ip'    => '',
                     'command_type' => '',
-                    'response' => ' Error ' . $e->getMessage(),
+                    'response'     => ' Error ' . $e->getMessage(),
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

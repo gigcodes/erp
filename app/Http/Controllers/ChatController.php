@@ -18,14 +18,14 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         $userid = $request->input('userid');
-        $chat = new Chat();
-        $chats = $chat->where('sourceid', '=', Auth::id())->orWhere('userid', '=', Auth::id())->get()->toArray();
+        $chat   = new Chat();
+        $chats  = $chat->where('sourceid', '=', Auth::id())->orWhere('userid', '=', Auth::id())->get()->toArray();
 
         $chat_converstaion = [];
 
         $chat_converstaion[] = '<table>';
         foreach ($chats as $message) {
-            $msg = htmlentities($message['messages'], ENT_NOQUOTES);
+            $msg   = htmlentities($message['messages'], ENT_NOQUOTES);
             $users = User::find($message['sourceid']);
             if (Auth::id() == $message['sourceid']) {
                 $style = 'selfs';
@@ -33,7 +33,7 @@ class ChatController extends Controller
                 $style = 'noselfs';
             }
             $user_name = $users['name'];
-            $sent = date('F j, Y, g:i a', strtotime($message['created_at']));
+            $sent      = date('F j, Y, g:i a', strtotime($message['created_at']));
             if ((Auth::id() == $message['sourceid'] and $userid == $message['userid']) or ($message['sourceid'] == $userid and $message['userid'] == Auth::id())) {
                 $chat_converstaion[] = '
                   <tr class="msg-row-container ' . $style . '" >
@@ -72,13 +72,13 @@ class ChatController extends Controller
         //
         $request->merge(['sourceid' => Auth::id()]);
         $chat = $this->validate(request(), [
-            'userid' => 'required',
+            'userid'   => 'required',
             'messages' => 'required',
             'sourceid' => '',
 
         ]);
         $messages = $request->input('messages');
-        $userid = $request->input('userid');
+        $userid   = $request->input('userid');
         $sourceid = $request->input('sourceid');
         Chat::create($chat);
         Pusher::trigger('solo-chat-channel', 'chat', ['message' => $messages, 'userid' => $userid, 'sourceid' => $sourceid]);
@@ -89,7 +89,8 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -100,7 +101,8 @@ class ChatController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -111,7 +113,8 @@ class ChatController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -122,7 +125,8 @@ class ChatController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -135,7 +139,7 @@ class ChatController extends Controller
     {
         $request->merge(['userid' => Auth::id()]);
         $chat = $this->validate(request(), [
-            'userid' => 'required',
+            'userid'   => 'required',
             'messages' => 'required',
 
         ]);
@@ -143,17 +147,17 @@ class ChatController extends Controller
 
     public function checkfornew(Request $request)
     {
-        $users = new User();
+        $users        = new User();
         $loggedinuser = $users->find(Auth::id());
-        $lastcheck = $loggedinuser['last_checked'];
-        $allusers = $users->all();
-        $newmessage = [];
-        $chat = new Chat();
+        $lastcheck    = $loggedinuser['last_checked'];
+        $allusers     = $users->all();
+        $newmessage   = [];
+        $chat         = new Chat();
         foreach ($allusers as $user) {
             $chats = '';
 
             $userid = $user['id'];
-            $chats = $chat->where('sourceid', '=', $userid)->where('userid', '=', Auth::id())->where('created_at', '>', $lastcheck)->get()->toArray();
+            $chats  = $chat->where('sourceid', '=', $userid)->where('userid', '=', Auth::id())->where('created_at', '>', $lastcheck)->get()->toArray();
             if (! empty($chats)) {
                 $newmessage[] = ['userid' => $userid, 'new' => 'true'];
             } else {
@@ -166,7 +170,7 @@ class ChatController extends Controller
 
     public function updatefornew(Request $request)
     {
-        $user = Auth::User();
+        $user               = Auth::User();
         $user->last_checked = date('Y-m-d H:i:s');
         $user->save();
     }

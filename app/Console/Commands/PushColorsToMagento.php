@@ -37,7 +37,7 @@ class PushColorsToMagento extends Command
      */
     public function handle()
     {
-        $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
+        $website    = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
         $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
         if (! $colorsData->isEmpty()) {
             foreach ($colorsData as $cd) {
@@ -49,10 +49,10 @@ class PushColorsToMagento extends Command
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($cd->erp_name, $web);
                         if (! empty($id)) {
                             \App\StoreWebsiteColor::where('erp_color', $cd->erp_name)->where('store_website_id', $web->id)->delete();
-                            $swc = new \App\StoreWebsiteColor;
-                            $swc->erp_color = $cd->erp_name;
+                            $swc                   = new \App\StoreWebsiteColor;
+                            $swc->erp_color        = $cd->erp_name;
                             $swc->store_website_id = $web->id;
-                            $swc->platform_id = $id;
+                            $swc->platform_id      = $id;
                             $swc->save();
                         }
                     }

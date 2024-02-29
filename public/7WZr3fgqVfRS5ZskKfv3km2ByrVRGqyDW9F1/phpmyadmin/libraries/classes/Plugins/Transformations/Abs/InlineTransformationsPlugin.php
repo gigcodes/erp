@@ -35,22 +35,23 @@ abstract class InlineTransformationsPlugin extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
     {
-        $cfg = $GLOBALS['cfg'];
+        $cfg     = $GLOBALS['cfg'];
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['Inline']);
 
         if ($GLOBALS['config']->get('PMA_IS_GD2') === 1) {
             return '<a href="' . Url::getFromRoute('/transformation/wrapper', $options['wrapper_params'])
                 . '" rel="noopener noreferrer" target="_blank"><img src="'
                 . Url::getFromRoute('/transformation/wrapper', array_merge($options['wrapper_params'], [
-                    'resize' => 'jpeg',
-                    'newWidth' => (int) $options[0],
+                    'resize'    => 'jpeg',
+                    'newWidth'  => (int) $options[0],
                     'newHeight' => (int) $options[1],
                 ]))
                 . '" alt="[' . htmlspecialchars($buffer) . ']" border="0"></a>';

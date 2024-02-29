@@ -32,17 +32,17 @@ abstract class NodeDatabaseChild extends Node
      */
     public function getHtmlForControlButtons(): string
     {
-        $ret = '';
+        $ret                = '';
         $relationParameters = $this->relation->getRelationParameters();
         if ($relationParameters->navigationItemsHidingFeature !== null) {
-            $db = $this->realParent()->realName;
+            $db   = $this->realParent()->realName;
             $item = $this->realName;
 
             $params = [
                 'hideNavItem' => true,
-                'itemType' => $this->getItemType(),
-                'itemName' => $item,
-                'dbName' => $db,
+                'itemType'    => $this->getItemType(),
+                'itemName'    => $item,
+                'dbName'      => $db,
             ];
 
             $ret = '<span class="navItemControls">'

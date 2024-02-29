@@ -45,7 +45,7 @@ class OutputBuffering
     private function __construct()
     {
         $this->mode = $this->getMode();
-        $this->on = false;
+        $this->on   = false;
     }
 
     /**
@@ -141,7 +141,7 @@ class OutputBuffering
             return;
         }
 
-        $buffer->on = false;
+        $buffer->on      = false;
         $buffer->content = ob_get_contents();
         if (ob_get_length() <= 0) {
             return;

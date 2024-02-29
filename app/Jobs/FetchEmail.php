@@ -25,6 +25,8 @@ class FetchEmail implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param public $emailAddress
+     *
      * @return void
      */
     public function __construct(public $emailAddress)
@@ -40,15 +42,15 @@ class FetchEmail implements ShouldQueue
     {
         $emailAddress = $this->emailAddress;
         try {
-            $cm = new ClientManager();
+            $cm   = new ClientManager();
             $imap = $cm->make([
-                'host' => $emailAddress->host,
-                'port' => $emailAddress->port,
-                'encryption' => $emailAddress->encryption,
+                'host'          => $emailAddress->host,
+                'port'          => $emailAddress->port,
+                'encryption'    => $emailAddress->encryption,
                 'validate_cert' => false,
-                'username' => $emailAddress->username,
-                'password' => $emailAddress->password,
-                'protocol' => 'imap',
+                'username'      => $emailAddress->username,
+                'password'      => $emailAddress->password,
+                'protocol'      => 'imap',
             ]);
 
             $imap->connect();
@@ -56,18 +58,18 @@ class FetchEmail implements ShouldQueue
             $types = [
                 'inbox' => [
                     'inbox_name' => 'INBOX',
-                    'direction' => 'from',
-                    'type' => 'incoming',
+                    'direction'  => 'from',
+                    'type'       => 'incoming',
                 ],
                 'sent' => [
                     'inbox_name' => 'INBOX.Sent',
-                    'direction' => 'to',
-                    'type' => 'outgoing',
+                    'direction'  => 'to',
+                    'type'       => 'outgoing',
                 ],
             ];
 
             $is_module_available = 0;
-            $available_models = [
+            $available_models    = [
                 'supplier' => \App\Supplier::class, 'vendor' => \App\Vendor::class,
                 'customer' => \App\Customer::class, 'users' => \App\User::class,
             ];
@@ -100,7 +102,7 @@ class FetchEmail implements ShouldQueue
                     foreach ($emails as $email) {
                         try {
                             $reference_id = $email->references;
-                            $origin_id = $email->message_id;
+                            $origin_id    = $email->message_id;
 
                             // Skip if message is already stored
                             if (Email::where('origin_id', $origin_id)->count() > 0) {
@@ -120,8 +122,8 @@ class FetchEmail implements ShouldQueue
                             \Log::channel('customer')->info('Subject  => ' . $email_subject);
 
                             $attachments_array = [];
-                            $attachments = $email->getAttachments();
-                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments       = $email->getAttachments();
+                            $fromThis          = $email->getFrom()[0]->mail;
                             $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
@@ -141,7 +143,7 @@ class FetchEmail implements ShouldQueue
                             });
 
                             $from = $email->getFrom()[0]->mail;
-                            $to = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                            $to   = array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
                             // Model is sender if its incoming else its receiver if outgoing
                             if ($type['type'] == 'incoming') {
@@ -158,29 +160,29 @@ class FetchEmail implements ShouldQueue
                             if (isset($subject[1]) && ! empty($subject[1])) {
                                 $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
                                 if ($findTicket) {
-                                    $model_id = $findTicket->id;
+                                    $model_id   = $findTicket->id;
                                     $model_type = \App\Tickets::class;
                                 }
                             }
 
                             $mailData = explode('@', $from);
-                            $name = $mailData['0'];
+                            $name     = $mailData['0'];
 
                             $params = [
-                                'model_id' => $model_id,
-                                'model_type' => $model_type,
-                                'origin_id' => $origin_id,
-                                'reference_id' => $reference_id,
-                                'type' => $type['type'],
-                                'seen' => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
-                                'from' => $email->getFrom()[0]->mail,
-                                'to' => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                'subject' => $email->getSubject(),
-                                'message' => $content,
-                                'template' => 'customer-simple',
+                                'model_id'        => $model_id,
+                                'model_type'      => $model_type,
+                                'origin_id'       => $origin_id,
+                                'reference_id'    => $reference_id,
+                                'type'            => $type['type'],
+                                'seen'            => isset($email->getFlags()['seen']) ? $email->getFlags()['seen'] : 0,
+                                'from'            => $email->getFrom()[0]->mail,
+                                'to'              => array_key_exists(0, $email->getTo()->toArray()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject'         => $email->getSubject(),
+                                'message'         => $content,
+                                'template'        => 'customer-simple',
                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                'created_at' => $email->getDate(),
-                                'name' => $name,
+                                'created_at'      => $email->getDate(),
+                                'name'            => $name,
                             ];
                             $email_id = Email::insertGetId($params);
 
@@ -203,27 +205,27 @@ class FetchEmail implements ShouldQueue
                                     if (! empty($customer)) {
                                         // store the main message
                                         $params = [
-                                            'number' => $customer->phone,
-                                            'message' => $reply,
-                                            'media_url' => null,
-                                            'approved' => 0,
-                                            'status' => 0,
-                                            'contact_id' => null,
-                                            'erp_user' => null,
+                                            'number'      => $customer->phone,
+                                            'message'     => $reply,
+                                            'media_url'   => null,
+                                            'approved'    => 0,
+                                            'status'      => 0,
+                                            'contact_id'  => null,
+                                            'erp_user'    => null,
                                             'supplier_id' => null,
-                                            'task_id' => null,
+                                            'task_id'     => null,
                                             'dubizzle_id' => null,
-                                            'vendor_id' => null,
+                                            'vendor_id'   => null,
                                             'customer_id' => $customer->id,
-                                            'is_email' => 1,
-                                            'from_email' => $from,
-                                            'to_email' => $to,
-                                            'email_id' => $email_id,
+                                            'is_email'    => 1,
+                                            'from_email'  => $from,
+                                            'to_email'    => $to,
+                                            'email_id'    => $email_id,
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
                                         \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
                                         \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
-                                        $mailFound = true;
+                                        $mailFound           = true;
                                         $is_module_available = 1;
                                     }
 
@@ -231,24 +233,24 @@ class FetchEmail implements ShouldQueue
                                         $vandor = \App\Vendor::where('email', $from)->first();
                                         if ($vandor) {
                                             $params = [
-                                                'number' => $vandor->phone,
-                                                'message' => $reply,
-                                                'media_url' => null,
-                                                'approved' => 0,
-                                                'status' => 0,
-                                                'contact_id' => null,
-                                                'erp_user' => null,
+                                                'number'      => $vandor->phone,
+                                                'message'     => $reply,
+                                                'media_url'   => null,
+                                                'approved'    => 0,
+                                                'status'      => 0,
+                                                'contact_id'  => null,
+                                                'erp_user'    => null,
                                                 'supplier_id' => null,
-                                                'task_id' => null,
+                                                'task_id'     => null,
                                                 'dubizzle_id' => null,
-                                                'vendor_id' => $vandor->id,
-                                                'is_email' => 1,
-                                                'from_email' => $from,
-                                                'to_email' => $to,
-                                                'email_id' => $email_id,
+                                                'vendor_id'   => $vandor->id,
+                                                'is_email'    => 1,
+                                                'from_email'  => $from,
+                                                'to_email'    => $to,
+                                                'email_id'    => $email_id,
                                             ];
-                                            $messageModel = \App\ChatMessage::create($params);
-                                            $mailFound = true;
+                                            $messageModel        = \App\ChatMessage::create($params);
+                                            $mailFound           = true;
                                             $is_module_available = 1;
                                         }
                                     }
@@ -257,23 +259,23 @@ class FetchEmail implements ShouldQueue
                                         $supplier = \App\Supplier::where('email', $from)->first();
                                         if ($supplier) {
                                             $params = [
-                                                'number' => $supplier->phone,
-                                                'message' => $reply,
-                                                'media_url' => null,
-                                                'approved' => 0,
-                                                'status' => 0,
-                                                'contact_id' => null,
-                                                'erp_user' => null,
+                                                'number'      => $supplier->phone,
+                                                'message'     => $reply,
+                                                'media_url'   => null,
+                                                'approved'    => 0,
+                                                'status'      => 0,
+                                                'contact_id'  => null,
+                                                'erp_user'    => null,
                                                 'supplier_id' => $supplier->id,
-                                                'task_id' => null,
+                                                'task_id'     => null,
                                                 'dubizzle_id' => null,
-                                                'is_email' => 1,
-                                                'from_email' => $from,
-                                                'to_email' => $to,
-                                                'email_id' => $email_id,
+                                                'is_email'    => 1,
+                                                'from_email'  => $from,
+                                                'to_email'    => $to,
+                                                'email_id'    => $email_id,
                                             ];
-                                            $messageModel = \App\ChatMessage::create($params);
-                                            $mailFound = true;
+                                            $messageModel        = \App\ChatMessage::create($params);
+                                            $mailFound           = true;
                                             $is_module_available = 1;
                                         }
                                     }
@@ -281,30 +283,30 @@ class FetchEmail implements ShouldQueue
                                     // add entry in chat message even if email is from any other modules
                                     if (! $mailFound) {
                                         $params = [
-                                            'number' => null,
-                                            'message' => $reply,
-                                            'media_url' => null,
-                                            'approved' => 0,
-                                            'status' => 0,
-                                            'contact_id' => null,
-                                            'erp_user' => null,
-                                            'supplier_id' => null,
-                                            'task_id' => null,
-                                            'dubizzle_id' => null,
-                                            'is_email' => 1,
-                                            'from_email' => $from,
-                                            'to_email' => $to,
-                                            'email_id' => $email_id,
+                                            'number'       => null,
+                                            'message'      => $reply,
+                                            'media_url'    => null,
+                                            'approved'     => 0,
+                                            'status'       => 0,
+                                            'contact_id'   => null,
+                                            'erp_user'     => null,
+                                            'supplier_id'  => null,
+                                            'task_id'      => null,
+                                            'dubizzle_id'  => null,
+                                            'is_email'     => 1,
+                                            'from_email'   => $from,
+                                            'to_email'     => $to,
+                                            'email_id'     => $email_id,
                                             'message_type' => 'email',
                                         ];
                                         $messageModel = \App\ChatMessage::create($params);
-                                        $mailFound = true;
+                                        $mailFound    = true;
 
                                         \Log::info('Incoming Email is not in our sysetm : ' . $from);
                                     }
 
                                     if ($is_module_available == 0) {
-                                        $email = Email::where('id', $email_id)->first();
+                                        $email                   = Email::where('id', $email_id)->first();
                                         $email->is_unknow_module = 1;
                                         $email->save();
                                     }
@@ -314,8 +316,8 @@ class FetchEmail implements ShouldQueue
                             \Log::error('error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage());
                             $historyParam = [
                                 'email_address_id' => $emailAddress->id,
-                                'is_success' => 0,
-                                'message' => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
+                                'is_success'       => 0,
+                                'message'          => 'error while fetching some emails for ' . $emailAddress->username . ' Error Message: ' . $e->getMessage(),
                             ];
                             EmailRunHistories::create($historyParam);
                         }
@@ -325,7 +327,7 @@ class FetchEmail implements ShouldQueue
 
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
-                'is_success' => 1,
+                'is_success'       => 1,
             ];
 
             EmailRunHistories::create($historyParam);
@@ -335,15 +337,15 @@ class FetchEmail implements ShouldQueue
             $exceptionMessage = $e->getMessage();
 
             if ($e->getPrevious() !== null) {
-                $previousMessage = $e->getPrevious()->getMessage();
+                $previousMessage  = $e->getPrevious()->getMessage();
                 $exceptionMessage = $previousMessage . ' | ' . $exceptionMessage;
             }
 
             \Log::channel('customer')->info($exceptionMessage);
             $historyParam = [
                 'email_address_id' => $emailAddress->id,
-                'is_success' => 0,
-                'message' => $exceptionMessage,
+                'is_success'       => 0,
+                'message'          => $exceptionMessage,
             ];
             EmailRunHistories::create($historyParam);
             \App\CronJob::insertLastError('fetch:all_emails', $exceptionMessage);
@@ -357,14 +359,14 @@ class FetchEmail implements ShouldQueue
 
     private function getModel($email, $email_list)
     {
-        $model_id = null;
+        $model_id   = null;
         $model_type = null;
 
         // Traverse all models
         foreach ($email_list as $key => $value) {
             // If email exists in the DB
             if (isset($value[$email])) {
-                $model_id = $value[$email];
+                $model_id   = $value[$email];
                 $model_type = $key;
                 break;
             }
@@ -377,48 +379,48 @@ class FetchEmail implements ShouldQueue
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
-        $skiprowupto = 1; //skip first line
-        $rowincrement = 1;
+        $skiprowupto           = 1; //skip first line
+        $rowincrement          = 1;
         $attachedFileDataArray = [];
         while (($data = fgetcsv($file, 4000, ',')) !== false) {
             if ($rowincrement > $skiprowupto) {
                 if (isset($data[0]) && ! empty($data[0])) {
                     try {
-                        $due_date = date('Y-m-d', strtotime($data[9]));
+                        $due_date              = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = [
-                            'line_type' => $data[0],
-                            'billing_source' => $data[1],
-                            'original_invoice_number' => $data[2],
-                            'invoice_number' => $data[3],
-                            'invoice_identifier' => $data[5],
-                            'invoice_type' => $data[6],
-                            'invoice_currency' => $data[69],
-                            'invoice_amount' => $data[70],
-                            'invoice_date' => $data[7],
-                            'payment_terms' => $data[8],
-                            'due_date' => $due_date,
-                            'billing_account' => $data[11],
-                            'billing_account_name' => $data[12],
+                            'line_type'                       => $data[0],
+                            'billing_source'                  => $data[1],
+                            'original_invoice_number'         => $data[2],
+                            'invoice_number'                  => $data[3],
+                            'invoice_identifier'              => $data[5],
+                            'invoice_type'                    => $data[6],
+                            'invoice_currency'                => $data[69],
+                            'invoice_amount'                  => $data[70],
+                            'invoice_date'                    => $data[7],
+                            'payment_terms'                   => $data[8],
+                            'due_date'                        => $due_date,
+                            'billing_account'                 => $data[11],
+                            'billing_account_name'            => $data[12],
                             'billing_account_name_additional' => $data[13],
-                            'billing_address_1' => $data[14],
-                            'billing_postcode' => $data[17],
-                            'billing_city' => $data[18],
-                            'billing_state_province' => $data[19],
-                            'billing_country_code' => $data[20],
-                            'billing_contact' => $data[21],
-                            'shipment_number' => $data[23],
-                            'shipment_date' => $data[24],
-                            'product' => $data[30],
-                            'product_name' => $data[31],
-                            'pieces' => $data[32],
-                            'origin' => $data[33],
-                            'orig_name' => $data[34],
-                            'orig_country_code' => $data[35],
-                            'orig_country_name' => $data[36],
-                            'senders_name' => $data[37],
-                            'senders_city' => $data[42],
-                            'created_at' => \Carbon\Carbon::now(),
-                            'updated_at' => \Carbon\Carbon::now(),
+                            'billing_address_1'               => $data[14],
+                            'billing_postcode'                => $data[17],
+                            'billing_city'                    => $data[18],
+                            'billing_state_province'          => $data[19],
+                            'billing_country_code'            => $data[20],
+                            'billing_contact'                 => $data[21],
+                            'shipment_number'                 => $data[23],
+                            'shipment_date'                   => $data[24],
+                            'product'                         => $data[30],
+                            'product_name'                    => $data[31],
+                            'pieces'                          => $data[32],
+                            'origin'                          => $data[33],
+                            'orig_name'                       => $data[34],
+                            'orig_country_code'               => $data[35],
+                            'orig_country_name'               => $data[36],
+                            'senders_name'                    => $data[37],
+                            'senders_city'                    => $data[42],
+                            'created_at'                      => \Carbon\Carbon::now(),
+                            'updated_at'                      => \Carbon\Carbon::now(),
                         ];
                         if (! empty($attachedFileDataArray)) {
                             $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
@@ -426,41 +428,41 @@ class FetchEmail implements ShouldQueue
                             // check that way bill exist not then create
                             $wayBill = \App\Waybill::where('awb', $attachresponse->shipment_number)->first();
                             if (! $wayBill) {
-                                $wayBill = new \App\Waybill;
+                                $wayBill      = new \App\Waybill;
                                 $wayBill->awb = $attachresponse->shipment_number;
 
-                                $wayBill->from_customer_name = $data[45];
-                                $wayBill->from_city = $data[42];
-                                $wayBill->from_country_code = $data[44];
+                                $wayBill->from_customer_name      = $data[45];
+                                $wayBill->from_city               = $data[42];
+                                $wayBill->from_country_code       = $data[44];
                                 $wayBill->from_customer_address_1 = $data[38];
                                 $wayBill->from_customer_address_2 = $data[39];
-                                $wayBill->from_customer_pincode = $data[41];
-                                $wayBill->from_company_name = $data[39];
+                                $wayBill->from_customer_pincode   = $data[41];
+                                $wayBill->from_company_name       = $data[39];
 
-                                $wayBill->to_customer_name = $data[50];
-                                $wayBill->to_city = $data[55];
-                                $wayBill->to_country_code = $data[57];
-                                $wayBill->to_customer_phone = '';
+                                $wayBill->to_customer_name      = $data[50];
+                                $wayBill->to_city               = $data[55];
+                                $wayBill->to_country_code       = $data[57];
+                                $wayBill->to_customer_phone     = '';
                                 $wayBill->to_customer_address_1 = $data[51];
                                 $wayBill->to_customer_address_2 = $data[52];
-                                $wayBill->to_customer_pincode = $data[54];
-                                $wayBill->to_company_name = '';
+                                $wayBill->to_customer_pincode   = $data[54];
+                                $wayBill->to_company_name       = '';
 
                                 $wayBill->actual_weight = $data[68];
                                 $wayBill->volume_weight = $data[66];
 
                                 $wayBill->cost_of_shipment = $data[70];
-                                $wayBill->package_slip = $attachresponse->shipment_number;
-                                $wayBill->pickup_date = date('Y-m-d', strtotime($data[24]));
+                                $wayBill->package_slip     = $attachresponse->shipment_number;
+                                $wayBill->pickup_date      = date('Y-m-d', strtotime($data[24]));
                                 $wayBill->save();
                             }
 
                             $cash_flow = new CashFlow();
                             $cash_flow->fill([
-                                'date' => $attachresponse->due_date ? $attachresponse->due_date : null,
-                                'type' => 'pending',
-                                'description' => 'Waybill invoice details',
-                                'cash_flow_able_id' => $attachresponse->id,
+                                'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
+                                'type'                => 'pending',
+                                'description'         => 'Waybill invoice details',
+                                'cash_flow_able_id'   => $attachresponse->id,
                                 'cash_flow_able_type' => \App\Waybillinvoice::class,
                             ])->save();
                         }

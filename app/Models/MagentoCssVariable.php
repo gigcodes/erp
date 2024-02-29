@@ -26,7 +26,7 @@ class MagentoCssVariable extends Model
     const NOTVERIFIED = 0;
 
     public static $verifiedOptions = [
-        self::VERIFIED => 'Yes',
+        self::VERIFIED    => 'Yes',
         self::NOTVERIFIED => 'No',
     ];
 

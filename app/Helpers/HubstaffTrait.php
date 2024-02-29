@@ -18,7 +18,7 @@ trait HubstaffTrait
 
     public function init($seedToken)
     {
-        $this->client = new Client();
+        $this->client             = new Client();
         $this->SEED_REFRESH_TOKEN = $seedToken;
     }
 
@@ -52,7 +52,7 @@ trait HubstaffTrait
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
+                        'grant_type'    => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
                 ]
@@ -61,9 +61,9 @@ trait HubstaffTrait
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token' => $responseJson->access_token,
+                'access_token'  => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
-                'expires_in' => $responseJson->expires_in,
+                'expires_in'    => $responseJson->expires_in,
 
             ];
 
@@ -131,13 +131,13 @@ trait HubstaffTrait
 
             foreach ($responseJson->activities as $activity) {
                 $activities[$activity->id] = [
-                    'user_id' => $activity->user_id,
-                    'task_id' => $activity->task_id,
+                    'user_id'   => $activity->user_id,
+                    'task_id'   => $activity->task_id,
                     'starts_at' => $activity->starts_at,
-                    'tracked' => $activity->tracked,
-                    'keyboard' => $activity->keyboard,
-                    'mouse' => $activity->mouse,
-                    'overall' => $activity->overall,
+                    'tracked'   => $activity->tracked,
+                    'keyboard'  => $activity->keyboard,
+                    'mouse'     => $activity->mouse,
+                    'overall'   => $activity->overall,
                 ];
             }
 

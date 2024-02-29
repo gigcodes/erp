@@ -18,7 +18,7 @@ class CreateMonitorConfig extends Migration
         Schema::create('monitor_config', function (Blueprint $table) {
             $table->string('key', 255)->primary();
             $table->string('value', 255);
-            $table->charset = 'utf8';
+            $table->charset   = 'utf8';
             $table->collation = 'utf8_general_ci';
             $table->timestamps();
         });

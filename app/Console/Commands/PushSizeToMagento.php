@@ -55,10 +55,10 @@ class PushSizeToMagento extends Command
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
                         if (! empty($id)) {
                             \App\StoreWebsiteSize::where('size_id', $s->id)->where('store_website_id', $web->id)->delete();
-                            $sws = new \App\StoreWebsiteSize;
-                            $sws->size_id = $s->id;
+                            $sws                   = new \App\StoreWebsiteSize;
+                            $sws->size_id          = $s->id;
                             $sws->store_website_id = $web->id;
-                            $sws->platform_id = $id;
+                            $sws->platform_id      = $id;
                             $sws->save();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store website size added.']);
                         }

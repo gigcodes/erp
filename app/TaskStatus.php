@@ -24,7 +24,7 @@ class TaskStatus extends Model
         if (self::$allDataArr) {
             return self::$allDataArr;
         }
-        $temp = self::orderBy('name')->pluck('name', 'id')->toArray();
+        $temp             = self::orderBy('name')->pluck('name', 'id')->toArray();
         self::$allDataArr = $temp;
         foreach ($temp as $key => $value) {
             self::$allDataArr[$value] = $value;

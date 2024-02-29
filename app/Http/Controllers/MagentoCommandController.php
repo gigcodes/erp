@@ -26,15 +26,15 @@ class MagentoCommandController extends Controller
     public function index()
     {
         try {
-            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
-            $magentoCommand = MagentoCommand::orderby('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
-            $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
+            $limit                      = Setting::get('pagination') ?? config('site.pagination.limit');
+            $magentoCommand             = MagentoCommand::orderby('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
+            $magentoCommandListArray    = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
             $allMagentoCommandListArray = MagentoCommand::select(
                 \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
 
             $assetsmanager = AssetsManager::all();
-            $websites = StoreWebsite::all();
-            $users = User::all();
+            $websites      = StoreWebsite::all();
+            $users         = User::all();
 
             return view('magento-command.index', compact('magentoCommand', 'websites', 'users', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
         } catch (\Exception $e) {
@@ -47,7 +47,7 @@ class MagentoCommandController extends Controller
     public function index_command()
     {
         try {
-            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $limit          = Setting::get('pagination') ?? config('site.pagination.limit');
             $magentoCommand = MagentoCronList::orderBy('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
 
             $allMagentoCommandListArray = MagentoCronList::get()->pluck('cron_name', 'id')->toArray();
@@ -85,7 +85,7 @@ class MagentoCommandController extends Controller
 
     public function getMagentoCommand(Request $request)
     {
-        $magentoCommand = MagentoCommand::whereNotNull('id')->orderby('id', 'DESC');
+        $magentoCommand          = MagentoCommand::whereNotNull('id')->orderby('id', 'DESC');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
         if (! empty($request->website)) {
             $magentoCommand->whereIn('website_ids', $request->website);
@@ -96,10 +96,10 @@ class MagentoCommandController extends Controller
         if (! empty($request->user_id)) {
             $magentoCommand->whereIn('user_id', $request->user_id);
         }
-        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
-        $magentoCommand = $magentoCommand->paginate($limit);
-        $users = User::all();
-        $websites = StoreWebsite::all();
+        $limit                      = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand             = $magentoCommand->paginate($limit);
+        $users                      = User::all();
+        $websites                   = StoreWebsite::all();
         $allMagentoCommandListArray = MagentoCommand::select(
             \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
         $assetsmanager = AssetsManager::all();
@@ -111,7 +111,7 @@ class MagentoCommandController extends Controller
 
     public function search(Request $request)
     {
-        $magentoCommand = MagentoCommand::whereNotNull('id');
+        $magentoCommand          = MagentoCommand::whereNotNull('id');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
         if (! empty($request->website)) {
             $magentoCommand->whereIn('website_ids', $request->website);
@@ -122,10 +122,10 @@ class MagentoCommandController extends Controller
         if (! empty($request->user_id)) {
             $magentoCommand->whereIn('user_id', $request->user_id);
         }
-        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
-        $magentoCommand = $magentoCommand->paginate($limit);
-        $users = User::all();
-        $websites = StoreWebsite::all();
+        $limit                      = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand             = $magentoCommand->paginate($limit);
+        $users                      = User::all();
+        $websites                   = StoreWebsite::all();
         $allMagentoCommandListArray = MagentoCommand::select(
             \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
         $assetsmanager = AssetsManager::all();
@@ -139,7 +139,7 @@ class MagentoCommandController extends Controller
         if (! empty($request->command_name)) {
             $magentoCommand->whereIn('id', $request->command_name);
         }
-        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $limit          = Setting::get('pagination') ?? config('site.pagination.limit');
         $magentoCommand = $magentoCommand->paginate($limit);
 
         $allMagentoCommandListArray = MagentoCronList::get()->pluck('cron_name', 'id')->toArray();
@@ -167,8 +167,8 @@ class MagentoCommandController extends Controller
                     $userPermissions = array_unique(array_merge($userPermissions, $editUserPermissions));
                 }
             } else {
-                $mCom = new MagentoCommand();
-                $type = 'Created';
+                $mCom        = new MagentoCommand();
+                $type        = 'Created';
                 $loginUserId = \Auth::user()->id ?? '';
 
                 if (strlen($loginUserId) > 0 && ! in_array($loginUserId, $userPermissions)) {
@@ -176,13 +176,13 @@ class MagentoCommandController extends Controller
                 }
             }
 
-            $mCom->user_id = \Auth::user()->id ?? '';
-            $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
-            $mCom->command_name = $request->command_name;
-            $mCom->command_type = $request->command_type;
+            $mCom->user_id           = \Auth::user()->id ?? '';
+            $mCom->website_ids       = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
+            $mCom->command_name      = $request->command_name;
+            $mCom->command_type      = $request->command_type;
             $mCom->working_directory = $request->working_directory;
             $mCom->assets_manager_id = $request->assets_manager_id;
-            $mCom->user_permission = implode(',', array_filter($userPermissions));
+            $mCom->user_permission   = implode(',', array_filter($userPermissions));
             $mCom->save();
 
             if (! empty($request->command_name) && ! empty($request->websites_ids) && ! empty($request->working_directory)) {
@@ -192,7 +192,7 @@ class MagentoCommandController extends Controller
 
                 if (! empty($storeWebsiteData)) {
                     $requestData['server'] = $storeWebsiteData->server_ip;
-                    $requestData['dir'] = $request->working_directory;
+                    $requestData['dir']    = $request->working_directory;
                 }
 
                 \Log::info('magento command request data' . print_r($requestData, true));
@@ -235,15 +235,15 @@ class MagentoCommandController extends Controller
                     \Log::info('Test response' . print_r($response, true));
 
                     MagentoCommandRunLog::create([
-                        'command_id' => $mCom->id,
-                        'user_id' => \Auth::user()->id ?? '',
-                        'website_ids' => $request->websites_ids[0],
-                        'server_ip' => $storeWebsiteData->server_ip,
-                        'request' => json_encode($requestData),
-                        'response' => $response,
+                        'command_id'   => $mCom->id,
+                        'user_id'      => \Auth::user()->id ?? '',
+                        'website_ids'  => $request->websites_ids[0],
+                        'server_ip'    => $storeWebsiteData->server_ip,
+                        'request'      => json_encode($requestData),
+                        'response'     => $response,
                         'command_name' => $request->command_name,
                         'command_type' => $request->command_type,
-                        'job_id' => $httpcode,
+                        'job_id'       => $httpcode,
                     ]
                     );
                 }
@@ -260,7 +260,8 @@ class MagentoCommandController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\MagentoCommand  $magentoCommand
+     * @param \App\MagentoCommand $magentoCommand
+     *
      * @return \Illuminate\Http\Response
      */
     public function runCommand(Request $request)
@@ -278,13 +279,13 @@ class MagentoCommandController extends Controller
 
     public function runOnMultipleWebsite(Request $request)
     {
-        $command_id = $request->command_id;
+        $command_id   = $request->command_id;
         $websites_ids = $request->websites_ids;
 
         MagentoMulitipleCommand::create([
             'website_ids' => json_encode($websites_ids),
-            'command_id' => $command_id,
-            'user_id' => \Auth::user()->id,
+            'command_id'  => $command_id,
+            'user_id'     => \Auth::user()->id,
 
         ]);
 
@@ -301,13 +302,13 @@ class MagentoCommandController extends Controller
 
     public function runMagentoCommand(Request $request)
     {
-        $command_id = $request->id;
+        $command_id   = $request->id;
         $websites_ids = $request->websites_ids;
 
         MagentoMultipleCron::create([
             'website_ids' => json_encode($websites_ids),
-            'command_id' => $command_id,
-            'user_id' => \Auth::user()->id,
+            'command_id'  => $command_id,
+            'user_id'     => \Auth::user()->id,
 
         ]);
 
@@ -331,34 +332,34 @@ class MagentoCommandController extends Controller
             return response()->json(['code' => 500, 'message' => 'Please Entr MySql Query']);
         }
 
-        $command = $request->command;
+        $command      = $request->command;
         $websites_ids = $request->websites_ids;
-        $cmd = 'mysql -u root -e "' . $command . '"';
+        $cmd          = 'mysql -u root -e "' . $command . '"';
         try {
             \Log::info('Start Run Mysql Query');
             $isError = 0;
             foreach ($websites_ids as $websites_id) {
                 if ($websites_id == 'ERP') {
                     \Log::info('Start Rum Mysql Query for website_id: ERP');
-                    $job_id = '';
+                    $job_id        = '';
                     $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $ch = curl_init();
+                        $ch        = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                            'script' => base64_encode($cmd),
+                            'script'  => base64_encode($cmd),
                             'is_sudo' => true,
                         ]));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -370,18 +371,18 @@ class MagentoCommandController extends Controller
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => 'ERP',
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => curl_error($ch),
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => curl_error($ch),
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
                         \Log::info('API Response: ' . $result);
-                        $response = json_decode($result);
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $response   = json_decode($result);
+                        $httpcode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         $parameters = [];
                         LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd), 'is_sudo' => true]), json_decode($response), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
 
@@ -395,12 +396,12 @@ class MagentoCommandController extends Controller
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => 'ERP',
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => $message,
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => $message,
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
@@ -409,25 +410,25 @@ class MagentoCommandController extends Controller
                             $job_id = $response->data->jid;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => 'ERP',
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => $result,
-                                    'job_id' => $job_id,
-                                    'status' => 'Success',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => $result,
+                                    'job_id'      => $job_id,
+                                    'status'      => 'Success',
                                 ]
                             );
                         } else {
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => 'ERP',
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => 'Job Id not found in response',
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => 'Job Id not found in response',
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
@@ -435,12 +436,12 @@ class MagentoCommandController extends Controller
                         $isError = 1;
                         MysqlCommandRunLog::create(
                             [
-                                'user_id' => \Auth::user()->id ?? '',
+                                'user_id'     => \Auth::user()->id ?? '',
                                 'website_ids' => 'ERP',
-                                'server_ip' => '',
-                                'command' => $cmd,
-                                'response' => 'Assets Manager & Client id not found for this website!',
-                                'status' => 'Error',
+                                'server_ip'   => '',
+                                'command'     => $cmd,
+                                'response'    => 'Assets Manager & Client id not found for this website!',
+                                'status'      => 'Error',
                             ]
                         );
                     }
@@ -453,12 +454,12 @@ class MagentoCommandController extends Controller
                         $isError = 1;
                         MysqlCommandRunLog::create(
                             [
-                                'user_id' => \Auth::user()->id ?? '',
+                                'user_id'     => \Auth::user()->id ?? '',
                                 'website_ids' => $websites_id,
-                                'server_ip' => '',
-                                'command' => $cmd,
-                                'response' => 'The website is not found!',
-                                'status' => 'Error',
+                                'server_ip'   => '',
+                                'command'     => $cmd,
+                                'response'    => 'The website is not found!',
+                                'status'      => 'Error',
                             ]
                         );
                     }
@@ -466,23 +467,23 @@ class MagentoCommandController extends Controller
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
-                        $url = getenv('MAGENTO_COMMAND_API_URL');
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $url       = getenv('MAGENTO_COMMAND_API_URL');
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $ch = curl_init();
+                        $ch        = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                             'command' => $cmd,
-                            'dir' => $website->working_directory,
+                            'dir'     => $website->working_directory,
                             'is_sudo' => true,
-                            'server' => $website->server_ip,
+                            'server'  => $website->server_ip,
                         ]));
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -494,21 +495,21 @@ class MagentoCommandController extends Controller
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => $websites_id,
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => curl_error($ch),
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => curl_error($ch),
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
                         \Log::info('API Response: ' . $result);
-                        $response = json_decode($result); //response decoded
-                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $response   = json_decode($result); //response decoded
+                        $httpcode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         $parameters = [];
                         LogRequest::log($startTime, $url, 'POST', json_encode(['script' => base64_encode($cmd),
-                            'is_sudo' => true]),
+                            'is_sudo'                                                   => true]),
                             $response, $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'runMySqlQuery');
 
                         curl_close($ch);
@@ -521,12 +522,12 @@ class MagentoCommandController extends Controller
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => $websites_id,
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => $message,
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => $message,
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
@@ -535,25 +536,25 @@ class MagentoCommandController extends Controller
                             $job_id = $response->data->jid;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => $websites_id,
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => $result,
-                                    'job_id' => $job_id,
-                                    'status' => 'Success',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => $result,
+                                    'job_id'      => $job_id,
+                                    'status'      => 'Success',
                                 ]
                             );
                         } else {
                             $isError = 1;
                             MysqlCommandRunLog::create(
                                 [
-                                    'user_id' => \Auth::user()->id ?? '',
+                                    'user_id'     => \Auth::user()->id ?? '',
                                     'website_ids' => $websites_id,
-                                    'server_ip' => $assetsmanager->ip,
-                                    'command' => $cmd,
-                                    'response' => 'Job Id not found in response',
-                                    'status' => 'Error',
+                                    'server_ip'   => $assetsmanager->ip,
+                                    'command'     => $cmd,
+                                    'response'    => 'Job Id not found in response',
+                                    'status'      => 'Error',
                                 ]
                             );
                         }
@@ -561,12 +562,12 @@ class MagentoCommandController extends Controller
                         $isError = 1;
                         MysqlCommandRunLog::create(
                             [
-                                'user_id' => \Auth::user()->id ?? '',
+                                'user_id'     => \Auth::user()->id ?? '',
                                 'website_ids' => $websites_id,
-                                'server_ip' => '',
-                                'command' => $cmd,
-                                'response' => 'Assets Manager & Client id not found for this website!',
-                                'status' => 'Error',
+                                'server_ip'   => '',
+                                'command'     => $cmd,
+                                'response'    => 'Assets Manager & Client id not found for this website!',
+                                'status'      => 'Error',
                             ]
                         );
                     }
@@ -590,18 +591,18 @@ class MagentoCommandController extends Controller
     public function mySqlQueryLogs()
     {
         try {
-            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $limit              = Setting::get('pagination') ?? config('site.pagination.limit');
             $mysqlCommandRunLog = MysqlCommandRunLog::with(['website', 'user'])->latest()->paginate($limit)->appends(request()->except(['page']));
 
             $assetsmanager = AssetsManager::all();
-            $websites = StoreWebsite::all();
-            $users = User::all();
+            $websites      = StoreWebsite::all();
+            $users         = User::all();
             foreach ($mysqlCommandRunLog as $logs) {
                 if ($logs->website_ids != '' && $logs->job_id != '') {
                     if ($logs->website_ids == 'ERP') {
                         $assetsmanager = AssetsManager::where('name', 'like', '%ERP%')->first();
                     } else {
-                        $storeWebsite = StoreWebsite::where('id', $logs->website_ids)->first();
+                        $storeWebsite  = StoreWebsite::where('id', $logs->website_ids)->first();
                         $assetsmanager = new AssetsManager();
                         if ($storeWebsite) {
                             $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
@@ -610,17 +611,17 @@ class MagentoCommandController extends Controller
 
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         $client_id = $assetsmanager->client_id;
-                        $job_id = $logs->job_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $job_id    = $logs->job_id;
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $ch = curl_init();
+                        $ch        = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -634,8 +635,8 @@ class MagentoCommandController extends Controller
                         \Log::info('API Response: ' . $result);
                         if (isset($response->data) && isset($response->data->result)) {
                             $logs->status = $response->data->status;
-                            $result = $response->data->result;
-                            $message = '';
+                            $result       = $response->data->result;
+                            $message      = '';
                             if (isset($result->stdout) && $result->stdout != '') {
                                 $message .= 'Output: ' . $result->stdout;
                             }
@@ -666,15 +667,16 @@ class MagentoCommandController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\MagentoCommand  $magentoCommand
+     * @param \App\MagentoCommand $magentoCommand
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         try {
             $magentoCom = MagentoCommand::find($request->id);
-            $websites = StoreWebsite::all();
-            $ops = '';
+            $websites   = StoreWebsite::all();
+            $ops        = '';
             foreach ($websites as $website) {
                 $selected = '';
                 if ($magentoCom->website_ids == $website->id) {
@@ -695,8 +697,8 @@ class MagentoCommandController extends Controller
     {
         try {
             $magentoCom = MagentoCronList::find($request->id);
-            $websites = StoreWebsite::all();
-            $ops = '';
+            $websites   = StoreWebsite::all();
+            $ops        = '';
             foreach ($websites as $website) {
                 $selected = '';
                 if ($magentoCom->website_ids == $website->id) {
@@ -723,8 +725,8 @@ class MagentoCommandController extends Controller
             foreach ($postHis as $logs) {
                 $logs->status = '';
                 if ($logs->website_ids != '' && $logs->job_id != '') {
-                    $magCom = MagentoCommand::find($logs->command_id);
-                    $storeWebsite = StoreWebsite::where('id', $logs->website_ids)->first();
+                    $magCom        = MagentoCommand::find($logs->command_id);
+                    $storeWebsite  = StoreWebsite::where('id', $logs->website_ids)->first();
                     $assetsmanager = new AssetsManager();
                     if ($storeWebsite) {
                         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
@@ -732,21 +734,21 @@ class MagentoCommandController extends Controller
 
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         $client_id = $assetsmanager->client_id;
-                        $job_id = $logs->job_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $job_id    = $logs->job_id;
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $ch = curl_init();
+                        $ch        = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
                         if (curl_errno($ch)) {
@@ -755,8 +757,8 @@ class MagentoCommandController extends Controller
                         \Log::info('API Response: ' . $result);
                         if (isset($response->data) && isset($response->data->result)) {
                             $logs->status = $response->data->status;
-                            $result = $response->data->result;
-                            $message = '';
+                            $result       = $response->data->result;
+                            $message      = '';
                             if (isset($result->stdout) && $result->stdout != '') {
                                 $message .= 'Output: ' . $result->stdout;
                             }
@@ -794,8 +796,8 @@ class MagentoCommandController extends Controller
             foreach ($postHis as $logs) {
                 $logs->status = '';
                 if ($logs->website_ids != '' && $logs->job_id != '') {
-                    $magCom = MagentoCronList::find($logs->command_id);
-                    $storeWebsite = StoreWebsite::where('id', $logs->website_ids)->first();
+                    $magCom        = MagentoCronList::find($logs->command_id);
+                    $storeWebsite  = StoreWebsite::where('id', $logs->website_ids)->first();
                     $assetsmanager = new AssetsManager();
                     if ($storeWebsite) {
                         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
@@ -803,21 +805,21 @@ class MagentoCommandController extends Controller
 
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         $client_id = $assetsmanager->client_id;
-                        $job_id = $logs->job_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
-                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $job_id    = $logs->job_id;
+                        $url       = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key       = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $ch = curl_init();
+                        $ch        = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 0);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-                        $headers = [];
+                        $headers   = [];
                         $headers[] = 'Authorization: Basic ' . $key;
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-                        $result = curl_exec($ch);
+                        $result   = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'cronHistoryLog');
 
@@ -825,8 +827,8 @@ class MagentoCommandController extends Controller
                         \Log::info('API Response: ' . $result);
                         if (isset($response->data) && isset($response->data->result)) {
                             $logs->status = $response->data->status;
-                            $result = $response->data->result;
-                            $message = '';
+                            $result       = $response->data->result;
+                            $message      = '';
                             if (isset($result->stdout) && $result->stdout != '') {
                                 $message .= 'Output: ' . $result->stdout;
                             }
@@ -857,7 +859,8 @@ class MagentoCommandController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\MagentoCommand  $magentoCommand
+     * @param \App\MagentoCommand $magentoCommand
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -922,7 +925,7 @@ class MagentoCommandController extends Controller
     public function getMulitipleCommands()
     {
         $mulitipleCommands = MagentoMulitipleCommand::with(['website', 'user', 'command'])->paginate(25);
-        $magentoCommands = MagentoCommand::get();
+        $magentoCommands   = MagentoCommand::get();
 
         return view('magento-command.multiple-command-list', compact('mulitipleCommands', 'magentoCommands'));
     }

@@ -13,7 +13,6 @@ class Order extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
@@ -307,7 +306,7 @@ class Order extends Model
     public function totalWayBills()
     {
         $waybills = $this->waybills;
-        $awbno = [];
+        $awbno    = [];
         if (! $waybills->isEmpty()) {
             foreach ($waybills as $waybill) {
                 $awbno[] = $waybill->awb;

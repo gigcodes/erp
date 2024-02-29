@@ -20,7 +20,7 @@ class ChatMessageTableSeeder extends Seeder
         // Load Faker
         $faker = \Faker\Factory::create();
 
-        $customerIds = Customer::get()->pluck('id')->toArray();
+        $customerIds    = Customer::get()->pluck('id')->toArray();
         $customerPhones = Customer::pluck('phone', 'id')->all();
 
         if (! empty($customerIds)) {
@@ -28,13 +28,13 @@ class ChatMessageTableSeeder extends Seeder
             for ($i = 0; $i < 2000000; $i++) {
                 $customerId = $customerIds[array_rand($customerIds, 1)];
 
-                $chatMessage = new ChatMessage();
-                $chatMessage->is_queue = 1;
+                $chatMessage              = new ChatMessage();
+                $chatMessage->is_queue    = 1;
                 $chatMessage->customer_id = $customerId;
-                $chatMessage->message = $faker->paragraph;
-                $chatMessage->number = $customerPhones[$customerId];
-                $chatMessage->approved = 0;
-                $chatMessage->status = 1;
+                $chatMessage->message     = $faker->paragraph;
+                $chatMessage->number      = $customerPhones[$customerId];
+                $chatMessage->approved    = 0;
+                $chatMessage->status      = 1;
                 $chatMessage->save();
             }
         }

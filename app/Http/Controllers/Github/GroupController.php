@@ -44,19 +44,19 @@ class GroupController extends Controller
 
     public function groupDetails()
     {
-        $groupId = Route::current()->parameter('groupId');
-        $group = GithubGroup::find($groupId);
+        $groupId      = Route::current()->parameter('groupId');
+        $group        = GithubGroup::find($groupId);
         $repositories = $group->repositories;
-        $users = $group->users;
+        $users        = $group->users;
 
         $githubOrganizations = GithubOrganization::get();
 
         return view(
             'github.group_details',
             [
-                'group' => $group,
-                'repositories' => $repositories,
-                'users' => $users,
+                'group'               => $group,
+                'repositories'        => $repositories,
+                'users'               => $users,
                 'githubOrganizations' => $githubOrganizations,
             ]
         );
@@ -64,7 +64,7 @@ class GroupController extends Controller
 
     public function addRepositoryForm($groupId)
     {
-        $group = GithubGroup::find($groupId);
+        $group                = GithubGroup::find($groupId);
         $existingRepositories = $group->repositories;
 
         $repositoryIds = $existingRepositories->map(function ($repository) {
@@ -78,7 +78,7 @@ class GroupController extends Controller
         return view(
             'github.group_add_repository',
             [
-                'group' => $group,
+                'group'               => $group,
                 'githubOrganizations' => $githubOrganizations,
             ]
         );
@@ -88,15 +88,15 @@ class GroupController extends Controller
     {
         $validatedData = $request->validate([
             'organizationId' => 'required',
-            'repoId' => 'required',
-            'group_id' => 'required',
-            'permission' => 'required',
+            'repoId'         => 'required',
+            'group_id'       => 'required',
+            'permission'     => 'required',
         ]);
 
         $organizationId = $request->organizationId;
-        $repoId = $request->repoId;
-        $groupId = $request->group_id;
-        $permission = $request->permission;
+        $repoId         = $request->repoId;
+        $groupId        = $request->group_id;
+        $permission     = $request->permission;
 
         $this->callApiToAddRepository($organizationId, $repoId, $groupId, $permission);
 
@@ -106,7 +106,7 @@ class GroupController extends Controller
     private function callApiToAddRepository($organizationId, $repoId, $groupId, $permission)
     {
         $organization = GithubOrganization::find($organizationId);
-        $repository = GithubRepository::find($repoId);
+        $repository   = GithubRepository::find($repoId);
 
         // https://api.github.com/organizations/:org_id/team/:team_id/repos/:owner/:repo
         $url = 'https://api.github.com/organizations/' . $organization->name . '/team/' . $groupId . '/repos/' . $organization->name . '/' . $repository->name;
@@ -127,7 +127,7 @@ class GroupController extends Controller
 
     public function addUserForm($groupId)
     {
-        $group = GithubGroup::find($groupId);
+        $group         = GithubGroup::find($groupId);
         $existingUsers = $group->users;
 
         $userIds = $existingUsers->map(function ($repository) {
@@ -146,8 +146,8 @@ class GroupController extends Controller
         return view(
             'github.group_add_user',
             [
-                'group' => $group,
-                'users' => $userSelect,
+                'group'               => $group,
+                'users'               => $userSelect,
                 'githubOrganizations' => $githubOrganizations,
             ]
         );
@@ -157,15 +157,15 @@ class GroupController extends Controller
     {
         $validatedData = $request->validate([
             'organizationId' => 'required',
-            'group_id' => 'required',
-            'role' => 'required',
-            'username' => 'required',
+            'group_id'       => 'required',
+            'role'           => 'required',
+            'username'       => 'required',
         ]);
 
         $organizationId = $request->organizationId;
-        $groupId = $request->group_id;
-        $role = $request->role;
-        $username = $request->username;
+        $groupId        = $request->group_id;
+        $role           = $request->role;
+        $username       = $request->username;
 
         $this->addUserToGroup($organizationId, $groupId, $username, $role);
 
@@ -202,12 +202,12 @@ class GroupController extends Controller
 
     public function removeUsersFromGroup()
     {
-        $groupId = Route::current()->parameter('groupId');
-        $userId = Route::current()->parameter('userId');
+        $groupId        = Route::current()->parameter('groupId');
+        $userId         = Route::current()->parameter('userId');
         $organizationId = Route::current()->parameter('organizationId');
 
         $organization = GithubOrganization::find($organizationId);
-        $githubUser = GithubUser::find($userId);
+        $githubUser   = GithubUser::find($userId);
 
         //https://api.github.com/teams/:team_id/memberships/:username
         $url = 'https://api.github.com/teams/' . $groupId . '/memberships/' . $githubUser->username;
@@ -224,9 +224,9 @@ class GroupController extends Controller
     public function removeRepositoryFromGroup()
     {
         $groupId = Route::current()->parameter('groupId');
-        $repoId = Route::current()->parameter('repoId');
+        $repoId  = Route::current()->parameter('repoId');
 
-        $repo = GithubRepository::find($repoId);
+        $repo         = GithubRepository::find($repoId);
         $organization = $repo->organization;
 
         //https://api.github.com/teams/:team_id/repos/:owner/:repo

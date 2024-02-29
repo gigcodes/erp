@@ -55,7 +55,7 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
     /**
      * Enables no-wrapping
      *
-     * @param  array  $options transformation options
+     * @param array $options transformation options
      */
     public function applyTransformationNoWrap(array $options = []): bool
     {
@@ -73,9 +73,10 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
@@ -104,7 +105,7 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
             return $buffer;
         }
 
-        $cfg = $GLOBALS['cfg'];
+        $cfg     = $GLOBALS['cfg'];
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['External']);
 
         if (isset($allowed_programs[$options[0]])) {
@@ -125,7 +126,7 @@ abstract class ExternalTransformationsPlugin extends TransformationsPlugin
         }
 
         // needs PHP >= 4.3.0
-        $newstring = '';
+        $newstring      = '';
         $descriptorspec = [
             0 => [
                 'pipe',

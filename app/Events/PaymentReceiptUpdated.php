@@ -13,6 +13,8 @@ class PaymentReceiptUpdated
     /**
      * Create a new event instance.
      *
+     * @param public $paymentReceipt
+     *
      * @return void
      */
     public function __construct(public $paymentReceipt)

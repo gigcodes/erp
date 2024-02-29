@@ -25,7 +25,7 @@ class CreateBloggerProductRequest extends FormRequest
     {
         return [
             'blogger_id' => 'required',
-            'brand_id' => 'required',
+            'brand_id'   => 'required',
         ];
     }
 }

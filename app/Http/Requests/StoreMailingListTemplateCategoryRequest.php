@@ -32,7 +32,7 @@ class StoreMailingListTemplateCategoryRequest extends FormRequest
     {
         return [
             'name.required' => 'Category name required.',
-            'name.unique' => 'Category name already exists.',
+            'name.unique'   => 'Category name already exists.',
         ];
     }
 }

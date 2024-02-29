@@ -22,7 +22,7 @@ final class ReservedWordCheckController extends AbstractController
             return;
         }
 
-        $columns_names = $_POST['field_name'];
+        $columns_names           = $_POST['field_name'];
         $reserved_keywords_names = [];
         foreach ($columns_names as $column) {
             if (! Context::isKeyword(trim($column), true)) {

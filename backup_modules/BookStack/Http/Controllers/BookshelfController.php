@@ -27,10 +27,10 @@ class BookshelfController extends Controller
      */
     public function __construct(EntityRepo $entityRepo, UserRepo $userRepo, EntityContextManager $entityContextManager, ImageRepo $imageRepo)
     {
-        $this->entityRepo = $entityRepo;
-        $this->userRepo = $userRepo;
+        $this->entityRepo           = $entityRepo;
+        $this->userRepo             = $userRepo;
         $this->entityContextManager = $entityContextManager;
-        $this->imageRepo = $imageRepo;
+        $this->imageRepo            = $imageRepo;
         parent::__construct();
     }
 
@@ -42,11 +42,11 @@ class BookshelfController extends Controller
     public function index()
     {
         return redirect()->route('searchGrid');
-        $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
-        $sort = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
-        $order = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
+        $view        = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
+        $sort        = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
+        $order       = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
         $sortOptions = [
-            'name' => trans('bookstack::common.sort_name'),
+            'name'       => trans('bookstack::common.sort_name'),
             'created_at' => trans('bookstack::common.sort_created_at'),
             'updated_at' => trans('bookstack::common.sort_updated_at'),
         ];
@@ -58,19 +58,19 @@ class BookshelfController extends Controller
 
         $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('bookshelf', 4, 0) : false;
         $popular = $this->entityRepo->getPopular('bookshelf', 4, 0);
-        $new = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
+        $new     = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
 
         $this->entityContextManager->clearShelfContext();
         $this->setPageTitle(trans('bookstack::entities.shelves'));
 
         return view('bookstack::shelves.index', [
-            'shelves' => $shelves,
-            'recents' => $recents,
-            'popular' => $popular,
-            'new' => $new,
-            'view' => $view,
-            'sort' => $sort,
-            'order' => $order,
+            'shelves'     => $shelves,
+            'recents'     => $recents,
+            'popular'     => $popular,
+            'new'         => $new,
+            'view'        => $view,
+            'sort'        => $sort,
+            'order'       => $order,
             'sortOptions' => $sortOptions,
         ]);
     }
@@ -100,9 +100,9 @@ class BookshelfController extends Controller
     {
         $this->checkPermission('bookshelf-create-all');
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'string|max:1000',
-            'image' => $this->imageRepo->getImageValidationRules(),
+            'image'       => $this->imageRepo->getImageValidationRules(),
         ]);
 
         $shelf = $this->entityRepo->createFromInput('bookshelf', $request->all());
@@ -133,19 +133,19 @@ class BookshelfController extends Controller
         $this->setPageTitle($shelf->getShortName());
 
         return view('bookstack::shelves.show', [
-            'shelf' => $shelf,
-            'books' => $books,
+            'shelf'    => $shelf,
+            'books'    => $books,
             'activity' => Activity::entityActivity($shelf, 20, 1),
         ]);
     }
 
     public function showShelf($sortByView, $sortByDate)
     {
-        $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
-        $sort = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
-        $order = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
+        $view        = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
+        $sort        = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
+        $order       = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
         $sortOptions = [
-            'name' => trans('bookstack::common.sort_name'),
+            'name'       => trans('bookstack::common.sort_name'),
             'created_at' => trans('bookstack::common.sort_created_at'),
             'updated_at' => trans('bookstack::common.sort_updated_at'),
         ];
@@ -157,18 +157,18 @@ class BookshelfController extends Controller
 
         $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('bookshelf', 4, 0) : false;
         $popular = $this->entityRepo->getPopular('bookshelf', 4, 0);
-        $new = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
+        $new     = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
 
         $this->entityContextManager->clearShelfContext();
 
         return response()->json([
-            'shelves' => $shelves,
-            'recents' => $recents,
-            'popular' => $popular,
-            'new' => $new,
-            'view' => $view,
-            'sort' => $sort,
-            'order' => $order,
+            'shelves'     => $shelves,
+            'recents'     => $recents,
+            'popular'     => $popular,
+            'new'         => $new,
+            'view'        => $view,
+            'sort'        => $sort,
+            'order'       => $order,
             'sortOptions' => $sortOptions,
         ]);
     }
@@ -185,18 +185,18 @@ class BookshelfController extends Controller
         $shelf = $this->entityRepo->getBySlug('bookshelf', $slug); /** @var $shelf Bookshelf */
         $this->checkOwnablePermission('bookshelf-update', $shelf);
 
-        $shelfBooks = $this->entityRepo->getBookshelfChildren($shelf);
+        $shelfBooks   = $this->entityRepo->getBookshelfChildren($shelf);
         $shelfBookIds = $shelfBooks->pluck('id');
-        $books = $this->entityRepo->getAll('book', false, 'update');
-        $books = $books->filter(function ($book) use ($shelfBookIds) {
+        $books        = $this->entityRepo->getAll('book', false, 'update');
+        $books        = $books->filter(function ($book) use ($shelfBookIds) {
             return ! $shelfBookIds->contains($book->id);
         });
 
         $this->setPageTitle(trans('bookstack::entities.shelves_edit_named', ['name' => $shelf->getShortName()]));
 
         return view('bookstack::shelves.edit', [
-            'shelf' => $shelf,
-            'books' => $books,
+            'shelf'      => $shelf,
+            'books'      => $books,
             'shelfBooks' => $shelfBooks,
         ]);
     }
@@ -214,9 +214,9 @@ class BookshelfController extends Controller
         $shelf = $this->entityRepo->getBySlug('bookshelf', $slug); /** @var $bookshelf Bookshelf */
         $this->checkOwnablePermission('bookshelf-update', $shelf);
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'string|max:1000',
-            'image' => $this->imageRepo->getImageValidationRules(),
+            'image'       => $this->imageRepo->getImageValidationRules(),
         ]);
 
         $shelf = $this->entityRepo->updateFromInput('bookshelf', $shelf, $request->all());
@@ -338,7 +338,7 @@ class BookshelfController extends Controller
         if ($request->has('image')) {
             $newImage = $request->file('image');
             $this->imageRepo->destroyImage($shelf->cover);
-            $image = $this->imageRepo->saveNew($newImage, 'cover_shelf', $shelf->id, 512, 512, true);
+            $image           = $this->imageRepo->saveNew($newImage, 'cover_shelf', $shelf->id, 512, 512, true);
             $shelf->image_id = $image->id;
             $shelf->save();
         }

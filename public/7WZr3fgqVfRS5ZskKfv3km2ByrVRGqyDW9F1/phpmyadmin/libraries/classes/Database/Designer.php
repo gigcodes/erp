@@ -35,13 +35,13 @@ class Designer
     public $template;
 
     /**
-     * @param  DatabaseInterface  $dbi      DatabaseInterface object
-     * @param  Relation  $relation Relation instance
-     * @param  Template  $template Template instance
+     * @param DatabaseInterface $dbi      DatabaseInterface object
+     * @param Relation          $relation Relation instance
+     * @param Template          $template Template instance
      */
     public function __construct(DatabaseInterface $dbi, Relation $relation, Template $template)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = $relation;
         $this->template = $template;
     }
@@ -49,8 +49,9 @@ class Designer
     /**
      * Function to get html for displaying the page edit/delete form
      *
-     * @param  string  $db        database name
-     * @param  string  $operation 'edit' or 'delete' depending on the operation
+     * @param string $db        database name
+     * @param string $operation 'edit' or 'delete' depending on the operation
+     *
      * @return string html content
      */
     public function getHtmlForEditOrDeletePages($db, $operation)
@@ -58,17 +59,18 @@ class Designer
         $relationParameters = $this->relation->getRelationParameters();
 
         return $this->template->render('database/designer/edit_delete_pages', [
-            'db' => $db,
+            'db'        => $db,
             'operation' => $operation,
-            'pdfwork' => $relationParameters->pdfFeature !== null,
-            'pages' => $this->getPageIdsAndNames($db),
+            'pdfwork'   => $relationParameters->pdfFeature !== null,
+            'pages'     => $this->getPageIdsAndNames($db),
         ]);
     }
 
     /**
      * Function to get html for displaying the page save as form
      *
-     * @param  string  $db database name
+     * @param string $db database name
+     *
      * @return string html content
      */
     public function getHtmlForPageSaveAs($db)
@@ -76,16 +78,17 @@ class Designer
         $relationParameters = $this->relation->getRelationParameters();
 
         return $this->template->render('database/designer/page_save_as', [
-            'db' => $db,
+            'db'      => $db,
             'pdfwork' => $relationParameters->pdfFeature !== null,
-            'pages' => $this->getPageIdsAndNames($db),
+            'pages'   => $this->getPageIdsAndNames($db),
         ]);
     }
 
     /**
      * Retrieve IDs and names of schema pages
      *
-     * @param  string  $db database name
+     * @param string $db database name
+     *
      * @return array array of schema page id and names
      */
     private function getPageIdsAndNames($db)
@@ -117,8 +120,9 @@ class Designer
     /**
      * Function to get html for displaying the schema export
      *
-     * @param  string  $db   database name
-     * @param  int  $page the page to be exported
+     * @param string $db   database name
+     * @param int    $page the page to be exported
+     *
      * @return string
      */
     public function getHtmlForSchemaExport($db, $page)
@@ -135,14 +139,14 @@ class Designer
         $default = isset($_GET['export_type'])
             ? (string) $_GET['export_type']
             : Plugins::getDefault('Schema', 'format');
-        $choice = Plugins::getChoice($export_list, $default);
+        $choice  = Plugins::getChoice($export_list, $default);
         $options = Plugins::getOptions('Schema', $export_list);
 
         return $this->template->render('database/designer/schema_export', [
-            'db' => $db,
-            'page' => $page,
+            'db'             => $db,
+            'page'           => $page,
             'plugins_choice' => $choice,
-            'options' => $options,
+            'options'        => $options,
         ]);
     }
 
@@ -183,7 +187,7 @@ class Designer
     public function returnClassNamesFromMenuButtons()
     {
         $classes_array = [];
-        $params_array = $this->getSideMenuParamsArray();
+        $params_array  = $this->getSideMenuParamsArray();
 
         if (isset($params_array['angular_direct']) && $params_array['angular_direct'] === 'angular') {
             $classes_array['angular_direct'] = 'M_butt_Selected_down';
@@ -227,13 +231,14 @@ class Designer
     /**
      * Get HTML to display tables on designer page
      *
-     * @param  string  $db                       The database name from the request
-     * @param  DesignerTable[]  $designerTables           The designer tables
-     * @param  array  $tab_pos                  tables positions
-     * @param  int  $display_page             page number of the selected page
-     * @param  array  $tab_column               table column info
-     * @param  array  $tables_all_keys          all indices
-     * @param  array  $tables_pk_or_unique_keys unique or primary indices
+     * @param string          $db                       The database name from the request
+     * @param DesignerTable[] $designerTables           The designer tables
+     * @param array           $tab_pos                  tables positions
+     * @param int             $display_page             page number of the selected page
+     * @param array           $tab_column               table column info
+     * @param array           $tables_all_keys          all indices
+     * @param array           $tables_pk_or_unique_keys unique or primary indices
+     *
      * @return string html
      */
     public function getDatabaseTables(
@@ -250,7 +255,7 @@ class Designer
         $columns_type = [];
         foreach ($designerTables as $designerTable) {
             $table_name = $designerTable->getDbTableString();
-            $limit = count($tab_column[$table_name]['COLUMN_ID']);
+            $limit      = count($tab_column[$table_name]['COLUMN_ID']);
             for ($j = 0; $j < $limit; $j++) {
                 $table_column_name = $table_name . '.' . $tab_column[$table_name]['COLUMN_NAME'][$j];
                 if (isset($tables_pk_or_unique_keys[$table_column_name])) {
@@ -281,37 +286,38 @@ class Designer
         }
 
         return $this->template->render('database/designer/database_tables', [
-            'db' => $GLOBALS['db'],
-            'text_dir' => $text_dir,
-            'get_db' => $db,
-            'has_query' => isset($_REQUEST['query']),
-            'tab_pos' => $tab_pos,
-            'display_page' => $display_page,
-            'tab_column' => $tab_column,
-            'tables_all_keys' => $tables_all_keys,
+            'db'                       => $GLOBALS['db'],
+            'text_dir'                 => $text_dir,
+            'get_db'                   => $db,
+            'has_query'                => isset($_REQUEST['query']),
+            'tab_pos'                  => $tab_pos,
+            'display_page'             => $display_page,
+            'tab_column'               => $tab_column,
+            'tables_all_keys'          => $tables_all_keys,
             'tables_pk_or_unique_keys' => $tables_pk_or_unique_keys,
-            'tables' => $designerTables,
-            'columns_type' => $columns_type,
+            'tables'                   => $designerTables,
+            'columns_type'             => $columns_type,
         ]);
     }
 
     /**
      * Returns HTML for Designer page
      *
-     * @param  string  $db                   database in use
-     * @param  string  $getDb                database in url
-     * @param  DesignerTable[]  $designerTables       The designer tables
-     * @param  array  $scriptTables         array on foreign key support for each table
-     * @param  array  $scriptContr          initialization data array
-     * @param  DesignerTable[]  $scriptDisplayField   displayed tables in designer with their display fields
-     * @param  int  $displayPage          page number of the selected page
-     * @param  bool  $visualBuilderMode    whether this is visual query builder
-     * @param  string  $selectedPage         name of the selected page
-     * @param  array  $paramsArray          array with class name for various buttons on side menu
-     * @param  array|null  $tabPos               table positions
-     * @param  array  $tabColumn            table column info
-     * @param  array  $tablesAllKeys        all indices
-     * @param  array  $tablesPkOrUniqueKeys unique or primary indices
+     * @param string          $db                   database in use
+     * @param string          $getDb                database in url
+     * @param DesignerTable[] $designerTables       The designer tables
+     * @param array           $scriptTables         array on foreign key support for each table
+     * @param array           $scriptContr          initialization data array
+     * @param DesignerTable[] $scriptDisplayField   displayed tables in designer with their display fields
+     * @param int             $displayPage          page number of the selected page
+     * @param bool            $visualBuilderMode    whether this is visual query builder
+     * @param string          $selectedPage         name of the selected page
+     * @param array           $paramsArray          array with class name for various buttons on side menu
+     * @param array|null      $tabPos               table positions
+     * @param array           $tabColumn            table column info
+     * @param array           $tablesAllKeys        all indices
+     * @param array           $tablesPkOrUniqueKeys unique or primary indices
+     *
      * @return string html
      */
     public function getHtmlForMain(
@@ -333,10 +339,10 @@ class Designer
         global $text_dir;
 
         $relationParameters = $this->relation->getRelationParameters();
-        $columnsType = [];
+        $columnsType        = [];
         foreach ($designerTables as $designerTable) {
             $tableName = $designerTable->getDbTableString();
-            $limit = count($tabColumn[$tableName]['COLUMN_ID']);
+            $limit     = count($tabColumn[$tableName]['COLUMN_ID']);
             for ($j = 0; $j < $limit; $j++) {
                 $tableColumnName = $tableName . '.' . $tabColumn[$tableName]['COLUMN_NAME'][$j];
                 if (isset($tablesPkOrUniqueKeys[$tableColumnName])) {
@@ -375,31 +381,31 @@ class Designer
             $displayedFields[$designerTable->getTableName()] = $designerTable->getDisplayField();
         }
 
-        $designerConfig = new stdClass();
-        $designerConfig->db = $db;
-        $designerConfig->scriptTables = $scriptTables;
-        $designerConfig->scriptContr = $scriptContr;
-        $designerConfig->server = $GLOBALS['server'];
+        $designerConfig                     = new stdClass();
+        $designerConfig->db                 = $db;
+        $designerConfig->scriptTables       = $scriptTables;
+        $designerConfig->scriptContr        = $scriptContr;
+        $designerConfig->server             = $GLOBALS['server'];
         $designerConfig->scriptDisplayField = $displayedFields;
-        $designerConfig->displayPage = (int) $displayPage;
-        $designerConfig->tablesEnabled = $relationParameters->pdfFeature !== null;
+        $designerConfig->displayPage        = (int) $displayPage;
+        $designerConfig->tablesEnabled      = $relationParameters->pdfFeature !== null;
 
         return $this->template->render('database/designer/main', [
-            'db' => $db,
-            'text_dir' => $text_dir,
-            'get_db' => $getDb,
-            'designer_config' => json_encode($designerConfig),
-            'display_page' => (int) $displayPage,
-            'has_query' => $visualBuilderMode,
-            'visual_builder' => $visualBuilderMode,
-            'selected_page' => $selectedPage,
-            'params_array' => $paramsArray,
-            'tab_pos' => $tabPos,
-            'tab_column' => $tabColumn,
-            'tables_all_keys' => $tablesAllKeys,
+            'db'                       => $db,
+            'text_dir'                 => $text_dir,
+            'get_db'                   => $getDb,
+            'designer_config'          => json_encode($designerConfig),
+            'display_page'             => (int) $displayPage,
+            'has_query'                => $visualBuilderMode,
+            'visual_builder'           => $visualBuilderMode,
+            'selected_page'            => $selectedPage,
+            'params_array'             => $paramsArray,
+            'tab_pos'                  => $tabPos,
+            'tab_column'               => $tabColumn,
+            'tables_all_keys'          => $tablesAllKeys,
             'tables_pk_or_unique_keys' => $tablesPkOrUniqueKeys,
-            'designerTables' => $designerTables,
-            'columns_type' => $columnsType,
+            'designerTables'           => $designerTables,
+            'columns_type'             => $columnsType,
         ]);
     }
 }

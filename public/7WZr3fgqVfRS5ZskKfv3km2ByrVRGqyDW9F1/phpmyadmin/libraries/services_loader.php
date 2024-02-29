@@ -9,7 +9,7 @@ use function is_string;
 use Symfony\Component\DependencyInjection\Reference;
 
 return static function (ContainerConfigurator $configurator): void {
-    $services = $configurator->services();
+    $services     = $configurator->services();
     $loadServices = static function (array $servicesFile, ServicesConfigurator $services): void {
         foreach ($servicesFile['services'] as $serviceName => $service) {
             if (is_string($service)) {

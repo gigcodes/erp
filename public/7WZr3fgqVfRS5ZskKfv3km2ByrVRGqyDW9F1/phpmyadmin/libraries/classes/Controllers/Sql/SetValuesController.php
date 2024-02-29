@@ -28,7 +28,7 @@ final class SetValuesController extends AbstractController
         CheckUserPrivileges $checkUserPrivileges
     ) {
         parent::__construct($response, $template);
-        $this->sql = $sql;
+        $this->sql                 = $sql;
         $this->checkUserPrivileges = $checkUserPrivileges;
     }
 
@@ -41,10 +41,10 @@ final class SetValuesController extends AbstractController
 
         $this->checkUserPrivileges->getPrivileges();
 
-        $column = $_POST['column'];
+        $column       = $_POST['column'];
         $currentValue = $_POST['curr_value'];
-        $fullValues = $_POST['get_full_values'] ?? false;
-        $whereClause = $_POST['where_clause'] ?? null;
+        $fullValues   = $_POST['get_full_values'] ?? false;
+        $whereClause  = $_POST['where_clause'] ?? null;
 
         $values = $this->sql->getValuesForColumn($db, $table, $column);
 
@@ -64,7 +64,7 @@ final class SetValuesController extends AbstractController
         $convertedCurrentValue = htmlentities($currentValue, ENT_COMPAT, 'UTF-8');
 
         $select = $this->template->render('sql/set_column', [
-            'values' => $values,
+            'values'         => $values,
             'current_values' => $convertedCurrentValue,
         ]);
 

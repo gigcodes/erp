@@ -36,8 +36,8 @@ class GoogleTranslate
             ->first();
 
             if (! empty($file)) {
-                $jsonArray = (array) json_decode($file->account_json);
-                $lastFileId = $file->id;
+                $jsonArray    = (array) json_decode($file->account_json);
+                $lastFileId   = $file->id;
                 $keyFileArray = [
                     'keyFile' => $jsonArray,
                 ];
@@ -60,10 +60,10 @@ class GoogleTranslate
             } else {
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => 0,
-                    'messages' => 'Not any account found',
-                    'code' => 404,
-                    'domain' => ' ',
-                    'reason' => ' ',
+                    'messages'                      => 'Not any account found',
+                    'code'                          => 404,
+                    'domain'                        => ' ',
+                    'reason'                        => ' ',
                 ]);
 
                 if ($throwException) {
@@ -72,27 +72,27 @@ class GoogleTranslate
             }
         } catch (\Google\Cloud\Core\Exception\ServiceException $e) {
             \Log::error($e);
-            $message = json_decode($e->getMessage());
+            $message      = json_decode($e->getMessage());
             $errorMessage = '';
 
             if (isset($message) && isset($message->error)) {
                 $errorMessage = $message->error->message;
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
-                    'messages' => $message->error->message,
-                    'code' => $message->error->code,
-                    'domain' => $message->error->errors[0]->domain,
-                    'reason' => $message->error->errors[0]->reason,
+                    'messages'                      => $message->error->message,
+                    'code'                          => $message->error->code,
+                    'domain'                        => $message->error->errors[0]->domain,
+                    'reason'                        => $message->error->errors[0]->reason,
                 ]);
             } else {
                 // Sensitive error message
                 $errorMessage = 'Something went wrong while translating.';
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
-                    'messages' => $e->getMessage(),
-                    'code' => $e->getCode(),
-                    'domain' => ' ',
-                    'reason' => ' ',
+                    'messages'                      => $e->getMessage(),
+                    'code'                          => $e->getCode(),
+                    'domain'                        => ' ',
+                    'reason'                        => ' ',
                 ]);
             }
             if (! empty($lastFileId)) {
@@ -121,10 +121,10 @@ class GoogleTranslate
             if (isset($lastFileId)) {
                 $translateLog = TranslateLog::log([
                     'google_traslation_settings_id' => (! empty($lastFileId)) ? $lastFileId : 0,
-                    'messages' => $e->getMessage(),
-                    'code' => 404,
-                    'domain' => ' ',
-                    'reason' => ' ',
+                    'messages'                      => $e->getMessage(),
+                    'code'                          => 404,
+                    'domain'                        => ' ',
+                    'reason'                        => ' ',
                 ]);
                 $googleTraslationSettings = new googleTraslationSettings;
                 $googleTraslationSettings->where('id', $lastFileId)
@@ -152,14 +152,14 @@ class GoogleTranslate
             ->first();
 
             if (! empty($file)) {
-                $jsonArray = (array) json_decode($file->account_json);
-                $lastFileId = $file->id;
+                $jsonArray    = (array) json_decode($file->account_json);
+                $lastFileId   = $file->id;
                 $keyFileArray = [
                     'keyFile' => $jsonArray,
                 ];
 
                 $translate = new TranslateClient($keyFileArray);
-                $result = $translate->detectLanguage($text);
+                $result    = $translate->detectLanguage($text);
 
                 return $result;
             }

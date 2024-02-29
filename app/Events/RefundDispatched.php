@@ -15,6 +15,8 @@ class RefundDispatched
     /**
      * Create a new event instance.
      *
+     * @param publicReturnExchange $refund
+     *
      * @return void
      */
     public function __construct(public ReturnExchange $refund)

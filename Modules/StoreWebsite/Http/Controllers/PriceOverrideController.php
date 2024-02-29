@@ -20,7 +20,7 @@ class PriceOverrideController extends Controller
     {
         $title = 'Price override | Store Website';
 
-        $allCategoriesDropdown = Category::attr(['name' => 'category_id', 'class' => 'form-control cat-selection-dropdown', 'style' => 'width:100%;'])->renderAsDropdown();
+        $allCategoriesDropdown         = Category::attr(['name' => 'category_id', 'class' => 'form-control cat-selection-dropdown', 'style' => 'width:100%;'])->renderAsDropdown();
         $allMultipleCategoriesDropdown = Category::attr(['name' => 'category_ids[]', 'class' => 'form-control select2', 'style' => 'width:100%;', 'multiple' => true])->renderAsDropdown();
 
         return view('storewebsite::price-override.index', compact('title', 'allCategoriesDropdown', 'allMultipleCategoriesDropdown'));
@@ -51,11 +51,11 @@ class PriceOverrideController extends Controller
         $modal = $modal->orderby('price_overrides.id', 'DESC')->paginate(12);
 
         return response()->json([
-            'code' => 200,
-            'data' => $modal->items(),
+            'code'       => 200,
+            'data'       => $modal->items(),
             'pagination' => (string) $modal->links(),
-            'total' => $modal->total(),
-            'page' => $modal->currentPage(),
+            'total'      => $modal->total(),
+            'page'       => $modal->currentPage(),
         ]);
     }
 
@@ -69,7 +69,7 @@ class PriceOverrideController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -88,8 +88,8 @@ class PriceOverrideController extends Controller
 
             //get all brand segement
             $allBrandSegments = $request->get('brand_segments');
-            $allCategories = $request->get('category_ids');
-            $allCountries = $request->get('country_codes');
+            $allCategories    = $request->get('category_ids');
+            $allCountries     = $request->get('country_codes');
 
             $isRun = false;
             if (! empty($allBrandSegments)) {
@@ -98,8 +98,8 @@ class PriceOverrideController extends Controller
                         foreach ($allCategories as $allCat) {
                             if (! empty($allCountries)) {
                                 foreach ($allCountries as $allCountry) {
-                                    $post['country_code'] = $allCountry;
-                                    $post['category_id'] = $allCat;
+                                    $post['country_code']  = $allCountry;
+                                    $post['category_id']   = $allCat;
                                     $post['brand_segment'] = $brandSegment;
 
                                     $records = new PriceOverride;
@@ -119,7 +119,7 @@ class PriceOverrideController extends Controller
                     foreach ($allBrandSegments as $brandSegment) {
                         if (! empty($allCategories)) {
                             foreach ($allCategories as $allCountry) {
-                                $post['category_id'] = $allCountry;
+                                $post['category_id']   = $allCountry;
                                 $post['brand_segment'] = $brandSegment;
 
                                 $records = new PriceOverride;
@@ -138,7 +138,7 @@ class PriceOverrideController extends Controller
                     foreach ($allBrandSegments as $brandSegment) {
                         if (! empty($allCountries)) {
                             foreach ($allCountries as $allCountry) {
-                                $post['country_code'] = $allCountry;
+                                $post['country_code']  = $allCountry;
                                 $post['brand_segment'] = $brandSegment;
 
                                 $records = new PriceOverride;
@@ -156,7 +156,7 @@ class PriceOverrideController extends Controller
                 if (! empty($allBrandSegments)) {
                     foreach ($allBrandSegments as $brandSegment) {
                         $post['brand_segment'] = $brandSegment;
-                        $records = new PriceOverride;
+                        $records               = new PriceOverride;
                         $records->fill($post);
                         $records->save();
 
@@ -169,7 +169,7 @@ class PriceOverrideController extends Controller
                 if (! empty($allCountries)) {
                     foreach ($allCountries as $allCountry) {
                         $post['country_code'] = $allCountry;
-                        $records = new PriceOverride;
+                        $records              = new PriceOverride;
                         $records->fill($post);
                         $records->save();
 
@@ -182,7 +182,7 @@ class PriceOverrideController extends Controller
                 if (! empty($allCategories)) {
                     foreach ($allCategories as $allCountry) {
                         $post['category_id'] = $allCountry;
-                        $records = new PriceOverride;
+                        $records             = new PriceOverride;
                         $records->fill($post);
                         $records->save();
 
@@ -203,7 +203,8 @@ class PriceOverrideController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -219,7 +220,8 @@ class PriceOverrideController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -237,7 +239,7 @@ class PriceOverrideController extends Controller
     public function calculate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
+            'product_id'    => 'required',
             'store_website' => 'required',
             //'country_id'       => 'required',
         ]);
@@ -251,7 +253,7 @@ class PriceOverrideController extends Controller
         $product = \App\Product::find($request->product_id);
 
         if ($product) {
-            $price = $product->getPrice($request->store_website, $request->country_code);
+            $price         = $product->getPrice($request->store_website, $request->country_code);
             $price['duty'] = $product->getDuty($request->country_code);
 
             return response()->json(['code' => 200, 'data' => $price]);
@@ -264,7 +266,7 @@ class PriceOverrideController extends Controller
     {
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';

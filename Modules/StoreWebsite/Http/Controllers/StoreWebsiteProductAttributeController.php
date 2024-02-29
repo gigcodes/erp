@@ -28,7 +28,7 @@ class StoreWebsiteProductAttributeController extends Controller
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function records(Request $request)
     {
@@ -46,7 +46,7 @@ class StoreWebsiteProductAttributeController extends Controller
         $items = [];
         foreach ($records->items() as $k => &$item) {
             $item->description = strlen($item->description) > 15 ? substr($item->description, 0, 15) . '...' : $item->description;
-            $items[] = $item;
+            $items[]           = $item;
         }
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => count($records)]);
@@ -55,22 +55,22 @@ class StoreWebsiteProductAttributeController extends Controller
     /**
      * records Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
      */
     public function store(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'product_id' => 'required',
-            'description' => 'required',
-            'price' => 'required',
-            'discount' => 'required',
+            'product_id'    => 'required',
+            'description'   => 'required',
+            'price'         => 'required',
+            'discount'      => 'required',
             'discount_type' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -97,7 +97,8 @@ class StoreWebsiteProductAttributeController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -113,7 +114,8 @@ class StoreWebsiteProductAttributeController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {

@@ -16,6 +16,8 @@ class MessageCreated implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
+     * @param publicMessage $message
+     *
      * @return void
      */
     public function __construct(public Message $message)

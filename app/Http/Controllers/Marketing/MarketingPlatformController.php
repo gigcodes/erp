@@ -75,7 +75,8 @@ class MarketingPlatformController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\MarketingPlatform  $marketingPlatform
+     * @param \App\MarketingPlatform $marketingPlatform
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(MarketingPlatform $marketingPlatform)
@@ -86,7 +87,8 @@ class MarketingPlatformController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\MarketingPlatform  $marketingPlatform
+     * @param \App\MarketingPlatform $marketingPlatform
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
@@ -95,7 +97,7 @@ class MarketingPlatformController extends Controller
             'name' => 'required|min:3|max:255',
         ]);
         $platform = MarketingPlatform::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $data     = $request->except('_token', 'id');
         $platform->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Marketing Platform');
@@ -104,7 +106,8 @@ class MarketingPlatformController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\MarketingPlatform  $marketingPlatform
+     * @param \App\MarketingPlatform $marketingPlatform
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, MarketingPlatform $marketingPlatform)
@@ -115,7 +118,8 @@ class MarketingPlatformController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\MarketingPlatform  $marketingPlatform
+     * @param \App\MarketingPlatform $marketingPlatform
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)

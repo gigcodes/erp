@@ -30,16 +30,16 @@ class Timedoctor
     public function generateAuthToken($account_id): bool
     {
         $getTimeDoctorAccount = TimeDoctorAccount::find($account_id);
-        $url = $this->base_url . 'authorization/login';
+        $url                  = $this->base_url . 'authorization/login';
         try {
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'email' => $getTimeDoctorAccount->time_doctor_email,
-                'password' => $getTimeDoctorAccount->time_doctor_password,
+                'email'       => $getTimeDoctorAccount->time_doctor_email,
+                'password'    => $getTimeDoctorAccount->time_doctor_password,
                 'permissions' => 'write',
             ]);
-            $parsedResponse = $http->json();
+            $parsedResponse                   = $http->json();
             $getTimeDoctorAccount->auth_token = $parsedResponse->data->token;
             $getTimeDoctorAccount->company_id = $parsedResponse->data->companies[0]->id;
 
@@ -58,14 +58,14 @@ class Timedoctor
 
     public function getMemberList($company_id, $access_token)
     {
-        $url = $this->base_url . 'users?company=' . $company_id . '&token=' . $access_token;
-        $http = Http::get($url);
+        $url      = $this->base_url . 'users?company=' . $company_id . '&token=' . $access_token;
+        $http     = Http::get($url);
         $response = $http->json();
 
         TimeDoctorLog::create([
-            'url' => $url,
-            'response' => $http->body(),
-            'user_id' => \Auth::user()->id,
+            'url'           => $url,
+            'response'      => $http->body(),
+            'user_id'       => \Auth::user()->id,
             'response_code' => $http->status(),
         ]);
 
@@ -74,7 +74,7 @@ class Timedoctor
 
     public function getProjectList($company_id, $access_token)
     {
-        $url = $this->base_url . 'projects?company=' . $company_id . '&token=' . $access_token;
+        $url  = $this->base_url . 'projects?company=' . $company_id . '&token=' . $access_token;
         $http = Http::get($url);
 
         return $http->json();
@@ -83,11 +83,11 @@ class Timedoctor
     public function createProject($company_id, $access_token, $project_data): bool
     {
         try {
-            $url = $this->base_url . 'projects?company=' . $company_id . '&token=' . $access_token;
+            $url  = $this->base_url . 'projects?company=' . $company_id . '&token=' . $access_token;
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'name' => $project_data['time_doctor_project_name'],
+                'name'        => $project_data['time_doctor_project_name'],
                 'description' => $project_data['time_doctor_project_description'],
             ]);
 
@@ -99,7 +99,7 @@ class Timedoctor
 
     public function getTaskList($company_id, $access_token)
     {
-        $url = $this->base_url . 'tasks?company=' . $company_id . '&token=' . $access_token;
+        $url  = $this->base_url . 'tasks?company=' . $company_id . '&token=' . $access_token;
         $http = Http::get($url);
 
         return $http->json();
@@ -120,36 +120,36 @@ class Timedoctor
     {
         try {
             [$url, $response, $parsedResponse] = $this->createBaseTask($company_id, $access_token, $project_data);
-            $responseCode = $response->status();
+            $responseCode                      = $response->status();
             TimeDoctorLog::create([
-                'url' => $url,
+                'url'     => $url,
                 'payload' => json_encode([
-                    'project' => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
-                    'name' => $project_data['time_doctor_task_name'],
+                    'project'     => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
+                    'name'        => $project_data['time_doctor_task_name'],
                     'description' => $project_data['time_doctor_task_description'],
                 ]),
-                'response' => $response->body(),
-                'user_id' => \Auth::user()->id,
+                'response'      => $response->body(),
+                'user_id'       => \Auth::user()->id,
                 'response_code' => $responseCode,
-                'dev_task_id' => $type == 'DEVTASK' ? $task_id : null,
-                'task_id' => $type == 'TASK' ? $task_id : null,
+                'dev_task_id'   => $type == 'DEVTASK' ? $task_id : null,
+                'task_id'       => $type == 'TASK' ? $task_id : null,
             ]);
 
             return ['code' => $responseCode, 'data' => ['id' => $parsedResponse->data->id], 'message' => $response->getReasonPhrase()];
         } catch (\Exception $e) {
             $responseCode = $e->getCode();
             TimeDoctorLog::create([
-                'url' => $url ?? '',
+                'url'     => $url ?? '',
                 'payload' => json_encode([
-                    'project' => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
-                    'name' => $project_data['time_doctor_task_name'],
+                    'project'     => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
+                    'name'        => $project_data['time_doctor_task_name'],
                     'description' => $project_data['time_doctor_task_description'],
                 ]),
-                'response' => $e->getMessage(),
-                'user_id' => \Auth::user()->id,
+                'response'      => $e->getMessage(),
+                'user_id'       => \Auth::user()->id,
                 'response_code' => $responseCode,
-                'dev_task_id' => $type == 'DEVTASK' ? $task_id : null,
-                'task_id' => $type == 'TASK' ? $task_id : null,
+                'dev_task_id'   => $type == 'DEVTASK' ? $task_id : null,
+                'task_id'       => $type == 'TASK' ? $task_id : null,
             ]);
 
             return ['code' => $responseCode, 'data' => [], 'message' => $e->getMessage()];
@@ -159,12 +159,12 @@ class Timedoctor
     public function updateTask($company_id, $access_token, $project_data): bool
     {
         try {
-            $url = $this->base_url . 'tasks/' . $project_data['taskId'] . '?company=' . $company_id . '&token=' . $access_token;
+            $url  = $this->base_url . 'tasks/' . $project_data['taskId'] . '?company=' . $company_id . '&token=' . $access_token;
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'project' => ['id' => $project_data['taskProject'], 'weight' => 0],
-                'name' => $project_data['taskName'],
+                'project'     => ['id' => $project_data['taskProject'], 'weight' => 0],
+                'name'        => $project_data['taskName'],
                 'description' => $project_data['taskDescription'],
             ]);
 
@@ -177,11 +177,11 @@ class Timedoctor
     public function updateProject($company_id, $access_token, $project_data): bool
     {
         try {
-            $url = $this->base_url . 'projects/' . $project_data['projectId'] . '?company=' . $company_id . '&token=' . $access_token;
+            $url  = $this->base_url . 'projects/' . $project_data['projectId'] . '?company=' . $company_id . '&token=' . $access_token;
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'name' => $project_data['projectName'],
+                'name'        => $project_data['projectName'],
                 'description' => $project_data['projectDescription'],
             ]);
 
@@ -193,22 +193,22 @@ class Timedoctor
 
     public function getActivityListOld($company_id, $access_token, $user_id, $start = '', $end = ''): array
     {
-        $members = TimeDoctorMember::where('time_doctor_account_id', $user_id)->select('time_doctor_user_id')->get();
-        $memberId = implode(',', array_column($members->toArray(), 'time_doctor_user_id'));
-        $end = date('Y-m-d', strtotime($end . ' +1 day'));
-        $url = $this->base_url . 'activity/worklog?company=' . $company_id . '&user=' . $memberId . '&from=' . $start . '&to=' . $end . '&token=' . $access_token;
-        $http = Http::get($url);
+        $members        = TimeDoctorMember::where('time_doctor_account_id', $user_id)->select('time_doctor_user_id')->get();
+        $memberId       = implode(',', array_column($members->toArray(), 'time_doctor_user_id'));
+        $end            = date('Y-m-d', strtotime($end . ' +1 day'));
+        $url            = $this->base_url . 'activity/worklog?company=' . $company_id . '&user=' . $memberId . '&from=' . $start . '&to=' . $end . '&token=' . $access_token;
+        $http           = Http::get($url);
         $parsedResponse = $http->json();
-        $activities = [];
+        $activities     = [];
 
         foreach ($parsedResponse->data as $activity_data) {
             foreach ($activity_data as $activity) {
                 $res = [
-                    'user_id' => $activity->userId,
-                    'task_id' => $activity->taskId,
+                    'user_id'   => $activity->userId,
+                    'task_id'   => $activity->taskId,
                     'starts_at' => $activity->start,
-                    'tracked' => $activity->time,
-                    'project' => $activity->projectId,
+                    'tracked'   => $activity->time,
+                    'project'   => $activity->projectId,
                 ];
                 $activities[] = $res;
             }
@@ -219,10 +219,10 @@ class Timedoctor
 
     public function getActivityList($company_id, $access_token, $user_id, $start = '', $end = ''): array
     {
-        $members = TimeDoctorMember::where('user_id', $user_id)->get();
+        $members    = TimeDoctorMember::where('user_id', $user_id)->get();
         $activities = [];
         foreach ($members as $member) {
-            $end = date('Y-m-d', strtotime($end . ' +1 day'));
+            $end        = date('Y-m-d', strtotime($end . ' +1 day'));
             $activities = $this->getArr($member, $start, $end, $activities);
         }
 
@@ -231,9 +231,9 @@ class Timedoctor
 
     public function getActivityListCommand($company_id, $access_token, $user_id): array
     {
-        $members = TimeDoctorMember::where('user_id', $user_id)->get();
-        $start = date('Y-m-d');
-        $end = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
+        $members    = TimeDoctorMember::where('user_id', $user_id)->get();
+        $start      = date('Y-m-d');
+        $end        = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         $activities = [];
         foreach ($members as $member) {
             $activities = $this->getArr($member, $start, $end, $activities);
@@ -245,14 +245,14 @@ class Timedoctor
     public function sendSingleInvitation($company_id, $access_token, $data = []): array
     {
         try {
-            $url = 'https://api2.timedoctor.com/api/1.1/invitations?company=' . $company_id . '&token=' . $access_token;
+            $url  = 'https://api2.timedoctor.com/api/1.1/invitations?company=' . $company_id . '&token=' . $access_token;
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'email' => $data['email'] ?? '',
-                'name' => $data['name'] ?? '',
-                'role' => $data['role'] ?? '',
-                'employeeId' => $data['employeeId'] ?? '',
+                'email'       => $data['email'] ?? '',
+                'name'        => $data['name'] ?? '',
+                'role'        => $data['role'] ?? '',
+                'employeeId'  => $data['employeeId'] ?? '',
                 'noSendEmail' => $data['noSendEmail'] ?? 'false',
             ]);
             $parsedResponse = $http->json();
@@ -266,7 +266,7 @@ class Timedoctor
     public function sendBulkInvitation($company_id, $access_token, $data): array
     {
         try {
-            $url = $this->base_url . 'invitations/bulk?company=' . $company_id . '&token=' . $access_token;
+            $url  = $this->base_url . 'invitations/bulk?company=' . $company_id . '&token=' . $access_token;
             $http = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
@@ -280,18 +280,18 @@ class Timedoctor
 
     public function getArr(mixed $member, string $start, string $end, array $activities): array
     {
-        $url = $this->base_url . 'activity/worklog?company=' . $member->account_detail->company_id . '&user=' . $member->time_doctor_user_id . '&from=' . $start . '&to=' . $end . '&token=' . $member->account_detail->auth_token;
-        $http = Http::get($url);
+        $url            = $this->base_url . 'activity/worklog?company=' . $member->account_detail->company_id . '&user=' . $member->time_doctor_user_id . '&from=' . $start . '&to=' . $end . '&token=' . $member->account_detail->auth_token;
+        $http           = Http::get($url);
         $parsedResponse = $http->json();
 
         foreach ($parsedResponse->data as $activity_data) {
             foreach ($activity_data as $activity) {
                 $res = [
-                    'user_id' => $activity->userId,
-                    'task_id' => $activity->taskId,
+                    'user_id'   => $activity->userId,
+                    'task_id'   => $activity->taskId,
                     'starts_at' => $activity->start,
-                    'tracked' => $activity->time,
-                    'project' => $activity->projectId,
+                    'tracked'   => $activity->time,
+                    'project'   => $activity->projectId,
                 ];
                 $activities[] = $res;
             }
@@ -302,12 +302,12 @@ class Timedoctor
 
     public function createBaseTask($company_id, $access_token, $project_data): array
     {
-        $url = $this->base_url . 'tasks?company=' . $company_id . '&token=' . $access_token;
+        $url  = $this->base_url . 'tasks?company=' . $company_id . '&token=' . $access_token;
         $http = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post($url, [
-            'project' => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
-            'name' => $project_data['time_doctor_task_name'],
+            'project'     => ['id' => $project_data['time_doctor_project'], 'weight' => 0],
+            'name'        => $project_data['time_doctor_task_name'],
             'description' => $project_data['time_doctor_task_description'],
         ]);
 

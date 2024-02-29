@@ -25,8 +25,8 @@ class HubstaffActivity extends Model
     public static function getActivitiesForWeek($week, $year)
     {
         $result = getStartAndEndDate($week, $year);
-        $start = $result['week_start'];
-        $end = $result['week_end'];
+        $start  = $result['week_start'];
+        $end    = $result['week_end'];
 
         return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
             ->where('starts_at', '>=', $start)
@@ -37,6 +37,9 @@ class HubstaffActivity extends Model
 
     /**
      * get the activities between start (inclusive)
+     *
+     * @param mixed $start
+     * @param mixed $end
      */
     public static function getActivitiesBetween($start, $end)
     {

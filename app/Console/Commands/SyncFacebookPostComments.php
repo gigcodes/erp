@@ -33,17 +33,17 @@ class SyncFacebookPostComments extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $postId = $this->argument('post_id');
-            $post = SocialPost::where('ref_post_id', $postId)->with('account')->firstOrFail();
+            $post   = SocialPost::where('ref_post_id', $postId)->with('account')->firstOrFail();
 
             $pageInfoParams = [
                 'endpoint_path' => $postId . '/comments',
-                'fields' => '',
-                'access_token' => $post->account->page_token,
-                'request_type' => 'GET',
+                'fields'        => '',
+                'access_token'  => $post->account->page_token,
+                'request_type'  => 'GET',
             ];
 
             $response = getFacebookResults($pageInfoParams);
@@ -52,12 +52,12 @@ class SyncFacebookPostComments extends Command
                 $comments = $response['data']['data'];
                 foreach ($comments as $comment) {
                     $post->comments()->updateOrCreate(['comment_ref_id' => $comment['id']], [
-                        'message' => $comment['message'] ?? '',
-                        'commented_by_id' => $comment['from']['id'],
+                        'message'           => $comment['message'] ?? '',
+                        'commented_by_id'   => $comment['from']['id'],
                         'commented_by_user' => $comment['from']['name'],
-                        'ref_post_id' => $post['id'],
-                        'config_id' => $post->account->id,
-                        'created_at' => Carbon::parse($comment['created_time']),
+                        'ref_post_id'       => $post['id'],
+                        'config_id'         => $post->account->id,
+                        'created_at'        => Carbon::parse($comment['created_time']),
                     ]);
                 }
             }

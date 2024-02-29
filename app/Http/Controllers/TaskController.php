@@ -39,11 +39,11 @@ class TaskController extends Controller
     public function create()
     {
         //
-        $type = new tasktypes;
-        $data['task'] = $type->all();
-        $users = User::oldest()->get()->toArray();
-        $data['users'] = $users;
-        $status = new status;
+        $type           = new tasktypes;
+        $data['task']   = $type->all();
+        $users          = User::oldest()->get()->toArray();
+        $data['users']  = $users;
+        $status         = new status;
         $data['status'] = $status->all();
 
         return view('task.create', compact('data'));
@@ -59,16 +59,16 @@ class TaskController extends Controller
         //
         $request->merge(['userid' => Auth::id()]);
         $task = $this->validate(request(), [
-            'name' => 'required',
-            'details' => 'required',
-            'type' => 'required',
-            'related' => '',
+            'name'          => 'required',
+            'details'       => 'required',
+            'type'          => 'required',
+            'related'       => '',
             'assigned_user' => 'required',
-            'remark' => '',
-            'minutes' => '',
-            'comments' => '',
-            'status' => '',
-            'userid' => '',
+            'remark'        => '',
+            'minutes'       => '',
+            'comments'      => '',
+            'status'        => '',
+            'userid'        => '',
 
         ]);
 
@@ -81,7 +81,8 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -92,22 +93,23 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         //
-        $task = Task::find($id);
-        $type = new tasktypes;
-        $data['task'] = $type->all();
-        $users = User::oldest()->get()->toArray();
-        $data['users'] = $users;
-        $status = new status;
+        $task           = Task::find($id);
+        $type           = new tasktypes;
+        $data['task']   = $type->all();
+        $users          = User::oldest()->get()->toArray();
+        $data['users']  = $users;
+        $status         = new status;
         $data['status'] = $status->all();
-        $task['task'] = $data['task'];
+        $task['task']   = $data['task'];
         $task['status'] = $data['status'];
-        $task['user'] = $data['users'];
+        $task['user']   = $data['users'];
 
         return view('task.edit', compact('task', 'id'));
     }
@@ -115,7 +117,8 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -123,28 +126,28 @@ class TaskController extends Controller
         //
         $task = Task::find($id);
         $this->validate(request(), [
-            'name' => 'required',
-            'details' => 'required',
-            'type' => 'required',
-            'related' => '',
+            'name'          => 'required',
+            'details'       => 'required',
+            'type'          => 'required',
+            'related'       => '',
             'assigned_user' => 'required',
-            'remark' => '',
-            'minutes' => '',
-            'comments' => '',
-            'status' => '',
-            'userid' => '',
+            'remark'        => '',
+            'minutes'       => '',
+            'comments'      => '',
+            'status'        => '',
+            'userid'        => '',
 
         ]);
 
-        $task->name = $request->get('name');
-        $task->details = $request->get('details');
-        $task->type = $request->get('type');
-        $task->related = $request->get('related');
+        $task->name          = $request->get('name');
+        $task->details       = $request->get('details');
+        $task->type          = $request->get('type');
+        $task->related       = $request->get('related');
         $task->assigned_user = $request->get('assigned_user');
-        $task->remark = $request->get('remark');
-        $task->minutes = $request->get('minutes');
-        $task->status = $request->get('status');
-        $task->userid = $request->get('userid');
+        $task->remark        = $request->get('remark');
+        $task->minutes       = $request->get('minutes');
+        $task->status        = $request->get('status');
+        $task->userid        = $request->get('userid');
 
         $task->save();
 
@@ -155,7 +158,8 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -174,7 +178,8 @@ class TaskController extends Controller
     /**
      * function to show the user wise task's statuses counts.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function taskSummary(Request $request)
@@ -184,36 +189,36 @@ class TaskController extends Controller
 
         // Code for filter
         //Get all searchable user list
-        $userslist = $statuslist = null;
-        $filterUserIds = $request->get('users_filter');
+        $userslist       = $statuslist = null;
+        $filterUserIds   = $request->get('users_filter');
         $filterStatusIds = $request->get('status_filter');
 
         //Get all searchable status list
         if ((int) $filterUserIds > 0 && (int) $filterStatusIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds)->WhereIn('tasks.status', $filterStatusIds);
-            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
-            $userslist = User::whereIn('id', $filterUserIds)->get();
+            $statuslist             = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $userslist              = User::whereIn('id', $filterUserIds)->get();
         } elseif ((int) $filterUserIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('users.id', $filterUserIds);
-            $userslist = User::whereIn('id', $request->get('users_filter'))->get();
+            $userslist              = User::whereIn('id', $request->get('users_filter'))->get();
         } elseif ((int) $filterStatusIds > 0) {
             $userListWithStatuesCnt = $userListWithStatuesCnt->WhereIn('tasks.status', $filterStatusIds);
-            $statuslist = TaskStatus::WhereIn('id', $filterStatusIds)->get();
+            $statuslist             = TaskStatus::WhereIn('id', $filterStatusIds)->get();
         }
 
         $userListWithStatuesCnt = $userListWithStatuesCnt->groupBy('users.id', 'tasks.assign_to', 'tasks.status')
             ->orderBy('created_date', 'desc')->orderBy('tasks.status', 'asc')
             ->get();
-        $getTaskStatus = TaskStatus::get();
+        $getTaskStatus    = TaskStatus::get();
         $getTaskStatusIds = TaskStatus::select(DB::raw('group_concat(id) as ids'))->first();
         $arrTaskStatusIds = explode(',', $getTaskStatusIds['ids']);
 
         $arrStatusCount = [];
-        $arrUserNameId = [];
+        $arrUserNameId  = [];
         foreach ($userListWithStatuesCnt as $key => $value) {
-            $status = $value['status'];
+            $status                                    = $value['status'];
             $arrStatusCount[$value['userid']][$status] = $value['statusCnt'];
-            $arrUserNameId[$value['userid']]['name'] = $value['name'];
+            $arrUserNameId[$value['userid']]['name']   = $value['name'];
             $arrUserNameId[$value['userid']]['userid'] = $value['userid'];
             foreach ($arrTaskStatusIds as $key => $arrTaskStatusIdvalue) {
                 if (! array_key_exists($arrTaskStatusIdvalue, $arrStatusCount[$value['userid']])) {
@@ -229,7 +234,8 @@ class TaskController extends Controller
     /**
      * function to show all the task list based on specific status and user
      *
-     * @param  int  $user_id , $status
+     * @param int $user_id , $status
+     *
      * @return \Illuminate\Http\Response
      */
     public function taskList(Request $request)
@@ -252,13 +258,13 @@ class TaskController extends Controller
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
-        $users = $users->paginate(30);
-        $result['total_count'] = $users->total();
+        $users                        = $users->paginate(30);
+        $result['total_count']        = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
 
         foreach ($users as $user) {
             $result['items'][] = [
-                'id' => $user->id,
+                'id'   => $user->id,
                 'text' => $user->name,
             ];
         }
@@ -279,13 +285,13 @@ class TaskController extends Controller
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
         }
-        $taskStatus = $taskStatus->paginate(30);
-        $result['total_count'] = $taskStatus->total();
+        $taskStatus                   = $taskStatus->paginate(30);
+        $result['total_count']        = $taskStatus->total();
         $result['incomplete_results'] = $taskStatus->nextPageUrl() !== null;
 
         foreach ($taskStatus as $status) {
             $result['items'][] = [
-                'id' => $status->id,
+                'id'   => $status->id,
                 'text' => $status->name,
             ];
         }

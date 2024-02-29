@@ -48,7 +48,7 @@ class ZoomMeetingsSync extends Command
 
         if (isset($tokenResponse['access_token'])) {
             $accessToken = $tokenResponse['access_token'];
-            $meetingURL = 'https://api.zoom.us/v2/users/me/meetings';
+            $meetingURL  = 'https://api.zoom.us/v2/users/me/meetings';
 
             // Make an API request to fetch Zoom meetings
             try {
@@ -58,12 +58,12 @@ class ZoomMeetingsSync extends Command
 
                 // Log the API request and response to the database
                 ZoomApiLog::create([
-                    'type' => 'meeting',
-                    'request_url' => $meetingURL,
+                    'type'            => 'meeting',
+                    'request_url'     => $meetingURL,
                     'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                    'request_data' => '', // Add request data here if needed
+                    'request_data'    => '', // Add request data here if needed
                     'response_status' => $response->status(),
-                    'response_data' => json_encode($response->json()),
+                    'response_data'   => json_encode($response->json()),
                 ]);
 
                 $meetings = $response->json();
@@ -74,14 +74,14 @@ class ZoomMeetingsSync extends Command
                         ZoomMeetings::updateOrCreate(
                             ['meeting_id' => $meeting['id']],
                             [
-                                'meeting_topic' => $meeting['topic'],
-                                'meeting_type' => $meeting['type'],
-                                'meeting_agenda' => $meeting['agenda'] ?? '',
+                                'meeting_topic'    => $meeting['topic'],
+                                'meeting_type'     => $meeting['type'],
+                                'meeting_agenda'   => $meeting['agenda'] ?? '',
                                 'join_meeting_url' => $meeting['join_url'],
-                                'start_date_time' => $meeting['start_time'],
+                                'start_date_time'  => $meeting['start_time'],
                                 'meeting_duration' => $meeting['duration'],
-                                'timezone' => $meeting['timezone'],
-                                'host_zoom_id' => $meeting['host_id'],
+                                'timezone'         => $meeting['timezone'],
+                                'host_zoom_id'     => $meeting['host_id'],
                             ]
                         );
 
@@ -96,12 +96,12 @@ class ZoomMeetingsSync extends Command
             } catch (\Exception $e) {
                 // Log the exception to the database
                 ZoomApiLog::create([
-                    'type' => 'meeting',
-                    'request_url' => $meetingURL,
+                    'type'            => 'meeting',
+                    'request_url'     => $meetingURL,
                     'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                    'request_data' => '', // Add request data here if needed
+                    'request_data'    => '', // Add request data here if needed
                     'response_status' => 500, // Set an appropriate status code for errors
-                    'response_data' => json_encode(['error' => $e->getMessage()]),
+                    'response_data'   => json_encode(['error' => $e->getMessage()]),
                 ]);
             }
         }
@@ -118,12 +118,12 @@ class ZoomMeetingsSync extends Command
 
             // Log the API request and response to the database
             ZoomApiLog::create([
-                'type' => 'recording',
-                'request_url' => $recordingURL,
+                'type'            => 'recording',
+                'request_url'     => $recordingURL,
                 'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                'request_data' => '', // Add request data here if needed
+                'request_data'    => '', // Add request data here if needed
                 'response_status' => $recordingsResponse->status(),
-                'response_data' => json_encode($recordingsResponse->json()),
+                'response_data'   => json_encode($recordingsResponse->json()),
             ]);
 
             if ($recordingsResponse->successful()) {
@@ -133,7 +133,7 @@ class ZoomMeetingsSync extends Command
 
                 // Code copied from app/Meetings/ZoomMeetings.php:saveRecordings()
                 if ($meetingRecording && isset($meetingRecording['recording_files'])) {
-                    $folderPath = public_path() . '/zoom/0/' . $meeting['id'];
+                    $folderPath  = public_path() . '/zoom/0/' . $meeting['id'];
                     $databsePath = '/zoom/0/' . $meeting['id'];
                     \Log::info('folderPath -->' . $folderPath);
                     foreach ($meetingRecording['recording_files'] as $recordings) {
@@ -141,16 +141,16 @@ class ZoomMeetingsSync extends Command
                         if (! $checkfile) {
                             if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
                                 \Log::info('shared_screen_with_speaker_view');
-                                $fileName = $meeting['id'] . '_' . time() . '.mp4';
+                                $fileName  = $meeting['id'] . '_' . time() . '.mp4';
                                 $urlOfFile = $recordings['download_url'];
-                                $filePath = $folderPath . '/' . $fileName;
+                                $filePath  = $folderPath . '/' . $fileName;
                                 if (! file_exists($filePath) && ! is_dir($folderPath)) {
                                     mkdir($folderPath, 0777, true);
                                 }
                                 $ch = curl_init($urlOfFile);
                                 curl_exec($ch);
                                 if (! curl_errno($ch)) {
-                                    $info = curl_getinfo($ch);
+                                    $info         = curl_getinfo($ch);
                                     $downloadLink = $info['redirect_url'];
                                 }
                                 curl_close($ch);
@@ -159,15 +159,15 @@ class ZoomMeetingsSync extends Command
                                     copy($downloadLink, $filePath);
                                 }
 
-                                $zoom_meeting_details = new ZoomMeetingDetails();
+                                $zoom_meeting_details                  = new ZoomMeetingDetails();
                                 $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
-                                $zoom_meeting_details->file_name = $fileName;
+                                $zoom_meeting_details->file_name       = $fileName;
                                 $zoom_meeting_details->download_url_id = $recordings['id'];
-                                $zoom_meeting_details->meeting_id = $recordings['meeting_id'];
-                                $zoom_meeting_details->file_type = $recordings['file_type'];
-                                $zoom_meeting_details->download_url = $recordings['download_url'];
+                                $zoom_meeting_details->meeting_id      = $recordings['meeting_id'];
+                                $zoom_meeting_details->file_type       = $recordings['file_type'];
+                                $zoom_meeting_details->download_url    = $recordings['download_url'];
                                 // $zoom_meeting_details->file_path = $recordings['file_path']; // this field for Zoom On-Premise accounts.
-                                $zoom_meeting_details->file_size = $recordings['file_size'];
+                                $zoom_meeting_details->file_size      = $recordings['file_size'];
                                 $zoom_meeting_details->file_extension = $recordings['file_extension'];
                                 $zoom_meeting_details->save();
                             }
@@ -178,12 +178,12 @@ class ZoomMeetingsSync extends Command
         } catch (\Exception $e) {
             // Log the exception to the database
             ZoomApiLog::create([
-                'type' => 'recording',
-                'request_url' => $recordingURL,
+                'type'            => 'recording',
+                'request_url'     => $recordingURL,
                 'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                'request_data' => '', // Add request data here if needed
+                'request_data'    => '', // Add request data here if needed
                 'response_status' => 500, // Set an appropriate status code for errors
-                'response_data' => json_encode(['error' => $e->getMessage()]),
+                'response_data'   => json_encode(['error' => $e->getMessage()]),
             ]);
         }
     }
@@ -200,12 +200,12 @@ class ZoomMeetingsSync extends Command
 
             // Log the API request and response to the database
             ZoomApiLog::create([
-                'type' => 'participant',
-                'request_url' => $participantURL,
+                'type'            => 'participant',
+                'request_url'     => $participantURL,
                 'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                'request_data' => '', // Add request data here if needed
+                'request_data'    => '', // Add request data here if needed
                 'response_status' => $participantsResponse->status(),
-                'response_data' => json_encode($participantsResponse->json()),
+                'response_data'   => json_encode($participantsResponse->json()),
             ]);
 
             if ($participantsResponse->successful()) {
@@ -217,10 +217,10 @@ class ZoomMeetingsSync extends Command
                         ZoomMeetingParticipant::updateOrCreate(
                             ['meeting_id' => $meeting['id'], 'email' => $participant['user_email']],
                             [
-                                'name' => $participant['name'],
-                                'join_time' => $participant['join_time'],
+                                'name'       => $participant['name'],
+                                'join_time'  => $participant['join_time'],
                                 'leave_time' => $participant['leave_time'],
-                                'duration' => $participant['duration'],
+                                'duration'   => $participant['duration'],
                             ]
                         );
                     }
@@ -229,12 +229,12 @@ class ZoomMeetingsSync extends Command
         } catch (\Exception $e) {
             // Log the exception to the database
             ZoomApiLog::create([
-                'type' => 'participant',
-                'request_url' => $participantURL,
+                'type'            => 'participant',
+                'request_url'     => $participantURL,
                 'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
-                'request_data' => '', // Add request data here if needed
+                'request_data'    => '', // Add request data here if needed
                 'response_status' => 500, // Set an appropriate status code for errors
-                'response_data' => json_encode(['error' => $e->getMessage()]),
+                'response_data'   => json_encode(['error' => $e->getMessage()]),
             ]);
         }
     }

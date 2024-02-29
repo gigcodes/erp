@@ -26,7 +26,7 @@ final class DeleteController extends AbstractController
         Relation $relation
     ) {
         parent::__construct($response, $template);
-        $this->model = $model;
+        $this->model    = $model;
         $this->relation = $relation;
     }
 

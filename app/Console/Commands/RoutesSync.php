@@ -43,7 +43,7 @@ class RoutesSync extends Command
             $method = 'GET';
             $routes = \Route::getRoutes()->getRoutesByMethod();
 
-            $routesByGET = $routes[$method];
+            $routesByGET  = $routes[$method];
             $routesByPOST = $routes['POST'];
 
             $AllRoutes = array_merge($routesByGET, $routesByPOST);

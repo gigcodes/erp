@@ -21,57 +21,57 @@ class CreateScrapStatisticsStausesTable extends Migration
         });
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'N/A',
+            'status'       => 'N/A',
             'status_value' => '',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Ok',
+            'status'       => 'Ok',
             'status_value' => 'Ok',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Rework',
+            'status'       => 'Rework',
             'status_value' => 'Rework',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'In Process',
+            'status'       => 'In Process',
             'status_value' => 'In Process',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Scrapper Fixed',
+            'status'       => 'Scrapper Fixed',
             'status_value' => 'Scrapper Fixed',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Process Complete',
+            'status'       => 'Process Complete',
             'status_value' => 'Process Complete',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Categories',
+            'status'       => 'Categories',
             'status_value' => 'Categories',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Logs Checked',
+            'status'       => 'Logs Checked',
             'status_value' => 'Logs Checked',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'Scrapper Checked',
+            'status'       => 'Scrapper Checked',
             'status_value' => 'Scrapper Checked',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'All brands Scrapped',
+            'status'       => 'All brands Scrapped',
             'status_value' => 'All brands Scrapped',
         ]);
 
         \Illuminate\Support\Facades\DB::table('scrap_statistics_stauses')->insert([
-            'status' => 'All Categories Scrapped',
+            'status'       => 'All Categories Scrapped',
             'status_value' => 'All Categories Scrapped',
         ]);
     }

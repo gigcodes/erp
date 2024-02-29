@@ -13,7 +13,8 @@ class OldIncomingController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  mixed  $oldincoming get oldincoming model
+     * @param mixed $oldincoming get oldincoming model
+     *
      * @return void
      */
     public function __construct(protected OldIncoming $oldincoming)
@@ -29,17 +30,17 @@ class OldIncomingController extends Controller
     {
         $issues = new Issue;
         if (! empty($_GET['sr_no'])) {
-            $sr_no = $_GET['sr_no'];
+            $sr_no         = $_GET['sr_no'];
             $old_incomings = $this->oldincoming::where('serial_no', $sr_no)->paginate(10)->setPath('');
-            $pagination = $old_incomings->appends(
+            $pagination    = $old_incomings->appends(
                 [
                     'sr_no' => $request->sr_no,
                 ]
             );
         } elseif (! empty($_GET['status'])) {
-            $status = $_GET['status'];
+            $status        = $_GET['status'];
             $old_incomings = $this->oldincoming::where('status', $status)->paginate(5)->setPath('');
-            $pagination = $old_incomings->appends(
+            $pagination    = $old_incomings->appends(
                 [
                     'status' => $request->status,
                 ]
@@ -79,7 +80,8 @@ class OldIncomingController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -90,13 +92,15 @@ class OldIncomingController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $serial_no
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($serial_no)
     {
         $old_incoming = $this->oldincoming::where('serial_no', $serial_no)->first();
-        $status = $this->oldincoming->getStatus();
+        $status       = $this->oldincoming->getStatus();
 
         return view('old-incomings.edit', compact('status', 'old_incoming'));
     }
@@ -104,7 +108,9 @@ class OldIncomingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $serial_no
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $serial_no)
@@ -118,7 +124,8 @@ class OldIncomingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

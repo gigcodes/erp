@@ -64,12 +64,13 @@ class CustomerController extends Controller
      * This function is use for getting data from the credit history data
      *
      * @param $id int
+     *
      * @return $htlm
      */
     public function creditHistory($id)
     {
         $custHosData = CreditHistory::where('customer_id', $id)->get();
-        $html = '';
+        $html        = '';
         foreach ($custHosData as $key => $val) {
             $html .= '<tr>';
             $html .= '<td>' . $val->id . '</td>';
@@ -90,12 +91,13 @@ class CustomerController extends Controller
      * This function is use for getting data from the credit log data
      *
      * @param $id int
+     *
      * @return $htlm
      */
     public function creditLog($id)
     {
         $custHosData = CreditLog::where('customer_id', $id)->get();
-        $html = '';
+        $html        = '';
         foreach ($custHosData as $key => $val) {
             $html .= '<tr>';
             $html .= '<td>' . date('d-m-Y', strtotime($val->created_at)) . '</td>';
@@ -115,20 +117,20 @@ class CustomerController extends Controller
     public function add_customer_address(Request $request)
     {
         $apply_job = CustomerAddressData::create([
-            'customer_id' => $request->customer_id,
-            'entity_id' => $request->entity_id,
-            'parent_id' => $request->parent_id,
+            'customer_id'  => $request->customer_id,
+            'entity_id'    => $request->entity_id,
+            'parent_id'    => $request->parent_id,
             'address_type' => $request->address_type,
-            'region' => $request->region,
-            'region_id' => $request->region_id,
-            'postcode' => $request->postcode,
-            'firstname' => $request->firstname,
-            'middlename' => $request->middlename,
-            'company' => $request->company,
-            'country_id' => $request->country_id,
-            'telephone' => $request->telephone,
-            'prefix' => $request->prefix,
-            'street' => $request->street,
+            'region'       => $request->region,
+            'region_id'    => $request->region_id,
+            'postcode'     => $request->postcode,
+            'firstname'    => $request->firstname,
+            'middlename'   => $request->middlename,
+            'company'      => $request->company,
+            'country_id'   => $request->country_id,
+            'telephone'    => $request->telephone,
+            'prefix'       => $request->prefix,
+            'street'       => $request->street,
         ]);
         $apply_job->save();
 
@@ -137,10 +139,10 @@ class CustomerController extends Controller
 
     public function index(Request $request)
     {
-        $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
+        $complaints   = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'order_status_id', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
+        $orders       = Order::latest()->select(['id', 'customer_id', 'order_status', 'order_status_id', 'created_at'])->get()->groupBy('customer_id')->toArray();
+        $order_stats  = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
         $totalCount = 0;
         foreach ($order_stats as $order_stat) {
@@ -209,10 +211,10 @@ class CustomerController extends Controller
 
         $order_stats = $finalOrderStats;
 
-        $results = $this->getCustomersIndex($request);
-        $term = $request->input('term');
+        $results          = $this->getCustomersIndex($request);
+        $term             = $request->input('term');
         $reply_categories = ReplyCategory::all();
-        $api_keys = ApiKey::select('number')->get();
+        $api_keys         = ApiKey::select('number')->get();
 
         $type = $request->type ?? '';
 
@@ -221,7 +223,7 @@ class CustomerController extends Controller
             $orderby = 'asc';
         }
 
-        $customers_all = Customer::all();
+        $customers_all  = Customer::all();
         $customer_names = Customer::select(['name'])->get()->toArray();
 
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
@@ -238,10 +240,10 @@ class CustomerController extends Controller
         $last_set_id = MessageQueue::max('group_id');
 
         $queues_total_count = MessageQueue::where('status', '!=', 1)->where('group_id', $last_set_id)->count();
-        $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
+        $queues_sent_count  = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
 
         $start_time = $request->range_start ? "$request->range_start 00:00" : Carbon::now()->subDay();
-        $end_time = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
+        $end_time   = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->subDay();
 
         $allCustomers = $results[0]->pluck('id')->toArray();
 
@@ -273,38 +275,38 @@ class CustomerController extends Controller
             ->groupBy('clothing_size')
             ->pluck('counts', 'clothing_size');
 
-        $groups = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
+        $groups        = QuickSellGroup::select('id', 'name', 'group')->orderby('name', 'asc')->get();
         $storeWebsites = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
-        $solo_numbers = (new SoloNumbers)->all();
+        $solo_numbers  = (new SoloNumbers)->all();
 
         return view('customers.index', [
-            'storeWebsites' => $storeWebsites,
-            'solo_numbers' => $solo_numbers,
-            'customers' => $results[0],
-            'customers_all' => $customers_all,
-            'customer_ids_list' => json_encode($results[1]),
-            'users_array' => $users_array,
-            'instructions' => $instructions,
-            'term' => $term,
-            'orderby' => $orderby,
-            'type' => $type,
-            'queues_total_count' => $queues_total_count,
-            'queues_sent_count' => $queues_sent_count,
-            'search_suggestions' => $search_suggestions,
-            'reply_categories' => $reply_categories,
-            'orders' => $orders,
-            'api_keys' => $api_keys,
+            'storeWebsites'       => $storeWebsites,
+            'solo_numbers'        => $solo_numbers,
+            'customers'           => $results[0],
+            'customers_all'       => $customers_all,
+            'customer_ids_list'   => json_encode($results[1]),
+            'users_array'         => $users_array,
+            'instructions'        => $instructions,
+            'term'                => $term,
+            'orderby'             => $orderby,
+            'type'                => $type,
+            'queues_total_count'  => $queues_total_count,
+            'queues_sent_count'   => $queues_sent_count,
+            'search_suggestions'  => $search_suggestions,
+            'reply_categories'    => $reply_categories,
+            'orders'              => $orders,
+            'api_keys'            => $api_keys,
             'category_suggestion' => $category_suggestion,
-            'brands' => $brands,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
-            'leads_data' => $results[2],
-            'order_stats' => $order_stats,
-            'complaints' => $complaints,
-            'shoe_size_group' => $shoe_size_group,
+            'brands'              => $brands,
+            'start_time'          => $start_time,
+            'end_time'            => $end_time,
+            'leads_data'          => $results[2],
+            'order_stats'         => $order_stats,
+            'complaints'          => $complaints,
+            'shoe_size_group'     => $shoe_size_group,
             'clothing_size_group' => $clothing_size_group,
-            'broadcasts' => $broadcasts,
-            'groups' => $groups,
+            'broadcasts'          => $broadcasts,
+            'groups'              => $groups,
         ]);
     }
 
@@ -326,14 +328,14 @@ class CustomerController extends Controller
         ];
 
         // Set empty clauses for later usage
-        $orderWhereClause = '';
+        $orderWhereClause  = '';
         $searchWhereClause = '';
         $filterWhereClause = '';
-        $leadsWhereClause = '';
+        $leadsWhereClause  = '';
 
         if (! empty($term)) {
             $searchWhereClause = " AND (customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%')";
-            $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
+            $orderWhereClause  = "WHERE orders.order_id LIKE '%$term%'";
         }
 
         if ($request->get('shoe_size')) {
@@ -368,13 +370,13 @@ class CustomerController extends Controller
         $sortby = 'communication';
 
         $sortBys = [
-            'name' => 'name',
-            'email' => 'email',
-            'phone' => 'phone',
-            'instagram' => 'instahandler',
-            'lead_created' => 'lead_created',
+            'name'          => 'name',
+            'email'         => 'email',
+            'phone'         => 'phone',
+            'instagram'     => 'instahandler',
+            'lead_created'  => 'lead_created',
             'order_created' => 'order_created',
-            'rating' => 'rating',
+            'rating'        => 'rating',
             'communication' => 'communication',
         ];
 
@@ -383,17 +385,17 @@ class CustomerController extends Controller
         }
 
         $start_time = $request->range_start ? "$request->range_start 00:00" : '';
-        $end_time = $request->range_end ? "$request->range_end 23:59" : '';
+        $end_time   = $request->range_end ? "$request->range_end 23:59" : '';
 
         if ($start_time != '' && $end_time != '') {
             $filterWhereClause = " AND last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
-            $join = 'RIGHT';
-            $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
-            $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
-            $filterWhereClause = " AND chat_messages.status = $type";
+            $join               = 'RIGHT';
+            $type               = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
+            $orderByClause      = " ORDER BY is_flagged DESC, message_status ASC, last_communicated_at $orderby";
+            $filterWhereClause  = " AND chat_messages.status = $type";
             $messageWhereClause = ' WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9 AND chat_messages.status != 10';
 
             if ($start_time != '' && $end_time != '') {
@@ -415,8 +417,8 @@ class CustomerController extends Controller
                 strtolower($request->get('type')) === 'refund dispatched' ||
                 strtolower($request->get('type')) === 'refund to be processed'
             ) {
-                $join = 'LEFT';
-                $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+                $join               = 'LEFT';
+                $orderByClause      = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                 $messageWhereClause = ' WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9';
                 if ($orderWhereClause) {
                     $orderWhereClause .= ' AND ';
@@ -427,8 +429,8 @@ class CustomerController extends Controller
                 $filterWhereClause = ' AND order_status = "' . $request->get('type') . '"';
             } else {
                 if (strtolower($request->type) != 'new' && strtolower($request->type) != 'delivery' && strtolower($request->type) != 'refund to be processed' && strtolower($request->type) != '') {
-                    $join = 'LEFT';
-                    $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+                    $join               = 'LEFT';
+                    $orderByClause      = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                     $messageWhereClause = ' WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9';
 
                     if ($request->type == '0') {
@@ -438,8 +440,8 @@ class CustomerController extends Controller
                     }
                 } else {
                     if ($sortby === 'communication') {
-                        $join = 'LEFT';
-                        $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
+                        $join               = 'LEFT';
+                        $orderByClause      = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
                         $messageWhereClause = ' WHERE chat_messages.status != 7 AND chat_messages.status != 8 AND chat_messages.status != 9';
                     }
                 }
@@ -448,7 +450,7 @@ class CustomerController extends Controller
 
         $assignedWhereClause = '';
         if (Auth::user()->hasRole('Customer Care')) {
-            $user_id = Auth::id();
+            $user_id             = Auth::id();
             $assignedWhereClause = " AND id IN (SELECT customer_id FROM user_customers WHERE user_id = $user_id)";
         }
 
@@ -738,10 +740,10 @@ class CustomerController extends Controller
             }
         }
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = empty(Setting::get('pagination')) ? 25 : Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = empty(Setting::get('pagination')) ? 25 : Setting::get('pagination');
         $currentItems = array_slice($customers, $perPage * ($currentPage - 1), $perPage);
-        $customers = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
+        $customers    = new LengthAwarePaginator($currentItems, count($customers), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
@@ -751,18 +753,18 @@ class CustomerController extends Controller
     public function customerstest(Request $request)
     {
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+        $orders       = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
 
-        $term = $request->input('term');
+        $term             = $request->input('term');
         $reply_categories = ReplyCategory::all();
-        $api_keys = ApiKey::select('number')->get();
+        $api_keys         = ApiKey::select('number')->get();
 
         $orderby = 'desc';
         if ($request->orderby == '') {
             $orderby = 'asc';
         }
 
-        $customers_all = Customer::all();
+        $customers_all  = Customer::all();
         $customer_names = Customer::select(['name'])->get()->toArray();
 
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
@@ -779,9 +781,9 @@ class CustomerController extends Controller
         $last_set_id = MessageQueue::max('group_id');
 
         $queues_total_count = MessageQueue::where('status', '!=', 1)->where('group_id', $last_set_id)->count();
-        $queues_sent_count = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
+        $queues_sent_count  = MessageQueue::where('sent', 1)->where('status', '!=', 1)->where('group_id', $last_set_id)->count();
 
-        $term = $request->input('term');
+        $term            = $request->input('term');
         $delivery_status = [
             'Follow up for advance',
             'Proceed without Advance',
@@ -794,13 +796,13 @@ class CustomerController extends Controller
             'Delivered',
         ];
 
-        $orderWhereClause = '';
+        $orderWhereClause  = '';
         $searchWhereClause = '';
         $filterWhereClause = '';
 
         if (! empty($term)) {
             $searchWhereClause = " AND (customers.name LIKE '%$term%' OR customers.phone LIKE '%$term%' OR customers.instahandler LIKE '%$term%')";
-            $orderWhereClause = "WHERE orders.order_id LIKE '%$term%'";
+            $orderWhereClause  = "WHERE orders.order_id LIKE '%$term%'";
         }
 
         $orderby = 'DESC';
@@ -812,13 +814,13 @@ class CustomerController extends Controller
         $sortby = 'communication';
 
         $sortBys = [
-            'name' => 'name',
-            'email' => 'email',
-            'phone' => 'phone',
-            'instagram' => 'instahandler',
-            'lead_created' => 'lead_created',
+            'name'          => 'name',
+            'email'         => 'email',
+            'phone'         => 'phone',
+            'instagram'     => 'instahandler',
+            'lead_created'  => 'lead_created',
             'order_created' => 'order_created',
-            'rating' => 'rating',
+            'rating'        => 'rating',
             'communication' => 'communication',
         ];
 
@@ -827,16 +829,16 @@ class CustomerController extends Controller
         }
 
         $start_time = $request->input('range_start') ?? '';
-        $end_time = $request->input('range_end') ?? '';
+        $end_time   = $request->input('range_end') ?? '';
 
         if ($start_time != '' && $end_time != '') {
             $filterWhereClause = " WHERE last_communicated_at BETWEEN '" . $start_time . "' AND '" . $end_time . "'";
         }
 
         if ($request->type == 'unread' || $request->type == 'unapproved') {
-            $join = 'RIGHT';
-            $type = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
-            $orderByClause = " ORDER BY is_flagged DESC, message_status ASC, `last_communicated_at` $orderby";
+            $join              = 'RIGHT';
+            $type              = $request->type == 'unread' ? 0 : ($request->type == 'unapproved' ? 1 : 0);
+            $orderByClause     = " ORDER BY is_flagged DESC, message_status ASC, `last_communicated_at` $orderby";
             $filterWhereClause = " WHERE message_status = $type";
 
             if ($start_time != '' && $end_time != '') {
@@ -844,7 +846,7 @@ class CustomerController extends Controller
             }
         } else {
             if ($sortby === 'communication') {
-                $join = 'LEFT';
+                $join          = 'LEFT';
                 $orderByClause = " ORDER BY is_flagged DESC, last_communicated_at $orderby";
             }
         }
@@ -892,8 +894,8 @@ class CustomerController extends Controller
             $ids_list[] = $customer->id;
         }
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
         $currentItems = array_slice($new_customers, $perPage * ($currentPage - 1), $perPage);
 
         $new_customers = new LengthAwarePaginator($currentItems, count($new_customers), $perPage, $currentPage, [
@@ -901,53 +903,53 @@ class CustomerController extends Controller
         ]);
 
         dd([
-            'customers' => $new_customers,
-            'customers_all' => $customers_all,
-            'customer_ids_list' => json_encode($ids_list),
-            'users_array' => $users_array,
-            'instructions' => $instructions,
-            'term' => $term,
-            'orderby' => $orderby,
-            'type' => $type,
-            'queues_total_count' => $queues_total_count,
-            'queues_sent_count' => $queues_sent_count,
-            'search_suggestions' => $search_suggestions,
-            'reply_categories' => $reply_categories,
-            'orders' => $orders,
-            'api_keys' => $api_keys,
+            'customers'           => $new_customers,
+            'customers_all'       => $customers_all,
+            'customer_ids_list'   => json_encode($ids_list),
+            'users_array'         => $users_array,
+            'instructions'        => $instructions,
+            'term'                => $term,
+            'orderby'             => $orderby,
+            'type'                => $type,
+            'queues_total_count'  => $queues_total_count,
+            'queues_sent_count'   => $queues_sent_count,
+            'search_suggestions'  => $search_suggestions,
+            'reply_categories'    => $reply_categories,
+            'orders'              => $orders,
+            'api_keys'            => $api_keys,
             'category_suggestion' => $category_suggestion,
-            'brands' => $brands,
+            'brands'              => $brands,
         ]);
 
         return view('customers.index', [
-            'customers' => $new_customers,
-            'customers_all' => $customers_all,
-            'customer_ids_list' => json_encode($ids_list),
-            'users_array' => $users_array,
-            'instructions' => $instructions,
-            'term' => $term,
-            'orderby' => $orderby,
-            'type' => $type,
-            'queues_total_count' => $queues_total_count,
-            'queues_sent_count' => $queues_sent_count,
-            'search_suggestions' => $search_suggestions,
-            'reply_categories' => $reply_categories,
-            'orders' => $orders,
-            'api_keys' => $api_keys,
+            'customers'           => $new_customers,
+            'customers_all'       => $customers_all,
+            'customer_ids_list'   => json_encode($ids_list),
+            'users_array'         => $users_array,
+            'instructions'        => $instructions,
+            'term'                => $term,
+            'orderby'             => $orderby,
+            'type'                => $type,
+            'queues_total_count'  => $queues_total_count,
+            'queues_sent_count'   => $queues_sent_count,
+            'search_suggestions'  => $search_suggestions,
+            'reply_categories'    => $reply_categories,
+            'orders'              => $orders,
+            'api_keys'            => $api_keys,
             'category_suggestion' => $category_suggestion,
-            'brands' => $brands,
+            'brands'              => $brands,
         ]);
     }
 
     public function search(Request $request)
     {
-        $keyword = $request->get('keyword');
+        $keyword  = $request->get('keyword');
         $messages = ChatMessage::where('message', 'LIKE', "%$keyword%")->where('customer_id', '>', 0)->groupBy('customer_id')->with('customer')->select(DB::raw('MAX(id) as message_id, customer_id, message'))->get()->map(function ($item) {
             return [
-                'customer_id' => $item->customer_id,
+                'customer_id'   => $item->customer_id,
                 'customer_name' => $item->customer->name,
-                'message_id' => $item->message_id,
-                'message' => $item->message,
+                'message_id'    => $item->message_id,
+                'message'       => $item->message,
             ];
         });
 
@@ -978,18 +980,18 @@ class CustomerController extends Controller
         $customer = Customer::find($id);
 
         $options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
 
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $proxy     = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
         $errors = 0;
 
         $productData = [
-            'price' => $request->price_inr,
+            'price'         => $request->price_inr,
             'special_price' => $request->price_special,
         ];
 
@@ -998,11 +1000,11 @@ class CustomerController extends Controller
 
             $params = [
                 'customer_id' => $customer->id,
-                'number' => null,
-                'message' => 'https://www.sololuxury.co.in/advance-payment-product.html',
-                'user_id' => Auth::id(),
-                'approve' => 0,
-                'status' => 1,
+                'number'      => null,
+                'message'     => 'https://www.sololuxury.co.in/advance-payment-product.html',
+                'user_id'     => Auth::id(),
+                'approve'     => 0,
+                'status'      => 1,
             ];
 
             ChatMessage::create($params);
@@ -1018,10 +1020,10 @@ class CustomerController extends Controller
     public function initiateFollowup(Request $request, $id)
     {
         CommunicationHistory::create([
-            'model_id' => $id,
+            'model_id'   => $id,
             'model_type' => Customer::class,
-            'type' => 'initiate-followup',
-            'method' => 'whatsapp',
+            'type'       => 'initiate-followup',
+            'method'     => 'whatsapp',
         ]);
 
         return redirect()->route('customer.show', $id)->with('success', 'You have successfully initiated follow up sequence!');
@@ -1114,10 +1116,10 @@ class CustomerController extends Controller
 
         $params = [
             'customer_id' => $customer->id,
-            'number' => null,
-            'user_id' => Auth::id(),
-            'message' => 'In Stock Products',
-            'status' => 1,
+            'number'      => null,
+            'user_id'     => Auth::id(),
+            'message'     => 'In Stock Products',
+            'status'      => 1,
         ];
 
         $chat_message = ChatMessage::create($params);
@@ -1131,11 +1133,11 @@ class CustomerController extends Controller
 
     public function load(Request $request)
     {
-        $first_customer = Customer::find($request->first_customer);
+        $first_customer  = Customer::find($request->first_customer);
         $second_customer = Customer::find($request->second_customer);
 
         return response()->json([
-            'first_customer' => $first_customer,
+            'first_customer'  => $first_customer,
             'second_customer' => $second_customer,
         ]);
     }
@@ -1143,29 +1145,29 @@ class CustomerController extends Controller
     public function merge(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|min:3|max:255',
-            'email' => 'required_without_all:phone,instahandler|nullable|email',
-            'phone' => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
+            'name'         => 'required|min:3|max:255',
+            'email'        => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'        => 'required_without_all:email,instahandler|nullable|numeric|regex:/^[91]{2}/|digits:12|unique:customers,phone,' . $request->first_customer_id,
             'instahandler' => 'required_without_all:email,phone|nullable|min:3|max:255',
-            'rating' => 'required|numeric',
-            'address' => 'sometimes|nullable|min:3|max:255',
-            'city' => 'sometimes|nullable|min:3|max:255',
-            'country' => 'sometimes|nullable|min:3|max:255',
-            'pincode' => 'sometimes|nullable|max:6',
+            'rating'       => 'required|numeric',
+            'address'      => 'sometimes|nullable|min:3|max:255',
+            'city'         => 'sometimes|nullable|min:3|max:255',
+            'country'      => 'sometimes|nullable|min:3|max:255',
+            'pincode'      => 'sometimes|nullable|max:6',
         ]);
 
         $first_customer = Customer::find($request->first_customer_id);
 
-        $first_customer->name = $request->name;
-        $first_customer->email = $request->email;
-        $first_customer->phone = $request->phone;
+        $first_customer->name            = $request->name;
+        $first_customer->email           = $request->email;
+        $first_customer->phone           = $request->phone;
         $first_customer->whatsapp_number = $request->whatsapp_number;
-        $first_customer->instahandler = $request->instahandler;
-        $first_customer->rating = $request->rating;
-        $first_customer->address = $request->address;
-        $first_customer->city = $request->city;
-        $first_customer->country = $request->country;
-        $first_customer->pincode = $request->pincode;
+        $first_customer->instahandler    = $request->instahandler;
+        $first_customer->rating          = $request->rating;
+        $first_customer->address         = $request->address;
+        $first_customer->city            = $request->city;
+        $first_customer->country         = $request->country;
+        $first_customer->pincode         = $request->pincode;
 
         $first_customer->save();
 
@@ -1243,22 +1245,22 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|min:3|max:255',
-            'email' => 'required_without_all:phone,instahandler|nullable|email',
-            'phone' => 'required_without_all:email,instahandler|nullable|numeric|digits:12|unique:customers',
+            'name'         => 'required|min:3|max:255',
+            'email'        => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'        => 'required_without_all:email,instahandler|nullable|numeric|digits:12|unique:customers',
             'instahandler' => 'required_without_all:email,phone|nullable|min:3|max:255',
-            'rating' => 'required|numeric',
-            'address' => 'sometimes|nullable|min:3|max:255',
-            'city' => 'sometimes|nullable|min:3|max:255',
-            'country' => 'sometimes|nullable|min:2|max:255',
-            'pincode' => 'sometimes|nullable|max:6',
+            'rating'       => 'required|numeric',
+            'address'      => 'sometimes|nullable|min:3|max:255',
+            'city'         => 'sometimes|nullable|min:3|max:255',
+            'country'      => 'sometimes|nullable|min:2|max:255',
+            'pincode'      => 'sometimes|nullable|max:6',
         ]);
 
-        $customer = new Customer;
+        $customer                   = new Customer;
         $customer->store_website_id = ! empty($request->store_website_id) ? $request->store_website_id : '';
-        $customer->name = $request->name;
-        $customer->email = $request->email;
-        $customer->phone = $request->phone;
+        $customer->name             = $request->name;
+        $customer->email            = $request->email;
+        $customer->phone            = $request->phone;
         if (empty($request->whatsapp_number)) {
             //get default whatsapp number for vendor from whatsapp config
             $task_info = DB::table('whatsapp_configs')
@@ -1270,12 +1272,12 @@ class CustomerController extends Controller
         }
 
         $customer->whatsapp_number = $request->whatsapp_number;
-        $customer->instahandler = $request->instahandler;
-        $customer->rating = $request->rating;
-        $customer->address = $request->address;
-        $customer->city = $request->city;
-        $customer->country = $request->country;
-        $customer->pincode = $request->pincode;
+        $customer->instahandler    = $request->instahandler;
+        $customer->rating          = $request->rating;
+        $customer->address         = $request->address;
+        $customer->city            = $request->city;
+        $customer->country         = $request->country;
+        $customer->pincode         = $request->pincode;
 
         $customer->save();
 
@@ -1285,12 +1287,12 @@ class CustomerController extends Controller
     public function addNote($id, Request $request)
     {
         $customer = Customer::findOrFail($id);
-        $notes = $customer->notes;
+        $notes    = $customer->notes;
         if (! is_array($notes)) {
             $notes = [];
         }
 
-        $notes[] = $request->get('note');
+        $notes[]         = $request->get('note');
         $customer->notes = $notes;
         $customer->save();
 
@@ -1302,26 +1304,27 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
-        $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
-        $emails = [];
-        $lead_status = (new status)->all();
-        $users_array = Helpers::getUserArray(User::all());
-        $brands = Brand::all()->toArray();
-        $reply_categories = ReplyCategory::all();
+        $customer               = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
+        $customers              = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
+        $emails                 = [];
+        $lead_status            = (new status)->all();
+        $users_array            = Helpers::getUserArray(User::all());
+        $brands                 = Brand::all()->toArray();
+        $reply_categories       = ReplyCategory::all();
         $instruction_categories = InstructionCategory::all();
-        $instruction_replies = Reply::where('model', 'Instruction')->get();
-        $order_status_report = OrderStatuses::all();
-        $purchase_status = (new PurchaseStatus)->all();
-        $solo_numbers = (new SoloNumbers)->all();
-        $api_keys = ApiKey::select(['number'])->get();
-        $broadcastsNumbers = collect(\DB::select('select number from whatsapp_configs where is_customer_support = 0'))->pluck('number', 'number')->toArray();
-        $suppliers = Supplier::select(['id', 'supplier'])
+        $instruction_replies    = Reply::where('model', 'Instruction')->get();
+        $order_status_report    = OrderStatuses::all();
+        $purchase_status        = (new PurchaseStatus)->all();
+        $solo_numbers           = (new SoloNumbers)->all();
+        $api_keys               = ApiKey::select(['number'])->get();
+        $broadcastsNumbers      = collect(\DB::select('select number from whatsapp_configs where is_customer_support = 0'))->pluck('number', 'number')->toArray();
+        $suppliers              = Supplier::select(['id', 'supplier'])
             ->whereRaw('suppliers.id IN (SELECT product_suppliers.supplier_id FROM product_suppliers)')->get();
         $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
             ->renderAsDropdown();
@@ -1332,23 +1335,23 @@ class CustomerController extends Controller
         }
 
         return view('customers.show', [
-            'customer' => $customer,
-            'customers' => $customers,
-            'lead_status' => $lead_status,
-            'brands' => $brands,
-            'users_array' => $users_array,
-            'reply_categories' => $reply_categories,
+            'customer'               => $customer,
+            'customers'              => $customers,
+            'lead_status'            => $lead_status,
+            'brands'                 => $brands,
+            'users_array'            => $users_array,
+            'reply_categories'       => $reply_categories,
             'instruction_categories' => $instruction_categories,
-            'instruction_replies' => $instruction_replies,
-            'order_status_report' => $order_status_report,
-            'purchase_status' => $purchase_status,
-            'solo_numbers' => $solo_numbers,
-            'api_keys' => $api_keys,
-            'emails' => $emails,
-            'category_suggestion' => $category_suggestion,
-            'suppliers' => $suppliers,
-            'facebookMessages' => $facebookMessages,
-            'broadcastsNumbers' => $broadcastsNumbers,
+            'instruction_replies'    => $instruction_replies,
+            'order_status_report'    => $order_status_report,
+            'purchase_status'        => $purchase_status,
+            'solo_numbers'           => $solo_numbers,
+            'api_keys'               => $api_keys,
+            'emails'                 => $emails,
+            'category_suggestion'    => $category_suggestion,
+            'suppliers'              => $suppliers,
+            'facebookMessages'       => $facebookMessages,
+            'broadcastsNumbers'      => $broadcastsNumbers,
         ]);
     }
 
@@ -1366,7 +1369,7 @@ class CustomerController extends Controller
 
     public function postShow(Request $request, $id)
     {
-        $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
+        $customer          = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $storeActiveNumber = StoreWebsiteTwilioNumber::select('twilio_active_numbers.account_sid as a_sid', 'twilio_active_numbers.phone_number as phone_number')
             ->join('twilio_active_numbers', 'twilio_active_numbers.id', '=', 'store_website_twilio_numbers.twilio_active_number_id')
             ->where('store_website_twilio_numbers.store_website_id', $customer->store_website_id)
@@ -1379,7 +1382,7 @@ class CustomerController extends Controller
         }
 
         $customer_ids = json_decode($request->customer_ids ?? '[0]');
-        $key = array_search($id, $customer_ids);
+        $key          = array_search($id, $customer_ids);
 
         if ($key != 0) {
             $previous_customer_id = $customer_ids[$key - 1];
@@ -1393,20 +1396,20 @@ class CustomerController extends Controller
             $next_customer_id = $customer_ids[$key + 1];
         }
 
-        $emails = [];
-        $lead_status = (new status)->all();
-        $users_array = Helpers::getUserArray(User::all());
-        $brands = Brand::all()->toArray();
-        $reply_categories = ReplyCategory::orderby('id', 'DESC')->get();
+        $emails                 = [];
+        $lead_status            = (new status)->all();
+        $users_array            = Helpers::getUserArray(User::all());
+        $brands                 = Brand::all()->toArray();
+        $reply_categories       = ReplyCategory::orderby('id', 'DESC')->get();
         $instruction_categories = InstructionCategory::all();
-        $instruction_replies = Reply::where('model', 'Instruction')->get();
-        $order_status_report = OrderStatuses::all();
-        $purchase_status = (new PurchaseStatus)->all();
-        $solo_numbers = (new SoloNumbers)->all();
-        $api_keys = ApiKey::select(['number'])->get();
-        $suppliers = Supplier::select(['id', 'supplier'])->get();
-        $broadcastsNumbers = collect(\DB::select('select number from whatsapp_configs where is_customer_support = 0'))->pluck('number', 'number')->toArray();
-        $category_suggestion = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
+        $instruction_replies    = Reply::where('model', 'Instruction')->get();
+        $order_status_report    = OrderStatuses::all();
+        $purchase_status        = (new PurchaseStatus)->all();
+        $solo_numbers           = (new SoloNumbers)->all();
+        $api_keys               = ApiKey::select(['number'])->get();
+        $suppliers              = Supplier::select(['id', 'supplier'])->get();
+        $broadcastsNumbers      = collect(\DB::select('select number from whatsapp_configs where is_customer_support = 0'))->pluck('number', 'number')->toArray();
+        $category_suggestion    = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])
             ->renderAsDropdown();
 
         $facebookMessages = null;
@@ -1415,35 +1418,36 @@ class CustomerController extends Controller
         }
 
         return view('customers.show', [
-            'customer_ids' => json_encode($customer_ids),
-            'previous_customer_id' => $previous_customer_id,
-            'next_customer_id' => $next_customer_id,
-            'customer' => $customer,
-            'customers' => $customers,
-            'lead_status' => $lead_status,
-            'brands' => $brands,
-            'users_array' => $users_array,
-            'reply_categories' => $reply_categories,
+            'customer_ids'           => json_encode($customer_ids),
+            'previous_customer_id'   => $previous_customer_id,
+            'next_customer_id'       => $next_customer_id,
+            'customer'               => $customer,
+            'customers'              => $customers,
+            'lead_status'            => $lead_status,
+            'brands'                 => $brands,
+            'users_array'            => $users_array,
+            'reply_categories'       => $reply_categories,
             'instruction_categories' => $instruction_categories,
-            'instruction_replies' => $instruction_replies,
-            'order_status_report' => $order_status_report,
-            'purchase_status' => $purchase_status,
-            'solo_numbers' => $solo_numbers,
-            'api_keys' => $api_keys,
-            'emails' => $emails,
-            'category_suggestion' => $category_suggestion,
-            'suppliers' => $suppliers,
-            'facebookMessages' => $facebookMessages,
-            'searchedMessages' => $searchedMessages,
-            'broadcastsNumbers' => $broadcastsNumbers,
-            'storeActiveNumber' => $storeActiveNumber,
+            'instruction_replies'    => $instruction_replies,
+            'order_status_report'    => $order_status_report,
+            'purchase_status'        => $purchase_status,
+            'solo_numbers'           => $solo_numbers,
+            'api_keys'               => $api_keys,
+            'emails'                 => $emails,
+            'category_suggestion'    => $category_suggestion,
+            'suppliers'              => $suppliers,
+            'facebookMessages'       => $facebookMessages,
+            'searchedMessages'       => $searchedMessages,
+            'broadcastsNumbers'      => $broadcastsNumbers,
+            'storeActiveNumber'      => $storeActiveNumber,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function emailInbox(Request $request)
@@ -1459,24 +1463,24 @@ class CustomerController extends Controller
 
         $count = count($emails);
         foreach ($emails as $key => $email) {
-            $emails_array[$count + $key]['id'] = $email->id;
+            $emails_array[$count + $key]['id']      = $email->id;
             $emails_array[$count + $key]['subject'] = $email->subject;
-            $emails_array[$count + $key]['type'] = $email->type;
+            $emails_array[$count + $key]['type']    = $email->type;
             $emails_array[$count + $key]['message'] = $email->message;
-            $emails_array[$count + $key]['date'] = $email->created_at;
+            $emails_array[$count + $key]['date']    = $email->created_at;
         }
         $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
         $emails_array = array_reverse($emails_array);
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 5;
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = 5;
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage, ['path' => LengthAwarePaginator::resolveCurrentPath()]);
-        $view = view('customers.email', [
+        $emails       = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage, ['path' => LengthAwarePaginator::resolveCurrentPath()]);
+        $view         = view('customers.email', [
             'emails' => $emails,
-            'type' => $request->type,
+            'type'   => $request->type,
         ])->render();
 
         return response()->json(['emails' => $view]);
@@ -1484,7 +1488,7 @@ class CustomerController extends Controller
 
     public function emailFetch(Request $request)
     {
-        $email = Email::find($request->id);
+        $email   = Email::find($request->id);
         $content = $email->message;
 
         if ($email->template == 'customer-simple') {
@@ -1539,21 +1543,21 @@ class CustomerController extends Controller
         $emailClass = (new CustomerEmail($request->subject, $request->message, $emailAddressDetails->from_address))->build();
 
         $email = Email::create([
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            'from' => $emailAddressDetails->from_address,
-            'to' => $customer->email,
-            'subject' => $request->subject,
-            'message' => $emailClass->render(),
-            'template' => 'customer-simple',
-            'additional_data' => isset($order_data) ? $order_data : '',
-            'status' => 'pre-send',
+            'model_id'         => $customer->id,
+            'model_type'       => Customer::class,
+            'from'             => $emailAddressDetails->from_address,
+            'to'               => $customer->email,
+            'subject'          => $request->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'customer-simple',
+            'additional_data'  => isset($order_data) ? $order_data : '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
@@ -1562,21 +1566,21 @@ class CustomerController extends Controller
 
     public function edit($id)
     {
-        $customer = Customer::find($id);
+        $customer     = Customer::find($id);
         $solo_numbers = (new SoloNumbers)->all();
 
         return view('customers.edit', [
-            'customer' => $customer,
+            'customer'     => $customer,
             'solo_numbers' => $solo_numbers,
         ]);
     }
 
     public function updateReminder(Request $request)
     {
-        $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency = $request->get('frequency');
-        $customer->reminder_message = $request->get('message');
-        $customer->reminder_from = $request->get('reminder_from', '0000-00-00 00:00');
+        $customer                      = Customer::find($request->get('customer_id'));
+        $customer->frequency           = $request->get('frequency');
+        $customer->reminder_message    = $request->get('message');
+        $customer->reminder_from       = $request->get('reminder_from', '0000-00-00 00:00');
         $customer->reminder_last_reply = $request->get('reminder_last_reply', 0);
         $customer->save();
 
@@ -1588,7 +1592,8 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -1596,39 +1601,39 @@ class CustomerController extends Controller
         $customer = Customer::find($id);
 
         $this->validate($request, [
-            'name' => 'required|min:3|max:255',
-            'email' => 'required_without_all:phone,instahandler|nullable|email',
-            'phone' => 'required_without_all:email,instahandler|nullable|unique:customers,phone,' . $id,
-            'instahandler' => 'required_without_all:email,phone|nullable|min:3|max:255',
-            'rating' => 'required|numeric',
-            'address' => 'sometimes|nullable|min:3|max:255',
-            'city' => 'sometimes|nullable|min:3|max:255',
-            'country' => 'sometimes|nullable|min:2|max:255',
-            'pincode' => 'sometimes|nullable|max:6',
-            'shoe_size' => 'sometimes|nullable',
+            'name'          => 'required|min:3|max:255',
+            'email'         => 'required_without_all:phone,instahandler|nullable|email',
+            'phone'         => 'required_without_all:email,instahandler|nullable|unique:customers,phone,' . $id,
+            'instahandler'  => 'required_without_all:email,phone|nullable|min:3|max:255',
+            'rating'        => 'required|numeric',
+            'address'       => 'sometimes|nullable|min:3|max:255',
+            'city'          => 'sometimes|nullable|min:3|max:255',
+            'country'       => 'sometimes|nullable|min:2|max:255',
+            'pincode'       => 'sometimes|nullable|max:6',
+            'shoe_size'     => 'sometimes|nullable',
             'clothing_size' => 'sometimes|nullable',
-            'gender' => 'sometimes|nullable|string',
-            'credit' => 'sometimes|nullable|numeric',
+            'gender'        => 'sometimes|nullable|string',
+            'credit'        => 'sometimes|nullable|numeric',
         ]);
 
-        $customer->name = $request->name;
+        $customer->name  = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
         if ($request->get('whatsapp_number', false)) {
             $customer->whatsapp_number = $request->whatsapp_number;
         }
-        $customer->instahandler = $request->instahandler;
-        $customer->rating = $request->rating;
+        $customer->instahandler   = $request->instahandler;
+        $customer->rating         = $request->rating;
         $customer->do_not_disturb = $request->do_not_disturb == 'on' ? 1 : 0;
-        $customer->is_blocked = $request->is_blocked == 'on' ? 1 : 0;
-        $customer->address = $request->address;
-        $customer->city = $request->city;
-        $customer->country = $request->country;
-        $customer->pincode = $request->pincode;
-        $customer->credit = $request->credit;
-        $customer->shoe_size = $request->shoe_size;
-        $customer->clothing_size = $request->clothing_size;
-        $customer->gender = $request->gender;
+        $customer->is_blocked     = $request->is_blocked == 'on' ? 1 : 0;
+        $customer->address        = $request->address;
+        $customer->city           = $request->city;
+        $customer->country        = $request->country;
+        $customer->pincode        = $request->pincode;
+        $customer->credit         = $request->credit;
+        $customer->shoe_size      = $request->shoe_size;
+        $customer->clothing_size  = $request->clothing_size;
+        $customer->gender         = $request->gender;
 
         $customer->save();
 
@@ -1693,24 +1698,24 @@ class CustomerController extends Controller
         $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
         $email = Email::create([
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            'from' => $emailClass->fromMailer,
-            'to' => $customer->email,
-            'subject' => $emailClass->subject,
-            'message' => $emailClass->render(),
-            'template' => 'issue-credit',
+            'model_id'        => $customer->id,
+            'model_type'      => Customer::class,
+            'from'            => $emailClass->fromMailer,
+            'to'              => $customer->email,
+            'subject'         => $emailClass->subject,
+            'message'         => $emailClass->render(),
+            'template'        => 'issue-credit',
             'additional_data' => '',
-            'status' => 'pre-send',
+            'status'          => 'pre-send',
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
-        $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
+        $message     = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['customer_id' => $customer->id, 'message' => $message]);
@@ -1718,23 +1723,23 @@ class CustomerController extends Controller
         app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
 
         CommunicationHistory::create([
-            'model_id' => $customer->id,
+            'model_id'   => $customer->id,
             'model_type' => Customer::class,
-            'type' => 'issue-credit',
-            'method' => 'whatsapp',
+            'type'       => 'issue-credit',
+            'method'     => 'whatsapp',
         ]);
     }
 
     public function sendSuggestion(Request $request)
     {
         $customer = Customer::find($request->customer_id);
-        $params = [
+        $params   = [
             'customer_id' => $customer->id,
-            'number' => $request->number,
-            'brands' => '',
-            'categories' => '',
-            'size' => '',
-            'supplier' => '',
+            'number'      => $request->number,
+            'brands'      => '',
+            'categories'  => '',
+            'size'        => '',
+            'supplier'    => '',
         ];
 
         if ($request->brand[0] != null) {
@@ -1744,8 +1749,8 @@ class CustomerController extends Controller
         }
 
         if ($request->category[0] != null && $request->category[0] != 1) {
-            $categorySel = $request->category;
-            $category = \App\Category::whereIn('parent_id', $categorySel)->get()->pluck('id')->toArray();
+            $categorySel      = $request->category;
+            $category         = \App\Category::whereIn('parent_id', $categorySel)->get()->pluck('id')->toArray();
             $categorySelected = array_merge($categorySel, $category);
             if ($request->brand[0] != null) {
                 $products = $products->whereIn('category', $categorySelected);
@@ -1811,11 +1816,11 @@ class CustomerController extends Controller
 
         if (count($products) > 0) {
             $params = [
-                'number' => null,
-                'user_id' => Auth::id(),
-                'approved' => 0,
-                'status' => 1,
-                'message' => 'Suggested images',
+                'number'      => null,
+                'user_id'     => Auth::id(),
+                'approved'    => 0,
+                'status'      => 1,
+                'message'     => 'Suggested images',
                 'customer_id' => $customer->id,
             ];
 
@@ -1825,8 +1830,8 @@ class CustomerController extends Controller
                 if (! $product->suggestions->contains($suggestion->id)) {
                     if ($image = $product->getMedia(config('constants.attach_image_tag'))->first()) {
                         if ($count == 0) {
-                            $params['status'] = ChatMessage::CHAT_SUGGESTED_IMAGES;
-                            $chat_message = ChatMessage::create($params);
+                            $params['status']            = ChatMessage::CHAT_SUGGESTED_IMAGES;
+                            $chat_message                = ChatMessage::create($params);
                             $suggestion->chat_message_id = $chat_message->id;
                             $suggestion->save();
                         }
@@ -1865,11 +1870,11 @@ class CustomerController extends Controller
         $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take($total_images)->get();
         if (count($products) > 0) {
             $params = [
-                'number' => null,
-                'user_id' => Auth::id(),
-                'approved' => 0,
-                'status' => 1,
-                'message' => 'Suggested images',
+                'number'      => null,
+                'user_id'     => Auth::id(),
+                'approved'    => 0,
+                'status'      => 1,
+                'message'     => 'Suggested images',
                 'customer_id' => $customer->id,
             ];
 
@@ -1896,20 +1901,20 @@ class CustomerController extends Controller
 
     public function attachAll(Request $request)
     {
-        $data = [];
-        $term = $request->input('term');
-        $roletype = $request->input('roletype');
+        $data       = [];
+        $term       = $request->input('term');
+        $roletype   = $request->input('roletype');
         $model_type = $request->input('model_type');
 
-        $data['term'] = $term;
+        $data['term']     = $term;
         $data['roletype'] = $roletype;
 
         $doSelection = $request->input('doSelection');
 
         if (! empty($doSelection)) {
             $data['doSelection'] = true;
-            $data['model_id'] = $request->input('model_id');
-            $data['model_type'] = $request->input('model_type');
+            $data['model_id']    = $request->input('model_id');
+            $data['model_type']  = $request->input('model_type');
 
             $data['selected_products'] = ProductController::getSelectedProducts($data['model_type'], $data['model_id']);
         }
@@ -1965,8 +1970,8 @@ class CustomerController extends Controller
 
         if ($request->price != null) {
             $exploded = explode(',', $request->price);
-            $min = $exploded[0];
-            $max = $exploded[1];
+            $min      = $exploded[0];
+            $max      = $exploded[1];
 
             if ($min != '0' || $max != '400000') {
                 if ($request->brand[0] != null || $request->color[0] != null || ($request->category[0] != null && $request->category[0] != 1)) {
@@ -2072,12 +2077,12 @@ class CustomerController extends Controller
             }
 
             if (Brand::where('name', 'LIKE', "%$term%")->first()) {
-                $brand_id = Brand::where('name', 'LIKE', "%$term%")->first()->id;
+                $brand_id     = Brand::where('name', 'LIKE', "%$term%")->first()->id;
                 $productQuery = $productQuery->orWhere('brand', 'LIKE', "%$brand_id%");
             }
 
             if ($category = Category::where('title', 'LIKE', "%$term%")->first()) {
-                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
+                $category_id  = $category = Category::where('title', 'LIKE', "%$term%")->first()->id;
                 $productQuery = $productQuery->orWhere('category', CategoryController::getCategoryIdByName($term));
             }
 
@@ -2106,9 +2111,9 @@ class CustomerController extends Controller
         $data['products'] = $productQuery->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at'])->get();
 
         $params = [
-            'user_id' => Auth::id(),
-            'number' => null,
-            'status' => 1,
+            'user_id'     => Auth::id(),
+            'number'      => null,
+            'status'      => 1,
             'customer_id' => $request->customer_id,
         ];
 
@@ -2135,7 +2140,8 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -2156,9 +2162,9 @@ class CustomerController extends Controller
      */
     public function testImage()
     {
-        $path = request()->get('path');
-        $text = request()->get('text');
-        $color = request()->get('color', 'FFF');
+        $path     = request()->get('path');
+        $text     = request()->get('text');
+        $color    = request()->get('color', 'FFF');
         $fontSize = request()->get('size', 42);
 
         $img = \IImage::make(public_path($path));
@@ -2203,8 +2209,8 @@ class CustomerController extends Controller
 
     public function broadcastSendPrice()
     {
-        $broadcastId = request()->get('broadcast_id', 0);
-        $customerId = request()->get('customer_id', 0);
+        $broadcastId     = request()->get('broadcast_id', 0);
+        $customerId      = request()->get('customer_id', 0);
         $productsToBeRun = explode(',', request()->get('product_to_be_run', ''));
 
         $products = [];
@@ -2234,17 +2240,17 @@ class CustomerController extends Controller
                     $product = \App\Product::where('id', $pid)->first();
 
                     $quick_lead = ErpLeads::create([
-                        'customer_id' => $customer->id,
-                        'lead_status_id' => 3,
+                        'customer_id'      => $customer->id,
+                        'lead_status_id'   => 3,
                         'store_website_id' => 15,
-                        'product_id' => $pid,
-                        'brand_id' => $product ? $product->brand : null,
-                        'category_id' => $product ? $product->category : null,
-                        'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
-                        'color' => $customer->color,
-                        'size' => $customer->size,
-                        'type' => 'dispatch-send-price',
-                        'created_at' => Carbon::now(),
+                        'product_id'       => $pid,
+                        'brand_id'         => $product ? $product->brand : null,
+                        'category_id'      => $product ? $product->category : null,
+                        'brand_segment'    => $product && $product->brands ? $product->brands->brand_segment : null,
+                        'color'            => $customer->color,
+                        'size'             => $customer->size,
+                        'type'             => 'dispatch-send-price',
+                        'created_at'       => Carbon::now(),
                     ]);
                 }
 
@@ -2268,7 +2274,7 @@ class CustomerController extends Controller
     public function broadcastDetails()
     {
         $broadcastId = request()->get('broadcast_id', 0);
-        $customerId = request()->get('customer_id', 0);
+        $customerId  = request()->get('customer_id', 0);
 
         $messages = \App\MessageQueue::where('group_id', $broadcastId)->where('customer_id', $customerId)->get();
 
@@ -2290,7 +2296,7 @@ class CustomerController extends Controller
     {
         $customerId = request()->get('customer_id', 0);
         $whatsappNo = request()->get('number', null);
-        $type = request()->get('type', 'whatsapp_number');
+        $type       = request()->get('type', 'whatsapp_number');
 
         if ($customerId > 0) {
             // find the record from customer table
@@ -2308,10 +2314,10 @@ class CustomerController extends Controller
                 if ($customer->save()) {
                     if ($type == 'whatsapp_number') {
                         // update into whatsapp history table
-                        $wHistory = new \App\HistoryWhatsappNumber;
-                        $wHistory->date_time = date('Y-m-d H:i:s');
-                        $wHistory->object = \App\Customer::class;
-                        $wHistory->object_id = $customerId;
+                        $wHistory             = new \App\HistoryWhatsappNumber;
+                        $wHistory->date_time  = date('Y-m-d H:i:s');
+                        $wHistory->object     = \App\Customer::class;
+                        $wHistory->object_id  = $customerId;
                         $wHistory->old_number = $oldNumber;
                         $wHistory->new_number = $whatsappNo;
                         $wHistory->save();
@@ -2325,10 +2331,10 @@ class CustomerController extends Controller
 
     public function sendContactDetails()
     {
-        $userID = request()->get('user_id', 0);
+        $userID     = request()->get('user_id', 0);
         $customerID = request()->get('customer_id', 0);
 
-        $user = \App\User::where('id', $userID)->first();
+        $user     = \App\User::where('id', $userID)->first();
         $customer = \App\Customer::where('id', $customerID)->first();
 
         // if found customer and  user
@@ -2348,8 +2354,8 @@ class CustomerController extends Controller
 
             $params['erp_user'] = $user->id;
             $params['approved'] = 1;
-            $params['message'] = $messageData;
-            $params['status'] = 2;
+            $params['message']  = $messageData;
+            $params['status']   = 2;
 
             app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $messageData);
 
@@ -2365,7 +2371,7 @@ class CustomerController extends Controller
             'name' => 'required|string',
         ]);
 
-        $category = new ReplyCategory;
+        $category       = new ReplyCategory;
         $category->name = $request->name;
         if (! empty($request->quickCategoryId)) {
             $category->parent_id = $request->quickCategoryId;
@@ -2389,10 +2395,10 @@ class CustomerController extends Controller
 
     public function downloadContactDetails()
     {
-        $userID = request()->get('user_id', 0);
+        $userID     = request()->get('user_id', 0);
         $customerID = request()->get('customer_id', 0);
 
-        $user = \App\User::where('id', $userID)->first();
+        $user     = \App\User::where('id', $userID)->first();
         $customer = \App\Customer::where('id', $customerID)->first();
 
         // if found customer and  user
@@ -2433,7 +2439,7 @@ class CustomerController extends Controller
             $language = $request->language;
         }
 
-        $customer = Customer::find($request->id);
+        $customer           = Customer::find($request->id);
         $customer->language = $language;
         $customer->save();
 
@@ -2470,7 +2476,7 @@ class CustomerController extends Controller
     public function createKyc(Request $request)
     {
         $customer_id = $request->get('customer_id');
-        $media_id = $request->get('media_id');
+        $media_id    = $request->get('media_id');
 
         if (empty($customer_id)) {
             return response()->json(['code' => 500, 'message' => 'Customer id is required']);
@@ -2482,11 +2488,11 @@ class CustomerController extends Controller
 
         $media = PlunkMediable::find($media_id);
         if (! empty($media)) {
-            $kycDoc = new \App\CustomerKycDocument;
+            $kycDoc              = new \App\CustomerKycDocument;
             $kycDoc->customer_id = $customer_id;
-            $kycDoc->url = getMediaUrl($media);
-            $kycDoc->path = $media->getAbsolutePath();
-            $kycDoc->type = 1;
+            $kycDoc->url         = getMediaUrl($media);
+            $kycDoc->path        = $media->getAbsolutePath();
+            $kycDoc->type        = 1;
             $kycDoc->save();
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Kyc document added successfully']);
@@ -2497,9 +2503,9 @@ class CustomerController extends Controller
 
     public function quickcustomer(Request $request)
     {
-        $results = $this->getCustomersIndex($request);
+        $results       = $this->getCustomersIndex($request);
         $nextActionArr = DB::table('customer_next_actions')->get();
-        $type = @$request->type;
+        $type          = @$request->type;
 
         return view('customers.quickcustomer', ['customers' => $results[0], 'nextActionArr' => $nextActionArr, 'type' => $type]);
     }
@@ -2508,7 +2514,7 @@ class CustomerController extends Controller
     public function add_customer_data(Request $request)
     {
         if ($request->email) {
-            $email = $request->email;
+            $email   = $request->email;
             $website = $request->website;
 
             $website_data = StoreWebsite::where('website', $website)->first();
@@ -2538,40 +2544,40 @@ class CustomerController extends Controller
                                     ->where('entity_id', $value['entity_id'])
                                     ->update(
                                         [
-                                            'parent_id' => ($value['parent_id'] ?? ''),
+                                            'parent_id'    => ($value['parent_id'] ?? ''),
                                             'address_type' => ($value['address_type'] ?? ''),
-                                            'region' => ($value['region'] ?? ''),
-                                            'region_id' => ($value['region_id'] ?? ''),
-                                            'postcode' => ($value['postcode'] ?? ''),
-                                            'firstname' => ($value['firstname'] ?? ''),
-                                            'middlename' => ($value['middlename'] ?? ''),
-                                            'company' => ($value['company'] ?? ''),
-                                            'country_id' => ($value['country_id'] ?? ''),
-                                            'telephone' => ($value['telephone'] ?? ''),
-                                            'prefix' => ($value['prefix'] ?? ''),
-                                            'street' => ($value['street'] ?? ''),
-                                            'updated_at' => \Carbon\Carbon::now(),
+                                            'region'       => ($value['region'] ?? ''),
+                                            'region_id'    => ($value['region_id'] ?? ''),
+                                            'postcode'     => ($value['postcode'] ?? ''),
+                                            'firstname'    => ($value['firstname'] ?? ''),
+                                            'middlename'   => ($value['middlename'] ?? ''),
+                                            'company'      => ($value['company'] ?? ''),
+                                            'country_id'   => ($value['country_id'] ?? ''),
+                                            'telephone'    => ($value['telephone'] ?? ''),
+                                            'prefix'       => ($value['prefix'] ?? ''),
+                                            'street'       => ($value['street'] ?? ''),
+                                            'updated_at'   => \Carbon\Carbon::now(),
                                         ]
                                     );
                             }
                         } else {
                             $params[] = [
-                                'customer_id' => $find_customer->id,
-                                'entity_id' => ($value['entity_id'] ?? ''),
-                                'parent_id' => ($value['parent_id'] ?? ''),
+                                'customer_id'  => $find_customer->id,
+                                'entity_id'    => ($value['entity_id'] ?? ''),
+                                'parent_id'    => ($value['parent_id'] ?? ''),
                                 'address_type' => ($value['address_type'] ?? ''),
-                                'region' => ($value['region'] ?? ''),
-                                'region_id' => ($value['region_id'] ?? ''),
-                                'postcode' => ($value['postcode'] ?? ''),
-                                'firstname' => ($value['firstname'] ?? ''),
-                                'middlename' => ($value['middlename'] ?? ''),
-                                'company' => ($value['company'] ?? ''),
-                                'country_id' => ($value['country_id'] ?? ''),
-                                'telephone' => ($value['telephone'] ?? ''),
-                                'prefix' => ($value['prefix'] ?? ''),
-                                'street' => ($value['street'] ?? ''),
-                                'created_at' => \Carbon\Carbon::now(),
-                                'updated_at' => \Carbon\Carbon::now(),
+                                'region'       => ($value['region'] ?? ''),
+                                'region_id'    => ($value['region_id'] ?? ''),
+                                'postcode'     => ($value['postcode'] ?? ''),
+                                'firstname'    => ($value['firstname'] ?? ''),
+                                'middlename'   => ($value['middlename'] ?? ''),
+                                'company'      => ($value['company'] ?? ''),
+                                'country_id'   => ($value['country_id'] ?? ''),
+                                'telephone'    => ($value['telephone'] ?? ''),
+                                'prefix'       => ($value['prefix'] ?? ''),
+                                'street'       => ($value['street'] ?? ''),
+                                'created_at'   => \Carbon\Carbon::now(),
+                                'updated_at'   => \Carbon\Carbon::now(),
 
                             ];
                         }
@@ -2602,12 +2608,12 @@ class CustomerController extends Controller
 
     public function fetchCreditBalance(Request $request)
     {
-        $platform_id = $request->platform_id;
-        $website = $request->website;
+        $platform_id   = $request->platform_id;
+        $website       = $request->website;
         $store_website = StoreWebsite::where('website', 'like', $website)->first();
         if ($store_website) {
             $store_website_id = $store_website->id;
-            $customer = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();
+            $customer         = Customer::where('store_website_id', $store_website_id)->where('platform_id', $platform_id)->first();
             if ($customer) {
                 $message = $this->generate_erp_response('credit_fetch.success', $store_website_id, $default = 'Credit Fetched Successfully', request('lang_code'));
 
@@ -2627,8 +2633,8 @@ class CustomerController extends Controller
     public function deductCredit(Request $request)
     {
         $platform_id = $request->platform_id;
-        $website = $request->website;
-        $balance = $request->amount;
+        $website     = $request->website;
+        $balance     = $request->amount;
 
         $store_website = StoreWebsite::where('website', 'like', $website)->first();
         if ($store_website) {
@@ -2643,17 +2649,17 @@ class CustomerController extends Controller
             $customer_id = $customer->id;
             $totalCredit = $customer->credit;
             if ($customer->credit > $balance) {
-                $calc_credit = $customer->credit - $balance;
+                $calc_credit      = $customer->credit - $balance;
                 $customer->credit = $calc_credit;
 
                 \App\CreditHistory::create(
                     [
                         'customer_id' => $customer_id,
-                        'model_id' => $customer_id,
-                        'model_type' => Customer::class,
+                        'model_id'    => $customer_id,
+                        'model_type'  => Customer::class,
                         'used_credit' => (float) $totalCredit - $calc_credit,
-                        'used_in' => 'MANUAL',
-                        'type' => 'MINUS',
+                        'used_in'     => 'MANUAL',
+                        'type'        => 'MINUS',
                     ]
                 );
                 $customer->save();
@@ -2661,7 +2667,7 @@ class CustomerController extends Controller
 
                 return response()->json(['message' => $message, 'code' => 200, 'status' => 'success']);
             } else {
-                $toAdd = $balance - $customer->credit;
+                $toAdd   = $balance - $customer->credit;
                 $message = $this->generate_erp_response('credit_deduct.insufficient_balance', $store_website_id, $default = 'You do not have sufficient credits, Please add ' . $toAdd . ' to proceed.', request('lang_code'));
 
                 return response()->json(['message' => $message, 'code' => 500, 'status' => 'failure']);
@@ -2695,23 +2701,23 @@ class CustomerController extends Controller
         if ($request->store_website != '') {
             $customers_all->where('store_website_id', $request->store_website);
         }
-        $customers = $customers_all->get();
+        $customers     = $customers_all->get();
         $customers_all = $customers_all->paginate(Setting::get('pagination'));
         $store_website = StoreWebsite::all();
-        $users = Customer::get();
+        $users         = Customer::get();
         if ($request->ajax()) {
             return view('livechat.store_credit_ajax', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
-                'customers' => $customers,
-                'users' => $users,
+                'customers'     => $customers,
+                'users'         => $users,
             ]);
         } else {
             return view('livechat.store_credit', [
                 'customers_all' => $customers_all,
                 'store_website' => $store_website,
-                'customers' => $customers,
-                'users' => $users,
+                'customers'     => $customers,
+                'users'         => $users,
             ]);
         }
     }
@@ -2781,10 +2787,10 @@ class CustomerController extends Controller
         }
 
         $customers_all->orderBy('created_at', 'desc');
-        $total = $customers_all->count();
-        $customers_all = $customers_all->paginate(Setting::get('pagination'));
-        $store_website = StoreWebsite::all();
-        $customers_name = Customer::select('name')->distinct()->where('store_website_id', '>', 0)->get();
+        $total           = $customers_all->count();
+        $customers_all   = $customers_all->paginate(Setting::get('pagination'));
+        $store_website   = StoreWebsite::all();
+        $customers_name  = Customer::select('name')->distinct()->where('store_website_id', '>', 0)->get();
         $customers_phone = Customer::select('phone')->distinct()->where('store_website_id', '>', 0)->get();
         $customers_email = Customer::select('email')->distinct()->where('store_website_id', '>', 0)->get();
 
@@ -2795,10 +2801,10 @@ class CustomerController extends Controller
             ]);
         } else {
             return view('customers.account', [
-                'customers_all' => $customers_all,
-                'total' => $total,
-                'store_website' => $store_website,
-                'customers_name' => $customers_name,
+                'customers_all'   => $customers_all,
+                'total'           => $total,
+                'store_website'   => $store_website,
+                'customers_name'  => $customers_name,
                 'customers_phone' => $customers_phone,
                 'customers_email' => $customers_email,
 
@@ -2840,9 +2846,9 @@ class CustomerController extends Controller
 
     public function addCredit(Request $request)
     {
-        $platform_id = $request->platform_id;
-        $website = $request->website;
-        $credit = $request->amount;
+        $platform_id   = $request->platform_id;
+        $website       = $request->website;
+        $credit        = $request->amount;
         $store_website = StoreWebsite::where('website', 'like', $website)->first();
         if ($store_website) {
             $store_website_id = $store_website->id;
@@ -2856,17 +2862,17 @@ class CustomerController extends Controller
             $customer_id = $customer->id;
             $totalCredit = $customer->credit;
             if ($credit > 0) {
-                $calc_credit = $customer->credit + $credit;
+                $calc_credit      = $customer->credit + $credit;
                 $customer->credit = $calc_credit;
 
                 \App\CreditHistory::create(
                     [
                         'customer_id' => $customer_id,
-                        'model_id' => $customer_id,
-                        'model_type' => Customer::class,
+                        'model_id'    => $customer_id,
+                        'model_type'  => Customer::class,
                         'used_credit' => (float) $credit,
-                        'used_in' => 'MANUAL',
-                        'type' => 'PLUS',
+                        'used_in'     => 'MANUAL',
+                        'type'        => 'PLUS',
                     ]
                 );
                 $customer->save();
@@ -2885,6 +2891,7 @@ class CustomerController extends Controller
      * This function is use for get all proirity data
      *
      * @param [int] $id
+     *
      * @return Jsonresponse
      */
     public function customerPriorityPoints(Request $request)
@@ -2908,6 +2915,8 @@ class CustomerController extends Controller
      * This function is use for get proirity data
      *
      * @param [int] $id
+     * @param mixed $webSiteId
+     *
      * @return Jsonresponse
      */
     public function getCustomerPriorityPoints($webSiteId)
@@ -2936,12 +2945,12 @@ class CustomerController extends Controller
         ],
             [
                 'website_base_priority' => $request->get('website_base_priority'),
-                'store_website_id' => $request->get('store_website_id'),
-                'lead_points' => $request->get('lead_points'),
-                'refund_points' => $request->get('refund_points'),
-                'order_points' => $request->get('order_points'),
-                'ticket_points' => $request->get('ticket_points'),
-                'return_points' => $request->get('return_points'),
+                'store_website_id'      => $request->get('store_website_id'),
+                'lead_points'           => $request->get('lead_points'),
+                'refund_points'         => $request->get('refund_points'),
+                'order_points'          => $request->get('order_points'),
+                'ticket_points'         => $request->get('ticket_points'),
+                'return_points'         => $request->get('return_points'),
             ]);
 
         return response()->json(['message' => 'Record added successfully', 'code' => 200, 'data' => $custPri, 'status' => 'success']);
@@ -2951,6 +2960,7 @@ class CustomerController extends Controller
      * This function is use for get all proirity Range data
      *
      * @param [int] $id
+     *
      * @return Jsonresponse
      */
     public function getCustomerPriorityRangePoints(Request $request)
@@ -2978,6 +2988,7 @@ class CustomerController extends Controller
      * This function is use for get all proirity Range data
      *
      * @param [int] $id
+     *
      * @return Jsonresponse
      */
     public function getSelectCustomerPriorityRangePoints(Request $request, $id)
@@ -2996,7 +3007,7 @@ class CustomerController extends Controller
             ->where('customer_priority_range_points.id', $id)
             ->first();
 
-        $storeWebsite = StoreWebsite::all();
+        $storeWebsite   = StoreWebsite::all();
         $twilioPriority = TwilioPriority::where('account_id', function ($query) use ($custRangePoint) {
             $query->select('twilio_credentials_id')
                 ->from('store_website_twilio_numbers')
@@ -3011,6 +3022,7 @@ class CustomerController extends Controller
      * This function is use for get all proirity Range data
      *
      * @param [int] $id
+     *
      * @return Jsonresponse
      */
     public function selectCustomerPriorityRangePoints(Request $request, $id)
@@ -3033,14 +3045,14 @@ class CustomerController extends Controller
     {
         $custPri = CustomerPriorityRangePoint::updateOrCreate([
             'twilio_priority_id' => $request->get('twilio_priority_id'),
-            'store_website_id' => $request->get('store_website_id'),
+            'store_website_id'   => $request->get('store_website_id'),
         ],
             [
                 'twilio_priority_id' => $request->get('twilio_priority_id'),
-                'store_website_id' => $request->get('store_website_id'),
-                'min_point' => $request->get('min_point'),
-                'max_point' => $request->get('max_point'),
-                'deleted_at' => null,
+                'store_website_id'   => $request->get('store_website_id'),
+                'min_point'          => $request->get('min_point'),
+                'max_point'          => $request->get('max_point'),
+                'deleted_at'         => null,
             ]);
 
         return response()->json(['message' => 'Record added successfully', 'code' => 200, 'data' => $custPri, 'status' => 'success']);
@@ -3062,8 +3074,8 @@ class CustomerController extends Controller
 
     public function customerName(request $request)
     {
-        $id = $request->input('id');
-        $name = Customer::where('id', $id)->value('name');
+        $id          = $request->input('id');
+        $name        = Customer::where('id', $id)->value('name');
         $htmlContent = '<tr><td>' . $name . '</td></tr>';
 
         return $htmlContent;

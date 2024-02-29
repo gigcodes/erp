@@ -13,20 +13,20 @@ class GitHubActionController extends Controller
         try {
             $githubAction = new GitHubAction();
 
-            $githubAction->github_actor = $request->input('GITHUB_ACTOR') ?? '';
-            $githubAction->github_api_url = $request->input('GITHUB_API_URL') ?? '';
-            $githubAction->github_base_ref = $request->input('GITHUB_BASE_REF') ?? '';
-            $githubAction->github_event_name = $request->input('GITHUB_EVENT_NAME') ?? '';
-            $githubAction->github_job = $request->input('GITHUB_JOB') ?? '';
-            $githubAction->github_ref = $request->input('GITHUB_REF') ?? '';
-            $githubAction->github_ref_name = $request->input('GITHUB_REF_NAME') ?? '';
-            $githubAction->github_ref_type = $request->input('GITHUB_REF_TYPE') ?? '';
-            $githubAction->github_repository = $request->input('GITHUB_REPOSITORY') ?? '';
+            $githubAction->github_actor         = $request->input('GITHUB_ACTOR') ?? '';
+            $githubAction->github_api_url       = $request->input('GITHUB_API_URL') ?? '';
+            $githubAction->github_base_ref      = $request->input('GITHUB_BASE_REF') ?? '';
+            $githubAction->github_event_name    = $request->input('GITHUB_EVENT_NAME') ?? '';
+            $githubAction->github_job           = $request->input('GITHUB_JOB') ?? '';
+            $githubAction->github_ref           = $request->input('GITHUB_REF') ?? '';
+            $githubAction->github_ref_name      = $request->input('GITHUB_REF_NAME') ?? '';
+            $githubAction->github_ref_type      = $request->input('GITHUB_REF_TYPE') ?? '';
+            $githubAction->github_repository    = $request->input('GITHUB_REPOSITORY') ?? '';
             $githubAction->github_repository_id = $request->input('GITHUB_REPOSITORY_ID') ?? '';
-            $githubAction->github_run_attempt = $request->input('GITHUB_RUN_ATTEMPT') ?? '';
-            $githubAction->github_run_id = $request->input('GITHUB_RUN_ID') ?? '';
-            $githubAction->github_workflow = $request->input('GITHUB_WORKFLOW') ?? '';
-            $githubAction->runner_name = $request->input('RUNNER_NAME') ?? '';
+            $githubAction->github_run_attempt   = $request->input('GITHUB_RUN_ATTEMPT') ?? '';
+            $githubAction->github_run_id        = $request->input('GITHUB_RUN_ID') ?? '';
+            $githubAction->github_workflow      = $request->input('GITHUB_WORKFLOW') ?? '';
+            $githubAction->runner_name          = $request->input('RUNNER_NAME') ?? '';
             $githubAction->save();
 
             return response()->json(['message' => 'GitHub Action Stored Successfully'], 200);
@@ -43,7 +43,7 @@ class GitHubActionController extends Controller
 
         $apiUrls = GitHubAction::distinct('github_api_url')->pluck('github_api_url');
         $refUrls = GitHubAction::distinct('github_ref')->pluck('github_ref');
-        $repos = GitHubAction::distinct('github_repository')->pluck('github_repository');
+        $repos   = GitHubAction::distinct('github_repository')->pluck('github_repository');
 
         if ($request->search_event) {
             $gitactions = $gitactions->where('github_event_name', 'LIKE', '%' . $request->search_error . '%');

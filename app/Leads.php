@@ -103,8 +103,8 @@ class Leads extends Model
 
     public function getCommunicationAttribute()
     {
-        $message = $this->messages();
-        $whatsapp = $this->whatsapps();
+        $message   = $this->messages();
+        $whatsapp  = $this->whatsapps();
         $instagram = $this->instagram();
 
         if (! empty($message) && ! empty($whatsapp) && ! empty($instagram)) {

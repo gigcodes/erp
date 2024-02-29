@@ -15,6 +15,8 @@ class RefundCreated
     /**
      * Create a new event instance.
      *
+     * @param publicRefund $refund
+     *
      * @return void
      */
     public function __construct(public Refund $refund)

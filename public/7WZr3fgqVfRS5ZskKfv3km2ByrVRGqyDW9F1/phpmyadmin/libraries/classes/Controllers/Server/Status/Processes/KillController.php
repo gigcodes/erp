@@ -25,7 +25,7 @@ final class KillController extends AbstractController
     }
 
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
      */
     public function __invoke(ServerRequest $request, array $params): void
     {
@@ -33,7 +33,7 @@ final class KillController extends AbstractController
             return;
         }
 
-        $kill = (int) $params['id'];
+        $kill  = (int) $params['id'];
         $query = $this->dbi->getKillQuery($kill);
 
         if ($this->dbi->tryQuery($query)) {

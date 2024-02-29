@@ -55,7 +55,7 @@ class AuthenticationSignon extends AuthenticationPlugin
     /**
      * Set cookie params
      *
-     * @param  array  $sessionCookieParams The cookie params
+     * @param array $sessionCookieParams The cookie params
      */
     public function setCookieParams(?array $sessionCookieParams = null): void
     {
@@ -154,8 +154,8 @@ class AuthenticationSignon extends AuthenticationPlugin
             [$this->user, $this->password] = get_login_credentials($GLOBALS['cfg']['Server']['user']);
         } elseif (isset($_COOKIE[$session_name])) { /* Does session exist? */
             /* End current session */
-            $old_session = session_name();
-            $old_id = session_id();
+            $old_session     = session_name();
+            $old_id          = session_id();
             $oldCookieParams = session_get_cookie_params();
             if (! defined('TESTSUITE')) {
                 session_write_close();
@@ -234,7 +234,7 @@ class AuthenticationSignon extends AuthenticationPlugin
 
             /* Restore our token */
             if (! empty($pma_token)) {
-                $_SESSION[' PMA_token '] = $pma_token;
+                $_SESSION[' PMA_token ']   = $pma_token;
                 $_SESSION[' HMAC_secret '] = $HMACSecret;
             }
 
@@ -259,7 +259,7 @@ class AuthenticationSignon extends AuthenticationPlugin
     /**
      * User is not allowed to login to MySQL -> authentication failed
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
      */
     public function showFailure($failure): void
     {

@@ -17,7 +17,7 @@ class UrlReport extends Model
 
     public function urlReportSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'url_organic_search_keywords' => 'https://api.semrush.com/?type=url_organic&key=' . $key . '&display_limit=10&export_columns=Ph,Po,Nq,Cp,Co,Tr,Tc,Nr,Td&url=https://tools.seobook.com/&database=' . $db,
 
@@ -59,7 +59,7 @@ amazon;1;83100000;0.02;0.16;0.68;78114;76;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.8
 
     public function urlReportAhrefsApis()
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'url_organic_search_keywords' => '',
 

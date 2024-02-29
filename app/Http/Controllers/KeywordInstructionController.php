@@ -40,14 +40,14 @@ class KeywordInstructionController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'keywords' => 'required|array',
+            'keywords'             => 'required|array',
             'instruction_category' => 'required',
         ]);
 
-        $keywordInstruction = new KeywordInstruction();
-        $keywordInstruction->keywords = $request->get('keywords');
+        $keywordInstruction                          = new KeywordInstruction();
+        $keywordInstruction->keywords                = $request->get('keywords');
         $keywordInstruction->instruction_category_id = $request->get('instruction_category');
-        $keywordInstruction->remark = $request->get('remark') ?? 'N/A';
+        $keywordInstruction->remark                  = $request->get('remark') ?? 'N/A';
         $keywordInstruction->save();
 
         return redirect()->action([\App\Http\Controllers\KeywordInstructionController::class, 'index'])->with('message', 'Keyword-instruction reference added successfully!');
@@ -87,13 +87,13 @@ class KeywordInstructionController extends Controller
     public function update(Request $request, KeywordInstruction $keywordInstruction)
     {
         $this->validate($request, [
-            'keywords' => 'required|array',
+            'keywords'             => 'required|array',
             'instruction_category' => 'required',
         ]);
 
-        $keywordInstruction->keywords = $request->get('keywords');
+        $keywordInstruction->keywords                = $request->get('keywords');
         $keywordInstruction->instruction_category_id = $request->get('instruction_category');
-        $keywordInstruction->remark = $request->get('remark') ?? 'N/A';
+        $keywordInstruction->remark                  = $request->get('remark') ?? 'N/A';
         $keywordInstruction->save();
 
         return redirect()->back()->with('message', 'Keyword-instruction reference added successfully!');

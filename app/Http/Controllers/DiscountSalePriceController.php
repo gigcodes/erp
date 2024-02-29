@@ -28,37 +28,37 @@ class DiscountSalePriceController extends Controller
             $discountsaleprice->where('supplier_id', $request->supplier);
         }
         $discountsaleprice = $discountsaleprice->get();
-        $supplier = \App\Supplier::get();
+        $supplier          = \App\Supplier::get();
         if ($request->ajax()) {
             return view('discountsaleprice.index_page', [
                 'discountsaleprice' => $discountsaleprice,
-                'supplier' => $supplier,
+                'supplier'          => $supplier,
             ]);
         } else {
             return view('discountsaleprice.index', [
                 'discountsaleprice' => $discountsaleprice,
-                'supplier' => $supplier,
+                'supplier'          => $supplier,
             ]);
         }
     }
 
     public function type(Request $request)
     {
-        $type = $request->type;
+        $type   = $request->type;
         $select = "<select class='form-control' name='type_id' required id='type_id'>";
 
         if ($type == 'brand') {
             $model_type = \App\Brand::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $select .= "<option value='" . $r->id . "'>" . $r->name . '</option>';
             }
         }
         if ($type == 'category') {
             $model_type = \App\Category::class;
-            $rs = $model_type::all();
-            $data = '';
+            $rs         = $model_type::all();
+            $data       = '';
             foreach ($rs as $r) {
                 $select .= "<option value='" . $r->id . "'>" . $r->title . '</option>';
             }
@@ -66,8 +66,8 @@ class DiscountSalePriceController extends Controller
 
         if ($type == 'product') {
             $model_type = \App\Product::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $select .= "<option value='" . $r->id . "'>" . $r->name . '</option>';
             }
@@ -75,8 +75,8 @@ class DiscountSalePriceController extends Controller
 
         if ($type == 'store_website') {
             $model_type = \App\StoreWebsite::class;
-            $rs = $model_type::get();
-            $data = '';
+            $rs         = $model_type::get();
+            $data       = '';
             foreach ($rs as $r) {
                 $select .= "<option value='" . $r->id . "'>" . $r->title . '</option>';
             }
@@ -87,7 +87,7 @@ class DiscountSalePriceController extends Controller
 
     public function create(Request $request)
     {
-        $data = $request->except(['_token', 'file']);
+        $data               = $request->except(['_token', 'file']);
         $data['created_by'] = Auth::id();
 
         $id = $request->id;

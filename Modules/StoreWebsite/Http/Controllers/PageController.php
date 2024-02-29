@@ -29,7 +29,7 @@ class PageController extends Controller
     {
         $title = 'Pages | Store Website';
 
-        $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
+        $storeWebsites      = StoreWebsite::all()->pluck('website', 'id');
         $storeWebsitesModel = StoreWebsite::query()
             ->select('title', 'magento_url')
             ->pluck('magento_url', 'title');
@@ -40,17 +40,17 @@ class PageController extends Controller
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
         $languagesList = Language::pluck('name', 'name')->toArray(); //
-        $statuses = StoreWebsiteStatus::all();
-        $users = User::all();
+        $statuses      = StoreWebsiteStatus::all();
+        $users         = User::all();
 
         return view('storewebsite::page.index', [
-            'title' => $title,
-            'storeWebsites' => $storeWebsites,
-            'pages' => $pages,
-            'languages' => $languages,
-            'languagesList' => $languagesList,
-            'statuses' => $statuses,
-            'users' => $users,
+            'title'              => $title,
+            'storeWebsites'      => $storeWebsites,
+            'pages'              => $pages,
+            'languages'          => $languages,
+            'languagesList'      => $languagesList,
+            'statuses'           => $statuses,
+            'users'              => $users,
             'storeWebsitesModel' => $storeWebsitesModel,
         ]);
     }
@@ -60,24 +60,24 @@ class PageController extends Controller
         $title = 'Pages | Store Website';
 
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
-        $pages = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
+        $pages         = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
             ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), 'store_website_pages.id'])
             ->pluck('page_name', 'id');
 
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
         $languagesList = Language::pluck('name', 'name')->toArray(); //
-        $statuses = StoreWebsiteStatus::all();
-        $users = User::all();
+        $statuses      = StoreWebsiteStatus::all();
+        $users         = User::all();
 
         return view('storewebsite::page.keywords', [
-            'title' => $title,
+            'title'         => $title,
             'storeWebsites' => $storeWebsites,
-            'pages' => $pages,
-            'languages' => $languages,
+            'pages'         => $pages,
+            'languages'     => $languages,
             'languagesList' => $languagesList,
-            'statuses' => $statuses,
-            'users' => $users,
+            'statuses'      => $statuses,
+            'users'         => $users,
         ]);
     }
 
@@ -144,14 +144,14 @@ class PageController extends Controller
 
         $recItems = [];
         foreach ($items as $item) {
-            $attributes = $item->getAttributes();
+            $attributes                 = $item->getAttributes();
             $attributes['stores_small'] = strlen($attributes['stores']) > 15 ? substr($attributes['stores'], 0, 15) : $attributes['stores'];
-            $attributes['stores'] = $attributes['stores'];
-            $recItems[] = $attributes;
+            $attributes['stores']       = $attributes['stores'];
+            $recItems[]                 = $attributes;
         }
 
         return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'statuses' => $statuses, 'total' => $pages->total(),
-            'pagination' => (string) $pages->links(),
+            'pagination'                => (string) $pages->links(),
         ]);
     }
 
@@ -190,21 +190,21 @@ class PageController extends Controller
 
         $recItems = [];
         foreach ($items as $item) {
-            $attributes = $item->getAttributes();
-            $attributes['stores_small'] = strlen($attributes['stores']) > 15 ? substr($attributes['stores'], 0, 15) : $attributes['stores'];
-            $attributes['stores'] = $attributes['stores'];
+            $attributes                  = $item->getAttributes();
+            $attributes['stores_small']  = strlen($attributes['stores']) > 15 ? substr($attributes['stores'], 0, 15) : $attributes['stores'];
+            $attributes['stores']        = $attributes['stores'];
             $attributes['original_page'] = \App\StoreWebsitePage::where('url_key', $item->url_key)->where('store_website_id', $item->store_website_id)->where('id', $item->translated_from)->first();
-            $recItems[] = $attributes;
+            $recItems[]                  = $attributes;
         }
 
         return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'total' => $pages->total(),
-            'pagination' => (string) $pages->links(),
+            'pagination'                => (string) $pages->links(),
         ]);
     }
 
     public function reviewTranslate(Request $request, $language = '')
     {
-        $title = 'Pages - Review Translate:' . $language . ' | Store Website';
+        $title         = 'Pages - Review Translate:' . $language . ' | Store Website';
         $languagesList = Language::pluck('name', 'name')->toArray();
         if (! empty($languagesList) && $language == '') {
             $first = reset($languagesList);
@@ -213,7 +213,7 @@ class PageController extends Controller
         }
 
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
-        $pages = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
+        $pages         = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
             ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), 'store_website_pages.id'])
             ->where('store_website_pages.language', $language)
             ->where('is_flagged_translation', 1)
@@ -222,10 +222,10 @@ class PageController extends Controller
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
         return view('storewebsite::page.review-translate', [
-            'title' => $title,
+            'title'         => $title,
             'storeWebsites' => $storeWebsites,
-            'pages' => $pages,
-            'languages' => $languages,
+            'pages'         => $pages,
+            'languages'     => $languages,
             'languagesList' => $languagesList,
         ]);
     }
@@ -233,7 +233,7 @@ class PageController extends Controller
     public function store(Request $request)
     {
         $post = $request->all();
-        $id = $request->get('id', 0);
+        $id   = $request->get('id', 0);
 
         try {
             if (! empty($post['copy_to']) && is_array($post['copy_to'])) {
@@ -250,15 +250,15 @@ class PageController extends Controller
         }
 
         $params = [
-            'title' => 'required',
-            'content' => 'required',
+            'title'    => 'required',
+            'content'  => 'required',
             'language' => 'required',
             //'stores'           => 'required',
             //'store_website_id' => 'required',
         ];
 
         if (empty($id)) {
-            $params['stores'] = 'required';
+            $params['stores']           = 'required';
             $params['store_website_id'] = 'required';
         }
 
@@ -266,7 +266,7 @@ class PageController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -287,9 +287,9 @@ class PageController extends Controller
         }
 
         if (empty($id)) {
-            $post['stores'] = implode(',', $post['stores']);
-            $string = str_replace(' ', '-', strtolower($post['title'])); // Replaces all spaces with hyphens.
-            $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+            $post['stores']  = implode(',', $post['stores']);
+            $string          = str_replace(' ', '-', strtolower($post['title'])); // Replaces all spaces with hyphens.
+            $string          = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
             $post['url_key'] = $string;
         }
 
@@ -297,9 +297,9 @@ class PageController extends Controller
             $post['stores'] = $post['stores_str'];
         }
 
-        $post['is_pushed'] = 0;
+        $post['is_pushed']                    = 0;
         $post['is_latest_version_translated'] = 1;
-        $post['is_latest_version_pushed'] = 0;
+        $post['is_latest_version_pushed']     = 0;
         $records->fill($post);
         if ($request->has('approved_by_user_id')) {
             activity()->causedBy(auth()->user())->performedOn($records)->log('Translation Approved by:' . optional(auth()->user())->name);
@@ -376,24 +376,24 @@ class PageController extends Controller
                             }
                         }
 
-                        $newPage->title = ! empty($title) ? $title : $page->title;
-                        $newPage->meta_title = ! empty($metaTitle) ? $metaTitle : $page->meta_title;
-                        $newPage->meta_keywords = ! empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
-                        $newPage->meta_description = ! empty($metaDescription) ? $metaDescription : $page->meta_description;
-                        $newPage->content_heading = ! empty($contentHeading) ? $contentHeading : $page->content_heading;
-                        $newPage->content = ! empty($content) ? $content : $page->content;
-                        $newPage->layout = $page->layout;
-                        $newPage->url_key = $page->url_key;
-                        $newPage->active = $page->active;
-                        $newPage->stores = implode(',', $stores);
-                        $newPage->store_website_id = $page->store_website_id;
-                        $newPage->language = $l->name;
-                        $newPage->copy_page_id = $page->id;
-                        $newPage->translated_from = $page->id;
-                        $newPage->is_pushed = 0;
-                        $newPage->is_latest_version_pushed = 0;
+                        $newPage->title                        = ! empty($title) ? $title : $page->title;
+                        $newPage->meta_title                   = ! empty($metaTitle) ? $metaTitle : $page->meta_title;
+                        $newPage->meta_keywords                = ! empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                        $newPage->meta_description             = ! empty($metaDescription) ? $metaDescription : $page->meta_description;
+                        $newPage->content_heading              = ! empty($contentHeading) ? $contentHeading : $page->content_heading;
+                        $newPage->content                      = ! empty($content) ? $content : $page->content;
+                        $newPage->layout                       = $page->layout;
+                        $newPage->url_key                      = $page->url_key;
+                        $newPage->active                       = $page->active;
+                        $newPage->stores                       = implode(',', $stores);
+                        $newPage->store_website_id             = $page->store_website_id;
+                        $newPage->language                     = $l->name;
+                        $newPage->copy_page_id                 = $page->id;
+                        $newPage->translated_from              = $page->id;
+                        $newPage->is_pushed                    = 0;
+                        $newPage->is_latest_version_pushed     = 0;
                         $newPage->is_latest_version_translated = 1;
-                        $newPage->is_flagged_translation = 1;
+                        $newPage->is_flagged_translation       = 1;
                         $newPage->save();
 
                         //\App\Jobs\PushPageToMagento::dispatch($newPage)->onQueue('magetwo');
@@ -415,7 +415,8 @@ class PageController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -431,7 +432,8 @@ class PageController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -468,43 +470,43 @@ class PageController extends Controller
 
         if ($page) {
             $website = $page->storeWebsite;
-            $data = MagentoHelper::pullWebsitePage($website);
+            $data    = MagentoHelper::pullWebsitePage($website);
             if (! empty($data)) {
                 foreach ($data as $key => $d) {
                     if ($page->platform_id == $d->id) {
                         activity()->causedBy(auth()->user())->performedOn($page)->log('page pulled');
-                        $page->title = isset($d->title) ? $d->title : '';
-                        $page->url_key = isset($d->identifier) ? $d->identifier : '';
-                        $page->layout = isset($d->page_layout) ? $d->page_layout : '';
-                        $page->meta_title = isset($d->meta_title) ? $d->meta_title : '';
-                        $page->meta_keywords = isset($d->meta_keywords) ? $d->meta_keywords : '';
+                        $page->title            = isset($d->title) ? $d->title : '';
+                        $page->url_key          = isset($d->identifier) ? $d->identifier : '';
+                        $page->layout           = isset($d->page_layout) ? $d->page_layout : '';
+                        $page->meta_title       = isset($d->meta_title) ? $d->meta_title : '';
+                        $page->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : '';
                         $page->meta_description = isset($d->meta_description) ? $d->meta_description : '';
-                        $page->content_heading = isset($d->content_heading) ? $d->content_heading : '';
-                        $page->content = isset($d->content) ? $d->content : '';
-                        $page->created_at = isset($d->creation_time) ? $d->creation_time : '';
-                        $page->updated_at = isset($d->update_time) ? $d->update_time : '';
-                        $page->is_pushed = 0;
+                        $page->content_heading  = isset($d->content_heading) ? $d->content_heading : '';
+                        $page->content          = isset($d->content) ? $d->content : '';
+                        $page->created_at       = isset($d->creation_time) ? $d->creation_time : '';
+                        $page->updated_at       = isset($d->update_time) ? $d->update_time : '';
+                        $page->is_pushed        = 0;
                         $page->save();
 
                         StoreWebsitePagePullLog::create(['title' => isset($d->title) ? $d->title : '',
-                            'meta_title' => isset($d->meta_title) ? $d->meta_title : '',
-                            'meta_keywords' => isset($d->meta_keywords) ? $d->meta_keywords : '',
-                            'meta_description' => isset($d->meta_description) ? $d->meta_description : '',
-                            'content_heading' => isset($d->content_heading) ? $d->content_heading : '',
-                            'content' => isset($d->content) ? $d->content : '',
-                            'layout' => isset($d->page_layout) ? $d->page_layout : '',
-                            'url_key' => isset($d->identifier) ? $d->identifier : '',
-                            'platform_id' => $d->id,
-                            'page_id' => $page->id,
-                            'store_website_id' => $website->id,
-                            'response_type' => 'success', ]);
+                            'meta_title'                         => isset($d->meta_title) ? $d->meta_title : '',
+                            'meta_keywords'                      => isset($d->meta_keywords) ? $d->meta_keywords : '',
+                            'meta_description'                   => isset($d->meta_description) ? $d->meta_description : '',
+                            'content_heading'                    => isset($d->content_heading) ? $d->content_heading : '',
+                            'content'                            => isset($d->content) ? $d->content : '',
+                            'layout'                             => isset($d->page_layout) ? $d->page_layout : '',
+                            'url_key'                            => isset($d->identifier) ? $d->identifier : '',
+                            'platform_id'                        => $d->id,
+                            'page_id'                            => $page->id,
+                            'store_website_id'                   => $website->id,
+                            'response_type'                      => 'success', ]);
                     }
                 }
             } else {
                 StoreWebsitePagePullLog::create([
-                    'page_id' => $page->id,
+                    'page_id'          => $page->id,
                     'store_website_id' => $website->id,
-                    'response_type' => 'error', ]);
+                    'response_type'    => 'error', ]);
             }
 
             return response()->json(['code' => 200, 'message' => 'Website send for pull']);
@@ -550,7 +552,7 @@ class PageController extends Controller
     public function copyTo(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'page' => 'required',
+            'page'    => 'required',
             'to_page' => 'different:page',
         ]);
 
@@ -562,7 +564,7 @@ class PageController extends Controller
 
         if ($page) {
             if (! empty($request->to_page) || ! empty($request->site_urls)) {
-                $updateData = [];
+                $updateData              = [];
                 $updateData['is_pushed'] = 0;
 
                 if ($request->cttitle == 'true') {
@@ -679,24 +681,24 @@ class PageController extends Controller
                             }
                         }
 
-                        $newPage->title = ! empty($title) ? $title : $page->title;
-                        $newPage->meta_title = ! empty($metaTitle) ? $metaTitle : $page->meta_title;
-                        $newPage->meta_keywords = ! empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
-                        $newPage->meta_description = ! empty($metaDescription) ? $metaDescription : $page->meta_description;
-                        $newPage->content_heading = ! empty($contentHeading) ? $contentHeading : $page->content_heading;
-                        $newPage->content = ! empty($content) ? $content : $page->content;
-                        $newPage->layout = $page->layout;
-                        $newPage->url_key = $page->url_key;
-                        $newPage->active = $page->active;
-                        $newPage->stores = implode(',', $stores);
-                        $newPage->store_website_id = $page->store_website_id;
-                        $newPage->language = $l->name;
-                        $newPage->copy_page_id = $page->id;
-                        $newPage->translated_from = $page->id;
-                        $newPage->is_pushed = 0;
-                        $newPage->is_latest_version_pushed = 0;
+                        $newPage->title                        = ! empty($title) ? $title : $page->title;
+                        $newPage->meta_title                   = ! empty($metaTitle) ? $metaTitle : $page->meta_title;
+                        $newPage->meta_keywords                = ! empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                        $newPage->meta_description             = ! empty($metaDescription) ? $metaDescription : $page->meta_description;
+                        $newPage->content_heading              = ! empty($contentHeading) ? $contentHeading : $page->content_heading;
+                        $newPage->content                      = ! empty($content) ? $content : $page->content;
+                        $newPage->layout                       = $page->layout;
+                        $newPage->url_key                      = $page->url_key;
+                        $newPage->active                       = $page->active;
+                        $newPage->stores                       = implode(',', $stores);
+                        $newPage->store_website_id             = $page->store_website_id;
+                        $newPage->language                     = $l->name;
+                        $newPage->copy_page_id                 = $page->id;
+                        $newPage->translated_from              = $page->id;
+                        $newPage->is_pushed                    = 0;
+                        $newPage->is_latest_version_pushed     = 0;
                         $newPage->is_latest_version_translated = 1;
-                        $newPage->is_flagged_translation = 1;
+                        $newPage->is_flagged_translation       = 1;
                         $newPage->save();
 
                         activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
@@ -755,37 +757,37 @@ class PageController extends Controller
                     }
 
                     $pages->store_website_id = $website->id;
-                    $pages->platform_id = $d->id;
-                    $pages->title = isset($d->title) ? $d->title : '';
-                    $pages->url_key = isset($d->identifier) ? $d->identifier : '';
-                    $pages->layout = isset($d->page_layout) ? $d->page_layout : '';
-                    $pages->meta_title = isset($d->meta_title) ? $d->meta_title : '';
-                    $pages->meta_keywords = isset($d->meta_keywords) ? $d->meta_keywords : '';
+                    $pages->platform_id      = $d->id;
+                    $pages->title            = isset($d->title) ? $d->title : '';
+                    $pages->url_key          = isset($d->identifier) ? $d->identifier : '';
+                    $pages->layout           = isset($d->page_layout) ? $d->page_layout : '';
+                    $pages->meta_title       = isset($d->meta_title) ? $d->meta_title : '';
+                    $pages->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : '';
                     $pages->meta_description = isset($d->meta_description) ? $d->meta_description : '';
-                    $pages->content_heading = isset($d->content_heading) ? $d->content_heading : '';
-                    $pages->content = isset($d->content) ? $d->content : '';
-                    $pages->created_at = isset($d->creation_time) ? $d->creation_time : '';
-                    $pages->updated_at = isset($d->update_time) ? $d->update_time : '';
+                    $pages->content_heading  = isset($d->content_heading) ? $d->content_heading : '';
+                    $pages->content          = isset($d->content) ? $d->content : '';
+                    $pages->created_at       = isset($d->creation_time) ? $d->creation_time : '';
+                    $pages->updated_at       = isset($d->update_time) ? $d->update_time : '';
 
                     $pages->save();
 
                     StoreWebsitePagePullLog::create(['title' => isset($d->title) ? $d->title : '',
-                        'meta_title' => isset($d->meta_title) ? $d->meta_title : '',
-                        'meta_keywords' => isset($d->meta_keywords) ? $d->meta_keywords : '',
-                        'meta_description' => isset($d->meta_description) ? $d->meta_description : '',
-                        'content_heading' => isset($d->content_heading) ? $d->content_heading : '',
-                        'content' => isset($d->content) ? $d->content : '',
-                        'layout' => isset($d->page_layout) ? $d->page_layout : '',
-                        'url_key' => isset($d->identifier) ? $d->identifier : '',
-                        'platform_id' => $d->id,
-                        'page_id' => $pages->id,
-                        'store_website_id' => $website->id,
-                        'response_type' => 'success', ]);
+                        'meta_title'                         => isset($d->meta_title) ? $d->meta_title : '',
+                        'meta_keywords'                      => isset($d->meta_keywords) ? $d->meta_keywords : '',
+                        'meta_description'                   => isset($d->meta_description) ? $d->meta_description : '',
+                        'content_heading'                    => isset($d->content_heading) ? $d->content_heading : '',
+                        'content'                            => isset($d->content) ? $d->content : '',
+                        'layout'                             => isset($d->page_layout) ? $d->page_layout : '',
+                        'url_key'                            => isset($d->identifier) ? $d->identifier : '',
+                        'platform_id'                        => $d->id,
+                        'page_id'                            => $pages->id,
+                        'store_website_id'                   => $website->id,
+                        'response_type'                      => 'success', ]);
                 }
             } else {
                 StoreWebsitePagePullLog::create([
                     'store_website_id' => $website->id,
-                    'response_type' => 'error', ]);
+                    'response_type'    => 'error', ]);
             }
 
             return response()->json(['code' => 200, 'data' => [], 'message' => 'Website pages pulled successfully!']);
@@ -823,8 +825,8 @@ class PageController extends Controller
 
     public function store_platform_id()
     {
-        $page = StoreWebsitePage::find(request()->page_id);
-        $old = $page->platform_id;
+        $page              = StoreWebsitePage::find(request()->page_id);
+        $old               = $page->platform_id;
         $page->platform_id = request()->platform_id;
         if ($page->save()) {
             activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated from ' . $old . ' to ' . request()->platform_id);
@@ -838,9 +840,9 @@ class PageController extends Controller
     public function statusCreate(request $request)
     {
         try {
-            $todoStatus = new StoreWebsiteStatus();
+            $todoStatus              = new StoreWebsiteStatus();
             $todoStatus->status_name = $request->status_name;
-            $todoStatus->color = $request->status_color;
+            $todoStatus->color       = $request->status_color;
             $todoStatus->save();
 
             return redirect()->back()->with('success', 'Your Todo status has been Added!');
@@ -852,9 +854,9 @@ class PageController extends Controller
     public function StatusColorUpdate(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoModuleVerifiedStatus = StoreWebsiteStatus::find($key);
+            $magentoModuleVerifiedStatus        = StoreWebsiteStatus::find($key);
             $magentoModuleVerifiedStatus->color = $value;
             $magentoModuleVerifiedStatus->save();
         }
@@ -864,15 +866,15 @@ class PageController extends Controller
 
     public function websiteStatusUpdate(Request $request)
     {
-        $storewebsite = \App\StoreWebsitePage::find($request->dataId);
-        $storewebsiteOldStatusId = $storewebsite->website_store_views_status_id;
+        $storewebsite                                = \App\StoreWebsitePage::find($request->dataId);
+        $storewebsiteOldStatusId                     = $storewebsite->website_store_views_status_id;
         $storewebsite->website_store_views_status_id = $request->statusId;
         $storewebsite->save();
 
-        $storewebsitHistory = new StoreWebsiteStatusHistory();
-        $storewebsitHistory->old_status_id = $storewebsiteOldStatusId;
-        $storewebsitHistory->new_status_id = $request->statusId;
-        $storewebsitHistory->user_id = Auth::user()->id;
+        $storewebsitHistory                        = new StoreWebsiteStatusHistory();
+        $storewebsitHistory->old_status_id         = $storewebsiteOldStatusId;
+        $storewebsitHistory->new_status_id         = $request->statusId;
+        $storewebsitHistory->user_id               = Auth::user()->id;
         $storewebsitHistory->store_website_page_id = $request->dataId;
         $storewebsitHistory->save();
 
@@ -884,9 +886,9 @@ class PageController extends Controller
         $history = StoreWebsiteStatusHistory::with(['user', 'newstatus', 'oldstatus'])->where('store_website_page_id', $request->id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $history,
-            'message' => 'history listed successfully',
+            'status'      => true,
+            'data'        => $history,
+            'message'     => 'history listed successfully',
             'status_name' => 'success',
         ], 200);
     }

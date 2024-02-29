@@ -53,32 +53,32 @@ class SendEmailAcknowledgement extends Command
                             \App\Email::where('id', $email->id)->update(['is_reply' => 1]);
 
                             if ($value->ack_status == 1) {
-                                $status = 'outgoing';
+                                $status   = 'outgoing';
                                 $is_draft = 0;
                             } else {
-                                $status = 'pre-send';
+                                $status   = 'pre-send';
                                 $is_draft = 1;
                             }
 
                             $email = \App\Email::create([
-                                'model_id' => $email->id,
-                                'model_type' => \App\Email::class,
-                                'from' => $email->to,
-                                'to' => $email->from,
-                                'subject' => 'Re: ' . $email->subject,
-                                'message' => $value->ack_message,
-                                'template' => 'reply-email',
-                                'additional_data' => '',
-                                'type' => 'outgoing',
-                                'status' => $status,
+                                'model_id'         => $email->id,
+                                'model_type'       => \App\Email::class,
+                                'from'             => $email->to,
+                                'to'               => $email->from,
+                                'subject'          => 'Re: ' . $email->subject,
+                                'message'          => $value->ack_message,
+                                'template'         => 'reply-email',
+                                'additional_data'  => '',
+                                'type'             => 'outgoing',
+                                'status'           => $status,
                                 'store_website_id' => null,
-                                'is_draft' => $is_draft,
+                                'is_draft'         => $is_draft,
                             ]);
 
                             \App\EmailLog::create([
-                                'email_id' => $email->id,
+                                'email_id'  => $email->id,
                                 'email_log' => 'Email forward initiated',
-                                'message' => $email->to,
+                                'message'   => $email->to,
                             ]);
 
                             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');

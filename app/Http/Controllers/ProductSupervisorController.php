@@ -35,7 +35,7 @@ class ProductSupervisorController extends Controller
     public function approve(Product $product, Stage $stage)
     {
         $product->isApproved = 1;
-        $product->stage = $stage->get('Supervisor');
+        $product->stage      = $stage->get('Supervisor');
         $product->save();
 
         NotificaitonContoller::store('has Approved', ['ImageCropers'], $product->id);
@@ -47,15 +47,15 @@ class ProductSupervisorController extends Controller
     public function reject(Product $product, Request $request)
     {
         $this->validate($request, [
-            'role' => 'required',
+            'role'   => 'required',
             'reason' => 'required',
         ]);
 
-        $role = $request->input('role');
+        $role   = $request->input('role');
         $reason = $request->input('reason');
 
         $product->rejected_note = $reason;
-        $product->isApproved = -1;
+        $product->isApproved    = -1;
         $product->save();
 
         NotificaitonContoller::store('has Rejected due to ' . $reason, [$role], $product->id);

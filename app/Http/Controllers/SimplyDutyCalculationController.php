@@ -29,7 +29,7 @@ class SimplyDutyCalculationController extends Controller
             $calculations = $query->paginate(Setting::get('pagination'));
         } else {
             $calculations = SimplyDutyCalculation::paginate(Setting::get('pagination'));
-            $countries = SimplyDutyCountry::all();
+            $countries    = SimplyDutyCountry::all();
         }
 
         if ($request->ajax()) {
@@ -204,22 +204,22 @@ class SimplyDutyCalculationController extends Controller
             $itemsArray[] = ['HSCode' => $hsCode, 'Quantity' => $quantity, 'Value' => $value];
         }
 
-        $output = ['OriginCountryCode' => $originCountryCode, 'DestinationCountryCode' => $destinationCountryCode, 'Items' => $itemsArray, 'Shipping' => $shipping, 'Insurance' => $insurance, 'ContractInsuranceType' => $contractInsuranceType];
-        $post = json_encode($output);
+        $output    = ['OriginCountryCode' => $originCountryCode, 'DestinationCountryCode' => $destinationCountryCode, 'Items' => $itemsArray, 'Shipping' => $shipping, 'Insurance' => $insurance, 'ContractInsuranceType' => $contractInsuranceType];
+        $post      = json_encode($output);
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
-        $url = 'https://www.api.simplyduty.com/api/duty/calculatemultiple';
+        $curl      = curl_init();
+        $url       = 'https://www.api.simplyduty.com/api/duty/calculatemultiple';
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
+            CURLOPT_URL            => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => "$post",
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => "$post",
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'Accept: application/json',
                 'x-api-key: 7a44e06e-eb82-4c09-b197-0419b950f98f',
@@ -227,7 +227,7 @@ class SimplyDutyCalculationController extends Controller
         ]);
 
         $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $err      = curl_error($curl);
 
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($post), json_decode($response), $httpcode, \App\Http\Controllers\SimplyDutyCalculationController::class, 'calculate');
@@ -237,22 +237,22 @@ class SimplyDutyCalculationController extends Controller
         if ($response) {
             $req = json_decode($response);
             foreach ($req->Items as $item) {
-                $calculation = new SimplyDutyCalculation;
-                $calculation->value = $item->Value;
-                $calculation->duty = $item->Duty;
-                $calculation->duty_rate = $item->DutyRate;
-                $calculation->duty_hscode = $item->DutyHSCode;
-                $calculation->duty_type = $item->DutyType;
-                $calculation->shipping = $req->Shipping;
-                $calculation->insurance = $req->Insurance;
-                $calculation->total = $req->Total;
-                $calculation->exchange_rate = $req->ExchangeRate;
-                $calculation->currency_type_origin = $req->CurrencyTypeOrigin;
+                $calculation                            = new SimplyDutyCalculation;
+                $calculation->value                     = $item->Value;
+                $calculation->duty                      = $item->Duty;
+                $calculation->duty_rate                 = $item->DutyRate;
+                $calculation->duty_hscode               = $item->DutyHSCode;
+                $calculation->duty_type                 = $item->DutyType;
+                $calculation->shipping                  = $req->Shipping;
+                $calculation->insurance                 = $req->Insurance;
+                $calculation->total                     = $req->Total;
+                $calculation->exchange_rate             = $req->ExchangeRate;
+                $calculation->currency_type_origin      = $req->CurrencyTypeOrigin;
                 $calculation->currency_type_destination = $req->CurrencyTypeDestination;
-                $calculation->duty_minimis = $req->DutyMinimis;
-                $calculation->vat_minimis = $req->VatMinimis;
-                $calculation->vat_rate = $req->VatRate;
-                $calculation->vat = $req->VAT;
+                $calculation->duty_minimis              = $req->DutyMinimis;
+                $calculation->vat_minimis               = $req->VatMinimis;
+                $calculation->vat_rate                  = $req->VatRate;
+                $calculation->vat                       = $req->VAT;
                 $calculation->save();
             }
         }

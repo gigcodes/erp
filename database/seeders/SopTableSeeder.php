@@ -19,10 +19,10 @@ class SopTableSeeder extends Seeder
 
         // Create 5000 vendors
         for ($i = 0; $i < 5000; $i++) {
-            $sop = new Sop();
-            $sop->name = $faker->name;
+            $sop           = new Sop();
+            $sop->name     = $faker->name;
             $sop->category = $faker->jobTitle;
-            $sop->content = $faker->paragraph;
+            $sop->content  = $faker->paragraph;
             $sop->save();
         }
     }

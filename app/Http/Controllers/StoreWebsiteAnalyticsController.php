@@ -14,7 +14,7 @@ class StoreWebsiteAnalyticsController extends Controller
     {
         try {
             $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
-            $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
+            $storeWebsites             = StoreWebsite::where('deleted_at', null)->get();
 
             return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData', 'storeWebsites'));
         } catch (Exception $e) {
@@ -26,8 +26,8 @@ class StoreWebsiteAnalyticsController extends Controller
     {
         if ($request->post()) {
             $rules = [
-                'website' => 'required',
-                'account_id' => 'required',
+                'website'          => 'required',
+                'account_id'       => 'required',
                 'store_website_id' => 'required|integer',
             ];
 
@@ -39,11 +39,11 @@ class StoreWebsiteAnalyticsController extends Controller
             }
 
             $messages = [
-                'website' => 'Website field is required.',
-                'account_id' => 'Account Id field is required.',
-                'view_id' => 'View Id field is required.',
-                'store_website_id' => 'Store Id field is required.',
-                'store_website_id' => 'Store Id value must be a number.',
+                'website'                     => 'Website field is required.',
+                'account_id'                  => 'Account Id field is required.',
+                'view_id'                     => 'View Id field is required.',
+                'store_website_id'            => 'Store Id field is required.',
+                'store_website_id'            => 'Store Id value must be a number.',
                 'google_service_account_json' => 'Please Upload Valid Google Service Account Json File.',
             ];
 
@@ -61,8 +61,8 @@ class StoreWebsiteAnalyticsController extends Controller
                 $filename = '';
                 if ($request->hasFile('google_service_account_json')) {
                     $GoogleServiceAccountJsonFile = $request->file('google_service_account_json');
-                    $extension = $GoogleServiceAccountJsonFile->getClientOriginalExtension();
-                    $filename = $request->view_id . $GoogleServiceAccountJsonFile->getFilename() . '.' . $extension;
+                    $extension                    = $GoogleServiceAccountJsonFile->getClientOriginalExtension();
+                    $filename                     = $request->view_id . $GoogleServiceAccountJsonFile->getFilename() . '.' . $extension;
                     // file will be uploaded to resources/analytics_files
                     Storage::disk('analytics_files')->put($filename, File::get($GoogleServiceAccountJsonFile));
                 }
@@ -94,7 +94,7 @@ class StoreWebsiteAnalyticsController extends Controller
     public function edit($id = null)
     {
         $storeWebsiteAnalyticData = StoreWebsiteAnalytic::whereId($id)->first();
-        $storeWebsites = StoreWebsite::where('deleted_at', null)->get();
+        $storeWebsites            = StoreWebsite::where('deleted_at', null)->get();
 
         return view('store-website-analytics.edit', compact('storeWebsiteAnalyticData', 'storeWebsites'));
     }

@@ -17,6 +17,9 @@ class ProceesPushFaq implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $data
+     * @param private $reqType
+     *
      * @return void
      */
     public function __construct(private $data, private $reqType = 'pushFaq')
@@ -32,7 +35,7 @@ class ProceesPushFaq implements ShouldQueue
     {
         \Log::info('ProceesPushFaq Handle function');
         $reply_id = $this->data;
-        $reqType = $this->reqType;
+        $reqType  = $this->reqType;
 
         //Loop the records one by one
         $this->_processSingleFaq($reply_id, $reqType);
@@ -40,7 +43,7 @@ class ProceesPushFaq implements ShouldQueue
 
     private function _processSingleFaq($reply_id, $reqType)
     {
-        $Reply = new Reply();
+        $Reply       = new Reply();
         $searchArray = (array) $reply_id;
 
         try {
@@ -63,10 +66,10 @@ class ProceesPushFaq implements ShouldQueue
                 // //get list of all store websites
                 if ((isset($replyInfo->tag_id) && $replyInfo->tag_id != '')) {
                     $storeWebsite = new \App\StoreWebsite();
-                    $allWebsites = $storeWebsite->getAllTaggedWebsite($replyInfo->tag_id);
+                    $allWebsites  = $storeWebsite->getAllTaggedWebsite($replyInfo->tag_id);
                 } else {
                     $storeWebsite = new \App\StoreWebsite();
-                    $allWebsites = $storeWebsite->where('id', $replyInfo->store_website_id)->get();
+                    $allWebsites  = $storeWebsite->where('id', $replyInfo->store_website_id)->get();
                 }
 
                 if (! empty($allWebsites)) {
@@ -76,7 +79,7 @@ class ProceesPushFaq implements ShouldQueue
                         }
 
                         $store_website_id = $websitevalue->id;
-                        $websitevalue = $storeWebsite->where('id', $store_website_id)->first();
+                        $websitevalue     = $storeWebsite->where('id', $store_website_id)->first();
                         //Get stores of every single site
 
                         $fetchStores = \App\WebsiteStoreView::join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
@@ -102,7 +105,7 @@ class ProceesPushFaq implements ShouldQueue
                         //create a payload for API
                         $faqQuestion = $replyInfo->name;
 
-                        $categoryId = $replyInfo->category_id;
+                        $categoryId       = $replyInfo->category_id;
                         $parentCategoryId = $replyInfo->category->parent_id;
 
                         // $faqCategoryId  =   1;
@@ -157,10 +160,10 @@ class ProceesPushFaq implements ShouldQueue
                                 }
 
                                 if (! empty($platform_id)) {
-                                    $urlFAQ = $url . '/' . $storeValue . '/rest/V1/faq/' . $platform_id;
+                                    $urlFAQ   = $url . '/' . $storeValue . '/rest/V1/faq/' . $platform_id;
                                     $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"id\": $platform_id,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 } else {
-                                    $urlFAQ = $url . '/' . $storeValue . '/rest/V1/faq';
+                                    $urlFAQ   = $url . '/' . $storeValue . '/rest/V1/faq';
                                     $postdata = "{\n        \"faq_category_id\": $faqCategoryId,\n        \"faq_parent_category_id\": $faqParentCategoryId,\n        \"faq_question\": \"$faqQuestion\",\n        \"faq_answer\": \"$faqAnswer\",\n        \"is_active\": true,\n        \"sort_order\": 10\n    }";
                                 }
 
@@ -171,7 +174,7 @@ class ProceesPushFaq implements ShouldQueue
                                 curl_setopt($ch, CURLOPT_POST, 1);
                                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 
-                                $headers = [];
+                                $headers   = [];
                                 $headers[] = 'Authorization: Bearer ' . $api_token;
                                 $headers[] = 'Content-Type: application/json';
                                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -185,18 +188,18 @@ class ProceesPushFaq implements ShouldQueue
                                 //if we got the response
                                 if (! empty($response->id) && empty($platform_id)) {
                                     if (! empty($translateReplies->translate_text)) {
-                                        $platformDetails = new \App\Models\FaqPlatformDetails;
-                                        $platformDetails->reply_id = $replyInfo->id;
+                                        $platformDetails                   = new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id         = $replyInfo->id;
                                         $platformDetails->store_website_id = $store_website_id;
-                                        $platformDetails->store_code = $storeValue;
-                                        $platformDetails->type = 'translate';
+                                        $platformDetails->store_code       = $storeValue;
+                                        $platformDetails->type             = 'translate';
                                         $platformDetails->save();
                                     } elseif ($replyInfo->platform_id && ! empty($replyInfo->platform_id)) {
-                                        $platformDetails = new \App\Models\FaqPlatformDetails;
-                                        $platformDetails->reply_id = $replyInfo->id;
+                                        $platformDetails                   = new \App\Models\FaqPlatformDetails;
+                                        $platformDetails->reply_id         = $replyInfo->id;
                                         $platformDetails->store_website_id = $store_website_id;
-                                        $platformDetails->store_code = $storeValue;
-                                        $platformDetails->type = 'reply';
+                                        $platformDetails->store_code       = $storeValue;
+                                        $platformDetails->type             = 'reply';
                                         $platformDetails->save();
                                     }
                                 }

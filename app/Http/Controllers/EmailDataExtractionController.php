@@ -23,12 +23,14 @@ class EmailDataExtractionController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param null|mixed $email
+     *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request, $email = null)
     {
-        $user = Auth::user();
-        $admin = $user->isAdmin();
+        $user      = Auth::user();
+        $admin     = $user->isAdmin();
         $usernames = [];
         if (! $admin) {
             $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
@@ -43,18 +45,18 @@ class EmailDataExtractionController extends Controller
         $seen = '0';
         $from = '';
 
-        $term = $request->term ?? '';
-        $sender = $request->sender ?? '';
+        $term     = $request->term ?? '';
+        $sender   = $request->sender ?? '';
         $receiver = $request->receiver ?? '';
-        $status = $request->status ?? '';
+        $status   = $request->status ?? '';
         $category = $request->category ?? '';
-        $mailbox = $request->mail_box ?? '';
+        $mailbox  = $request->mail_box ?? '';
 
-        $date = $request->date ?? '';
-        $type = $request->type ?? $type;
-        $seen = $request->seen ?? $seen;
+        $date       = $request->date ?? '';
+        $type       = $request->type ?? $type;
+        $seen       = $request->seen ?? $seen;
         $email_type = $request->email_type ?? '';
-        $query = (new Email())->newQuery();
+        $query      = (new Email())->newQuery();
         if ($email_type) {
             $query = $query->where('template', $email_type);
         } else {
@@ -78,14 +80,14 @@ class EmailDataExtractionController extends Controller
 
         if ($email != '' && $receiver == '') {
             $receiver = $email;
-            $from = 'order_data';
-            $seen = 'both';
-            $type = 'outgoing';
+            $from     = 'order_data';
+            $seen     = 'both';
+            $type     = 'outgoing';
         }
 
         if ($type == 'bin') {
             $trash_query = true;
-            $query = $query->where('status', 'bin');
+            $query       = $query->where('status', 'bin');
         } elseif ($type == 'draft') {
             $query = $query->where('is_draft', 1);
         } elseif ($type == 'pre-send') {
@@ -151,7 +153,7 @@ class EmailDataExtractionController extends Controller
         }
 
         if ($admin == 1) {
-            $query = $query->orderByDesc('created_at');
+            $query  = $query->orderByDesc('created_at');
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
             if (count($usernames) > 0) {
@@ -167,7 +169,7 @@ class EmailDataExtractionController extends Controller
                     }
                 });
 
-                $query = $query->orderByDesc('created_at');
+                $query  = $query->orderByDesc('created_at');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             } else {
                 $emails = (new Email())->newQuery();
@@ -189,9 +191,9 @@ class EmailDataExtractionController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string) $emails->links(),
-                'count' => $emails->total(),
+                'tbody'  => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links'  => (string) $emails->links(),
+                'count'  => $emails->total(),
                 'emails' => $emails,
             ], 200);
         }
@@ -200,7 +202,7 @@ class EmailDataExtractionController extends Controller
         $search_suggestions = $this->getAllEmails();
 
         $digita_platfirms = DigitalMarketingPlatform::all();
-        $sender_drpdwn = Email::select('from');
+        $sender_drpdwn    = Email::select('from');
 
         if (count($usernames) > 0) {
             $sender_drpdwn = $sender_drpdwn->where(function ($sender_drpdwn) use ($usernames) {
@@ -279,7 +281,8 @@ class EmailDataExtractionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -290,7 +293,8 @@ class EmailDataExtractionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -301,7 +305,8 @@ class EmailDataExtractionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -312,18 +317,19 @@ class EmailDataExtractionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $email = Email::find($id);
-        $status = 'bin';
+        $email   = Email::find($id);
+        $status  = 'bin';
         $message = 'Email has been trashed';
 
         // If status is already trashed, move to inbox
         if ($email->status == 'bin') {
-            $status = '';
+            $status  = '';
             $message = 'Email has been sent to inbox';
         }
 
@@ -335,17 +341,17 @@ class EmailDataExtractionController extends Controller
 
     public function resendMail($id, Request $request)
     {
-        $email = Email::find($id);
+        $email      = Email::find($id);
         $attachment = [];
-        $cm = new ClientManager();
-        $imap = $cm->make([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+        $cm         = new ClientManager();
+        $imap       = $cm->make([
+            'host'          => env('IMAP_HOST_PURCHASE'),
+            'port'          => env('IMAP_PORT_PURCHASE'),
+            'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            'username'      => env('IMAP_USERNAME_PURCHASE'),
+            'password'      => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -367,18 +373,18 @@ class EmailDataExtractionController extends Controller
         ];
 
         $emailsLog = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'type' => $email->type,
-            'from' => $email->from,
-            'to' => $email->to,
-            'subject' => $email->subject,
-            'message' => $email->message,
-            'template' => 'resend-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'type'             => $email->type,
+            'from'             => $email->from,
+            'to'               => $email->to,
+            'subject'          => $email->subject,
+            'message'          => $email->message,
+            'template'         => 'resend-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
@@ -393,6 +399,7 @@ class EmailDataExtractionController extends Controller
      * Provide view for email reply modal
      *
      * @param [type] $id
+     *
      * @return view
      */
     public function replyMail($id)
@@ -406,6 +413,7 @@ class EmailDataExtractionController extends Controller
      * Provide view for email forward modal
      *
      * @param [type] $id
+     *
      * @return void
      */
     public function forwardMail($id)
@@ -430,27 +438,27 @@ class EmailDataExtractionController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
         }
 
-        $email = Email::find($request->reply_email_id);
+        $email       = Email::find($request->reply_email_id);
         $replyPrefix = 'Re: ';
-        $subject = substr($email->subject, 0, 4) === $replyPrefix
+        $subject     = substr($email->subject, 0, 4) === $replyPrefix
             ? $email->subject
             : $replyPrefix . $email->subject;
-        $dateCreated = $email->created_at->format('D, d M Y');
-        $timeCreated = $email->created_at->format('H:i');
+        $dateCreated       = $email->created_at->format('D, d M Y');
+        $timeCreated       = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
-        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
-        $emailsLog = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'from' => $email->from,
-            'to' => $email->to,
-            'subject' => $subject,
-            'message' => $message_to_store,
-            'template' => 'reply-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+        $message_to_store  = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+        $emailsLog         = \App\Email::create([
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => $email->from,
+            'to'               => $email->to,
+            'subject'          => $subject,
+            'message'          => $message_to_store,
+            'template'         => 'reply-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
         \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue('send_email');
 
@@ -477,17 +485,17 @@ class EmailDataExtractionController extends Controller
         $emailClass = (new ForwardEmail($email, $email->message))->build();
 
         $email = \App\Email::create([
-            'model_id' => $email->id,
-            'model_type' => \App\Email::class,
-            'from' => @$emailClass->from[0]['address'],
-            'to' => $request->email,
-            'subject' => $emailClass->subject,
-            'message' => $emailClass->render(),
-            'template' => 'forward-email',
-            'additional_data' => '',
-            'status' => 'pre-send',
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => @$emailClass->from[0]['address'],
+            'to'               => $request->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'forward-email',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => null,
-            'is_draft' => 1,
+            'is_draft'         => 1,
         ]);
 
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
@@ -506,15 +514,15 @@ class EmailDataExtractionController extends Controller
 
     public function addRemark(Request $request)
     {
-        $remark = $request->input('remark');
-        $email_id = $request->input('id');
+        $remark     = $request->input('remark');
+        $email_id   = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
-        $update_at = date('Y-m-d H:i:s');
+        $update_at  = date('Y-m-d H:i:s');
 
         if (! empty($remark)) {
             $remark_entry = EmailRemark::create([
-                'email_id' => $email_id,
-                'remarks' => $remark,
+                'email_id'  => $email_id,
+                'remarks'   => $remark,
                 'user_name' => Auth::user()->name,
             ]);
         }
@@ -524,7 +532,7 @@ class EmailDataExtractionController extends Controller
 
     public function markAsRead($id)
     {
-        $email = Email::find($id);
+        $email       = Email::find($id);
         $email->seen = 1;
         $email->update();
 
@@ -542,10 +550,10 @@ class EmailDataExtractionController extends Controller
     {
         $email_id = $request->input('email_id');
         $category = $request->input('category');
-        $status = $request->input('status');
+        $status   = $request->input('status');
 
-        $email = Email::find($email_id);
-        $email->status = $status;
+        $email                    = Email::find($email_id);
+        $email->status            = $status;
         $email->email_category_id = $category;
 
         $email->update();
@@ -557,7 +565,7 @@ class EmailDataExtractionController extends Controller
 
     public function getFileStatus(Request $request)
     {
-        $id = $request->id;
+        $id    = $request->id;
         $email = Email::find($id);
 
         if (isset($email->email_excel_importer)) {
@@ -572,14 +580,14 @@ class EmailDataExtractionController extends Controller
             }
 
             return response()->json([
-                'status' => true,
+                'status'      => true,
                 'mail_status' => $status,
-                'message' => 'Data found',
+                'message'     => 'Data found',
             ], 200);
         }
 
         return response()->json([
-            'status' => false,
+            'status'  => false,
             'message' => 'Data not found',
         ], 200);
     }
@@ -604,11 +612,11 @@ class EmailDataExtractionController extends Controller
                         //check if wetransfer already exist
                         $checkIfExist = Wetransfer::where('url', $matchLink)->where('supplier', $request->supplier)->first();
                         if (! $checkIfExist) {
-                            $wetransfer = new Wetransfer();
-                            $wetransfer->type = 'excel';
-                            $wetransfer->url = $matchLink;
+                            $wetransfer               = new Wetransfer();
+                            $wetransfer->type         = 'excel';
+                            $wetransfer->url          = $matchLink;
                             $wetransfer->is_processed = 1;
-                            $wetransfer->supplier = $request->supplier;
+                            $wetransfer->supplier     = $request->supplier;
                             $wetransfer->save();
 
                             Email::where('id', $id)->update(['email_excel_importer' => 3]);
@@ -630,12 +638,12 @@ class EmailDataExtractionController extends Controller
         $attachments = $email->additional_data;
         if ($attachments) {
             $attachJson = json_decode($attachments);
-            $attachs = $attachJson->attachment;
+            $attachs    = $attachJson->attachment;
 
             //getting all attachments
             //check if extension is .xls or xlsx
             foreach ($attachs as $attach) {
-                $attach = str_replace('email-attachments/', '', $attach);
+                $attach    = str_replace('email-attachments/', '', $attach);
                 $extension = last(explode('.', $attach));
                 if ($extension == 'xlsx' || $extension == 'xls') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -644,9 +652,9 @@ class EmailDataExtractionController extends Controller
                     }
                 } elseif ($extension == 'zip') {
                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                        $excel = $request->supplier;
+                        $excel             = $request->supplier;
                         $attachments_array = [];
-                        $attachments = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
+                        $attachments       = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
                     }
                 }
             }
@@ -658,7 +666,7 @@ class EmailDataExtractionController extends Controller
     public static function downloadFromURL($url, $supplier)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime          = date('Y-m-d H:i:s', LARAVEL_START);
 
         if (strpos($url, 'https://we.tl/') !== false) {
             $ch = curl_init($url);
@@ -691,25 +699,25 @@ class EmailDataExtractionController extends Controller
 
         if (count($dataArray) == 2) {
             $securityhash = $dataArray[1];
-            $transferId = $dataArray[0];
+            $transferId   = $dataArray[0];
         } elseif (count($dataArray) == 3) {
             $securityhash = $dataArray[2];
-            $recieptId = $dataArray[1];
-            $transferId = $dataArray[0];
+            $recieptId    = $dataArray[1];
+            $transferId   = $dataArray[0];
         } else {
             exit('Something is wrong with url');
         }
 
         //making post request to get the url
-        $data = [];
-        $data['intent'] = 'entire_transfer';
+        $data                  = [];
+        $data['intent']        = 'entire_transfer';
         $data['security_hash'] = $securityhash;
 
         $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
         $cookie = 'cookie.txt';
-        $url = 'https://wetransfer.com/';
-        $ch = curl_init();
+        $url    = 'https://wetransfer.com/';
+        $ch     = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_COOKIESESSION, true);
@@ -745,7 +753,7 @@ class EmailDataExtractionController extends Controller
         $real = curl_exec($ch);
 
         $urlResponse = json_decode($real); // respons decode
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode    = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $curlURL, 'POST', json_encode([]), $urlResponse, $httpcode, \App\Http\Controllers\EmailDataExtractionController::class, 'downloadFromURL');
 
         if (isset($urlResponse->direct_link)) {
@@ -784,8 +792,8 @@ class EmailDataExtractionController extends Controller
 
     public function bluckAction(Request $request)
     {
-        $ids = $request->ids;
-        $status = $request->status;
+        $ids         = $request->ids;
+        $status      = $request->status;
         $action_type = $request->action_type;
 
         if ($action_type == 'delete') {
@@ -809,14 +817,14 @@ class EmailDataExtractionController extends Controller
 
     public function getModel($email, $email_list)
     {
-        $model_id = null;
+        $model_id   = null;
         $model_type = null;
 
         // Traverse all models
         foreach ($email_list as $key => $value) {
             // If email exists in the DB
             if (isset($value[$email])) {
-                $model_id = $value[$email];
+                $model_id   = $value[$email];
                 $model_type = $key;
                 break;
             }
@@ -829,48 +837,48 @@ class EmailDataExtractionController extends Controller
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), 'r');
 
-        $skiprowupto = 1; //skip first line
-        $rowincrement = 1;
+        $skiprowupto           = 1; //skip first line
+        $rowincrement          = 1;
         $attachedFileDataArray = [];
         while (($data = fgetcsv($file, 4000, ',')) !== false) {
             if ($rowincrement > $skiprowupto) {
                 if (isset($data[0]) && ! empty($data[0])) {
                     try {
-                        $due_date = date('Y-m-d', strtotime($data[9]));
+                        $due_date              = date('Y-m-d', strtotime($data[9]));
                         $attachedFileDataArray = [
-                            'line_type' => $data[0],
-                            'billing_source' => $data[1],
-                            'original_invoice_number' => $data[2],
-                            'invoice_number' => $data[3],
-                            'invoice_identifier' => $data[5],
-                            'invoice_currency' => $data[69],
-                            'invoice_amount' => $data[70],
-                            'invoice_type' => $data[6],
-                            'invoice_date' => $data[7],
-                            'payment_terms' => $data[8],
-                            'due_date' => $due_date,
-                            'billing_account' => $data[11],
-                            'billing_account_name' => $data[12],
+                            'line_type'                       => $data[0],
+                            'billing_source'                  => $data[1],
+                            'original_invoice_number'         => $data[2],
+                            'invoice_number'                  => $data[3],
+                            'invoice_identifier'              => $data[5],
+                            'invoice_currency'                => $data[69],
+                            'invoice_amount'                  => $data[70],
+                            'invoice_type'                    => $data[6],
+                            'invoice_date'                    => $data[7],
+                            'payment_terms'                   => $data[8],
+                            'due_date'                        => $due_date,
+                            'billing_account'                 => $data[11],
+                            'billing_account_name'            => $data[12],
                             'billing_account_name_additional' => $data[13],
-                            'billing_address_1' => $data[14],
-                            'billing_postcode' => $data[17],
-                            'billing_city' => $data[18],
-                            'billing_state_province' => $data[19],
-                            'billing_country_code' => $data[20],
-                            'billing_contact' => $data[21],
-                            'shipment_number' => $data[23],
-                            'shipment_date' => $data[24],
-                            'product' => $data[30],
-                            'product_name' => $data[31],
-                            'pieces' => $data[32],
-                            'origin' => $data[33],
-                            'orig_name' => $data[34],
-                            'orig_country_code' => $data[35],
-                            'orig_country_name' => $data[36],
-                            'senders_name' => $data[37],
-                            'senders_city' => $data[42],
-                            'created_at' => \Carbon\Carbon::now(),
-                            'updated_at' => \Carbon\Carbon::now(),
+                            'billing_address_1'               => $data[14],
+                            'billing_postcode'                => $data[17],
+                            'billing_city'                    => $data[18],
+                            'billing_state_province'          => $data[19],
+                            'billing_country_code'            => $data[20],
+                            'billing_contact'                 => $data[21],
+                            'shipment_number'                 => $data[23],
+                            'shipment_date'                   => $data[24],
+                            'product'                         => $data[30],
+                            'product_name'                    => $data[31],
+                            'pieces'                          => $data[32],
+                            'origin'                          => $data[33],
+                            'orig_name'                       => $data[34],
+                            'orig_country_code'               => $data[35],
+                            'orig_country_name'               => $data[36],
+                            'senders_name'                    => $data[37],
+                            'senders_city'                    => $data[42],
+                            'created_at'                      => \Carbon\Carbon::now(),
+                            'updated_at'                      => \Carbon\Carbon::now(),
                         ];
                         if (! empty($attachedFileDataArray)) {
                             $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
@@ -878,41 +886,41 @@ class EmailDataExtractionController extends Controller
                             // check that way bill exist not then create
                             $wayBill = \App\Waybill::where('awb', $attachresponse->shipment_number)->first();
                             if (! $wayBill) {
-                                $wayBill = new \App\Waybill;
+                                $wayBill      = new \App\Waybill;
                                 $wayBill->awb = $attachresponse->shipment_number;
 
-                                $wayBill->from_customer_name = $data[45];
-                                $wayBill->from_city = $data[42];
-                                $wayBill->from_country_code = $data[44];
+                                $wayBill->from_customer_name      = $data[45];
+                                $wayBill->from_city               = $data[42];
+                                $wayBill->from_country_code       = $data[44];
                                 $wayBill->from_customer_address_1 = $data[38];
                                 $wayBill->from_customer_address_2 = $data[39];
-                                $wayBill->from_customer_pincode = $data[41];
-                                $wayBill->from_company_name = $data[39];
+                                $wayBill->from_customer_pincode   = $data[41];
+                                $wayBill->from_company_name       = $data[39];
 
-                                $wayBill->to_customer_name = $data[50];
-                                $wayBill->to_city = $data[55];
-                                $wayBill->to_country_code = $data[57];
-                                $wayBill->to_customer_phone = '';
+                                $wayBill->to_customer_name      = $data[50];
+                                $wayBill->to_city               = $data[55];
+                                $wayBill->to_country_code       = $data[57];
+                                $wayBill->to_customer_phone     = '';
                                 $wayBill->to_customer_address_1 = $data[51];
                                 $wayBill->to_customer_address_2 = $data[52];
-                                $wayBill->to_customer_pincode = $data[54];
-                                $wayBill->to_company_name = '';
+                                $wayBill->to_customer_pincode   = $data[54];
+                                $wayBill->to_company_name       = '';
 
                                 $wayBill->actual_weight = $data[68];
                                 $wayBill->volume_weight = $data[66];
 
                                 $wayBill->cost_of_shipment = $data[70];
-                                $wayBill->package_slip = $attachresponse->shipment_number;
-                                $wayBill->pickup_date = date('Y-m-d', strtotime($data[24]));
+                                $wayBill->package_slip     = $attachresponse->shipment_number;
+                                $wayBill->pickup_date      = date('Y-m-d', strtotime($data[24]));
                                 $wayBill->save();
                             }
 
                             $cash_flow = new CashFlow();
                             $cash_flow->fill([
-                                'date' => $attachresponse->due_date ? $attachresponse->due_date : null,
-                                'type' => 'pending',
-                                'description' => 'Waybill invoice details',
-                                'cash_flow_able_id' => $attachresponse->id,
+                                'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
+                                'type'                => 'pending',
+                                'description'         => 'Waybill invoice details',
+                                'cash_flow_able_id'   => $attachresponse->id,
                                 'cash_flow_able_type' => \App\Waybillinvoice::class,
                             ])->save();
                         }
@@ -928,8 +936,8 @@ class EmailDataExtractionController extends Controller
 
     public function getEmailEvents($originId)
     {
-        $exist = Email::where('origin_id', $originId)->first(); //$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
-        $events = [];
+        $exist     = Email::where('origin_id', $originId)->first(); //$originId = "9e238becd3bc31addeff3942fc54e340@swift.generated";
+        $events    = [];
         $eventData = '';
         if ($exist != null) {
             $events = \App\SendgridEvent::where('payload', 'like', '%"smtp-id":"<' . $originId . '>"%')->select('timestamp', 'event')->orderBy('id', 'desc')->get();
@@ -946,6 +954,8 @@ class EmailDataExtractionController extends Controller
 
     /**
      * Get Email Logs
+     *
+     * @param mixed $emailid
      */
     public function getEmailLogs($emailid)
     {

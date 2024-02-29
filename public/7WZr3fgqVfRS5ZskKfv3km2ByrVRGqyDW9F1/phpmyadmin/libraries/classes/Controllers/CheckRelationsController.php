@@ -57,11 +57,11 @@ class CheckRelationsController extends AbstractController
         $relationParameters = $this->relation->getRelationParameters();
 
         $this->render('relation/check_relations', [
-            'db' => $db,
-            'zero_conf' => $cfg['ZeroConf'],
-            'relation_parameters' => $relationParameters->toArray(),
-            'sql_dir' => SQL_DIR,
-            'config_storage_database_name' => $cfgStorageDbName,
+            'db'                                => $db,
+            'zero_conf'                         => $cfg['ZeroConf'],
+            'relation_parameters'               => $relationParameters->toArray(),
+            'sql_dir'                           => SQL_DIR,
+            'config_storage_database_name'      => $cfgStorageDbName,
             'are_config_storage_tables_defined' => $this->relation->arePmadbTablesDefined(),
         ]);
     }

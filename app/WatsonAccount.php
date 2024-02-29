@@ -12,7 +12,6 @@ class WatsonAccount extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="store_website_id",type="integer")
      * @SWG\Property(property="work_space_id",type="integer")

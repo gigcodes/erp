@@ -28,7 +28,7 @@ class UpdatePricesWithDecimals extends Command
     /**
      * Create a new command instance.
      *
-     * @param  GebnegozionlineProductDetailsScraper  $scraper
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct()
     {
@@ -44,7 +44,7 @@ class UpdatePricesWithDecimals extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -62,12 +62,12 @@ class UpdatePricesWithDecimals extends Command
 
                     $needToupdate = false;
                     if (strlen($scPrice) > 4 && strlen($scPrice) < 6) {
-                        $scPrice = substr($scPrice, 0, 3);
-                        $scPrice = $scPrice . '.00';
+                        $scPrice      = substr($scPrice, 0, 3);
+                        $scPrice      = $scPrice . '.00';
                         $needToupdate = true;
                     } elseif (strlen($scPrice) > 5 && strlen($scPrice) < 7) {
-                        $scPrice = substr($scPrice, 0, 4);
-                        $scPrice = $scPrice . '.00';
+                        $scPrice      = substr($scPrice, 0, 4);
+                        $scPrice      = $scPrice . '.00';
                         $needToupdate = true;
                     }
 
@@ -97,8 +97,8 @@ class UpdatePricesWithDecimals extends Command
                         }
                         $oldPrice = $pmodel->price;
 
-                        $pmodel->price = $scPrice;
-                        $pmodel->price_inr = $priceInr;
+                        $pmodel->price             = $scPrice;
+                        $pmodel->price_inr         = $priceInr;
                         $pmodel->price_eur_special = $priceEurSpecial;
                         $pmodel->price_inr_special = $priceInrSpecial;
 

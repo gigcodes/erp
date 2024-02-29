@@ -18,7 +18,7 @@ class Token
             $response = $httpClient->post($this->url,
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
+                        'grant_type'    => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
                 ]
@@ -27,7 +27,7 @@ class Token
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token' => $responseJson->access_token,
+                'access_token'  => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
             ];
 

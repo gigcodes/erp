@@ -21,14 +21,14 @@ class PageNotesController extends Controller
             }
         }
 
-        $pageNotes->user_id = \Auth::user()->id;
-        $pageNotes->url = $request->get('page', '');
+        $pageNotes->user_id     = \Auth::user()->id;
+        $pageNotes->url         = $request->get('page', '');
         $pageNotes->category_id = $request->get('category_id', null);
-        $pageNotes->note = $request->get('note', '');
+        $pageNotes->note        = $request->get('note', '');
 
         if ($pageNotes->save()) {
-            $list = $pageNotes->getAttributes();
-            $list['name'] = $pageNotes->user->name;
+            $list                  = $pageNotes->getAttributes();
+            $list['name']          = $pageNotes->user->name;
             $list['category_name'] = ! empty($pageNotes->pageNotesCategories->name) ? $pageNotes->pageNotesCategories->name : '';
 
             return response()->json(['code' => 1, 'notes' => $list]);
@@ -53,7 +53,7 @@ class PageNotesController extends Controller
 
     public function edit(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id        = $request->get('id', 0);
         $pageNotes = \App\PageNotes::where('id', $id)->first();
         if ($pageNotes) {
             $category = \App\PageNotesCategories::pluck('name', 'id')->toArray();
@@ -66,16 +66,16 @@ class PageNotesController extends Controller
 
     public function update(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id        = $request->get('id', 0);
         $pageNotes = \App\PageNotes::where('id', $id)->first();
         if ($pageNotes) {
-            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->user_id     = \Auth::user()->id;
             $pageNotes->category_id = $request->get('category_id', null);
-            $pageNotes->note = $request->get('note', '');
+            $pageNotes->note        = $request->get('note', '');
 
             if ($pageNotes->save()) {
-                $list = $pageNotes->getAttributes();
-                $list['name'] = $pageNotes->user->name;
+                $list                  = $pageNotes->getAttributes();
+                $list['name']          = $pageNotes->user->name;
                 $list['category_name'] = ! empty($pageNotes->pageNotesCategories->name) ? $pageNotes->pageNotesCategories->name : '';
 
                 return response()->json(['code' => 1, 'notes' => $list]);
@@ -87,7 +87,7 @@ class PageNotesController extends Controller
 
     public function delete(Request $request)
     {
-        $id = $request->get('id', 0);
+        $id        = $request->get('id', 0);
         $pageNotes = \App\PageNotes::where('id', $id)->first();
         if ($pageNotes) {
             $pageNotes->delete();
@@ -109,7 +109,7 @@ class PageNotesController extends Controller
 
         //START - Purpose : Add search - DEVTASK-4289
         if ($request->search) {
-            $search = '%' . $request->search . '%';
+            $search  = '%' . $request->search . '%';
             $records = $records->where('page_notes.note', 'like', $search);
         }
 
@@ -141,9 +141,9 @@ class PageNotesController extends Controller
             $page = new \App\PageInstruction;
         }
 
-        $page->page = $request->get('page');
+        $page->page        = $request->get('page');
         $page->instruction = $request->get('note');
-        $page->created_by = \Auth::user()->id;
+        $page->created_by  = \Auth::user()->id;
         $page->save();
 
         return response()->json(['code' => 200, 'data' => []]);
@@ -152,10 +152,10 @@ class PageNotesController extends Controller
     public function notesCreate(Request $request)
     {
         \App\PageNotes::create([
-            'url' => $request->url,
+            'url'         => $request->url,
             'category_id' => '',
-            'note' => $request->data,
-            'user_id' => \Auth::user()->id,
+            'note'        => $request->data,
+            'user_id'     => \Auth::user()->id,
         ]);
 
         return response()->json(['code' => 200, 'message' => 'Notes Added Successfully.']);
@@ -164,19 +164,19 @@ class PageNotesController extends Controller
     public function stickyNotesCreate(Request $request)
     {
         if (! empty($request['type']) && $request['type'] == 'todolist') {
-            $todolists = new TodoList();
+            $todolists          = new TodoList();
             $todolists->user_id = \Auth::user()->id;
-            $todolists->title = $request->get('title');
+            $todolists->title   = $request->get('title');
             $todolists->subject = $request->get('value');
-            $todolists->status = 'Active';
+            $todolists->status  = 'Active';
             $todolists->save();
 
             return response()->json(['code' => 200, 'message' => 'Todo List Added Successfully.']);
         } else {
-            $pageNotes = new PageNotes;
-            $pageNotes->url = $request->get('page');
-            $pageNotes->note = $request->get('value');
-            $pageNotes->title = $request->get('title');
+            $pageNotes          = new PageNotes;
+            $pageNotes->url     = $request->get('page');
+            $pageNotes->note    = $request->get('value');
+            $pageNotes->title   = $request->get('title');
             $pageNotes->user_id = \Auth::user()->id;
             $pageNotes->save();
 
@@ -186,11 +186,11 @@ class PageNotesController extends Controller
 
     public function createCategory(Request $request)
     {
-        $input = $request->except('_token');
+        $input   = $request->except('_token');
         $isExist = \App\PageNotesCategories::where('name', $request->name)->first();
         if (! $isExist) {
             \App\PageNotesCategories::create([
-                'name' => $request->name,
+                'name'       => $request->name,
                 'created_by' => \Auth::user()->id,
             ]);
 

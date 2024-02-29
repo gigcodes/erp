@@ -16,10 +16,10 @@ class GoogleBigQueryDataController extends Controller
      */
     public function index()
     {
-        $bigData = GoogleBigQueryData::paginate(Setting::get('pagination'));
+        $bigData            = GoogleBigQueryData::paginate(Setting::get('pagination'));
         $google_project_ids = GoogleBigQueryData::select('google_project_id')->distinct('google_project_id')->get();
-        $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
-        $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
+        $platforms          = GoogleBigQueryData::select('platform')->distinct('platform')->get();
+        $event_ids          = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
         $datatableModel = DataTableColumn::select('column_name')
             ->where('user_id', auth()->user()->id)
@@ -28,7 +28,7 @@ class GoogleBigQueryDataController extends Controller
 
         $dynamicColumnsToShowb = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
         }
 
@@ -40,15 +40,15 @@ class GoogleBigQueryDataController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'google-bigdata-bigquery')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'google-bigdata-bigquery';
-            $column->column_name = json_encode($request->column_data);
+            $column->column_name  = json_encode($request->column_data);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'google-bigdata-bigquery';
-            $column->column_name = json_encode($request->column_data);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_data);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -67,10 +67,10 @@ class GoogleBigQueryDataController extends Controller
         if (! empty($request->event_id)) {
             $bigData = $bigData->whereIn('event_id', $request->event_id);
         }
-        $bigData = $bigData->paginate(Setting::get('pagination'));
+        $bigData            = $bigData->paginate(Setting::get('pagination'));
         $google_project_ids = GoogleBigQueryData::select('google_project_id')->distinct('google_project_id')->get();
-        $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
-        $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
+        $platforms          = GoogleBigQueryData::select('platform')->distinct('platform')->get();
+        $event_ids          = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
         return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
     }

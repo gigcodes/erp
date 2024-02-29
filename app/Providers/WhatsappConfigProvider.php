@@ -36,17 +36,17 @@ class WhatsappConfigProvider extends ServiceProvider
         // we have to check with try catch so we don't have issue while running migration
         try {
             $instance = self::getWhatsappConfigs();
-            $default = [];
-            $others = [];
+            $default  = [];
+            $others   = [];
             if (! empty($instance)) {
                 foreach ($instance as $inst) {
                     $array = [
-                        'number' => $inst->number,
-                        'instance_id' => $inst->instance_id,
-                        'token' => $inst->token,
+                        'number'          => $inst->number,
+                        'instance_id'     => $inst->instance_id,
+                        'token'           => $inst->token,
                         'customer_number' => ($inst->is_customer_support == 1) ? true : false,
-                        'is_use_own' => $inst->is_use_own,
-                        'provider' => $inst->provider,
+                        'is_use_own'      => $inst->is_use_own,
+                        'provider'        => $inst->provider,
                     ];
                     if ($inst->is_default == 1) {
                         $others[0] = $array;

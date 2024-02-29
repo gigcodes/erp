@@ -27,6 +27,14 @@ class ManageWatson implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected      $service
+     * @param protected      $question
+     * @param protectedarray $storeParams
+     * @param protected      $method
+     * @param protected      $type
+     * @param protected      $old_example
+     * @param null|protected $oldValue
+     *
      * @return void
      */
     public function __construct(protected $service, protected $question, protected array $storeParams, protected $method, protected $type = 'value', protected $old_example = false, protected $oldValue = null)
@@ -90,32 +98,32 @@ class ManageWatson implements ShouldQueue
                     $success = 0;
                 }
                 if ($this->service === 'dialog') {
-                    $errorlog = new ChatbotDialogErrorLog;
+                    $errorlog                    = new ChatbotDialogErrorLog;
                     $errorlog->chatbot_dialog_id = $this->question->id;
-                    $errorlog->reply_id = $this->storeParams['reply_id'];
-                    $errorlog->store_website_id = $account->store_website_id;
-                    $errorlog->request = json_encode($this->storeParams);
-                    $errorlog->status = $success;
-                    $errorlog->response = $result->getContent();
+                    $errorlog->reply_id          = $this->storeParams['reply_id'];
+                    $errorlog->store_website_id  = $account->store_website_id;
+                    $errorlog->request           = json_encode($this->storeParams);
+                    $errorlog->status            = $success;
+                    $errorlog->response          = $result->getContent();
                     $errorlog->save();
 
                     ChatbotQuestion::where('id', $this->question->id)->update(['watson_status' => $success]);
                 } else {
                     ChatbotQuestion::where('id', $this->question->id)->update(['watson_status' => $success]);
 
-                    $errorlog = new ChatbotErrorLog;
+                    $errorlog                      = new ChatbotErrorLog;
                     $errorlog->chatbot_question_id = $this->question->id;
-                    $errorlog->store_website_id = $account->store_website_id;
-                    $errorlog->status = $success;
-                    $errorlog->response = $result->getContent();
+                    $errorlog->store_website_id    = $account->store_website_id;
+                    $errorlog->status              = $success;
+                    $errorlog->response            = $result->getContent();
                     $errorlog->save();
 
-                    $question_error = new ChatbotQuestionErrorLog();
+                    $question_error                      = new ChatbotQuestionErrorLog();
                     $question_error->chatbot_question_id = $this->question->id;
-                    $question_error->type = $this->service;
-                    $question_error->request = json_encode($this->storeParams);
-                    $question_error->response = $errorlog->response;
-                    $question_error->response_type = $success == 0 ? 'error' : 'success';
+                    $question_error->type                = $this->service;
+                    $question_error->request             = json_encode($this->storeParams);
+                    $question_error->response            = $errorlog->response;
+                    $question_error->response_type       = $success == 0 ? 'error' : 'success';
                     $question_error->save();
                 }
             }

@@ -46,15 +46,15 @@ class Console
         global $dbi;
 
         $this->isEnabled = true;
-        $this->relation = new Relation($dbi);
-        $this->template = new Template();
+        $this->relation  = new Relation($dbi);
+        $this->template  = new Template();
     }
 
     /**
      * Set the ajax flag to indicate whether
      * we are servicing an ajax request
      *
-     * @param  bool  $isAjax Whether we are servicing an ajax request
+     * @param bool $isAjax Whether we are servicing an ajax request
      */
     public function setAjax(bool $isAjax): void
     {
@@ -76,14 +76,14 @@ class Console
     {
         global $dbi;
 
-        $template = new Template();
-        $relation = new Relation($dbi);
+        $template        = new Template();
+        $relation        = new Relation($dbi);
         $bookmarkFeature = $relation->getRelationParameters()->bookmarkFeature;
         if ($bookmarkFeature === null) {
             return '';
         }
 
-        $bookmarks = Bookmark::getList($bookmarkFeature, $dbi, $GLOBALS['cfg']['Server']['user']);
+        $bookmarks       = Bookmark::getList($bookmarkFeature, $dbi, $GLOBALS['cfg']['Server']['user']);
         $count_bookmarks = count($bookmarks);
         if ($count_bookmarks > 0) {
             $welcomeMessage = sprintf(
@@ -100,7 +100,7 @@ class Console
 
         return $template->render('console/bookmark_content', [
             'welcome_message' => $welcomeMessage,
-            'bookmarks' => $bookmarks,
+            'bookmarks'       => $bookmarks,
         ]);
     }
 
@@ -124,15 +124,15 @@ class Console
         }
 
         $bookmarkFeature = $this->relation->getRelationParameters()->bookmarkFeature;
-        $image = Html\Generator::getImage('console', __('SQL Query Console'));
-        $_sql_history = $this->relation->getHistory($GLOBALS['cfg']['Server']['user']);
+        $image           = Html\Generator::getImage('console', __('SQL Query Console'));
+        $_sql_history    = $this->relation->getHistory($GLOBALS['cfg']['Server']['user']);
         $bookmarkContent = static::getBookmarkContent();
 
         return $this->template->render('console/display', [
             'has_bookmark_feature' => $bookmarkFeature !== null,
-            'image' => $image,
-            'sql_history' => $_sql_history,
-            'bookmark_content' => $bookmarkContent,
+            'image'                => $image,
+            'sql_history'          => $_sql_history,
+            'bookmark_content'     => $bookmarkContent,
         ]);
     }
 }

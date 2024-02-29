@@ -48,11 +48,11 @@ class TestMagentoProduct extends Command
             '3' => 'magethree',
         ];
 
-        $limit = $this->ask('Which website you need to push');
+        $limit         = $this->ask('Which website you need to push');
         $catNeedtoTest = $this->ask('Howmany Category need to test');
 
         if (! empty($limit)) {
-            $limit = explode(',', $limit);
+            $limit                  = explode(',', $limit);
             $storeWebsiteCategories = \App\StoreWebsiteCategory::whereIn('store_website_id', $limit)->where('remote_id', '>', 0)->groupBy('category_id')->limit($catNeedtoTest)->get();
 
             if (! $storeWebsiteCategories->isEmpty()) {

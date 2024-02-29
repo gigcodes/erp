@@ -25,13 +25,13 @@ class EditRequest extends FormRequest
     {
         return [
             'store_website_id' => 'required|exists:store_websites,id',
-            'platform' => 'required',
-            'name' => 'required',
-            'status' => 'required',
-            'page_id' => 'required',
-            'page_token' => 'required',
-            'webhook_token' => 'required',
-            'ad_account_id' => 'nullable|exists:social_ad_accounts,id',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'status'           => 'required',
+            'page_id'          => 'required',
+            'page_token'       => 'required',
+            'webhook_token'    => 'required',
+            'ad_account_id'    => 'nullable|exists:social_ad_accounts,id',
         ];
     }
 }

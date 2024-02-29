@@ -12,8 +12,8 @@ class WiseBoutiqueScraper extends Scraper
     private $scrapKey = '';
 
     private const URL = [
-        'man' => 'https://www.wiseboutique.com/en/man',
-        'woman' => 'https://www.wiseboutique.com/en/woman',
+        'man'      => 'https://www.wiseboutique.com/en/man',
+        'woman'    => 'https://www.wiseboutique.com/en/woman',
         'HOMEPAGE' => 'https://www.wiseboutique.com/en',
     ];
 
@@ -35,9 +35,9 @@ class WiseBoutiqueScraper extends Scraper
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (! $scrapEntry) {
-            $scrapEntry = new ScrapEntries();
-            $scrapEntry->title = $url;
-            $scrapEntry->url = $url;
+            $scrapEntry            = new ScrapEntries();
+            $scrapEntry->title     = $url;
+            $scrapEntry->url       = $url;
             $scrapEntry->site_name = 'Wiseboutique';
             $scrapEntry->save();
         }
@@ -51,17 +51,17 @@ class WiseBoutiqueScraper extends Scraper
 
     private function getProducts(ScrapEntries $scrapEntry): void
     {
-        $date = date('Y-m-d');
+        $date     = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Wiseboutique')->first();
         if (! $allLinks) {
-            $allLinks = new ScrapCounts();
+            $allLinks               = new ScrapCounts();
             $allLinks->scraped_date = $date;
-            $allLinks->website = 'Wiseboutique';
+            $allLinks->website      = 'Wiseboutique';
             $allLinks->save();
         }
 
         $body = $this->getContent($scrapEntry->url);
-        $c = new HtmlPageCrawler($body);
+        $c    = new HtmlPageCrawler($body);
 
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
 
@@ -69,7 +69,7 @@ class WiseBoutiqueScraper extends Scraper
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
             $title = $product->getAttribute('title') ?? 'N/A';
-            $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
+            $link  = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
 
             if (! $link) {
                 continue;
@@ -82,10 +82,10 @@ class WiseBoutiqueScraper extends Scraper
                 $entry = new ScrapEntries();
             }
 
-            $entry->title = $title;
-            $entry->url = $link;
+            $entry->title           = $title;
+            $entry->url             = $link;
             $entry->is_product_page = 1;
-            $entry->site_name = 'Wiseboutique';
+            $entry->site_name       = 'Wiseboutique';
             $entry->save();
         }
     }

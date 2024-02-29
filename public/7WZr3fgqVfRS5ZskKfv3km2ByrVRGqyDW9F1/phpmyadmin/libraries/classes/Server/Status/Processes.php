@@ -25,7 +25,8 @@ final class Processes
     }
 
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
+     *
      * @return array<string, array|string>
      */
     public function getList(array $params): array
@@ -48,9 +49,9 @@ final class Processes
             || ! empty($params['showExecuting'])
         ) {
             $urlParams['order_by_field'] = $params['order_by_field'];
-            $urlParams['sort_order'] = $params['sort_order'];
-            $urlParams['showExecuting'] = $params['showExecuting'];
-            $sqlQuery = 'SELECT * FROM `INFORMATION_SCHEMA`.`PROCESSLIST` ';
+            $urlParams['sort_order']     = $params['sort_order'];
+            $urlParams['showExecuting']  = $params['showExecuting'];
+            $sqlQuery                    = 'SELECT * FROM `INFORMATION_SCHEMA`.`PROCESSLIST` ';
         }
 
         if (! empty($params['showExecuting'])) {
@@ -64,7 +65,7 @@ final class Processes
         }
 
         $result = $this->dbi->query($sqlQuery);
-        $rows = [];
+        $rows   = [];
         while ($process = $result->fetchAssoc()) {
             // Array keys need to modify due to the way it has used
             // to display column values
@@ -84,21 +85,21 @@ final class Processes
             }
 
             $rows[] = [
-                'id' => $process['Id'],
-                'user' => $process['User'],
-                'host' => $process['Host'],
-                'db' => ! isset($process['db']) || strlen($process['db']) === 0 ? '' : $process['db'],
-                'command' => $process['Command'],
-                'time' => $process['Time'],
-                'state' => ! empty($process['State']) ? $process['State'] : '---',
+                'id'       => $process['Id'],
+                'user'     => $process['User'],
+                'host'     => $process['Host'],
+                'db'       => ! isset($process['db']) || strlen($process['db']) === 0 ? '' : $process['db'],
+                'command'  => $process['Command'],
+                'time'     => $process['Time'],
+                'state'    => ! empty($process['State']) ? $process['State'] : '---',
                 'progress' => ! empty($process['Progress']) ? $process['Progress'] : '---',
-                'info' => ! empty($process['Info']) ? Generator::formatSql($process['Info'], ! $showFullSql) : '---',
+                'info'     => ! empty($process['Info']) ? Generator::formatSql($process['Info'], ! $showFullSql) : '---',
             ];
         }
 
         return [
-            'columns' => $this->getSortableColumnsForProcessList($showFullSql, $params),
-            'rows' => $rows,
+            'columns'        => $this->getSortableColumnsForProcessList($showFullSql, $params),
+            'rows'           => $rows,
             'refresh_params' => $urlParams,
         ];
     }
@@ -109,39 +110,39 @@ final class Processes
         // sortable column in the table
         $sortableColumns = [
             [
-                'column_name' => __('ID'),
+                'column_name'    => __('ID'),
                 'order_by_field' => 'Id',
             ],
             [
-                'column_name' => __('User'),
+                'column_name'    => __('User'),
                 'order_by_field' => 'User',
             ],
             [
-                'column_name' => __('Host'),
+                'column_name'    => __('Host'),
                 'order_by_field' => 'Host',
             ],
             [
-                'column_name' => __('Database'),
+                'column_name'    => __('Database'),
                 'order_by_field' => 'db',
             ],
             [
-                'column_name' => __('Command'),
+                'column_name'    => __('Command'),
                 'order_by_field' => 'Command',
             ],
             [
-                'column_name' => __('Time'),
+                'column_name'    => __('Time'),
                 'order_by_field' => 'Time',
             ],
             [
-                'column_name' => __('Status'),
+                'column_name'    => __('Status'),
                 'order_by_field' => 'State',
             ],
             [
-                'column_name' => __('Progress'),
+                'column_name'    => __('Progress'),
                 'order_by_field' => 'Progress',
             ],
             [
-                'column_name' => __('SQL query'),
+                'column_name'    => __('SQL query'),
                 'order_by_field' => 'Info',
             ],
         ];
@@ -164,12 +165,12 @@ final class Processes
             }
 
             $columns[$columnKey] = [
-                'name' => $column['column_name'],
-                'params' => $column,
-                'is_sorted' => $is_sorted,
-                'sort_order' => $column['sort_order'],
+                'name'           => $column['column_name'],
+                'params'         => $column,
+                'is_sorted'      => $is_sorted,
+                'sort_order'     => $column['sort_order'],
                 'has_full_query' => false,
-                'is_full' => false,
+                'is_full'        => false,
             ];
 
             if (0 !== --$sortableColCount) {

@@ -96,7 +96,8 @@ class ImportSql extends ImportPlugin
     /**
      * Handles the whole import logic
      *
-     * @param  array  $sql_data 2-element array with sql data
+     * @param array $sql_data     2-element array with sql data
+     * @param ?File $importHandle
      */
     public function doImport(?File $importHandle = null, array &$sql_data = []): void
     {
@@ -167,8 +168,8 @@ class ImportSql extends ImportPlugin
     /**
      * Handle compatibility options
      *
-     * @param  DatabaseInterface  $dbi     Database interface
-     * @param  array  $request Request array
+     * @param DatabaseInterface $dbi     Database interface
+     * @param array             $request Request array
      */
     private function setSQLMode($dbi, array $request): void
     {

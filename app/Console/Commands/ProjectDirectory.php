@@ -52,7 +52,7 @@ class ProjectDirectory extends Command
                     $directory = explode(']', $o);
                     if (isset($directory[0]) && isset($directory[1])) {
                         $directoryStr = trim($directory[1]);
-                        $parent = null;
+                        $parent       = null;
                         if (substr($directoryStr, 0, strlen($lastFolder)) == $lastFolder) {
                             $parent = $lastFolder;
                         }

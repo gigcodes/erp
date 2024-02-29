@@ -19,6 +19,8 @@ class UpdateFromSizeManager implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param public $params
+     *
      * @return void
      */
     public function __construct(public $params)
@@ -54,7 +56,7 @@ class UpdateFromSizeManager implements ShouldQueue
             if (! $sizesProduct->isEmpty()) {
                 foreach ($sizesProduct as $sizesP) {
                     // get size system
-                    $euSize = \App\Helpers\ProductHelper::getEuSize($sizesP, explode(',', $sizesP->size), $sizesP->size_system);
+                    $euSize          = \App\Helpers\ProductHelper::getEuSize($sizesP, explode(',', $sizesP->size), $sizesP->size_system);
                     $sizesP->size_eu = implode(',', $euSize);
                     if (empty($euSize)) {
                         $sizesP->status_id = \App\Helpers\StatusHelper::$unknownSize;

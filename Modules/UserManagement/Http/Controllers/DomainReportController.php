@@ -6,13 +6,13 @@ class domainreportController extends Controller
 {
     public function getresponse()
     {
-        $url = 'domain_organic_search_keywords';
-        $domain = 'WWW.SOLOLUXURY.COM';
-        $db = 'us';
-        $key = env('KEY');
-        $data = [];
+        $url        = 'domain_organic_search_keywords';
+        $domain     = 'WWW.SOLOLUXURY.COM';
+        $db         = 'us';
+        $key        = env('KEY');
+        $data       = [];
         $final_data = [];
-        $apis = [
+        $apis       = [
             'domain_organic_search_keywords' => 'https://api.semrush.com/?type=domain_organic&key=' . $key . '&display_filter=%2B%7CPh%7CCo%7Cseo&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=tr_desc&database=' . $db,
 
             'domain_paid_search_keywords' => 'https://api.semrush.com/?type=domain_adwords&key=' . $key . '&display_limit=10&export_columns=Ph,Po,Pp,Pd,Nq,Cp,Vu,Tr,Tc,Co,Nr,Td&domain=' . $domain . '&display_sort=po_asc&database=' . $db,

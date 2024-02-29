@@ -73,34 +73,34 @@ class SpecialSchemaLinks
             'mysql' => [
                 'columns_priv' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'host',
                             ],
                         ],
                         'default_page' => './' . Url::getFromRoute('/server/privileges'),
                     ],
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'Db',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'column_name' => [
-                        'link_param' => 'field',
+                        'link_param'             => 'field',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'Db',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'Table_name',
                             ],
                         ],
@@ -109,10 +109,10 @@ class SpecialSchemaLinks
                 ],
                 'db' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'host',
                             ],
                         ],
@@ -121,10 +121,10 @@ class SpecialSchemaLinks
                 ],
                 'event' => [
                     'name' => [
-                        'link_param' => 'item_name',
+                        'link_param'             => 'item_name',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'db',
                             ],
                         ],
@@ -134,24 +134,24 @@ class SpecialSchemaLinks
                 ],
                 'innodb_index_stats' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'database_name',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'index_name' => [
-                        'link_param' => 'index',
+                        'link_param'             => 'index',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'database_name',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'table_name',
                             ],
                         ],
@@ -160,10 +160,10 @@ class SpecialSchemaLinks
                 ],
                 'innodb_table_stats' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'database_name',
                             ],
                         ],
@@ -172,28 +172,28 @@ class SpecialSchemaLinks
                 ],
                 'proc' => [
                     'name' => [
-                        'link_param' => 'item_name',
+                        'link_param'             => 'item_name',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'db',
                             ],
                             1 => [
-                                'param_info' => 'item_type',
+                                'param_info'  => 'item_type',
                                 'column_name' => 'type',
                             ],
                         ],
                         'default_page' => './' . Url::getFromRoute('/database/routines', ['edit_item' => 1]),
                     ],
                     'specific_name' => [
-                        'link_param' => 'item_name',
+                        'link_param'             => 'item_name',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'db',
                             ],
                             1 => [
-                                'param_info' => 'item_type',
+                                'param_info'  => 'item_type',
                                 'column_name' => 'type',
                             ],
                         ],
@@ -202,24 +202,24 @@ class SpecialSchemaLinks
                 ],
                 'proc_priv' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'Host',
                             ],
                         ],
                         'default_page' => './' . Url::getFromRoute('/server/privileges'),
                     ],
                     'routine_name' => [
-                        'link_param' => 'item_name',
+                        'link_param'             => 'item_name',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'Db',
                             ],
                             1 => [
-                                'param_info' => 'item_type',
+                                'param_info'  => 'item_type',
                                 'column_name' => 'Routine_type',
                             ],
                         ],
@@ -228,10 +228,10 @@ class SpecialSchemaLinks
                 ],
                 'proxies_priv' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'Host',
                             ],
                         ],
@@ -240,20 +240,20 @@ class SpecialSchemaLinks
                 ],
                 'tables_priv' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'Host',
                             ],
                         ],
                         'default_page' => './' . Url::getFromRoute('/server/privileges'),
                     ],
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'Db',
                             ],
                         ],
@@ -262,10 +262,10 @@ class SpecialSchemaLinks
                 ],
                 'user' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'host',
                             ],
                         ],
@@ -276,24 +276,24 @@ class SpecialSchemaLinks
             'information_schema' => [
                 'columns' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'column_name' => [
-                        'link_param' => 'field',
+                        'link_param'             => 'field',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'table_name',
                             ],
                         ],
@@ -302,48 +302,48 @@ class SpecialSchemaLinks
                 ],
                 'key_column_usage' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'constraint_schema',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'column_name' => [
-                        'link_param' => 'field',
+                        'link_param'             => 'field',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'table_name',
                             ],
                         ],
                         'default_page' => './' . Url::getFromRoute('/table/structure/change', ['change_column' => 1]),
                     ],
                     'referenced_table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'referenced_table_schema',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'referenced_column_name' => [
-                        'link_param' => 'field',
+                        'link_param'             => 'field',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'referenced_table_schema',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'referenced_table_name',
                             ],
                         ],
@@ -352,10 +352,10 @@ class SpecialSchemaLinks
                 ],
                 'partitions' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],
@@ -364,10 +364,10 @@ class SpecialSchemaLinks
                 ],
                 'processlist' => [
                     'user' => [
-                        'link_param' => 'username',
+                        'link_param'             => 'username',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'hostname',
+                                'param_info'  => 'hostname',
                                 'column_name' => 'host',
                             ],
                         ],
@@ -376,20 +376,20 @@ class SpecialSchemaLinks
                 ],
                 'referential_constraints' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'constraint_schema',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'referenced_table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'constraint_schema',
                             ],
                         ],
@@ -398,14 +398,14 @@ class SpecialSchemaLinks
                 ],
                 'routines' => [
                     'routine_name' => [
-                        'link_param' => 'item_name',
+                        'link_param'             => 'item_name',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'routine_schema',
                             ],
                             1 => [
-                                'param_info' => 'item_type',
+                                'param_info'  => 'item_type',
                                 'column_name' => 'routine_type',
                             ],
                         ],
@@ -414,30 +414,30 @@ class SpecialSchemaLinks
                 ],
                 'schemata' => [
                     'schema_name' => [
-                        'link_param' => 'db',
+                        'link_param'   => 'db',
                         'default_page' => $defaultPage,
                     ],
                 ],
                 'statistics' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],
                         'default_page' => $defaultPage,
                     ],
                     'column_name' => [
-                        'link_param' => 'field',
+                        'link_param'             => 'field',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                             1 => [
-                                'param_info' => 'table',
+                                'param_info'  => 'table',
                                 'column_name' => 'table_name',
                             ],
                         ],
@@ -446,10 +446,10 @@ class SpecialSchemaLinks
                 ],
                 'tables' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],
@@ -458,10 +458,10 @@ class SpecialSchemaLinks
                 ],
                 'table_constraints' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],
@@ -470,10 +470,10 @@ class SpecialSchemaLinks
                 ],
                 'views' => [
                     'table_name' => [
-                        'link_param' => 'table',
+                        'link_param'             => 'table',
                         'link_dependancy_params' => [
                             0 => [
-                                'param_info' => 'db',
+                                'param_info'  => 'db',
                                 'column_name' => 'table_schema',
                             ],
                         ],

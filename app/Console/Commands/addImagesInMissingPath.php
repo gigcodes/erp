@@ -35,12 +35,14 @@ class addImagesInMissingPath extends Command
     /**
      * Execute the console command.
      *
+     * @param mixed $path
+     *
      * @return mixed
      */
     public function createPath($path)
     {
         $path = explode('/', $path);
-        $dir = '/';
+        $dir  = '/';
         foreach ($path as $key => $f) {
             if ($key == 0 || $key == count($path) - 1) {
                 continue;
@@ -61,11 +63,11 @@ class addImagesInMissingPath extends Command
                     continue;
                 }
                 $randomFile = $files[rand(0, count($files) - 1)];
-                $r_file = $randomFile->getRealPath();
+                $r_file     = $randomFile->getRealPath();
 
-                $m_url = $media->getAbsolutePath();
-                $file_info = pathinfo($m_url);
-                $file_name = $file_info['filename'] . '.' . $file_info['extension'];
+                $m_url            = $media->getAbsolutePath();
+                $file_info        = pathinfo($m_url);
+                $file_name        = $file_info['filename'] . '.' . $file_info['extension'];
                 $file_full_folder = $file_info['dirname'] . '/' . $file_name;
                 $this->createPath($m_url);
                 copy($r_file, $file_full_folder);

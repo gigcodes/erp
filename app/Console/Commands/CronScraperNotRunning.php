@@ -45,7 +45,7 @@ class CronScraperNotRunning extends Command
         // Create cron job report
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

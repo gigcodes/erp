@@ -64,8 +64,8 @@ class BrandReferenceMergeAndDelete extends Command
                             $product = \App\Product::where('brand', $similarBrand->id)->get();
                             if (! $product->isEmpty()) {
                                 foreach ($product as $p) {
-                                    $lastBrandId = $p->brand;
-                                    $p->brand = $brand->id;
+                                    $lastBrandId   = $p->brand;
+                                    $p->brand      = $brand->id;
                                     $p->last_brand = $lastBrandId;
                                     $p->save();
                                     \Log::channel('productUpdates')->info("{$brand->id} updated with product" . $p->sku);

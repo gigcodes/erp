@@ -19,7 +19,8 @@ class MonetaryAccountHistoryCreate
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
+     *
      * @return void
      */
     public function handle(MonetaryAccountCreated $event)
@@ -30,12 +31,12 @@ class MonetaryAccountHistoryCreate
             $user_id = 6;
         }
         \App\MonetaryAccountHistory::create([
-            'note' => 'Account has been created',
-            'model_id' => $account->id,
-            'model_type' => \App\MonetaryAccount::class,
-            'amount' => $account->amount,
+            'note'                => 'Account has been created',
+            'model_id'            => $account->id,
+            'model_type'          => \App\MonetaryAccount::class,
+            'amount'              => $account->amount,
             'monetary_account_id' => $account->id,
-            'user_id' => $user_id,
+            'user_id'             => $user_id,
         ]);
     }
 }

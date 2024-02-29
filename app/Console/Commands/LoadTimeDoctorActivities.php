@@ -51,13 +51,13 @@ class LoadTimeDoctorActivities extends Command
     public function handle()
     {
         ini_set('max_execution_time', 0);
-        $time_doctor_members = TimeDoctorMember::groupBy('user_id')->get();
+        $time_doctor_members  = TimeDoctorMember::groupBy('user_id')->get();
         $time_doctor_accounts = TimeDoctorAccount::where('auth_token', '!=', '')->get();
-        $timedoctor = Timedoctor::getInstance();
+        $timedoctor           = Timedoctor::getInstance();
 
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             foreach ($time_doctor_accounts as $account) {
@@ -69,7 +69,7 @@ class LoadTimeDoctorActivities extends Command
 
             foreach ($time_doctor_members as $member) {
                 if (($member->account_detail) && $member->account_detail->auth_token != '') {
-                    $this->TIME_DOCTOR_USER_ID = $member->user_id;
+                    $this->TIME_DOCTOR_USER_ID    = $member->user_id;
                     $this->TIME_DOCTOR_AUTH_TOKEN = $member->account_detail->auth_token;
                     $this->TIME_DOCTOR_COMPANY_ID = $member->account_detail->company_id;
                     $this->refreshActivityList();
@@ -99,10 +99,10 @@ class LoadTimeDoctorActivities extends Command
             $activities = $this->timedoctor->getActivityListCommand($this->TIME_DOCTOR_COMPANY_ID, $this->TIME_DOCTOR_AUTH_TOKEN, $this->TIME_DOCTOR_USER_ID);
             foreach ($activities as $activity) {
                 TimeDoctorActivity::create([
-                    'user_id' => $activity['user_id'],
-                    'task_id' => is_null($activity['task_id']) ? 0 : $activity['task_id'],
-                    'starts_at' => $activity['starts_at'],
-                    'tracked' => $activity['tracked'],
+                    'user_id'    => $activity['user_id'],
+                    'task_id'    => is_null($activity['task_id']) ? 0 : $activity['task_id'],
+                    'starts_at'  => $activity['starts_at'],
+                    'tracked'    => $activity['tracked'],
                     'project_id' => $activity['project'],
                 ]);
             }
@@ -125,19 +125,19 @@ class LoadTimeDoctorActivities extends Command
                         if (isset($task->project)) {
                             $project = TimeDoctorProject::where('time_doctor_project_id', $task->project->id)->first();
                             TimeDoctorTask::create([
-                                'time_doctor_task_id' => $task->id,
-                                'project_id' => $project->id,
+                                'time_doctor_task_id'    => $task->id,
+                                'project_id'             => $project->id,
                                 'time_doctor_project_id' => $task->project->id,
                                 'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
-                                'summery' => $task->name,
-                                'description' => (isset($task->description) && $task->description != '') ? $task->description : '',
+                                'summery'                => $task->name,
+                                'description'            => (isset($task->description) && $task->description != '') ? $task->description : '',
                                 'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
                             ]);
                         }
                     }
                 } else {
-                    $taskExist->summery = $task->name;
-                    $taskExist->description = (isset($task->description) && $task->description != '') ? $task->description : '';
+                    $taskExist->summery                = $task->name;
+                    $taskExist->description            = (isset($task->description) && $task->description != '') ? $task->description : '';
                     $taskExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
                     $taskExist->save();
                 }

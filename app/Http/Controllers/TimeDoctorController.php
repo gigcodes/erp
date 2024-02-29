@@ -34,7 +34,7 @@ class TimeDoctorController extends Controller
     public function userList(Request $request)
     {
         $members = TimeDoctorMember::query();
-        $users = User::all('id', 'name');
+        $users   = User::all('id', 'name');
 
         if (isset($request->time_doctor_user_id) && $request->time_doctor_user_id != '') {
             $members->where('time_doctor_user_id', 'like', "%$request->time_doctor_user_id%");
@@ -61,8 +61,8 @@ class TimeDoctorController extends Controller
         return view(
             'time-doctor.users',
             [
-                'members' => $members,
-                'users' => $users,
+                'members'     => $members,
+                'users'       => $users,
                 'accountList' => $accountList,
             ]
         );
@@ -98,7 +98,7 @@ class TimeDoctorController extends Controller
         return view(
             'time-doctor.projects',
             [
-                'projects' => $projects,
+                'projects'    => $projects,
                 'accountList' => $accountList,
             ]
         );
@@ -132,7 +132,7 @@ class TimeDoctorController extends Controller
         return view(
             'time-doctor.tasks',
             [
-                'tasks' => $tasks,
+                'tasks'       => $tasks,
                 'accountList' => $accountList,
             ]
         );
@@ -141,8 +141,8 @@ class TimeDoctorController extends Controller
     public function saveUserAccount(Request $request)
     {
         try {
-            $time_doctor_acount = new TimeDoctorAccount();
-            $time_doctor_acount->time_doctor_email = $request->email;
+            $time_doctor_acount                       = new TimeDoctorAccount();
+            $time_doctor_acount->time_doctor_email    = $request->email;
             $time_doctor_acount->time_doctor_password = $request->password;
             if ($time_doctor_acount->save()) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'TimeDoctor Account Added successfully']);
@@ -171,8 +171,8 @@ class TimeDoctorController extends Controller
     public function displayUserAccountList(Request $request)
     {
         $timeDoctorAccounts = TimeDoctorAccount::all();
-        $html = '';
-        $i = 1;
+        $html               = '';
+        $i                  = 1;
         foreach ($timeDoctorAccounts as $account) {
             $html .= '<tr>';
             $html .= '<td>' . $i++ . '</td>';
@@ -208,9 +208,9 @@ class TimeDoctorController extends Controller
     {
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->time_doctor_account);
-            $companyId = $time_doctor_acount->company_id;
-            $accessToken = $time_doctor_acount->auth_token;
-            $createProject = $this->timedoctor->createProject($companyId, $accessToken, $request->all());
+            $companyId          = $time_doctor_acount->company_id;
+            $accessToken        = $time_doctor_acount->auth_token;
+            $createProject      = $this->timedoctor->createProject($companyId, $accessToken, $request->all());
             if ($createProject) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
             } else {
@@ -232,9 +232,9 @@ class TimeDoctorController extends Controller
     {
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->time_doctor_account);
-            $companyId = $time_doctor_acount->company_id;
-            $accessToken = $time_doctor_acount->auth_token;
-            $createTask = $this->timedoctor->createTask($companyId, $accessToken, $request->all());
+            $companyId          = $time_doctor_acount->company_id;
+            $accessToken        = $time_doctor_acount->auth_token;
+            $createTask         = $this->timedoctor->createTask($companyId, $accessToken, $request->all());
             if ($createTask) {
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor project created successfully']);
             } else {
@@ -250,9 +250,9 @@ class TimeDoctorController extends Controller
         try {
             $time_doctortask = TimeDoctorTask::find($request->taskId);
             if ($time_doctortask) {
-                $res['name'] = $time_doctortask->summery;
+                $res['name']        = $time_doctortask->summery;
                 $res['description'] = $time_doctortask->description;
-                $res['project_id'] = $time_doctortask->time_doctor_project_id;
+                $res['project_id']  = $time_doctortask->time_doctor_project_id;
 
                 return response()->json(['code' => 200, 'data' => $res, 'message' => 'Time doctor task data fetched successfully']);
             } else {
@@ -268,15 +268,15 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_task = TimeDoctorTask::find($request->time_doctor_task_id);
             if ($time_doctor_task) {
-                $res['taskId'] = $time_doctor_task->time_doctor_task_id;
-                $res['taskName'] = $request->edit_time_doctor_task_name;
+                $res['taskId']          = $time_doctor_task->time_doctor_task_id;
+                $res['taskName']        = $request->edit_time_doctor_task_name;
                 $res['taskDescription'] = $request->edit_time_doctor_task_description;
-                $res['taskProject'] = $time_doctor_task->time_doctor_project_id;
-                $companyId = $time_doctor_task->account->company_id;
-                $accessToken = $time_doctor_task->account->auth_token;
-                $updateTask = $this->timedoctor->updateTask($companyId, $accessToken, $res);
+                $res['taskProject']     = $time_doctor_task->time_doctor_project_id;
+                $companyId              = $time_doctor_task->account->company_id;
+                $accessToken            = $time_doctor_task->account->auth_token;
+                $updateTask             = $this->timedoctor->updateTask($companyId, $accessToken, $res);
                 if ($updateTask) {
-                    $time_doctor_task->summery = $request->edit_time_doctor_task_name;
+                    $time_doctor_task->summery     = $request->edit_time_doctor_task_name;
                     $time_doctor_task->description = $request->edit_time_doctor_task_description;
                     $time_doctor_task->save();
 
@@ -297,7 +297,7 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_project = TimeDoctorProject::find($request->projectId);
             if ($time_doctor_project) {
-                $res['name'] = $time_doctor_project->time_doctor_project_name;
+                $res['name']        = $time_doctor_project->time_doctor_project_name;
                 $res['description'] = $time_doctor_project->time_doctor_project_description;
 
                 return response()->json(['code' => 200, 'data' => $res, 'message' => 'Time doctor project data fetched successfully']);
@@ -314,14 +314,14 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_project = TimeDoctorProject::find($request->time_doctor_program_id);
             if ($time_doctor_project) {
-                $res['projectId'] = $time_doctor_project->time_doctor_project_id;
-                $res['projectName'] = $request->edit_time_doctor_project_name;
+                $res['projectId']          = $time_doctor_project->time_doctor_project_id;
+                $res['projectName']        = $request->edit_time_doctor_project_name;
                 $res['projectDescription'] = $request->edit_time_doctor_project_description;
-                $companyId = $time_doctor_project->account_detail->company_id;
-                $accessToken = $time_doctor_project->account_detail->auth_token;
-                $updateProject = $this->timedoctor->updateProject($companyId, $accessToken, $res);
+                $companyId                 = $time_doctor_project->account_detail->company_id;
+                $accessToken               = $time_doctor_project->account_detail->auth_token;
+                $updateProject             = $this->timedoctor->updateProject($companyId, $accessToken, $res);
                 if ($updateProject) {
-                    $time_doctor_project->time_doctor_project_name = $request->edit_time_doctor_project_name;
+                    $time_doctor_project->time_doctor_project_name        = $request->edit_time_doctor_project_name;
                     $time_doctor_project->time_doctor_project_description = $request->edit_time_doctor_project_description;
                     $time_doctor_project->save();
 
@@ -344,10 +344,10 @@ class TimeDoctorController extends Controller
 
     public function linkUser(Request $request)
     {
-        $bodyContent = $request->getContent();
+        $bodyContent     = $request->getContent();
         $jsonDecodedBody = json_decode($bodyContent);
 
-        $userId = $jsonDecodedBody->user_id;
+        $userId           = $jsonDecodedBody->user_id;
         $timeDoctorUserId = $jsonDecodedBody->time_doctor_user_id;
 
         if (! $userId || ! $timeDoctorUserId) {
@@ -369,14 +369,14 @@ class TimeDoctorController extends Controller
     public function sendInvitations(Request $request)
     {
         $members = TimeDoctorAccount::where('auth_token', '!=', '')->whereNotNull('company_id')->get();
-        $users = User::all('id', 'name', 'email');
+        $users   = User::all('id', 'name', 'email');
 
         return view(
             'time-doctor.create-accounts',
             [
-                'title' => 'Create TimeDoctor Account',
+                'title'   => 'Create TimeDoctor Account',
                 'members' => $members,
-                'users' => $users,
+                'users'   => $users,
             ]
         );
     }
@@ -386,13 +386,13 @@ class TimeDoctorController extends Controller
         try {
             $data = [
                 'email' => $request->email,
-                'name' => $request->name,
+                'name'  => $request->name,
             ];
-            $userId = $request->userId;
+            $userId             = $request->userId;
             $time_doctor_acount = TimeDoctorAccount::find($request->tda);
             if ($time_doctor_acount) {
-                $companyId = $time_doctor_acount->company_id;
-                $accessToken = $time_doctor_acount->auth_token;
+                $companyId      = $time_doctor_acount->company_id;
+                $accessToken    = $time_doctor_acount->auth_token;
                 $inviteResponse = $this->timedoctor->sendSingleInvitation($companyId, $accessToken, $data);
                 switch ($inviteResponse['code']) {
                     case '401':
@@ -414,10 +414,10 @@ class TimeDoctorController extends Controller
                             'time_doctor_email' => $request->email,
                         ]);
                         TimeDoctorMember::create([
-                            'time_doctor_user_id' => $inviteResponse['data']['time_doctor_user_id'],
+                            'time_doctor_user_id'    => $inviteResponse['data']['time_doctor_user_id'],
                             'time_doctor_account_id' => $lastRow->id,
-                            'email' => $request->email,
-                            'user_id' => $userId,
+                            'email'                  => $request->email,
+                            'user_id'                => $userId,
                         ]);
 
                         return response()->json(['code' => 200, 'data' => [], 'message' => 'Time doctor account created successfully']);
@@ -436,20 +436,20 @@ class TimeDoctorController extends Controller
         try {
             $time_doctor_acount = TimeDoctorAccount::find($request->tda);
             if ($time_doctor_acount) {
-                $companyId = $time_doctor_acount->company_id;
-                $accessToken = $time_doctor_acount->auth_token;
-                $users = User::whereIn('id', $request->ids)->get();
+                $companyId    = $time_doctor_acount->company_id;
+                $accessToken  = $time_doctor_acount->auth_token;
+                $users        = User::whereIn('id', $request->ids)->get();
                 $payloadUsers = [];
                 foreach ($users as $u) {
-                    $obj = new stdClass;
+                    $obj        = new stdClass;
                     $obj->email = $u->email;
-                    $obj->name = $u->name;
+                    $obj->name  = $u->name;
 
                     array_push($payloadUsers, $obj);
                 }
 
                 $bulkInvitePayload = [
-                    'users' => $payloadUsers,
+                    'users'       => $payloadUsers,
                     'noSendEmail' => 'false',
                 ];
 
@@ -472,8 +472,8 @@ class TimeDoctorController extends Controller
                     default:
                         $response = $bulkInviteResponse['data']['response']->data;
                         foreach ($users as $u) {
-                            $userId = $u->id;
-                            $email = $u->email;
+                            $userId              = $u->id;
+                            $email               = $u->email;
                             $time_doctor_user_id = '';
                             foreach ($response as $key => $val) {
                                 foreach ($val as $k => $v) {
@@ -488,10 +488,10 @@ class TimeDoctorController extends Controller
                                     'time_doctor_email' => $email,
                                 ]);
                                 TimeDoctorMember::create([
-                                    'time_doctor_user_id' => $time_doctor_user_id,
+                                    'time_doctor_user_id'    => $time_doctor_user_id,
                                     'time_doctor_account_id' => $lastRow->id,
-                                    'email' => $email,
-                                    'user_id' => $userId,
+                                    'email'                  => $email,
+                                    'user_id'                => $userId,
                                 ]);
                             }
                         }
@@ -514,10 +514,10 @@ class TimeDoctorController extends Controller
     {
         try {
             $responseCode = TimeDoctorLog::distinct()->get('response_code')->pluck('response_code');
-            $filterUsers = TimeDoctorLog::with('user')->distinct()->get('user_id')->pluck('user.name', 'user.id');
+            $filterUsers  = TimeDoctorLog::with('user')->distinct()->get('user_id')->pluck('user.name', 'user.id');
 
             $developerTask = TimeDoctorLog::distinct()->whereNotNull('dev_task_id')->get('dev_task_id')->pluck('dev_task_id');
-            $generalTask = TimeDoctorLog::distinct()->whereNotNull('task_id')->get('task_id')->pluck('task_id');
+            $generalTask   = TimeDoctorLog::distinct()->whereNotNull('task_id')->get('task_id')->pluck('task_id');
 
             return view('time-doctor.task-creation-logs', compact('responseCode', 'filterUsers', 'generalTask', 'developerTask'));
         } catch (Exception $e) {
@@ -546,7 +546,7 @@ class TimeDoctorController extends Controller
                 $logs->whereIn('user_id', $request->search_users);
             }
 
-            $dev_task = [];
+            $dev_task     = [];
             $general_task = [];
             if (isset($request->search_tasks) && ! empty($request->search_tasks)) {
                 foreach ($request->search_tasks as $key => $task) {
@@ -571,14 +571,14 @@ class TimeDoctorController extends Controller
             $logs = $logs->paginate(20);
 
             return response()->json([
-                'tbody' => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
+                'tbody'      => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
                 'pagination' => $logs->links()->render(),
             ]);
         } catch (Exception $e) {
             $logs = [];
 
             return response()->json([
-                'tbody' => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
+                'tbody'      => view('time-doctor.task-creation-logs-list', compact('logs'))->render(),
                 'pagination' => '',
             ]);
         }
@@ -604,7 +604,7 @@ class TimeDoctorController extends Controller
 
     public function listUserAccountList(Request $request)
     {
-        $timeDoctorAccounts = new TimeDoctorAccount();
+        $timeDoctorAccounts       = new TimeDoctorAccount();
         $timeDoctorAccountsEmails = TimeDoctorAccount::distinct('time_doctor_email')->pluck('time_doctor_email');
 
         $reqAccountsEmail = $request->time_doctor_account_id;
@@ -626,17 +626,17 @@ class TimeDoctorController extends Controller
 
     public function listRemarkStore(Request $request)
     {
-        $oldRemark = null;
-        $timeDoctorAccounts = TimeDoctorAccount::find($request->member_id);
-        $oldRemark = $timeDoctorAccounts->remarks;
+        $oldRemark                   = null;
+        $timeDoctorAccounts          = TimeDoctorAccount::find($request->member_id);
+        $oldRemark                   = $timeDoctorAccounts->remarks;
         $timeDoctorAccounts->remarks = $request->remark;
         $timeDoctorAccounts->save();
 
-        $timeRemark = new TimeDoctorAccountRemarkHistory();
+        $timeRemark                         = new TimeDoctorAccountRemarkHistory();
         $timeRemark->time_doctor_account_id = $request->member_id;
-        $timeRemark->user_id = Auth::user()->id;
-        $timeRemark->old_remark = $oldRemark;
-        $timeRemark->new_remark = $request->remark;
+        $timeRemark->user_id                = Auth::user()->id;
+        $timeRemark->old_remark             = $oldRemark;
+        $timeRemark->new_remark             = $request->remark;
         $timeRemark->save();
 
         return response()->json(['code' => 500, 'data' => [], 'message' => 'Reamrk Added successfully']);
@@ -647,32 +647,32 @@ class TimeDoctorController extends Controller
         $remarks = TimeDoctorAccountRemarkHistory::with(['user'])->where('time_doctor_account_id', $request->member_id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function updateValidate(Request $request)
     {
-        $timeDoctorAccount = TimeDoctorAccount::find($request->id);
-        $beforeDate = $timeDoctorAccount->created_at;
+        $timeDoctorAccount           = TimeDoctorAccount::find($request->id);
+        $beforeDate                  = $timeDoctorAccount->created_at;
         $timeDoctorAccount->validate = 1;
         $timeDoctorAccount->due_date = $request->dueDate;
         $timeDoctorAccount->save();
 
-        $history = new TimeDoctorDueDateHistory();
+        $history                         = new TimeDoctorDueDateHistory();
         $history->time_doctor_account_id = $request->id;
-        $history->before_date = $beforeDate->addDays(15);
-        $history->after_date = $request->dueDate;
-        $history->user_id = Auth::user()->id;
+        $history->before_date            = $beforeDate->addDays(15);
+        $history->after_date             = $request->dueDate;
+        $history->user_id                = Auth::user()->id;
         $history->save();
 
         return response()->json([
-            'status' => true,
-            'data' => $timeDoctorAccount,
-            'message' => 'Validate Updated successfully',
+            'status'      => true,
+            'data'        => $timeDoctorAccount,
+            'message'     => 'Validate Updated successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -682,9 +682,9 @@ class TimeDoctorController extends Controller
         $history = TimeDoctorDueDateHistory::with(['user'])->where('time_doctor_account_id', $request->member_id)->latest()->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $history,
-            'message' => 'Remark added successfully',
+            'status'      => true,
+            'data'        => $history,
+            'message'     => 'Remark added successfully',
             'status_name' => 'success',
         ], 200);
     }

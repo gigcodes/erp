@@ -9,12 +9,14 @@ class MagentoModuleHistoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $magento_module
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($magento_module)
     {
-        $title = 'Magento Module History';
+        $title                        = 'Magento Module History';
         $magento_module_api_histories = MagentoModuleHistory::with([
             'user:id,name',
             'module_category:id,category_name',
@@ -28,16 +30,16 @@ class MagentoModuleHistoryController extends Controller
         if (request()->ajax() && $magento_module_api_histories) {
             return response()->json([
                 'status' => true,
-                'data' => $magento_module_api_histories,
-                'title' => $title,
-                'code' => 200,
+                'data'   => $magento_module_api_histories,
+                'title'  => $title,
+                'code'   => 200,
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'data' => '',
-                'title' => $title,
-                'code' => 500,
+                'data'   => '',
+                'title'  => $title,
+                'code'   => 500,
             ], 500);
         }
 

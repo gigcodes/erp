@@ -43,16 +43,16 @@ class AddHahstagPostCountWeekly extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $hashtags = HashTag::orderBy('post_count', 'ASC')->get();
-            $ht = new Hashtags();
+            $ht       = new Hashtags();
             $ht->login();
 
             foreach ($hashtags as $hashtag) {
-                $count = $ht->getMediaCount($hashtag->hashtag);
+                $count               = $ht->getMediaCount($hashtag->hashtag);
                 $hashtag->post_count = $count;
                 $hashtag->save();
                 sleep(5);

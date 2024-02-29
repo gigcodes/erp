@@ -42,37 +42,37 @@ class TaskCategoriesController extends Controller
     public function store(Request $request)
     {
         if ($request->ajax()) {
-            $name = $request['category_name'];
-            $user_id = Auth::user()->id;
+            $name           = $request['category_name'];
+            $user_id        = Auth::user()->id;
             $category_array = [
                 'name' => $name,
             ];
-            $task_category = TaskCategories::create($category_array);
+            $task_category      = TaskCategories::create($category_array);
             $sub_category_array = [
                 'task_category_id' => $task_category->id,
-                'name' => $request['sub_category_name'],
+                'name'             => $request['sub_category_name'],
             ];
 
             $task_subcategory = TaskSubCategory::create($sub_category_array);
-            $subject1 = [];
+            $subject1         = [];
             foreach ($request['subject'] as $key => $subject) {
                 $subject_array = [
-                    'task_category_id' => $task_category->id,
+                    'task_category_id'    => $task_category->id,
                     'task_subcategory_id' => $task_subcategory->id,
-                    'name' => $request['subjectname'][$key],
-                    'description' => $subject,
+                    'name'                => $request['subjectname'][$key],
+                    'description'         => $subject,
                 ];
                 $subject1[$key] = TaskSubject::create($subject_array);
             }
 
             foreach ($subject1 as $key => $sub) {
                 $task_history = [
-                    'user_id' => $user_id,
-                    'task_subject_id' => $sub->id,
-                    'name_before' => $sub->name,
-                    'name_after' => null,
+                    'user_id'            => $user_id,
+                    'task_subject_id'    => $sub->id,
+                    'name_before'        => $sub->name,
+                    'name_after'         => null,
                     'description_before' => $sub->description,
-                    'description_after' => null,
+                    'description_after'  => null,
                 ];
                 $history = TaskHistories::create($task_history);
             }
@@ -84,10 +84,10 @@ class TaskCategoriesController extends Controller
     public function update(Request $request, $id)
     {
         if ($request->ajax()) {
-            $id = $request->id;
+            $id           = $request->id;
             $categoryname = $request->category_name;
             $sub_category = $request->sub_category_name;
-            $category = TaskCategories::find($id);
+            $category     = TaskCategories::find($id);
             if (! empty($category)) {
                 $category1 = $category->update(['name', $categoryname]);
             }
@@ -100,7 +100,7 @@ class TaskCategoriesController extends Controller
             if (! empty($request->subject)) {
                 foreach ($request->subject as $key => $subject) {
                     $data[$key] = [
-                        'name' => $subject,
+                        'name'        => $subject,
                         'description' => $request->description[$key],
                     ];
                     $tasksub = $task_subject[$key]->update($data[$key]);
@@ -109,10 +109,10 @@ class TaskCategoriesController extends Controller
             if (! empty($request->subject1)) {
                 foreach ($request->subject1 as $key => $subjects) {
                     $data[$key] = [
-                        'task_category_id' => $category->id,
+                        'task_category_id'    => $category->id,
                         'task_subcategory_id' => $subcategory->id,
-                        'name' => $subjects,
-                        'description' => $request->description1[$key],
+                        'name'                => $subjects,
+                        'description'         => $request->description1[$key],
                     ];
                     $subject1[$key] = TaskSubject::create($data[$key]);
                 }
@@ -122,12 +122,12 @@ class TaskCategoriesController extends Controller
             if (! empty($subject1)) {
                 foreach ($subject1 as $key => $sub) {
                     $data[$key] = [
-                        'user_id' => $user_id,
-                        'task_subject_id' => $sub->id,
-                        'name_before' => $sub->name,
-                        'name_after' => null,
+                        'user_id'            => $user_id,
+                        'task_subject_id'    => $sub->id,
+                        'name_before'        => $sub->name,
+                        'name_after'         => null,
                         'description_before' => $sub->description,
-                        'description_after' => null,
+                        'description_after'  => null,
                     ];
                     $history = TaskHistories::create($data[$key]);
                 }
@@ -142,7 +142,7 @@ class TaskCategoriesController extends Controller
                     if (empty($task_history[0]->name_after)) {
                         $taskname = $task_history[0]->name_before;
                     } else {
-                        $taskname = $task_history[0]->name_after;
+                        $taskname   = $task_history[0]->name_after;
                         $tasknameup = $tasks->name;
                     }
                 }
@@ -152,18 +152,18 @@ class TaskCategoriesController extends Controller
                     if (empty($task_history[0]->description_after)) {
                         $taskdescription = $task_history[0]->description_before;
                     } else {
-                        $taskdescription = $task_history[0]->description_after;
+                        $taskdescription   = $task_history[0]->description_after;
                         $taskdescriptionup = $tasks->description;
                     }
                 }
 
                 $data[$key] = [
-                    'user_id' => $user_id,
-                    'task_subject_id' => $tasks->id,
-                    'name_before' => $taskname,
-                    'name_after' => ! empty($tasknameup) ? $tasknameup : '',
+                    'user_id'            => $user_id,
+                    'task_subject_id'    => $tasks->id,
+                    'name_before'        => $taskname,
+                    'name_after'         => ! empty($tasknameup) ? $tasknameup : '',
                     'description_before' => $taskdescription,
-                    'description_after' => ! empty($taskdescriptionup) ? $taskdescriptionup : '',
+                    'description_after'  => ! empty($taskdescriptionup) ? $taskdescriptionup : '',
                 ];
                 $task_history[0]->update($data[$key]);
             }
@@ -174,7 +174,7 @@ class TaskCategoriesController extends Controller
 
     public function delete($id)
     {
-        $items = TaskSubCategory::with(['task_category', 'task_subject'])->where('task_category_id', $id);
+        $items  = TaskSubCategory::with(['task_category', 'task_subject'])->where('task_category_id', $id);
         $delete = $items->delete();
 
         return response()->json(['code' => 200, 'message' => 'Record deleted Successfully!']);
@@ -182,7 +182,7 @@ class TaskCategoriesController extends Controller
 
     public function destroy($id)
     {
-        $items = TaskSubject::where('id', $id);
+        $items  = TaskSubject::where('id', $id);
         $delete = $items->delete();
 
         return response()->json(['code' => 200, 'message' => 'subject deleted Successfully!']);

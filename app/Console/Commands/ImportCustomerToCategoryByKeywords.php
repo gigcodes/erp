@@ -44,7 +44,7 @@ class ImportCustomerToCategoryByKeywords extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -76,9 +76,9 @@ class ImportCustomerToCategoryByKeywords extends Command
     {
         DB::table('customer_with_categories')->where('customer_id', $customer->id)->delete();
         DB::table('customer_with_categories')->insert([
-            'customer_id' => $customer->id,
+            'customer_id'   => $customer->id,
             'category_type' => $keywordToCategory->category_type,
-            'model_id' => $keywordToCategory->model_id,
+            'model_id'      => $keywordToCategory->model_id,
         ]);
     }
 }

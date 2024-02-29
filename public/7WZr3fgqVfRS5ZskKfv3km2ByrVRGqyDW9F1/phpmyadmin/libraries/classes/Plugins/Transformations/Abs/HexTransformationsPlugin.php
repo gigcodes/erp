@@ -36,16 +36,17 @@ abstract class HexTransformationsPlugin extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
     {
         // possibly use a global transform and feed it with special options
-        $cfg = $GLOBALS['cfg'];
-        $options = $this->getOptions($options, $cfg['DefaultTransformations']['Hex']);
+        $cfg        = $GLOBALS['cfg'];
+        $options    = $this->getOptions($options, $cfg['DefaultTransformations']['Hex']);
         $options[0] = intval($options[0]);
 
         if ($options[0] < 1) {

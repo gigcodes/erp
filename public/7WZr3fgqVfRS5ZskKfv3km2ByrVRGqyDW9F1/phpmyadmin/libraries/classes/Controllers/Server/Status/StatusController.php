@@ -34,7 +34,7 @@ class StatusController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->replicationGui = $replicationGui;
-        $this->dbi = $dbi;
+        $this->dbi            = $dbi;
     }
 
     public function __invoke(): void
@@ -48,10 +48,10 @@ class StatusController extends AbstractController
         }
 
         $replicationInfo = $this->data->getReplicationInfo();
-        $primaryInfo = $replicationInfo->getPrimaryInfo();
-        $replicaInfo = $replicationInfo->getReplicaInfo();
+        $primaryInfo     = $replicationInfo->getPrimaryInfo();
+        $replicaInfo     = $replicationInfo->getReplicaInfo();
 
-        $traffic = [];
+        $traffic     = [];
         $connections = [];
         $replication = '';
         if ($this->data->dataLoaded) {
@@ -86,15 +86,15 @@ class StatusController extends AbstractController
         }
 
         $this->render('server/status/status/index', [
-            'is_data_loaded' => $this->data->dataLoaded,
+            'is_data_loaded'  => $this->data->dataLoaded,
             'network_traffic' => $networkTraffic ?? null,
-            'uptime' => $uptime ?? null,
-            'start_time' => $startTime ?? null,
-            'traffic' => $traffic,
-            'connections' => $connections,
-            'is_primary' => $primaryInfo['status'],
-            'is_replica' => $replicaInfo['status'],
-            'replication' => $replication,
+            'uptime'          => $uptime ?? null,
+            'start_time'      => $startTime ?? null,
+            'traffic'         => $traffic,
+            'connections'     => $connections,
+            'is_primary'      => $primaryInfo['status'],
+            'is_replica'      => $replicaInfo['status'],
+            'replication'     => $replication,
         ]);
     }
 
@@ -130,18 +130,18 @@ class StatusController extends AbstractController
 
         return [
             [
-                'name' => __('Received'),
-                'number' => implode(' ', $bytesReceived),
+                'name'     => __('Received'),
+                'number'   => implode(' ', $bytesReceived),
                 'per_hour' => implode(' ', $bytesReceivedPerHour),
             ],
             [
-                'name' => __('Sent'),
-                'number' => implode(' ', $bytesSent),
+                'name'     => __('Sent'),
+                'number'   => implode(' ', $bytesSent),
                 'per_hour' => implode(' ', $bytesSentPerHour),
             ],
             [
-                'name' => __('Total'),
-                'number' => implode(' ', $bytesTotal),
+                'name'     => __('Total'),
+                'number'   => implode(' ', $bytesTotal),
                 'per_hour' => implode(' ', $bytesTotalPerHour),
             ],
         ];
@@ -152,7 +152,7 @@ class StatusController extends AbstractController
         $hourFactor = 3600 / $this->data->status['Uptime'];
 
         $failedAttemptsPercentage = '---';
-        $abortedPercentage = '---';
+        $abortedPercentage        = '---';
         if ($this->data->status['Connections'] > 0) {
             $failedAttemptsPercentage = Util::formatNumber(
                 $this->data->status['Aborted_connects'] * 100 / $this->data->status['Connections'],
@@ -171,27 +171,27 @@ class StatusController extends AbstractController
 
         return [
             [
-                'name' => __('Max. concurrent connections'),
-                'number' => Util::formatNumber($this->data->status['Max_used_connections'], 0),
-                'per_hour' => '---',
+                'name'       => __('Max. concurrent connections'),
+                'number'     => Util::formatNumber($this->data->status['Max_used_connections'], 0),
+                'per_hour'   => '---',
                 'percentage' => '---',
             ],
             [
-                'name' => __('Failed attempts'),
-                'number' => Util::formatNumber($this->data->status['Aborted_connects'], 4, 1, true),
-                'per_hour' => Util::formatNumber($this->data->status['Aborted_connects'] * $hourFactor, 4, 2, true),
+                'name'       => __('Failed attempts'),
+                'number'     => Util::formatNumber($this->data->status['Aborted_connects'], 4, 1, true),
+                'per_hour'   => Util::formatNumber($this->data->status['Aborted_connects'] * $hourFactor, 4, 2, true),
                 'percentage' => $failedAttemptsPercentage,
             ],
             [
-                'name' => __('Aborted'),
-                'number' => Util::formatNumber($this->data->status['Aborted_clients'], 4, 1, true),
-                'per_hour' => Util::formatNumber($this->data->status['Aborted_clients'] * $hourFactor, 4, 2, true),
+                'name'       => __('Aborted'),
+                'number'     => Util::formatNumber($this->data->status['Aborted_clients'], 4, 1, true),
+                'per_hour'   => Util::formatNumber($this->data->status['Aborted_clients'] * $hourFactor, 4, 2, true),
                 'percentage' => $abortedPercentage,
             ],
             [
-                'name' => __('Total'),
-                'number' => Util::formatNumber($this->data->status['Connections'], 4, 0),
-                'per_hour' => Util::formatNumber($this->data->status['Connections'] * $hourFactor, 4, 2),
+                'name'       => __('Total'),
+                'number'     => Util::formatNumber($this->data->status['Connections'], 4, 0),
+                'per_hour'   => Util::formatNumber($this->data->status['Connections'] * $hourFactor, 4, 2),
                 'percentage' => Util::formatNumber(100, 0, 2) . '%',
             ],
         ];

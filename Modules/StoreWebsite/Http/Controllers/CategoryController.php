@@ -21,6 +21,8 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param mixed $id
+     *
      * @return Response
      */
     public function index(Request $request, $id)
@@ -30,7 +32,7 @@ class CategoryController extends Controller
         if ($request->ajax()) {
             // send response into the json
             $categoryDropDown = \App\Category::attr([
-                'name' => 'category_id',
+                'name'  => 'category_id',
                 'class' => 'form-control select-searchable',
             ])->renderAsDropdown();
 
@@ -40,10 +42,10 @@ class CategoryController extends Controller
                 ->get();
 
             return response()->json([
-                'code' => 200,
+                'code'             => 200,
                 'store_website_id' => $id,
-                'data' => $storeWebsite,
-                'scdropdown' => $categoryDropDown,
+                'data'             => $storeWebsite,
+                'scdropdown'       => $categoryDropDown,
             ]);
         }
 
@@ -56,16 +58,16 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $storeWebsiteId = $request->get('store_website_id');
-        $post = $request->all();
+        $post           = $request->all();
 
         $validator = Validator::make($post, [
             'store_website_id' => 'required',
-            'category_id' => 'unique:store_website_categories,category_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
+            'category_id'      => 'unique:store_website_categories,category_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -84,7 +86,7 @@ class CategoryController extends Controller
 
     public function deleteCategory(Request $request)
     {
-        $category = Category::where('id', $request->category_id)->first();
+        $category                 = Category::where('id', $request->category_id)->first();
         $category->deleted_status = 1;
         $category->update();
         if ($category->deleted_status == 1) {
@@ -107,15 +109,17 @@ class CategoryController extends Controller
     /**
      * Get child categories
      *
+     * @param mixed $id
+     *
      * @return []
      */
     public function getChildCategories(Request $request, $id)
     {
         $categories = \App\Category::where('id', $id)->first();
-        $return = [];
+        $return     = [];
         if ($categories) {
             $return[] = [
-                'id' => $categories->id,
+                'id'    => $categories->id,
                 'title' => $categories->title,
             ];
 
@@ -128,6 +132,9 @@ class CategoryController extends Controller
     /**
      * Recursive child category
      *
+     * @param mixed $categories
+     * @param mixed $return
+     *
      * @return []
      */
     public function recursiveChildCat($categories, &$return = [])
@@ -135,7 +142,7 @@ class CategoryController extends Controller
         foreach ($categories->childs as $cat) {
             if ($cat->title != '') {
                 $return[] = [
-                    'id' => $cat->id,
+                    'id'    => $cat->id,
                     'title' => $cat->title,
                 ];
             }
@@ -145,7 +152,7 @@ class CategoryController extends Controller
 
     public function storeMultipleCategories(Request $request)
     {
-        $swi = $request->get('website_id');
+        $swi        = $request->get('website_id');
         $categories = $request->get('categories');
 
         // store website category
@@ -174,11 +181,11 @@ class CategoryController extends Controller
 
                 //Check if category
                 if ($case == 'single') {
-                    $data['id'] = $category->id;
-                    $data['level'] = 1;
-                    $data['name'] = ucwords($category->title);
+                    $data['id']       = $category->id;
+                    $data['level']    = 1;
+                    $data['name']     = ucwords($category->title);
                     $data['parentId'] = 0;
-                    $parentId = 0;
+                    $parentId         = 0;
 
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                         $categ = MagentoHelper::createCategory($parentId, $data, $swi);
@@ -186,10 +193,10 @@ class CategoryController extends Controller
                     if ($category) {
                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categ)->first();
                         if (empty($checkIfExist)) {
-                            $storeWebsiteCategory = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id = $category->id;
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->id;
                             $storeWebsiteCategory->store_website_id = $swi;
-                            $storeWebsiteCategory->remote_id = $categ;
+                            $storeWebsiteCategory->remote_id        = $categ;
                             $storeWebsiteCategory->save();
                         }
                     }
@@ -200,11 +207,11 @@ class CategoryController extends Controller
                     $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
                     //if parent remote null then send to magento first
                     if (empty($parentCategory)) {
-                        $data['id'] = $category->parent->id;
-                        $data['level'] = 1;
-                        $data['name'] = ucwords($category->parent->title);
+                        $data['id']       = $category->parent->id;
+                        $data['level']    = 1;
+                        $data['name']     = ucwords($category->parent->title);
                         $data['parentId'] = 0;
-                        $parentId = 0;
+                        $parentId         = 0;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                             $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
@@ -212,10 +219,10 @@ class CategoryController extends Controller
                         if ($parentCategoryDetails) {
                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
                             if (empty($checkIfExist)) {
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
+                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                $storeWebsiteCategory->category_id      = $category->id;
                                 $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $parentCategoryDetails;
+                                $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
                                 $storeWebsiteCategory->save();
                             }
                         }
@@ -225,9 +232,9 @@ class CategoryController extends Controller
                         $parentRemoteId = $parentCategory->remote_id;
                     }
 
-                    $data['id'] = $category->id;
-                    $data['level'] = 2;
-                    $data['name'] = ucwords($category->title);
+                    $data['id']       = $category->id;
+                    $data['level']    = 2;
+                    $data['name']     = ucwords($category->title);
                     $data['parentId'] = $parentRemoteId;
 
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
@@ -237,10 +244,10 @@ class CategoryController extends Controller
                     if ($categoryDetail) {
                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
                         if (empty($checkIfExist)) {
-                            $storeWebsiteCategory = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id = $category->id;
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->id;
                             $storeWebsiteCategory->store_website_id = $swi;
-                            $storeWebsiteCategory->remote_id = $categoryDetail;
+                            $storeWebsiteCategory->remote_id        = $categoryDetail;
                             $storeWebsiteCategory->save();
                         }
                     }
@@ -254,15 +261,15 @@ class CategoryController extends Controller
                     //Check if parent had remote id
                     if (empty($parentCategory)) {
                         //check for grandparent
-                        $grandCategory = Category::find($category->parent->id);
+                        $grandCategory       = Category::find($category->parent->id);
                         $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
 
                         if (empty($grandCategoryDetail)) {
-                            $data['id'] = $grandCategory->parent->id;
-                            $data['level'] = 1;
-                            $data['name'] = ucwords($grandCategory->parent->title);
+                            $data['id']       = $grandCategory->parent->id;
+                            $data['level']    = 1;
+                            $data['name']     = ucwords($grandCategory->parent->title);
                             $data['parentId'] = 0;
-                            $parentId = 0;
+                            $parentId         = 0;
 
                             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                 $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
@@ -271,10 +278,10 @@ class CategoryController extends Controller
                             if ($grandCategoryDetails) {
                                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
                                 if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id = $category->parent->id;
+                                    $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                    $storeWebsiteCategory->category_id      = $category->parent->id;
                                     $storeWebsiteCategory->store_website_id = $swi;
-                                    $storeWebsiteCategory->remote_id = $grandCategoryDetails;
+                                    $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
                                     $storeWebsiteCategory->save();
                                 }
                             }
@@ -285,11 +292,11 @@ class CategoryController extends Controller
                         }
                         //Search for child category
 
-                        $data['id'] = $category->parent->id;
-                        $data['level'] = 2;
-                        $data['name'] = ucwords($category->parent->title);
+                        $data['id']       = $category->parent->id;
+                        $data['level']    = 2;
+                        $data['name']     = ucwords($category->parent->title);
                         $data['parentId'] = $grandRemoteId;
-                        $parentId = $grandRemoteId;
+                        $parentId         = $grandRemoteId;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                             $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
@@ -297,16 +304,16 @@ class CategoryController extends Controller
 
                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->where('remote_id', $childCategoryDetails)->first();
                         if (empty($checkIfExist)) {
-                            $storeWebsiteCategory = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id = $category->parent->id;
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->parent->id;
                             $storeWebsiteCategory->store_website_id = $swi;
-                            $storeWebsiteCategory->remote_id = $childCategoryDetails;
+                            $storeWebsiteCategory->remote_id        = $childCategoryDetails;
                             $storeWebsiteCategory->save();
                         }
 
-                        $data['id'] = $category->id;
-                        $data['level'] = 3;
-                        $data['name'] = ucwords($category->title);
+                        $data['id']       = $category->id;
+                        $data['level']    = 3;
+                        $data['name']     = ucwords($category->title);
                         $data['parentId'] = $childCategoryDetails;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
@@ -316,10 +323,10 @@ class CategoryController extends Controller
                         if ($categoryDetail) {
                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
                             if (empty($checkIfExist)) {
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
+                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                $storeWebsiteCategory->category_id      = $category->id;
                                 $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $categoryDetail;
+                                $storeWebsiteCategory->remote_id        = $categoryDetail;
                                 $storeWebsiteCategory->save();
                             }
                         }
@@ -338,7 +345,7 @@ class CategoryController extends Controller
         ini_set('max_execution_time', 1500);
         $title = 'Store Category';
 
-        $allCategories = Category::query()->get();
+        $allCategories   = Category::query()->get();
         $allStoreWebsite = StoreWebsite::query()->get();
 
         $categories = Category::query();
@@ -366,7 +373,7 @@ class CategoryController extends Controller
                                         ->get();
         } else {
             $allStoreWebsite_data = StoreWebsite::query()->first();
-            $storeWebsite = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id', $allStoreWebsite_data->id)->get();
+            $storeWebsite         = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id', $allStoreWebsite_data->id)->get();
         }
 
         $result = DB::table('store_websites as SW')
@@ -379,12 +386,12 @@ class CategoryController extends Controller
 
         $resultSw = [];
         foreach ($result as $row) {
-            $data[$row->sw_id]['sw_id'] = $row->sw_id;
-            $data[$row->sw_id]['sw_title'] = $row->sw_title;
-            $data[$row->sw_id]['category'][$row->c_id]['id'] = $row->c_id;
-            $data[$row->sw_id]['category'][$row->c_id]['title'] = $row->c_title;
+            $data[$row->sw_id]['sw_id']                               = $row->sw_id;
+            $data[$row->sw_id]['sw_title']                            = $row->sw_title;
+            $data[$row->sw_id]['category'][$row->c_id]['id']          = $row->c_id;
+            $data[$row->sw_id]['category'][$row->c_id]['title']       = $row->c_title;
             $data[$row->sw_id]['category'][$row->c_id]['category_id'] = $row->category_id;
-            $data[$row->sw_id]['category'][$row->c_id]['remote_id'] = $row->remote_id;
+            $data[$row->sw_id]['category'][$row->c_id]['remote_id']   = $row->remote_id;
 
             $resultSw = $data;
         }
@@ -393,7 +400,7 @@ class CategoryController extends Controller
 
         $dynamicColumnsToShowb = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns           = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
         }
 
@@ -405,15 +412,15 @@ class CategoryController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'store-website-category')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'store-website-category';
-            $column->column_name = json_encode($request->column_data);
+            $column->column_name  = json_encode($request->column_data);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'store-website-category';
-            $column->column_name = json_encode($request->column_data);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_data);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -422,19 +429,19 @@ class CategoryController extends Controller
 
     public function logadd($log_case_id, $category_id, $store_id, $log_detail, $log_msg)
     {
-        $logadd = new LogStoreWebsiteCategory();
+        $logadd              = new LogStoreWebsiteCategory();
         $logadd->log_case_id = $log_case_id;
         $logadd->category_id = $category_id;
-        $logadd->store_id = $store_id;
-        $logadd->log_detail = $log_detail;
-        $logadd->log_msg = $log_msg;
+        $logadd->store_id    = $store_id;
+        $logadd->log_detail  = $log_detail;
+        $logadd->log_msg     = $log_msg;
         $logadd->save();
     }
 
     public function categoryHistory(request $request)
     {
-        $category_id = $request->input('category_id');
-        $html = '';
+        $category_id  = $request->input('category_id');
+        $html         = '';
         $categoryData = LogStoreWebsiteCategory::where('category_id', $category_id)
             ->orderBy('id', 'ASC')
             ->get();
@@ -472,9 +479,9 @@ class CategoryController extends Controller
 
     public function webiteCategoryUserHistory(request $request)
     {
-        $store_id = $request->input('store_id');
-        $category_id = $request->input('category_id');
-        $html = '';
+        $store_id     = $request->input('store_id');
+        $category_id  = $request->input('category_id');
+        $html         = '';
         $categoryData = StoreWebsiteCategoryUserHistory::where('category_id', $category_id)->where('store_id', $store_id)
             ->leftJoin('users', 'users.id', '=', 'store_website_category_user_history.user_id')
             ->orderBy('store_website_category_user_history.id', 'ASC')
@@ -516,7 +523,7 @@ class CategoryController extends Controller
     public function saveStoreCategory(Request $request)
     {
         $storeId = $request->store;
-        $catId = $request->category_id;
+        $catId   = $request->category_id;
 
         if ($catId != null && $storeId != null) {
             $this->logadd('#1', $catId, $storeId, "$catId,$storeId", 'Category ID and Store id are not null.');
@@ -543,11 +550,11 @@ class CategoryController extends Controller
                     //Check if category
                     if ($case == 'single') {
                         $this->logadd('#5', $catId, $website->id, $case, 'Check single case is exit');
-                        $data['id'] = $category->id;
-                        $data['level'] = 1;
-                        $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                        $data['id']       = $category->id;
+                        $data['level']    = 1;
+                        $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
                         $data['parentId'] = 0;
-                        $parentId = 0;
+                        $parentId         = 0;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                             $categ = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -574,11 +581,11 @@ class CategoryController extends Controller
                         $parentCategory = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
                         //if parent remote null then send to magento first as first level category
                         if (empty($parentCategory)) {
-                            $data['id'] = $category->id;
-                            $data['level'] = 1;
-                            $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                            $data['id']       = $category->id;
+                            $data['level']    = 1;
+                            $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
                             $data['parentId'] = 0;
-                            $parentId = 0;
+                            $parentId         = 0;
 
                             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                 $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -603,9 +610,9 @@ class CategoryController extends Controller
                             $parentRemoteId = $parentCategory->remote_id;
                         }
 
-                        $data['id'] = $category->id;
-                        $data['level'] = 2;
-                        $data['name'] = ucwords($category->title);
+                        $data['id']       = $category->id;
+                        $data['level']    = 2;
+                        $data['name']     = ucwords($category->title);
                         $data['parentId'] = $parentRemoteId;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
@@ -637,15 +644,15 @@ class CategoryController extends Controller
                         //Check if parent had remote id
                         if (empty($parentCategory)) {
                             //check for grandparent
-                            $grandCategory = Category::find($category->parent->id);
+                            $grandCategory       = Category::find($category->parent->id);
                             $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
 
                             if (empty($grandCategoryDetail)) {
-                                $data['id'] = $category->id;
-                                $data['level'] = 1;
-                                $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                                $data['id']       = $category->id;
+                                $data['level']    = 1;
+                                $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
                                 $data['parentId'] = 0;
-                                $parentId = 0;
+                                $parentId         = 0;
 
                                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                     $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -672,11 +679,11 @@ class CategoryController extends Controller
                             }
                             //Search for child category
 
-                            $data['id'] = $category->parent->id;
-                            $data['level'] = 2;
-                            $data['name'] = ucwords($category->parent->title);
+                            $data['id']       = $category->parent->id;
+                            $data['level']    = 2;
+                            $data['name']     = ucwords($category->parent->title);
                             $data['parentId'] = $grandRemoteId;
-                            $parentId = $grandRemoteId;
+                            $parentId         = $grandRemoteId;
 
                             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                 $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -695,9 +702,9 @@ class CategoryController extends Controller
                                 $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
                             }
 
-                            $data['id'] = $category->id;
-                            $data['level'] = 3;
-                            $data['name'] = ucwords($category->title);
+                            $data['id']       = $category->id;
+                            $data['level']    = 3;
+                            $data['name']     = ucwords($category->title);
                             $data['parentId'] = $childCategoryDetails;
 
                             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
@@ -729,21 +736,21 @@ class CategoryController extends Controller
                         //Check if parent had remote id
                         if (empty($parentCategory)) {
                             //check for grandparent
-                            $grandCategory = Category::find($category->parent->id);
+                            $grandCategory       = Category::find($category->parent->id);
                             $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
 
                             //Check if parent had remote id
                             if (empty($grandCategoryDetail)) {
                                 //check for grandparent
-                                $grandParentCategory = Category::find($category->parent->ParentC->id);
+                                $grandParentCategory       = Category::find($category->parent->ParentC->id);
                                 $grandParentCategoryDetail = StoreWebsiteCategory::where('store_website_id', $website->id)->where('category_id', $grandParentCategory->parent->id)->whereNotNull('remote_id')->first();
 
                                 if (empty($grandParentCategoryDetail)) {
-                                    $data['id'] = $category->id;
-                                    $data['level'] = 1;
-                                    $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                                    $data['id']       = $category->id;
+                                    $data['level']    = 1;
+                                    $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
                                     $data['parentId'] = 0;
-                                    $parentId = 0;
+                                    $parentId         = 0;
 
                                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                         $grandParentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -770,11 +777,11 @@ class CategoryController extends Controller
                                 }
                                 //Search for child category
 
-                                $data['id'] = $category->parent->id;
-                                $data['level'] = 2;
-                                $data['name'] = ucwords($category->parent->title);
+                                $data['id']       = $category->parent->id;
+                                $data['level']    = 2;
+                                $data['name']     = ucwords($category->parent->title);
                                 $data['parentId'] = $grandParentRemoteId;
-                                $parentId = $grandParentRemoteId;
+                                $parentId         = $grandParentRemoteId;
 
                                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                     $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -793,11 +800,11 @@ class CategoryController extends Controller
                                     $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
                                 }
 
-                                $data['id'] = $category->parent->id;
-                                $data['level'] = 3;
-                                $data['name'] = ucwords($category->parent->title);
+                                $data['id']       = $category->parent->id;
+                                $data['level']    = 3;
+                                $data['name']     = ucwords($category->parent->title);
                                 $data['parentId'] = $grandCategoryDetails;
-                                $parentId = $grandCategoryDetails;
+                                $parentId         = $grandCategoryDetails;
 
                                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                     $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $website->id);
@@ -816,9 +823,9 @@ class CategoryController extends Controller
                                     $this->logadd('#23', $catId, $website->id, $category->parent->id, 'If Category parent id is exit then category stored.');
                                 }
 
-                                $data['id'] = $category->id;
-                                $data['level'] = 4;
-                                $data['name'] = ucwords($category->title);
+                                $data['id']       = $category->id;
+                                $data['level']    = 4;
+                                $data['name']     = ucwords($category->title);
                                 $data['parentId'] = $childCategoryDetails;
 
                                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
@@ -847,11 +854,11 @@ class CategoryController extends Controller
             }
             $storeWebsites = [];
             foreach ($websites as $website) {
-                $storeWebsites[] = $website->id;
-                $swc_user_history = new StoreWebsiteCategoryUserHistory();
-                $swc_user_history->store_id = $website->id;
+                $storeWebsites[]               = $website->id;
+                $swc_user_history              = new StoreWebsiteCategoryUserHistory();
+                $swc_user_history->store_id    = $website->id;
                 $swc_user_history->category_id = $catId;
-                $swc_user_history->user_id = Auth::user()->id;
+                $swc_user_history->user_id     = Auth::user()->id;
 
                 $msg = '';
                 if ($request->check == 0) {
@@ -883,10 +890,10 @@ class CategoryController extends Controller
 
     public function createStoreWebsiteCategory($category_id, $store_website_id, $remote_id)
     {
-        $storeWebsiteCategory = new StoreWebsiteCategory();
-        $storeWebsiteCategory->category_id = $category_id;
+        $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        $storeWebsiteCategory->category_id      = $category_id;
         $storeWebsiteCategory->store_website_id = $store_website_id;
-        $storeWebsiteCategory->remote_id = $remote_id;
+        $storeWebsiteCategory->remote_id        = $remote_id;
         $storeWebsiteCategory->save();
     }
 }

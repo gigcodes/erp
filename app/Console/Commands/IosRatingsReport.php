@@ -45,65 +45,65 @@ class IosRatingsReport extends Command
         try {
             $username = env('APPFIGURE_USER_EMAIL');
             $password = env('APPFIGURE_USER_PASS');
-            $key = base64_encode($username . ':' . $password);
+            $key      = base64_encode($username . ':' . $password);
 
-            $group_by = 'network';
+            $group_by   = 'network';
             $start_date = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
-            $end_date = date('Y-m-d');
+            $end_date   = date('Y-m-d');
             $product_id = env('APPFIGURE_PRODUCT_ID');
-            $ckey = env('APPFIGURE_CLIENT_KEY');
+            $ckey       = env('APPFIGURE_CLIENT_KEY');
 
             $array_app_name = explode(',', env('APPFIGURE_APP_NAME'));
-            $i = 0;
-            $array_app = explode(',', env('APPFIGURE_PRODUCT_ID'));
+            $i              = 0;
+            $array_app      = explode(',', env('APPFIGURE_PRODUCT_ID'));
             foreach ($array_app as $app_value) {
                 //Usage Report
                 $curl = curl_init();
-                $url = "https://api.appfigures.com/v2/reports/ratings?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,";
+                $url  = "https://api.appfigures.com/v2/reports/ratings?group_by=' . $group_by . '&start_date=' . $start_date . '&end_date=' . $end_date . '&products=' . $app_value,";
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $url,
+                    CURLOPT_URL            => $url,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 0,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'GET',
+                    CURLOPT_HTTPHEADER     => [
                         'X-Client-Key:' . $ckey,
                         'Authorization: Basic ' . $key,
                     ],
                 ]);
 
-                $result = curl_exec($curl);
+                $result   = curl_exec($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                $res = json_decode($result, true); //response decode
+                $res      = json_decode($result, true); //response decode
                 curl_close($curl);
 
                 LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($result), $httpcode, \App\Console\Commands\IosRatingsReport::class, 'handle');
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'CURL api was called.']);
 
                 if ($res) {
-                    $r = new AppRatingsReport();
+                    $r             = new AppRatingsReport();
                     $r->product_id = $array_app_name[$i] . ' [' . $product_id . ']';
-                    $r->group_by = $group_by;
+                    $r->group_by   = $group_by;
                     $r->start_date = $start_date;
-                    $r->end_date = $end_date;
+                    $r->end_date   = $end_date;
 
-                    $r->breakdown = implode(',', $res['apple:ios']['breakdown']);
-                    $r->new = implode(',', $res['apple:ios']['new']);
-                    $r->average = $res['apple:ios']['average'];
-                    $r->total = $res['apple:ios']['total'];
-                    $r->new_average = $res['apple:ios']['new_average'];
-                    $r->new_total = $res['apple:ios']['new_total'];
-                    $r->positive = $res['apple:ios']['positive'];
-                    $r->negative = $res['apple:ios']['negative'];
-                    $r->neutral = $res['apple:ios']['neutral'];
+                    $r->breakdown    = implode(',', $res['apple:ios']['breakdown']);
+                    $r->new          = implode(',', $res['apple:ios']['new']);
+                    $r->average      = $res['apple:ios']['average'];
+                    $r->total        = $res['apple:ios']['total'];
+                    $r->new_average  = $res['apple:ios']['new_average'];
+                    $r->new_total    = $res['apple:ios']['new_total'];
+                    $r->positive     = $res['apple:ios']['positive'];
+                    $r->negative     = $res['apple:ios']['negative'];
+                    $r->neutral      = $res['apple:ios']['neutral'];
                     $r->new_positive = $res['apple:ios']['new_positive'];
                     $r->new_negative = $res['apple:ios']['new_negative'];
-                    $r->new_neutral = $res['apple:ios']['new_neutral'];
-                    $r->storefront = $res['apple:ios']['storefront'];
-                    $r->store = $res['apple:ios']['store'];
+                    $r->new_neutral  = $res['apple:ios']['new_neutral'];
+                    $r->storefront   = $res['apple:ios']['storefront'];
+                    $r->store        = $res['apple:ios']['store'];
                     $r->save();
                 }
                 $i += 1;

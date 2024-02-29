@@ -19,6 +19,8 @@ class InstaSchedulePost implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param protected $post
+     *
      * @return void
      */
     public function __construct(protected $post)
@@ -34,8 +36,8 @@ class InstaSchedulePost implements ShouldQueue
     {
         try {
             $media = json_decode($this->post->ig, true);
-            $ig = [
-                'media' => $media['media'],
+            $ig    = [
+                'media'    => $media['media'],
                 'location' => $media['location'],
             ];
             $this->post->ig = $ig;

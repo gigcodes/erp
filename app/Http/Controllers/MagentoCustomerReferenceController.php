@@ -29,29 +29,29 @@ class MagentoCustomerReferenceController extends Controller
     public function createOrder(Request $request)
     {
         $bodyContent = $request->getContent();
-        $order = json_decode($bodyContent);
-        $lang_code = $order->lang_code ?? null;
+        $order       = json_decode($bodyContent);
+        $lang_code   = $order->lang_code ?? null;
         if (empty($bodyContent)) {
             $message = $this->generate_erp_response('magento.order.failed.validation', 0, $default = 'Invalid data', $lang_code);
 
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => $message,
             ]);
         }
         $order = json_decode($bodyContent);
 
-        $newArray = [];
+        $newArray            = [];
         $newArray['items'][] = $order;
-        $order = json_decode(json_encode($newArray));
+        $order               = json_decode(json_encode($newArray));
 
-        $website = StoreWebsite::where('website', $order->items[0]->website)->first();
+        $website     = StoreWebsite::where('website', $order->items[0]->website)->first();
         $orderCreate = MagentoOrderHandleHelper::createOrder($order, $website);
         if ($orderCreate == true) {
             $message = $this->generate_erp_response('magento.order.success', 0, $default = 'Order create successfully', $lang_code);
 
             return response()->json([
-                'status' => true,
+                'status'  => true,
                 'message' => $message,
             ]);
         }
@@ -59,7 +59,7 @@ class MagentoCustomerReferenceController extends Controller
         $message = $this->generate_erp_response('magento.order.failed', 0, $default = 'Something went wrong, Please try again', $lang_code);
 
         return response()->json([
-            'status' => false,
+            'status'  => false,
             'message' => $message,
         ]);
     }
@@ -114,13 +114,13 @@ class MagentoCustomerReferenceController extends Controller
             return response()->json(['message' => $message], 403);
         }
 
-        $name = $request->name;
-        $email = $request->email;
-        $website = $request->website;
-        $phone = null;
-        $dob = null;
-        $store_website_id = null;
-        $platform_id = null;
+        $name                = $request->name;
+        $email               = $request->email;
+        $website             = $request->website;
+        $phone               = null;
+        $dob                 = null;
+        $store_website_id    = null;
+        $platform_id         = null;
         $wedding_anniversery = null;
         if ($request->phone) {
             $phone = $request->phone;
@@ -144,13 +144,13 @@ class MagentoCustomerReferenceController extends Controller
 
         $reference = Customer::where('email', $email)->where('store_website_id', $store_website_id)->first();
         if (empty($reference)) {
-            $reference = new Customer();
-            $reference->name = $name;
-            $reference->phone = $phone;
-            $reference->email = $email;
-            $reference->store_website_id = $store_website_id;
-            $reference->platform_id = $platform_id;
-            $reference->dob = $dob;
+            $reference                      = new Customer();
+            $reference->name                = $name;
+            $reference->phone               = $phone;
+            $reference->email               = $email;
+            $reference->store_website_id    = $store_website_id;
+            $reference->platform_id         = $platform_id;
+            $reference->dob                 = $dob;
             $reference->wedding_anniversery = $wedding_anniversery;
             $reference->save();
 
@@ -161,12 +161,12 @@ class MagentoCustomerReferenceController extends Controller
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
             }
         } else {
-            $reference->name = $name;
-            $reference->phone = $phone;
-            $reference->email = $email;
-            $reference->store_website_id = $store_website_id;
-            $reference->platform_id = $platform_id;
-            $reference->dob = $dob;
+            $reference->name                = $name;
+            $reference->phone               = $phone;
+            $reference->email               = $email;
+            $reference->store_website_id    = $store_website_id;
+            $reference->platform_id         = $platform_id;
+            $reference->dob                 = $dob;
             $reference->wedding_anniversery = $wedding_anniversery;
             $reference->save();
         }

@@ -13,8 +13,8 @@ class DBQueryController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        $tables = DB::select('show tables');
+        $user        = Auth::user();
+        $tables      = DB::select('show tables');
         $table_array = [];
         foreach ($tables as $tab) {
             $table_array[] = array_values((array) $tab)[0];
@@ -22,9 +22,9 @@ class DBQueryController extends Controller
 
         //START - Purpose : Get Command List - DEVTASK-19941
         $command_list_arr = [];
-        $i = 0;
+        $i                = 0;
         foreach (\Artisan::all() as $key => $command) {
-            $command_list_arr[$i]['Name'] = $command->getName();
+            $command_list_arr[$i]['Name']        = $command->getName();
             $command_list_arr[$i]['Description'] = $command->getDescription();
             $i++;
         }
@@ -39,30 +39,30 @@ class DBQueryController extends Controller
     {
         try {
             $manual_command_name = '';
-            $command_name = '';
+            $command_name        = '';
 
             if ($request->manual_command_name != '') {
                 $manual_command_name = $request->manual_command_name;
 
                 $params = [
                     'command_name' => $manual_command_name,
-                    'user_id' => Auth::id(),
-                    'status' => 0,
+                    'user_id'      => Auth::id(),
+                    'status'       => 0,
                 ];
             } else {
                 $command_name = $request->command_name;
 
                 $params = [
                     'command_name' => $command_name,
-                    'user_id' => Auth::id(),
-                    'status' => 0,
+                    'user_id'      => Auth::id(),
+                    'status'       => 0,
                 ];
             }
 
             $store = CommandExecutionHistory::create($params);
 
             $store_user_id = $store->user_id;
-            $store_id = $store->id;
+            $store_id      = $store->id;
 
             CommandExecution::dispatch($command_name, $manual_command_name, $store_user_id, $store_id)->onQueue('command_execution');
 
@@ -96,14 +96,14 @@ class DBQueryController extends Controller
     public function columns(Request $request)
     {
         $column_array = [];
-        $columns = DB::select('DESCRIBE ' . array_keys($request->all())[0] . ';');
+        $columns      = DB::select('DESCRIBE ' . array_keys($request->all())[0] . ';');
         foreach ($columns as $col) {
             $column_array[] = $col;
         }
 
         return response()->json([
             'status' => true,
-            'data' => $column_array,
+            'data'   => $column_array,
         ]);
     }
 
@@ -111,7 +111,7 @@ class DBQueryController extends Controller
     {
         $sql_query = 'UPDATE ' . $request->table_name . ' SET ';
 
-        $data = $request->all();
+        $data              = $request->all();
         $where_query_exist = 0;
         foreach ($data as $key => $val) {
             if (strpos($key, 'update_') !== false && in_array(str_replace('update_', '', $key), $request->columns)) {
@@ -132,8 +132,8 @@ class DBQueryController extends Controller
 
         return response()->json([
             'status' => true,
-            'sql' => $sql_query,
-            'data' => $request->all(),
+            'sql'    => $sql_query,
+            'data'   => $request->all(),
         ]);
     }
 
@@ -141,7 +141,7 @@ class DBQueryController extends Controller
     {
         $sql_query = 'DELETE from ' . $request->table_name;
 
-        $data = $request->all();
+        $data              = $request->all();
         $where_query_exist = 0;
         $sql_query .= ' WHERE ';
         $sql_query = str_replace(',  WHERE', ' WHERE', $sql_query);
@@ -157,8 +157,8 @@ class DBQueryController extends Controller
 
         return response()->json([
             'status' => true,
-            'sql' => $sql_query,
-            'data' => $request->all(),
+            'sql'    => $sql_query,
+            'data'   => $request->all(),
         ]);
     }
 
@@ -172,7 +172,7 @@ class DBQueryController extends Controller
 
         return response()->json([
             'status' => isset($error) ? false : true,
-            'error' => $error ?? '',
+            'error'  => $error ?? '',
         ]);
     }
 
@@ -186,7 +186,7 @@ class DBQueryController extends Controller
 
         return response()->json([
             'status' => isset($error) ? false : true,
-            'error' => $error ?? '',
+            'error'  => $error ?? '',
         ]);
     }
 }

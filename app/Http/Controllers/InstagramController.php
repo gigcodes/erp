@@ -26,6 +26,7 @@ class InstagramController extends Controller
      *
      * //     * @param  Instagram  $instagram
      * //     * @param  DirectMessage  $messages
+     * @param privateFacebook $facebook
      */
     public function __construct(private Facebook $facebook)
     {
@@ -33,7 +34,7 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     *  Simply returns the count of automated messages, accounts, total influencers and other details as given in below variables
+     *                                                                              Simply returns the count of automated messages, accounts, total influencers and other details as given in below variables
      */
     public function index()
     {
@@ -41,58 +42,63 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * This method gives the list of posts
-     * that is in Instagram account
+     *                                                                        This method gives the list of posts
+     *                                                                        that is in Instagram account
      */
     public function showPosts(Request $request)
     {
     }
 
     /**
-     * @param  Request  $request
-     * This method will store photo to
-     * Instagram Business account
+     * @param Request $request
+     *                         This method will store photo to
+     *                         Instagram Business account
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'first_name' => 'required',
-            'last_name' => 'required',
-            'password' => 'required',
+            'last_name'  => 'required',
+            'password'   => 'required',
         ]);
 
-        $account = new Account();
-        $account->first_name = $request->get('first_name');
-        $account->last_name = $request->get('last_name');
-        $account->password = $request->get('password');
-        $account->email = $request->get('email');
-        $account->broadcast = $request->get('broadcast') == 'on' ? 1 : 0;
+        $account                 = new Account();
+        $account->first_name     = $request->get('first_name');
+        $account->last_name      = $request->get('last_name');
+        $account->password       = $request->get('password');
+        $account->email          = $request->get('email');
+        $account->broadcast      = $request->get('broadcast') == 'on' ? 1 : 0;
         $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
-        $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
-        $account->dob = '1996-02-02';
-        $account->gender = $request->get('gender');
-        $account->country = $request->get('country');
+        $account->bulk_comment   = $request->get('bulk_comments') == 'on' ? 1 : 0;
+        $account->dob            = '1996-02-02';
+        $account->gender         = $request->get('gender');
+        $account->country        = $request->get('country');
         $account->save();
 
         return redirect()->back()->with('message', 'Account added successfully!');
     }
 
     /**
+     * @param mixed $id
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * SHow account data
+     *                                                                              SHow account data
      */
     public function edit($id)
     {
-        $account = Account::findOrFail($id);
+        $account   = Account::findOrFail($id);
         $countries = TargetLocation::all();
 
         return view('instagram.am.edit-account', compact('account', 'countries'));
     }
 
     /**
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\RedirectResponse
-     * Delete an account by ID, this will come from Instagram module
+     *                                           Delete an account by ID, this will come from Instagram module
      */
     public function deleteAccount($id)
     {
@@ -106,26 +112,28 @@ class InstagramController extends Controller
     }
 
     /**
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\RedirectResponse
-     * Update the account details and status like first name, email, manual_comment, etc
+     *                                           Update the account details and status like first name, email, manual_comment, etc
      */
     public function update($id, Request $request)
     {
         $this->validate($request, [
             'last_name' => 'required',
-            'password' => 'required',
+            'password'  => 'required',
         ]);
 
-        $account = Account::findOrFail($id);
-        $account->first_name = $request->get('first_name');
-        $account->last_name = $request->get('last_name');
-        $account->password = $request->get('password');
-        $account->email = $request->get('email');
-        $account->broadcast = $request->get('broadcast') == 'on' ? 1 : 0;
+        $account                 = Account::findOrFail($id);
+        $account->first_name     = $request->get('first_name');
+        $account->last_name      = $request->get('last_name');
+        $account->password       = $request->get('password');
+        $account->email          = $request->get('email');
+        $account->broadcast      = $request->get('broadcast') == 'on' ? 1 : 0;
         $account->manual_comment = $request->get('manual_comments') == 'on' ? 1 : 0;
-        $account->bulk_comment = $request->get('bulk_comments') == 'on' ? 1 : 0;
-        $account->blocked = $request->get('blocked') == 'on' ? 1 : 0;
-        $account->country = $request->get('country');
+        $account->bulk_comment   = $request->get('bulk_comments') == 'on' ? 1 : 0;
+        $account->blocked        = $request->get('blocked') == 'on' ? 1 : 0;
+        $account->country        = $request->get('country');
         $account->save();
 
         return redirect()->back()->with('message', 'Account added successfully!');
@@ -133,7 +141,7 @@ class InstagramController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * get Instagram acomments for the post ID...
+     *                                       get Instagram acomments for the post ID...
      */
     public function getComments(Request $request)
     {
@@ -143,7 +151,7 @@ class InstagramController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws \Facebook\Exceptions\FacebookSDKException
-     * Post the comment to given post ID
+     *                                                   Post the comment to given post ID
      */
     public function postComment(Request $request)
     {
@@ -155,30 +163,30 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * This is the list of images to be posted
+     *                                                                              This is the list of images to be posted
      */
     public function showImagesToBePosted(Request $request)
     {
         $images = Image::where('status', 2);
 
         $selected_categories = 1;
-        $selected_brands = [];
-        $price = [0, 10000000];
+        $selected_brands     = [];
+        $price               = [0, 10000000];
 
         if ($request->has('category')) {
             $selected_categories = $request->get('category');
-            $categories = Category::whereIn('id', $selected_categories)->with('childs')->get();
+            $categories          = Category::whereIn('id', $selected_categories)->with('childs')->get();
         }
 
         if ($request->has('price')) {
-            $price = $request->get('price');
-            $price = explode(',', $price);
+            $price  = $request->get('price');
+            $price  = explode(',', $price);
             $images = $images->whereBetween('price', $price);
         }
 
         if ($request->has('brand')) {
             $selected_brands = $request->get('brand');
-            $images = $images->whereIn('brand', $selected_brands);
+            $images          = $images->whereIn('brand', $selected_brands);
         }
 
         $images = $images->orderBy('created_at', 'DESC')->paginate(25);
@@ -194,7 +202,7 @@ class InstagramController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * Posts the media to respective platforms, image_id is passed which exists in images table
+     *                                       Posts the media to respective platforms, image_id is passed which exists in images table
      */
     public function postMedia(Request $request)
     {
@@ -204,8 +212,8 @@ class InstagramController extends Controller
 
         if ($request->get('is_scheduled') === 'on') {
             $this->validate($request, [
-                'date' => 'required|date',
-                'hour' => 'required|numeric|min:0|max:23',
+                'date'   => 'required|date',
+                'hour'   => 'required|numeric|min:0|max:23',
                 'minute' => 'required|numeric|min:0|max:59',
             ]);
 
@@ -213,46 +221,46 @@ class InstagramController extends Controller
             $date = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
             $date = $date->toDateTimeString();
 
-            $image = Image::findOrFail($request->get('image_id'));
+            $image               = Image::findOrFail($request->get('image_id'));
             $image->is_scheduled = 1;
             $image->save();
 
-            $schedule = new ImageSchedule();
-            $schedule->image_id = $request->get('image_id');
-            $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-            $schedule->description = $request->get('description');
+            $schedule                = new ImageSchedule();
+            $schedule->image_id      = $request->get('image_id');
+            $schedule->facebook      = ($request->get('facebook') === 'on') ? 1 : 0;
+            $schedule->description   = $request->get('description');
             $schedule->scheduled_for = $date;
-            $schedule->status = 0;
+            $schedule->status        = 0;
             $schedule->save();
 
-            $scheduleGroup = new ScheduleGroup();
-            $scheduleGroup->images = [$request->get('image_id')];
+            $scheduleGroup                = new ScheduleGroup();
+            $scheduleGroup->images        = [$request->get('image_id')];
             $scheduleGroup->scheduled_for = $date;
-            $scheduleGroup->description = $request->get('description');
-            $scheduleGroup->status = 1;
+            $scheduleGroup->description   = $request->get('description');
+            $scheduleGroup->status        = 1;
             $scheduleGroup->save();
 
             return response()->json([
-                'status' => 'success',
+                'status'      => 'success',
                 'post_status' => $schedule->status,
-                'time' => $schedule->scheduled_for->diffForHumans(),
-                'posted_to' => [
+                'time'        => $schedule->scheduled_for->diffForHumans(),
+                'posted_to'   => [
                     'facebook' => $schedule->facebook,
                 ],
                 'message' => 'This post has been scheduled for post.',
             ]);
         }
 
-        $image = Image::findOrFail($request->get('image_id'));
+        $image               = Image::findOrFail($request->get('image_id'));
         $image->is_scheduled = 1;
         $image->save();
 
-        $schedule = new ImageSchedule();
-        $schedule->image_id = $request->get('image_id');
-        $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-        $schedule->description = $request->get('description');
+        $schedule                = new ImageSchedule();
+        $schedule->image_id      = $request->get('image_id');
+        $schedule->facebook      = ($request->get('facebook') === 'on') ? 1 : 0;
+        $schedule->description   = $request->get('description');
         $schedule->scheduled_for = date('Y-m-d');
-        $schedule->status = 0;
+        $schedule->status        = 0;
         $schedule->save();
 
         if ($request->get('facebook') === 'on') {
@@ -269,26 +277,28 @@ class InstagramController extends Controller
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'      => 'success',
             'post_status' => $schedule->status,
-            'time' => $schedule->scheduled_for->diffForHumans(),
-            'message' => 'This post has been scheduled for post.',
+            'time'        => $schedule->scheduled_for->diffForHumans(),
+            'message'     => 'This post has been scheduled for post.',
         ]);
     }
 
     /**
+     * @param mixed $schedule
+     *
      * @return \Illuminate\Http\JsonResponse
-     * Whenever you need to post the media which has been scheduled, we post using this method
+     *                                       Whenever you need to post the media which has been scheduled, we post using this method
      */
     public function postMediaNow($schedule)
     {
         $schedule = ScheduleGroup::findOrFail($schedule);
-        $images = $schedule->images->get()->all();
+        $images   = $schedule->images->get()->all();
 
         if ($images[0]->schedule->facebook) {
             $this->facebook->postMedia($images, $schedule->description);
             ImageSchedule::whereIn('image_id', $this->facebook->getImageIds())->update([
-                'status' => 1,
+                'status'        => 1,
                 'scheduled_for' => date('Y-m-d h:i:00'),
             ]);
         }
@@ -296,27 +306,27 @@ class InstagramController extends Controller
             //
         }
 
-        $schedule->status = 2;
+        $schedule->status        = 2;
         $schedule->scheduled_for = date('Y-m-d h:i:00');
         $schedule->save();
 
         return response()->json([
-            'status' => 'success',
+            'status'      => 'success',
             'post_status' => $schedule->status,
-            'time' => $schedule->scheduled_for->diffForHumans(),
-            'message' => 'This schedule has been posted successfully!.',
+            'time'        => $schedule->scheduled_for->diffForHumans(),
+            'message'     => 'This schedule has been posted successfully!.',
         ]);
     }
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * Show the images which are scheduled for posting
+     *                                                                              Show the images which are scheduled for posting
      */
     public function showSchedules(Request $request)
     {
         $imagesWithoutSchedules = Image::whereDoesntHave('schedule')->where('status', 2)->orderBy('created_at', 'DESC')->get();
-        $imagesWithSchedules = ScheduleGroup::where('status', '!=', 2)->get();
-        $postedImages = Image::whereHas('schedule', function ($query) {
+        $imagesWithSchedules    = ScheduleGroup::where('status', '!=', 2)->get();
+        $postedImages           = Image::whereHas('schedule', function ($query) {
             $query->where('status', 1);
         })->orderBy('created_at', 'DESC')->get();
 
@@ -325,19 +335,19 @@ class InstagramController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * All the scheduled images which has not been posted yet
+     *                                       All the scheduled images which has not been posted yet
      */
     public function getScheduledEvents()
     {
         $imagesWithSchedules = ScheduleGroup::where('status', 1)->get()->toArray();
         $imagesWithSchedules = array_map(function ($item) {
             return [
-                'id' => $item['id'],
-                'title' => substr($item['description'], 0, 500) . '...',
-                'start' => $item['scheduled_for'],
+                'id'          => $item['id'],
+                'title'       => substr($item['description'], 0, 500) . '...',
+                'start'       => $item['scheduled_for'],
                 'image_names' => array_map(function ($img) {
                     return [
-                        'id' => $img['id'],
+                        'id'   => $img['id'],
                         'name' => $img['filename'] ? asset('uploads/social-media') . '/' . $img['filename'] : 'https://lorempixel.com/555/300/black',
                     ];
                 }, $item['images']->get(['id', 'filename'])->toArray()),
@@ -349,38 +359,38 @@ class InstagramController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
-     * This method will post the schedule
+     *                                                                         This method will post the schedule
      */
     public function postSchedules(Request $request)
     {
         $this->validate($request, [
             'description' => 'required',
-            'date' => 'required|date',
-            'hour' => 'required|numeric|min:0|max:23',
-            'minute' => 'required|numeric|min:0|max:59',
+            'date'        => 'required|date',
+            'hour'        => 'required|numeric|min:0|max:23',
+            'minute'      => 'required|numeric|min:0|max:59',
         ]);
 
-        $images = $request->get('images') ?? [];
+        $images       = $request->get('images') ?? [];
         $descriptions = $request->get('description');
-        $date = explode('-', $request->get('date'));
-        $date = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
-        $date = $date->toDateTimeString();
+        $date         = explode('-', $request->get('date'));
+        $date         = Carbon::create($date[0], $date[1], $date[2], $request->get('hour'), $request->get('minute'), 0);
+        $date         = $date->toDateTimeString();
 
         foreach ($images as $image) {
-            $schedule = new ImageSchedule();
-            $schedule->image_id = $image;
-            $schedule->facebook = ($request->get('facebook') === 'on') ? 1 : 0;
-            $schedule->description = $descriptions[$image] ?? '';
+            $schedule                = new ImageSchedule();
+            $schedule->image_id      = $image;
+            $schedule->facebook      = ($request->get('facebook') === 'on') ? 1 : 0;
+            $schedule->description   = $descriptions[$image] ?? '';
             $schedule->scheduled_for = $date;
-            $schedule->status = 0;
+            $schedule->status        = 0;
             $schedule->save();
         }
 
-        $scheduleGroup = new ScheduleGroup();
-        $scheduleGroup->images = $images;
-        $scheduleGroup->description = $request->get('caption') ?? '';
+        $scheduleGroup                = new ScheduleGroup();
+        $scheduleGroup->images        = $images;
+        $scheduleGroup->description   = $request->get('caption') ?? '';
         $scheduleGroup->scheduled_for = $date;
-        $scheduleGroup->status = 1;
+        $scheduleGroup->status        = 1;
         $scheduleGroup->save();
 
         if ($request->isXmlHttpRequest()) {
@@ -393,8 +403,10 @@ class InstagramController extends Controller
     }
 
     /**
+     * @param mixed $schedule
+     *
      * @return \Illuminate\Http\JsonResponse
-     * Cancel the schedule by simply deleting it
+     *                                       Cancel the schedule by simply deleting it
      */
     public function cancelSchedule($schedule)
     {
@@ -410,7 +422,7 @@ class InstagramController extends Controller
         $schedule->delete();
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'This schedule has been deleted successfully!.',
         ]);
     }
@@ -433,16 +445,18 @@ class InstagramController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $thread
      */
     /**
      * @return \Illuminate\Http\JsonResponse
-     * Get the Instragram message thread..
+     *                                       Get the Instragram message thread..
      */
     public function getThread($thread)
     {
-        $thread = $this->messages->getThread($thread)->asArray();
-        $thread = $thread['thread'];
-        $currentUserId = $this->messages->getCurrentUserId();
+        $thread                 = $this->messages->getThread($thread)->asArray();
+        $thread                 = $thread['thread'];
+        $currentUserId          = $this->messages->getCurrentUserId();
         $threadJson['messages'] = array_map(function ($item) use ($currentUserId) {
             $text = '';
             if ($item['item_type'] == 'text') {
@@ -454,16 +468,16 @@ class InstagramController extends Controller
             }
 
             return [
-                'id' => $item['item_id'],
-                'text' => $text,
+                'id'        => $item['item_id'],
+                'text'      => $text,
                 'item_type' => $item['item_type'],
-                'type' => ($item['user_id'] === $currentUserId) ? 'sent' : 'received',
+                'type'      => ($item['user_id'] === $currentUserId) ? 'sent' : 'received',
             ];
         }, $thread['items']);
 
         $threadJson['profile_picture'] = $thread['users'][0]['profile_pic_url'];
-        $threadJson['username'] = $thread['users'][0]['username'];
-        $threadJson['name'] = $thread['users'][0]['full_name'];
+        $threadJson['username']        = $thread['users'][0]['username'];
+        $threadJson['name']            = $thread['users'][0]['full_name'];
 
         return response()->json($threadJson);
     }
@@ -486,11 +500,13 @@ class InstagramController extends Controller
      *          type="string"
      *      ),
      * )
+     *
+     * @param mixed $thread
      */
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * Reply to the Instagram thread
+     *                                       Reply to the Instagram thread
      */
     public function replyToThread($thread, Request $request)
     {
@@ -504,8 +520,10 @@ class InstagramController extends Controller
     }
 
     /**
+     * @param mixed $scheduleId
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * Simply view the edit form which can be edited
+     *                                                                              Simply view the edit form which can be edited
      */
     public function editSchedule($scheduleId)
     {
@@ -515,8 +533,10 @@ class InstagramController extends Controller
     }
 
     /**
+     * @param mixed $scheduleId
+     *
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View|mixed
-     * Attach a media to the schedule ID
+     *                                                                                                                Attach a media to the schedule ID
      */
     public function attachMedia(Request $request, $scheduleId)
     {
@@ -525,24 +545,24 @@ class InstagramController extends Controller
         if ($request->has('save')) {
             $selectedImages = $request->get('images') ?? [];
             $selectedImages = Product::whereIn('id', $selectedImages)->get();
-            $imagesIds = [];
+            $imagesIds      = [];
 
             // create schedile by looping through the selected images
             foreach ($selectedImages as $selectedImage) {
-                $imageUrl = explode('/', $selectedImage->imageurl);
-                $image = new Image();
-                $image->brand = $selectedImage->brand;
-                $image->filename = $imageUrl[count($imageUrl) - 1];
+                $imageUrl            = explode('/', $selectedImage->imageurl);
+                $image               = new Image();
+                $image->brand        = $selectedImage->brand;
+                $image->filename     = $imageUrl[count($imageUrl) - 1];
                 $image->is_scheduled = 1;
-                $image->status = 2;
+                $image->status       = 2;
                 $image->save();
 
-                $is = new ImageSchedule();
-                $is->image_id = $image->id;
-                $is->description = 'Auto Scheduled';
+                $is                = new ImageSchedule();
+                $is->image_id      = $image->id;
+                $is->description   = 'Auto Scheduled';
                 $is->scheduled_for = $schedule->scheduled_for;
-                $is->facebook = 1;
-                $is->instagram = 0;
+                $is->facebook      = 1;
+                $is->instagram     = 0;
                 $is->save();
 
                 $imagesIds[] = $image->id;
@@ -564,8 +584,10 @@ class InstagramController extends Controller
     }
 
     /**
+     * @param mixed $scheduleId
+     *
      * @return \Illuminate\Http\RedirectResponse
-     * Update the schedule
+     *                                           Update the schedule
      */
     public function updateSchedule($scheduleId, Request $request)
     {
@@ -577,7 +599,7 @@ class InstagramController extends Controller
         }
         $schedule->description = trim($request->get('description'));
 
-        $images = $request->get('images') ?? [];
+        $images         = $request->get('images') ?? [];
         $selectedImages = $request->get('selected_images') ?? [];
 
         foreach ($images as $image) {
@@ -603,7 +625,7 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * SHow all the hagshtags from hash_tags table
+     *                                                                              SHow all the hagshtags from hash_tags table
      */
     public function showHahstags()
     {
@@ -614,13 +636,13 @@ class InstagramController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * delete comment from a post , with a comment key id
+     *                                       delete comment from a post , with a comment key id
      */
     public function deleteComment(Request $request)
     {
-        $postId = $request->get('post_id');
+        $postId     = $request->get('post_id');
         $commentKey = $request->get('comment_key');
-        $hashtag = HashTag::find($postId);
+        $hashtag    = HashTag::find($postId);
 
         if (! $hashtag) {
             return response()->json([
@@ -628,7 +650,7 @@ class InstagramController extends Controller
             ]);
         }
 
-        $comments = $hashtag->comments;
+        $comments         = $hashtag->comments;
         $filteredComments = [];
 
         foreach ($comments as $key => $comment) {
@@ -651,7 +673,7 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * SHoe the hashtag grid , this will show the posts that we have for related hashtag
+     *                                                                              SHoe the hashtag grid , this will show the posts that we have for related hashtag
      */
     public function hashtagGrid(Request $request)
     {
@@ -676,7 +698,7 @@ class InstagramController extends Controller
 
     /**
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View|mixed
-     * Show Instagram account
+     *                                                                              Show Instagram account
      */
     public function accounts(Request $request)
     {
@@ -706,7 +728,7 @@ class InstagramController extends Controller
         }
 
         $accounts = $accounts->orderBy('id', 'DESC')->get();
-        $total = $accounts->count();
+        $total    = $accounts->count();
 
         $countries = TargetLocation::all();
 
@@ -731,21 +753,21 @@ class InstagramController extends Controller
 
             $username = Helper::getUserIdFromUsername($username, $usernameI, $passwordI);
             if ($username['status'] == 'ok') {
-                $user = $username['user'];
+                $user     = $username['user'];
                 $userList = InstagramUsersList::where('user_id', $user['pk'])->first();
                 if (empty($userList)) {
-                    $userDetail = new InstagramUsersList;
-                    $userDetail->username = $user['username'];
-                    $userDetail->user_id = $user['pk'];
-                    $userDetail->image_url = $user['profile_pic_url'];
-                    $userDetail->bio = $user['biography'];
-                    $userDetail->rating = 0;
+                    $userDetail              = new InstagramUsersList;
+                    $userDetail->username    = $user['username'];
+                    $userDetail->user_id     = $user['pk'];
+                    $userDetail->image_url   = $user['profile_pic_url'];
+                    $userDetail->bio         = $user['biography'];
+                    $userDetail->rating      = 0;
                     $userDetail->location_id = 0;
-                    $userDetail->because_of = 'instagram_link';
-                    $userDetail->posts = $user['media_count'];
-                    $userDetail->followers = $user['follower_count'];
-                    $userDetail->following = $user['following_count'];
-                    $userDetail->is_manual = 1;
+                    $userDetail->because_of  = 'instagram_link';
+                    $userDetail->posts       = $user['media_count'];
+                    $userDetail->followers   = $user['follower_count'];
+                    $userDetail->following   = $user['following_count'];
+                    $userDetail->is_manual   = 1;
                     $userDetail->save();
                 }
 

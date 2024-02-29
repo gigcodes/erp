@@ -22,7 +22,8 @@ class SysInfo
     /**
      * Returns OS type used for sysinfo class
      *
-     * @param  string  $php_os PHP_OS constant
+     * @param string $php_os PHP_OS constant
+     *
      * @return string
      */
     public static function getOs($php_os = PHP_OS)

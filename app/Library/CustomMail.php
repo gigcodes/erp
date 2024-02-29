@@ -18,38 +18,38 @@ class CustomMail implements MailSettings
 
         if ($this->config) {
             $this->provider = [
-                'host' => $this->config->host,
-                'port' => $this->config->port,
+                'host'       => $this->config->host,
+                'port'       => $this->config->port,
                 'encryption' => $this->config->encryption,
             ];
 
             $this->setting = [
-                'pass' => $this->config->password,
-                'username' => $this->config->username,
-                'from_name' => $this->config->from_name,
-                'from' => $this->config->from_address,
+                'pass'          => $this->config->password,
+                'username'      => $this->config->username,
+                'from_name'     => $this->config->from_name,
+                'from'          => $this->config->from_address,
                 'reply_to_mail' => $this->config->from_address,
             ];
 
             if (! empty($this->config->send_grid_token)) {
-                $this->provider['host'] = config('env.MAIL_HOST');
-                $this->provider['port'] = config('env.MAIL_PORT');
+                $this->provider['host']       = config('env.MAIL_HOST');
+                $this->provider['port']       = config('env.MAIL_PORT');
                 $this->provider['encryption'] = config('env.MAIL_ENCRYPTION');
-                $this->setting['pass'] = $this->config->send_grid_token;
-                $this->setting['username'] = 'apikey';
+                $this->setting['pass']        = $this->config->send_grid_token;
+                $this->setting['username']    = 'apikey';
             }
         } else {
             $this->provider = [
-                'host' => config('env.MAIL_HOST'),
-                'port' => config('env.MAIL_PORT'),
+                'host'       => config('env.MAIL_HOST'),
+                'port'       => config('env.MAIL_PORT'),
                 'encryption' => config('env.MAIL_ENCRYPTION'),
             ];
 
             $this->setting = [
-                'pass' => config('env.MAIL_PASSWORD'),
-                'username' => config('env.MAIL_USERNAME'),
-                'from_name' => config('env.MAIL_FROM_NAME'),
-                'from' => config('env.MAIL_FROM_ADDRESS'),
+                'pass'          => config('env.MAIL_PASSWORD'),
+                'username'      => config('env.MAIL_USERNAME'),
+                'from_name'     => config('env.MAIL_FROM_NAME'),
+                'from'          => config('env.MAIL_FROM_ADDRESS'),
                 'reply_to_mail' => config('env.MAIL_FROM_ADDRESS'),
             ];
         }

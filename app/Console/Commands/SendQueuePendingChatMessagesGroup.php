@@ -69,8 +69,8 @@ class SendQueuePendingChatMessagesGroup extends Command
     {
         if ((! env('CI')) && (Schema::hasTable('chat_messages'))) {
             $queueStartTime = \App\ChatMessage::getStartTime();
-            $queueEndTime = \App\ChatMessage::getEndTime();
-            $queueTime = \App\ChatMessage::getQueueTime();
+            $queueEndTime   = \App\ChatMessage::getEndTime();
+            $queueTime      = \App\ChatMessage::getQueueTime();
             // check if time both is not empty then run the cron
             if (! empty($queueStartTime) && ! empty($queueEndTime)) {
                 if (! empty($queueTime)) {
@@ -79,7 +79,7 @@ class SendQueuePendingChatMessagesGroup extends Command
                             $tempSettingData = \DB::table('settings')->where('name', 'is_queue_sending_limit')->get();
                             try {
                                 $report = \App\CronJobReport::create([
-                                    'signature' => $this->signature,
+                                    'signature'  => $this->signature,
                                     'start_time' => Carbon::now(),
                                 ]);
 
@@ -88,7 +88,7 @@ class SendQueuePendingChatMessagesGroup extends Command
 
                                 // get the status for approval
                                 $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-                                $limit = ChatMessage::getQueueLimit();
+                                $limit          = ChatMessage::getQueueLimit();
                                 \Log::info('send:queue-pending-chat-group-messages ' . $this->argument('number') . " : Message is approve {$approveMessage} and limit found as  " . json_encode($limit));
 
                                 // if message is approve then only need to run the queue
@@ -98,8 +98,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                                     $this->waitingMessages = [];
                                     if (! empty($numberList)) {
                                         foreach ($numberList as $no) {
-                                            $chatApi = new ChatApi;
-                                            $waitingMessage = $chatApi->waitingLimit($no);
+                                            $chatApi                    = new ChatApi;
+                                            $waitingMessage             = $chatApi->waitingLimit($no);
                                             $this->waitingMessages[$no] = $waitingMessage;
                                         }
                                     }
@@ -132,22 +132,22 @@ class SendQueuePendingChatMessagesGroup extends Command
                                                             if ($images = $value->getMedia(config('constants.media_tags'))) {
                                                                 foreach ($images as $k => $image) {
                                                                     \App\ImQueue::create([
-                                                                        'im_client' => 'whatsapp',
-                                                                        'number_to' => $value->customer->phone,
-                                                                        'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                                                        'text' => ($k == 0) ? $value->message : '',
-                                                                        'image' => getMediaUrl($image),
-                                                                        'priority' => self::BROADCAST_PRIORITY,
+                                                                        'im_client'                 => 'whatsapp',
+                                                                        'number_to'                 => $value->customer->phone,
+                                                                        'number_from'               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                                                        'text'                      => ($k == 0) ? $value->message : '',
+                                                                        'image'                     => getMediaUrl($image),
+                                                                        'priority'                  => self::BROADCAST_PRIORITY,
                                                                         'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                                     ]);
                                                                 }
                                                             } else {
                                                                 \App\ImQueue::create([
-                                                                    'im_client' => 'whatsapp',
-                                                                    'number_to' => $value->customer->phone,
-                                                                    'number_from' => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
-                                                                    'text' => $value->message,
-                                                                    'priority' => self::BROADCAST_PRIORITY,
+                                                                    'im_client'                 => 'whatsapp',
+                                                                    'number_to'                 => $value->customer->phone,
+                                                                    'number_from'               => ($sendNumber) ? $sendNumber->number : $value->customer->whatsapp_number,
+                                                                    'text'                      => $value->message,
+                                                                    'priority'                  => self::BROADCAST_PRIORITY,
                                                                     'marketing_message_type_id' => self::MARKETING_MESSAGE_TYPE_ID,
                                                                 ]);
                                                             }
@@ -157,10 +157,10 @@ class SendQueuePendingChatMessagesGroup extends Command
 
                                                             $dataInsert = [
                                                                 'counter' => $sendLimit,
-                                                                'number' => $number,
-                                                                'type' => 'group',
+                                                                'number'  => $number,
+                                                                'type'    => 'group',
                                                                 'user_id' => $value->customer_id,
-                                                                'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                                'time'    => Carbon::now()->format('Y-m-d H:i:s'),
                                                             ];
                                                             MessageQueueHistory::insert($dataInsert);
                                                         } else {
@@ -181,10 +181,10 @@ class SendQueuePendingChatMessagesGroup extends Command
 
                                                             $dataInsert = [
                                                                 'counter' => $sendLimit,
-                                                                'number' => $number,
-                                                                'type' => 'group',
+                                                                'number'  => $number,
+                                                                'type'    => 'group',
                                                                 'user_id' => $value->customer_id,
-                                                                'time' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                                'time'    => Carbon::now()->format('Y-m-d H:i:s'),
                                                             ];
                                                             MessageQueueHistory::insert($dataInsert);
                                                         }

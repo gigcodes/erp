@@ -90,8 +90,8 @@ class UserTokenService
     {
         $token = $this->generateToken();
         $this->db->table($this->tokenTable)->insert([
-            'user_id' => $user->id,
-            'token' => $token,
+            'user_id'    => $user->id,
+            'token'      => $token,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

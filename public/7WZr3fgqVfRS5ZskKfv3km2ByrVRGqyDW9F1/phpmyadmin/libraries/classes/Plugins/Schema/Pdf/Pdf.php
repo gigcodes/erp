@@ -82,12 +82,12 @@ class Pdf extends PdfLib
     /**
      * Constructs PDF for schema export.
      *
-     * @param  string  $orientation page orientation
-     * @param  string  $unit        unit
-     * @param  string  $paper       the format used for pages
-     * @param  int  $pageNumber  schema page number that is being exported
-     * @param  bool  $withDoc     with document dictionary
-     * @param  string  $db          the database name
+     * @param string $orientation page orientation
+     * @param string $unit        unit
+     * @param string $paper       the format used for pages
+     * @param int    $pageNumber  schema page number that is being exported
+     * @param bool   $withDoc     with document dictionary
+     * @param string $db          the database name
      */
     public function __construct(
         $orientation,
@@ -101,15 +101,15 @@ class Pdf extends PdfLib
 
         parent::__construct($orientation, $unit, $paper);
         $this->pageNumber = $pageNumber;
-        $this->withDoc = $withDoc;
-        $this->db = $db;
-        $this->relation = new Relation($dbi);
+        $this->withDoc    = $withDoc;
+        $this->db         = $db;
+        $this->relation   = new Relation($dbi);
     }
 
     /**
      * Sets the value for margins
      *
-     * @param  float  $c_margin margin
+     * @param float $c_margin margin
      */
     public function setCMargin($c_margin): void
     {
@@ -119,11 +119,11 @@ class Pdf extends PdfLib
     /**
      * Sets the scaling factor, defines minimum coordinates and margins
      *
-     * @param  float|int  $scale      The scaling factor
-     * @param  float|int  $xMin       The minimum X coordinate
-     * @param  float|int  $yMin       The minimum Y coordinate
-     * @param  float|int  $leftMargin The left margin
-     * @param  float|int  $topMargin  The top margin
+     * @param float|int $scale      The scaling factor
+     * @param float|int $xMin       The minimum X coordinate
+     * @param float|int $yMin       The minimum Y coordinate
+     * @param float|int $leftMargin The left margin
+     * @param float|int $topMargin  The top margin
      */
     public function setScale(
         $scale = 1,
@@ -133,8 +133,8 @@ class Pdf extends PdfLib
         $topMargin = -1
     ): void {
         $this->scale = $scale;
-        $this->xMin = $xMin;
-        $this->yMin = $yMin;
+        $this->xMin  = $xMin;
+        $this->yMin  = $yMin;
         if ($this->leftMargin != -1) {
             $this->leftMargin = $leftMargin;
         }
@@ -151,14 +151,14 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::Cell()
      *
-     * @param  float|int  $w      The cell width
-     * @param  float|int  $h      The cell height
-     * @param  string  $txt    The text to output
-     * @param  mixed  $border Whether to add borders or not
-     * @param  int  $ln     Where to put the cursor once the output is done
-     * @param  string  $align  Align mode
-     * @param  bool  $fill   Whether to fill the cell with a color or not
-     * @param  string  $link   Link
+     * @param float|int $w      The cell width
+     * @param float|int $h      The cell height
+     * @param string    $txt    The text to output
+     * @param mixed     $border Whether to add borders or not
+     * @param int       $ln     Where to put the cursor once the output is done
+     * @param string    $align  Align mode
+     * @param bool      $fill   Whether to fill the cell with a color or not
+     * @param string    $link   Link
      */
     public function cellScale(
         $w,
@@ -180,10 +180,10 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::Line()
      *
-     * @param  float  $x1 The horizontal position of the starting point
-     * @param  float  $y1 The vertical position of the starting point
-     * @param  float  $x2 The horizontal position of the ending point
-     * @param  float  $y2 The vertical position of the ending point
+     * @param float $x1 The horizontal position of the starting point
+     * @param float $y1 The vertical position of the starting point
+     * @param float $x2 The horizontal position of the ending point
+     * @param float $y2 The vertical position of the ending point
      */
     public function lineScale($x1, $y1, $x2, $y2): void
     {
@@ -199,8 +199,8 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::SetXY()
      *
-     * @param  float  $x The x position
-     * @param  float  $y The y position
+     * @param float $x The x position
+     * @param float $y The y position
      */
     public function setXyScale($x, $y): void
     {
@@ -214,7 +214,7 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::SetX()
      *
-     * @param  float  $x The x position
+     * @param float $x The x position
      */
     public function setXScale($x): void
     {
@@ -227,7 +227,7 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::SetFontSize()
      *
-     * @param  float  $size The font size (in points)
+     * @param float $size The font size (in points)
      */
     public function setFontSizeScale($size): void
     {
@@ -241,7 +241,7 @@ class Pdf extends PdfLib
      *
      * @see TCPDF::SetLineWidth()
      *
-     * @param  float  $width The line width
+     * @param float $width The line width
      */
     public function setLineWidthScale($width): void
     {
@@ -275,7 +275,7 @@ class Pdf extends PdfLib
                 . Util::backquote($pdfFeature->pdfPages)
                 . ' WHERE db_name = \'' . $dbi->escapeString($this->db)
                 . '\' AND page_nr = \'' . $this->pageNumber . '\'';
-            $test_rs = $dbi->queryAsControlUser($test_query);
+            $test_rs  = $dbi->queryAsControlUser($test_query);
             $pageDesc = (string) $test_rs->fetchValue('page_descr');
 
             $pg_name = ucfirst($pageDesc);
@@ -305,7 +305,7 @@ class Pdf extends PdfLib
     /**
      * Sets widths
      *
-     * @param  array  $w array of widths
+     * @param array $w array of widths
      */
     public function setWidths(array $w): void
     {
@@ -316,13 +316,13 @@ class Pdf extends PdfLib
     /**
      * Generates table row.
      *
-     * @param  array  $data  Data for table
-     * @param  array  $links Links for table cells
+     * @param array $data  Data for table
+     * @param array $links Links for table cells
      */
     public function row(array $data, array $links): void
     {
         // line height
-        $nb = 0;
+        $nb       = 0;
         $data_cnt = count($data);
         for ($i = 0; $i < $data_cnt; $i++) {
             $nb = max($nb, $this->numLines($this->widths[$i], $data[$i]));
@@ -330,7 +330,7 @@ class Pdf extends PdfLib
 
         // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
         $il = $this->FontSize;
-        $h = ($il + 1) * $nb;
+        $h  = ($il + 1) * $nb;
         // page break if necessary
         $this->checkPageBreak($h);
         // draw the cells
@@ -359,8 +359,9 @@ class Pdf extends PdfLib
     /**
      * Compute number of lines used by a multicell of width w
      *
-     * @param  int  $w   width
-     * @param  string  $txt text
+     * @param int    $w   width
+     * @param string $txt text
+     *
      * @return int
      */
     public function numLines($w, $txt)
@@ -373,24 +374,24 @@ class Pdf extends PdfLib
 
         // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
         $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
-        $s = str_replace("\r", '', $txt);
-        $nb = strlen($s);
+        $s    = str_replace("\r", '', $txt);
+        $nb   = strlen($s);
         if ($nb > 0 && $s[$nb - 1] == "\n") {
             $nb--;
         }
 
         $sep = -1;
-        $i = 0;
-        $j = 0;
-        $l = 0;
-        $nl = 1;
+        $i   = 0;
+        $j   = 0;
+        $l   = 0;
+        $nl  = 1;
         while ($i < $nb) {
             $c = $s[$i];
             if ($c == "\n") {
                 $i++;
                 $sep = -1;
-                $j = $i;
-                $l = 0;
+                $j   = $i;
+                $l   = 0;
                 $nl++;
 
                 continue;
@@ -411,8 +412,8 @@ class Pdf extends PdfLib
                 }
 
                 $sep = -1;
-                $j = $i;
-                $l = 0;
+                $j   = $i;
+                $l   = 0;
                 $nl++;
             } else {
                 $i++;
@@ -425,7 +426,7 @@ class Pdf extends PdfLib
     /**
      * Set whether the document is generated from client side DB
      *
-     * @param  bool  $value whether offline
+     * @param bool $value whether offline
      */
     public function setOffline($value): void
     {

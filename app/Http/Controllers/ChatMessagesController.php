@@ -40,38 +40,38 @@ class ChatMessagesController extends Controller
     public function loadMoreMessages(Request $request)
     {
         // Set variables
-        $limit = $request->get('limit', 3);
-        $loadAttached = $request->get('load_attached', 0);
+        $limit           = $request->get('limit', 3);
+        $loadAttached    = $request->get('load_attached', 0);
         $loadAllMessages = $request->get('load_all', 0);
         // Get object (customer, vendor, etc.)
         $object = match ($request->object) {
-            'customer' => Customer::find($request->object_id),
-            'user-feedback' => User::find($request->object_id),
+            'customer'               => Customer::find($request->object_id),
+            'user-feedback'          => User::find($request->object_id),
             'user-feedback-hrTicket' => User::find($request->object_id),
-            'hubstuff' => User::find($request->object_id),
-            'user' => User::find($request->object_id),
-            'vendor' => Vendor::find($request->object_id),
-            'charity' => CustomerCharity::find($request->object_id),
-            'task' => Task::find($request->object_id),
-            'ticket' => Tickets::find($request->object_id),
-            'developer_task' => DeveloperTask::find($request->object_id),
-            'supplier' => Supplier::find($request->object_id),
-            'old' => Old::find($request->object_id),
-            'site_development' => SiteDevelopment::find($request->object_id),
-            'social_strategy' => SocialStrategy::find($request->object_id),
-            'content_management' => StoreSocialContent::find($request->object_id),
-            'order' => Order::find($request->object_id),
-            'payment-receipts' => PaymentReceipt::find($request->object_id),
-            'learning' => Learning::find($request->object_id),
-            'SOP' => User::find($request->object_id),
-            'document' => Document::find($request->object_id),
-            'uicheck' => Uicheck::find($request->object_id),
-            'bug' => BugTracker::find($request->object_id),
-            'testcase' => TestCase::find($request->object_id),
-            'testsuites' => TestSuites::find($request->object_id),
-            'timedoctor' => User::find($request->object_id),
-            'email' => Email::find($request->object_id),
-            default => Customer::find($request->object),
+            'hubstuff'               => User::find($request->object_id),
+            'user'                   => User::find($request->object_id),
+            'vendor'                 => Vendor::find($request->object_id),
+            'charity'                => CustomerCharity::find($request->object_id),
+            'task'                   => Task::find($request->object_id),
+            'ticket'                 => Tickets::find($request->object_id),
+            'developer_task'         => DeveloperTask::find($request->object_id),
+            'supplier'               => Supplier::find($request->object_id),
+            'old'                    => Old::find($request->object_id),
+            'site_development'       => SiteDevelopment::find($request->object_id),
+            'social_strategy'        => SocialStrategy::find($request->object_id),
+            'content_management'     => StoreSocialContent::find($request->object_id),
+            'order'                  => Order::find($request->object_id),
+            'payment-receipts'       => PaymentReceipt::find($request->object_id),
+            'learning'               => Learning::find($request->object_id),
+            'SOP'                    => User::find($request->object_id),
+            'document'               => Document::find($request->object_id),
+            'uicheck'                => Uicheck::find($request->object_id),
+            'bug'                    => BugTracker::find($request->object_id),
+            'testcase'               => TestCase::find($request->object_id),
+            'testsuites'             => TestSuites::find($request->object_id),
+            'timedoctor'             => User::find($request->object_id),
+            'email'                  => Email::find($request->object_id),
+            default                  => Customer::find($request->object),
         };
         // Set raw where query
         $rawWhere = "(message!='' or media_url!='')";
@@ -79,19 +79,19 @@ class ChatMessagesController extends Controller
         // Do we want all?
         if ($loadAllMessages == 1) {
             $loadAttached = 1;
-            $rawWhere = '1=1';
+            $rawWhere     = '1=1';
         }
 
         $currentPage = $request->get('page', 1);
-        $skip = ($currentPage - 1) * $limit;
+        $skip        = ($currentPage - 1) * $limit;
 
-        $loadType = $request->get('load_type');
+        $loadType      = $request->get('load_type');
         $onlyBroadcast = false;
 
         //  if loadtype is brodcast then get the images only
         if ($loadType == 'broadcast') {
             $onlyBroadcast = true;
-            $loadType = 'images';
+            $loadType      = 'images';
         }
 
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
@@ -214,7 +214,7 @@ class ChatMessagesController extends Controller
         $chatMessages = $chatMessages->get();
 
         // Set empty array with messages
-        $messages = [];
+        $messages     = [];
         $chatFileData = '';
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
@@ -229,12 +229,12 @@ class ChatMessagesController extends Controller
                 }
             }
             // Create empty media array
-            $media = [];
-            $mediaWithDetails = [];
-            $productId = null;
-            $parentMedia = [];
+            $media                  = [];
+            $mediaWithDetails       = [];
+            $productId              = null;
+            $parentMedia            = [];
             $parentMediaWithDetails = [];
-            $parentProductId = null;
+            $parentProductId        = null;
 
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
@@ -242,14 +242,14 @@ class ChatMessagesController extends Controller
                     // Supplier checkbox
                     if (in_array($request->object, ['supplier'])) {
                         $tempImage = [
-                            'key' => $image->getKey(),
-                            'image' => getMediaUrl($image),
-                            'product_id' => '',
+                            'key'           => $image->getKey(),
+                            'image'         => getMediaUrl($image),
+                            'product_id'    => '',
                             'special_price' => '',
-                            'size' => '',
+                            'size'          => '',
                         ];
 
-                        $imageKey = $image->getKey();
+                        $imageKey     = $image->getKey();
                         $mediableType = 'Product';
 
                         $productImage = \App\Product::with('Media')
@@ -257,10 +257,10 @@ class ChatMessagesController extends Controller
                             ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                         if ($productImage) {
-                            $tempImage['product_id'] = $productImage->id;
-                            $tempImage['special_price'] = $productImage->price_inr_special;
+                            $tempImage['product_id']        = $productImage->id;
+                            $tempImage['special_price']     = $productImage->price_inr_special;
                             $tempImage['supplier_initials'] = $this->getSupplierIntials($productImage->supplier);
-                            $tempImage['size'] = $this->getSize($productImage);
+                            $tempImage['size']              = $this->getSize($productImage);
                         }
 
                         $mediaWithDetails[] = $tempImage;
@@ -278,8 +278,8 @@ class ChatMessagesController extends Controller
 
                         // Get media URL
                         $media[] = [
-                            'key' => $image->getKey(),
-                            'image' => getMediaUrl($image),
+                            'key'        => $image->getKey(),
+                            'image'      => getMediaUrl($image),
                             'product_id' => $productId,
                         ];
                     }
@@ -289,10 +289,10 @@ class ChatMessagesController extends Controller
                 if (session()->has('encrpyt')) {
                     $public = PublicKey::first();
                     if ($public != null) {
-                        $privateKey = hex2bin(session()->get('encrpyt.private'));
-                        $publicKey = hex2bin($public->key);
-                        $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
-                        $message = hex2bin($chatMessage->message);
+                        $privateKey  = hex2bin(session()->get('encrpyt.private'));
+                        $publicKey   = hex2bin($public->key);
+                        $keypair     = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                        $message     = hex2bin($chatMessage->message);
                         $textMessage = sodium_crypto_box_seal_open($message, $keypair);
                     }
                 } else {
@@ -312,9 +312,9 @@ class ChatMessagesController extends Controller
                             $public = PublicKey::first();
                             if ($public != null) {
                                 $privateKey = hex2bin(session()->get('encrpyt.private'));
-                                $publicKey = hex2bin($public->key);
-                                $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
-                                $message = hex2bin($parentMessage->message);
+                                $publicKey  = hex2bin($public->key);
+                                $keypair    = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                                $message    = hex2bin($parentMessage->message);
                                 $textParent = sodium_crypto_box_seal_open($message, $keypair);
                             }
                         } else {
@@ -327,18 +327,18 @@ class ChatMessagesController extends Controller
                     //parent image start here
                     if ($parentMessage->hasMedia(config('constants.media_tags'))) {
                         $images = $parentMessage->getMedia(config('constants.media_tags'));
-                        $image = $images->first();
+                        $image  = $images->first();
                         // Supplier checkbox
                         if ($image) {
                             if (in_array($request->object, ['supplier'])) {
                                 $tempImage = [
-                                    'key' => $image->getKey(),
-                                    'image' => getMediaUrl($image),
-                                    'product_id' => '',
+                                    'key'           => $image->getKey(),
+                                    'image'         => getMediaUrl($image),
+                                    'product_id'    => '',
                                     'special_price' => '',
-                                    'size' => '',
+                                    'size'          => '',
                                 ];
-                                $imageKey = $image->getKey();
+                                $imageKey     = $image->getKey();
                                 $mediableType = 'Product';
 
                                 $productImage = \App\Product::with('Media')
@@ -346,10 +346,10 @@ class ChatMessagesController extends Controller
                                     ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
 
                                 if ($productImage) {
-                                    $tempImage['product_id'] = $productImage->id;
-                                    $tempImage['special_price'] = $productImage->price_inr_special;
+                                    $tempImage['product_id']        = $productImage->id;
+                                    $tempImage['special_price']     = $productImage->price_inr_special;
                                     $tempImage['supplier_initials'] = $this->getSupplierIntials($productImage->supplier);
-                                    $tempImage['size'] = $this->getSize($productImage);
+                                    $tempImage['size']              = $this->getSize($productImage);
                                 }
 
                                 $parentMediaWithDetails[] = $tempImage;
@@ -367,8 +367,8 @@ class ChatMessagesController extends Controller
 
                                 // Get media URL
                                 $parentMedia[] = [
-                                    'key' => $image->getKey(),
-                                    'image' => getMediaUrl($image),
+                                    'key'        => $image->getKey(),
+                                    'image'      => getMediaUrl($image),
                                     'product_id' => $parentProductId,
                                 ];
                             }
@@ -381,7 +381,7 @@ class ChatMessagesController extends Controller
             //START - Purpose : Get Excel sheet - DEVTASK-4236
             $excel_attach = json_decode($chatMessage->additional_data);
             if (! empty($excel_attach)) {
-                $path = $excel_attach->attachment[0];
+                $path            = $excel_attach->attachment[0];
                 $additional_data = $path;
             } else {
                 $additional_data = '';
@@ -398,37 +398,37 @@ class ChatMessagesController extends Controller
                 }
             } else {
                 $arr = [
-                    'id' => $chatMessage->id,
-                    'type' => $request->object,
-                    'object_type_id' => $request->object_id,
-                    'sop_name' => @$sopdata->name,
-                    'sop_category' => @$sopdata->category,
-                    'sop_content' => @$sopdata->content,
-                    'inout' => ($isOut) ? 'out' : 'in',
-                    'sendBy' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
-                    'sendTo' => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
-                    'message' => $textMessage,
-                    'parentMessage' => $textParent,
-                    'media_url' => $chatMessage->media_url,
-                    'datetime' => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
-                    'media' => is_array($media) ? $media : null,
-                    'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
-                    'product_id' => ! empty($productId) ? $productId : null,
-                    'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
+                    'id'                     => $chatMessage->id,
+                    'type'                   => $request->object,
+                    'object_type_id'         => $request->object_id,
+                    'sop_name'               => @$sopdata->name,
+                    'sop_category'           => @$sopdata->category,
+                    'sop_content'            => @$sopdata->content,
+                    'inout'                  => ($isOut) ? 'out' : 'in',
+                    'sendBy'                 => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->sent_to_user_id)->value('name') : (($isOut) ? 'ERP' : $objectname),
+                    'sendTo'                 => ($request->object == 'bug' || $request->object == 'testcase' || $request->object == 'testsuites' || $request->object == 'developer_task') ? User::where('id', $chatMessage->user_id)->value('name') : (($isOut) ? $object->name : 'ERP'),
+                    'message'                => $textMessage,
+                    'parentMessage'          => $textParent,
+                    'media_url'              => $chatMessage->media_url,
+                    'datetime'               => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
+                    'media'                  => is_array($media) ? $media : null,
+                    'mediaWithDetails'       => is_array($mediaWithDetails) ? $mediaWithDetails : null,
+                    'product_id'             => ! empty($productId) ? $productId : null,
+                    'parentMedia'            => is_array($parentMedia) ? $parentMedia : null,
                     'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
-                    'parentProductId' => ! empty($parentProductId) ? $parentProductId : null,
-                    'status' => $chatMessage->status,
-                    'resent' => $chatMessage->resent,
-                    'customer_id' => $chatMessage->customer_id,
-                    'approved' => $chatMessage->approved,
-                    'error_status' => $chatMessage->error_status,
-                    'error_info' => $chatMessage->error_info,
-                    'is_queue' => $chatMessage->is_queue,
-                    'is_reviewed' => $chatMessage->is_reviewed,
-                    'quoted_message_id' => $chatMessage->quoted_message_id,
-                    'additional_data' => $additional_data, //Purpose : Add additional data - DEVTASK-4236
-                    'is_auto_simulator' => $chatMessage->is_auto_simulator,
-                    'send_by_simulator' => $chatMessage->send_by_simulator,
+                    'parentProductId'        => ! empty($parentProductId) ? $parentProductId : null,
+                    'status'                 => $chatMessage->status,
+                    'resent'                 => $chatMessage->resent,
+                    'customer_id'            => $chatMessage->customer_id,
+                    'approved'               => $chatMessage->approved,
+                    'error_status'           => $chatMessage->error_status,
+                    'error_info'             => $chatMessage->error_info,
+                    'is_queue'               => $chatMessage->is_queue,
+                    'is_reviewed'            => $chatMessage->is_reviewed,
+                    'quoted_message_id'      => $chatMessage->quoted_message_id,
+                    'additional_data'        => $additional_data, //Purpose : Add additional data - DEVTASK-4236
+                    'is_auto_simulator'      => $chatMessage->is_auto_simulator,
+                    'send_by_simulator'      => $chatMessage->send_by_simulator,
                 ];
 
                 if ($chatMessage->message_type == 'email') {
@@ -449,8 +449,8 @@ class ChatMessagesController extends Controller
         // Return JSON
         if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
             $storagelocation = 'chatMessageFiles';
-            $filename = $request->object . $request->object_id . '_chat.txt';
-            $file = $storagelocation . '/' . $filename;
+            $filename        = $request->object . $request->object_id . '_chat.txt';
+            $file            = $storagelocation . '/' . $filename;
 
             Storage::put($file, $chatFileData);
 
@@ -533,7 +533,7 @@ class ChatMessagesController extends Controller
         $messages = ChatMessage::join('customers as c', 'c.id', 'chat_messages.customer_id')->whereNull('chat_messages.number');
 
         $startTime = null;
-        $endTime = null;
+        $endTime   = null;
         if ($request->time_range != null) {
             $time = explode(' - ', $request->time_range);
             if (! empty($time[0])) {
@@ -606,14 +606,14 @@ class ChatMessagesController extends Controller
     {
         if ($request->get('keyword') != null) {
             $delimiters = ['/', ','];
-            $str = $request->get('keyword');
-            $newStr = str_replace($delimiters, $delimiters[0], $str);
-            $arr = explode($delimiters[0], $newStr);
-            $keywords = array_filter($arr);
+            $str        = $request->get('keyword');
+            $newStr     = str_replace($delimiters, $delimiters[0], $str);
+            $arr        = explode($delimiters[0], $newStr);
+            $keywords   = array_filter($arr);
             if ($request->search == 'yes') {
                 $keywords = $keywords;
             } else {
-                $value = $keywords[0];
+                $value    = $keywords[0];
                 $keywords = [];
                 $keywords = [$value];
             }
@@ -622,7 +622,7 @@ class ChatMessagesController extends Controller
         }
 
         $startTime = null;
-        $endTime = null;
+        $endTime   = null;
 
         if ($request->time_range != null) {
             $time = explode(' - ', $request->time_range);
@@ -664,19 +664,19 @@ class ChatMessagesController extends Controller
             $records->where('created_at', '<=', date('Y-m-d H:i:s', strtotime($endTime)));
         }
 
-        $records = $records->latest()->paginate(20);
+        $records     = $records->latest()->paginate(20);
         $recorsArray = [];
 
         foreach ($records as $row) {
             $type = $sender = '';
             if ($row->user_id) {
-                $type = 'user';
+                $type   = 'user';
                 $sender = optional($row->user)->name;
             } elseif ($row->vendor_id) {
-                $type = 'vendor';
+                $type   = 'vendor';
                 $sender = optional($row->vendor)->name;
             } elseif ($row->customer_id) {
-                $type = 'customer';
+                $type   = 'customer';
                 $sender = optional($row->customer)->name;
             }
             $message = $row->message;
@@ -684,23 +684,23 @@ class ChatMessagesController extends Controller
                 $message = \App\Helpers::getAudioUrl($row->message);
             }
             $recorsArray[] = [
-                'id' => $row->id,
-                'created_at' => $row->created_at->format('d-m-y H:i:s'),
-                'type' => $type,
-                'message' => $message,
-                'is_audio' => $row->is_audio,
-                'sender' => $type,
+                'id'          => $row->id,
+                'created_at'  => $row->created_at->format('d-m-y H:i:s'),
+                'type'        => $type,
+                'message'     => $message,
+                'is_audio'    => $row->is_audio,
+                'sender'      => $type,
                 'sender_name' => $sender,
-                'resent' => $row->resent,
+                'resent'      => $row->resent,
             ];
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $recorsArray,
+            'code'       => 200,
+            'data'       => $recorsArray,
             'pagination' => (string) $records->links(),
-            'total' => $records->total(),
-            'page' => $records->currentPage(),
+            'total'      => $records->total(),
+            'page'       => $records->currentPage(),
         ]);
     }
 }

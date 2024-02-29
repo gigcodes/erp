@@ -36,8 +36,8 @@ class AccountController extends Controller
             $customer = new Customer;
         }
 
-        $customer->name = trim($request->get('firstname') . ' ' . $request->get('lastname'));
-        $customer->email = $request->get('email');
+        $customer->name             = trim($request->get('firstname') . ' ' . $request->get('lastname'));
+        $customer->email            = $request->get('email');
         $customer->store_website_id = $request->get('store_website_id');
         $customer->save();
 

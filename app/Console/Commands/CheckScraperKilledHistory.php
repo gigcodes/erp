@@ -45,13 +45,13 @@ class CheckScraperKilledHistory extends Command
 
             \Log::info('Command has been started');
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $path = getenv('SCRAPER_RESTART_PATH');
 
-            $data = file_get_contents($path);
+            $data   = file_get_contents($path);
             $output = explode('.js', $data);
 
             \Log::info(print_r(['got this out for kill histoyr', $output], true));
@@ -78,9 +78,9 @@ class CheckScraperKilledHistory extends Command
 
                             foreach ($scrapers as $_scrap) {
                                 $status = \App\ScraperKilledHistory::create([
-                                    'scraper_id' => $_scrap->id,
+                                    'scraper_id'   => $_scrap->id,
                                     'scraper_name' => $_scrap->scraper_name,
-                                    'comment' => 'Scraper killed',
+                                    'comment'      => 'Scraper killed',
                                 ]);
 
                                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'saved scraper killed history by ID:' . $status->id]);

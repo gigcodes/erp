@@ -15,7 +15,8 @@ use PhpMyAdmin\Config\ServerConfigChecks;
 class HomeController extends AbstractController
 {
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
+     *
      * @return string HTML
      */
     public function __invoke(array $params): string
@@ -53,11 +54,11 @@ class HomeController extends AbstractController
 
         // prepare unfiltered language list
         $sortedLanguages = LanguageManager::getInstance()->sortedLanguages();
-        $languages = [];
+        $languages       = [];
         foreach ($sortedLanguages as $language) {
             $languages[] = [
-                'code' => $language->getCode(),
-                'name' => $language->getName(),
+                'code'      => $language->getCode(),
+                'name'      => $language->getName(),
                 'is_active' => $language->isActive(),
             ];
         }
@@ -65,21 +66,21 @@ class HomeController extends AbstractController
         $servers = [];
         foreach (array_keys($this->config->getServers()) as $id) {
             $servers[$id] = [
-                'id' => $id,
-                'name' => $this->config->getServerName($id),
+                'id'        => $id,
+                'name'      => $this->config->getServerName($id),
                 'auth_type' => $this->config->getValue('Servers/' . $id . '/auth_type'),
-                'dsn' => $this->config->getServerDSN($id),
-                'params' => [
+                'dsn'       => $this->config->getServerDSN($id),
+                'params'    => [
                     'token' => $_SESSION[' PMA_token '],
-                    'edit' => [
+                    'edit'  => [
                         'page' => 'servers',
                         'mode' => 'edit',
-                        'id' => $id,
+                        'id'   => $id,
                     ],
                     'remove' => [
                         'page' => 'servers',
                         'mode' => 'remove',
-                        'id' => $id,
+                        'id'   => $id,
                     ],
                 ],
             ];
@@ -91,14 +92,14 @@ class HomeController extends AbstractController
         }
 
         return $this->template->render('setup/home/index', [
-            'formset' => $formset,
-            'languages' => $languages,
-            'messages' => $messages,
-            'server_count' => $this->config->getServerCount(),
-            'servers' => $servers,
-            'pages' => $pages,
+            'formset'                => $formset,
+            'languages'              => $languages,
+            'messages'               => $messages,
+            'server_count'           => $this->config->getServerCount(),
+            'servers'                => $servers,
+            'pages'                  => $pages,
             'has_check_page_refresh' => $hasCheckPageRefresh,
-            'eol' => isset($_SESSION['eol']) && is_scalar($_SESSION['eol'])
+            'eol'                    => isset($_SESSION['eol']) && is_scalar($_SESSION['eol'])
                 ? $_SESSION['eol']
                 : ($GLOBALS['config']->get('PMA_IS_WINDOWS') ? 'win' : 'unix'),
         ]);

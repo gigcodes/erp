@@ -108,10 +108,10 @@ class ListingHistoryController extends Controller
         $history = $history->paginate(25);
 
         return response()->json([
-            'code' => 200,
-            'data' => $history->items(),
-            'total' => $history->total(),
-            'pagination' => (string) $history->render(),
+            'code'            => 200,
+            'data'            => $history->items(),
+            'total'           => $history->total(),
+            'pagination'      => (string) $history->render(),
             'updated_history' => $updated_history,
         ]);
     }

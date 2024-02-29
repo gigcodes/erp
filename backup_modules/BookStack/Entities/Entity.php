@@ -17,14 +17,14 @@ use Modules\BookStack\Auth\Permissions\EntityPermission;
  * The base class for book-like items such as pages, chapters & books.
  * This is not a database model in itself but extended.
  *
- * @property int $id
+ * @property int    $id
  * @property string $name
  * @property string $slug
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property int $created_by
- * @property int $updated_by
- * @property bool $restricted
+ * @property int    $created_by
+ * @property int    $updated_by
+ * @property bool   $restricted
  */
 class Entity extends Ownable
 {
@@ -53,6 +53,8 @@ class Entity extends Ownable
     /**
      * Compares this entity to another given entity.
      * Matches by comparing class and id.
+     *
+     * @param mixed $entity
      *
      * @return bool
      */
@@ -121,7 +123,8 @@ class Entity extends Ownable
     /**
      * Get the comments for an entity
      *
-     * @param  bool  $orderByCreated
+     * @param bool $orderByCreated
+     *
      * @return MorphMany
      */
     public function comments($orderByCreated = true)
@@ -152,6 +155,9 @@ class Entity extends Ownable
     /**
      * Check if this entity has a specific restriction set against it.
      *
+     * @param mixed $role_id
+     * @param mixed $action
+     *
      * @return bool
      */
     public function hasRestriction($role_id, $action)
@@ -174,6 +180,8 @@ class Entity extends Ownable
      * Allows checking of the exact class, Used to check entity type.
      * Cleaner method for is_a.
      *
+     * @param mixed $type
+     *
      * @return bool
      */
     public static function isA($type)
@@ -194,11 +202,13 @@ class Entity extends Ownable
     /**
      * Get an instance of an entity of the given type.
      *
+     * @param mixed $type
+     *
      * @return Entity
      */
     public static function getEntityInstance($type)
     {
-        $types = ['Page', 'Book', 'Chapter', 'Bookshelf'];
+        $types     = ['Page', 'Book', 'Chapter', 'Bookshelf'];
         $className = str_replace([' ', '-', '_'], '', ucwords($type));
         if (! in_array($className, $types)) {
             return null;
@@ -210,7 +220,8 @@ class Entity extends Ownable
     /**
      * Gets a limited-length version of the entities name.
      *
-     * @param  int  $length
+     * @param int $length
+     *
      * @return string
      */
     public function getShortName($length = 25)
@@ -259,6 +270,8 @@ class Entity extends Ownable
 
     /**
      * Get the url of this entity
+     *
+     * @param mixed $path
      *
      * @return string
      */

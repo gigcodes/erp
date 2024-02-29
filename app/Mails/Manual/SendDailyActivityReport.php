@@ -24,7 +24,7 @@ class SendDailyActivityReport extends Mailable
 
     public function __construct(User $user, array $time_slots)
     {
-        $this->user = $user;
+        $this->user       = $user;
         $this->time_slots = $time_slots;
         $this->fromMailer = \App\Helpers::getFromEmail();
     }

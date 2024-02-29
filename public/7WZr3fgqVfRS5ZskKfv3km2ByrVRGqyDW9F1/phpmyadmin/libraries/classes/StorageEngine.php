@@ -71,7 +71,7 @@ class StorageEngine
     public $support = self::SUPPORT_NO;
 
     /**
-     * @param  string  $engine The engine ID
+     * @param string $engine The engine ID
      */
     public function __construct($engine)
     {
@@ -80,8 +80,8 @@ class StorageEngine
             return;
         }
 
-        $this->engine = $engine;
-        $this->title = $storage_engines[$engine]['Engine'];
+        $this->engine  = $engine;
+        $this->title   = $storage_engines[$engine]['Engine'];
         $this->comment = ($storage_engines[$engine]['Comment'] ?? '');
         switch ($storage_engines[$engine]['Support']) {
             case 'DEFAULT':
@@ -164,8 +164,9 @@ class StorageEngine
     /**
      * Get the lengths of a table of database
      *
-     * @param  string  $dbName    DB name
-     * @param  string  $tableName Table name
+     * @param string $dbName    DB name
+     * @param string $tableName Table name
+     *
      * @return int[]
      */
     public static function getMroongaLengths(string $dbName, string $tableName): array
@@ -176,7 +177,7 @@ class StorageEngine
         $dbi->selectDb($dbName); // Needed for mroonga_command calls
 
         if (! Cache::has($cacheKey)) {
-            $result = $dbi->fetchSingleRow('SELECT mroonga_command(\'object_list\');', DatabaseInterface::FETCH_NUM);
+            $result     = $dbi->fetchSingleRow('SELECT mroonga_command(\'object_list\');', DatabaseInterface::FETCH_NUM);
             $objectList = (array) json_decode($result[0] ?? '', true);
             foreach ($objectList as $mroongaName => $mroongaData) {
                 /**
@@ -199,7 +200,7 @@ class StorageEngine
         /** @var string[] $objectList */
         $objectList = Cache::get($cacheKey, []);
 
-        $dataLength = 0;
+        $dataLength  = 0;
         $indexLength = 0;
         foreach ($objectList as $mroongaName) {
             if (strncmp($tableName, $mroongaName, strlen($tableName)) !== 0) {
@@ -247,8 +248,8 @@ class StorageEngine
             }
 
             $engines[$details['Engine']] = [
-                'name' => $details['Engine'],
-                'comment' => $details['Comment'],
+                'name'       => $details['Engine'],
+                'comment'    => $details['Comment'],
                 'is_default' => $details['Support'] === 'DEFAULT',
             ];
         }
@@ -259,7 +260,8 @@ class StorageEngine
     /**
      * Loads the corresponding engine plugin, if available.
      *
-     * @param  string  $engine The engine ID
+     * @param string $engine The engine ID
+     *
      * @return StorageEngine The engine plugin
      *
      * @static
@@ -311,7 +313,7 @@ class StorageEngine
     /**
      * Returns true if given engine name is supported/valid, otherwise false
      *
-     * @param  string  $engine name of engine
+     * @param string $engine name of engine
      *
      * @static
      */
@@ -390,7 +392,8 @@ class StorageEngine
      * DETAILS_TYPE_SIZE type needs to be
      * handled differently for a particular engine.
      *
-     * @param  int  $value Value to format
+     * @param int $value Value to format
+     *
      * @return array|null the formatted value and its unit
      */
     public function resolveTypeSize($value): ?array
@@ -408,7 +411,7 @@ class StorageEngine
         global $dbi;
 
         $variables = $this->getVariables();
-        $like = $this->getVariablesLikePattern();
+        $like      = $this->getVariablesLikePattern();
 
         if ($like) {
             $like = " LIKE '" . $like . "' ";
@@ -419,7 +422,7 @@ class StorageEngine
         $mysql_vars = [];
 
         $sql_query = 'SHOW GLOBAL VARIABLES ' . $like . ';';
-        $res = $dbi->query($sql_query);
+        $res       = $dbi->query($sql_query);
         foreach ($res as $row) {
             if (isset($variables[$row['Variable_name']])) {
                 $mysql_vars[$row['Variable_name']] = $variables[$row['Variable_name']];
@@ -535,7 +538,8 @@ class StorageEngine
     /**
      * Generates the requested information page
      *
-     * @param  string  $id page id
+     * @param string $id page id
+     *
      * @return string html output
      */
     public function getPage($id)

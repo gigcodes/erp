@@ -12,7 +12,7 @@ class AssetsManagerUsersAccessController extends Controller
         $user_accesses = new AssetManagerUserAccess;
         $user_accesses = $user_accesses::with(['user'])->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->orderBy('created_at', 'DESC');
 
-        $keyword = request('keyword', '');
+        $keyword    = request('keyword', '');
         $created_by = request('created_by');
 
         if (! empty($keyword)) {
@@ -40,8 +40,8 @@ class AssetsManagerUsersAccessController extends Controller
         // Parameters
         $params = [
             'program' => 'delete-user',
-            'domain' => 'demo.mio-moda.com',
-            'user' => $user_access->username,
+            'domain'  => 'demo.mio-moda.com',
+            'user'    => $user_access->username,
         ];
 
         // Append parameters to URL

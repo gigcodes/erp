@@ -47,11 +47,11 @@ class ExtractImageColors extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
+            $ourColors       = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
             $availableColors = (new Colors())->all();
 
             Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function ($products) use ($ourColors) {
@@ -81,8 +81,8 @@ class ExtractImageColors extends Command
                     $hex = Color::fromIntToHex(Color::fromRgbToInt($rgbColor));
                     dump($hex);
                     $nameThatColor = new NameThatColor();
-                    $color = $nameThatColor->name($hex)['name'];
-                    $color = $ourColors[$color];
+                    $color         = $nameThatColor->name($hex)['name'];
+                    $color         = $ourColors[$color];
 
                     dump($color);
 

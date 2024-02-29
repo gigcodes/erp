@@ -46,12 +46,14 @@ class scrappersImages extends Command
     /**
      * Download Wefransfer Files
      *
+     * @param null|mixed $website
+     *
      * @return mixed
      */
     private function downloadImages($website = null)
     {
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime          = date('Y-m-d H:i:s', LARAVEL_START);
 
         try {
             // create & initialize a curl session
@@ -75,14 +77,14 @@ class scrappersImages extends Command
                 if (! empty($output->response->images)) {
                     foreach ($output->response->images as $key => $image) {
                         if (! empty($image)) {
-                            $img_name = basename($image->link);
+                            $img_name  = basename($image->link);
                             $file_name = uniqid() . trim($img_name);
 
                             if ($this->saveBase64Image($file_name, $image->link)) {
                                 $newImage = [
                                     'website_id' => $image->country,
-                                    'img_name' => $file_name,
-                                    'img_url' => $img_name,
+                                    'img_name'   => $file_name,
+                                    'img_url'    => $img_name,
                                     'created_at' => date('Y-m-d H:i:s'),
                                     'updated_at' => date('Y-m-d H:i:s'),
                                 ];
@@ -111,8 +113,8 @@ class scrappersImages extends Command
     {
         try {
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $curl = curl_init();
-            $url = env('SCRAPER_IMAGES_URL_BASE64') . $base64Image;
+            $curl      = curl_init();
+            $url       = env('SCRAPER_IMAGES_URL_BASE64') . $base64Image;
             // set our url with curl_setopt()
             curl_setopt($curl, CURLOPT_URL, $url);
 
@@ -121,7 +123,7 @@ class scrappersImages extends Command
 
             // curl_exec() executes the started curl session
             // $output contains the output string
-            $output = curl_exec($curl);
+            $output   = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($output), $httpcode, \App\Console\Commands\scrappersImages::class, 'saveBase64Image');
 
@@ -136,7 +138,7 @@ class scrappersImages extends Command
                 $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
                 $base64Image = str_replace('data:image/gif;base64,', '', $base64Image);
                 $base64Image = str_replace(' ', '+', $base64Image);
-                $imageData = base64_decode($base64Image);
+                $imageData   = base64_decode($base64Image);
 
                 // //Set image whole path here
                 $filePath = public_path('scrappersImages') . '/' . $file_name;

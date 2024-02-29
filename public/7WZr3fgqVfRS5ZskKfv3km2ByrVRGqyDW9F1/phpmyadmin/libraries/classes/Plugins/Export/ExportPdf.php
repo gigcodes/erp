@@ -87,8 +87,8 @@ class ExportPdf extends ExportPlugin
         $leaf = new RadioPropertyItem('structure_or_data');
         $leaf->setValues(
             [
-                'structure' => __('structure'),
-                'data' => __('data'),
+                'structure'          => __('structure'),
+                'data'               => __('data'),
                 'structure_and_data' => __('structure and data'),
             ]
         );
@@ -131,8 +131,8 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Aliases of db
+     * @param string $db      Database name
+     * @param string $dbAlias Aliases of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -142,7 +142,7 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -152,9 +152,9 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -164,12 +164,12 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs the content of a table in NHibernate format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -179,7 +179,7 @@ class ExportPdf extends ExportPlugin
         $sqlQuery,
         array $aliases = []
     ): bool {
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
         $pdf = $this->getPdf();
@@ -197,9 +197,9 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs result of raw query in PDF format
      *
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery the rawquery to output
-     * @param  string  $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery the rawquery to output
+     * @param string $crlf     the end of line sequence
      */
     public function exportRawQuery(string $errorUrl, string $sqlQuery, string $crlf): bool
     {
@@ -215,23 +215,23 @@ class ExportPdf extends ExportPlugin
     /**
      * Outputs table structure
      *
-     * @param  string  $db          database name
-     * @param  string  $table       table name
-     * @param  string  $crlf        the end of line sequence
-     * @param  string  $errorUrl    the url to go back in case of error
-     * @param  string  $exportMode  'create_table', 'triggers', 'create_view',
-     *                             'stand_in'
-     * @param  string  $exportType  'server', 'database', 'table'
-     * @param  bool  $do_relation whether to include relation comments
-     * @param  bool  $do_comments whether to include the pmadb-style column
+     * @param string $db          database name
+     * @param string $table       table name
+     * @param string $crlf        the end of line sequence
+     * @param string $errorUrl    the url to go back in case of error
+     * @param string $exportMode  'create_table', 'triggers', 'create_view',
+     *                            'stand_in'
+     * @param string $exportType  'server', 'database', 'table'
+     * @param bool   $do_relation whether to include relation comments
+     * @param bool   $do_comments whether to include the pmadb-style column
      *                            comments as comments in the structure;
      *                            this is deprecated but the parameter is
      *                            left here because /export calls
      *                            PMA_exportStructure() also for other
      *                            export types which use this parameter
-     * @param  bool  $do_mime     whether to include mime comments
-     * @param  bool  $dates       whether to include creation/update/check dates
-     * @param  array  $aliases     aliases for db/table/columns
+     * @param bool   $do_mime     whether to include mime comments
+     * @param bool   $dates       whether to include creation/update/check dates
+     * @param array  $aliases     aliases for db/table/columns
      */
     public function exportStructure(
         $db,
@@ -246,9 +246,9 @@ class ExportPdf extends ExportPlugin
         $dates = false,
         array $aliases = []
     ): bool {
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
-        $purpose = '';
+        $purpose     = '';
         $this->initAlias($aliases, $db_alias, $table_alias);
         $pdf = $this->getPdf();
         // getting purpose to show at top
@@ -313,7 +313,7 @@ class ExportPdf extends ExportPlugin
     /**
      * Instantiates the PhpMyAdmin\Plugins\Export\Helpers\Pdf class
      *
-     * @param  Pdf  $pdf The instance
+     * @param Pdf $pdf The instance
      */
     private function setPdf($pdf): void
     {

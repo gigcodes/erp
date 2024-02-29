@@ -21,11 +21,11 @@ class ProductPushInformation extends Model
         parent::boot();
 
         static::updated(function (ProductPushInformation $p) {
-            $dirties = $p->getDirty();
+            $dirties      = $p->getDirty();
             $old_contents = $p->getOriginal();
-            $user_id = Auth::id();
+            $user_id      = Auth::id();
 
-            $old_arr = [];
+            $old_arr    = [];
             $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id', 'real_product_id', 'is_available'];
             foreach ($old_contents as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
@@ -57,7 +57,7 @@ class ProductPushInformation extends Model
                 $dirties['is_available'] = $old_contents['is_available'];
             }
 
-            $new_values = array_merge($old_arr, $dirties);
+            $new_values            = array_merge($old_arr, $dirties);
             $new_values['user_id'] = $user_id ?? 'command';
             unset($new_values['real_product_id']);
             unset($new_values['id']);
@@ -65,8 +65,8 @@ class ProductPushInformation extends Model
         });
 
         static::created(function (ProductPushInformation $p) {
-            $old_arr = [];
-            $user_id = Auth::id();
+            $old_arr    = [];
+            $user_id    = Auth::id();
             $remove_key = ['deleted_at', 'created_at', 'updated_at', 'id', 'real_product_id', 'is_available', 'real_product_id'];
             foreach ($p->toArray() as $key => $oldValue) {
                 if (in_array($key, $remove_key)) {
@@ -84,10 +84,10 @@ class ProductPushInformation extends Model
                 }
 
                 $old_arr['old_' . $key] = $oldValue;
-                $old_arr['user_id'] = $user_id ?? 'command';
+                $old_arr['user_id']     = $user_id ?? 'command';
             }
             $old_arr['is_added_from_csv'] = $p->is_added_from_csv;
-            $old_arr['is_available'] = $p->is_available;
+            $old_arr['is_available']      = $p->is_available;
             ProductPushInformationHistory::create($old_arr);
             $productSku = explode('-', $p->sku)[0];
         });

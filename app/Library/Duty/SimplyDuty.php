@@ -10,7 +10,7 @@ class SimplyDuty
 
     private $urls = [
         'calculate_multiple' => 'https://www.api.simplyduty.com/api/duty/calculatemultiple',
-        'calculate' => 'https://www.api.simplyduty.com/api/duty/calculate',
+        'calculate'          => 'https://www.api.simplyduty.com/api/duty/calculate',
     ];
 
     public function __construct()
@@ -27,6 +27,12 @@ class SimplyDuty
      * @param shipping
      * @param insurance
      * @param contractInsuranceType
+     * @param mixed $originCountryCode
+     * @param mixed $destinationCountryCode
+     * @param mixed $items
+     * @param mixed $shipping
+     * @param mixed $insurance
+     * @param mixed $contractInsuranceType
      */
     public function calculateMultiple(
         $originCountryCode,
@@ -40,12 +46,12 @@ class SimplyDuty
         $curl->setHeader('x-api-key', $this->apiKey);
 
         $params = [
-            'OriginCountryCode' => $originCountryCode,
+            'OriginCountryCode'      => $originCountryCode,
             'DestinationCountryCode' => $destinationCountryCode,
-            'Items' => $items,
-            'Shipping' => $shipping,
-            'Insurance' => $insurance,
-            'ContractInsuranceType' => $contractInsuranceType,
+            'Items'                  => $items,
+            'Shipping'               => $shipping,
+            'Insurance'              => $insurance,
+            'ContractInsuranceType'  => $contractInsuranceType,
         ];
 
         $curl->post($this->urls['calculate_multiple'], $params);
@@ -71,6 +77,16 @@ class SimplyDuty
      * @param shipping
      * @param insurance
      * @param contractInsuranceType
+     * @param mixed $originCountryCode
+     * @param mixed $destinationCountryCode
+     * @param mixed $hscode
+     * @param mixed $quantity
+     * @param mixed $value
+     * @param mixed $shipping
+     * @param mixed $insurance
+     * @param mixed $contractInsuranceType
+     * @param mixed $originCurCode
+     * @param mixed $destinationCurCode
      */
     public function calculate(
         $originCountryCode,
@@ -88,15 +104,15 @@ class SimplyDuty
         $curl->setHeader('x-api-key', $this->apiKey);
 
         $params = [
-            'OriginCountryCode' => $originCountryCode,
-            'DestinationCountryCode' => $destinationCountryCode,
-            'HSCode' => $hscode,
-            'Quantity' => $quantity,
-            'Value' => $value,
-            'Shipping' => $shipping,
-            'Insurance' => $insurance,
-            'ContractInsuranceType' => $contractInsuranceType,
-            'OriginCurrencyCode' => $originCurCode,
+            'OriginCountryCode'       => $originCountryCode,
+            'DestinationCountryCode'  => $destinationCountryCode,
+            'HSCode'                  => $hscode,
+            'Quantity'                => $quantity,
+            'Value'                   => $value,
+            'Shipping'                => $shipping,
+            'Insurance'               => $insurance,
+            'ContractInsuranceType'   => $contractInsuranceType,
+            'OriginCurrencyCode'      => $originCurCode,
             'DestinationCurrencyCode' => $destinationCurCode,
         ];
 

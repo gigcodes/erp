@@ -4,20 +4,20 @@ return [
     'api_keys' => [
         [
             'number' => '971562744570',
-            'key' => 'Z802FWHI8E2OP0X120QR',
+            'key'    => 'Z802FWHI8E2OP0X120QR',
         ],
         [
             'number' => '919152731483',
-            'key' => '1KWDP9M0LDCKY9O6QQW8',
+            'key'    => '1KWDP9M0LDCKY9O6QQW8',
         ],
         [
             'number' => '919004418502',
-            'key' => 'YRM9TGDQ4JPSFYRQML28',
+            'key'    => 'YRM9TGDQ4JPSFYRQML28',
         ],
 
     ],
     'media_path' => realpath(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'public', 'apiwha', 'media'])),
-    'instances' => [
+    'instances'  => [
         //        "919004780634" => [
         //            "instance_id" => 43281,
         //            "token" => "yi841xjhrwyrwrc7",
@@ -29,8 +29,8 @@ return [
         //            "customer_number" => true,
         //        ],
         '971545889192' => [
-            'instance_id' => 43112,
-            'token' => 'vbi9bpkoejv2lvc4',
+            'instance_id'     => 43112,
+            'token'           => 'vbi9bpkoejv2lvc4',
             'customer_number' => true,
         ],
         //        "971562744570" => [
@@ -44,20 +44,20 @@ return [
         //            "customer_number" => true,
         //        ],
         '971502609192' => [
-            'instance_id' => 62439,
-            'token' => 'jdcqh3ladeuvwzp4',
+            'instance_id'     => 62439,
+            'token'           => 'jdcqh3ladeuvwzp4',
             'customer_number' => false,
         ],
         '971569119192' => [
-            'instance_id' => 95901,
-            'token' => '5m5009tmunnz6g1o',
+            'instance_id'     => 95901,
+            'token'           => '5m5009tmunnz6g1o',
             'customer_number' => false,
         ],
         // Default
         '0' => [
-            'number' => '971502609192', // Default number!
-            'instance_id' => 62439,
-            'token' => 'jdcqh3ladeuvwzp4',
+            'number'          => '971502609192', // Default number!
+            'instance_id'     => 62439,
+            'token'           => 'jdcqh3ladeuvwzp4',
             'customer_number' => false,
         ],
         //        OLD 04

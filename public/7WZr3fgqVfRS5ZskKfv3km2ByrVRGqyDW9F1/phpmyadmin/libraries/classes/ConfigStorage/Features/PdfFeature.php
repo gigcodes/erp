@@ -23,8 +23,8 @@ final class PdfFeature
 
     public function __construct(DatabaseName $database, TableName $pdfPages, TableName $tableCoords)
     {
-        $this->database = $database;
-        $this->pdfPages = $pdfPages;
+        $this->database    = $database;
+        $this->pdfPages    = $pdfPages;
         $this->tableCoords = $tableCoords;
     }
 }

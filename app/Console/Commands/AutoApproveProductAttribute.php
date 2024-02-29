@@ -39,7 +39,7 @@ class AutoApproveProductAttribute extends Command
     public function __construct(Main $listing, Scrapper $scrapper)
     {
         parent::__construct();
-        $this->listing = $listing;
+        $this->listing  = $listing;
         $this->scrapper = $scrapper;
     }
 
@@ -52,11 +52,11 @@ class AutoApproveProductAttribute extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $count = 0;
+            $count    = 0;
             $products = Product::where('is_approved', 0)
                 ->where('is_listing_rejected', 1)
                 ->where('is_crop_approved', 1)
@@ -83,16 +83,16 @@ class AutoApproveProductAttribute extends Command
 
                 $this->info('Approved....' . $count);
 
-                $listingHistory = new ListingHistory();
-                $listingHistory->user_id = 109;
+                $listingHistory             = new ListingHistory();
+                $listingHistory->user_id    = 109;
                 $listingHistory->product_id = $product->id;
-                $listingHistory->action = 'LISTING_APPROVAL';
-                $listingHistory->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
+                $listingHistory->action     = 'LISTING_APPROVAL';
+                $listingHistory->content    = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved by ERP!'];
                 $listingHistory->save();
 
-                $product->is_approved = 1;
+                $product->is_approved         = 1;
                 $product->is_listing_rejected = 0;
-                $product->approved_by = 109;
+                $product->approved_by         = 109;
                 $product->listing_approved_at = Carbon::now()->toDateTimeString();
                 $product->save();
             }

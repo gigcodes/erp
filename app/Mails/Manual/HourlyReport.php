@@ -21,7 +21,7 @@ class HourlyReport extends Mailable
 
     public function __construct($path)
     {
-        $this->path = $path;
+        $this->path       = $path;
         $this->fromMailer = \App\Helpers::getFromEmail();
     }
 

@@ -23,7 +23,7 @@ class DescriptionChange extends Model
 
     public static function getErpName($name)
     {
-        $mc = self::all();
+        $mc   = self::all();
         $text = $name;
         foreach ($mc as $replace) {
             if (strpos($name, $replace->keyword) !== false) {

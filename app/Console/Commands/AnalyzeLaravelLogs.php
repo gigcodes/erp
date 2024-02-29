@@ -58,7 +58,7 @@ class AnalyzeLaravelLogs extends Command
 
         foreach ($files as $file) {
             $yesterday = strtotime('yesterday');
-            $today = strtotime('today');
+            $today     = strtotime('today');
 
             $time = Storage::disk('logs')->lastModified($file);
 
@@ -75,16 +75,16 @@ class AnalyzeLaravelLogs extends Command
             $matches = [];
             preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?' . $escaped . '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
 
-            $timestamps = $matches[1];
-            $filenames = $matches[2];
+            $timestamps      = $matches[1];
+            $filenames       = $matches[2];
             $errorStackTrace = $matches[3];
 
             foreach ($timestamps as $index => $timestamp) {
                 $data = [
                     'log_file_name' => $file,
-                    'timestamp' => $timestamp,
-                    'filename' => $filenames[$index],
-                    'stacktrace' => $errorStackTrace[$index],
+                    'timestamp'     => $timestamp,
+                    'filename'      => $filenames[$index],
+                    'stacktrace'    => $errorStackTrace[$index],
                 ];
                 $errorData[] = $data;
             }
@@ -97,7 +97,7 @@ class AnalyzeLaravelLogs extends Command
 
         foreach ($errorData as $key => $error) {
             $cmdReponse = [];
-            $cmd = 'git log -n 1 ' . $path . $error['filename'] . ' 2>&1';
+            $cmd        = 'git log -n 1 ' . $path . $error['filename'] . ' 2>&1';
             echo 'git command: ' . $cmd;
             exec($cmd, $cmdReponse);
             echo 'Command execution response :' . print_r($cmdReponse, true) . PHP_EOL;
@@ -122,15 +122,15 @@ class AnalyzeLaravelLogs extends Command
         foreach ($errorData as $error) {
             $log = LaravelGithubLog::firstOrCreate(
                 [
-                    'log_time' => $error['timestamp'],
+                    'log_time'      => $error['timestamp'],
                     'log_file_name' => $error['log_file_name'],
-                    'file' => $error['filename'],
+                    'file'          => $error['filename'],
                 ],
                 [
-                    'commit' => $error['commit']['commit'],
-                    'author' => $error['commit']['author'],
+                    'commit'      => $error['commit']['commit'],
+                    'author'      => $error['commit']['author'],
                     'commit_time' => $error['commit']['date'],
-                    'stacktrace' => $error['stacktrace'],
+                    'stacktrace'  => $error['stacktrace'],
                 ]
             );
 
@@ -143,7 +143,7 @@ class AnalyzeLaravelLogs extends Command
 
         // assign the github user ID to the logs
         foreach ($newlyCreatedLogs as $log) {
-            $githubUserId = $this->getUserIdFromCommit($log->commit);
+            $githubUserId      = $this->getUserIdFromCommit($log->commit);
             $log->githubUserId = $githubUserId;
         }
 
@@ -169,7 +169,7 @@ class AnalyzeLaravelLogs extends Command
 
         // create issue for the newly create log
         foreach ($newlyCreatedLogs as $log) {
-            $issue = $log->file . PHP_EOL . PHP_EOL . $log->stacktrce;
+            $issue   = $log->file . PHP_EOL . PHP_EOL . $log->stacktrce;
             $subject = 'Exception in ' . $log->file;
 
             $user = $users->first(function ($value, $key) use ($log) {
@@ -182,11 +182,11 @@ class AnalyzeLaravelLogs extends Command
             }
 
             Issue::create([
-                'user_id' => $user_id,
-                'issue' => $issue,
+                'user_id'  => $user_id,
+                'issue'    => $issue,
                 'priority' => 0,
-                'module' => '',
-                'subject' => $subject,
+                'module'   => '',
+                'subject'  => $subject,
             ]);
         }
 
@@ -211,7 +211,7 @@ class AnalyzeLaravelLogs extends Command
             echo print_r(
                 [
                     'author' => $author,
-                    'date' => $date,
+                    'date'   => $date,
                     'commit' => $commit,
                 ],
                 true
@@ -219,7 +219,7 @@ class AnalyzeLaravelLogs extends Command
 
             return [
                 'author' => $author,
-                'date' => $date,
+                'date'   => $date,
                 'commit' => $commit,
             ];
         }
@@ -232,7 +232,7 @@ class AnalyzeLaravelLogs extends Command
         // NOTE: 231925646 is the ERP repo ID
         $url = 'https://api.github.com/repositories/231925646/commits/' . $commit;
         try {
-            $response = $this->client->get($url);
+            $response        = $this->client->get($url);
             $decodedResponse = json_decode($response->getBody()->getContents());
             if (isset($decodedResponse->author)) {
                 return $decodedResponse->author->id;

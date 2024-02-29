@@ -1,8 +1,8 @@
 <?php
 
 $env_file_path = $argv[1];
-$search_key = $argv[2];
-$value_update = $argv[3];
+$search_key    = $argv[2];
+$value_update  = $argv[3];
 
 //    $env_file_path="C:/xampp/htdocs/test/env_brands.php";
 //    $search_key="cache/frontend/default/backend_options/server";

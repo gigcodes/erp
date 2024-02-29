@@ -33,7 +33,8 @@ class CallBusyMessage extends Model
     /**
      * Function to insert large amount of data
      *
-     * @param  type  $data
+     * @param type $data
+     *
      * @return $result
      */
     public static function boot()
@@ -42,8 +43,8 @@ class CallBusyMessage extends Model
 
         static::created(function ($model) {
             if ($model->twilio_call_sid) {
-                $formatted_phone = str_replace('+', '', $model->twilio_call_sid);
-                $customer = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->first();
+                $formatted_phone    = str_replace('+', '', $model->twilio_call_sid);
+                $customer           = Customer::with('storeWebsite', 'orders')->where('phone', $formatted_phone)->first();
                 $model->customer_id = $customer->id ?? null;
                 $model->save();
             }
@@ -58,7 +59,7 @@ class CallBusyMessage extends Model
     /**
      * Function to check Twilio Sid
      *
-     * @param  string  $sId twilio sid
+     * @param string $sId twilio sid
      */
     public static function checkSidAlreadyExist($sId)
     {
@@ -78,12 +79,12 @@ class CallBusyMessage extends Model
     public function convertSpeechToText($recording_url, $store_website_id = 0, $to = null, $from = null)
     {
         $recording_url = trim($recording_url);
-        $ch1 = curl_init();
+        $ch1           = curl_init();
         curl_setopt($ch1, CURLOPT_URL, $recording_url);
         curl_setopt($ch1, CURLOPT_RETURNTRANSFER, 1);
         $http_respond = curl_exec($ch1);
         $http_respond = trim(strip_tags($http_respond));
-        $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
+        $http_code    = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
         if (($http_code == '200') || ($http_code == '302')) {
             // If store id not found
@@ -117,9 +118,9 @@ class CallBusyMessage extends Model
             }
 
             $apiKey = $watsonAccount->speech_to_text_api_key;
-            $url = $watsonAccount->speech_to_text_url;
+            $url    = $watsonAccount->speech_to_text_url;
 
-            $ch = curl_init();
+            $ch   = curl_init();
             $file = file_get_contents($recording_url);
             curl_setopt($ch, CURLOPT_URL, $url . '/v1/recognize?model=en-US_NarrowbandModel');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -129,7 +130,7 @@ class CallBusyMessage extends Model
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_USERPWD, 'apikey' . ':' . $apiKey);
 
-            $headers = [];
+            $headers   = [];
             $headers[] = 'Content-Type: application/octet-stream';
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 

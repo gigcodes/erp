@@ -60,7 +60,8 @@ class Transformations
      * // }
      * </code>
      *
-     * @param  string  $optionString comma separated options
+     * @param string $optionString comma separated options
+     *
      * @return array options
      */
     public function getOptions($optionString)
@@ -80,7 +81,7 @@ class Transformations
                 $option = mb_substr($trimmed, 1, -1);
             } elseif (isset($trimmed[0]) && $trimmed[0] == "'") {
                 // '...,
-                $trimmed = ltrim($option);
+                $trimmed  = ltrim($option);
                 $rtrimmed = '';
                 while (($option = array_shift($transformOptions)) !== null) {
                     // ...,
@@ -104,7 +105,7 @@ class Transformations
     /**
      * Gets all available MIME-types
      *
-     * @return array    array[mimetype], array[transformation]
+     * @return array array[mimetype], array[transformation]
      *
      * @staticvar array $stack
      */
@@ -116,18 +117,18 @@ class Transformations
             return $stack;
         }
 
-        $stack = [];
+        $stack    = [];
         $sub_dirs = [
-            'Input/' => 'input_',
+            'Input/'  => 'input_',
             'Output/' => '',
-            '' => '',
+            ''        => '',
         ];
 
         foreach ($sub_dirs as $sd => $prefix) {
             $handle = opendir(ROOT_PATH . 'libraries/classes/Plugins/Transformations/' . $sd);
 
             if (! $handle) {
-                $stack[$prefix . 'transformation'] = [];
+                $stack[$prefix . 'transformation']      = [];
                 $stack[$prefix . 'transformation_file'] = [];
 
                 continue;
@@ -154,14 +155,14 @@ class Transformations
             foreach ($filestack as $file) {
                 if (preg_match('|^[^.].*_.*_.*\.php$|', $file)) {
                     // File contains transformation functions.
-                    $parts = explode('_', str_replace('.php', '', $file));
-                    $mimetype = $parts[0] . '/' . $parts[1];
+                    $parts                        = explode('_', str_replace('.php', '', $file));
+                    $mimetype                     = $parts[0] . '/' . $parts[1];
                     $stack['mimetype'][$mimetype] = $mimetype;
 
-                    $stack[$prefix . 'transformation'][] = $mimetype . ': ' . $parts[2];
+                    $stack[$prefix . 'transformation'][]      = $mimetype . ': ' . $parts[2];
                     $stack[$prefix . 'transformation_file'][] = $sd . $file;
                     if ($sd === '') {
-                        $stack['input_transformation'][] = $mimetype . ': ' . $parts[2];
+                        $stack['input_transformation'][]      = $mimetype . ': ' . $parts[2];
                         $stack['input_transformation_file'][] = $sd . $file;
                     }
                 } elseif (preg_match('|^[^.].*\.php$|', $file)) {
@@ -169,8 +170,8 @@ class Transformations
                     $base = str_replace('.php', '', $file);
 
                     if ($base !== 'global') {
-                        $mimetype = str_replace('_', '/', $base);
-                        $stack['mimetype'][$mimetype] = $mimetype;
+                        $mimetype                           = str_replace('_', '/', $base);
+                        $stack['mimetype'][$mimetype]       = $mimetype;
                         $stack['empty_mimetype'][$mimetype] = $mimetype;
                     }
                 }
@@ -183,7 +184,8 @@ class Transformations
     /**
      * Returns the class name of the transformation
      *
-     * @param  string  $filename transformation file name
+     * @param string $filename transformation file name
+     *
      * @return string the class name of transformation
      */
     public function getClassName($filename)
@@ -198,7 +200,8 @@ class Transformations
     /**
      * Returns the description of the transformation
      *
-     * @param  string  $file transformation file
+     * @param string $file transformation file
+     *
      * @return string the description of the transformation
      */
     public function getDescription($file)
@@ -216,7 +219,8 @@ class Transformations
     /**
      * Returns the name of the transformation
      *
-     * @param  string  $file transformation file
+     * @param string $file transformation file
+     *
      * @return string the name of the transformation
      */
     public function getName($file)
@@ -239,7 +243,8 @@ class Transformations
      * - capitalizes words
      * - removes back spaces
      *
-     * @param  string  $value Value to fixup
+     * @param string $value Value to fixup
+     *
      * @return string
      */
     public function fixUpMime($value)
@@ -268,17 +273,18 @@ class Transformations
     /**
      * Gets the mimetypes for all columns of a table
      *
-     * @param  string  $db       the name of the db to check for
-     * @param  string  $table    the name of the table to check for
-     * @param  bool  $strict   whether to include only results having a mimetype set
-     * @param  bool  $fullName whether to use full column names as the key
+     * @param string $db       the name of the db to check for
+     * @param string $table    the name of the table to check for
+     * @param bool   $strict   whether to include only results having a mimetype set
+     * @param bool   $fullName whether to use full column names as the key
+     *
      * @return array|null [field_name][field_key] = field_value
      */
     public function getMime($db, $table, $strict = false, $fullName = false)
     {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation                     = new Relation($dbi);
         $browserTransformationFeature = $relation->getRelationParameters()->browserTransformationFeature;
         if ($browserTransformationFeature === null) {
             return null;
@@ -314,16 +320,16 @@ class Transformations
             // For transformation of form
             // output/image_jpeg__inline.inc.php
             // extract dir part.
-            $dir = explode('/', $values['transformation']);
+            $dir    = explode('/', $values['transformation']);
             $subdir = '';
             if (count($dir) === 2) {
-                $subdir = ucfirst($dir[0]) . '/';
+                $subdir                   = ucfirst($dir[0]) . '/';
                 $values['transformation'] = $dir[1];
             }
 
             $values['transformation'] = $this->fixUpMime($values['transformation']);
             $values['transformation'] = $subdir . $values['transformation'];
-            $result[$column] = $values;
+            $result[$column]          = $values;
         }
 
         return $result;
@@ -332,15 +338,15 @@ class Transformations
     /**
      * Set a single mimetype to a certain value.
      *
-     * @param  string  $db                 the name of the db
-     * @param  string  $table              the name of the table
-     * @param  string  $key                the name of the column
-     * @param  string  $mimetype           the mimetype of the column
-     * @param  string  $transformation     the transformation of the column
-     * @param  string  $transformationOpts the transformation options of the column
-     * @param  string  $inputTransform     the input transformation of the column
-     * @param  string  $inputTransformOpts the input transformation options of the column
-     * @param  bool  $forcedelete        force delete, will erase any existing
+     * @param string $db                 the name of the db
+     * @param string $table              the name of the table
+     * @param string $key                the name of the column
+     * @param string $mimetype           the mimetype of the column
+     * @param string $transformation     the transformation of the column
+     * @param string $transformationOpts the transformation options of the column
+     * @param string $inputTransform     the input transformation of the column
+     * @param string $inputTransformOpts the input transformation options of the column
+     * @param bool   $forcedelete        force delete, will erase any existing
      *                                   comments for this column
      */
     public function setMime(
@@ -356,14 +362,14 @@ class Transformations
     ): bool {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation                     = new Relation($dbi);
         $browserTransformationFeature = $relation->getRelationParameters()->browserTransformationFeature;
         if ($browserTransformationFeature === null) {
             return false;
         }
 
         // lowercase mimetype & transformation
-        $mimetype = mb_strtolower($mimetype);
+        $mimetype       = mb_strtolower($mimetype);
         $transformation = mb_strtolower($transformation);
 
         // Do we have any parameter to set?
@@ -443,21 +449,25 @@ class Transformations
 
     /**
      * GLOBAL Plugin functions
+     *
+     * @param mixed $db
+     * @param mixed $table
+     * @param mixed $column
      */
 
     /**
      * Delete related transformation details
      * after deleting database. table or column
      *
-     * @param  string  $db     Database name
-     * @param  string  $table  Table name
-     * @param  string  $column Column name
+     * @param string $db     Database name
+     * @param string $table  Table name
+     * @param string $column Column name
      */
     public function clear($db, $table = '', $column = ''): bool
     {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation                     = new Relation($dbi);
         $browserTransformationFeature = $relation->getRelationParameters()->browserTransformationFeature;
         if ($browserTransformationFeature === null) {
             return false;

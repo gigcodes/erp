@@ -54,7 +54,7 @@ class CheckLandingProducts extends Command
             foreach ($landingProducts as $product) {
                 $productData = [
                     'product' => [
-                        'published' => false,
+                        'published'       => false,
                         'published_scope' => false,
                     ],
                 ];

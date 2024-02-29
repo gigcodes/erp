@@ -19,8 +19,9 @@ class Replication
     /**
      * Extracts database or table name from string
      *
-     * @param  string  $string contains "dbname.tablename"
-     * @param  string  $what   what to extract (db|table)
+     * @param string $string contains "dbname.tablename"
+     * @param string $what   what to extract (db|table)
+     *
      * @return string the extracted part
      */
     public function extractDbOrTable($string, $what = 'db')
@@ -36,19 +37,20 @@ class Replication
     /**
      * Configures replication replica
      *
-     * @param  string  $action  possible values: START or STOP
-     * @param  string|null  $control default: null,
+     * @param string      $action  possible values: START or STOP
+     * @param string|null $control default: null,
      *                             possible values: SQL_THREAD or IO_THREAD or null.
      *                             If it is set to null, it controls both
      *                             SQL_THREAD and IO_THREAD
-     * @param  int  $link    mysql link
+     * @param int         $link    mysql link
+     *
      * @return ResultInterface|false|int output of DatabaseInterface::tryQuery
      */
     public function replicaControl(string $action, ?string $control, int $link)
     {
         global $dbi;
 
-        $action = mb_strtoupper($action);
+        $action  = mb_strtoupper($action);
         $control = $control !== null ? mb_strtoupper($control) : '';
 
         if ($action !== 'START' && $action !== 'STOP') {
@@ -65,14 +67,15 @@ class Replication
     /**
      * Changes primary for replication replica
      *
-     * @param  string  $user     replication user on primary
-     * @param  string  $password password for the user
-     * @param  string  $host     primary's hostname or IP
-     * @param  int  $port     port, where mysql is running
-     * @param  array  $pos      position of mysql replication, array should contain fields File and Position
-     * @param  bool  $stop     shall we stop replica?
-     * @param  bool  $start    shall we start replica?
-     * @param  int  $link     mysql link
+     * @param string $user     replication user on primary
+     * @param string $password password for the user
+     * @param string $host     primary's hostname or IP
+     * @param int    $port     port, where mysql is running
+     * @param array  $pos      position of mysql replication, array should contain fields File and Position
+     * @param bool   $stop     shall we stop replica?
+     * @param bool   $start    shall we start replica?
+     * @param int    $link     mysql link
+     *
      * @return ResultInterface|false output of CHANGE MASTER mysql command
      */
     public function replicaChangePrimary(
@@ -112,11 +115,12 @@ class Replication
     /**
      * This function provides connection to remote mysql server
      *
-     * @param  string  $user     mysql username
-     * @param  string  $password password for the user
-     * @param  string  $host     mysql server's hostname or IP
-     * @param  int  $port     mysql remote port
-     * @param  string  $socket   path to unix socket
+     * @param string $user     mysql username
+     * @param string $password password for the user
+     * @param string $host     mysql server's hostname or IP
+     * @param int    $port     mysql remote port
+     * @param string $socket   path to unix socket
+     *
      * @return mixed mysql link on success
      */
     public function connectToPrimary(
@@ -128,12 +132,12 @@ class Replication
     ) {
         global $dbi;
 
-        $server = [];
-        $server['user'] = $user;
+        $server             = [];
+        $server['user']     = $user;
         $server['password'] = $password;
-        $server['host'] = Core::sanitizeMySQLHost($host);
-        $server['port'] = $port;
-        $server['socket'] = $socket;
+        $server['host']     = Core::sanitizeMySQLHost($host);
+        $server['port']     = $port;
+        $server['socket']   = $socket;
 
         // 5th parameter set to true means that it's an auxiliary connection
         // and we must not go back to login page if it fails
@@ -143,9 +147,10 @@ class Replication
     /**
      * Fetches position and file of current binary log on primary
      *
-     * @param  int  $link mysql link
+     * @param int $link mysql link
+     *
      * @return array an array containing File and Position in MySQL replication
-     * on primary server, useful for {@see Replication::replicaChangePrimary()}.
+     *               on primary server, useful for {@see Replication::replicaChangePrimary()}.
      *
      * @phpstan-return array{'File'?: string, 'Position'?: string}
      */
@@ -153,11 +158,11 @@ class Replication
     {
         global $dbi;
 
-        $data = $dbi->fetchResult('SHOW MASTER STATUS', null, null, $link);
+        $data   = $dbi->fetchResult('SHOW MASTER STATUS', null, null, $link);
         $output = [];
 
         if (! empty($data)) {
-            $output['File'] = $data[0]['File'];
+            $output['File']     = $data[0]['File'];
             $output['Position'] = $data[0]['Position'];
         }
 

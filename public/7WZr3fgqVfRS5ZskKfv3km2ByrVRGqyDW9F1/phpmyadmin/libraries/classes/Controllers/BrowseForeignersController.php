@@ -29,7 +29,7 @@ class BrowseForeignersController extends AbstractController
     ) {
         parent::__construct($response, $template);
         $this->browseForeigners = $browseForeigners;
-        $this->relation = $relation;
+        $this->relation         = $relation;
     }
 
     public function __invoke(ServerRequest $request): void
@@ -58,9 +58,9 @@ class BrowseForeignersController extends AbstractController
         $header->disableMenuAndConsole();
         $header->setBodyId('body_browse_foreigners');
 
-        $foreigners = $this->relation->getForeigners($database, $table);
+        $foreigners   = $this->relation->getForeigners($database, $table);
         $foreignLimit = $this->browseForeigners->getForeignLimit($foreignShowAll);
-        $foreignData = $this->relation->getForeignData(
+        $foreignData  = $this->relation->getForeignData(
             $foreigners,
             $field,
             true,

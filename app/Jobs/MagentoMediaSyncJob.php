@@ -16,6 +16,12 @@ class MagentoMediaSyncJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $sourceStoreWebsites
+     * @param private $destStoreWebsites
+     * @param private $source_store_website_id
+     * @param private $dest_store_website_id
+     * @param private $login_user_id
+     *
      * @return void
      */
     public function __construct(private $sourceStoreWebsites, private $destStoreWebsites, private $source_store_website_id, private $dest_store_website_id, private $login_user_id)
@@ -32,10 +38,10 @@ class MagentoMediaSyncJob implements ShouldQueue
     public function handle()
     {
         // New Script
-        $source_server_ip = $this->sourceStoreWebsites->server_ip;
+        $source_server_ip  = $this->sourceStoreWebsites->server_ip;
         $source_server_dir = $this->sourceStoreWebsites->working_directory;
-        $dest_server_ip = $this->destStoreWebsites->server_ip;
-        $dest_server_dir = $this->destStoreWebsites->working_directory;
+        $dest_server_ip    = $this->destStoreWebsites->server_ip;
+        $dest_server_dir   = $this->destStoreWebsites->working_directory;
 
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
@@ -47,15 +53,15 @@ class MagentoMediaSyncJob implements ShouldQueue
         \Log::info('store return_var:' . $return_var);
 
         $useraccess = MagentoMediaSync::create([
-            'created_by' => $this->login_user_id,
+            'created_by'              => $this->login_user_id,
             'source_store_website_id' => $this->source_store_website_id,
-            'dest_store_website_id' => $this->dest_store_website_id,
-            'source_server_ip' => $source_server_ip,
-            'source_server_dir' => $source_server_dir,
-            'dest_server_ip' => $dest_server_ip,
-            'dest_server_dir' => $dest_server_dir,
-            'request_data' => $cmd,
-            'response_data' => json_encode($result),
+            'dest_store_website_id'   => $this->dest_store_website_id,
+            'source_server_ip'        => $source_server_ip,
+            'source_server_dir'       => $source_server_dir,
+            'dest_server_ip'          => $dest_server_ip,
+            'dest_server_dir'         => $dest_server_dir,
+            'request_data'            => $cmd,
+            'response_data'           => json_encode($result),
         ]);
     }
 

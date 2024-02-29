@@ -31,7 +31,7 @@ class SqlQueryForm
     private $template;
 
     /**
-     * @param  Template  $template Template object
+     * @param Template $template Template object
      */
     public function __construct(Template $template)
     {
@@ -41,12 +41,13 @@ class SqlQueryForm
     /**
      * return HTML for the sql query boxes
      *
-     * @param  bool|string  $query       query to display in the textarea
+     * @param bool|string $query       query to display in the textarea
      *                                 or true to display last executed
-     * @param  bool|string  $display_tab sql|full|false
+     * @param bool|string $display_tab sql|full|false
      *                                 what part to display
      *                                 false if not inside querywindow
-     * @param  string  $delimiter   delimiter
+     * @param string      $delimiter   delimiter
+     *
      * @return string
      *
      * @usedby  /server/sql
@@ -90,7 +91,7 @@ class SqlQueryForm
             [$legend, $query, $columns_list] = $this->init($query);
         }
 
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $bookmarkFeature = $relation->getRelationParameters()->bookmarkFeature;
 
         $bookmarks = [];
@@ -99,32 +100,32 @@ class SqlQueryForm
 
             foreach ($bookmark_list as $bookmarkItem) {
                 $bookmarks[] = [
-                    'id' => $bookmarkItem->getId(),
+                    'id'             => $bookmarkItem->getId(),
                     'variable_count' => $bookmarkItem->getVariableCount(),
-                    'label' => $bookmarkItem->getLabel(),
-                    'is_shared' => empty($bookmarkItem->getUser()),
+                    'label'          => $bookmarkItem->getLabel(),
+                    'is_shared'      => empty($bookmarkItem->getUser()),
                 ];
             }
         }
 
         return $this->template->render('sql/query', [
-            'legend' => $legend ?? '',
-            'textarea_cols' => $GLOBALS['cfg']['TextareaCols'],
-            'textarea_rows' => $GLOBALS['cfg']['TextareaRows'],
+            'legend'               => $legend ?? '',
+            'textarea_cols'        => $GLOBALS['cfg']['TextareaCols'],
+            'textarea_rows'        => $GLOBALS['cfg']['TextareaRows'],
             'textarea_auto_select' => $GLOBALS['cfg']['TextareaAutoSelect'],
-            'columns_list' => $columns_list ?? [],
-            'codemirror_enable' => $GLOBALS['cfg']['CodemirrorEnable'],
-            'has_bookmark' => $bookmarkFeature !== null,
-            'delimiter' => $delimiter,
-            'retain_query_box' => $GLOBALS['cfg']['RetainQueryBox'] !== false,
-            'is_upload' => $GLOBALS['config']->get('enable_upload'),
-            'db' => $db,
-            'table' => $table,
-            'goto' => $goto,
-            'query' => $query,
-            'display_tab' => $display_tab,
-            'bookmarks' => $bookmarks,
-            'can_convert_kanji' => Encoding::canConvertKanji(),
+            'columns_list'         => $columns_list ?? [],
+            'codemirror_enable'    => $GLOBALS['cfg']['CodemirrorEnable'],
+            'has_bookmark'         => $bookmarkFeature !== null,
+            'delimiter'            => $delimiter,
+            'retain_query_box'     => $GLOBALS['cfg']['RetainQueryBox'] !== false,
+            'is_upload'            => $GLOBALS['config']->get('enable_upload'),
+            'db'                   => $db,
+            'table'                => $table,
+            'goto'                 => $goto,
+            'query'                => $query,
+            'display_tab'          => $display_tab,
+            'bookmarks'            => $bookmarks,
+            'can_convert_kanji'    => Encoding::canConvertKanji(),
             'is_foreign_key_check' => ForeignKey::isCheckEnabled(),
         ]);
     }
@@ -132,7 +133,8 @@ class SqlQueryForm
     /**
      * Get initial values for Sql Query Form Insert
      *
-     * @param  string  $query query to display in the textarea
+     * @param string $query query to display in the textarea
+     *
      * @return array ($legend, $query, $columns_list)
      */
     public function init($query)
@@ -154,7 +156,7 @@ class SqlQueryForm
             // prepare for db related
             $db = $GLOBALS['db'];
             // if you want navigation:
-            $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabDatabase'], 'database');
+            $scriptName  = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabDatabase'], 'database');
             $tmp_db_link = '<a href="' . $scriptName
                 . Url::getCommon(['db' => $db], ! str_contains($scriptName, '?') ? '?' : '&')
                 . '">';
@@ -164,14 +166,14 @@ class SqlQueryForm
                 $query = Util::expandUserString($GLOBALS['cfg']['DefaultQueryDatabase'], 'backquote');
             }
         } else {
-            $db = $GLOBALS['db'];
+            $db    = $GLOBALS['db'];
             $table = $GLOBALS['table'];
             // Get the list and number of fields
             // we do a try_query here, because we could be in the query window,
             // trying to synchronize and the table has not yet been created
             $columns_list = $dbi->getColumns($db, $GLOBALS['table'], true);
 
-            $scriptName = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabTable'], 'table');
+            $scriptName   = Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabTable'], 'table');
             $tmp_tbl_link = '<a href="' . $scriptName . Url::getCommon(['db' => $db, 'table' => $table], '&') . '">';
             $tmp_tbl_link .= htmlspecialchars($db) . '.' . htmlspecialchars($table) . '</a>';
             $legend = sprintf(__('Run SQL query/queries on table %s'), $tmp_tbl_link);

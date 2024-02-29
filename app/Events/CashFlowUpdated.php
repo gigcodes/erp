@@ -14,6 +14,8 @@ class CashFlowUpdated
     /**
      * Create a new event instance.
      *
+     * @param publicCashFlow $cashflow
+     *
      * @return void
      */
     public function __construct(public CashFlow $cashflow)

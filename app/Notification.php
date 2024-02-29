@@ -54,17 +54,17 @@ class Notification extends Model
 
     public static function getUserNotificationByRolesPaginate(Request $request)
     {
-        $orderBy = 'n.created_at';
+        $orderBy   = 'n.created_at';
         $direction = 'desc';
 
         if ($request->has('sort_by')) {
             if ($request->input('sort_by') == 'by_user') {
-                $orderBy = 'n.user_id';
+                $orderBy   = 'n.user_id';
                 $direction = 'asc';
             }
 
             if ($request->input('sort_by') == 'by_task') {
-                $orderBy = 'n.role';
+                $orderBy   = 'n.role';
                 $direction = 'asc';
             }
         }

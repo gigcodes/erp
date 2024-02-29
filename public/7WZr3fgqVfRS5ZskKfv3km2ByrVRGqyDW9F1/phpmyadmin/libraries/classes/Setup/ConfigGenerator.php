@@ -28,7 +28,8 @@ class ConfigGenerator
     /**
      * Creates config file
      *
-     * @param  ConfigFile  $cf Config file instance
+     * @param ConfigFile $cf Config file instance
+     *
      * @return string
      */
     public static function getConfigFile(ConfigFile $cf)
@@ -83,9 +84,10 @@ class ConfigGenerator
     /**
      * Returns exported configuration variable
      *
-     * @param  string  $var_name  configuration name
-     * @param  mixed  $var_value configuration value(s)
-     * @param  string  $crlf      line ending
+     * @param string $var_name  configuration name
+     * @param mixed  $var_value configuration value(s)
+     * @param string $crlf      line ending
+     *
      * @return string
      */
     private static function getVarExport($var_name, $var_value, $crlf)
@@ -115,7 +117,7 @@ class ConfigGenerator
     /**
      * Check whether $array is a continuous 0-based array
      *
-     * @param  array  $array Array to check
+     * @param array $array Array to check
      */
     private static function isZeroBasedArray(array $array): bool
     {
@@ -131,8 +133,9 @@ class ConfigGenerator
     /**
      * Exports continuous 0-based array
      *
-     * @param  array  $array Array to export
-     * @param  string  $crlf  Newline string
+     * @param array  $array Array to export
+     * @param string $crlf  Newline string
+     *
      * @return string
      */
     private static function exportZeroBasedArray(array $array, $crlf)
@@ -160,9 +163,10 @@ class ConfigGenerator
     /**
      * Generate server part of config file
      *
-     * @param  ConfigFile  $cf      Config file
-     * @param  string  $crlf    Carriage return char
-     * @param  array  $servers Servers list
+     * @param ConfigFile $cf      Config file
+     * @param string     $crlf    Carriage return char
+     * @param array      $servers Servers list
+     *
      * @return string|null
      */
     protected static function getServerPart(ConfigFile $cf, $crlf, array $servers)

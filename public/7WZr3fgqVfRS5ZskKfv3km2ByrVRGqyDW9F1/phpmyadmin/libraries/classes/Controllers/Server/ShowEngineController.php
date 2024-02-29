@@ -44,21 +44,21 @@ final class ShowEngineController extends AbstractController
         $engine = [];
         if (StorageEngine::isValid($params['engine'])) {
             $storageEngine = StorageEngine::getEngine($params['engine']);
-            $engine = [
-                'engine' => $params['engine'],
-                'title' => $storageEngine->getTitle(),
-                'help_page' => $storageEngine->getMysqlHelpPage(),
-                'comment' => $storageEngine->getComment(),
+            $engine        = [
+                'engine'     => $params['engine'],
+                'title'      => $storageEngine->getTitle(),
+                'help_page'  => $storageEngine->getMysqlHelpPage(),
+                'comment'    => $storageEngine->getComment(),
                 'info_pages' => $storageEngine->getInfoPages(),
-                'support' => $storageEngine->getSupportInformationMessage(),
-                'variables' => $storageEngine->getHtmlVariables(),
-                'page' => ! empty($page) ? $storageEngine->getPage($page) : '',
+                'support'    => $storageEngine->getSupportInformationMessage(),
+                'variables'  => $storageEngine->getHtmlVariables(),
+                'page'       => ! empty($page) ? $storageEngine->getPage($page) : '',
             ];
         }
 
         $this->render('server/engines/show', [
             'engine' => $engine,
-            'page' => $page,
+            'page'   => $page,
         ]);
     }
 }

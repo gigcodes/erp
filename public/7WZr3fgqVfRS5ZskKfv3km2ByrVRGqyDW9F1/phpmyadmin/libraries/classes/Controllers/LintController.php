@@ -20,7 +20,7 @@ class LintController extends AbstractController
     {
         $params = [
             'sql_query' => $_POST['sql_query'] ?? null,
-            'options' => $_POST['options'] ?? null,
+            'options'   => $_POST['options'] ?? null,
         ];
 
         /**

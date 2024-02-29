@@ -43,17 +43,17 @@ class AssetsManagerController extends Controller
 
         $assets_category = AssetsCategory::all();
 
-        $search = request('search', '');
-        $paymentCycle = request('payment_cycle', '');
-        $assetType = request('asset_type', '');
-        $purchaseType = request('purchase_type', '');
-        $website_id = request('website_id');
+        $search              = request('search', '');
+        $paymentCycle        = request('payment_cycle', '');
+        $assetType           = request('asset_type', '');
+        $purchaseType        = request('purchase_type', '');
+        $website_id          = request('website_id');
         $asset_plate_form_id = request('asset_plate_form_id');
-        $email_address_id = request('email_address_id');
-        $whatsapp_config_id = request('whatsapp_config_id');
-        $ip_ids = request('ip_ids');
-        $user_ids = request('user_ids');
-        $date = request('date');
+        $email_address_id    = request('email_address_id');
+        $whatsapp_config_id  = request('whatsapp_config_id');
+        $ip_ids              = request('ip_ids');
+        $user_ids            = request('user_ids');
+        $date                = request('date');
 
         $assets = new AssetsManager;
         $assets = $assets->leftJoin('store_websites', 'store_websites.id', 'assets_manager.website_id')
@@ -112,23 +112,23 @@ class AssetsManagerController extends Controller
 
         $assets = $assets->orderBy('id', 'ASC');
 
-        $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
-        $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
-        $assets = $assets->orderBy('assets_manager.id', 'asc')->paginate(25);
-        $websites = StoreWebsite::all();
-        $plateforms = AssetPlateForm::all();
+        $assetsIds    = $assets->select('assets_manager.id')->get()->toArray();
+        $assets       = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
+        $assets       = $assets->orderBy('assets_manager.id', 'asc')->paginate(25);
+        $websites     = StoreWebsite::all();
+        $plateforms   = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
-        $whatsappCon = WhatsappConfig::all();
+        $whatsappCon  = WhatsappConfig::all();
 
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
-        $users = User::get()->toArray();
+        $users     = User::get()->toArray();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
 
         $dynamicColumnsToShowAM = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns            = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowAM = json_decode($hideColumns, true);
         }
 
@@ -141,15 +141,15 @@ class AssetsManagerController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'asset-manager';
-            $column->column_name = json_encode($request->column_assetsmanager);
+            $column->column_name  = json_encode($request->column_assetsmanager);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'asset-manager';
-            $column->column_name = json_encode($request->column_assetsmanager);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_assetsmanager);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -173,19 +173,19 @@ class AssetsManagerController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'link' => 'required',
-            'asset_type' => 'required',
-            'start_date' => 'required',
-            'category_id' => 'required',
+            'name'          => 'required',
+            'link'          => 'required',
+            'asset_type'    => 'required',
+            'start_date'    => 'required',
+            'category_id'   => 'required',
             'purchase_type' => 'required',
             'payment_cycle' => 'required',
-            'amount' => 'required',
+            'amount'        => 'required',
         ]);
 
-        $othercat = $request->input('other');
+        $othercat    = $request->input('other');
         $category_id = $request->input('category_id');
-        $catid = '';
+        $catid       = '';
         if ($othercat != '' && $category_id != '') {
             $dataCat = AssetsCategory::where('cat_name', $othercat)->first();
 
@@ -202,29 +202,29 @@ class AssetsManagerController extends Controller
         if ($catid != '') {
             $data['category_id'] = $catid;
         }
-        $data['start_date'] = ($request->input('start_date') == '') ? $request->input('old_start_date') : $request->input('start_date');
-        $data['ip_name'] = $request->ip_name;
-        $data['server_password'] = $request->server_password;
-        $data['folder_name'] = json_encode($request->folder_name);
-        $data['website_id'] = $request->website_id;
+        $data['start_date']          = ($request->input('start_date') == '') ? $request->input('old_start_date') : $request->input('start_date');
+        $data['ip_name']             = $request->ip_name;
+        $data['server_password']     = $request->server_password;
+        $data['folder_name']         = json_encode($request->folder_name);
+        $data['website_id']          = $request->website_id;
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
-        $data['email_address_id'] = $request->email_address_id;
-        $data['whatsapp_config_id'] = $request->whatsapp_config_id;
-        $data['created_by'] = Auth::user()->id;
-        $data['link'] = $request->get('link');
-        $data['ip'] = $request->get('ip');
-        $insertData = AssetsManager::create($data);
+        $data['email_address_id']    = $request->email_address_id;
+        $data['whatsapp_config_id']  = $request->whatsapp_config_id;
+        $data['created_by']          = Auth::user()->id;
+        $data['link']                = $request->get('link');
+        $data['ip']                  = $request->get('ip');
+        $insertData                  = AssetsManager::create($data);
         if ($request->input('payment_cycle') == 'One time') {
             //create entry in table cash_flows
             \App\CashFlow::create(
                 [
-                    'description' => 'Asset Manager Payment for ' . $insertData->name,
-                    'date' => date('Y-m-d'),
-                    'amount' => $request->input('amount'),
-                    'type' => 'pending',
-                    'currency' => $insertData->currency,
+                    'description'         => 'Asset Manager Payment for ' . $insertData->name,
+                    'date'                => date('Y-m-d'),
+                    'amount'              => $request->input('amount'),
+                    'type'                => 'pending',
+                    'currency'            => $insertData->currency,
                     'cash_flow_able_type' => \App\AssetsManager::class,
-                    'cash_flow_able_id' => $insertData->id,
+                    'cash_flow_able_id'   => $insertData->id,
 
                 ]
             );
@@ -237,7 +237,8 @@ class AssetsManagerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -247,7 +248,8 @@ class AssetsManagerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -257,25 +259,26 @@ class AssetsManagerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'link' => 'required',
-            'asset_type' => 'required',
-            'start_date' => 'required',
-            'category_id' => 'required',
+            'name'          => 'required',
+            'link'          => 'required',
+            'asset_type'    => 'required',
+            'start_date'    => 'required',
+            'category_id'   => 'required',
             'purchase_type' => 'required',
             'payment_cycle' => 'required',
-            'amount' => 'required',
+            'amount'        => 'required',
         ]);
 
-        $othercat = $request->input('other');
+        $othercat    = $request->input('other');
         $category_id = $request->input('category_id');
-        $catid = '';
+        $catid       = '';
         if ($othercat != '' && $category_id != '') {
             $dataCat = DB::table('assets_category')
                 ->Where('cat_name', $othercat)
@@ -296,25 +299,25 @@ class AssetsManagerController extends Controller
             $data['category_id'] = $catid;
         }
         if ($request->input('old_user_name') != $request->input('user_name') || $request->input('old_password') != $request->input('password')) {
-            $assetLog = new AssetManamentUpdateLog();
+            $assetLog                   = new AssetManamentUpdateLog();
             $assetLog->assetmenament_id = $id;
-            $assetLog->user_id = \Auth::user()->id;
-            $assetLog->user_name = $request->input('old_user_name');
-            $assetLog->password = $request->input('old_password');
-            $assetLog->ip = $request->input('old_ip');
+            $assetLog->user_id          = \Auth::user()->id;
+            $assetLog->user_name        = $request->input('old_user_name');
+            $assetLog->password         = $request->input('old_password');
+            $assetLog->ip               = $request->input('old_ip');
             $assetLog->save();
         }
         if ($request->input('old_user_name') != $request->input('user_name')) {
             $this->createUserHistory($request, $id);
         }
-        $data['ip_name'] = $request->ip_name;
-        $data['server_password'] = $request->server_password;
-        $data['folder_name'] = json_encode($request->folder_name);
-        $data['website_id'] = $request->website_id;
+        $data['ip_name']             = $request->ip_name;
+        $data['server_password']     = $request->server_password;
+        $data['folder_name']         = json_encode($request->folder_name);
+        $data['website_id']          = $request->website_id;
         $data['asset_plate_form_id'] = $request->asset_plate_form_id;
-        $data['email_address_id'] = $request->email_address_id;
-        $data['whatsapp_config_id'] = $request->whatsapp_config_id;
-        $data['link'] = $request->get('link');
+        $data['email_address_id']    = $request->email_address_id;
+        $data['whatsapp_config_id']  = $request->whatsapp_config_id;
+        $data['link']                = $request->get('link');
         AssetsManager::find($id)->update($data);
 
         return redirect()->route('assets-manager.index')
@@ -324,7 +327,8 @@ class AssetsManagerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -339,12 +343,12 @@ class AssetsManagerController extends Controller
     public function addNote($id, Request $request)
     {
         $assetmanager = AssetsManager::findOrFail($id);
-        $notes = $assetmanager->notes;
+        $notes        = $assetmanager->notes;
         if (! is_array($notes)) {
             $notes = [];
         }
 
-        $notes[] = $request->get('note');
+        $notes[]             = $request->get('note');
         $assetmanager->notes = $notes;
         $assetmanager->save();
 
@@ -355,8 +359,8 @@ class AssetsManagerController extends Controller
 
     public function paymentHistory(request $request)
     {
-        $asset_id = $request->input('asset_id');
-        $html = '';
+        $asset_id    = $request->input('asset_id');
+        $html        = '';
         $paymentData = CashFlow::where('cash_flow_able_id', $asset_id)
             ->where('cash_flow_able_type', \App\AssetsManager::class)
             ->where('type', 'paid')
@@ -390,8 +394,8 @@ class AssetsManagerController extends Controller
 
     public function assetManamentLog(request $request)
     {
-        $asset_id = $request->input('asset_id');
-        $html = '';
+        $asset_id  = $request->input('asset_id');
+        $html      = '';
         $assetLogs = AssetManamentUpdateLog::select('asset_manamentupdate_logs.*', 'users.name AS userName')
             ->leftJoin('users', 'users.id', '=', 'asset_manamentupdate_logs.user_id')
             ->where('asset_manamentupdate_logs.assetmenament_id', $asset_id)
@@ -446,8 +450,8 @@ class AssetsManagerController extends Controller
                 }
 
                 return response()->json([
-                    'code' => 200,
-                    'data' => $html,
+                    'code'    => 200,
+                    'data'    => $html,
                     'message' => 'Magento bash Log Listed successfully!!!',
                 ]);
             }
@@ -475,8 +479,8 @@ class AssetsManagerController extends Controller
 
     public function userChangesHistoryLog(request $request)
     {
-        $asset_id = $request->input('asset_id');
-        $html = '';
+        $asset_id  = $request->input('asset_id');
+        $html      = '';
         $assetLogs = assetUserChangeHistory::select('asset_user_change_histories.*', 'users.name AS userNameChangeBy', 'u.name AS userName')
             ->leftJoin('users', 'users.id', '=', 'asset_user_change_histories.user_id')
             ->leftJoin('users AS u', 'u.id', '=', 'asset_user_change_histories.new_user_id')
@@ -509,8 +513,8 @@ class AssetsManagerController extends Controller
     {
         try {
             $userHistory = assetUserChangeHistory::create([
-                'asset_id' => $id,
-                'user_id' => \Auth::user()->id,
+                'asset_id'    => $id,
+                'user_id'     => \Auth::user()->id,
                 'new_user_id' => $request->user_name,
                 'old_user_id' => $request->old_user_name,
             ]);
@@ -545,13 +549,13 @@ class AssetsManagerController extends Controller
     {
         try {
             $this->validate($request, [
-                'user_name' => 'required',
+                'user_name'  => 'required',
                 'from_email' => 'required',
             ]);
             $assetsmanager = AssetsManager::where('id', $request->assets_manager_id)->first();
-            $usersdetails = User::where('id', $request->user_name)->first();
-            $newPassword = Str::random(12);
-            $message = '';
+            $usersdetails  = User::where('id', $request->user_name)->first();
+            $newPassword   = Str::random(12);
+            $message       = '';
             $message .= '<center><h4>Assets Manager Details <h4></center>' . '<br>';
             $message .= 'Name = ' . $assetsmanager->name . '<br>';
             $message .= 'Capacity = ' . $assetsmanager->capacity . '<br>';
@@ -568,7 +572,7 @@ class AssetsManagerController extends Controller
 
             //Store data in chat_message table.
             $params = [
-                'number' => $usersdetails->phone,
+                'number'  => $usersdetails->phone,
                 'user_id' => Auth::user()->id,
                 'message' => $message,
             ];
@@ -579,14 +583,14 @@ class AssetsManagerController extends Controller
             $from_address = isset($request->from_email) && $request->from_email != '' ? $request->from_email : config('env.MAIL_FROM_ADDRESS');
 
             $email = Email::create([
-                'model_id' => '',
-                'model_type' => \App\AssetsManager::class,
-                'from' => $from_address,
-                'to' => $usersdetails->email,
-                'subject' => 'Assets Manager',
-                'message' => $message,
-                'template' => 'reset-password',
-                'status' => 'pre-send',
+                'model_id'         => '',
+                'model_type'       => \App\AssetsManager::class,
+                'from'             => $from_address,
+                'to'               => $usersdetails->email,
+                'subject'          => 'Assets Manager',
+                'message'          => $message,
+                'template'         => 'reset-password',
+                'status'           => 'pre-send',
                 'store_website_id' => null,
             ]);
 
@@ -594,7 +598,7 @@ class AssetsManagerController extends Controller
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
             \Session::flash('success', 'Assets manager email send successfully');
         } catch (\Throwable $th) {
-            $emails = Email::latest('created_at')->first();
+            $emails                = Email::latest('created_at')->first();
             $emails->error_message = $th->getMessage();
             $emails->save();
             \Session::flash('error', $th->getMessage());
@@ -741,8 +745,8 @@ class AssetsManagerController extends Controller
         try {
             // New Script
             $action = 'add';
-            $SFTP = true;
-            $ssh = true;
+            $SFTP   = true;
+            $ssh    = true;
             $server = strval($request->server_var);
 
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -757,16 +761,16 @@ class AssetsManagerController extends Controller
 
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
-                'user_id' => $request->user_id,
-                'created_by' => Auth::user()->id,
-                'username' => $request->username,
-                'password' => $request->password,
-                'request_data' => $cmd,
-                'response_data' => json_encode($result),
-                'usernamehost' => $request->usernamehost,
-                'login_type' => $request->login_type,
-                'key_type' => $request->key_type,
-                'user_role' => $request->user_role,
+                'user_id'              => $request->user_id,
+                'created_by'           => Auth::user()->id,
+                'username'             => $request->username,
+                'password'             => $request->password,
+                'request_data'         => $cmd,
+                'response_data'        => json_encode($result),
+                'usernamehost'         => $request->usernamehost,
+                'login_type'           => $request->login_type,
+                'key_type'             => $request->key_type,
+                'user_role'            => $request->user_role,
             ]);
 
             return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'User Access has been created successfully']);
@@ -785,8 +789,8 @@ class AssetsManagerController extends Controller
             if (! empty($user_access)) {
                 // New Script
                 $action = 'delete';
-                $SFTP = true;
-                $ssh = true;
+                $SFTP   = true;
+                $ssh    = true;
                 $server = 'demo.mio-moda.com';
 
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -835,12 +839,12 @@ class AssetsManagerController extends Controller
         $userAccessRequest = AssetManagerUserAccess::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $userAccessRequest,
-            'request_data' => $userAccessRequest['request_data'],
+            'status'        => true,
+            'data'          => $userAccessRequest,
+            'request_data'  => $userAccessRequest['request_data'],
             'response_data' => $userAccessRequest['response_data'],
-            'message' => 'Data get successfully',
-            'status_name' => 'success',
+            'message'       => 'Data get successfully',
+            'status_name'   => 'success',
         ], 200);
     }
 
@@ -853,9 +857,9 @@ class AssetsManagerController extends Controller
 
             $useraccess = AssetManagerTerminalUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
-                'created_by' => Auth::user()->id,
-                'username' => $request->username,
-                'password' => $request->password,
+                'created_by'           => Auth::user()->id,
+                'username'             => $request->username,
+                'password'             => $request->password,
             ]);
 
             return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'Terminal User Access has been created successfully']);
@@ -951,10 +955,10 @@ class AssetsManagerController extends Controller
 
         $this->validate($request, [
             'amtua_id' => 'required',
-            'remarks' => 'required',
+            'remarks'  => 'required',
         ]);
 
-        $input = $request->except(['_token']);
+        $input             = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         AssetManagerTerminalUserAccessRemakrs::create($input);
 
@@ -969,9 +973,9 @@ class AssetsManagerController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -983,7 +987,7 @@ class AssetsManagerController extends Controller
 
             $this->validate($request, [
                 'amtua_id' => 'required',
-                'type' => 'required',
+                'type'     => 'required',
                 'username' => 'required|unique:asset_manager_terminal_user_accesses,username,' . $request->amtua_id . ',id',
                 'password' => 'required',
             ]);

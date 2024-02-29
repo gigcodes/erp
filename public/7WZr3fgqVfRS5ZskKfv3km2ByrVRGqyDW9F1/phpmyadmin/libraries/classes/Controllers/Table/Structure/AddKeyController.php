@@ -27,7 +27,7 @@ final class AddKeyController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->sqlController = $sqlController;
+        $this->sqlController       = $sqlController;
         $this->structureController = $structureController;
     }
 

@@ -13,7 +13,7 @@ class PermissionController extends Controller
     /**
      * PermissionController constructor.
      *
-     * @param  \BookStack\Auth\Permissions\PermissionsRepo  $permissionsRepo
+     * @param \BookStack\Auth\Permissions\PermissionsRepo $permissionsRepo
      */
     public function __construct(PermissionsRepo $permissionsRepo)
     {
@@ -54,7 +54,7 @@ class PermissionController extends Controller
         $this->checkPermission('user-roles-manage');
         $this->validate($request, [
             'display_name' => 'required|min:3|max:200',
-            'description' => 'max:250',
+            'description'  => 'max:250',
         ]);
 
         $this->permissionsRepo->saveNewRole($request->all());
@@ -65,6 +65,9 @@ class PermissionController extends Controller
 
     /**
      * Show the form for editing a user role.
+     *
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
@@ -84,6 +87,9 @@ class PermissionController extends Controller
     /**
      * Updates a user role.
      *
+     *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws PermissionsException
@@ -93,7 +99,7 @@ class PermissionController extends Controller
         $this->checkPermission('user-roles-manage');
         $this->validate($request, [
             'display_name' => 'required|min:3|max:200',
-            'description' => 'max:250',
+            'description'  => 'max:250',
         ]);
 
         $this->permissionsRepo->updateRole($id, $request->all());
@@ -106,13 +112,15 @@ class PermissionController extends Controller
      * Show the view to delete a role.
      * Offers the chance to migrate users.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showDeleteRole($id)
     {
         $this->checkPermission('user-roles-manage');
-        $role = $this->permissionsRepo->getRoleById($id);
-        $roles = $this->permissionsRepo->getAllRolesExcept($role);
+        $role      = $this->permissionsRepo->getRoleById($id);
+        $roles     = $this->permissionsRepo->getAllRolesExcept($role);
         $blankRole = $role->newInstance(['display_name' => trans('bookstack::settings.role_delete_no_migration')]);
         $roles->prepend($blankRole);
 
@@ -122,6 +130,8 @@ class PermissionController extends Controller
     /**
      * Delete a role from the system,
      * Migrate from a previous role if set.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */

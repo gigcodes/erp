@@ -16,6 +16,8 @@ class LoginController extends Controller
     /**
      * Create a new AuthController instance.
      *
+     * @param privateBearerAccessTokens $bearerToken
+     *
      * @return void
      */
     public function __construct(private BearerAccessTokens $bearerToken)
@@ -80,15 +82,16 @@ class LoginController extends Controller
     /**
      * Get the token array structure.
      *
-     * @param  string  $token
+     * @param string $token
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     protected function respondWithToken($token)
     {
         return response()->json([
             'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'token_type'   => 'bearer',
+            'expires_in'   => auth('api')->factory()->getTTL() * 60,
         ]);
     }
 
@@ -98,28 +101,28 @@ class LoginController extends Controller
 
         try {
             request()->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'name'     => ['required', 'string', 'max:255'],
+                'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
                 'password' => ['required', 'string', 'min:6'],
             ]);
 
             $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
+                'name'     => $data['name'],
+                'email'    => $data['email'],
                 'password' => Hash::make($data['password']),
             ]);
 
             return response()->json([
                 'message' => sprintf('User successful created. You can generate auth token.'),
-                'data' => [
+                'data'    => [
                     'email' => $user->email,
-                    'name' => $user->name,
+                    'name'  => $user->name,
                 ],
             ]);
         } catch (ValidationException $e) {
             return \response()->json([
                 'message' => $e->getMessage(),
-                'errors' => $e
+                'errors'  => $e
                     ->validator
                     ->errors()
                     ->messages(),

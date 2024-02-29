@@ -40,15 +40,15 @@ class Scripts
     public function __construct()
     {
         $this->template = new Template();
-        $this->files = [];
-        $this->code = '';
+        $this->files    = [];
+        $this->code     = '';
     }
 
     /**
      * Adds a new file to the list of scripts
      *
-     * @param  string  $filename The name of the file to include
-     * @param  array<string, string>  $params   Additional parameters to pass to the file
+     * @param string                $filename The name of the file to include
+     * @param array<string, string> $params   Additional parameters to pass to the file
      */
     public function addFile(
         string $filename,
@@ -59,18 +59,18 @@ class Scripts
             return;
         }
 
-        $hasOnload = $this->hasOnloadEvent($filename);
+        $hasOnload          = $this->hasOnloadEvent($filename);
         $this->files[$hash] = [
             'has_onload' => (int) $hasOnload,
-            'filename' => $filename,
-            'params' => $params,
+            'filename'   => $filename,
+            'params'     => $params,
         ];
     }
 
     /**
      * Add new files to the list of scripts
      *
-     * @param  string[]  $filelist The array of file names
+     * @param string[] $filelist The array of file names
      */
     public function addFiles(array $filelist): void
     {
@@ -82,7 +82,8 @@ class Scripts
     /**
      * Determines whether to fire up an onload event for a file
      *
-     * @param  string  $filename The name of the file to be checked against the exclude list.
+     * @param string $filename The name of the file to be checked against the exclude list.
+     *
      * @return bool true to fire up the event, false not to
      */
     private function hasOnloadEvent(string $filename): bool
@@ -97,7 +98,7 @@ class Scripts
     /**
      * Adds a new code snippet to the code to be executed
      *
-     * @param  string  $code The JS code to be added
+     * @param string $code The JS code to be added
      */
     public function addCode(string $code): void
     {
@@ -139,9 +140,9 @@ class Scripts
 
         return $this->template->render('scripts', [
             'base_dir' => $baseDir,
-            'files' => $this->files,
-            'version' => Version::VERSION,
-            'code' => $this->code,
+            'files'    => $this->files,
+            'version'  => Version::VERSION,
+            'code'     => $this->code,
         ]);
     }
 }

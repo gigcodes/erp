@@ -47,16 +47,16 @@ class HsCodeController extends Controller
     {
         $setting = HsCodeSetting::all();
         if (count($setting) == 0) {
-            $set = new HsCodeSetting();
-            $set->from_country = $request->from;
+            $set                      = new HsCodeSetting();
+            $set->from_country        = $request->from;
             $set->destination_country = $request->destination;
-            $set->key = $request->key;
+            $set->key                 = $request->key;
             $set->save();
         } else {
-            $set = HsCodeSetting::first();
-            $set->from_country = $request->from;
+            $set                      = HsCodeSetting::first();
+            $set->from_country        = $request->from;
             $set->destination_country = $request->destination;
-            $set->key = $request->key;
+            $set->key                 = $request->key;
             $set->save();
         }
 
@@ -98,7 +98,7 @@ class HsCodeController extends Controller
                 }
 
                 $parentCategory = $product->product_category->title;
-                $name = $childCategory . ' > ' . $parentCategory;
+                $name           = $childCategory . ' > ' . $parentCategory;
 
                 $hscodeSearchString = str_replace(['&gt;', '>'], '', $product->composition . ' ' . $name);
 
@@ -121,17 +121,17 @@ class HsCodeController extends Controller
             ->selected($selected_categories)
             ->renderAsDropdown();
 
-        $p = $productArray;
+        $p           = $productArray;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
+        $perPage     = Setting::get('pagination');
 
         $currentItems = array_slice($p, $perPage * ($currentPage - 1), $perPage);
 
         $products = new LengthAwarePaginator($currentItems, count($p), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
-        $groups = HsCodeGroup::all();
-        $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $groups  = HsCodeGroup::all();
+        $cate    = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
         $hscodes = SimplyDutyCategory::all();
 
         if ($request->ajax()) {
@@ -160,7 +160,7 @@ class HsCodeController extends Controller
             }
 
             $parentCategory = $category->title;
-            $name = $childCategory . ' > ' . $parentCategory;
+            $name           = $childCategory . ' > ' . $parentCategory;
             if ($request->combination != null) {
                 $products = Product::select('composition')->where('category', $category->id)->where('category', '>', 3)->where('stock', 1)->where('composition', 'LIKE', '%' . $request->combination . '%')->whereNotNull('composition')->groupBy('composition')->limit(3)->get();
             } else {
@@ -186,8 +186,8 @@ class HsCodeController extends Controller
         $categories = $data;
 
         $hscodes = SimplyDutyCategory::all();
-        $groups = HsCodeGroup::all();
-        $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
+        $groups  = HsCodeGroup::all();
+        $cate    = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
 
         $selected_categories = $request->category ? $request->category : 1;
 

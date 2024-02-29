@@ -45,12 +45,12 @@ class StoreBrands extends Command
         try {
             $supplierBrands = Supplier::select('brands')->whereNotNull('brands')->get()->all();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier query finished.']);
-            $brandsArray = [];
+            $brandsArray      = [];
             $brandsTableArray = [];
             foreach ($supplierBrands as $key => $value) {
                 array_push($brandsArray, str_replace('[', '', str_replace(']', '', explode(',', $value->brands))));
             }
-            $brands = array_filter(str_replace('"', '', array_unique(array_map('strtolower', array_reduce($brandsArray, 'array_merge', [])))));
+            $brands         = array_filter(str_replace('"', '', array_unique(array_map('strtolower', array_reduce($brandsArray, 'array_merge', [])))));
             $brandsInBrands = Brand::select('name')->whereNotNull('name')->get()->all();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Brand query finished.']);
             foreach ($brandsInBrands as $key => $value) {
@@ -61,7 +61,7 @@ class StoreBrands extends Command
                 $value = trim($value);
                 if (! in_array($value, $brandsTable)) {
                     $params = [
-                        'name' => $value,
+                        'name'       => $value,
                         'created_at' => Carbon::now(),
                     ];
                     $brandsTable[] = $value;

@@ -16,8 +16,8 @@ class GoogleDocsCategorySeeder extends Seeder
     public function run()
     {
         try {
-            $googleDocCategory = GoogleDoc::distinct('category')->get('category')->pluck('category');
-            $defaultCategory = new GoogleDocsCategory;
+            $googleDocCategory     = GoogleDoc::distinct('category')->get('category')->pluck('category');
+            $defaultCategory       = new GoogleDocsCategory;
             $defaultCategory->name = 'default';
             $defaultCategory->save();
 
@@ -30,7 +30,7 @@ class GoogleDocsCategorySeeder extends Seeder
                             'category' => $defaultCategory->id,
                         ]);
                     } else {
-                        $docCategory = new GoogleDocsCategory;
+                        $docCategory       = new GoogleDocsCategory;
                         $docCategory->name = $category;
                         $docCategory->save();
 

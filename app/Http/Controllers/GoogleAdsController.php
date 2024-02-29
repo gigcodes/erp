@@ -39,8 +39,8 @@ class GoogleAdsController extends Controller
         $campaignDetail = \App\GoogleAdsCampaign::where('google_campaign_id', $campaignId)->first();
         if ($campaignDetail->exists() > 0) {
             return [
-                'account_id' => $campaignDetail->account_id,
-                'campaign_name' => $campaignDetail->campaign_name,
+                'account_id'         => $campaignDetail->account_id,
+                'campaign_name'      => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
@@ -51,7 +51,7 @@ class GoogleAdsController extends Controller
     public function index(Request $request, $campaignId, $adGroupId)
     {
         $groupDetail = \App\GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
-        $query = \App\GoogleAd::query();
+        $query       = \App\GoogleAd::query();
 
         if ($request->headline) {
             $query = $query->where(function ($q) use ($request) {
@@ -94,8 +94,8 @@ class GoogleAdsController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'Ad',
+            'type'    => 'SUCCESS',
+            'module'  => 'Ad',
             'message' => 'Viewed ad listing for ' . $groupDetail->ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -133,7 +133,7 @@ class GoogleAdsController extends Controller
         $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
 
         $totalNumEntries = 0;
-        $ads = [];
+        $ads             = [];
         do {
             // Retrieve ad group ads one page at a time, continuing to request pages
             // until all ad group ads have been retrieved.
@@ -143,14 +143,14 @@ class GoogleAdsController extends Controller
             if ($page->getEntries() !== null) {
                 $totalNumEntries = $page->getTotalNumEntries();
                 foreach ($page->getEntries() as $adGroupAd) {
-                    $ad = $adGroupAd->getAd();
+                    $ad    = $adGroupAd->getAd();
                     $ads[] = [
-                        'adId' => $ad->getId(),
-                        'status' => $adGroupAd->getStatus(),
+                        'adId'          => $ad->getId(),
+                        'status'        => $adGroupAd->getStatus(),
                         'headlinePart1' => $ad->getHeadlinePart1(),
                         'headlinePart2' => $ad->getHeadlinePart2(),
-                        'description' => $ad->getDescription(),
-                        'type' => $ad->getAdType(),
+                        'description'   => $ad->getDescription(),
+                        'type'          => $ad->getAdType(),
                     ];
                 }
             }
@@ -161,7 +161,7 @@ class GoogleAdsController extends Controller
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
 
         return [
-            'ads' => $ads,
+            'ads'             => $ads,
             'totalNumEntries' => $totalNumEntries,
         ];
     }
@@ -173,8 +173,8 @@ class GoogleAdsController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'Ad',
+            'type'    => 'SUCCESS',
+            'module'  => 'Ad',
             'message' => 'Viewed ad create for ' . $groupDetail->ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -192,39 +192,39 @@ class GoogleAdsController extends Controller
             'headlinePart1' => 'required|max:25',
             'headlinePart2' => 'required|max:25',
             'headlinePart3' => 'required|max:25',
-            'description1' => 'required|max:200',
-            'description2' => 'required|max:200',
-            'finalUrl' => 'required|max:200',
+            'description1'  => 'required|max:200',
+            'description2'  => 'required|max:200',
+            'finalUrl'      => 'required|max:200',
         ]);
 
-        $acDetail = $this->getAccountDetail($campaignId);
+        $acDetail   = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
-        $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
+        $adStatuses    = ['ENABLED', 'PAUSED', 'DISABLED'];
         $headlinePart1 = $request->headlinePart1;
         $headlinePart2 = $request->headlinePart2;
         $headlinePart3 = $request->headlinePart3;
-        $description1 = $request->description1;
-        $description2 = $request->description2;
-        $finalUrl = $request->finalUrl;
-        $path1 = $request->path1;
-        $path2 = $request->path2;
-        $adStatus = $adStatuses[$request->adStatus];
+        $description1  = $request->description1;
+        $description2  = $request->description2;
+        $finalUrl      = $request->finalUrl;
+        $path1         = $request->path1;
+        $path2         = $request->path2;
+        $adStatus      = $adStatuses[$request->adStatus];
 
-        $adsArray = [];
-        $adsArray['google_customer_id'] = $customerId;
+        $adsArray                               = [];
+        $adsArray['google_customer_id']         = $customerId;
         $adsArray['adgroup_google_campaign_id'] = $campaignId;
-        $adsArray['google_adgroup_id'] = $adGroupId;
-        $adsArray['headline1'] = $headlinePart1;
-        $adsArray['headline2'] = $headlinePart2;
-        $adsArray['headline3'] = $headlinePart3;
-        $adsArray['description1'] = $description1;
-        $adsArray['description2'] = $description2;
-        $adsArray['final_url'] = $finalUrl;
-        $adsArray['path1'] = $path1;
-        $adsArray['path2'] = $path2;
-        $adsArray['status'] = $adStatus;
+        $adsArray['google_adgroup_id']          = $adGroupId;
+        $adsArray['headline1']                  = $headlinePart1;
+        $adsArray['headline2']                  = $headlinePart2;
+        $adsArray['headline3']                  = $headlinePart3;
+        $adsArray['description1']               = $description1;
+        $adsArray['description2']               = $description2;
+        $adsArray['final_url']                  = $finalUrl;
+        $adsArray['path1']                      = $path1;
+        $adsArray['path2']                      = $path2;
+        $adsArray['status']                     = $adStatus;
 
         try {
             // Generate a refreshable OAuth2 credential for authentication.
@@ -254,8 +254,8 @@ class GoogleAdsController extends Controller
             // Creates an ad group ad to hold the above ad.
             $adGroupAd = new AdGroupAd([
                 'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
-                'status' => self::getAdStatus($adStatus),
-                'ad' => $ad,
+                'status'   => self::getAdStatus($adStatus),
+                'ad'       => $ad,
             ]);
 
             // Creates an ad group ad operation.
@@ -264,9 +264,9 @@ class GoogleAdsController extends Controller
 
             // Issues a mutate request to add the ad group ad.
             $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
-            $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
+            $response               = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
-            $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAd             = $response->getResults()[0];
             $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
             $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, '~') + 1);
@@ -275,9 +275,9 @@ class GoogleAdsController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad',
-                'message' => 'Created ad for ' . $groupDetail->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad',
+                'message'  => 'Created ad for ' . $groupDetail->ad_group_name,
                 'response' => json_encode($adsArray),
             ];
             insertGoogleAdsLog($input);
@@ -286,8 +286,8 @@ class GoogleAdsController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad',
+                'type'    => 'ERROR',
+                'module'  => 'Ad',
                 'message' => 'Create new ad > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -309,7 +309,7 @@ class GoogleAdsController extends Controller
     // delete ad
     public function deleteAd(Request $request, $campaignId, $adGroupId, $adId)
     {
-        $acDetail = $this->getAccountDetail($campaignId);
+        $acDetail   = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
 
@@ -328,7 +328,7 @@ class GoogleAdsController extends Controller
 
             // Issues a mutate request to remove the ad group ad.
             $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
-            $response = $adGroupAdServiceClient->mutateAdGroupAds(
+            $response               = $adGroupAdServiceClient->mutateAdGroupAds(
                 $customerId,
                 [$adGroupAdOperation]
             );
@@ -339,9 +339,9 @@ class GoogleAdsController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad',
-                'message' => 'Deleted ad for ' . $groupDetail->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad',
+                'message'  => 'Deleted ad for ' . $groupDetail->ad_group_name,
                 'response' => json_encode($ad),
             ];
 
@@ -353,8 +353,8 @@ class GoogleAdsController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad',
+                'type'    => 'ERROR',
+                'module'  => 'Ad',
                 'message' => 'Delete ad > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);

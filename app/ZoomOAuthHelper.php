@@ -9,9 +9,9 @@ class ZoomOAuthHelper
 {
     public static function getAccessToken()
     {
-        $clientId = config('services.zoom.client_id');
+        $clientId     = config('services.zoom.client_id');
         $clientSecret = config('services.zoom.client_secret');
-        $accountId = config('services.zoom.account_id');
+        $accountId    = config('services.zoom.account_id');
 
         \Log::info('ZOOM client_id -->' . $clientId);
         \Log::info('ZOOM clientSecret -->' . $clientSecret);

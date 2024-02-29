@@ -15,6 +15,8 @@ class OrderUpdated
     /**
      * Create a new event instance.
      *
+     * @param publicOrder $order
+     *
      * @return void
      */
     public function __construct(public Order $order)

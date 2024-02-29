@@ -24,12 +24,14 @@ class ReplyToEmail extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $message
+     *
      * @return void
      */
     public function __construct(Email $email, $message)
     {
         $this->emailToReply = $email;
-        $this->message = $message;
+        $this->message      = $message;
     }
 
     /**
@@ -40,10 +42,10 @@ class ReplyToEmail extends Mailable
     public function build()
     {
         $emailToReply = $this->emailToReply;
-        $message = $this->message;
+        $message      = $this->message;
 
         $replyPrefix = 'Re: ';
-        $subject = substr($emailToReply->subject, 0, 4) === $replyPrefix
+        $subject     = substr($emailToReply->subject, 0, 4) === $replyPrefix
             ? $emailToReply->subject
             : $replyPrefix . $emailToReply->subject;
 
@@ -65,13 +67,13 @@ class ReplyToEmail extends Mailable
             $userName = $emailToReply->model->name;
         }
 
-        $dateCreated = $emailToReply->created_at->format('D, d M Y');
-        $timeCreated = $emailToReply->created_at->format('H:i');
+        $dateCreated       = $emailToReply->created_at->format('D, d M Y');
+        $timeCreated       = $emailToReply->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, $userName <{$emailToReply->from}> wrote:";
 
         return $this->view('emails.reply-to-email', [
-            'msg' => $message,
-            'originalEmailMsg' => $emailToReply->message,
+            'msg'               => $message,
+            'originalEmailMsg'  => $emailToReply->message,
             'originalEmailInfo' => $originalEmailInfo,
         ]);
     }

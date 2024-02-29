@@ -16,34 +16,34 @@ class SeoProcessSeeder extends Seeder
     public function run()
     {
         $seoRole = Role::create([
-            'name' => 'Seo Head',
+            'name'       => 'Seo Head',
             'guard_name' => 'web',
         ]);
 
         $permissions = [
             [
-                'name' => 'seo-create',
+                'name'       => 'seo-create',
                 'guard_name' => 'web',
-                'route' => 'seo-create',
-                'is_active' => 1,
+                'route'      => 'seo-create',
+                'is_active'  => 1,
             ],
             [
-                'name' => 'seo-content',
+                'name'       => 'seo-content',
                 'guard_name' => 'web',
-                'route' => 'seo-content',
-                'is_active' => 1,
+                'route'      => 'seo-content',
+                'is_active'  => 1,
             ],
             [
-                'name' => 'seo-show',
+                'name'       => 'seo-show',
                 'guard_name' => 'web',
-                'route' => 'seo-show',
-                'is_active' => 1,
+                'route'      => 'seo-show',
+                'is_active'  => 1,
             ],
             [
-                'name' => 'seo-edit',
+                'name'       => 'seo-edit',
                 'guard_name' => 'web',
-                'route' => 'seo-edit',
-                'is_active' => 1,
+                'route'      => 'seo-edit',
+                'is_active'  => 1,
             ],
         ];
 

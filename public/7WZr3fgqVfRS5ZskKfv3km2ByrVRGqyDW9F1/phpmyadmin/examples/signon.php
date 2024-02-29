@@ -25,14 +25,14 @@ session_name($session_name);
 /* Was data posted? */
 if (isset($_POST['user'])) {
     /* Store there credentials */
-    $_SESSION['PMA_single_signon_user'] = $_POST['user'];
+    $_SESSION['PMA_single_signon_user']     = $_POST['user'];
     $_SESSION['PMA_single_signon_password'] = $_POST['password'];
-    $_SESSION['PMA_single_signon_host'] = $_POST['host'];
-    $_SESSION['PMA_single_signon_port'] = $_POST['port'];
+    $_SESSION['PMA_single_signon_host']     = $_POST['host'];
+    $_SESSION['PMA_single_signon_port']     = $_POST['port'];
     /* Update another field of server configuration */
-    $_SESSION['PMA_single_signon_cfgupdate'] = ['verbose' => 'Signon test'];
+    $_SESSION['PMA_single_signon_cfgupdate']   = ['verbose' => 'Signon test'];
     $_SESSION['PMA_single_signon_HMAC_secret'] = hash('sha1', uniqid(strval(random_int(0, mt_getrandmax())), true));
-    $id = session_id();
+    $id                                        = session_id();
     /* Close that session */
     @session_write_close();
     /* Redirect to phpMyAdmin (should use absolute URL here!) */

@@ -36,7 +36,7 @@ final class AnalyzeController extends AbstractController
         Config $config
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->model = $model;
+        $this->model  = $model;
         $this->config = $config;
     }
 
@@ -56,7 +56,7 @@ final class AnalyzeController extends AbstractController
         }
 
         try {
-            $database = DatabaseName::fromValue($request->getParam('db'));
+            $database       = DatabaseName::fromValue($request->getParam('db'));
             $selectedTables = [];
             foreach ($selectedTablesParam as $table) {
                 $selectedTables[] = TableName::fromValue($table);
@@ -86,7 +86,7 @@ final class AnalyzeController extends AbstractController
 
         $this->render('table/maintenance/analyze', [
             'message' => $message,
-            'rows' => $rows,
+            'rows'    => $rows,
         ]);
     }
 }

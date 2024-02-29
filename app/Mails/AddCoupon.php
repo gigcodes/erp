@@ -19,13 +19,15 @@ class AddCoupon extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
         $this->receiver_email = isset($data['receiver_email']) ? $data['receiver_email'] : '';
-        $this->sender_email = isset($data['sender_email']) ? $data['sender_email'] : '';
-        $this->coupon = isset($data['coupon']) ? $data['coupon'] : '';
+        $this->sender_email   = isset($data['sender_email']) ? $data['sender_email'] : '';
+        $this->coupon         = isset($data['coupon']) ? $data['coupon'] : '';
     }
 
     /**

@@ -37,7 +37,7 @@ class VariablesController extends AbstractController
     {
         global $errorUrl;
 
-        $params = ['filter' => $_GET['filter'] ?? null];
+        $params   = ['filter' => $_GET['filter'] ?? null];
         $errorUrl = Url::getFromRoute('/');
 
         if ($this->dbi->isSuperUser()) {
@@ -48,7 +48,7 @@ class VariablesController extends AbstractController
 
         $this->addScriptFiles(['server/variables.js']);
 
-        $variables = [];
+        $variables        = [];
         $serverVarsResult = $this->dbi->tryQuery('SHOW SESSION VARIABLES;');
         if ($serverVarsResult !== false) {
             $serverVarsSession = $serverVarsResult->fetchAllKeyPair();
@@ -75,36 +75,37 @@ class VariablesController extends AbstractController
                 }
 
                 $variables[] = [
-                    'name' => $name,
-                    'is_editable' => ! in_array(strtolower($name), $staticVariables),
-                    'doc_link' => $docLink,
-                    'value' => $formattedValue,
-                    'is_escaped' => $isEscaped,
+                    'name'              => $name,
+                    'is_editable'       => ! in_array(strtolower($name), $staticVariables),
+                    'doc_link'          => $docLink,
+                    'value'             => $formattedValue,
+                    'is_escaped'        => $isEscaped,
                     'has_session_value' => $hasSessionValue,
-                    'session_value' => $sessionFormattedValue ?? null,
+                    'session_value'     => $sessionFormattedValue ?? null,
                 ];
             }
         }
 
         $this->render('server/variables/index', [
-            'variables' => $variables,
+            'variables'    => $variables,
             'filter_value' => $filterValue,
             'is_superuser' => $this->dbi->isSuperUser(),
-            'is_mariadb' => $this->dbi->isMariaDB(),
+            'is_mariadb'   => $this->dbi->isMariaDB(),
         ]);
     }
 
     /**
      * Format Variable
      *
-     * @param  string  $name  variable name
-     * @param  int|string  $value variable value
+     * @param string     $name  variable name
+     * @param int|string $value variable value
+     *
      * @return array formatted string and bool if string is HTML formatted
      */
     private function formatVariable($name, $value): array
     {
         $isHtmlFormatted = false;
-        $formattedValue = $value;
+        $formattedValue  = $value;
 
         if (is_numeric($value)) {
             $variableType = ServerVariablesProvider::getImplementation()->getVariableType($name);
@@ -112,13 +113,13 @@ class VariablesController extends AbstractController
             if ($variableType === 'byte') {
                 $isHtmlFormatted = true;
                 /** @var string[] $bytes */
-                $bytes = Util::formatByteDown($value, 3, 3);
+                $bytes          = Util::formatByteDown($value, 3, 3);
                 $formattedValue = trim(
                     $this->template->render(
                         'server/variables/format_variable',
                         [
                             'valueTitle' => Util::formatNumber($value, 0),
-                            'value' => implode(' ', $bytes),
+                            'value'      => implode(' ', $bytes),
                         ]
                     )
                 );

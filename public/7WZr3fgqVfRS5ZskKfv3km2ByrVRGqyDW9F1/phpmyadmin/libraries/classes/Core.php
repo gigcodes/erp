@@ -67,7 +67,7 @@ class Core
      * require() when a part of the path comes from an insecure source
      * like a cookie or form.
      *
-     * @param  string  $path The path to check
+     * @param string $path The path to check
      */
     public static function securePath(string $path): string
     {
@@ -81,8 +81,8 @@ class Core
      *
      * loads language file if not loaded already
      *
-     * @param  string  $error_message the error message or named error message
-     * @param  string|array  $message_args  arguments applied to $error_message
+     * @param string       $error_message the error message or named error message
+     * @param string|array $message_args  arguments applied to $error_message
      */
     public static function fatalError(
         string $error_message,
@@ -135,11 +135,11 @@ class Core
         }
 
         $error_message = strtr($error_message, ['<br>' => '[br]']);
-        $template = new Template();
+        $template      = new Template();
 
         echo $template->render('error/generic', [
-            'lang' => $GLOBALS['lang'] ?? 'en',
-            'dir' => $GLOBALS['text_dir'] ?? 'ltr',
+            'lang'          => $GLOBALS['lang'] ?? 'en',
+            'dir'           => $GLOBALS['text_dir'] ?? 'ltr',
             'error_message' => Sanitize::sanitizeMessage($error_message),
         ]);
 
@@ -151,8 +151,9 @@ class Core
     /**
      * Returns a link to the PHP documentation
      *
-     * @param  string  $target anchor in documentation
-     * @return string  the URL
+     * @param string $target anchor in documentation
+     *
+     * @return string the URL
      */
     public static function getPHPDocLink(string $target): string
     {
@@ -179,9 +180,9 @@ class Core
     /**
      * Warn or fail on missing extension.
      *
-     * @param  string  $extension Extension name
-     * @param  bool  $fatal     Whether the error is fatal.
-     * @param  string  $extra     Extra string to append to message.
+     * @param string $extension Extension name
+     * @param bool   $fatal     Whether the error is fatal.
+     * @param string $extra     Extra string to append to message.
      */
     public static function warnMissingExtension(
         string $extension,
@@ -215,7 +216,8 @@ class Core
     /**
      * returns count of tables in given db
      *
-     * @param  string  $db database to count tables for
+     * @param string $db database to count tables for
+     *
      * @return int count of tables in $db
      */
     public static function getTableCount(string $db): int
@@ -237,7 +239,7 @@ class Core
      * (renamed with PMA prefix to avoid double definition when embedded
      * in Moodle)
      *
-     * @param  string|int  $size size (Default = 0)
+     * @param string|int $size size (Default = 0)
      */
     public static function getRealSize($size = 0): int
     {
@@ -267,9 +269,9 @@ class Core
      * Checks given $page against given $allowList and returns true if valid
      * it optionally ignores query parameters in $page (script.php?ignored)
      *
-     * @param  string  $page      page to check
-     * @param  array  $allowList allow list to check page against
-     * @param  bool  $include   whether the page is going to be included
+     * @param string $page      page to check
+     * @param array  $allowList allow list to check page against
+     * @param bool   $include   whether the page is going to be included
      */
     public static function checkPageValidity(&$page, array $allowList = [], $include = false): bool
     {
@@ -314,8 +316,9 @@ class Core
      * searches in $_SERVER, $_ENV then tries getenv() and apache_getenv()
      * in this order
      *
-     * @param  string  $var_name variable name
-     * @return string  value of $var or empty string
+     * @param string $var_name variable name
+     *
+     * @return string value of $var or empty string
      */
     public static function getenv(string $var_name): string
     {
@@ -341,8 +344,8 @@ class Core
     /**
      * Send HTTP header, taking IIS limits into account (600 seems ok)
      *
-     * @param  string  $uri         the header to send
-     * @param  bool  $use_refresh whether to use Refresh: header when running on IIS
+     * @param string $uri         the header to send
+     * @param bool   $use_refresh whether to use Refresh: header when running on IIS
      */
     public static function sendHeaderLocation(string $uri, bool $use_refresh = false): void
     {
@@ -430,7 +433,7 @@ class Core
     public static function getNoCacheHeaders(): array
     {
         $headers = [];
-        $date = (string) gmdate(DATE_RFC1123);
+        $date    = (string) gmdate(DATE_RFC1123);
 
         // rfc2616 - Section 14.21
         $headers['Expires'] = $date;
@@ -452,11 +455,11 @@ class Core
     /**
      * Sends header indicating file download.
      *
-     * @param  string  $filename Filename to include in headers if empty,
+     * @param string $filename Filename to include in headers if empty,
      *                         none Content-Disposition header will be sent.
-     * @param  string  $mimetype MIME type to include in headers.
-     * @param  int  $length   Length of content (optional)
-     * @param  bool  $no_cache Whether to include no-caching headers.
+     * @param string $mimetype MIME type to include in headers.
+     * @param int    $length   Length of content (optional)
+     * @param bool   $no_cache Whether to include no-caching headers.
      */
     public static function downloadHeader(
         string $filename,
@@ -514,14 +517,15 @@ class Core
      * $path is a string describing position of an element in an associative array,
      * eg. Servers/1/host refers to $array[Servers][1][host]
      *
-     * @param  string  $path    path in the array
-     * @param  array  $array   the array
-     * @param  mixed  $default default value
+     * @param string $path    path in the array
+     * @param array  $array   the array
+     * @param mixed  $default default value
+     *
      * @return array|mixed|null array element or $default
      */
     public static function arrayRead(string $path, array $array, $default = null)
     {
-        $keys = explode('/', $path);
+        $keys  = explode('/', $path);
         $value = &$array;
         foreach ($keys as $key) {
             if (! isset($value[$key])) {
@@ -537,15 +541,15 @@ class Core
     /**
      * Stores value in an array
      *
-     * @param  string  $path  path in the array
-     * @param  array  $array the array
-     * @param  mixed  $value value to store
+     * @param string $path  path in the array
+     * @param array  $array the array
+     * @param mixed  $value value to store
      */
     public static function arrayWrite(string $path, array &$array, $value): void
     {
-        $keys = explode('/', $path);
+        $keys     = explode('/', $path);
         $last_key = array_pop($keys);
-        $a = &$array;
+        $a        = &$array;
         foreach ($keys as $key) {
             if (! isset($a[$key])) {
                 $a[$key] = [];
@@ -560,18 +564,18 @@ class Core
     /**
      * Removes value from an array
      *
-     * @param  string  $path  path in the array
-     * @param  array  $array the array
+     * @param string $path  path in the array
+     * @param array  $array the array
      */
     public static function arrayRemove(string $path, array &$array): void
     {
-        $keys = explode('/', $path);
+        $keys      = explode('/', $path);
         $keys_last = array_pop($keys);
-        $path = [];
-        $depth = 0;
+        $path      = [];
+        $depth     = 0;
 
         $path[0] = &$array;
-        $found = true;
+        $found   = true;
         // go as deep as required or possible
         foreach ($keys as $key) {
             if (! isset($path[$depth][$key])) {
@@ -602,7 +606,8 @@ class Core
     /**
      * Returns link to (possibly) external site using defined redirector.
      *
-     * @param  string  $url URL where to go.
+     * @param string $url URL where to go.
+     *
      * @return string URL for a link.
      */
     public static function linkURL(string $url): string
@@ -611,7 +616,7 @@ class Core
             return $url;
         }
 
-        $params = [];
+        $params        = [];
         $params['url'] = $url;
 
         $url = Url::getCommon($params);
@@ -636,7 +641,7 @@ class Core
      * Checks whether domain of URL is an allowed domain or not.
      * Use only for URLs of external sites.
      *
-     * @param  string  $url URL of external site.
+     * @param string $url URL of external site.
      */
     public static function isAllowedDomain(string $url): bool
     {
@@ -663,7 +668,7 @@ class Core
             }
         }
 
-        $domain = $arr['host'];
+        $domain          = $arr['host'];
         $domainAllowList = [
             /* Include current domain */
             $_SERVER['SERVER_NAME'],
@@ -697,7 +702,8 @@ class Core
     /**
      * Replace some html-unfriendly stuff
      *
-     * @param  string  $buffer String to process
+     * @param string $buffer String to process
+     *
      * @return string Escaped and cleaned up text suitable for html
      */
     public static function mimeDefaultFunction(string $buffer): string
@@ -711,7 +717,7 @@ class Core
     /**
      * Displays SQL query before executing.
      *
-     * @param  array|string  $query_data Array containing queries or query itself
+     * @param array|string $query_data Array containing queries or query itself
      */
     public static function previewSQL($query_data): void
     {
@@ -734,7 +740,7 @@ class Core
     /**
      * recursively check if variable is empty
      *
-     * @param  mixed  $value the variable
+     * @param mixed $value the variable
      */
     public static function emptyRecursive($value): bool
     {
@@ -743,7 +749,7 @@ class Core
             array_walk_recursive(
                 $value,
                 /**
-                 * @param  mixed  $item
+                 * @param mixed $item
                  */
                 static function ($item) use (&$empty): void {
                     $empty = $empty && empty($item);
@@ -759,7 +765,7 @@ class Core
     /**
      * Creates some globals from $_POST variables matching a pattern
      *
-     * @param  array  $post_patterns The patterns to search for
+     * @param array $post_patterns The patterns to search for
      */
     public static function setPostAsGlobal(array $post_patterns): void
     {
@@ -823,7 +829,7 @@ class Core
      *
      * * strips p: prefix(es)
      *
-     * @param  string  $name User given hostname
+     * @param string $name User given hostname
      */
     public static function sanitizeMySQLHost(string $name): string
     {
@@ -839,7 +845,7 @@ class Core
      *
      * * strips part behind null byte
      *
-     * @param  string  $name User given username
+     * @param string $name User given username
      */
     public static function sanitizeMySQLUser(string $name): string
     {
@@ -856,14 +862,15 @@ class Core
      *
      * It does not unserialize data containing objects
      *
-     * @param  string  $data Data to unserialize
+     * @param string $data Data to unserialize
+     *
      * @return mixed|null
      */
     public static function safeUnserialize(string $data)
     {
         /* validate serialized data */
         $length = strlen($data);
-        $depth = 0;
+        $depth  = 0;
         for ($i = 0; $i < $length; $i++) {
             $value = $data[$i];
 
@@ -942,7 +949,8 @@ class Core
     /**
      * Sign the sql query using hmac using the session token
      *
-     * @param  string  $sqlQuery The sql query
+     * @param string $sqlQuery The sql query
+     *
      * @return string
      */
     public static function signSqlQuery($sqlQuery)
@@ -957,15 +965,15 @@ class Core
     /**
      * Check that the sql query has a valid hmac signature
      *
-     * @param  string  $sqlQuery  The sql query
-     * @param  string  $signature The Signature to check
+     * @param string $sqlQuery  The sql query
+     * @param string $signature The Signature to check
      */
     public static function checkSqlQuerySignature($sqlQuery, $signature): bool
     {
         global $cfg;
 
         $secret = $_SESSION[' HMAC_secret '] ?? '';
-        $hmac = hash_hmac('sha256', $sqlQuery, $secret . $cfg['blowfish_secret']);
+        $hmac   = hash_hmac('sha256', $sqlQuery, $secret . $cfg['blowfish_secret']);
 
         return hash_equals($hmac, $signature);
     }
@@ -976,7 +984,7 @@ class Core
     public static function getContainerBuilder(): ContainerBuilder
     {
         $containerBuilder = new ContainerBuilder();
-        $loader = new PhpFileLoader($containerBuilder, new FileLocator(ROOT_PATH . 'libraries'));
+        $loader           = new PhpFileLoader($containerBuilder, new FileLocator(ROOT_PATH . 'libraries'));
         $loader->load('services_loader.php');
 
         return $containerBuilder;
@@ -985,7 +993,7 @@ class Core
     public static function populateRequestWithEncryptedQueryParams(ServerRequest $request): ServerRequest
     {
         $queryParams = $request->getQueryParams();
-        $parsedBody = $request->getParsedBody();
+        $parsedBody  = $request->getParsedBody();
 
         unset($_GET['eq'], $_POST['eq'], $_REQUEST['eq']);
 
@@ -1025,10 +1033,10 @@ class Core
         foreach ($urlQueryParams as $urlQueryParamKey => $urlQueryParamValue) {
             if (is_array($parsedBody)) {
                 $parsedBody[$urlQueryParamKey] = $urlQueryParamValue;
-                $_POST[$urlQueryParamKey] = $urlQueryParamValue;
+                $_POST[$urlQueryParamKey]      = $urlQueryParamValue;
             } else {
                 $queryParams[$urlQueryParamKey] = $urlQueryParamValue;
-                $_GET[$urlQueryParamKey] = $urlQueryParamValue;
+                $_GET[$urlQueryParamKey]        = $urlQueryParamValue;
             }
 
             $_REQUEST[$urlQueryParamKey] = $urlQueryParamValue;

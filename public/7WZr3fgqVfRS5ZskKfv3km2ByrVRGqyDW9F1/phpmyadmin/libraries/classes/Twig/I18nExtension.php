@@ -12,7 +12,7 @@ class I18nExtension extends TwigI18nExtension
 {
     public function __construct()
     {
-        TransNode::$notesLabel = '// l10n: ';
+        TransNode::$notesLabel         = '// l10n: ';
         TransNode::$enableMoTranslator = true;
     }
 

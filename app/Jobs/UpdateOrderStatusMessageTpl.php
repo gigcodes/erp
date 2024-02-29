@@ -20,6 +20,9 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private      $orderId
+     * @param null|private $message
+     *
      * @return void
      */
     public function __construct(private $orderId, private $message = null)
@@ -47,16 +50,16 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
                     }
                 } else {
                     $defaultMessageTpl = $this->message;
-                    $msg = $this->message;
+                    $msg               = $this->message;
                 }
                 // start update the order status
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
                     'customer_id' => $order->customer_id,
-                    'message' => $msg,
-                    'status' => 0,
-                    'order_id' => $order->id,
+                    'message'     => $msg,
+                    'status'      => 0,
+                    'order_id'    => $order->id,
                 ]);
 
                 app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');

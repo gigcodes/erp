@@ -19,17 +19,17 @@ class SocialAccountCommentController extends Controller
 {
     public function index(Request $request, $postId)
     {
-        $post = SocialPost::where('id', $postId)->firstOrFail();
-        $search = $request->get('search');
+        $post     = SocialPost::where('id', $postId)->firstOrFail();
+        $search   = $request->get('search');
         $comments = SocialComments::where('post_id', $post->id)->whereNull('parent_id');
         $comments = $comments->when($request->has('search'), function (Builder $builder) use ($search) {
             return $builder->whereLike(['comment_id', 'message'], $search);
         });
 
-        $comments = $comments->latest()->get();
+        $comments        = $comments->latest()->get();
         $googleTranslate = new GoogleTranslate();
         foreach ($comments as $key => $value) {
-            $translationString = $googleTranslate->translate('en', $value['message']);
+            $translationString    = $googleTranslate->translate('en', $value['message']);
             $value['translation'] = $translationString;
         }
 
@@ -39,46 +39,46 @@ class SocialAccountCommentController extends Controller
     public function sync($postId)
     {
         try {
-            $post = SocialPost::where('id', $postId)->with('account')->firstOrFail();
-            $fb = new FB($post->account->page_token);
+            $post        = SocialPost::where('id', $postId)->with('account')->firstOrFail();
+            $fb          = new FB($post->account->page_token);
             $is_facebook = $post->account->platform == 'facebook';
-            $comments = $is_facebook ? $fb->getPostComments($post->ref_post_id) : $fb->getInstaPostComments($post->ref_post_id);
+            $comments    = $is_facebook ? $fb->getPostComments($post->ref_post_id) : $fb->getInstaPostComments($post->ref_post_id);
 
             foreach ($comments as $comment) {
                 $parent = SocialComments::updateOrCreate(['comment_ref_id' => $comment['id']], [
-                    'commented_by_id' => $is_facebook ? $comment['from']['id'] : $comment['user']['id'],
+                    'commented_by_id'   => $is_facebook ? $comment['from']['id'] : $comment['user']['id'],
                     'commented_by_user' => $is_facebook ? $comment['from']['name'] : $comment['user']['name'],
-                    'post_id' => $post->id,
-                    'config_id' => $post->account->id,
-                    'message' => $is_facebook ? $comment['message'] : $comment['text'],
-                    'parent_id' => null,
-                    'can_comment' => $is_facebook ? $comment['can_comment'] : true,
-                    'created_at' => Carbon::parse($comment['created_time']),
+                    'post_id'           => $post->id,
+                    'config_id'         => $post->account->id,
+                    'message'           => $is_facebook ? $comment['message'] : $comment['text'],
+                    'parent_id'         => null,
+                    'can_comment'       => $is_facebook ? $comment['can_comment'] : true,
+                    'created_at'        => Carbon::parse($comment['created_time']),
                 ]);
 
                 if (isset($comment['comments'])) {
                     foreach ($comment['comments'] as $c) {
                         SocialComments::updateOrCreate(['comment_ref_id' => $c['id']], [
-                            'commented_by_id' => $c['from']['id'],
+                            'commented_by_id'   => $c['from']['id'],
                             'commented_by_user' => $c['from']['name'],
-                            'post_id' => $post->id,
-                            'config_id' => $post->account->id,
-                            'message' => $c['message'],
-                            'parent_id' => $parent->id,
-                            'created_at' => Carbon::parse($c['created_time']),
+                            'post_id'           => $post->id,
+                            'config_id'         => $post->account->id,
+                            'message'           => $c['message'],
+                            'parent_id'         => $parent->id,
+                            'created_at'        => Carbon::parse($c['created_time']),
                         ]);
                     }
                 }
                 if (isset($comment['replies'])) {
                     foreach ($comment['comments'] as $c) {
                         SocialComments::updateOrCreate(['comment_ref_id' => $c['id']], [
-                            'commented_by_id' => $c['user']['id'],
+                            'commented_by_id'   => $c['user']['id'],
                             'commented_by_user' => $c['user']['name'],
-                            'post_id' => $post->id,
-                            'config_id' => $post->account->id,
-                            'message' => $c['text'],
-                            'parent_id' => $parent->id,
-                            'created_at' => Carbon::parse($c['created_time']),
+                            'post_id'           => $post->id,
+                            'config_id'         => $post->account->id,
+                            'message'           => $c['text'],
+                            'parent_id'         => $parent->id,
+                            'created_at'        => Carbon::parse($c['created_time']),
                         ]);
                     }
                 }
@@ -92,8 +92,8 @@ class SocialAccountCommentController extends Controller
 
     public function allcomments(Request $request)
     {
-        $search = request('search', '');
-        $social_config = request('social_config', '');
+        $search           = request('search', '');
+        $social_config    = request('social_config', '');
         $store_website_id = request('store_website_id', '');
 
         $totalcomments = BusinessComment::where('is_parent', 0)->count();
@@ -124,13 +124,13 @@ class SocialAccountCommentController extends Controller
         $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
 
         $googleTranslate = new GoogleTranslate();
-        $target = 'en';
+        $target          = 'en';
         foreach ($comments as $key => $value) {
-            $translationString = $googleTranslate->translate('en', $value['message']);
+            $translationString    = $googleTranslate->translate('en', $value['message']);
             $value['translation'] = $translationString;
         }
 
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
+        $websites      = \App\StoreWebsite::select('id', 'title')->get();
         $socialconfigs = SocialConfig::get();
 
         $reply_categories = ReplyCategory::select('id', 'name')
@@ -146,6 +146,7 @@ class SocialAccountCommentController extends Controller
     {
         try {
             $comments = SocialComments::where('parent_id', $request->id)->with('user')->latest()->get();
+
             return response()->json(['comments' => $comments]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -154,21 +155,21 @@ class SocialAccountCommentController extends Controller
 
     public function devCommentsReply(Request $request)
     {
-        $commentId = $request->contactId;
-        $message = $request->get('input');
+        $commentId    = $request->contactId;
+        $message      = $request->get('input');
         $base_comment = SocialComments::find($commentId);
         $socialConfig = SocialConfig::where('id', $base_comment->config_id)->first();
         try {
             SocialWebhookLog::log(SocialWebhookLog::ERROR, 'Webhook (Comment Error) => Please check log', ['data' => '']);
-            $fb = new FB($socialConfig->page_token);
+            $fb       = new FB($socialConfig->page_token);
             $response = $fb->replyToPostComments($message, $base_comment->comment_ref_id);
             if (isset($response['id'])) {
                 SocialComments::updateOrCreate(['comment_ref_id' => $response['id']], [
-                    'post_id' => $base_comment->post_id,
+                    'post_id'   => $base_comment->post_id,
                     'config_id' => $base_comment->config_id,
-                    'message' => $message,
+                    'message'   => $message,
                     'parent_id' => $base_comment->id,
-                    'user_id' => auth()->user()->id,
+                    'user_id'   => auth()->user()->id,
                 ]);
 
                 SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Webhook (Comment Added) => Reply on Comment Successfully', ['data' => $response]);
@@ -186,7 +187,7 @@ class SocialAccountCommentController extends Controller
 
     public function getEmailreplies(Request $request)
     {
-        $id = $request->id;
+        $id           = $request->id;
         $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
 
         return json_encode($emailReplies);

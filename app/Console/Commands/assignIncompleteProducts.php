@@ -40,7 +40,7 @@ class assignIncompleteProducts extends Command
     public function handle()
     {
         $products = ScrapedProducts::where(['cron_executed' => 0])->get();
-        $pids = [];
+        $pids     = [];
         foreach ($products as $product) {
             $missing = [];
             if ($product->properties == null) {
@@ -58,10 +58,10 @@ class assignIncompleteProducts extends Command
             $requestData->setMethod('POST');
             $requestData->request->add([
                 'priority' => 1,
-                'issue' => implode(',', $missing) . ' missing in scapped products, whose website is ' . $product->website . ' and supplier is ', // issue detail
+                'issue'    => implode(',', $missing) . ' missing in scapped products, whose website is ' . $product->website . ' and supplier is ', // issue detail
 
-                'status' => 'Planned',
-                'module' => 'Scraper',
+                'status'  => 'Planned',
+                'module'  => 'Scraper',
                 'subject' => implode(',', $missing) . ' missing in scapped products', // enter issue name
 
                 'assigned_to' => 6,

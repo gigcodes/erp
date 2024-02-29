@@ -34,7 +34,7 @@ class ServerConfigChecks
     protected $cfg;
 
     /**
-     * @param  ConfigFile  $cfg Configuration
+     * @param ConfigFile $cfg Configuration
      */
     public function __construct(ConfigFile $cfg)
     {
@@ -46,9 +46,9 @@ class ServerConfigChecks
      */
     public function performConfigChecks(): void
     {
-        $blowfishSecret = $this->cfg->get('blowfish_secret');
+        $blowfishSecret    = $this->cfg->get('blowfish_secret');
         $blowfishSecretSet = false;
-        $cookieAuthUsed = false;
+        $cookieAuthUsed    = false;
 
         [$cookieAuthUsed, $blowfishSecret, $blowfishSecretSet] = $this->performConfigChecksServers(
             $cookieAuthUsed,
@@ -121,9 +121,10 @@ class ServerConfigChecks
     /**
      * Check config of servers
      *
-     * @param  bool  $cookieAuthUsed    Cookie auth is used
-     * @param  string  $blowfishSecret    Blowfish secret
-     * @param  bool  $blowfishSecretSet Blowfish secret set
+     * @param bool   $cookieAuthUsed    Cookie auth is used
+     * @param string $blowfishSecret    Blowfish secret
+     * @param bool   $blowfishSecretSet Blowfish secret set
+     *
      * @return array
      */
     protected function performConfigChecksServers(
@@ -131,7 +132,7 @@ class ServerConfigChecks
         $blowfishSecret,
         $blowfishSecretSet
     ) {
-        $serverCnt = $this->cfg->getServerCount();
+        $serverCnt        = $this->cfg->getServerCount();
         $isCookieAuthUsed = (int) $cookieAuthUsed;
         for ($i = 1; $i <= $serverCnt; $i++) {
             $cookieAuthServer = ($this->cfg->getValue('Servers/' . $i . '/auth_type') === 'cookie');
@@ -234,9 +235,9 @@ class ServerConfigChecks
     /**
      * Set blowfish secret
      *
-     * @param  string|null  $blowfishSecret    Blowfish secret
-     * @param  bool  $cookieAuthServer  Cookie auth is used
-     * @param  bool  $blowfishSecretSet Blowfish secret set
+     * @param string|null $blowfishSecret    Blowfish secret
+     * @param bool        $cookieAuthServer  Cookie auth is used
+     * @param bool        $blowfishSecretSet Blowfish secret set
      */
     protected function performConfigChecksServersSetBlowfishSecret(
         $blowfishSecret,
@@ -257,8 +258,9 @@ class ServerConfigChecks
     /**
      * Define server name
      *
-     * @param  string  $serverName Server name
-     * @param  int  $serverId   Server id
+     * @param string $serverName Server name
+     * @param int    $serverId   Server id
+     *
      * @return string Server name
      */
     protected function performConfigChecksServersGetServerName(
@@ -329,9 +331,9 @@ class ServerConfigChecks
     /**
      * Check config of servers
      *
-     * @param  bool  $cookieAuthUsed    Cookie auth is used
-     * @param  bool  $blowfishSecretSet Blowfish secret set
-     * @param  string  $blowfishSecret    Blowfish secret
+     * @param bool   $cookieAuthUsed    Cookie auth is used
+     * @param bool   $blowfishSecretSet Blowfish secret set
+     * @param string $blowfishSecret    Blowfish secret
      */
     protected function performConfigChecksCookieAuthUsed(
         $cookieAuthUsed,
@@ -369,8 +371,8 @@ class ServerConfigChecks
         }
 
         // check used characters
-        $hasDigits = (bool) preg_match('/\d/', $blowfishSecret);
-        $hasChars = (bool) preg_match('/\S/', $blowfishSecret);
+        $hasDigits  = (bool) preg_match('/\d/', $blowfishSecret);
+        $hasChars   = (bool) preg_match('/\S/', $blowfishSecret);
         $hasNonword = (bool) preg_match('/\W/', $blowfishSecret);
         if (! $hasDigits || ! $hasChars || ! $hasNonword) {
             $blowfishWarnings[] = Sanitize::sanitizeMessage(
@@ -539,7 +541,7 @@ class ServerConfigChecks
     /**
      * Wrapper around function_exists to allow mock in test
      *
-     * @param  string  $name Function name
+     * @param string $name Function name
      */
     protected function functionExists($name): bool
     {

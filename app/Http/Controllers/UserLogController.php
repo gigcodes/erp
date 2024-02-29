@@ -54,13 +54,13 @@ class UserLogController extends Controller
      */
     public function store(Request $request)
     {
-        $url = $request->url;
-        $user_id = $request->user_id;
+        $url       = $request->url;
+        $user_id   = $request->user_id;
         $user_name = $request->user_name;
 
-        $user_log = new UserLog();
-        $user_log->user_id = $user_id;
-        $user_log->url = $url;
+        $user_log            = new UserLog();
+        $user_log->user_id   = $user_id;
+        $user_log->url       = $url;
         $user_log->user_name = $user_name;
         $user_log->save();
     }

@@ -51,12 +51,12 @@ class TwoFactorPlugin
     /**
      * Creates object
      *
-     * @param  TwoFactor  $twofactor TwoFactor instance
+     * @param TwoFactor $twofactor TwoFactor instance
      */
     public function __construct(TwoFactor $twofactor)
     {
         $this->twofactor = $twofactor;
-        $this->template = new Template();
+        $this->template  = new Template();
     }
 
     /**
@@ -142,14 +142,15 @@ class TwoFactorPlugin
      *
      * Either hostname or hostname with scheme.
      *
-     * @param  bool  $return_url Whether to generate URL
+     * @param bool $return_url Whether to generate URL
+     *
      * @return string
      */
     public function getAppId($return_url)
     {
         global $config;
 
-        $url = $config->get('PmaAbsoluteUri');
+        $url    = $config->get('PmaAbsoluteUri');
         $parsed = [];
         if (! empty($url)) {
             $parsedUrl = parse_url($url);

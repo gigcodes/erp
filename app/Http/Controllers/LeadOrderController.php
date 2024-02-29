@@ -21,11 +21,11 @@ class LeadOrderController extends Controller
      */
     public function index(Request $request)
     {
-        $term = $request->input('term');
+        $term        = $request->input('term');
         $orderOrLead = $request->input('order_or_lead') ?? '';
-        $date = $request->date ?? '';
-        $brandList = \App\Brand::all()->pluck('name', 'id')->toArray();
-        $brandIds = $request->get('brand_id');
+        $date        = $request->date ?? '';
+        $brandList   = \App\Brand::all()->pluck('name', 'id')->toArray();
+        $brandIds    = $request->get('brand_id');
 
         if ($request->input('orderby') == '') {
             $orderby = 'DESC';

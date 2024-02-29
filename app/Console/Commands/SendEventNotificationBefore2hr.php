@@ -44,7 +44,7 @@ class SendEventNotificationBefore2hr extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
@@ -53,13 +53,13 @@ class SendEventNotificationBefore2hr extends Command
             $events = UserEvent::havingRaw('TIMESTAMPDIFF(HOUR,now() , start) = 2')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Event query finished.']);
 
-            $userWise = [];
+            $userWise           = [];
             $vendorParticipants = [];
 
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {
                     $userWise[$event->user_id][] = $event;
-                    $participants = $event->attendees;
+                    $participants                = $event->attendees;
                     if (! $participants->isEmpty()) {
                         foreach ($participants as $participant) {
                             if ($participant->object == \App\Vendor::class) {
@@ -77,9 +77,9 @@ class SendEventNotificationBefore2hr extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'user query finished.']);
                     // if user exist
                     if (! empty($user)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 2 hours';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
@@ -102,16 +102,16 @@ class SendEventNotificationBefore2hr extends Command
                     $vendor = \App\Vendor::find($id);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'vendor created.']);
                     if (! empty($vendor)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 2 hours';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
                         }
 
                         $params['vendor_id'] = $vendor->id;
-                        $params['message'] = implode("\n", $notification);
+                        $params['message']   = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'chat message created.']);

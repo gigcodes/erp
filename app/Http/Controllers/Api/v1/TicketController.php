@@ -66,12 +66,12 @@ class TicketController extends Controller
         header('Access-Control-Allow-Methods: *');
         header('Access-Control-Allow-Headers: *');
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:80',
-            'last_name' => 'required|max:80',
-            'email' => 'required|email',
-            'type_of_inquiry' => 'required',
-            'subject' => 'required|max:80',
-            'message' => 'required',
+            'name'             => 'required|max:80',
+            'last_name'        => 'required|max:80',
+            'email'            => 'required|email',
+            'type_of_inquiry'  => 'required',
+            'subject'          => 'required|max:80',
+            'message'          => 'required',
             'source_of_ticket' => 'required',
         ]);
 
@@ -86,17 +86,17 @@ class TicketController extends Controller
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
-        $data = $request->all();
-        $data['ticket_id'] = 'T' . date('YmdHis');
-        $data['status_id'] = 1;
+        $data                    = $request->all();
+        $data['ticket_id']       = 'T' . date('YmdHis');
+        $data['status_id']       = 1;
         $data['resolution_date'] = Carbon::now()->addDays(2)->format('Y-m-d H:i:s');
         if (isset($request->lang_code) && $request->lang_code != '') {
-            $lang = explode('_', str_replace('-', '_', $request->lang_code));
+            $lang              = explode('_', str_replace('-', '_', $request->lang_code));
             $data['lang_code'] = $lang[1];
         }
 
-        $success = Tickets::create($data);
-        $ticket = Tickets::find($success->id);
+        $success    = Tickets::create($data);
+        $ticket     = Tickets::find($success->id);
         $emailClass = (new TicketCreate($ticket))->build();
 
         try {
@@ -116,21 +116,21 @@ class TicketController extends Controller
         }
 
         $email = \App\Email::create([
-            'model_id' => $ticket->id,
-            'model_type' => Tickets::class,
-            'from' => $emailClass->fromMailer,
-            'to' => @$ticket->email,
-            'subject' => $emailClass->subject,
-            'message' => '', //$emailClass->render()
-            'template' => 'ticket-create',
+            'model_id'        => $ticket->id,
+            'model_type'      => Tickets::class,
+            'from'            => $emailClass->fromMailer,
+            'to'              => @$ticket->email,
+            'subject'         => $emailClass->subject,
+            'message'         => '', //$emailClass->render()
+            'template'        => 'ticket-create',
             'additional_data' => $ticket->id,
-            'status' => 'pre-send',
-            'is_draft' => 1,
+            'status'          => 'pre-send',
+            'is_draft'        => 1,
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
@@ -148,7 +148,8 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -159,7 +160,8 @@ class TicketController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -170,7 +172,8 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -181,7 +184,8 @@ class TicketController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -231,14 +235,14 @@ class TicketController extends Controller
             $tickets->where('ticket_id', $request->ticket_id);
         }
         if (isset($request->action) && $request->action == 'send_messsage') {
-            $ticket = Tickets::where('source_of_ticket', $request->website)->where('ticket_id', $request->ticket_id)->first();
-            $params['message'] = $request->get('message');
+            $ticket               = Tickets::where('source_of_ticket', $request->website)->where('ticket_id', $request->ticket_id)->first();
+            $params['message']    = $request->get('message');
             $params['message_en'] = $request->get('message');
-            $params['ticket_id'] = $ticket->id;
-            $params['user_id'] = 6;
-            $params['approved'] = 1;
-            $params['status'] = 2;
-            $chat_message = ChatMessage::create($params);
+            $params['ticket_id']  = $ticket->id;
+            $params['user_id']    = 6;
+            $params['approved']   = 1;
+            $params['status']     = 2;
+            $chat_message         = ChatMessage::create($params);
         }
         $per_page = '';
         if (! empty($request->per_page)) {
@@ -251,7 +255,7 @@ class TicketController extends Controller
             return response()->json(['status' => 'failed', 'message' => $message], 404);
         }
         foreach ($tickets as $ticket) {
-            $replies = [];
+            $replies  = [];
             $messages = \App\ChatMessage::where('ticket_id', $ticket->id)->select('id', 'message', 'created_at', 'user_id')->latest()->get();
             foreach ($messages as $message) {
                 $message->send_by = 'Admin';
@@ -280,19 +284,19 @@ class TicketController extends Controller
             $customer = \App\Customer::where('email', $get_ticket_data->email)->first();
 
             $params = [
-                'number' => $customer->phone,
-                'message' => $get_ticket_data->message,
-                'media_url' => null,
-                'approved' => 0,
-                'status' => 0,
-                'contact_id' => null,
-                'erp_user' => null,
+                'number'      => $customer->phone,
+                'message'     => $get_ticket_data->message,
+                'media_url'   => null,
+                'approved'    => 0,
+                'status'      => 0,
+                'contact_id'  => null,
+                'erp_user'    => null,
                 'supplier_id' => null,
-                'task_id' => null,
+                'task_id'     => null,
                 'dubizzle_id' => null,
-                'vendor_id' => null,
+                'vendor_id'   => null,
                 'customer_id' => $customer->id,
-                'ticket_id' => $ticker_id,
+                'ticket_id'   => $ticker_id,
             ];
             $messageModel = \App\ChatMessage::create($params);
 

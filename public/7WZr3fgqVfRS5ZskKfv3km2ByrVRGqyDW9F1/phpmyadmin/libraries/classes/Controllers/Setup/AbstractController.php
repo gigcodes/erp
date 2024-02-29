@@ -20,7 +20,7 @@ abstract class AbstractController
 
     public function __construct(ConfigFile $config, Template $template)
     {
-        $this->config = $config;
+        $this->config   = $config;
         $this->template = $template;
     }
 
@@ -40,7 +40,7 @@ abstract class AbstractController
             $formClass = SetupFormList::get($formset);
 
             $pages[$formset] = [
-                'name' => $formClass::getName(),
+                'name'    => $formClass::getName(),
                 'formset' => $formset,
             ];
         }

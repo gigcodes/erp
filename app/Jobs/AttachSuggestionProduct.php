@@ -21,6 +21,8 @@ class AttachSuggestionProduct implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param publicSuggestedProduct $suggestion
+     *
      * @return void
      */
     public function __construct(public SuggestedProduct $suggestion)

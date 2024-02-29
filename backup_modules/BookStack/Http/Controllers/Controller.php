@@ -35,7 +35,7 @@ abstract class Controller extends BaseController
 
             // Share variables with controllers
             $this->currentUser = $user;
-            $this->signedIn = auth()->check();
+            $this->signedIn    = auth()->check();
 
             // Share variables with views
             view()->share('signedIn', $this->signedIn);
@@ -58,6 +58,8 @@ abstract class Controller extends BaseController
 
     /**
      * Adds the page title into the view.
+     *
+     * @param mixed $title
      */
     public function setPageTitle($title)
     {
@@ -83,7 +85,8 @@ abstract class Controller extends BaseController
     /**
      * Checks for a permission.
      *
-     * @param  string  $permissionName
+     * @param string $permissionName
+     *
      * @return bool|\Illuminate\Http\RedirectResponse
      */
     protected function checkPermission($permissionName)
@@ -98,6 +101,8 @@ abstract class Controller extends BaseController
     /**
      * Check the current user's permissions against an ownable item.
      *
+     * @param mixed $permission
+     *
      * @return bool
      */
     protected function checkOwnablePermission($permission, Ownable $ownable)
@@ -111,6 +116,9 @@ abstract class Controller extends BaseController
 
     /**
      * Check if a user has a permission or bypass if the callback is true.
+     *
+     * @param mixed $permissionName
+     * @param mixed $callback
      *
      * @return bool
      */
@@ -140,8 +148,9 @@ abstract class Controller extends BaseController
     /**
      * Send back a json error message.
      *
-     * @param  string  $messageText
-     * @param  int  $statusCode
+     * @param string $messageText
+     * @param int    $statusCode
+     *
      * @return mixed
      */
     protected function jsonError($messageText = '', $statusCode = 500)
@@ -173,7 +182,7 @@ abstract class Controller extends BaseController
     protected function downloadResponse(string $content, string $fileName)
     {
         return response()->make($content, 200, [
-            'Content-Type' => 'application/octet-stream',
+            'Content-Type'        => 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
     }

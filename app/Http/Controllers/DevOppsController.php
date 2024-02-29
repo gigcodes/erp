@@ -62,7 +62,7 @@ class DevOppsController extends Controller
     {
         if ($request->ajax()) {
             if ($request['category_type'] == 1) {
-                $name = $request['category_name'];
+                $name           = $request['category_name'];
                 $category_array = [
                     'name' => $name,
                 ];
@@ -70,7 +70,7 @@ class DevOppsController extends Controller
             } else {
                 $sub_category_array = [
                     'devoops_category_id' => $request['devoops_category_id'],
-                    'name' => $request['sub_category_name'],
+                    'name'                => $request['sub_category_name'],
                 ];
 
                 DevOppsSubCategory::create($sub_category_array);
@@ -84,21 +84,21 @@ class DevOppsController extends Controller
     {
         if ($request->ajax()) {
             if ($request['category_type'] == 1) {
-                $id = $request->id;
+                $id           = $request->id;
                 $categoryname = $request->category_name;
-                $category = DevOppsCategories::find($id);
+                $category     = DevOppsCategories::find($id);
 
                 if (! empty($category)) {
                     $category->name = $categoryname; // Assign the new value to the 'name' attribute
                     $category->save(); // Save the changes to the database
                 }
             } else {
-                $id = $request->id;
-                $sub_category = $request->sub_category_name;
+                $id                  = $request->id;
+                $sub_category        = $request->sub_category_name;
                 $devoops_category_id = $request->devoops_category_id;
-                $subcategory = DevOppsSubCategory::find($id);
+                $subcategory         = DevOppsSubCategory::find($id);
                 if (! empty($subcategory)) {
-                    $subcategory->name = $sub_category;
+                    $subcategory->name                = $sub_category;
                     $subcategory->devoops_category_id = $devoops_category_id;
                     $subcategory->save();
                 }
@@ -110,7 +110,7 @@ class DevOppsController extends Controller
 
     public function delete($id)
     {
-        $items = DevOppsCategories::find($id);
+        $items  = DevOppsCategories::find($id);
         $delete = $items->delete();
 
         return response()->json(['code' => 200, 'message' => 'Record deleted Successfully!']);
@@ -118,7 +118,7 @@ class DevOppsController extends Controller
 
     public function subdelete($id)
     {
-        $items = DevOppsSubCategory::find($id);
+        $items  = DevOppsSubCategory::find($id);
         $delete = $items->delete();
 
         return response()->json(['code' => 200, 'message' => 'Record deleted Successfully!']);
@@ -130,11 +130,11 @@ class DevOppsController extends Controller
 
         $this->validate($request, [
             'main_category_id' => 'required',
-            'sub_category_id' => 'required',
-            'remarks' => 'required',
+            'sub_category_id'  => 'required',
+            'remarks'          => 'required',
         ]);
 
-        $input = $request->except(['_token']);
+        $input             = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         DevOppsRemarks::create($input);
 
@@ -150,18 +150,18 @@ class DevOppsController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function taskCount($site_developement_id)
     {
-        $query1 = Task::where('site_developement_id', $site_developement_id)->where('category', 60)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
-        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $query1              = Task::where('site_developement_id', $site_developement_id)->where('category', 60)->whereNull('is_completed')->select();
+        $query1              = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1              = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
 
         return response()->json(['code' => 200, 'taskStatistics' => $othertaskStatistics]);
@@ -170,7 +170,7 @@ class DevOppsController extends Controller
     public function createStatus(Request $request)
     {
         try {
-            $status = new DevOopsStatus();
+            $status              = new DevOopsStatus();
             $status->status_name = $request->status_name;
             $status->save();
 
@@ -184,15 +184,15 @@ class DevOppsController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $id = $request->input('id');
+        $id          = $request->input('id');
         $status_name = $request->input('status_name');
 
-        $devoops = DevOppsSubCategory::find($id);
-        $history = new DevOopsStatusHistory();
+        $devoops                          = DevOppsSubCategory::find($id);
+        $history                          = new DevOopsStatusHistory();
         $history->devoops_sub_category_id = $id;
-        $history->old_value = $devoops->status_id;
-        $history->new_value = $status_name;
-        $history->user_id = Auth::user()->id;
+        $history->old_value               = $devoops->status_id;
+        $history->new_value               = $status_name;
+        $history->user_id                 = Auth::user()->id;
         $history->save();
 
         $devoops->status_id = $status_name;
@@ -204,9 +204,9 @@ class DevOppsController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $dostatus = DevOopsStatus::find($key);
+            $dostatus               = DevOopsStatus::find($key);
             $dostatus->status_color = $value;
             $dostatus->save();
         }
@@ -222,9 +222,9 @@ class DevOppsController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -232,12 +232,12 @@ class DevOppsController extends Controller
     public function uploadFile(Request $request)
     {
         $request->validate([
-            'file' => 'required',
+            'file'               => 'required',
             'file_creation_date' => 'required',
-            'remarks' => 'sometimes',
-            'task_id' => 'required',
-            'file_read' => 'sometimes',
-            'file_write' => 'sometimes',
+            'remarks'            => 'sometimes',
+            'task_id'            => 'required',
+            'file_read'          => 'sometimes',
+            'file_write'         => 'sometimes',
         ]);
 
         $data = $request->all();
@@ -249,12 +249,12 @@ class DevOppsController extends Controller
                     $googleScreencast->file_name = $file->getClientOriginalName();
 
                     $googleScreencast->extension = $file->extension();
-                    $googleScreencast->user_id = Auth::user()->id;
+                    $googleScreencast->user_id   = Auth::user()->id;
 
-                    $googleScreencast->read = '';
+                    $googleScreencast->read  = '';
                     $googleScreencast->write = '';
 
-                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->remarks            = $data['remarks'];
                     $googleScreencast->file_creation_date = $data['file_creation_date'];
 
                     $googleScreencast->dev_oops_id = $data['task_id'];
@@ -299,7 +299,7 @@ class DevOppsController extends Controller
 
     public function uploadDocument(Request $request)
     {
-        $id = $request->get('devoops_task_id', 0);
+        $id      = $request->get('devoops_task_id', 0);
         $subject = $request->get('subject', null);
 
         $loggedUser = $request->user();

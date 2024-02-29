@@ -15,10 +15,10 @@ class CodeShortcutController extends Controller
     public function index(Request $request)
     {
         $data['codeshortcut'] = CodeShortcut::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
-        $data['suppliers'] = Supplier::select('id', 'supplier')->get();
-        $data['users'] = User::select('id', 'name')->get();
-        $data['platforms'] = CodeShortCutPlatform::select('id', 'name')->get();
-        $data['folders'] = CodeShortcutFolder::select('id', 'name')->get();
+        $data['suppliers']    = Supplier::select('id', 'supplier')->get();
+        $data['users']        = User::select('id', 'name')->get();
+        $data['platforms']    = CodeShortCutPlatform::select('id', 'name')->get();
+        $data['folders']      = CodeShortcutFolder::select('id', 'name')->get();
 
         if ($request->ajax()) {
             $query = CodeShortcut::query();
@@ -62,20 +62,20 @@ class CodeShortcutController extends Controller
             $validated->supplier_id = $request->supplier;
         }
         if ($request->hasFile('notesfile')) {
-            $file = $request->file('notesfile');
-            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $file            = $request->file('notesfile');
+            $name            = uniqid() . time() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('/codeshortcut-image');
             $file->move($destinationPath, $name);
             $validated->filename = $name;
         }
-        $validated->user_id = auth()->user()->id;
-        $validated->code = $request->code;
-        $validated->description = $request->description;
-        $validated->code = $request->code;
-        $validated->solution = $request->solution;
-        $validated->title = $request->title;
+        $validated->user_id                    = auth()->user()->id;
+        $validated->code                       = $request->code;
+        $validated->description                = $request->description;
+        $validated->code                       = $request->code;
+        $validated->solution                   = $request->solution;
+        $validated->title                      = $request->title;
         $validated->code_shortcuts_platform_id = $request->platform_id;
-        $validated->folder_id = $request->folder_id;
+        $validated->folder_id                  = $request->folder_id;
         $validated->save();
 
         return back()->with('success', 'Code Shortcuts successfully saved.');
@@ -84,8 +84,8 @@ class CodeShortcutController extends Controller
     public function update(Request $request, $id)
     {
         if ($request->hasFile('notesfile')) {
-            $file = $request->file('notesfile');
-            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
+            $file            = $request->file('notesfile');
+            $name            = uniqid() . time() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('/codeshortcut-image');
             $file->move($destinationPath, $name);
         } else {
@@ -93,13 +93,13 @@ class CodeShortcutController extends Controller
         }
 
         $updateData = [
-            'supplier_id' => $request->supplier,
-            'code' => $request->code,
-            'description' => $request->description,
+            'supplier_id'                => $request->supplier,
+            'code'                       => $request->code,
+            'description'                => $request->description,
             'code_shortcuts_platform_id' => $request->platform_id,
-            'title' => $request->title,
-            'solution' => $request->solution,
-            'folder_id' => $request->folder_id,
+            'title'                      => $request->title,
+            'solution'                   => $request->solution,
+            'folder_id'                  => $request->folder_id,
         ];
 
         if (! is_null($name)) {
@@ -120,7 +120,7 @@ class CodeShortcutController extends Controller
 
     public function shortcutPlatformStore(Request $request)
     {
-        $platform = new CodeShortCutPlatform();
+        $platform       = new CodeShortCutPlatform();
         $platform->name = $request->platform_name;
         $platform->save();
 
@@ -202,7 +202,7 @@ class CodeShortcutController extends Controller
                 $user_permission = $codeShortCut->user_permission . ',' . $request->per_user_name;
                 $user_permission = array_unique(explode(',', $user_permission));
                 $user_permission = implode(',', $user_permission);
-                $postman = CodeShortcut::where('id', '=', $codeShortCut->id)->update(
+                $postman         = CodeShortcut::where('id', '=', $codeShortCut->id)->update(
                     [
                         'user_permission' => $user_permission,
                     ]
@@ -229,24 +229,24 @@ class CodeShortcutController extends Controller
         $CodeShortcut = CodeShortcut::findorFail($id);
 
         return response()->json([
-            'status' => true,
-            'data' => $CodeShortcut,
-            'title' => $CodeShortcut['title'],
-            'code' => $CodeShortcut['code'],
+            'status'      => true,
+            'data'        => $CodeShortcut,
+            'title'       => $CodeShortcut['title'],
+            'code'        => $CodeShortcut['code'],
             'description' => $CodeShortcut['description'],
-            'solution' => $CodeShortcut['solution'],
-            'message' => 'Data get successfully',
+            'solution'    => $CodeShortcut['solution'],
+            'message'     => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function createShortcutCode(Request $request)
     {
-        $CodeShortcut = new CodeShortcut;
-        $CodeShortcut->title = $request->name;
-        $CodeShortcut->user_id = auth()->user()->id;
+        $CodeShortcut              = new CodeShortcut;
+        $CodeShortcut->title       = $request->name;
+        $CodeShortcut->user_id     = auth()->user()->id;
         $CodeShortcut->description = $request->description;
-        $CodeShortcut->solution = $request->solution;
+        $CodeShortcut->solution    = $request->solution;
         $CodeShortcut->save();
 
         return response()->json(['status' => true, 'message' => 'Code Shortcut Created Successfully']);

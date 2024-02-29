@@ -13,7 +13,7 @@ class NotifyException extends \Exception
      */
     public function __construct(string $message, string $redirectLocation = '/')
     {
-        $this->message = $message;
+        $this->message          = $message;
         $this->redirectLocation = $redirectLocation;
         parent::__construct();
     }

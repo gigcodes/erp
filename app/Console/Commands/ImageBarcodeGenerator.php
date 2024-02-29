@@ -64,9 +64,9 @@ class ImageBarcodeGenerator extends Command
         $auto_message = '';
 
         if ($product) {
-            $brand_name = $this->getBrandName($product);
+            $brand_name    = $this->getBrandName($product);
             $special_price = $this->getSpecialPrice($product);
-            $auto_message = $brand_name . "\n" . $product->name . "\n" . $special_price;
+            $auto_message  = $brand_name . "\n" . $product->name . "\n" . $special_price;
         }
 
         return $auto_message;
@@ -104,8 +104,8 @@ class ImageBarcodeGenerator extends Command
     {
         $product = $this->product;
 
-        $medias = $product->getMedia(config('constants.attach_image_tag'));
-        $auto_message = $this->getAutoMessageString($product);
+        $medias        = $product->getMedia(config('constants.attach_image_tag'));
+        $auto_message  = $this->getAutoMessageString($product);
         $barcodeString = \DNS1D::getBarcodePNGPath($product->id, 'EAN13', 3, 77, [1, 1, 1], true);
 
         if (! $medias->isEmpty()) {
@@ -114,22 +114,22 @@ class ImageBarcodeGenerator extends Command
                 try {
                     $filename = pathinfo($media->filename, PATHINFO_FILENAME);
 
-                    $img = $this->createImageFromMediaWithBarcode($media, $barcodeString, $auto_message);
+                    $img         = $this->createImageFromMediaWithBarcode($media, $barcodeString, $auto_message);
                     $filenameNew = $this->setMediaFilename($media);
-                    $path = $this->getMediaPathSave($product->id);
+                    $path        = $this->getMediaPathSave($product->id);
 
                     $img->save($path . $filenameNew);
 
                     $barcodeMedia = BarcodeMedia::updateOrCreate([
                         'media_id' => $media->id,
-                        'type' => 'product',
-                        'type_id' => $product->id,
+                        'type'     => 'product',
+                        'type_id'  => $product->id,
                     ], [
                         'media_id' => $media->id,
-                        'type' => 'product',
-                        'type_id' => $product->id,
-                        'name' => $this->getBrandName($product) . '||' . $product->name,
-                        'price' => $this->getSpecialPrice($product),
+                        'type'     => 'product',
+                        'type_id'  => $product->id,
+                        'name'     => $this->getBrandName($product) . '||' . $product->name,
+                        'price'    => $this->getSpecialPrice($product),
                     ]);
 
                     $media = MediaUploader::fromSource($path . $filenameNew)
@@ -155,7 +155,7 @@ class ImageBarcodeGenerator extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $productId = $this->argument('product_id');
@@ -168,10 +168,10 @@ class ImageBarcodeGenerator extends Command
                 'pdf',
             ];
 
-            $whereString = 'where is_barcode_check is null and p.has_mediables = 1';
+            $whereString  = 'where is_barcode_check is null and p.has_mediables = 1';
             $havingClause = 'having (total_image != total_barcode or total_barcode is null or bimage_name != bm_name or b_price > bm_price or b_price < bm_price)';
             if (! empty($productId) && $productId > 0) {
-                $whereString = ' where p.id = ' . $productId . ' and p.has_mediables = 1';
+                $whereString  = ' where p.id = ' . $productId . ' and p.has_mediables = 1';
                 $havingClause = '';
             }
 
@@ -198,12 +198,12 @@ class ImageBarcodeGenerator extends Command
             // check all product ids exist
             if (! empty($productIds)) {
                 $this->brands = \App\Brand::get()->pluck('name', 'id')->toArray();
-                $products = \App\Product::whereIn('id', $productIds)->get();
+                $products     = \App\Product::whereIn('id', $productIds)->get();
                 if (! $products->isEmpty()) {
                     foreach ($products as $product) {
                         echo $product->id . ' Started at  ' . date('Y-m-d H:i:s') . PHP_EOL;
-                        $this->product = $product;
-                        $image = $this->insertImage($product);
+                        $this->product             = $product;
+                        $image                     = $this->insertImage($product);
                         $product->is_barcode_check = 1;
                         $product->save();
                         echo $product->id . ' Ended at  ' . date('Y-m-d H:i:s') . PHP_EOL;

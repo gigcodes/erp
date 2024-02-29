@@ -79,7 +79,7 @@ class Tracker
          * We need to avoid attempt to track any queries from {@link Relation::getRelationParameters()}
          */
         Cache::set(self::TRACKER_ENABLED_CACHE_KEY, false);
-        $relation = new Relation($dbi);
+        $relation           = new Relation($dbi);
         $relationParameters = $relation->getRelationParameters();
         /* Restore original state */
         Cache::set(self::TRACKER_ENABLED_CACHE_KEY, true);
@@ -90,7 +90,8 @@ class Tracker
     /**
      * Parses the name of a table from a SQL statement substring.
      *
-     * @param  string  $string part of SQL statement
+     * @param string $string part of SQL statement
+     *
      * @return string the name of table
      *
      * @static
@@ -98,13 +99,13 @@ class Tracker
     protected static function getTableName($string)
     {
         if (mb_strstr($string, '.')) {
-            $temp = explode('.', $string);
+            $temp      = explode('.', $string);
             $tableName = $temp[1];
         } else {
             $tableName = $string;
         }
 
-        $str = explode("\n", $tableName);
+        $str       = explode("\n", $tableName);
         $tableName = $str[0];
 
         $tableName = str_replace([';', '`'], '', $tableName);
@@ -116,8 +117,8 @@ class Tracker
     /**
      * Gets the tracking status of a table, is it active or disabled ?
      *
-     * @param  string  $dbName    name of database
-     * @param  string  $tableName name of table
+     * @param string $dbName    name of database
+     * @param string $tableName name of table
      *
      * @static
      */
@@ -138,7 +139,7 @@ class Tracker
          * We need to avoid attempt to track any queries from {@link Relation::getRelationParameters()}
          */
         Cache::set(self::TRACKER_ENABLED_CACHE_KEY, false);
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $trackingFeature = $relation->getRelationParameters()->trackingFeature;
         /* Restore original state */
         Cache::set(self::TRACKER_ENABLED_CACHE_KEY, true);
@@ -179,11 +180,11 @@ class Tracker
      * Creates tracking version of a table / view
      * (in other words: create a job to track future changes on the table).
      *
-     * @param  string  $dbName      name of database
-     * @param  string  $tableName   name of table
-     * @param  string  $version     version
-     * @param  string  $trackingSet set of tracking statements
-     * @param  bool  $isView      if table is a view
+     * @param string $dbName      name of database
+     * @param string $tableName   name of table
+     * @param string $version     version
+     * @param string $trackingSet set of tracking statements
+     * @param bool   $isView      if table is a view
      *
      * @static
      */
@@ -203,7 +204,7 @@ class Tracker
         }
 
         $exportSqlPlugin = Plugins::getPlugin('export', 'sql', [
-            'export_type' => (string) $export_type,
+            'export_type'  => (string) $export_type,
             'single_table' => false,
         ]);
         if (! $exportSqlPlugin instanceof ExportSql) {
@@ -282,15 +283,15 @@ class Tracker
     /**
      * Removes all tracking data for a table or a version of a table
      *
-     * @param  string  $dbName    name of database
-     * @param  string  $tableName name of table
-     * @param  string  $version   version
+     * @param string $dbName    name of database
+     * @param string $tableName name of table
+     * @param string $version   version
      */
     public static function deleteTracking($dbName, $tableName, $version = ''): bool
     {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $trackingFeature = $relation->getRelationParameters()->trackingFeature;
         if ($trackingFeature === null) {
             return false;
@@ -314,10 +315,10 @@ class Tracker
      * Creates tracking version of a database
      * (in other words: create a job to track future changes on the database).
      *
-     * @param  string  $dbName      name of database
-     * @param  string  $version     version
-     * @param  string  $query       query
-     * @param  string  $trackingSet set of tracking statements
+     * @param string $dbName      name of database
+     * @param string $version     version
+     * @param string $query       query
+     * @param string $trackingSet set of tracking statements
      */
     public static function createDatabaseVersion(
         $dbName,
@@ -372,10 +373,10 @@ class Tracker
     /**
      * Changes tracking of a table.
      *
-     * @param  string  $dbName    name of database
-     * @param  string  $tableName name of table
-     * @param  string  $version   version
-     * @param  int  $newState  the new state of tracking
+     * @param string $dbName    name of database
+     * @param string $tableName name of table
+     * @param string $version   version
+     * @param int    $newState  the new state of tracking
      */
     private static function changeTracking(
         $dbName,
@@ -385,7 +386,7 @@ class Tracker
     ): bool {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $trackingFeature = $relation->getRelationParameters()->trackingFeature;
         if ($trackingFeature === null) {
             return false;
@@ -408,11 +409,11 @@ class Tracker
     /**
      * Changes tracking data of a table.
      *
-     * @param  string  $dbName    name of database
-     * @param  string  $tableName name of table
-     * @param  string  $version   version
-     * @param  string  $type      type of data(DDL || DML)
-     * @param  string|array  $newData   the new tracking data
+     * @param string       $dbName    name of database
+     * @param string       $tableName name of table
+     * @param string       $version   version
+     * @param string       $type      type of data(DDL || DML)
+     * @param string|array $newData   the new tracking data
      *
      * @static
      */
@@ -471,9 +472,9 @@ class Tracker
     /**
      * Activates tracking of a table.
      *
-     * @param  string  $dbname    name of database
-     * @param  string  $tablename name of table
-     * @param  string  $version   version
+     * @param string $dbname    name of database
+     * @param string $tablename name of table
+     * @param string $version   version
      */
     public static function activateTracking($dbname, $tablename, $version): bool
     {
@@ -483,9 +484,9 @@ class Tracker
     /**
      * Deactivates tracking of a table.
      *
-     * @param  string  $dbname    name of database
-     * @param  string  $tablename name of table
-     * @param  string  $version   version
+     * @param string $dbname    name of database
+     * @param string $tablename name of table
+     * @param string $version   version
      */
     public static function deactivateTracking($dbname, $tablename, $version): bool
     {
@@ -496,9 +497,10 @@ class Tracker
      * Gets the newest version of a tracking job
      * (in other words: gets the HEAD version).
      *
-     * @param  string  $dbname    name of database
-     * @param  string  $tablename name of table
-     * @param  string  $statement tracked statement
+     * @param string $dbname    name of database
+     * @param string $tablename name of table
+     * @param string $statement tracked statement
+     *
      * @return int (-1 if no version exists | >  0 if a version exists)
      *
      * @static
@@ -507,7 +509,7 @@ class Tracker
     {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $trackingFeature = $relation->getRelationParameters()->trackingFeature;
         if ($trackingFeature === null) {
             return -1;
@@ -539,11 +541,12 @@ class Tracker
     /**
      * Gets the record of a tracking job.
      *
-     * @param  string  $dbname    name of database
-     * @param  string  $tablename name of table
-     * @param  string  $version   version number
+     * @param string $dbname    name of database
+     * @param string $tablename name of table
+     * @param string $version   version number
+     *
      * @return mixed record DDM log, DDL log, structure snapshot, tracked
-     *         statements.
+     *               statements.
      *
      * @static
      */
@@ -551,7 +554,7 @@ class Tracker
     {
         global $dbi;
 
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $trackingFeature = $relation->getRelationParameters()->trackingFeature;
         if ($trackingFeature === null) {
             return [];
@@ -576,20 +579,20 @@ class Tracker
         // PHP 7.4 fix for accessing array offset on null
         if ($mixed === []) {
             $mixed = [
-                'schema_sql' => null,
-                'data_sql' => null,
-                'tracking' => null,
+                'schema_sql'      => null,
+                'data_sql'        => null,
+                'tracking'        => null,
                 'schema_snapshot' => null,
             ];
         }
 
         // Parse log
         $logSchemaEntries = explode('# log ', (string) $mixed['schema_sql']);
-        $logDataEntries = explode('# log ', (string) $mixed['data_sql']);
+        $logDataEntries   = explode('# log ', (string) $mixed['data_sql']);
 
         $ddlDateFrom = $date = Util::date('Y-m-d H:i:s');
 
-        $ddlog = [];
+        $ddlog          = [];
         $firstIteration = true;
 
         // Iterate tracked data definition statements
@@ -599,32 +602,32 @@ class Tracker
                 continue;
             }
 
-            $date = mb_substr($logEntry, 0, 19);
+            $date     = mb_substr($logEntry, 0, 19);
             $username = mb_substr(
                 $logEntry,
                 20,
                 mb_strpos($logEntry, "\n") - 20
             );
             if ($firstIteration) {
-                $ddlDateFrom = $date;
+                $ddlDateFrom    = $date;
                 $firstIteration = false;
             }
 
             $statement = rtrim((string) mb_strstr($logEntry, "\n"));
 
             $ddlog[] = [
-                'date' => $date,
-                'username' => $username,
+                'date'      => $date,
+                'username'  => $username,
                 'statement' => $statement,
             ];
         }
 
-        $dateFrom = $ddlDateFrom;
+        $dateFrom  = $ddlDateFrom;
         $ddlDateTo = $date;
 
         $dmlDateFrom = $dateFrom;
 
-        $dmlog = [];
+        $dmlog          = [];
         $firstIteration = true;
 
         // Iterate tracked data manipulation statements
@@ -634,22 +637,22 @@ class Tracker
                 continue;
             }
 
-            $date = mb_substr($logEntry, 0, 19);
+            $date     = mb_substr($logEntry, 0, 19);
             $username = mb_substr(
                 $logEntry,
                 20,
                 mb_strpos($logEntry, "\n") - 20
             );
             if ($firstIteration) {
-                $dmlDateFrom = $date;
+                $dmlDateFrom    = $date;
                 $firstIteration = false;
             }
 
             $statement = rtrim((string) mb_strstr($logEntry, "\n"));
 
             $dmlog[] = [
-                'date' => $date,
-                'username' => $username,
+                'date'      => $date,
+                'username'  => $username,
                 'statement' => $statement,
             ];
         }
@@ -670,9 +673,9 @@ class Tracker
             $data['date_to'] = $dmlDateTo;
         }
 
-        $data['ddlog'] = $ddlog;
-        $data['dmlog'] = $dmlog;
-        $data['tracking'] = $mixed['tracking'];
+        $data['ddlog']           = $ddlog;
+        $data['dmlog']           = $dmlog;
+        $data['tracking']        = $mixed['tracking'];
         $data['schema_snapshot'] = $mixed['schema_snapshot'];
 
         return $data;
@@ -684,7 +687,8 @@ class Tracker
      *  - type of statement, is it part of DDL or DML ?
      *  - tablename
      *
-     * @param  string  $query query
+     * @param string $query query
+     *
      * @return array containing identifier, type and tablename.
      *
      * @static
@@ -714,7 +718,7 @@ class Tracker
 
         if (! empty($parser->statements)) {
             $statement = $parser->statements[0];
-            $options = isset($statement->options) ? $statement->options->options : null;
+            $options   = isset($statement->options) ? $statement->options->options : null;
 
             /*
              * DDL statements
@@ -729,10 +733,10 @@ class Tracker
 
                 if ($options[6] === 'VIEW' || $options[6] === 'TABLE') {
                     $result['identifier'] = 'CREATE ' . $options[6];
-                    $result['tablename'] = $statement->name !== null ? $statement->name->table : null;
+                    $result['tablename']  = $statement->name !== null ? $statement->name->table : null;
                 } elseif ($options[6] === 'DATABASE') {
                     $result['identifier'] = 'CREATE DATABASE';
-                    $result['tablename'] = '';
+                    $result['tablename']  = '';
 
                     // In case of CREATE DATABASE, database field of the CreateStatement is the name of the database
                     $GLOBALS['db'] = $statement->name !== null ? $statement->name->database : null;
@@ -755,10 +759,10 @@ class Tracker
 
                 if ($options[3] === 'VIEW' || $options[3] === 'TABLE') {
                     $result['identifier'] = 'ALTER ' . $options[3];
-                    $result['tablename'] = $statement->table->table;
+                    $result['tablename']  = $statement->table->table;
                 } elseif ($options[3] === 'DATABASE') {
                     $result['identifier'] = 'ALTER DATABASE';
-                    $result['tablename'] = '';
+                    $result['tablename']  = '';
 
                     $GLOBALS['db'] = $statement->table->table;
                 }
@@ -769,19 +773,19 @@ class Tracker
 
                 if ($options[1] === 'VIEW' || $options[1] === 'TABLE') {
                     $result['identifier'] = 'DROP ' . $options[1];
-                    $result['tablename'] = $statement->fields[0]->table;
+                    $result['tablename']  = $statement->fields[0]->table;
                 } elseif ($options[1] === 'DATABASE') {
                     $result['identifier'] = 'DROP DATABASE';
-                    $result['tablename'] = '';
+                    $result['tablename']  = '';
 
                     $GLOBALS['db'] = $statement->fields[0]->table;
                 } elseif ($options[1] === 'INDEX') {
                     $result['identifier'] = 'DROP INDEX';
-                    $result['tablename'] = $statement->table->table;
+                    $result['tablename']  = $statement->table->table;
                 }
             } elseif ($statement instanceof RenameStatement) { // Parse RENAME statement
-                $result['identifier'] = 'RENAME TABLE';
-                $result['tablename'] = $statement->renames[0]->old->table;
+                $result['identifier']             = 'RENAME TABLE';
+                $result['tablename']              = $statement->renames[0]->old->table;
                 $result['tablename_after_rename'] = $statement->renames[0]->new->table;
             }
 
@@ -797,25 +801,25 @@ class Tracker
             // Parse UPDATE statement
             if ($statement instanceof UpdateStatement) {
                 $result['identifier'] = 'UPDATE';
-                $result['tablename'] = $statement->tables[0]->table;
+                $result['tablename']  = $statement->tables[0]->table;
             }
 
             // Parse INSERT INTO statement
             if ($statement instanceof InsertStatement) {
                 $result['identifier'] = 'INSERT';
-                $result['tablename'] = $statement->into->dest->table;
+                $result['tablename']  = $statement->into->dest->table;
             }
 
             // Parse DELETE statement
             if ($statement instanceof DeleteStatement) {
                 $result['identifier'] = 'DELETE';
-                $result['tablename'] = $statement->from[0]->table;
+                $result['tablename']  = $statement->from[0]->table;
             }
 
             // Parse TRUNCATE statement
             if ($statement instanceof TruncateStatement) {
                 $result['identifier'] = 'TRUNCATE';
-                $result['tablename'] = $statement->table->table;
+                $result['tablename']  = $statement->table->table;
             }
         }
 
@@ -825,7 +829,7 @@ class Tracker
     /**
      * Analyzes a given SQL statement and saves tracking data.
      *
-     * @param  string  $query a SQL query
+     * @param string $query a SQL query
      *
      * @static
      */

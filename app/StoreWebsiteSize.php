@@ -11,7 +11,6 @@ class StoreWebsiteSize extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="size_id",type="integer")
 

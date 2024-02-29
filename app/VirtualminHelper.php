@@ -16,8 +16,8 @@ class VirtualminHelper
     {
         $this->_options = [
             'endpoint' => getenv('VIRTUALMIN_ENDPOINT'),
-            'user' => getenv('VIRTUALMIN_USER'),
-            'pass' => getenv('VIRTUALMIN_PASS'),
+            'user'     => getenv('VIRTUALMIN_USER'),
+            'pass'     => getenv('VIRTUALMIN_PASS'),
         ];
     }
 
@@ -32,7 +32,7 @@ class VirtualminHelper
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                $domainsData = $responseData['data'];
+                $domainsData  = $responseData['data'];
                 foreach ($domainsData as $domainInfo) {
                     $domainName = $domainInfo['name'];
                     if (isset($domainInfo['values']['disabled_at']) && ! empty($domainInfo['values']['disabled_at'][0])) {
@@ -53,8 +53,8 @@ class VirtualminHelper
                 }
             }
 
-            $result = $response->json();
-            $domainId = $virtualminDomain->id;
+            $result     = $response->json();
+            $domainId   = $virtualminDomain->id;
             $domainName = $virtualminDomain->name;
 
             $output = $domainName . ' synced successfully ';
@@ -70,7 +70,7 @@ class VirtualminHelper
     public function enableDomain($domain)
     {
         $domainName = $domain->name;
-        $domainId = $domain->id;
+        $domainId   = $domain->id;
 
         try {
             $url = $this->_options['endpoint'] . "?program=enable-domain&domain={$domainName}&json=1&multiline=";
@@ -94,7 +94,7 @@ class VirtualminHelper
     public function disableDomain($domain)
     {
         $domainName = $domain->name;
-        $domainId = $domain->id;
+        $domainId   = $domain->id;
 
         try {
             $url = $this->_options['endpoint'] . "?program=disable-domain&domain={$domainName}&json=1&multiline=";
@@ -133,9 +133,9 @@ class VirtualminHelper
     public function createMail($domain, $user, $password)
     {
         try {
-            $url = $this->_options['endpoint'] . "program=create-user&domain=$domain&user=$user&pass=$password&json=1";
+            $url        = $this->_options['endpoint'] . "program=create-user&domain=$domain&user=$user&pass=$password&json=1";
             $httpClient = new Client();
-            $response = $httpClient->get(
+            $response   = $httpClient->get(
                 $url,
                 [
                     RequestOptions::HEADERS => [
@@ -154,9 +154,9 @@ class VirtualminHelper
     public function changeMailPassword($domain, $user, $password)
     {
         try {
-            $url = $this->_options['endpoint'] . "program=modify-user&domain=$domain&user=$user&pass=$password&json=1";
+            $url        = $this->_options['endpoint'] . "program=modify-user&domain=$domain&user=$user&pass=$password&json=1";
             $httpClient = new Client();
-            $response = $httpClient->get(
+            $response   = $httpClient->get(
                 $url,
                 [
                     RequestOptions::HEADERS => [
@@ -174,13 +174,13 @@ class VirtualminHelper
 
     public function saveDomainHistory($domainId, $result, $output)
     {
-        $virtualminDomainHistory = new VirtualminDomainHistory();
+        $virtualminDomainHistory                        = new VirtualminDomainHistory();
         $virtualminDomainHistory->Virtual_min_domain_id = $domainId;
-        $virtualminDomainHistory->user_id = Auth::user()->id;
-        $virtualminDomainHistory->command = $result['command'];
-        $virtualminDomainHistory->error = $result['error'] ?? null;
-        $virtualminDomainHistory->output = $output;
-        $virtualminDomainHistory->status = $result['status'];
+        $virtualminDomainHistory->user_id               = Auth::user()->id;
+        $virtualminDomainHistory->command               = $result['command'];
+        $virtualminDomainHistory->error                 = $result['error'] ?? null;
+        $virtualminDomainHistory->output                = $output;
+        $virtualminDomainHistory->status                = $result['status'];
         $virtualminDomainHistory->save();
     }
 }

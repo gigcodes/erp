@@ -35,6 +35,9 @@ class ToneAnalyserService extends Service
     /**
      * Analyzes the tone of a piece of text
      *
+     * @param mixed $textToAnalyse
+     * @param mixed $version
+     *
      * @return Response
      */
     public function plainText($textToAnalyse, $version = '2016-05-19')

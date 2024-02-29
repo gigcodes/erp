@@ -67,17 +67,17 @@ class AccountHubstaffActivities extends Command
             // account only previous days activity
             if ($firstUnaccountActivityTime < $today) {
                 // accounting periods
-                $start = $firstUnaccountedActivity->starts_at; // inclusive
+                $start   = $firstUnaccountedActivity->starts_at; // inclusive
                 $endTime = strtotime($start) + (1 * 24 * 60 * 60);
-                $end = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
+                $end     = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
 
                 echo $start . PHP_EOL;
                 echo $end . PHP_EOL;
 
                 //get the rate for the start of yesterday
                 $userRatesForStartOfDayYesterday = UserRate::latestRatesBeforeTime($end);
-                $rateChangesForYesterday = UserRate::rateChangesForDate($start, $end);
-                $activities = HubstaffActivity::getActivitiesBetween($start, $end);
+                $rateChangesForYesterday         = UserRate::rateChangesForDate($start, $end);
+                $activities                      = HubstaffActivity::getActivitiesBetween($start, $end);
 
                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting user rate & hubstuff activities']);
 
@@ -101,12 +101,12 @@ class AccountHubstaffActivities extends Command
 
                 foreach ($users as $user) {
                     $accountingEntry = [
-                        'user' => $user->id,
+                        'user'          => $user->id,
                         'accountedTime' => $end,
-                        'activityIds' => [],
-                        'amount' => 0,
-                        'hrs' => 0,
-                        'tasks' => [],
+                        'activityIds'   => [],
+                        'amount'        => 0,
+                        'hrs'           => 0,
+                        'tasks'         => [],
                     ];
 
                     $user->total = 0;
@@ -122,8 +122,8 @@ class AccountHubstaffActivities extends Command
                     if ($invidualRatesStartOfDayYesterday) {
                         $rates[] = [
                             'start_date' => $start,
-                            'rate' => $invidualRatesStartOfDayYesterday->hourly_rate,
-                            'currency' => $invidualRatesStartOfDayYesterday->currency,
+                            'rate'       => $invidualRatesStartOfDayYesterday->hourly_rate,
+                            'currency'   => $invidualRatesStartOfDayYesterday->currency,
                         ];
                     }
 
@@ -135,8 +135,8 @@ class AccountHubstaffActivities extends Command
                         foreach ($rateChangesYesterdayForUser as $rate) {
                             $rates[] = [
                                 'start_date' => $rate->start_date,
-                                'rate' => $rate->hourly_rate,
-                                'currency' => $rate->currency,
+                                'rate'       => $rate->hourly_rate,
+                                'currency'   => $rate->currency,
                             ];
                         }
                     }
@@ -150,8 +150,8 @@ class AccountHubstaffActivities extends Command
 
                         $rates[] = [
                             'start_date' => $end,
-                            'rate' => $lastEntry['rate'],
-                            'currency' => $lastEntry['currency'],
+                            'rate'       => $lastEntry['rate'],
+                            'currency'   => $lastEntry['currency'],
                         ];
 
                         $user->currency = $lastEntry['currency'];
@@ -181,7 +181,7 @@ class AccountHubstaffActivities extends Command
                             $i = 0;
                             while ($i < count($rates) - 1) {
                                 $startRate = $rates[$i];
-                                $endRate = $rates[$i + 1];
+                                $endRate   = $rates[$i + 1];
 
                                 if ($activity->starts_at >= $startRate['start_date'] && $activity->start_time < $endRate['start_date']) {
                                     // the activity needs calculation for the start rate and hence do it
@@ -227,17 +227,17 @@ class AccountHubstaffActivities extends Command
 
                 //update the accounted activities with the account entry id
                 foreach ($accountingEntries as $entry) {
-                    $paymentAccount = new HubstaffPaymentAccount;
-                    $paymentAccount->user_id = $entry['user'];
-                    $paymentAccount->accounted_at = $entry['accountedTime'];
-                    $paymentAccount->amount = $entry['amount'];
-                    $paymentAccount->hrs = $entry['hrs'];
-                    $paymentAccount->billing_start = $start;
-                    $paymentAccount->billing_end = $end;
-                    $paymentAccount->rate = (float) $entry['amount'] / $entry['hrs'];
+                    $paymentAccount                   = new HubstaffPaymentAccount;
+                    $paymentAccount->user_id          = $entry['user'];
+                    $paymentAccount->accounted_at     = $entry['accountedTime'];
+                    $paymentAccount->amount           = $entry['amount'];
+                    $paymentAccount->hrs              = $entry['hrs'];
+                    $paymentAccount->billing_start    = $start;
+                    $paymentAccount->billing_end      = $end;
+                    $paymentAccount->rate             = (float) $entry['amount'] / $entry['hrs'];
                     $paymentAccount->payment_currency = 'INR';
-                    $paymentAccount->total_payout = ($entry['amount']) * 68;
-                    $paymentAccount->ex_rate = 68;
+                    $paymentAccount->total_payout     = ($entry['amount']) * 68;
+                    $paymentAccount->ex_rate          = 68;
                     $paymentAccount->save();
 
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved hubstaff payment account detail by ID:' . $paymentAccount->id]);

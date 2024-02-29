@@ -49,17 +49,17 @@ class ProductSearcherController extends Controller
 
         $this->validate($request, $validations);
 
-        $productsearcher->dnf = $request->input('dnf');
-        $productsearcher->sku = $request->input('sku');
-        $productsearcher->size = $request->input('size');
-        $productsearcher->size_eu = $request->input('size_eu');
-        $productsearcher->price = $request->input('price');
-        $productsearcher->product_link = $request->input('product_link');
-        $productsearcher->supplier = $request->input('supplier');
-        $productsearcher->supplier_link = $request->input('supplier_link');
+        $productsearcher->dnf              = $request->input('dnf');
+        $productsearcher->sku              = $request->input('sku');
+        $productsearcher->size             = $request->input('size');
+        $productsearcher->size_eu          = $request->input('size_eu');
+        $productsearcher->price            = $request->input('price');
+        $productsearcher->product_link     = $request->input('product_link');
+        $productsearcher->supplier         = $request->input('supplier');
+        $productsearcher->supplier_link    = $request->input('supplier_link');
         $productsearcher->description_link = $request->input('description_link');
-        $productsearcher->stage = $stage->get('Searcher');
-        $productsearcher->last_searcher = Auth::id();
+        $productsearcher->stage            = $stage->get('Searcher');
+        $productsearcher->last_searcher    = Auth::id();
 
         self::replaceImage($request, $productsearcher);
 

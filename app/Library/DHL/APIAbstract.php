@@ -24,17 +24,17 @@ abstract class APIAbstract
 
     public function __construct()
     {
-        $this->username = config('env.DHL_ID') ?: config('dhl.DHL_ID');
-        $this->password = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
-        $this->_mode = config('env.DHL_MODE') ?: config('app.env');
+        $this->username      = config('env.DHL_ID') ?: config('dhl.DHL_ID');
+        $this->password      = config('env.DHL_KEY') ?: config('dhl.DHL_KEY');
+        $this->_mode         = config('env.DHL_MODE') ?: config('app.env');
         $this->accountNumber = config('env.DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
-        $this->type = 'curl';
+        $this->type          = 'curl';
     }
 
     /**
      * [setType] curl or soap call
      *
-     * @param  string  $type
+     * @param string $type
      */
     public function setType($type = 'curl')
     {
@@ -63,7 +63,7 @@ abstract class APIAbstract
         curl_close($ch);
         $this->resultsRAW = $result;
         try {
-            $result = str_ireplace(['xmlSOAP-ENV', 'ser-root:', 'SOAP-ENV:', 'SOAP:', 'rateresp:', 'shipresp:', 'trac:', 'dhl:', 'ns:'], '', $result);
+            $result        = str_ireplace(['xmlSOAP-ENV', 'ser-root:', 'SOAP-ENV:', 'SOAP:', 'rateresp:', 'shipresp:', 'trac:', 'dhl:', 'ns:'], '', $result);
             $this->results = simplexml_load_string($result)->children();
         } catch (\Exception $exception) {
             return false;

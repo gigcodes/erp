@@ -47,18 +47,18 @@ class CheckEmailsErrors extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            $cm = new ClientManager();
+            $cm   = new ClientManager();
             $imap = $cm->make([
-                'host' => env('IMAP_HOST_PURCHASE'),
-                'port' => env('IMAP_PORT_PURCHASE'),
-                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+                'host'          => env('IMAP_HOST_PURCHASE'),
+                'port'          => env('IMAP_PORT_PURCHASE'),
+                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username' => env('IMAP_USERNAME_PURCHASE'),
-                'password' => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+                'username'      => env('IMAP_USERNAME_PURCHASE'),
+                'password'      => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();

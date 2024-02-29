@@ -16,7 +16,7 @@ class CronStatusTableSeeder extends Seeder
     public function run()
     {
         $magentoCronData = new ShowMagentoCronDataController();
-        $lists = $magentoCronData->cronStatus();
+        $lists           = $magentoCronData->cronStatus();
 
         foreach ($lists as $list) {
             CronStatus::firstOrCreate([

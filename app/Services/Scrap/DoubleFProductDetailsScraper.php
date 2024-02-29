@@ -28,17 +28,17 @@ class DoubleFProductDetailsScraper extends Scraper
 
     public function doesProductExist($product)
     {
-        $url = $product->url;
+        $url     = $product->url;
         $content = $this->getContent($url, 'GET', 'it', false);
         if ($content === '') {
             return false;
         }
 
-        $c = new HtmlPageCrawler($content);
+        $c     = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
 
         if ($title !== '' && strlen($title) > 2) {
-            $props = $product->properties;
+            $props               = $product->properties;
             $props['sizes_prop'] = $this->getSizes($c);
             $product->properties = $props;
             $product->save();
@@ -60,14 +60,14 @@ class DoubleFProductDetailsScraper extends Scraper
 
         echo "$scrapEntry->url \n";
 
-        $c = new HtmlPageCrawler($content);
-        $title = $this->getTitle($c);
-        $brand = $this->getDesignerName($c);
-        $price = $this->getPrice($c);
-        $sku = $this->getSku($c);
-        $images = $this->getImages($c);
+        $c           = new HtmlPageCrawler($content);
+        $title       = $this->getTitle($c);
+        $brand       = $this->getDesignerName($c);
+        $price       = $this->getPrice($c);
+        $sku         = $this->getSku($c);
+        $images      = $this->getImages($c);
         $description = $this->getDescription($c);
-        $properties = $this->getProperties($c);
+        $properties  = $this->getProperties($c);
 
         if (! $images || ! $title) {
             $scrapEntry->delete();
@@ -88,19 +88,19 @@ class DoubleFProductDetailsScraper extends Scraper
             $image = new ScrapedProducts();
         }
 
-        $image->brand_id = $brandId;
-        $image->sku = $sku;
-        $image->website = 'DoubleF';
-        $image->title = $title;
+        $image->brand_id    = $brandId;
+        $image->sku         = $sku;
+        $image->website     = 'DoubleF';
+        $image->title       = $title;
         $image->description = $description;
-        $image->images = $images;
-        $image->price = $price;
+        $image->images      = $images;
+        $image->price       = $price;
         if ($sku != 'N/A') {
             $image->has_sku = 1;
         }
         $image->is_price_updated = 1;
-        $image->url = $scrapEntry->url;
-        $image->properties = $properties;
+        $image->url              = $scrapEntry->url;
+        $image->properties       = $properties;
         $image->save();
 
         $properties = $image->properties;
@@ -112,8 +112,8 @@ class DoubleFProductDetailsScraper extends Scraper
             return;
         }
 
-        $colorCode = $colorCode[1];
-        $sku2 = $image->sku . $colorCode;
+        $colorCode  = $colorCode[1];
+        $sku2       = $image->sku . $colorCode;
         $image->sku = $sku2;
 
         $image->save();
@@ -151,7 +151,7 @@ class DoubleFProductDetailsScraper extends Scraper
     {
         try {
             $properties = $c->filter('div#tab1 ul li')->getIterator();
-            $sku = '';
+            $sku        = '';
             foreach ($properties as $property) {
                 if (strpos($property->textContent, 'Product code') !== false) {
                     $sku = $property->textContent;
@@ -184,7 +184,7 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getImages(HtmlPageCrawler $c)
     {
-        $images = $c->filter('div.product-img-box a')->getIterator();
+        $images  = $c->filter('div.product-img-box a')->getIterator();
         $content = [];
 
         foreach ($images as $image) {
@@ -221,7 +221,7 @@ class DoubleFProductDetailsScraper extends Scraper
         $images = [];
         foreach ($data as $key => $datum) {
             try {
-                $datum = $this->getImageUrl($datum);
+                $datum   = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
@@ -238,8 +238,8 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getProperties(HtmlPageCrawler $c)
     {
-        $sizes = $this->getSizes($c);
-        $bread = $c->filter('ul.breadcrumbs li a')->getIterator();
+        $sizes          = $this->getSizes($c);
+        $bread          = $c->filter('ul.breadcrumbs li a')->getIterator();
         $propertiesData = ['size' => $sizes];
 
         $categoryTypes = [];

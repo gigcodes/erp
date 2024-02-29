@@ -33,9 +33,9 @@ class UpdateLogController extends Controller
 
             $updateLog = $q->orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
 
-            $listApiUrls = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');
-            $listDevices = UpdateLog::orderBy('device')->select('device')->distinct()->pluck('device', 'device');
-            $listApiMethods = UpdateLog::orderBy('api_type')->select('api_type')->distinct()->pluck('api_type', 'api_type');
+            $listApiUrls       = UpdateLog::orderBy('api_url')->select('api_url')->distinct()->pluck('api_url', 'api_url');
+            $listDevices       = UpdateLog::orderBy('device')->select('device')->distinct()->pluck('device', 'device');
+            $listApiMethods    = UpdateLog::orderBy('api_type')->select('api_type')->distinct()->pluck('api_type', 'api_type');
             $listResponseCodes = UpdateLog::orderBy('response_code')->select('response_code')->distinct()->pluck('response_code', 'response_code');
 
             return view('update-log.index', compact(
@@ -63,18 +63,18 @@ class UpdateLogController extends Controller
     public function store(Request $request)
     {
         try {
-            $updateLog = new UpdateLog();
-            $updateLog->api_url = $request->api_url;
-            $updateLog->device = $request->device;
-            $updateLog->api_type = $request->api_type;
-            $updateLog->user_id = $request->user_id;
+            $updateLog                 = new UpdateLog();
+            $updateLog->api_url        = $request->api_url;
+            $updateLog->device         = $request->device;
+            $updateLog->api_type       = $request->api_type;
+            $updateLog->user_id        = $request->user_id;
             $updateLog->request_header = is_array($request->header) ? json_encode($request->header) : $request->header;
-            $updateLog->email = $request->email ?: null;
-            $updateLog->request_body = is_array($request->request_body) ? json_encode($request->request_body) : $request->request_body;
-            $updateLog->response_code = $request->response_code ?: null;
-            $updateLog->response_body = is_array($request->response_body) ? json_encode($request->response_body) : $request->response_body;
-            $updateLog->app_version = $request->app_version;
-            $updateLog->other = $request->other;
+            $updateLog->email          = $request->email ?: null;
+            $updateLog->request_body   = is_array($request->request_body) ? json_encode($request->request_body) : $request->request_body;
+            $updateLog->response_code  = $request->response_code ?: null;
+            $updateLog->response_body  = is_array($request->response_body) ? json_encode($request->response_body) : $request->response_body;
+            $updateLog->app_version    = $request->app_version;
+            $updateLog->other          = $request->other;
             if ($updateLog->save()) {
                 return response()->json(['status' => true, 'response_code' => 200, 'data' => $updateLog], JsonResponse::HTTP_OK);
             }
@@ -88,7 +88,8 @@ class UpdateLogController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -109,7 +110,8 @@ class UpdateLogController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -120,7 +122,8 @@ class UpdateLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -131,7 +134,8 @@ class UpdateLogController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -149,9 +153,9 @@ class UpdateLogController extends Controller
 
     public function requestHeaderShow(Request $request)
     {
-        $id = $request->input('id');
+        $id            = $request->input('id');
         $requestHeader = UpdateLog::where('id', $id)->value('request_header');
-        $htmlContent = '<tr><td>' . $requestHeader . '</td></tr>';
+        $htmlContent   = '<tr><td>' . $requestHeader . '</td></tr>';
 
         return $htmlContent;
     }

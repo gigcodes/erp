@@ -28,8 +28,8 @@ class GalleryImageController extends Controller
      */
     public function list(Request $request)
     {
-        $page = $request->get('page', 1);
-        $searchTerm = $request->get('search', null);
+        $page             = $request->get('page', 1);
+        $searchTerm       = $request->get('search', null);
         $uploadedToFilter = $request->get('uploaded_to', null);
         $parentTypeFilter = $request->get('filter_type', null);
 
@@ -54,8 +54,8 @@ class GalleryImageController extends Controller
 
         try {
             $imageUpload = $request->file('file');
-            $uploadedTo = $request->get('uploaded_to', 0);
-            $image = $this->imageRepo->saveNew($imageUpload, 'gallery', $uploadedTo);
+            $uploadedTo  = $request->get('uploaded_to', 0);
+            $image       = $this->imageRepo->saveNew($imageUpload, 'gallery', $uploadedTo);
         } catch (ImageUploadException $e) {
             return response($e->getMessage(), 500);
         }

@@ -42,7 +42,7 @@ class UpdateMeasurements extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -59,20 +59,20 @@ class UpdateMeasurements extends Command
                     if (array_key_exists('dimension', $properties_array)) {
                         dump("$key - Has Dimension");
 
-                        $lmeasurement = null;
-                        $hmeasurement = null;
-                        $dmeasurement = null;
+                        $lmeasurement          = null;
+                        $hmeasurement          = null;
+                        $dmeasurement          = null;
                         $measurement_size_type = null;
 
                         if (! is_array($properties_array['dimension'])) {
                             if (strpos($properties_array['dimension'], 'Width') !== false || strpos($properties_array['dimension'], 'W') !== false) {
                                 if (preg_match_all('/Width ([\d]+)/', $properties_array['dimension'], $match)) {
-                                    $lmeasurement = (int) $match[1][0];
+                                    $lmeasurement          = (int) $match[1][0];
                                     $measurement_size_type = 'measurement';
                                 }
 
                                 if (preg_match_all('/W ([\d]+)/', $properties_array['dimension'], $match)) {
-                                    $lmeasurement = (int) $match[1][0];
+                                    $lmeasurement          = (int) $match[1][0];
                                     $measurement_size_type = 'measurement';
                                 }
                             }
@@ -100,10 +100,10 @@ class UpdateMeasurements extends Command
                             if (strpos($properties_array['dimension'], 'x') !== false) {
                                 $formatted = str_replace('cm', '', $properties_array['dimension']);
                                 $formatted = str_replace(' ', '', $formatted);
-                                $exploded = explode('x', $formatted);
+                                $exploded  = explode('x', $formatted);
 
                                 if (array_key_exists('0', $exploded)) {
-                                    $lmeasurement = (int) $exploded[0];
+                                    $lmeasurement          = (int) $exploded[0];
                                     $measurement_size_type = 'measurement';
                                 }
 
@@ -117,9 +117,9 @@ class UpdateMeasurements extends Command
                             }
                         }
 
-                        $scrap->product->lmeasurement = isset($lmeasurement) ? (int) $lmeasurement : null;
-                        $scrap->product->hmeasurement = isset($hmeasurement) ? (int) $hmeasurement : null;
-                        $scrap->product->dmeasurement = isset($dmeasurement) ? (int) $dmeasurement : null;
+                        $scrap->product->lmeasurement          = isset($lmeasurement) ? (int) $lmeasurement : null;
+                        $scrap->product->hmeasurement          = isset($hmeasurement) ? (int) $hmeasurement : null;
+                        $scrap->product->dmeasurement          = isset($dmeasurement) ? (int) $dmeasurement : null;
                         $scrap->product->measurement_size_type = isset($measurement_size_type) ? $measurement_size_type : null;
                         $scrap->product->save();
                     }

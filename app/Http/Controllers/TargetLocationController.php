@@ -39,16 +39,16 @@ class TargetLocationController extends Controller
     {
         $this->validate($request, [
             'country' => 'required',
-            'region' => 'required',
-            'lat' => 'required',
-            'lng' => 'required',
+            'region'  => 'required',
+            'lat'     => 'required',
+            'lng'     => 'required',
         ]);
 
-        $location = new TargetLocation();
-        $location->country = $request->get('country');
-        $location->region = $request->get('region');
-        $polyY = explode(',', $request->get('lat'));
-        $polyX = explode(',', $request->get('lng'));
+        $location              = new TargetLocation();
+        $location->country     = $request->get('country');
+        $location->region      = $request->get('region');
+        $polyY                 = explode(',', $request->get('lat'));
+        $polyX                 = explode(',', $request->get('lng'));
         $location->region_data = [$polyX, $polyY];
 
         $location->save();
@@ -69,7 +69,9 @@ class TargetLocationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TargetLocation  $targetLocation
+     * @param \App\TargetLocation $targetLocation
+     * @param mixed               $review
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($review)
@@ -79,14 +81,14 @@ class TargetLocationController extends Controller
             ->leftJoin('target_locations', 'instagram_users_lists.location_id', '=', 'target_locations.id')
             ->groupBy('location_id')->get()->toArray();
 
-        $data = [];
+        $data   = [];
         $labels = [];
         foreach ($stats as $stat) {
-            $data[] = $stat->count;
+            $data[]   = $stat->count;
             $labels[] = "\"$stat->country ($stat->region)\"";
         }
 
-        $data = implode(', ', $data);
+        $data   = implode(', ', $data);
         $labels = implode(', ', $labels);
 
         return view('instagram.location.report', compact('data', 'labels', 'stats'));

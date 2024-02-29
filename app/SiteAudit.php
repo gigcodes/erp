@@ -12,13 +12,13 @@ class SiteAudit extends Model
 
     public function semrushApis($apiName)
     {
-        $key = config('env.SEMRUSH_API');
+        $key  = config('env.SEMRUSH_API');
         $apis = [
-            'project_list' => 'https://api.semrush.com/management/v1/projects?key=' . $key,
-            'site_audit' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=' . $key,
+            'project_list'    => 'https://api.semrush.com/management/v1/projects?key=' . $key,
+            'site_audit'      => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=' . $key,
             'site_audit_info' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key=' . $key,
-            'add_keywords' => 'https://api.semrush.com/management/v1/projects/{id}/keywords?key=' . $key,
-            'site_issues' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key=' . $key,
+            'add_keywords'    => 'https://api.semrush.com/management/v1/projects/{id}/keywords?key=' . $key,
+            'site_issues'     => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key=' . $key,
         ];
 
         return $apis[$apiName];

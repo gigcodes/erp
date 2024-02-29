@@ -26,7 +26,7 @@ class MagentoCssVariableJobLog extends Model
 
         if (strpos($magento_css_variable_id, ',') !== false) {
             $magentoIds = explode(',', $magento_css_variable_id);
-            $result = '';
+            $result     = '';
             foreach ($magentoIds as $key => $magentoId) {
                 $magento = \App\Models\MagentoCssVariable::find($magentoId);
                 if ($magento && $magento->project) {

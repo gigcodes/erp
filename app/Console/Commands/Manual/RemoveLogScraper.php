@@ -44,10 +44,10 @@ class RemoveLogScraper extends Command
             foreach ($logs as $log) {
                 $scProduct = \App\ScrapedProducts::where('sku', $log->sku)->where('website', $log->website)->where('url', $log->url)->first();
                 if ($scProduct) {
-                    $scProduct->ip_address = $log->ip_address;
-                    $scProduct->validated = $log->validated;
+                    $scProduct->ip_address        = $log->ip_address;
+                    $scProduct->validated         = $log->validated;
                     $scProduct->validation_result = $log->validation_result;
-                    $scProduct->raw_data = $log->raw_data;
+                    $scProduct->raw_data          = $log->raw_data;
                     $scProduct->last_inventory_at = $log->updated_at;
                     $scProduct->save();
                 }

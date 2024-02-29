@@ -35,11 +35,11 @@ class ColdLeadBroadcastsController extends Controller
             $leads = new ColdLeadBroadcasts;
         }
 
-        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
+        $leads       = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
         $competitors = CompetitorPage::select('id', 'name')->where('platform', 'instagram')->get();
 
         return response()->json([
-            'leads' => $leads,
+            'leads'       => $leads,
             'competitors' => $competitors,
         ]);
     }
@@ -62,37 +62,37 @@ class ColdLeadBroadcastsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name'            => 'required',
             'number_of_users' => 'required',
-            'frequency' => 'required',
-            'message' => 'required',
-            'started_at' => 'required',
-            'status' => 'required',
+            'frequency'       => 'required',
+            'message'         => 'required',
+            'started_at'      => 'required',
+            'status'          => 'required',
         ]);
 
-        $broadcast = new ColdLeadBroadcasts();
-        $broadcast->name = $request->get('name');
+        $broadcast                  = new ColdLeadBroadcasts();
+        $broadcast->name            = $request->get('name');
         $broadcast->number_of_users = $request->get('number_of_users');
-        $broadcast->frequency = $request->get('frequency');
-        $broadcast->message = $request->get('message');
-        $broadcast->started_at = $request->get('started_at');
-        $broadcast->status = $request->get('status');
+        $broadcast->frequency       = $request->get('frequency');
+        $broadcast->message         = $request->get('message');
+        $broadcast->started_at      = $request->get('started_at');
+        $broadcast->status          = $request->get('status');
         $broadcast->save();
 
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $fileName = Storage::disk('s3')->putFile('', $file);
+            $file             = $request->file('image');
+            $fileName         = Storage::disk('s3')->putFile('', $file);
             $broadcast->image = $fileName;
             $broadcast->save();
         }
 
         $limit = $request->get('number_of_users');
 
-        $query = ColdLeads::query();
+        $query      = ColdLeads::query();
         $competitor = $request->competitor;
 
         if (! empty($competitor)) {
-            $comp = CompetitorPage::find($competitor);
+            $comp  = CompetitorPage::find($competitor);
             $query = $query->where('because_of', 'LIKE', '%via ' . $comp->name . '%');
         }
 
@@ -105,7 +105,7 @@ class ColdLeadBroadcastsController extends Controller
         $count = 0;
         $leads = [];
 
-        $now = $request->started_at ? Carbon::parse($request->started_at) : Carbon::now();
+        $now     = $request->started_at ? Carbon::parse($request->started_at) : Carbon::now();
         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
 
@@ -113,12 +113,12 @@ class ColdLeadBroadcastsController extends Controller
             if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                 // add day
                 $now->addDay();
-                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $now     = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
             } else {
                 // dont add day
-                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                $now     = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
             }
@@ -132,7 +132,7 @@ class ColdLeadBroadcastsController extends Controller
             if (empty($sendingTime)) {
                 $maxTime = strtotime($now);
             } else {
-                $now = $sendingTime ? Carbon::parse($sendingTime) : Carbon::now();
+                $now     = $sendingTime ? Carbon::parse($sendingTime) : Carbon::now();
                 $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                 $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
 
@@ -140,18 +140,18 @@ class ColdLeadBroadcastsController extends Controller
                     if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
                         // add day
                         $now->addDay();
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $now     = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
                     } else {
                         // dont add day
-                        $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $now     = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                         $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
                         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
                     }
                 }
                 $sendingTime = $now;
-                $maxTime = strtotime($sendingTime);
+                $maxTime     = strtotime($sendingTime);
             }
 
             // Add interval
@@ -162,7 +162,7 @@ class ColdLeadBroadcastsController extends Controller
                 $maxTime = time();
             }
 
-            $sendAfter = date('Y-m-d H:i:s', $maxTime);
+            $sendAfter   = date('Y-m-d H:i:s', $maxTime);
             $sendingTime = $sendAfter;
 
             //Giving BroadCast to Least Count

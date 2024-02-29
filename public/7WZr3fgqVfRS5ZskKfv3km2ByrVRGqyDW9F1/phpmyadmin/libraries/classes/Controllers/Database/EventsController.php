@@ -29,7 +29,7 @@ final class EventsController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->events = $events;
-        $this->dbi = $dbi;
+        $this->dbi    = $dbi;
     }
 
     public function __invoke(): void
@@ -74,12 +74,12 @@ final class EventsController extends AbstractController
         $items = $this->dbi->getEvents($db);
 
         $this->render('database/events/index', [
-            'db' => $db,
-            'items' => $items,
-            'has_privilege' => Util::currentUserHasPrivilege('EVENT', $db),
+            'db'              => $db,
+            'items'           => $items,
+            'has_privilege'   => Util::currentUserHasPrivilege('EVENT', $db),
             'scheduler_state' => $this->events->getEventSchedulerStatus(),
-            'text_dir' => $text_dir,
-            'is_ajax' => $this->response->isAjax() && empty($_REQUEST['ajax_page_request']),
+            'text_dir'        => $text_dir,
+            'is_ajax'         => $this->response->isAjax() && empty($_REQUEST['ajax_page_request']),
         ]);
     }
 }

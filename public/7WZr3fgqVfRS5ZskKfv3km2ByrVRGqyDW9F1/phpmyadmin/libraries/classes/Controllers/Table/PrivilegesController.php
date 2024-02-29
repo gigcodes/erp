@@ -34,11 +34,11 @@ class PrivilegesController extends AbstractController
     ) {
         parent::__construct($response, $template, $db, $table);
         $this->privileges = $privileges;
-        $this->dbi = $dbi;
+        $this->dbi        = $dbi;
     }
 
     /**
-     * @param  array  $params Request parameters
+     * @param array $params Request parameters
      */
     public function __invoke(array $params): string
     {
@@ -52,14 +52,14 @@ class PrivilegesController extends AbstractController
         }
 
         return $this->template->render('table/privileges/index', [
-            'db' => $params['checkprivsdb'],
-            'table' => $params['checkprivstable'],
-            'is_superuser' => $this->dbi->isSuperUser(),
-            'table_url' => $scriptName,
-            'text_dir' => $text_dir,
+            'db'            => $params['checkprivsdb'],
+            'table'         => $params['checkprivstable'],
+            'is_superuser'  => $this->dbi->isSuperUser(),
+            'table_url'     => $scriptName,
+            'text_dir'      => $text_dir,
             'is_createuser' => $this->dbi->isCreateUser(),
-            'is_grantuser' => $this->dbi->isGrantUser(),
-            'privileges' => $privileges,
+            'is_grantuser'  => $this->dbi->isGrantUser(),
+            'privileges'    => $privileges,
         ]);
     }
 }

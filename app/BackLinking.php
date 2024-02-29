@@ -32,6 +32,6 @@ class BackLinking extends Model
     /**
      * Protected Date
      *
-     * @var    array
+     * @var array
      */
 }

@@ -25,12 +25,15 @@ class ProductImport implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed      $json
+     * @param null|mixed $logId
+     *
      * @return void
      */
     public function __construct($json, $logId = null)
     {
         // Set product
-        $this->_json = $json;
+        $this->_json  = $json;
         $this->_logId = $logId;
     }
 
@@ -82,8 +85,8 @@ class ProductImport implements ShouldQueue
                 if ($log != '' && $log != null) {
                     $log->number_products_created = $created;
                     $log->number_products_updated = $updated;
-                    $log->number_of_products = $count;
-                    $log->status = 2;
+                    $log->number_of_products      = $count;
+                    $log->status                  = 2;
                     $log->update();
                 }
             } else {

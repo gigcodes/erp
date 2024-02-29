@@ -40,12 +40,12 @@ class CommandExecution implements ShouldQueue
             $match = $compare->getOutput();
 
             $command_answer = $match ?? 'Command ' . $this->command_name . ' Execution Complete.';
-            $status = 1;
+            $status         = 1;
 
             CommandExecutionHistory::where('id', $this->store_id)->update(['command_answer' => $command_answer, 'status' => $status]);
 
             $user_id = $this->store_user_id;
-            $user = DB::table('users')->where('id', $user_id)->first();
+            $user    = DB::table('users')->where('id', $user_id)->first();
 
             if ($user->phone != '' && $user->whatsapp_number != '') {
                 $message = 'Command ' . $this->command_name . ' Execution Complete.';
@@ -70,7 +70,7 @@ class CommandExecution implements ShouldQueue
     public function failed()
     {
         $user_id = $this->store_user_id;
-        $user = DB::table('users')->where('id', $user_id)->first();
+        $user    = DB::table('users')->where('id', $user_id)->first();
 
         if ($user->phone != '' && $user->whatsapp_number != '') {
             $message = 'Command ' . $this->command_name . ' Execution Failed.';

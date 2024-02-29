@@ -40,18 +40,18 @@ final class SqlQueryBox
     public $Refresh;
 
     /**
-     * @param  mixed[]  $sqlQueryBox
+     * @param mixed[] $sqlQueryBox
      */
     public function __construct(array $sqlQueryBox = [])
     {
-        $this->Edit = $this->setEdit($sqlQueryBox);
-        $this->Explain = $this->setExplain($sqlQueryBox);
+        $this->Edit      = $this->setEdit($sqlQueryBox);
+        $this->Explain   = $this->setExplain($sqlQueryBox);
         $this->ShowAsPHP = $this->setShowAsPHP($sqlQueryBox);
-        $this->Refresh = $this->setRefresh($sqlQueryBox);
+        $this->Refresh   = $this->setRefresh($sqlQueryBox);
     }
 
     /**
-     * @param  mixed[]  $sqlQueryBox
+     * @param mixed[] $sqlQueryBox
      */
     private function setEdit(array $sqlQueryBox): bool
     {
@@ -59,7 +59,7 @@ final class SqlQueryBox
     }
 
     /**
-     * @param  mixed[]  $sqlQueryBox
+     * @param mixed[] $sqlQueryBox
      */
     private function setExplain(array $sqlQueryBox): bool
     {
@@ -67,7 +67,7 @@ final class SqlQueryBox
     }
 
     /**
-     * @param  mixed[]  $sqlQueryBox
+     * @param mixed[] $sqlQueryBox
      */
     private function setShowAsPHP(array $sqlQueryBox): bool
     {
@@ -75,7 +75,7 @@ final class SqlQueryBox
     }
 
     /**
-     * @param  mixed[]  $sqlQueryBox
+     * @param mixed[] $sqlQueryBox
      */
     private function setRefresh(array $sqlQueryBox): bool
     {

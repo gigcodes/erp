@@ -10,8 +10,8 @@ class MediaController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        $used_space = $request->user()->getMedia('instagram')->count();
+        $user          = $request->user();
+        $used_space    = $request->user()->getMedia('instagram')->count();
         $storage_limit = 0;
 
         return view('instagram.media.index', compact(
@@ -23,7 +23,7 @@ class MediaController extends Controller
 
     public function files(Request $request)
     {
-        $item = [];
+        $item     = [];
         $allMedia = $request->user()->getMedia('instagram');
 
         foreach ($allMedia as $media) {
@@ -68,12 +68,12 @@ class MediaController extends Controller
             ]);
         } else {
             try {
-                $used_space = 0;
+                $used_space    = 0;
                 $storage_limit = 100;
 
                 if ($used_space <= $storage_limit) {
                     $files = $request->file('files');
-                    $user = $request->user();
+                    $user  = $request->user();
                     foreach ($files as $file) {
                         $savedMedia = MediaUploader::fromSource($file)->toDirectory('instagram-media')->upload();
                         $user->attachMedia($savedMedia, 'instagram');

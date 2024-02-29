@@ -105,10 +105,10 @@ class ReturnExchange extends Model
     {
         ReturnExchangeHistory::create([
             'return_exchange_id' => $this->id,
-            'status_id' => $this->status,
-            'user_id' => \Auth::user()->id,
-            'comment' => $this->remarks,
-            'history_type' => 'status',
+            'status_id'          => $this->status,
+            'user_id'            => \Auth::user()->id,
+            'comment'            => $this->remarks,
+            'history_type'       => 'status',
         ]);
 
         return true;

@@ -89,30 +89,30 @@ class SocialConfigController extends Controller
     protected function getAdditionalData(Request $request)
     {
         return [
-            'websites' => StoreWebsite::select('id', 'title')->get(),
-            'user_names' => SocialConfig::select('email')->distinct()->get(),
-            'platforms' => SocialConfig::select('platform')->distinct()->get(),
-            'ad_accounts' => SocialAdAccount::where('status', 1)->get()->toArray(),
-            'languages' => Language::get(),
-            'selected_website' => $request->store_website_id,
+            'websites'           => StoreWebsite::select('id', 'title')->get(),
+            'user_names'         => SocialConfig::select('email')->distinct()->get(),
+            'platforms'          => SocialConfig::select('platform')->distinct()->get(),
+            'ad_accounts'        => SocialAdAccount::where('status', 1)->get()->toArray(),
+            'languages'          => Language::get(),
+            'selected_website'   => $request->store_website_id,
             'selected_user_name' => $request->user_name,
-            'selected_platform' => $request->platform,
+            'selected_platform'  => $request->platform,
         ];
     }
 
     public function adStore(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'page_token' => 'required',
+            'name'             => 'required',
+            'page_token'       => 'required',
             'store_website_id' => 'required',
-            'ad_account_id' => 'required',
-            'status' => 'required',
+            'ad_account_id'    => 'required',
+            'status'           => 'required',
         ]);
 
         $url = $this->fb_base_url . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . config('facebook.config.app_id')
             . '&client_secret=' . config('facebook.config.app_secret') . '&fb_exchange_token=' . $request['page_token'];
-        $http = Http::get($url);
+        $http     = Http::get($url);
         $response = $http->json();
 
         SocialAdAccount::create([...$request->all(['name', 'store_website_id', 'ad_account_id', 'status']), 'page_token' => $response['access_token']]);
@@ -124,16 +124,16 @@ class SocialConfigController extends Controller
     {
         $url = $this->fb_base_url . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . config('facebook.config.app_id')
             . '&client_secret=' . config('facebook.config.app_secret') . '&fb_exchange_token=' . $data['page_token'];
-        $http = Http::get($url);
+        $http     = Http::get($url);
         $response = $http->json();
 
         if (isset($response['error'])) {
             return false;
         }
-        $long_lived_token = $response['access_token'];
+        $long_lived_token    = $response['access_token'];
         $permanent_token_url = $this->fb_base_url . $data['page_id'] . '?fields=access_token&access_token=' . $long_lived_token;
-        $httpPT = Http::get($permanent_token_url);
-        $ptResponse = $httpPT->json();
+        $httpPT              = Http::get($permanent_token_url);
+        $ptResponse          = $httpPT->json();
         if (! isset($ptResponse['access_token'])) {
             return false;
         }
@@ -148,10 +148,10 @@ class SocialConfigController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $pageId = $request->page_id;
-        $data = $request->validated();
+        $pageId                = $request->page_id;
+        $data                  = $request->validated();
         $data['page_language'] = $request->page_language;
-        $neverExpiringToken = $this->getNeverExpiringToken($data);
+        $neverExpiringToken    = $this->getNeverExpiringToken($data);
         if (! $neverExpiringToken) {
             return redirect()->back()->withError('Unable to refactor the token. Kindly validate it');
         }
@@ -173,7 +173,7 @@ class SocialConfigController extends Controller
         $config = SocialConfig::findorfail($request->id);
 
         $pageId = $request->page_id;
-        $data = $request->validated();
+        $data   = $request->validated();
 
         $neverExpiringToken = $this->getNeverExpiringToken($data);
         if (! $neverExpiringToken) {
@@ -183,9 +183,9 @@ class SocialConfigController extends Controller
         if (isset($request->adsmanager)) {
             $data['ads_manager'] = $request->adsmanager;
         }
-        $data['account_id'] = $pageId;
+        $data['account_id']    = $pageId;
         $data['page_language'] = $request->page_language;
-        $data['page_token'] = $neverExpiringToken;
+        $data['page_token']    = $neverExpiringToken;
 
         $config->update($data);
 

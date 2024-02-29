@@ -24,18 +24,18 @@ class SEOAnalyticsController extends Controller
         $latestEntry = SEOAnalytics::orderBy('created_at', 'DESC')->first();
 
         if (empty($latestEntry) || Carbon::now()->diff(Carbon::parse($latestEntry->created_at))->days > 0) {
-            $data = (object) Mozscape::getSiteDetails($this->url);
-            $latestEntry = new SEOAnalytics();
-            $latestEntry->domain_authority = $data->domain_authority;
+            $data                           = (object) Mozscape::getSiteDetails($this->url);
+            $latestEntry                    = new SEOAnalytics();
+            $latestEntry->domain_authority  = $data->domain_authority;
             $latestEntry->linking_authority = $data->linking_authority;
-            $latestEntry->inbound_links = $data->inbound_links;
-            $latestEntry->ranking_keywords = $data->ranking_keywords ? $data->ranking_keywords : null;
+            $latestEntry->inbound_links     = $data->inbound_links;
+            $latestEntry->ranking_keywords  = $data->ranking_keywords ? $data->ranking_keywords : null;
             $latestEntry->save();
         }
 
         return view('seo.show-analytics', [
             'today' => $latestEntry,
-            'data' => SEOAnalytics::orderBy('created_at', 'DESC')->paginate(20),
+            'data'  => SEOAnalytics::orderBy('created_at', 'DESC')->paginate(20),
         ]);
     }
 
@@ -53,22 +53,22 @@ class SEOAnalyticsController extends Controller
 
     public function filter(Request $request)
     {
-        $start_date = $request->input('start_date');
-        $end_date = $request->input('end_date');
+        $start_date  = $request->input('start_date');
+        $end_date    = $request->input('end_date');
         $latestEntry = SEOAnalytics::orderBy('created_at', 'DESC')->first();
         if ($start_date && $end_date) {
             $start_date = Carbon::parse($start_date)->format('Y-m-d h:m:s');
-            $end_date = Carbon::parse($end_date)->format('Y-m-d h:m:s');
-            $data = SEOAnalytics::whereBetween('created_at', [$start_date, $end_date])->paginate(20);
+            $end_date   = Carbon::parse($end_date)->format('Y-m-d h:m:s');
+            $data       = SEOAnalytics::whereBetween('created_at', [$start_date, $end_date])->paginate(20);
         } else {
             $data = SEOAnalytics::orderBy('created_at', 'DESC')->paginate(20);
         }
 
         return view('seo.show-analytics', [
-            'today' => $latestEntry,
-            'data' => $data,
+            'today'      => $latestEntry,
+            'data'       => $data,
             'start_date' => Carbon::parse($start_date)->format('d-m-Y'),
-            'end_date' => Carbon::parse($end_date)->format('d-m-Y'),
+            'end_date'   => Carbon::parse($end_date)->format('d-m-Y'),
         ]);
     }
 
@@ -81,9 +81,9 @@ class SEOAnalyticsController extends Controller
                 break;
             } else {
                 $domain_link = $value->link;
-                $article = $value->description;
-                $pieces = parse_url($domain_link);
-                $domain = isset($pieces['host']) ? $pieces['host'] : $pieces['path'];
+                $article     = $value->description;
+                $pieces      = parse_url($domain_link);
+                $domain      = isset($pieces['host']) ? $pieces['host'] : $pieces['path'];
                 if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
                     $domain_name = $regs['domain'];
                 } else {
@@ -121,9 +121,9 @@ class SEOAnalyticsController extends Controller
                 $short_day_names = array_map($shortenize, $day_names);
                 // Define ordinal number
                 $ordinal_number = ['st', 'nd', 'rd', 'th'];
-                $day = '';
-                $month = '';
-                $year = '';
+                $day            = '';
+                $month          = '';
+                $year           = '';
                 // Match dates: 01/01/2012 or 30-12-11 or 1 2 1985
                 preg_match('/([0-9]?[0-9])[\.\-\/ ]+([0-1]?[0-9])[\.\-\/ ]+([0-9]{2,4})/', $article, $matches);
                 if ($matches) {
@@ -229,11 +229,11 @@ class SEOAnalyticsController extends Controller
                     $date = null;
                 }
 
-                $linksToPost = new LinksToPost;
-                $linksToPost->name = $domain_name;
+                $linksToPost                = new LinksToPost;
+                $linksToPost->name          = $domain_name;
                 $linksToPost->date_scrapped = $date;
-                $linksToPost->article = $article;
-                $linksToPost->link = $domain_link;
+                $linksToPost->article       = $article;
+                $linksToPost->link          = $domain_link;
                 $linksToPost->save();
             }
         }

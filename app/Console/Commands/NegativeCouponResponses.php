@@ -40,23 +40,23 @@ class NegativeCouponResponses extends Command
     public function handle()
     {
         try {
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $startTime     = date('Y-m-d H:i:s', LARAVEL_START);
             $storeWebsites = \App\StoreWebsite::select('store_websites.id', 'store_websites.api_token', 'store_websites.website')->where('api_token', '!=', '')->where('website_source', 'magento')->get();
             foreach ($storeWebsites as $storeWebsite) {
                 $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
                 // Init cURL
                 $curl = curl_init();
-                $url = "'https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
+                $url  = "'https://dev6.sololuxury.com/rest/V1/coupon/logs/'";
                 // Set cURL options
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $url,
+                    CURLOPT_URL            => $url,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 300,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_HTTPHEADER => [
+                    CURLOPT_ENCODING       => '',
+                    CURLOPT_MAXREDIRS      => 10,
+                    CURLOPT_TIMEOUT        => 300,
+                    CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST  => 'POST',
+                    CURLOPT_HTTPHEADER     => [
                         'content-type: application/json',
                         $authorization,
                     ],
@@ -79,13 +79,13 @@ class NegativeCouponResponses extends Command
                     //
                 }
                 $convertJson = is_array($response) ? json_encode($response) : $response;
-                $user_id = \Auth::user()->id ?? '';
+                $user_id     = \Auth::user()->id ?? '';
                 NegativeCouponResponse::create(
                     [
                         'store_website_id' => $storeWebsite->id,
-                        'user_id' => $user_id,
-                        'website' => $storeWebsite->website,
-                        'response' => $convertJson,
+                        'user_id'          => $user_id,
+                        'website'          => $storeWebsite->website,
+                        'response'         => $convertJson,
                     ]
                 );
             }

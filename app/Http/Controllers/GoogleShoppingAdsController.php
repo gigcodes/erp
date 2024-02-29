@@ -22,8 +22,8 @@ class GoogleShoppingAdsController extends Controller
         $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->first();
         if ($campaignDetail->exists() > 0) {
             return [
-                'account_id' => $campaignDetail->account_id,
-                'campaign_name' => $campaignDetail->campaign_name,
+                'account_id'         => $campaignDetail->account_id,
+                'campaign_name'      => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
             ];
         } else {
@@ -34,7 +34,7 @@ class GoogleShoppingAdsController extends Controller
     public function index(Request $request, $campaignId, $adGroupId)
     {
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
-        $query = GoogleAd::query();
+        $query       = GoogleAd::query();
 
         if ($request->adname) {
             $query = $query->where(function ($q) use ($request) {
@@ -76,8 +76,8 @@ class GoogleShoppingAdsController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'Ad',
+            'type'    => 'SUCCESS',
+            'module'  => 'Ad',
             'message' => 'Viewed ad listing for ' . $groupDetail->ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -95,17 +95,17 @@ class GoogleShoppingAdsController extends Controller
             'adname' => 'required|max:25',
         ]);
 
-        $acDetail = $this->getAccountDetail($campaignId);
+        $acDetail   = $this->getAccountDetail($campaignId);
         $account_id = $acDetail['account_id'];
         $customerId = $acDetail['google_customer_id'];
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
 
-        $adsArray = [];
-        $adsArray['google_customer_id'] = $customerId;
+        $adsArray                               = [];
+        $adsArray['google_customer_id']         = $customerId;
         $adsArray['adgroup_google_campaign_id'] = $campaignId;
-        $adsArray['google_adgroup_id'] = $adGroupId;
-        $adsArray['headline1'] = $request->adname;
-        $adsArray['status'] = $adStatuses[$request->adStatus];
+        $adsArray['google_adgroup_id']          = $adGroupId;
+        $adsArray['headline1']                  = $request->adname;
+        $adsArray['status']                     = $adStatuses[$request->adStatus];
 
         try {
             // Generate a refreshable OAuth2 credential for authentication.
@@ -114,14 +114,14 @@ class GoogleShoppingAdsController extends Controller
             // Creates an ad and sets responsive search ad info.
             $ad = new Ad([
                 'shopping_product_ad' => new ShoppingProductAdInfo(),
-                'name' => $request->adname,
+                'name'                => $request->adname,
             ]);
 
             // Creates an ad group ad to hold the above ad.
             $adGroupAd = new AdGroupAd([
                 'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
-                'status' => self::getAdStatus($adsArray['status']),
-                'ad' => $ad,
+                'status'   => self::getAdStatus($adsArray['status']),
+                'ad'       => $ad,
             ]);
 
             // Creates an ad group ad operation.
@@ -130,9 +130,9 @@ class GoogleShoppingAdsController extends Controller
 
             // Issues a mutate request to add the ad group ad.
             $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
-            $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
+            $response               = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
-            $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAd             = $response->getResults()[0];
             $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
             $adsArray['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, '~') + 1);
@@ -141,9 +141,9 @@ class GoogleShoppingAdsController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad',
-                'message' => 'Created ad for ' . $groupDetail->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad',
+                'message'  => 'Created ad for ' . $groupDetail->ad_group_name,
                 'response' => json_encode($adsArray),
             ];
             insertGoogleAdsLog($input);
@@ -152,8 +152,8 @@ class GoogleShoppingAdsController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad',
+                'type'    => 'ERROR',
+                'module'  => 'Ad',
                 'message' => 'Create new ad > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -165,9 +165,9 @@ class GoogleShoppingAdsController extends Controller
     // delete ad
     public function deleteAd(Request $request, $campaignId, $adGroupId, $adId)
     {
-        $acDetail = $this->getAccountDetail($campaignId);
-        $account_id = $acDetail['account_id'];
-        $customerId = $acDetail['google_customer_id'];
+        $acDetail    = $this->getAccountDetail($campaignId);
+        $account_id  = $acDetail['account_id'];
+        $customerId  = $acDetail['google_customer_id'];
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
@@ -189,9 +189,9 @@ class GoogleShoppingAdsController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'Ad',
-                'message' => 'Deleted ad for ' . $groupDetail->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'Ad',
+                'message'  => 'Deleted ad for ' . $groupDetail->ad_group_name,
                 'response' => json_encode($ad),
             ];
 
@@ -203,8 +203,8 @@ class GoogleShoppingAdsController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'Ad',
+                'type'    => 'ERROR',
+                'module'  => 'Ad',
                 'message' => 'Delete ad > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);

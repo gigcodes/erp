@@ -63,10 +63,10 @@ class ThemeManager
 
     public function __construct()
     {
-        $this->themes = [];
-        $this->themeDefault = self::FALLBACK_THEME;
-        $this->activeTheme = '';
-        $this->themesPath = self::getThemesFsDir();
+        $this->themes        = [];
+        $this->themeDefault  = self::FALLBACK_THEME;
+        $this->activeTheme   = '';
+        $this->themesPath    = self::getThemesFsDir();
         $this->themesPathUrl = self::getThemesDir();
 
         $this->setThemePerServer($GLOBALS['cfg']['ThemePerServer']);
@@ -122,7 +122,7 @@ class ThemeManager
     /**
      * sets if there are different themes per server
      *
-     * @param  bool  $perServer Whether to enable per server flag
+     * @param bool $perServer Whether to enable per server flag
      */
     public function setThemePerServer($perServer): void
     {
@@ -132,7 +132,7 @@ class ThemeManager
     /**
      * Sets active theme
      *
-     * @param  string|null  $theme theme name
+     * @param string|null $theme theme name
      */
     public function setActiveTheme(?string $theme): bool
     {
@@ -149,7 +149,7 @@ class ThemeManager
         }
 
         $this->activeTheme = $theme;
-        $this->theme = $this->themes[$theme];
+        $this->theme       = $this->themes[$theme];
 
         // need to set later
         //$this->setThemeCookie();
@@ -212,7 +212,7 @@ class ThemeManager
     public function loadThemes(): void
     {
         $this->themes = [];
-        $dirHandle = opendir($this->themesPath);
+        $dirHandle    = opendir($this->themesPath);
 
         if ($dirHandle === false) {
             trigger_error('Error: cannot open themes folder: ./themes', E_USER_WARNING);
@@ -244,7 +244,7 @@ class ThemeManager
     /**
      * checks if given theme name is a known theme
      *
-     * @param  string|null  $theme name fo theme to check for
+     * @param string|null $theme name fo theme to check for
      */
     public function checkTheme(?string $theme): bool
     {
@@ -256,9 +256,9 @@ class ThemeManager
         $themes = [];
         foreach ($this->themes as $theme) {
             $themes[] = [
-                'id' => $theme->getId(),
-                'name' => $theme->getName(),
-                'version' => $theme->getVersion(),
+                'id'        => $theme->getId(),
+                'name'      => $theme->getName(),
+                'version'   => $theme->getVersion(),
                 'is_active' => $theme->getId() === $this->activeTheme,
             ];
         }

@@ -74,7 +74,7 @@ class Git
     /**
      * detects if Git revision
      *
-     * @param  string  $git_location (optional) verified git directory
+     * @param string $git_location (optional) verified git directory
      */
     public function isGitRevision(&$git_location = null): bool
     {
@@ -95,7 +95,7 @@ class Git
         $git = '.git';
         if (is_dir($git)) {
             if (! @is_file($git . '/config')) {
-                $_SESSION['git_location'] = null;
+                $_SESSION['git_location']    = null;
                 $_SESSION['is_git_revision'] = false;
 
                 return false;
@@ -107,14 +107,14 @@ class Git
             $gitmatch = [];
             // Matches expected format
             if (! preg_match('/^gitdir: (.*)$/', $contents, $gitmatch)) {
-                $_SESSION['git_location'] = null;
+                $_SESSION['git_location']    = null;
                 $_SESSION['is_git_revision'] = false;
 
                 return false;
             }
 
             if (! @is_dir($gitmatch[1])) {
-                $_SESSION['git_location'] = null;
+                $_SESSION['git_location']    = null;
                 $_SESSION['is_git_revision'] = false;
 
                 return false;
@@ -123,14 +123,14 @@ class Git
             //Detected git external folder location
             $git_location = $gitmatch[1];
         } else {
-            $_SESSION['git_location'] = null;
+            $_SESSION['git_location']    = null;
             $_SESSION['is_git_revision'] = false;
 
             return false;
         }
 
         // Define session for caching
-        $_SESSION['git_location'] = $git_location;
+        $_SESSION['git_location']    = $git_location;
         $_SESSION['is_git_revision'] = true;
 
         return true;
@@ -153,11 +153,11 @@ class Git
             return null;
         }
 
-        $header = ord($headerData);
-        $type = ($header >> 4) & 7;
+        $header  = ord($headerData);
+        $type    = ($header >> 4) & 7;
         $hasnext = ($header & 128) >> 7;
-        $size = $header & 0xF;
-        $offset = 4;
+        $size    = $header & 0xF;
+        $offset  = 4;
 
         while ($hasnext) {
             $readData = fread($packFileRes, 1);
@@ -225,7 +225,7 @@ class Git
         $end = $fanout[$firstbyte + 1];
 
         // stupid linear search for our sha
-        $found = false;
+        $found  = false;
         $offset = 8 + (256 * 4);
         for ($position = $start; $position < $end; $position++) {
             $sha = strtolower(
@@ -244,7 +244,7 @@ class Git
         }
 
         // read pack offset
-        $offset = 8 + (256 * 4) + (24 * $fanout[256]);
+        $offset      = 8 + (256 * 4) + (24 * $fanout[256]);
         $packOffsets = unpack(
             'N',
             substr($index_data, $offset + ($position * 4), 4)
@@ -256,8 +256,9 @@ class Git
     /**
      * Un pack a commit with gzuncompress
      *
-     * @param  string  $gitFolder The Git folder
-     * @param  string  $hash      The commit hash
+     * @param string $gitFolder The Git folder
+     * @param string $hash      The commit hash
+     *
      * @return array|false|null
      */
     private function unPackGz(string $gitFolder, string $hash)
@@ -280,14 +281,14 @@ class Git
                 return null;
             }
 
-            $commit = explode("\0", $commitData, 2);
-            $commit = explode("\n", $commit[1]);
+            $commit                                      = explode("\0", $commitData, 2);
+            $commit                                      = explode("\n", $commit[1]);
             $_SESSION['PMA_VERSION_COMMITDATA_' . $hash] = $commit;
         } else {
             $pack_names = [];
             // work with packed data
             $packs_file = $gitFolder . '/objects/info/packs';
-            $packs = '';
+            $packs      = '';
 
             if (@file_exists($packs_file)) {
                 $packs = @file_get_contents($packs_file);
@@ -355,26 +356,27 @@ class Git
     /**
      * Extract committer, author and message from commit body
      *
-     * @param  array  $commit The commit body
+     * @param array $commit The commit body
+     *
      * @return array<int,array<string,string>|string>
      */
     private function extractDataFormTextBody(array $commit): array
     {
         $author = [
-            'name' => '',
+            'name'  => '',
             'email' => '',
-            'date' => '',
+            'date'  => '',
         ];
         $committer = [
-            'name' => '',
+            'name'  => '',
             'email' => '',
-            'date' => '',
+            'date'  => '',
         ];
 
         do {
-            $dataline = array_shift($commit);
+            $dataline    = array_shift($commit);
             $datalinearr = explode(' ', $dataline, 2);
-            $linetype = $datalinearr[0];
+            $linetype    = $datalinearr[0];
             if (! in_array($linetype, ['author', 'committer'])) {
                 continue;
             }
@@ -382,9 +384,9 @@ class Git
             $user = $datalinearr[1];
             preg_match('/([^<]+)<([^>]+)> ([0-9]+)( [^ ]+)?/', $user, $user);
             $user2 = [
-                'name' => trim($user[1]),
+                'name'  => trim($user[1]),
                 'email' => trim($user[2]),
-                'date' => date('Y-m-d H:i:s', (int) $user[3]),
+                'date'  => date('Y-m-d H:i:s', (int) $user[3]),
             ];
             if (isset($user[4])) {
                 $user2['date'] .= $user[4];
@@ -401,9 +403,10 @@ class Git
     /**
      * Is the commit remote
      *
-     * @param  mixed  $commit         The commit
-     * @param  bool  $isRemoteCommit Is the commit remote ?, will be modified by reference
-     * @param  string  $hash           The commit hash
+     * @param mixed  $commit         The commit
+     * @param bool   $isRemoteCommit Is the commit remote ?, will be modified by reference
+     * @param string $hash           The commit hash
+     *
      * @return stdClass|null The commit body from the GitHub API
      */
     private function isRemoteCommit(&$commit, bool &$isRemoteCommit, string $hash): ?stdClass
@@ -417,10 +420,10 @@ class Git
             return null;
         }
 
-        $link = 'https://www.phpmyadmin.net/api/commit/' . $hash . '/';
+        $link     = 'https://www.phpmyadmin.net/api/commit/' . $hash . '/';
         $is_found = $httpRequest->create($link, 'GET');
         if ($is_found === false) {
-            $isRemoteCommit = false;
+            $isRemoteCommit                                = false;
             $_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash] = false;
 
             return null;
@@ -433,7 +436,7 @@ class Git
             return null;
         }
 
-        $isRemoteCommit = true;
+        $isRemoteCommit                                = true;
         $_SESSION['PMA_VERSION_REMOTECOMMIT_' . $hash] = true;
         if ($commit === false) {
             // if no local commit data, try loading from Github
@@ -570,7 +573,7 @@ class Git
         }
 
         $is_remote_commit = false;
-        $commit_json = $this->isRemoteCommit(
+        $commit_json      = $this->isRemoteCommit(
             $commit, // Will be modified if necessary by the function
             $is_remote_commit, // Will be modified if necessary by the function
             $hash
@@ -583,10 +586,10 @@ class Git
                 $is_remote_branch = $_SESSION['PMA_VERSION_REMOTEBRANCH_' . $hash];
             } else {
                 $httpRequest = new HttpRequest();
-                $link = 'https://www.phpmyadmin.net/api/tree/' . $branch . '/';
-                $is_found = $httpRequest->create($link, 'GET', true);
+                $link        = 'https://www.phpmyadmin.net/api/tree/' . $branch . '/';
+                $is_found    = $httpRequest->create($link, 'GET', true);
                 if (is_bool($is_found)) {
-                    $is_remote_branch = $is_found;
+                    $is_remote_branch                              = $is_found;
                     $_SESSION['PMA_VERSION_REMOTEBRANCH_' . $hash] = $is_found;
                 }
 
@@ -601,14 +604,14 @@ class Git
             [$author, $committer, $message] = $this->extractDataFormTextBody($commit);
         } elseif (isset($commit_json->author, $commit_json->committer, $commit_json->message)) {
             $author = [
-                'name' => $commit_json->author->name,
+                'name'  => $commit_json->author->name,
                 'email' => $commit_json->author->email,
-                'date' => $commit_json->author->date,
+                'date'  => $commit_json->author->date,
             ];
             $committer = [
-                'name' => $commit_json->committer->name,
+                'name'  => $commit_json->committer->name,
                 'email' => $commit_json->committer->email,
-                'date' => $commit_json->committer->date,
+                'date'  => $commit_json->committer->date,
             ];
             $message = trim($commit_json->message);
         } else {
@@ -620,11 +623,11 @@ class Git
         $this->hasGit = true;
 
         return [
-            'hash' => $hash,
-            'branch' => $branch,
-            'message' => $message,
-            'author' => $author,
-            'committer' => $committer,
+            'hash'             => $hash,
+            'branch'           => $branch,
+            'message'          => $message,
+            'author'           => $author,
+            'committer'        => $committer,
             'is_remote_commit' => $is_remote_commit,
             'is_remote_branch' => $is_remote_branch,
         ];

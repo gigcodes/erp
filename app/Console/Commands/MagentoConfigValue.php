@@ -47,8 +47,8 @@ class MagentoConfigValue extends Command
         $magentoSettings->select('magento_settings.*', 'users.name as uname');
         $magentoSettings = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->get();
 
-        $data = $magentoSettings;
-        $data = $data->groupBy('store_website_id');
+        $data      = $magentoSettings;
+        $data      = $data->groupBy('store_website_id');
         $newValues = [];
         foreach ($data as $websiteId => $settings) {
             $websiteUrl = StoreWebsite::where('id', $websiteId)->pluck('magento_url')->first();
@@ -59,24 +59,24 @@ class MagentoConfigValue extends Command
                     if (! Str::contains($websiteUrl, 'www')) {
                         $web = 'www.' . $bits['host'];
                     }
-                    $websiteUrl = 'https://' . $web;
+                    $websiteUrl   = 'https://' . $web;
                     $conf['data'] = [];
                     foreach ($settings as $setting) {
                         $conf['data'][] = ['path' => $setting['path'], 'scope' => $setting['scope'], 'scope_id' => $setting['scope_id']];
                     }
                     $curl = curl_init();
-                    $url = $websiteUrl . '/rest/V1/configvalue/get';
+                    $url  = $websiteUrl . '/rest/V1/configvalue/get';
                     // Set cURL options
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 300,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'POST',
-                        CURLOPT_POSTFIELDS => json_encode($conf),
-                        CURLOPT_HTTPHEADER => [
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 300,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'POST',
+                        CURLOPT_POSTFIELDS     => json_encode($conf),
+                        CURLOPT_HTTPHEADER     => [
                             'content-type: application/json',
                         ],
                     ]);

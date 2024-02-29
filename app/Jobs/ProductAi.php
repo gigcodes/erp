@@ -25,6 +25,8 @@ class ProductAi implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed $product
+     *
      * @return void
      */
     public function __construct($product)
@@ -90,22 +92,22 @@ class ProductAi implements ShouldQueue
 
             // Set json with original data
             $resultScraper = [
-                'category' => (int) $product->category > 0 ? $product->product_category->title : '',
-                'color' => $product->color,
+                'category'  => (int) $product->category > 0 ? $product->product_category->title : '',
+                'color'     => $product->color,
                 'composite' => $product->composition,
-                'gender' => '',
+                'gender'    => '',
             ];
 
             // Run AI
             $resultAI = GoogleVisionHelper::getPropertiesFromImageSet($arrImages);
 
             // Log result
-            $logScraperVsAi = new LogScraperVsAi();
-            $logScraperVsAi->product_id = $product->id;
-            $logScraperVsAi->ai_name = 'Google Vision';
-            $logScraperVsAi->media_input = json_encode($arrImages);
+            $logScraperVsAi                 = new LogScraperVsAi();
+            $logScraperVsAi->product_id     = $product->id;
+            $logScraperVsAi->ai_name        = 'Google Vision';
+            $logScraperVsAi->media_input    = json_encode($arrImages);
             $logScraperVsAi->result_scraper = json_encode($resultScraper);
-            $logScraperVsAi->result_ai = json_encode($resultAI);
+            $logScraperVsAi->result_ai      = json_encode($resultAI);
             $logScraperVsAi->save();
 
             // Update product color if not set

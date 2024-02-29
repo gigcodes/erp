@@ -23,16 +23,16 @@ class VendorTableSeeder extends Seeder
         if (! empty($vendorCategoryIds)) {
             // Create 5000 vendors
             for ($i = 0; $i < 5000; $i++) {
-                $vendor = new Vendor();
-                $vendor->category_id = $vendorCategoryIds[array_rand($vendorCategoryIds, 1)];
-                $vendor->name = $faker->name;
-                $vendor->email = $faker->email;
-                $vendor->phone = $faker->phoneNumber;
-                $vendor->default_phone = $faker->phoneNumber;
+                $vendor                  = new Vendor();
+                $vendor->category_id     = $vendorCategoryIds[array_rand($vendorCategoryIds, 1)];
+                $vendor->name            = $faker->name;
+                $vendor->email           = $faker->email;
+                $vendor->phone           = $faker->phoneNumber;
+                $vendor->default_phone   = $faker->phoneNumber;
                 $vendor->whatsapp_number = '971562744570';
-                $vendor->address = $faker->address;
-                $vendor->city = $faker->city;
-                $vendor->country = $faker->country;
+                $vendor->address         = $faker->address;
+                $vendor->city            = $faker->city;
+                $vendor->country         = $faker->country;
                 $vendor->save();
             }
         }

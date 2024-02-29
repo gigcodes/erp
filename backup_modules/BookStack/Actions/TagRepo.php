@@ -19,28 +19,31 @@ class TagRepo
     /**
      * TagRepo constructor.
      *
-     * @param  \BookStack\Actions\Tag  $attr
-     * @param  \BookStack\Entities\Entity  $ent
-     * @param  \BookStack\Auth\Permissions\PermissionService  $ps
+     * @param \BookStack\Actions\Tag                        $attr
+     * @param \BookStack\Entities\Entity                    $ent
+     * @param \BookStack\Auth\Permissions\PermissionService $ps
      */
     public function __construct(Tag $attr, Entity $ent, PermissionService $ps)
     {
-        $this->tag = $attr;
-        $this->entity = $ent;
+        $this->tag               = $attr;
+        $this->entity            = $ent;
         $this->permissionService = $ps;
     }
 
     /**
      * Get an entity instance of its particular type.
      *
-     * @param  string  $action
+     * @param string $action
+     * @param mixed  $entityType
+     * @param mixed  $entityId
+     *
      * @return \Illuminate\Database\Eloquent\Model|null|static
      */
     public function getEntity($entityType, $entityId, $action = 'view')
     {
         $entityInstance = $this->entity->getEntityInstance($entityType);
-        $searchQuery = $entityInstance->where('id', '=', $entityId)->with('tags');
-        $searchQuery = $this->permissionService->enforceEntityRestrictions($entityType, $searchQuery, $action);
+        $searchQuery    = $entityInstance->where('id', '=', $entityId)->with('tags');
+        $searchQuery    = $this->permissionService->enforceEntityRestrictions($entityType, $searchQuery, $action);
 
         return $searchQuery->first();
     }
@@ -48,8 +51,9 @@ class TagRepo
     /**
      * Get all tags for a particular entity.
      *
-     * @param  string  $entityType
-     * @param  int  $entityId
+     * @param string $entityType
+     * @param int    $entityId
+     *
      * @return mixed
      */
     public function getForEntity($entityType, $entityId)
@@ -65,6 +69,8 @@ class TagRepo
     /**
      * Get tag name suggestions from scanning existing tag names.
      * If no search term is given the 50 most popular tag names are provided.
+     *
+     * @param mixed $searchTerm
      *
      * @return array
      */
@@ -87,6 +93,9 @@ class TagRepo
      * Get tag value suggestions from scanning existing tag values.
      * If no search is given the 50 most popular values are provided.
      * Passing a tagName will only find values for a tags with a particular name.
+     *
+     * @param mixed $searchTerm
+     * @param mixed $tagName
      *
      * @return array
      */
@@ -112,8 +121,9 @@ class TagRepo
     /**
      * Save an array of tags to an entity
      *
-     * @param  \BookStack\Entities\Entity  $entity
-     * @param  array  $tags
+     * @param \BookStack\Entities\Entity $entity
+     * @param array                      $tags
+     *
      * @return array|\Illuminate\Database\Eloquent\Collection
      */
     public function saveTagsToEntity(Entity $entity, $tags = [])
@@ -133,11 +143,13 @@ class TagRepo
     /**
      * Create a new Tag instance from user input.
      *
+     * @param mixed $input
+     *
      * @return \BookStack\Actions\Tag
      */
     protected function newInstanceFromInput($input)
     {
-        $name = trim($input['name']);
+        $name  = trim($input['name']);
         $value = isset($input['value']) ? trim($input['value']) : '';
         // Any other modification or cleanup required can go here
         $values = ['name' => $name, 'value' => $value];

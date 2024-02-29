@@ -44,7 +44,7 @@ class LoadSentryLogs extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,7 +55,7 @@ class LoadSentryLogs extends Command
             ini_set('max_execution_time', 0);
             $sentryLogsData = [];
             foreach ($accounts as $account) {
-                $url = 'https://sentry.io/api/0/projects/' . $account->sentry_organization . '/' . $account->sentry_project . '/issues/';
+                $url        = 'https://sentry.io/api/0/projects/' . $account->sentry_organization . '/' . $account->sentry_project . '/issues/';
                 $httpClient = new Client();
 
                 $response = $httpClient->get(
@@ -69,9 +69,9 @@ class LoadSentryLogs extends Command
                 $responseJson = json_decode($response->getBody()->getContents());
 
                 foreach ($responseJson as $error_log) {
-                    $eventurl = 'https://sentry.io/api/0/projects/' . $account->sentry_organization . '/' . $account->sentry_project . '/events/';
+                    $eventurl   = 'https://sentry.io/api/0/projects/' . $account->sentry_organization . '/' . $account->sentry_project . '/events/';
                     $httpClient = new Client();
-                    $response1 = $httpClient->get(
+                    $response1  = $httpClient->get(
                         $eventurl,
                         [
                             RequestOptions::HEADERS => [
@@ -83,33 +83,33 @@ class LoadSentryLogs extends Command
 
                     if (isset($eventResponseJson[0])) {
                         $eventData = $eventResponseJson[0]->tags;
-                        $device = $eventData[0]->value;
-                        $os = $eventData[9]->value;
-                        $os_name = $eventData[10]->value;
-                        $release = explode('@', $eventData[13]->value);
-                        $release = $release[1];
+                        $device    = $eventData[0]->value;
+                        $os        = $eventData[9]->value;
+                        $os_name   = $eventData[10]->value;
+                        $release   = explode('@', $eventData[13]->value);
+                        $release   = $release[1];
                     } else {
                         $eventData = '';
-                        $device = '';
-                        $os = '';
-                        $os_name = '';
-                        $release = '';
+                        $device    = '';
+                        $os        = '';
+                        $os_name   = '';
+                        $release   = '';
                     }
 
                     SentryErrorLog::create([
-                        'error_id' => $error_log->id,
-                        'error_title' => $error_log->title,
-                        'issue_type' => $error_log->issueType,
-                        'issue_category' => $error_log->issueCategory,
-                        'is_unhandled' => ($error_log->isUnhandled == 'false') ? 0 : 1,
-                        'first_seen' => date('d-m-y H:i:s', strtotime($error_log->firstSeen)),
-                        'last_seen' => date('d-m-y H:i:s', strtotime($error_log->lastSeen)),
-                        'project_id' => $account->id,
-                        'total_events' => $error_log->count,
-                        'total_user' => $error_log->userCount,
-                        'device_name' => $device,
-                        'os' => $os,
-                        'os_name' => $os_name,
+                        'error_id'        => $error_log->id,
+                        'error_title'     => $error_log->title,
+                        'issue_type'      => $error_log->issueType,
+                        'issue_category'  => $error_log->issueCategory,
+                        'is_unhandled'    => ($error_log->isUnhandled == 'false') ? 0 : 1,
+                        'first_seen'      => date('d-m-y H:i:s', strtotime($error_log->firstSeen)),
+                        'last_seen'       => date('d-m-y H:i:s', strtotime($error_log->lastSeen)),
+                        'project_id'      => $account->id,
+                        'total_events'    => $error_log->count,
+                        'total_user'      => $error_log->userCount,
+                        'device_name'     => $device,
+                        'os'              => $os,
+                        'os_name'         => $os_name,
                         'release_version' => $release,
                     ]);
                 }

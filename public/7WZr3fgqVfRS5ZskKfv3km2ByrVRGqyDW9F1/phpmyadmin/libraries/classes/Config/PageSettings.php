@@ -51,8 +51,8 @@ class PageSettings
     private $userPreferences;
 
     /**
-     * @param  string  $formGroupName The name of config form group to display
-     * @param  string  $elemId        Id of the div containing settings
+     * @param string $formGroupName The name of config form group to display
+     * @param string $elemId        Id of the div containing settings
      */
     public function __construct($formGroupName, $elemId = null)
     {
@@ -91,9 +91,9 @@ class PageSettings
     /**
      * Process response to form
      *
-     * @param  FormDisplay  $formDisplay Form
-     * @param  ConfigFile  $cf          Configuration file
-     * @param  Message|null  $error       Error message
+     * @param FormDisplay  $formDisplay Form
+     * @param ConfigFile   $cf          Configuration file
+     * @param Message|null $error       Error message
      */
     private function processPageSettings(&$formDisplay, &$cf, &$error): void
     {
@@ -118,8 +118,8 @@ class PageSettings
     /**
      * Store errors in _errorHTML
      *
-     * @param  FormDisplay  $formDisplay Form
-     * @param  Message|null  $error       Error message
+     * @param FormDisplay  $formDisplay Form
+     * @param Message|null $error       Error message
      */
     private function storeError(&$formDisplay, &$error): void
     {
@@ -142,8 +142,9 @@ class PageSettings
     /**
      * Display page-related settings
      *
-     * @param  FormDisplay  $formDisplay Form
-     * @param  Message  $error       Error message
+     * @param FormDisplay $formDisplay Form
+     * @param Message     $error       Error message
+     *
      * @return string
      */
     private function getPageSettingsDisplay(&$formDisplay, &$error)

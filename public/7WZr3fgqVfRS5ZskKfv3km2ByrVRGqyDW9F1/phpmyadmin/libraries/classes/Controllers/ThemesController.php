@@ -21,7 +21,7 @@ class ThemesController extends AbstractController
 
     public function __invoke(): void
     {
-        $themes = $this->themeManager->getThemesArray();
+        $themes     = $this->themeManager->getThemesArray();
         $themesList = $this->template->render('home/themes', ['themes' => $themes]);
         $this->response->setAjax(true);
         $this->response->addJSON('themes', $themesList);

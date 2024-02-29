@@ -28,7 +28,7 @@ final class CreateController extends AbstractController
         Relation $relation
     ) {
         parent::__construct($response, $template);
-        $this->model = $model;
+        $this->model    = $model;
         $this->relation = $relation;
     }
 
@@ -51,10 +51,10 @@ final class CreateController extends AbstractController
         }
 
         $template = ExportTemplate::fromArray([
-            'username' => $cfg['Server']['user'],
+            'username'   => $cfg['Server']['user'],
             'exportType' => $exportType,
-            'name' => $templateName,
-            'data' => $templateData,
+            'name'       => $templateName,
+            'data'       => $templateData,
         ]);
         $result = $this->model->create(
             $exportTemplatesFeature->database,
@@ -80,7 +80,7 @@ final class CreateController extends AbstractController
         $this->response->addJSON(
             'data',
             $this->template->render('export/template_options', [
-                'templates' => is_array($templates) ? $templates : [],
+                'templates'         => is_array($templates) ? $templates : [],
                 'selected_template' => $templateId,
             ])
         );

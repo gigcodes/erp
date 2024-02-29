@@ -53,10 +53,10 @@ class GoogleAppAdController extends Controller
         $campaignDetail = GoogleAdsCampaign::where('google_campaign_id', $campaignId)->first();
         if ($campaignDetail->exists() > 0) {
             return [
-                'account_id' => $campaignDetail->account_id,
-                'campaign_name' => $campaignDetail->campaign_name,
+                'account_id'         => $campaignDetail->account_id,
+                'campaign_name'      => $campaignDetail->campaign_name,
                 'google_customer_id' => $campaignDetail->google_customer_id,
-                'channel_sub_type' => $campaignDetail->channel_sub_type,
+                'channel_sub_type'   => $campaignDetail->channel_sub_type,
             ];
         } else {
             abort(404, 'Invalid account!');
@@ -66,7 +66,7 @@ class GoogleAppAdController extends Controller
     public function index(Request $request, $campaignId, $adGroupId)
     {
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
-        $query = GoogleAppAd::query();
+        $query       = GoogleAppAd::query();
 
         if ($request->headline) {
             $query = $query->where(function ($q) use ($request) {
@@ -94,8 +94,8 @@ class GoogleAppAdController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'App Ad',
+            'type'    => 'SUCCESS',
+            'module'  => 'App Ad',
             'message' => 'Viewed ad listing for ' . $groupDetail->ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -110,8 +110,8 @@ class GoogleAppAdController extends Controller
 
         // Insert google ads log
         $input = [
-            'type' => 'SUCCESS',
-            'module' => 'App Ad',
+            'type'    => 'SUCCESS',
+            'module'  => 'App Ad',
             'message' => 'Viewed ad create for ' . $groupDetail->ad_group_name,
         ];
         insertGoogleAdsLog($input);
@@ -128,27 +128,27 @@ class GoogleAppAdController extends Controller
 
         //create account
         $this->validate($request, [
-            'headline1' => 'required|max:30',
-            'headline2' => 'required|max:30',
-            'headline3' => 'required|max:30',
+            'headline1'    => 'required|max:30',
+            'headline2'    => 'required|max:30',
+            'headline3'    => 'required|max:30',
             'description1' => 'required|max:90',
             'description2' => 'required|max:90',
-            'images' => 'nullable|array|max:20',
-            'images.*' => 'mimes:jpeg,png,gif',
+            'images'       => 'nullable|array|max:20',
+            'images.*'     => 'mimes:jpeg,png,gif',
         ]);
 
-        $acDetail = $this->getAccountDetail($campaignId);
-        $account_id = $acDetail['account_id'];
-        $customerId = $acDetail['google_customer_id'];
+        $acDetail       = $this->getAccountDetail($campaignId);
+        $account_id     = $acDetail['account_id'];
+        $customerId     = $acDetail['google_customer_id'];
         $channelSubType = $acDetail['channel_sub_type'];
 
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
-        $adStatus = $adStatuses[$request->adStatus];
+        $adStatus   = $adStatuses[$request->adStatus];
 
-        $input['status'] = $adStatuses[$request->adStatus];
+        $input['status']                     = $adStatuses[$request->adStatus];
         $input['adgroup_google_campaign_id'] = $campaignId;
-        $input['google_adgroup_id'] = $adGroupId;
-        $input['google_customer_id'] = $customerId;
+        $input['google_adgroup_id']          = $adGroupId;
+        $input['google_customer_id']         = $customerId;
 
         try {
             ini_set('max_execution_time', -1);
@@ -164,7 +164,7 @@ class GoogleAppAdController extends Controller
 
             // store youtube video in google
             $input['youtube_video_ids'] = array_slice(explode(',', $input['youtube_video_ids']), 0, 20);
-            $youtubeVideoArr = [];
+            $youtubeVideoArr            = [];
             if (! empty($input['youtube_video_ids'])) {
                 foreach ($input['youtube_video_ids'] as $videoId) {
                     $youtubeVideoArr[] = self::uploadYoutubeVideoOnGoogleAds($googleAdsClient, $customerId, $videoId);
@@ -186,7 +186,7 @@ class GoogleAppAdController extends Controller
                     self::createAdTextAsset($input['description1']),
                     self::createAdTextAsset($input['description2']),
                 ],
-                'images' => (! empty($imagesArr)) ? array_column($imagesArr, 'google_asset_resource_name') : [],
+                'images'         => (! empty($imagesArr)) ? array_column($imagesArr, 'google_asset_resource_name') : [],
                 'youtube_videos' => (! empty($youtubeVideoArr)) ? array_column($youtubeVideoArr, 'google_asset_resource_name') : [],
             ];
 
@@ -199,8 +199,8 @@ class GoogleAppAdController extends Controller
             // Creates an ad group ad to hold the above ad.
             $adGroupAd = new AdGroupAd([
                 'ad_group' => ResourceNames::forAdGroup($customerId, $adGroupId),
-                'status' => self::getAdStatus($adStatus),
-                'ad' => $ad,
+                'status'   => self::getAdStatus($adStatus),
+                'ad'       => $ad,
             ]);
 
             // Creates an ad group ad operation.
@@ -209,22 +209,22 @@ class GoogleAppAdController extends Controller
 
             // Issues a mutate request to add the ad group ad.
             $adGroupAdServiceClient = $googleAdsClient->getAdGroupAdServiceClient();
-            $response = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
+            $response               = $adGroupAdServiceClient->mutateAdGroupAds($customerId, [$adGroupAdOperation]);
 
-            $createdAdGroupAd = $response->getResults()[0];
+            $createdAdGroupAd             = $response->getResults()[0];
             $createdAdGroupAdResourceName = $createdAdGroupAd->getResourceName();
 
             $input['google_ad_id'] = substr($createdAdGroupAdResourceName, strrpos($createdAdGroupAdResourceName, '~') + 1);
             $input['ads_response'] = json_encode($createdAdGroupAd);
-            $obj = GoogleAppAd::create($input);
+            $obj                   = GoogleAppAd::create($input);
 
             // Store marketing images records into database
             if ($obj->id) {
                 foreach ($imagesArr as $value) {
                     $value['adgroup_google_campaign_id'] = $campaignId;
-                    $value['google_adgroup_id'] = $adGroupId;
-                    $value['google_customer_id'] = $customerId;
-                    $value['google_app_ad_id'] = $obj->id;
+                    $value['google_adgroup_id']          = $adGroupId;
+                    $value['google_customer_id']         = $customerId;
+                    $value['google_app_ad_id']           = $obj->id;
                     unset($value['google_asset_resource_name']);
                     GoogleAppAdImage::create($value);
                 }
@@ -232,9 +232,9 @@ class GoogleAppAdController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'App Ad',
-                'message' => 'Created ad for ' . $groupDetail->ad_group_name,
+                'type'     => 'SUCCESS',
+                'module'   => 'App Ad',
+                'message'  => 'Created ad for ' . $groupDetail->ad_group_name,
                 'response' => json_encode($input),
             ];
             insertGoogleAdsLog($input);
@@ -243,8 +243,8 @@ class GoogleAppAdController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'App Ad',
+                'type'    => 'ERROR',
+                'module'  => 'App Ad',
                 'message' => 'Create new ad > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -261,8 +261,8 @@ class GoogleAppAdController extends Controller
     // delete ad
     public function show($campaignId, $adGroupId, $adId)
     {
-        $acDetail = $this->getAccountDetail($campaignId);
-        $account_id = $acDetail['account_id'];
+        $acDetail    = $this->getAccountDetail($campaignId);
+        $account_id  = $acDetail['account_id'];
         $groupDetail = GoogleAdsGroup::where('google_adgroup_id', $adGroupId)->firstOrFail();
 
         try {
@@ -270,9 +270,9 @@ class GoogleAppAdController extends Controller
 
             // Insert google ads log
             $input = [
-                'type' => 'SUCCESS',
-                'module' => 'App Ad',
-                'message' => 'View ad details for ' . $record->headline1,
+                'type'     => 'SUCCESS',
+                'module'   => 'App Ad',
+                'message'  => 'View ad details for ' . $record->headline1,
                 'response' => json_encode($record),
             ];
 
@@ -282,8 +282,8 @@ class GoogleAppAdController extends Controller
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'App Ad',
+                'type'    => 'ERROR',
+                'module'  => 'App Ad',
                 'message' => 'View ad details > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -348,8 +348,8 @@ class GoogleAppAdController extends Controller
 
             // Creates an asset.
             $asset = new Asset([
-                'name' => 'Image' . uniqid(),
-                'type' => AssetType::IMAGE,
+                'name'        => 'Image' . uniqid(),
+                'type'        => AssetType::IMAGE,
                 'image_asset' => new ImageAsset([
                     'data' => $imageContent,
                 ]),
@@ -361,23 +361,23 @@ class GoogleAppAdController extends Controller
 
             // Issues a mutate request to add the asset.
             $assetServiceClient = $googleAdsClient->getAssetServiceClient();
-            $response = $assetServiceClient->mutateAssets(
+            $response           = $assetServiceClient->mutateAssets(
                 $customerId,
                 [$assetOperation]
             );
 
-            $addedImageAsset = $response->getResults()[0];
+            $addedImageAsset        = $response->getResults()[0];
             $imageAssetResourceName = $addedImageAsset->getResourceName();
 
             $response = [
-                'asset_id' => substr($imageAssetResourceName, strrpos($imageAssetResourceName, '/') + 1),
+                'asset_id'            => substr($imageAssetResourceName, strrpos($imageAssetResourceName, '/') + 1),
                 'asset_resource_name' => $imageAssetResourceName,
             ];
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'App Ad',
+                'type'    => 'ERROR',
+                'module'  => 'App Ad',
                 'message' => 'Upload image > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);
@@ -395,13 +395,13 @@ class GoogleAppAdController extends Controller
             if ($uploadfile) {
                 $getfilename = $uploadfile->filename . '.' . $uploadfile->extension;
 
-                $imageUrl = storage_path('app/google_ads/app_ad/' . $account_id . '/' . $getfilename);
+                $imageUrl           = storage_path('app/google_ads/app_ad/' . $account_id . '/' . $getfilename);
                 $uploadedImageAsset = self::uploadImageOnGoogleAds($googleAdsClient, $customerId, $imageUrl);
                 if (! empty($uploadedImageAsset)) {
                     $response[] = [
-                        'google_asset_id' => $uploadedImageAsset['asset_id'],
+                        'google_asset_id'            => $uploadedImageAsset['asset_id'],
                         'google_asset_resource_name' => self::createAdImageAsset($uploadedImageAsset['asset_resource_name']),
-                        'name' => $getfilename,
+                        'name'                       => $getfilename,
                     ];
                 }
             }
@@ -417,8 +417,8 @@ class GoogleAppAdController extends Controller
         try {
             // Creates an asset.
             $asset = new Asset([
-                'name' => 'Youtube video ' . uniqid(),
-                'type' => AssetType::YOUTUBE_VIDEO,
+                'name'                => 'Youtube video ' . uniqid(),
+                'type'                => AssetType::YOUTUBE_VIDEO,
                 'youtube_video_asset' => new YoutubeVideoAsset([
                     'youtube_video_id' => $youtubVideoId,
                 ]),
@@ -430,23 +430,23 @@ class GoogleAppAdController extends Controller
 
             // Issues a mutate request to add the asset.
             $assetServiceClient = $googleAdsClient->getAssetServiceClient();
-            $response = $assetServiceClient->mutateAssets(
+            $response           = $assetServiceClient->mutateAssets(
                 $customerId,
                 [$assetOperation]
             );
 
-            $addedYoutubeVideoAsset = $response->getResults()[0];
+            $addedYoutubeVideoAsset        = $response->getResults()[0];
             $youtubeVideoAssetResourceName = $addedYoutubeVideoAsset->getResourceName();
 
             $response = [
-                'google_asset_id' => substr($youtubeVideoAssetResourceName, strrpos($youtubeVideoAssetResourceName, '/') + 1),
+                'google_asset_id'            => substr($youtubeVideoAssetResourceName, strrpos($youtubeVideoAssetResourceName, '/') + 1),
                 'google_asset_resource_name' => self::createAdVideoAsset($youtubeVideoAssetResourceName),
             ];
         } catch (Exception $e) {
             // Insert google ads log
             $input = [
-                'type' => 'ERROR',
-                'module' => 'App Ad',
+                'type'    => 'ERROR',
+                'module'  => 'App Ad',
                 'message' => 'Upload youtube video > ' . $e->getMessage(),
             ];
             insertGoogleAdsLog($input);

@@ -35,24 +35,30 @@ class Translations extends Model
     /**
      * Protected Date
      *
-     * @var    array
+     * @var array
+     *
+     * @param mixed $textOriginal
+     * @param mixed $text
+     * @param mixed $from
+     * @param mixed $to
      */
     /**
      * This static method will create new translation
      *
-     * @param  string  $textOriginal
-     * @param  string  $text
-     * @param  string  $from
-     * @param  string  $to
+     * @param string $textOriginal
+     * @param string $text
+     * @param string $from
+     * @param string $to
+     *
      * @return bool
      */
     public static function addTranslation($textOriginal, $text, $from, $to)
     {
-        $obj = new Translations();
+        $obj                = new Translations();
         $obj->text_original = $textOriginal;
-        $obj->text = $text;
-        $obj->from = $from;
-        $obj->to = $to;
+        $obj->text          = $text;
+        $obj->from          = $from;
+        $obj->to            = $to;
 
         $obj->save();
     }

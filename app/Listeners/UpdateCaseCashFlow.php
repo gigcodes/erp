@@ -19,14 +19,15 @@ class UpdateCaseCashFlow
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
+     *
      * @return void
      */
     public function handle(CaseBillPaid $event)
     {
-        $case = $event->case;
-        $bill = $event->bill;
-        $user_id = auth()->id();
+        $case      = $event->case;
+        $bill      = $event->bill;
+        $user_id   = auth()->id();
         $cash_flow = $case->cashFlows()->where('order_status', 'bill_id:' . $bill->id)->first();
         if (! $cash_flow) {
             $cash_flow = $case->cashFlows()->create([
@@ -34,15 +35,15 @@ class UpdateCaseCashFlow
             ]);
         }
         $cash_flow->fill([
-            'date' => $bill->paid_date ?: $bill->billed_date,
-            'expected' => $bill->amount,
-            'actual' => $bill->amount_paid ?: 0,
-            'type' => 'paid',
-            'currency' => '',
-            'status' => ($bill->paid_date && $bill->amount_paid) ? 1 : 0,
+            'date'         => $bill->paid_date ?: $bill->billed_date,
+            'expected'     => $bill->amount,
+            'actual'       => $bill->amount_paid ?: 0,
+            'type'         => 'paid',
+            'currency'     => '',
+            'status'       => ($bill->paid_date && $bill->amount_paid) ? 1 : 0,
             'order_status' => 'bill_id:' . $bill->id, //to know which of the payment's record while updating later
-            'updated_by' => $user_id,
-            'description' => 'Case Cost Billed and Paid',
+            'updated_by'   => $user_id,
+            'description'  => 'Case Cost Billed and Paid',
         ])->save();
     }
 }

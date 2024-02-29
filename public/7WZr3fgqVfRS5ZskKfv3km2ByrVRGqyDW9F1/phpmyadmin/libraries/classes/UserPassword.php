@@ -19,7 +19,7 @@ class UserPassword
     private $serverPrivileges;
 
     /**
-     * @param  Privileges  $serverPrivileges Privileges object
+     * @param Privileges $serverPrivileges Privileges object
      */
     public function __construct(Privileges $serverPrivileges)
     {
@@ -29,17 +29,17 @@ class UserPassword
     /**
      * Generate the message
      *
-     * @return array   error value and message
+     * @return array error value and message
      */
     public function setChangePasswordMsg()
     {
-        $error = false;
+        $error   = false;
         $message = Message::success(__('The profile has been updated.'));
 
         if ($_POST['nopass'] != '1') {
             if (strlen($_POST['pma_pw']) === 0 || strlen($_POST['pma_pw2']) === 0) {
                 $message = Message::error(__('The password is empty!'));
-                $error = true;
+                $error   = true;
             } elseif ($_POST['pma_pw'] !== $_POST['pma_pw2']) {
                 $message = Message::error(
                     __('The passwords aren\'t the same!')
@@ -47,20 +47,20 @@ class UserPassword
                 $error = true;
             } elseif (strlen($_POST['pma_pw']) > 256) {
                 $message = Message::error(__('Password is too long!'));
-                $error = true;
+                $error   = true;
             }
         }
 
         return [
             'error' => $error,
-            'msg' => $message,
+            'msg'   => $message,
         ];
     }
 
     /**
      * Change the password
      *
-     * @param  string  $password New password
+     * @param string $password New password
      */
     public function changePassword($password): string
     {
@@ -137,12 +137,12 @@ class UserPassword
     /**
      * Changes password for a user
      *
-     * @param  string  $username         Username
-     * @param  string  $hostname         Hostname
-     * @param  string  $password         Password
-     * @param  string  $sql_query        SQL query
-     * @param  string  $hashing_function Hashing function
-     * @param  string  $orig_auth_plugin Original Authentication Plugin
+     * @param string $username         Username
+     * @param string $hostname         Hostname
+     * @param string $password         Password
+     * @param string $sql_query        SQL query
+     * @param string $hashing_function Hashing function
+     * @param string $orig_auth_plugin Original Authentication Plugin
      */
     private function changePassUrlParamsAndSubmitQuery(
         $username,

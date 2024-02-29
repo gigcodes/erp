@@ -19,7 +19,7 @@ class ProductsTableSeeder extends Seeder
         $this->_createStatuses();
 
         // Load Faker
-        $faker = \Faker\Factory::create();
+        $faker  = \Faker\Factory::create();
         $status = DB::table('status')->orderBy('id')->first();
         if (! $status) {
             DB::table('status')->insert(['name' => 'import']);
@@ -27,16 +27,16 @@ class ProductsTableSeeder extends Seeder
         $status_id = DB::table('status')->orderBy('id')->first()->id;
         // Create 10.000 products
         for ($i = 0; $i < 2; $i++) {
-            $product = new Product;
-            $product->status_id = $status_id;
-            $product->name = $faker->name;
+            $product                    = new Product;
+            $product->status_id         = $status_id;
+            $product->name              = $faker->name;
             $product->short_description = $faker->paragraph;
-            $product->sku = $faker->ean13;
-            $product->size = $this->_getRandomSizes();
-            $product->price = rand(100, 1500);
-            $product->stock = rand(0, 3);
-            $product->composition = $this->_getRandomComposition();
-            $product->color = $faker->colorName;
+            $product->sku               = $faker->ean13;
+            $product->size              = $this->_getRandomSizes();
+            $product->price             = rand(100, 1500);
+            $product->stock             = rand(0, 3);
+            $product->composition       = $this->_getRandomComposition();
+            $product->color             = $faker->colorName;
             $product->save();
         }
     }

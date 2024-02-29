@@ -60,7 +60,7 @@ if ($tc || ini_get('filter.default_flags')) {
                 unset($Ye[$z][$fd]);
                 if (is_array($W)) {
                     $Ye[$z][stripslashes($fd)] = $W;
-                    $Ye[] = &$Ye[$z][stripslashes($fd)];
+                    $Ye[]                      = &$Ye[$z][stripslashes($fd)];
                 } else {
                     $Ye[$z][stripslashes($fd)] = ($tc ? $W : stripslashes($W));
                 }
@@ -236,9 +236,9 @@ if ($tc || ini_get('filter.default_flags')) {
     if (! is_object($f)) {
         $f = $e;
     }
-    $K = [];
+    $K          = [];
     $f->timeout = $ug;
-    $J = $f->query($I);
+    $J          = $f->query($I);
     $f->timeout = 0;
     if (is_object($J)) {
         while ($L = $J->fetch_row()) {
@@ -255,8 +255,8 @@ if ($tc || ini_get('filter.default_flags')) {
 {
     global$e;
     $eb = (is_object($f) ? $f : $e);
-    $K = [];
-    $J = $eb->query($I);
+    $K  = [];
+    $J  = $eb->query($I);
     if (is_object($J)) {
         while ($L = $J->fetch_assoc()) {
             $K[] = $L;
@@ -296,8 +296,8 @@ if ($tc || ini_get('filter.default_flags')) {
     global$e,$y;
     $K = [];
     foreach ((array) $Z['where']as$z => $X) {
-        $z = bracket_escape($z, 1);
-        $c = escape_key($z);
+        $z   = bracket_escape($z, 1);
+        $c   = escape_key($z);
         $K[] = $c . ($y == 'sql' && preg_match('~^[0-9]*\\.[0-9]*$~', $X) ? ' LIKE ' . q(addcslashes($X, '%_\\')) : ($y == 'mssql' ? ' LIKE ' . q(preg_replace('~[_%[]~', '[\0]', $X)) : ' = ' . unconvert_field($m[$z], q($X))));
         if ($y == 'sql' && preg_match('~char|text~', $m[$z]['type']) && preg_match('~[^ -@]~', $X)) {
             $K[] = "$c = " . q($X) . ' COLLATE ' . charset($e) . '_bin';
@@ -462,7 +462,7 @@ if ($tc || ini_get('filter.default_flags')) {
         if ($k) {
             return$k;
         }
-        $E = $rc['name'][$z];
+        $E  = $rc['name'][$z];
         $Ag = $rc['tmp_name'][$z];
         $fb = file_get_contents($xb && preg_match('~\\.gz$~', $E) ? "compress.zlib://$Ag" : $Ag);
         if ($xb) {
@@ -550,7 +550,7 @@ if ($tc || ini_get('filter.default_flags')) {
     preg_match_all("~'((?:[^']|'')*)'~", $l['length'], $_d);
     $K = ($Wb !== null ? "<label><input type='$U'$wa value='$Wb'" . ((is_array($Y) ? in_array($Wb, $Y) : $Y === 0) ? ' checked' : '') . '><i>' . 'empty' . '</i></label>' : '');
     foreach ($_d[1]as$t => $X) {
-        $X = stripcslashes(str_replace("''", "'", $X));
+        $X  = stripcslashes(str_replace("''", "'", $X));
         $Na = (is_int($Y) ? $Y == $t + 1 : (is_array($Y) ? in_array($t + 1, $Y) : $Y === $X));
         $K .= " <label><input type='$U'$wa value='" . ($t + 1) . "'" . ($Na ? ' checked' : '') . '>' . h($b->editVal($X, $l)) . '</label>';
     }
@@ -589,7 +589,7 @@ if ($tc || ini_get('filter.default_flags')) {
         } elseif ($l['type'] == 'set') {
             preg_match_all("~'((?:[^']|'')*)'~", $l['length'], $_d);
             foreach ($_d[1]as$t => $X) {
-                $X = stripcslashes(str_replace("''", "'", $X));
+                $X  = stripcslashes(str_replace("''", "'", $X));
                 $Na = (is_int($Y) ? ($Y >> $t) & 1 : in_array($X, explode(',', $Y), true));
                 echo" <label><input type='checkbox' name='fields[$E][$t]' value='" . (1 << $t) . "'" . ($Na ? ' checked' : '') . '>' . h($b->editVal($X, $l)) . '</label>';
             }
@@ -630,8 +630,8 @@ if ($tc || ini_get('filter.default_flags')) {
 {
     global$b,$j;
     $Qc = bracket_escape($l['field']);
-    $q = $_POST['function'][$Qc];
-    $Y = $_POST['fields'][$Qc];
+    $q  = $_POST['function'][$Qc];
+    $Y  = $_POST['fields'][$Qc];
     if ($l['type'] == 'enum') {
         if ($Y == -1) {
             return
@@ -684,13 +684,13 @@ if ($tc || ini_get('filter.default_flags')) {
     $K = [];
     foreach ((array) $_POST['field_keys']as$z => $X) {
         if ($X != '') {
-            $X = bracket_escape($X);
+            $X                     = bracket_escape($X);
             $_POST['function'][$X] = $_POST['field_funs'][$z];
-            $_POST['fields'][$X] = $_POST['field_vals'][$z];
+            $_POST['fields'][$X]   = $_POST['field_vals'][$z];
         }
     }
     foreach ((array) $_POST['fields']as$z => $X) {
-        $E = bracket_escape($z, 1);
+        $E     = bracket_escape($z, 1);
         $K[$E] = ['field' => $E, 'privileges' => ['insert' => 1, 'update' => 1], 'null' => 1, 'auto_increment' => ($z == $j->primary)];
     }
 
@@ -699,7 +699,7 @@ if ($tc || ini_get('filter.default_flags')) {
 {
     global$b,$e;
     $_GET['where'][0]['val'] = $_POST['query'];
-    $Ef = "<ul>\n";
+    $Ef                      = "<ul>\n";
     foreach (table_status('', true)as$Q => $R) {
         $E = $b->tableName($R);
         if (isset($R['Engine']) && $E != '' && (! $_POST['tables'] || in_array($Q, $_POST['tables']))) {
@@ -715,7 +715,7 @@ if ($tc || ini_get('filter.default_flags')) {
 }function dump_headers($Pc, $Nd = false)
 {
     global$b;
-    $K = $b->dumpHeaders($Pc, $Nd);
+    $K  = $b->dumpHeaders($Pc, $Nd);
     $ye = $_POST['output'];
     if ($ye != 'text') {
         header('Content-Disposition: attachment; filename=' . $b->dumpFilename($Pc) . ".$K" . ($ye != 'file' && ! preg_match('~[^0-9a-z]~', $ye) ? ".$ye" : ''));
@@ -779,7 +779,7 @@ if ($tc || ini_get('filter.default_flags')) {
 }function password_file($g)
 {
     $sc = get_temp_dir() . '/adminer.key';
-    $K = @file_get_contents($sc);
+    $K  = @file_get_contents($sc);
     if ($K || ! $g) {
         return$K;
     }
@@ -860,7 +860,7 @@ if ($tc || ini_get('filter.default_flags')) {
 }function slow_query($I)
 {
     global$b,$T;
-    $i = $b->database();
+    $i  = $b->database();
     $ug = $b->queryTimeout();
     if (support('kill') && is_object($f = connect()) && ($i == '' || $f->select_db($i))) {
         $hd = $f->result(connection_id());
@@ -916,7 +916,7 @@ var timeout = setTimeout(function () {
         }
     }
     $Cb = range("\0", "\xFF");
-    $K = '';
+    $K  = '';
     foreach ($Ta
     as$t => $Sa) {
         $Sb = $Cb[$Sa];
@@ -1111,7 +1111,7 @@ function get_lang()
 
         public function query($I, $Mg = false)
         {
-            $J = parent::query($I);
+            $J           = parent::query($I);
             $this->error = '';
             if (! $J) {
                 [, $this->errno, $this->error] = $this->errorInfo();
@@ -1190,9 +1190,9 @@ function get_lang()
 
         public function fetch_field()
         {
-            $L = (object) $this->getColumnMeta($this->_offset++);
-            $L->orgtable = $L->table;
-            $L->orgname = $L->name;
+            $L            = (object) $this->getColumnMeta($this->_offset++);
+            $L->orgtable  = $L->table;
+            $L->orgname   = $L->name;
             $L->charsetnr = (in_array('blob', (array) $L->flags) ? 63 : 0);
 
             return$L;
@@ -1212,12 +1212,12 @@ class Min_SQL
     {
         global$b,$y;
         $cd = (count($s) < count($N));
-        $I = $b->selectQueryBuild($N, $Z, $s, $oe, $_, $F);
+        $I  = $b->selectQueryBuild($N, $Z, $s, $oe, $_, $F);
         if (! $I) {
             $I = 'SELECT' . limit(($_GET['page'] != 'last' && $_ != '' && $s && $cd && $y == 'sql' ? 'SQL_CALC_FOUND_ROWS ' : '') . implode(', ', $N) . "\nFROM " . table($Q), ($Z ? "\nWHERE " . implode(' AND ', $Z) : '') . ($s && $cd ? "\nGROUP BY " . implode(', ', $s) : '') . ($oe ? "\nORDER BY " . implode(', ', $oe) : ''), ($_ != '' ? +$_ : null), ($F ? $_ * $F : 0), "\n");
         }
         $Tf = microtime(true);
-        $K = $this->_conn->query($I);
+        $K  = $this->_conn->query($I);
         if ($Ue) {
             echo$b->selectQuery($I, $Tf, ! $K);
         }
@@ -1319,7 +1319,7 @@ if (! defined('DRIVER')) {
                 global$b;
                 mysqli_report(MYSQLI_REPORT_OFF);
                 [$Nc, $Me] = explode(':', $O, 2);
-                $Sf = $b->connectSsl();
+                $Sf        = $b->connectSsl();
                 if ($Sf) {
                     $this->ssl_set($Sf['key'], $Sf['cert'], $Sf['ca'], '', '');
                 }
@@ -1411,7 +1411,7 @@ if (! defined('DRIVER')) {
 
             public function query($I, $Mg = false)
             {
-                $J = @($Mg ? mysql_unbuffered_query($I, $this->_link) : mysql_query($I, $this->_link));
+                $J           = @($Mg ? mysql_unbuffered_query($I, $this->_link) : mysql_query($I, $this->_link));
                 $this->error = '';
                 if (! $J) {
                     $this->errno = mysql_errno($this->_link);
@@ -1422,7 +1422,7 @@ if (! defined('DRIVER')) {
                 }
                 if ($J === true) {
                     $this->affected_rows = mysql_affected_rows($this->_link);
-                    $this->info = mysql_info($this->_link);
+                    $this->info          = mysql_info($this->_link);
 
                     return
                     true;
@@ -1471,7 +1471,7 @@ if (! defined('DRIVER')) {
 
             public function __construct($J)
             {
-                $this->_result = $J;
+                $this->_result  = $J;
                 $this->num_rows = mysql_num_rows($J);
             }
 
@@ -1489,9 +1489,9 @@ if (! defined('DRIVER')) {
 
             public function fetch_field()
             {
-                $K = mysql_fetch_field($this->_result, $this->_offset++);
-                $K->orgtable = $K->table;
-                $K->orgname = $K->name;
+                $K            = mysql_fetch_field($this->_result, $this->_offset++);
+                $K->orgtable  = $K->table;
+                $K->orgname   = $K->name;
                 $K->charsetnr = ($K->blob ? 63 : 0);
 
                 return$K;
@@ -1549,7 +1549,7 @@ if (! defined('DRIVER')) {
 
         public function insertUpdate($Q, $M, $Te)
         {
-            $d = array_keys(reset($M));
+            $d  = array_keys(reset($M));
             $Re = 'INSERT INTO ' . table($Q) . ' (' . implode(', ', $d) . ") VALUES\n";
             $bh = [];
             foreach ($d
@@ -1627,7 +1627,7 @@ if (! defined('DRIVER')) {
             $e->query('SET sql_quote_show_create = 1, autocommit = 1');
             if (min_version('5.7.8', 10.2, $e)) {
                 $Yf['Strings'][] = 'json';
-                $Lg['json'] = 4294967295;
+                $Lg['json']      = 4294967295;
             }
 
             return$e;
@@ -1747,11 +1747,11 @@ if (! defined('DRIVER')) {
     {
         $K = [];
         foreach (get_rows('SHOW INDEX FROM ' . table($Q), $f)as$L) {
-            $E = $L['Key_name'];
-            $K[$E]['type'] = ($E == 'PRIMARY' ? 'PRIMARY' : ($L['Index_type'] == 'FULLTEXT' ? 'FULLTEXT' : ($L['Non_unique'] ? ($L['Index_type'] == 'SPATIAL' ? 'SPATIAL' : 'INDEX') : 'UNIQUE')));
+            $E                  = $L['Key_name'];
+            $K[$E]['type']      = ($E == 'PRIMARY' ? 'PRIMARY' : ($L['Index_type'] == 'FULLTEXT' ? 'FULLTEXT' : ($L['Non_unique'] ? ($L['Index_type'] == 'SPATIAL' ? 'SPATIAL' : 'INDEX') : 'UNIQUE')));
             $K[$E]['columns'][] = $L['Column_name'];
             $K[$E]['lengths'][] = ($L['Index_type'] == 'SPATIAL' ? null : $L['Sub_part']);
-            $K[$E]['descs'][] = null;
+            $K[$E]['descs'][]   = null;
         }
 
         return$K;
@@ -1760,8 +1760,8 @@ if (! defined('DRIVER')) {
     {
         global$e,$ge;
         static$Je = '`(?:[^`]|``)+`';
-        $K = [];
-        $kb = $e->result('SHOW CREATE TABLE ' . table($Q), 1);
+        $K        = [];
+        $kb       = $e->result('SHOW CREATE TABLE ' . table($Q), 1);
         if ($kb) {
             preg_match_all("~CONSTRAINT ($Je) FOREIGN KEY ?\\(((?:$Je,? ?)+)\\) REFERENCES ($Je)(?:\\.($Je))? \\(((?:$Je,? ?)+)\\)(?: ON DELETE ($ge))?(?: ON UPDATE ($ge))?~", $kb, $_d, PREG_SET_ORDER);
             foreach ($_d
@@ -1928,7 +1928,7 @@ if (! defined('DRIVER')) {
         }
         foreach ($gh
         as$Q) {
-            $E = ($ng == DB ? table("copy_$Q") : idf_escape($ng) . '.' . table($Q));
+            $E  = ($ng == DB ? table("copy_$Q") : idf_escape($ng) . '.' . table($Q));
             $fh = view($Q);
             if (! queries("DROP VIEW IF EXISTS $E") || ! queries("CREATE VIEW $E AS $fh[select]")) {
                 return
@@ -1971,13 +1971,13 @@ if (! defined('DRIVER')) {
         $Of = "(?:\\s|/\\*[\s\S]*?\\*/|(?:#|-- )[^\n]*\n?|--\r?\n)";
         $Kg = '((' . implode('|', array_merge(array_keys($Lg), $qa)) . ")\\b(?:\\s*\\(((?:[^'\")]|$Zb)++)\\))?\\s*(zerofill\\s*)?(unsigned(?:\\s+zerofill)?)?)(?:\\s*(?:CHARSET|CHARACTER\\s+SET)\\s*['\"]?([^'\"\\s,]+)['\"]?)?";
         $Je = "$Of*(" . ($U == 'FUNCTION' ? '' : $Vc) . ")?\\s*(?:`((?:[^`]|``)*)`\\s*|\\b(\\S+)\\s+)$Kg";
-        $g = $e->result("SHOW CREATE $U " . idf_escape($E), 2);
+        $g  = $e->result("SHOW CREATE $U " . idf_escape($E), 2);
         preg_match("~\\(((?:$Je\\s*,?)*)\\)\\s*" . ($U == 'FUNCTION' ? "RETURNS\\s+$Kg\\s+" : '') . '(.*)~is', $g, $C);
         $m = [];
         preg_match_all("~$Je\\s*,?~is", $C[1], $_d, PREG_SET_ORDER);
         foreach ($_d
         as$Ae) {
-            $E = str_replace('``', '`', $Ae[2]) . $Ae[3];
+            $E   = str_replace('``', '`', $Ae[2]) . $Ae[3];
             $m[] = ['field' => $E, 'type' => strtolower($Ae[5]), 'length' => preg_replace_callback("~$Zb~s", 'normalize_enum', $Ae[6]), 'unsigned' => strtolower(preg_replace('~\\s+~', ' ', trim("$Ae[8] $Ae[7]"))), 'null' => 1, 'full_type' => $Ae[4], 'inout' => strtoupper($Ae[1]), 'collation' => strtolower($Ae[9])];
         }
         if ($U != 'FUNCTION') {
@@ -2123,7 +2123,7 @@ if (! defined('DRIVER')) {
 
         return$e->result('SELECT @@max_connections');
     }
-    $y = 'sql';
+    $y  = 'sql';
     $Lg = [];
     $Yf = [];
     foreach (['Numbers' => ['tinyint' => 3, 'smallint' => 5, 'mediumint' => 8, 'int' => 10, 'bigint' => 20, 'decimal' => 66, 'float' => 12, 'double' => 21], 'Date and time' => ['date' => 10, 'datetime' => 19, 'timestamp' => 19, 'time' => 10, 'year' => 4], 'Strings' => ['char' => 255, 'varchar' => 65535, 'tinytext' => 255, 'text' => 65535, 'mediumtext' => 16777215, 'longtext' => 4294967295], 'Lists' => ['enum' => 65535, 'set' => 64], 'Binary' => ['bit' => 20, 'binary' => 255, 'varbinary' => 65535, 'tinyblob' => 255, 'blob' => 65535, 'mediumblob' => 16777215, 'longblob' => 4294967295], 'Geometry' => ['geometry' => 0, 'point' => 0, 'linestring' => 0, 'polygon' => 0, 'multipoint' => 0, 'multilinestring' => 0, 'multipolygon' => 0, 'geometrycollection' => 0]]as$z => $X) {
@@ -2217,7 +2217,7 @@ class Adminer
 
     public function css()
     {
-        $K = [];
+        $K  = [];
         $sc = 'adminer.css';
         if (file_exists($sc)) {
             $K[] = $sc;
@@ -2385,7 +2385,7 @@ class Adminer
     {
         global$Bc,$Fc;
         print_fieldset('select', 'Select', $N);
-        $t = 0;
+        $t     = 0;
         $N[''] = [];
         foreach ($N
         as$z => $X) {
@@ -2584,8 +2584,8 @@ class Adminer
             $I = preg_replace('~[\x80-\xFF]+$~', '', substr($I, 0, 1e6)) . "\n...";
         }
         $Lc[$_GET['db']][] = [$I, time(), $tg];
-        $Rf = 'sql-' . count($Lc[$_GET['db']]);
-        $K = "<a href='#$Rf' class='toggle'>" . 'SQL command' . "</a>\n";
+        $Rf                = 'sql-' . count($Lc[$_GET['db']]);
+        $K                 = "<a href='#$Rf' class='toggle'>" . 'SQL command' . "</a>\n";
         if (! $nc && ($jh = $j->warnings())) {
             $u = 'warnings-' . count($Lc[$_GET['db']]);
             $K = "<a href='#$u' class='toggle'>" . 'Warnings' . "</a>, $K<div id='$u' class='hidden'>\n$jh</div>\n";
@@ -2733,9 +2733,9 @@ class Adminer
                         $bh = [];
                         foreach ($L
                         as$X) {
-                            $l = $J->fetch_field();
+                            $l    = $J->fetch_field();
                             $gd[] = $l->name;
-                            $z = idf_escape($l->name);
+                            $z    = idf_escape($l->name);
                             $bh[] = "$z = VALUES($z)";
                         }
                         $bg = ($Zf == 'INSERT+UPDATE' ? "\nON DUPLICATE KEY UPDATE " . implode(', ', $bh) : '') . ";\n";
@@ -2752,7 +2752,7 @@ class Adminer
                         }
                         foreach ($L
                         as$z => $X) {
-                            $l = $m[$z];
+                            $l     = $m[$z];
                             $L[$z] = ($X !== null ? unconvert_field($l, preg_match(number_type(), $l['type']) && $X != '' ? $X : q($X)) : 'NULL');
                         }
                         $xf = ($Bd ? "\n" : ' ') . '(' . implode(",\t", $L) . ')';
@@ -3105,25 +3105,25 @@ var thousandsSeparator = \'',js_escape(','),'\';
     if ($Wf == '') {
         return'';
     }
-    $z = array_values(unpack('V*', pack('H*', md5($z))));
-    $W = str2long($Wf, true);
+    $z  = array_values(unpack('V*', pack('H*', md5($z))));
+    $W  = str2long($Wf, true);
     $Pd = count($W) - 1;
     $ph = $W[$Pd];
     $oh = $W[0];
-    $H = floor(6 + 52 / ($Pd + 1));
+    $H  = floor(6 + 52 / ($Pd + 1));
     $cg = 0;
     while ($H-- > 0) {
         $cg = int32($cg + 0x9E3779B9);
         $Ob = $cg >> 2 & 3;
         for ($ze = 0; $ze < $Pd; $ze++) {
-            $oh = $W[$ze + 1];
-            $Od = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
-            $ph = int32($W[$ze] + $Od);
+            $oh     = $W[$ze + 1];
+            $Od     = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
+            $ph     = int32($W[$ze] + $Od);
             $W[$ze] = $ph;
         }
-        $oh = $W[0];
-        $Od = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
-        $ph = int32($W[$Pd] + $Od);
+        $oh     = $W[0];
+        $Od     = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
+        $ph     = int32($W[$Pd] + $Od);
         $W[$Pd] = $ph;
     }
 
@@ -3138,26 +3138,26 @@ var thousandsSeparator = \'',js_escape(','),'\';
         return
         false;
     }
-    $z = array_values(unpack('V*', pack('H*', md5($z))));
-    $W = str2long($Wf, false);
+    $z  = array_values(unpack('V*', pack('H*', md5($z))));
+    $W  = str2long($Wf, false);
     $Pd = count($W) - 1;
     $ph = $W[$Pd];
     $oh = $W[0];
-    $H = floor(6 + 52 / ($Pd + 1));
+    $H  = floor(6 + 52 / ($Pd + 1));
     $cg = int32($H * 0x9E3779B9);
     while ($cg) {
         $Ob = $cg >> 2 & 3;
         for ($ze = $Pd; $ze > 0; $ze--) {
-            $ph = $W[$ze - 1];
-            $Od = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
-            $oh = int32($W[$ze] - $Od);
+            $ph     = $W[$ze - 1];
+            $Od     = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
+            $oh     = int32($W[$ze] - $Od);
             $W[$ze] = $oh;
         }
-        $ph = $W[$Pd];
-        $Od = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
-        $oh = int32($W[0] - $Od);
+        $ph   = $W[$Pd];
+        $Od   = xxtea_mx($ph, $oh, $cg, $z[$ze & 3 ^ $Ob]);
+        $oh   = int32($W[0] - $Od);
         $W[0] = $oh;
-        $cg = int32($cg - 0x9E3779B9);
+        $cg   = int32($cg - 0x9E3779B9);
     }
 
     return
@@ -3170,7 +3170,7 @@ if (! $Jc) {
 $Ke = [];
 if ($_COOKIE['adminer_permanent']) {
     foreach (explode(' ', $_COOKIE['adminer_permanent'])as$X) {
-        [$z] = explode(':', $X);
+        [$z]    = explode(':', $X);
         $Ke[$z] = $X;
     }
 }function add_invalid_login()
@@ -3209,15 +3209,15 @@ if ($_COOKIE['adminer_permanent']) {
 if ($xa) {
     session_regenerate_id();
     $dh = $xa['driver'];
-    $O = $xa['server'];
-    $V = $xa['username'];
-    $G = (string) $xa['password'];
-    $i = $xa['db'];
+    $O  = $xa['server'];
+    $V  = $xa['username'];
+    $G  = (string) $xa['password'];
+    $i  = $xa['db'];
     set_password($dh, $O, $V, $G);
     $_SESSION['db'][$dh][$O][$V][$i] = true;
     if ($xa['permanent']) {
-        $z = base64_encode($dh) . '-' . base64_encode($O) . '-' . base64_encode($V) . '-' . base64_encode($i);
-        $Ve = $b->permanentLogin(true);
+        $z      = base64_encode($dh) . '-' . base64_encode($O) . '-' . base64_encode($V) . '-' . base64_encode($i);
+        $Ve     = $b->permanentLogin(true);
         $Ke[$z] = "$z:" . base64_encode($Ve ? encrypt_string($G, $Ve) : '');
         cookie('adminer_permanent', implode(' ', $Ke));
     }
@@ -3241,7 +3241,7 @@ if ($xa) {
     $Ve = $b->permanentLogin();
     foreach ($Ke
     as$z => $X) {
-        [, $Qa] = explode(':', $X);
+        [, $Qa]           = explode(':', $X);
         [$dh, $O, $V, $i] = array_map('base64_decode', explode('-', $z));
         set_password($dh, $O, $V, decrypt_string(base64_decode($Qa), $Ve));
         $_SESSION['db'][$dh][$O][$V][$i] = true;
@@ -3340,20 +3340,20 @@ if ($_POST) {
 {
     global$y;
     $vd = [];
-    $w = [];
-    $d = [];
+    $w  = [];
+    $d  = [];
     $Fa = [];
     $Lg = [];
-    $K = [];
+    $K  = [];
     odd('');
     for ($t = 0; (! $_ || $t < $_) && ($L = $J->fetch_row()); $t++) {
         if (! $t) {
             echo"<table cellspacing='0' class='nowrap'>\n",'<thead><tr>';
             for ($x = 0; $x < count($L); $x++) {
-                $l = $J->fetch_field();
-                $E = $l->name;
-                $qe = $l->orgtable;
-                $pe = $l->orgname;
+                $l            = $J->fetch_field();
+                $E            = $l->name;
+                $qe           = $l->orgtable;
+                $pe           = $l->orgname;
                 $K[$l->table] = $qe;
                 if ($re && $y == 'sql') {
                     $vd[$x] = ($E == 'table' ? 'table=' : ($E == 'possible_keys' ? 'indexes=' : null));
@@ -3371,7 +3371,7 @@ if ($_POST) {
                     if (isset($d[$qe][$pe])) {
                         unset($d[$qe][$pe]);
                         $w[$qe][$pe] = $x;
-                        $vd[$x] = $qe;
+                        $vd[$x]      = $qe;
                     }
                 }
                 if ($l->charsetnr == 63) {
@@ -3633,7 +3633,7 @@ if ($_POST) {
     return' FOREIGN KEY (' . implode(', ', array_map('idf_escape', $n['source'])) . ') REFERENCES ' . table($n['table']) . ' (' . implode(', ', array_map('idf_escape', $n['target'])) . ')' . (preg_match("~^($ge)\$~", $n['on_delete']) ? " ON DELETE $n[on_delete]" : '') . (preg_match("~^($ge)\$~", $n['on_update']) ? " ON UPDATE $n[on_update]" : '');
 }function tar_file($sc, $_g)
 {
-    $K = pack('a100a8a8a8a12a12', $sc, 644, 0, 0, decoct($_g->size), decoct(time()));
+    $K  = pack('a100a8a8a8a12a12', $sc, 644, 0, 0, decoct($_g->size), decoct(time()));
     $Pa = 8 * 32;
     for ($t = 0; $t < strlen($K); $t++) {
         $Pa += ord($K[$t]);
@@ -3717,7 +3717,7 @@ if ($_POST) {
             foreach ($h
             as$i => $S) {
                 $tf = h(ME) . 'db=' . urlencode($i);
-                $u = h('Db-' . $i);
+                $u  = h('Db-' . $i);
                 echo'<tr' . odd() . '>' . (support('database') ? '<td>' . checkbox('db[]', $i, in_array($i, (array) $_POST['db']), '', '', '', $u) : ''),"<th><a href='$tf' id='$u'>" . h($i) . '</a>';
                 $Wa = nbsp(db_collation($i, $Xa));
                 echo'<td>' . (support('database') ? "<a href='$tf" . ($_f ? '&amp;ns=' : '') . "&amp;database=' title='" . 'Alter database' . "'>$Wa</a>" : $Wa),"<td align='right'><a href='$tf&amp;schema=' id='tables-" . h($i) . "' title='" . 'Database schema' . "'>" . ($_GET['dbsize'] ? $S : '?') . '</a>',"<td align='right' id='size-" . h($i) . "'>" . ($_GET['dbsize'] ? db_size($i) : '?'),"\n";
@@ -3762,7 +3762,7 @@ class TmpFile
         fclose($this->handler);
     }
 }$Zb = "'(?:''|[^'\\\\]|\\\\.)*'";
-$Vc = 'IN|OUT|INOUT';
+$Vc  = 'IN|OUT|INOUT';
 if (isset($_GET['select']) && ($_POST['edit'] || $_POST['clone']) && ! $_POST['save']) {
     $_GET['edit'] = $_GET['select'];
 } if (isset($_GET['callf'])) {
@@ -3841,7 +3841,7 @@ if (isset($_GET['select']) && ($_POST['edit'] || $_POST['clone']) && ! $_POST['s
     foreach ($_d
     as$t => $C) {
         $hg[$C[1]] = [$C[2], $C[3]];
-        $ig[] = "\n\t'" . js_escape($C[1]) . "': [ $C[2], $C[3] ]";
+        $ig[]      = "\n\t'" . js_escape($C[1]) . "': [ $C[2], $C[3] ]";
     }
     $Bg = 0;
     $Ca = -1;
@@ -3852,11 +3852,11 @@ if (isset($_GET['select']) && ($_POST['edit'] || $_POST['clone']) && ! $_POST['s
         if (is_view($R)) {
             continue;
         }
-        $Ne = 0;
+        $Ne               = 0;
         $zf[$Q]['fields'] = [];
         foreach (fields($Q)as$E => $l) {
             $Ne += 1.25;
-            $l['pos'] = $Ne;
+            $l['pos']             = $Ne;
             $zf[$Q]['fields'][$E] = $l;
         }
         $zf[$Q]['pos'] = ($hg[$Q] ? $hg[$Q] : [$Bg, 0]);
@@ -3872,8 +3872,8 @@ if (isset($_GET['select']) && ($_POST['edit'] || $_POST['clone']) && ! $_POST['s
                     $od -= .0001;
                 }
                 $zf[$Q]['references'][$X['table']][(string) $od] = [$X['source'], $X['target']];
-                $kf[$X['table']][$Q][(string) $od] = $X['target'];
-                $qd[(string) $od] = true;
+                $kf[$X['table']][$Q][(string) $od]               = $X['target'];
+                $qd[(string) $od]                                = true;
             }
         }
         $Bg = max($Bg, $zf[$Q]['pos'][0] + 2.5 + $Ne);
@@ -3898,7 +3898,7 @@ document.onmouseup = partialArg(schemaMouseup, \'',js_escape(DB),'\');
             foreach ($lf
             as$od => $hf) {
                 $pd = $od - $hg[$E][1];
-                $t = 0;
+                $t  = 0;
                 foreach ($hf[0]as$Nf) {
                     echo"\n<div class='references' title='" . h($og) . "' id='refs$od-" . ($t++) . "' style='left: $pd" . 'em; top: ' . $Q['fields'][$Nf]['pos'] . "em; padding-top: .5em;'><div style='border-top: 1px solid Gray; width: " . (-$pd) . "em;'></div></div>";
                 }
@@ -3908,7 +3908,7 @@ document.onmouseup = partialArg(schemaMouseup, \'',js_escape(DB),'\');
             foreach ($lf
             as$od => $d) {
                 $pd = $od - $hg[$E][1];
-                $t = 0;
+                $t  = 0;
                 foreach ($d
                 as$ng) {
                     echo"\n<div class='references' title='" . h($og) . "' id='refd$od-" . ($t++) . "' style='left: $pd" . 'em; top: ' . $Q['fields'][$ng]['pos'] . 'em; height: 1.25em; background: url(' . h(preg_replace('~\\?.*~', '', ME) . '?file=arrow.gif) no-repeat right center;&version=4.6.2&driver=mysql') . "'><div style='height: .5em; border-bottom: 1px solid Gray; width: " . (-$pd) . "em;'></div></div>";
@@ -3945,7 +3945,7 @@ document.onmouseup = partialArg(schemaMouseup, \'',js_escape(DB),'\');
             $jb .= "&$z=" . urlencode($_POST[$z]);
         }
         cookie('adminer_export', substr($jb, 1));
-        $S = array_flip((array) $_POST['tables']) + array_flip((array) $_POST['data']);
+        $S  = array_flip((array) $_POST['tables']) + array_flip((array) $_POST['data']);
         $kc = dump_headers((count($S) == 1 ? key($S) : DB), (DB == '' || count($S) > 1));
         $dd = preg_match('~sql~', $_POST['format']);
         if ($dd) {
@@ -3961,7 +3961,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
             }
         }
         $Zf = $_POST['db_style'];
-        $h = [DB];
+        $h  = [DB];
         if (DB == '') {
             $h = $_POST['databases'];
             if (is_string($h)) {
@@ -4008,7 +4008,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                 if ($_POST['table_style'] || $_POST['data_style']) {
                     $gh = [];
                     foreach (table_status('', true)as$E => $R) {
-                        $Q = (DB == '' || in_array($E, (array) $_POST['tables']));
+                        $Q  = (DB == '' || in_array($E, (array) $_POST['tables']));
                         $rb = (DB == '' || in_array($E, (array) $_POST['data']));
                         if ($Q || $rb) {
                             if ($kc == 'tar') {
@@ -4166,8 +4166,8 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
             $I = $_POST['query'];
         } elseif ($_POST['webfile']) {
             $Qf = $b->importServerPath();
-            $p = @fopen((file_exists($Qf) ? $Qf : "compress.zlib://$Qf.gz"), 'rb');
-            $I = ($p ? fread($p, 1e6) : false);
+            $p  = @fopen((file_exists($Qf) ? $Qf : "compress.zlib://$Qf.gz"), 'rb');
+            $I  = ($p ? fread($p, 1e6) : false);
         } else {
             $I = get_file('sql_file', true);
         }
@@ -4188,7 +4188,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
             $_b = ';';
             $Zd = 0;
             $Wb = true;
-            $f = connect();
+            $f  = connect();
             if (is_object($f) && DB != '') {
                 $f->select_db(DB);
             }
@@ -4202,7 +4202,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
             while ($I != '') {
                 if (! $Zd && preg_match("~^$Of*+DELIMITER\\s+(\\S+)~i", $I, $C)) {
                     $_b = $C[1];
-                    $I = substr($I, strlen($C[0]));
+                    $I  = substr($I, strlen($C[0]));
                 } else {
                     preg_match('(' . preg_quote($_b) . "\\s*|$Ce)", $I, $C, PREG_OFFSET_CAPTURE, $Zd);
                     [$zc, $Ne] = $C[0];
@@ -4227,7 +4227,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                             }
                         } else {
                             $Wb = false;
-                            $H = substr($I, 0, $Ne);
+                            $H  = substr($I, 0, $Ne);
                             $ab++;
                             $Ue = "<pre id='sql-$ab'><code class='jush-$y'>" . $b->sqlCommandQuery($H) . "</code></pre>\n";
                             if ($y == 'sqlite' && preg_match("~^$Of*+ATTACH\\b~i", $H, $C)) {
@@ -4266,7 +4266,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                                         $ic = null;
                                         $jc = "explain-$ab";
                                         if (is_object($J)) {
-                                            $_ = $_POST['limit'];
+                                            $_  = $_POST['limit'];
                                             $re = select($J, $f, [], $_);
                                             if (! $_POST['only_errors']) {
                                                 echo"<form action='' method='post'>\n";
@@ -4298,7 +4298,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                                     $Tf = microtime(true);
                                 } while ($e->next_result());
                             }
-                            $I = substr($I, $Zd);
+                            $I  = substr($I, $Zd);
                             $Zd = 0;
                         }
                     }
@@ -4339,7 +4339,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
     if (! isset($_GET['import']) && $Lc) {
         print_fieldset('history', 'History', $_GET['history'] != '');
         for ($X = end($Lc); $X; $X = prev($Lc)) {
-            $z = key($Lc);
+            $z             = key($Lc);
             [$H, $tg, $Rb] = $X;
             echo'<a href="' . h(ME . "sql=&history=$z") . '">' . 'Edit' . '</a>' . " <span class='time' title='" . @date('Y-m-d', $tg) . "'>" . @date('H:i:s', $tg) . '</span>' . " <code class='jush-$y'>" . shorten_utf8(ltrim(str_replace("\n", ' ', str_replace("\r", '', preg_replace('~^(#|-- ).*~m', '', $H)))), 80, '</code>') . ($Rb ? " <span class='time'>($Rb)</span>" : '') . "<br>\n";
         }
@@ -4348,9 +4348,9 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
     echo'</form>
 ';
 } elseif (isset($_GET['edit'])) {
-    $a = $_GET['edit'];
-    $m = fields($a);
-    $Z = (isset($_GET['select']) ? ($_POST['check'] && count($_POST['check']) == 1 ? where_check($_POST['check'][0], $m) : '') : where($_GET, $m));
+    $a  = $_GET['edit'];
+    $m  = fields($a);
+    $Z  = (isset($_GET['select']) ? ($_POST['check'] && count($_POST['check']) == 1 ? where_check($_POST['check'][0], $m) : '') : where($_GET, $m));
     $Tg = (isset($_GET['select']) ? $_POST['edit'] : $Z);
     foreach ($m
     as$E => $l) {
@@ -4365,7 +4365,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
         } elseif (! preg_match('~^.+&select=.+$~', $B)) {
             $B = ME . 'select=' . urlencode($a);
         }
-        $w = indexes($a);
+        $w  = indexes($a);
         $Og = unique_array($_GET['where'], $w);
         $df = "\nWHERE $Z";
         if (isset($_POST['delete'])) {
@@ -4390,7 +4390,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                     exit;
                 }
             } else {
-                $J = $j->insert($a, $P);
+                $J  = $j->insert($a, $P);
                 $nd = ($J ? last_id() : 0);
                 queries_redirect($B, sprintf('Item%s has been inserted.', ($nd ? " $nd" : '')), $J);
             }
@@ -4453,27 +4453,27 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
     }
     edit_form($a, $m, $L, $Tg);
 } elseif (isset($_GET['create'])) {
-    $a = $_GET['create'];
+    $a  = $_GET['create'];
     $De = [];
     foreach (['HASH', 'LINEAR HASH', 'KEY', 'LINEAR KEY', 'RANGE', 'LIST']as$z) {
         $De[$z] = $z;
     }
     $jf = referencable_primary($a);
-    $o = [];
+    $o  = [];
     foreach ($jf
     as$gg => $l) {
         $o[str_replace('`', '``', $gg) . '`' . str_replace('`', '``', $l['field'])] = $gg;
     }
     $ue = [];
-    $R = [];
+    $R  = [];
     if ($a != '') {
         $ue = fields($a);
-        $R = table_status($a);
+        $R  = table_status($a);
         if (! $R) {
             $k = 'No tables.';
         }
     }
-    $L = $_POST;
+    $L           = $_POST;
     $L['fields'] = (array) $L['fields'];
     if ($L['auto_increment_col']) {
         $L['fields'][$L['auto_increment_col']]['auto_increment'] = true;
@@ -4482,14 +4482,14 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
         if ($_POST['drop']) {
             queries_redirect(substr(ME, 0, -1), 'Table has been dropped.', drop_tables([$a]));
         } else {
-            $m = [];
+            $m  = [];
             $ra = [];
             $Xg = false;
             $wc = [];
             $te = reset($ue);
             $pa = ' FIRST';
             foreach ($L['fields']as$z => $l) {
-                $n = $o[$l['type']];
+                $n  = $o[$l['type']];
                 $Jg = ($n !== null ? $jf[$n] : $l);
                 if ($l['field'] != '') {
                     if (! $l['has_default']) {
@@ -4498,7 +4498,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                     if ($z == $L['auto_increment_col']) {
                         $l['auto_increment'] = true;
                     }
-                    $Ze = process_field($l, $Jg);
+                    $Ze   = process_field($l, $Jg);
                     $ra[] = [$l['orig'], $Ze, $pa];
                     if ($Ze != process_field($te, $te)) {
                         $m[] = [$l['orig'], $Ze, $pa];
@@ -4511,7 +4511,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                     }
                     $pa = ' AFTER ' . idf_escape($l['field']);
                 } elseif ($l['orig'] != '') {
-                    $Xg = true;
+                    $Xg  = true;
                     $m[] = [$l['orig']];
                 }
                 if ($l['orig'] != '') {
@@ -4526,7 +4526,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
                 $Ge = [];
                 if ($L['partition_by'] == 'RANGE' || $L['partition_by'] == 'LIST') {
                     foreach (array_filter($L['partition_names'])as$z => $X) {
-                        $Y = $L['partition_values'][$z];
+                        $Y    = $L['partition_values'][$z];
                         $Ge[] = "\n  PARTITION " . idf_escape($X) . ' VALUES ' . ($L['partition_by'] == 'RANGE' ? 'LESS THAN' : 'IN') . ($Y != '' ? " ($Y)" : ' MAXVALUE');
                     }
                 }
@@ -4547,8 +4547,8 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
     if (! $_POST) {
         $L = ['Engine' => $_COOKIE['adminer_engine'], 'fields' => [['field' => '', 'type' => (isset($Lg['int']) ? 'int' : (isset($Lg['integer']) ? 'integer' : '')), 'on_update' => '']], 'partition_names' => ['']];
         if ($a != '') {
-            $L = $R;
-            $L['name'] = $a;
+            $L           = $R;
+            $L['name']   = $a;
             $L['fields'] = [];
             if (! $_GET['auto_increment']) {
                 $L['Auto_increment'] = '';
@@ -4556,16 +4556,16 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
             foreach ($ue
             as$l) {
                 $l['has_default'] = isset($l['default']);
-                $L['fields'][] = $l;
+                $L['fields'][]    = $l;
             }
             if (support('partitioning')) {
-                $Ac = 'FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ' . q(DB) . ' AND TABLE_NAME = ' . q($a);
-                $J = $e->query("SELECT PARTITION_METHOD, PARTITION_ORDINAL_POSITION, PARTITION_EXPRESSION $Ac ORDER BY PARTITION_ORDINAL_POSITION DESC LIMIT 1");
+                $Ac                                                     = 'FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ' . q(DB) . ' AND TABLE_NAME = ' . q($a);
+                $J                                                      = $e->query("SELECT PARTITION_METHOD, PARTITION_ORDINAL_POSITION, PARTITION_EXPRESSION $Ac ORDER BY PARTITION_ORDINAL_POSITION DESC LIMIT 1");
                 [$L['partition_by'], $L['partitions'], $L['partition']] = $J->fetch_row();
-                $Ge = get_key_vals("SELECT PARTITION_NAME, PARTITION_DESCRIPTION $Ac AND PARTITION_NAME != '' ORDER BY PARTITION_ORDINAL_POSITION");
-                $Ge[''] = '';
-                $L['partition_names'] = array_keys($Ge);
-                $L['partition_values'] = array_values($Ge);
+                $Ge                                                     = get_key_vals("SELECT PARTITION_NAME, PARTITION_DESCRIPTION $Ac AND PARTITION_NAME != '' ORDER BY PARTITION_ORDINAL_POSITION");
+                $Ge['']                                                 = '';
+                $L['partition_names']                                   = array_keys($Ge);
+                $L['partition_values']                                  = array_values($Ge);
             }
         }
     }
@@ -4639,16 +4639,16 @@ Partitions: <input type="number" name="partitions" class="size',($Ee || ! $L['pa
 </form>
 ',script("qs('#form')['defaults'].onclick();" . (support('comment') ? " editingCommentsClick.call(qs('#form')['comments']);" : ''));
 } elseif (isset($_GET['indexes'])) {
-    $a = $_GET['indexes'];
+    $a  = $_GET['indexes'];
     $Tc = ['PRIMARY', 'UNIQUE', 'INDEX'];
-    $R = table_status($a, true);
+    $R  = table_status($a, true);
     if (preg_match('~MyISAM|M?aria' . (min_version(5.6, '10.0.5') ? '|InnoDB' : '') . '~i', $R['Engine'])) {
         $Tc[] = 'FULLTEXT';
     }
     if (preg_match('~MyISAM|M?aria' . (min_version(5.7, '10.2.2') ? '|InnoDB' : '') . '~i', $R['Engine'])) {
         $Tc[] = 'SPATIAL';
     }
-    $w = indexes($a);
+    $w  = indexes($a);
     $Te = [];
     if ($y == 'mongo') {
         $Te = $w['_id_'];
@@ -4661,17 +4661,17 @@ Partitions: <input type="number" name="partitions" class="size',($Ee || ! $L['pa
         foreach ($L['indexes']as$v) {
             $E = $v['name'];
             if (in_array($v['type'], $Tc)) {
-                $d = [];
+                $d  = [];
                 $td = [];
                 $Bb = [];
-                $P = [];
+                $P  = [];
                 ksort($v['columns']);
                 foreach ($v['columns']as$z => $c) {
                     if ($c != '') {
-                        $sd = $v['lengths'][$z];
-                        $Ab = $v['descs'][$z];
-                        $P[] = idf_escape($c) . ($sd ? '(' . (+$sd) . ')' : '') . ($Ab ? ' DESC' : '');
-                        $d[] = $c;
+                        $sd   = $v['lengths'][$z];
+                        $Ab   = $v['descs'][$z];
+                        $P[]  = idf_escape($c) . ($sd ? '(' . (+$sd) . ')' : '') . ($Ab ? ' DESC' : '');
+                        $d[]  = $c;
                         $td[] = ($sd ? $sd : null);
                         $Bb[] = $Ab;
                     }
@@ -4717,10 +4717,10 @@ Partitions: <input type="number" name="partitions" class="size',($Ee || ! $L['pa
     if (! $L) {
         foreach ($w
         as$z => $v) {
-            $w[$z]['name'] = $z;
+            $w[$z]['name']      = $z;
             $w[$z]['columns'][] = '';
         }
-        $w[] = ['columns' => [1 => '']];
+        $w[]          = ['columns' => [1 => '']];
         $L['indexes'] = $w;
     } ?>
 
@@ -4773,7 +4773,7 @@ if ($Te) {
                 $_GET['db'] = $E;
                 queries_redirect(preg_replace('~\bdb=[^&]*&~', '', ME) . 'db=' . urlencode($E), 'Database has been renamed.', rename_database($E, $L['collation']));
             } else {
-                $h = explode("\n", str_replace("\r", '', $E));
+                $h  = explode("\n", str_replace("\r", '', $E));
                 $ag = true;
                 $md = '';
                 foreach ($h
@@ -4798,7 +4798,7 @@ if ($Te) {
     }
     page_header(DB != '' ? 'Alter database' : 'Create database', $k, [], h(DB));
     $Xa = collations();
-    $E = DB;
+    $E  = DB;
     if ($_POST) {
         $E = $L['name'];
     } elseif (DB != '') {
@@ -4852,9 +4852,9 @@ if ($Te) {
             }
             $Ja[] = (isset($xe[$z]) ? '@' . idf_escape($l['field']) : $X);
         }
-        $I = (isset($_GET['callf']) ? 'SELECT' : 'CALL') . ' ' . table($da) . '(' . implode(', ', $Ja) . ')';
+        $I  = (isset($_GET['callf']) ? 'SELECT' : 'CALL') . ' ' . table($da) . '(' . implode(', ', $Ja) . ')';
         $Tf = microtime(true);
-        $J = $e->multi_query($I);
+        $J  = $e->multi_query($I);
         $na = $e->affected_rows;
         echo$b->selectQuery($I, $Tf, ! $J);
         if (! $J) {
@@ -4944,11 +4944,11 @@ if ($Te) {
             $L['target'] = [];
         }
     } elseif ($E != '') {
-        $o = foreign_keys($a);
-        $L = $o[$E];
+        $o             = foreign_keys($a);
+        $L             = $o[$E];
         $L['source'][] = '';
     } else {
-        $L['table'] = $a;
+        $L['table']  = $a;
         $L['source'] = [''];
     }
     $Nf = array_keys(fields($a));
@@ -4984,19 +4984,19 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
 </form>
 ';
 } elseif (isset($_GET['view'])) {
-    $a = $_GET['view'];
-    $L = $_POST;
+    $a  = $_GET['view'];
+    $L  = $_POST;
     $ve = 'VIEW';
     if ($y == 'pgsql' && $a != '') {
         $Uf = table_status($a);
         $ve = strtoupper($Uf['Engine']);
     }
     if ($_POST && ! $k) {
-        $E = trim($L['name']);
+        $E  = trim($L['name']);
         $ua = " AS\n$L[select]";
-        $B = ME . 'table=' . urlencode($E);
-        $D = 'View has been altered.';
-        $U = ($_POST['materialized'] ? 'MATERIALIZED VIEW' : 'VIEW');
+        $B  = ME . 'table=' . urlencode($E);
+        $D  = 'View has been altered.';
+        $U  = ($_POST['materialized'] ? 'MATERIALIZED VIEW' : 'VIEW');
         if (! $_POST['drop'] && $a == $E && $y != 'sqlite' && $U == 'VIEW' && $ve == 'VIEW') {
             query_redirect(($y == 'mssql' ? 'ALTER' : 'CREATE OR REPLACE') . ' VIEW ' . table($E) . $ua, $B, $D);
         } else {
@@ -5005,8 +5005,8 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
         }
     }
     if (! $_POST && $a != '') {
-        $L = view($a);
-        $L['name'] = $a;
+        $L                 = view($a);
+        $L['name']         = $a;
         $L['materialized'] = ($ve != 'VIEW');
         if (! $k) {
             $k = error();
@@ -5031,7 +5031,7 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
     $aa = $_GET['event'];
     $Yc = ['YEAR', 'QUARTER', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'WEEK', 'SECOND', 'YEAR_MONTH', 'DAY_HOUR', 'DAY_MINUTE', 'DAY_SECOND', 'HOUR_MINUTE', 'HOUR_SECOND', 'MINUTE_SECOND'];
     $Vf = ['ENABLED' => 'ENABLE', 'DISABLED' => 'DISABLE', 'SLAVESIDE_DISABLED' => 'DISABLE ON SLAVE'];
-    $L = $_POST;
+    $L  = $_POST;
     if ($_POST && ! $k) {
         if ($_POST['drop']) {
             query_redirect('DROP EVENT ' . idf_escape($aa), substr(ME, 0, -1), 'Event has been dropped.');
@@ -5065,9 +5065,9 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
 </form>
 ';
 } elseif (isset($_GET['procedure'])) {
-    $da = ($_GET['name'] ? $_GET['name'] : $_GET['procedure']);
-    $uf = (isset($_GET['function']) ? 'FUNCTION' : 'PROCEDURE');
-    $L = $_POST;
+    $da          = ($_GET['name'] ? $_GET['name'] : $_GET['procedure']);
+    $uf          = (isset($_GET['function']) ? 'FUNCTION' : 'PROCEDURE');
+    $L           = $_POST;
     $L['fields'] = (array) $L['fields'];
     if ($_POST && ! process_fields($L['fields']) && ! $k) {
         $se = routine($_GET['procedure'], $uf);
@@ -5076,7 +5076,7 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
     }
     page_header(($da != '' ? (isset($_GET['function']) ? 'Alter function' : 'Alter procedure') . ': ' . h($da) : (isset($_GET['function']) ? 'Create function' : 'Create procedure')), $k);
     if (! $_POST && $da != '') {
-        $L = routine($_GET['procedure'], $uf);
+        $L         = routine($_GET['procedure'], $uf);
         $L['name'] = $da;
     }
     $Xa = get_vals('SHOW CHARACTER SET');
@@ -5106,15 +5106,15 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
 </form>
 ';
 } elseif (isset($_GET['trigger'])) {
-    $a = $_GET['trigger'];
-    $E = $_GET['name'];
+    $a  = $_GET['trigger'];
+    $E  = $_GET['name'];
     $Hg = trigger_options();
-    $L = (array) trigger($E) + ['Trigger' => $a . '_bi'];
+    $L  = (array) trigger($E) + ['Trigger' => $a . '_bi'];
     if ($_POST) {
         if (! $k && in_array($_POST['Timing'], $Hg['Timing']) && in_array($_POST['Event'], $Hg['Event']) && in_array($_POST['Type'], $Hg['Type'])) {
             $fe = ' ON ' . table($a);
             $Jb = 'DROP TRIGGER ' . idf_escape($E) . ($y == 'pgsql' ? $fe : '');
-            $B = ME . 'table=' . urlencode($a);
+            $B  = ME . 'table=' . urlencode($a);
             if ($_POST['drop']) {
                 query_redirect($Jb, $B, 'Trigger has been dropped.');
             } else {
@@ -5200,13 +5200,13 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
             $He = $_POST['pass'];
             if ($He != '' && ! $_POST['hashed']) {
                 $He = $e->result('SELECT PASSWORD(' . q($He) . ')');
-                $k = ! $He;
+                $k  = ! $He;
             }
             $lb = false;
             if (! $k) {
                 if ($ee != $Td) {
                     $lb = queries((min_version(5) ? 'CREATE USER' : 'GRANT USAGE ON *.* TO') . " $Td IDENTIFIED BY PASSWORD " . q($He));
-                    $k = ! $lb;
+                    $k  = ! $lb;
                 } elseif ($He != $de) {
                     queries("SET PASSWORD FOR $Td = " . q($He));
                 }
@@ -5224,7 +5224,7 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                     } elseif ($ee == $Td) {
                         $be = array_keys((array) $Cc[$Yd]);
                         $rf = array_diff($be, $r);
-                        $r = array_diff($r, $be);
+                        $r  = array_diff($r, $be);
                         unset($Cc[$Yd]);
                     }
                     if (preg_match('~^(.+)\\s*(\\(.*\\))?$~U', $Yd, $C) && (! grant('REVOKE', $rf, $C[2], " ON $C[1] FROM $Td") || ! grant('GRANT', $r, $C[2], " ON $C[1] TO $Td"))) {
@@ -5253,10 +5253,10 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
     }
     page_header((isset($_GET['host']) ? 'Username' . ': ' . h("$fa@$_GET[host]") : 'Create user'), $k, ['privileges' => ['', 'Privileges']]);
     if ($_POST) {
-        $L = $_POST;
+        $L  = $_POST;
         $Cc = $Rd;
     } else {
-        $L = $_GET + ['host' => $e->result("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', -1)")];
+        $L         = $_GET + ['host' => $e->result("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', -1)")];
         $L['pass'] = $de;
         if ($de != '') {
             $L['hashed'] = true;
@@ -5355,15 +5355,15 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
 </form>
 ',script('tableCheck();');
 } elseif (isset($_GET['select'])) {
-    $a = $_GET['select'];
-    $R = table_status1($a);
-    $w = indexes($a);
-    $m = fields($a);
-    $o = column_foreign_keys($a);
+    $a  = $_GET['select'];
+    $R  = table_status1($a);
+    $w  = indexes($a);
+    $m  = fields($a);
+    $o  = column_foreign_keys($a);
     $ae = $R['Oid'];
     parse_str($_COOKIE['adminer_import'], $ma);
     $sf = [];
-    $d = [];
+    $d  = [];
     $sg = null;
     foreach ($m
     as$z => $l) {
@@ -5377,17 +5377,17 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
         $sf += $l['privileges'];
     }
     [$N, $s] = $b->selectColumnsProcess($d, $w);
-    $cd = count($s) < count($N);
-    $Z = $b->selectSearchProcess($m, $w);
-    $oe = $b->selectOrderProcess($m, $w);
-    $_ = $b->selectLimitProcess();
+    $cd      = count($s) < count($N);
+    $Z       = $b->selectSearchProcess($m, $w);
+    $oe      = $b->selectOrderProcess($m, $w);
+    $_       = $b->selectLimitProcess();
     if ($_GET['val'] && is_ajax()) {
         header('Content-Type: text/plain; charset=utf-8');
         foreach ($_GET['val']as$Pg => $L) {
-            $ua = convert_field($m[key($L)]);
-            $N = [$ua ? $ua : idf_escape(key($L))];
+            $ua  = convert_field($m[key($L)]);
+            $N   = [$ua ? $ua : idf_escape(key($L))];
             $Z[] = where_check($Pg, $m);
-            $K = $j->select($a, $N, $Z, $N);
+            $K   = $j->select($a, $N, $Z, $N);
             if ($K) {
                 echo
                 reset($K->fetch_row());
@@ -5411,7 +5411,7 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
         }
     }
     if ($ae && ! $Te) {
-        $Te = $Rg = [$ae => 0];
+        $Te  = $Rg = [$ae => 0];
         $w[] = ['type' => 'PRIMARY', 'columns' => [$ae]];
     }
     if ($_POST && ! $k) {
@@ -5444,9 +5444,9 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
         }
         if (! $b->selectEmailProcess($Z, $o)) {
             if ($_POST['save'] || $_POST['delete']) {
-                $J = true;
+                $J  = true;
                 $na = 0;
-                $P = [];
+                $P  = [];
                 if (! $_POST['delete']) {
                     foreach ($d
                     as$E => $X) {
@@ -5461,12 +5461,12 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                         $I = 'INTO ' . table($a) . ' (' . implode(', ', array_keys($P)) . ")\nSELECT " . implode(', ', $P) . "\nFROM " . table($a);
                     }
                     if ($_POST['all'] || ($Te && is_array($_POST['check'])) || $cd) {
-                        $J = ($_POST['delete'] ? $j->delete($a, $mh) : ($_POST['clone'] ? queries("INSERT $I$mh") : $j->update($a, $P, $mh)));
+                        $J  = ($_POST['delete'] ? $j->delete($a, $mh) : ($_POST['clone'] ? queries("INSERT $I$mh") : $j->update($a, $P, $mh)));
                         $na = $e->affected_rows;
                     } else {
                         foreach ((array) $_POST['check']as$X) {
                             $lh = "\nWHERE " . ($Z ? implode(' AND ', $Z) . ' AND ' : '') . where_check($X, $m);
-                            $J = ($_POST['delete'] ? $j->delete($a, $lh, 1) : ($_POST['clone'] ? queries('INSERT' . limit1($a, $I, $lh)) : $j->update($a, $P, $lh, 1)));
+                            $J  = ($_POST['delete'] ? $j->delete($a, $lh, 1) : ($_POST['clone'] ? queries('INSERT' . limit1($a, $I, $lh)) : $j->update($a, $P, $lh, 1)));
                             if (! $J) {
                                 break;
                             }
@@ -5491,13 +5491,13 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                 if (! $_POST['val']) {
                     $k = 'Ctrl+click on a value to modify it.';
                 } else {
-                    $J = true;
+                    $J  = true;
                     $na = 0;
                     foreach ($_POST['val']as$Pg => $L) {
                         $P = [];
                         foreach ($L
                         as$z => $X) {
-                            $z = bracket_escape($z, 1);
+                            $z                 = bracket_escape($z, 1);
                             $P[idf_escape($z)] = (preg_match('~char|text~', $m[$z]['type']) || $X != '' ? $b->processInput($m[$z], $X) : 'NULL');
                         }
                         $J = $j->update($a, $P, ' WHERE ' . ($Z ? implode(' AND ', $Z) . ' AND ' : '') . where_check($Pg, $m), ! $cd && ! $Te, ' ');
@@ -5514,13 +5514,13 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                 $k = 'File must be in UTF-8 encoding.';
             } else {
                 cookie('adminer_import', 'output=' . urlencode($ma['output']) . '&format=' . urlencode($_POST['separator']));
-                $J = true;
+                $J  = true;
                 $Ya = array_keys($m);
                 preg_match_all('~(?>"[^"]*"|[^"\\r\\n]+)+~', $rc, $_d);
                 $na = count($_d[0]);
                 $j->begin();
                 $Ff = ($_POST['separator'] == 'csv' ? ',' : ($_POST['separator'] == 'tsv' ? "\t" : ';'));
-                $M = [];
+                $M  = [];
                 foreach ($_d[0]as$z => $X) {
                     preg_match_all("~((?>\"[^\"]*\")+|[^$Ff]*)$Ff~", $X . $Ff, $Ad);
                     if (! $z && ! array_diff($Ad[1], $Ya)) {
@@ -5577,13 +5577,13 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
         $F = $_GET['page'];
         if ($F == 'last') {
             $_c = $e->result(count_rows($a, $Z, $cd, $s));
-            $F = floor(max(0, $_c - 1) / $_);
+            $F  = floor(max(0, $_c - 1) / $_);
         }
         $Af = $N;
         $Dc = $s;
         if (! $Af) {
             $Af[] = '*';
-            $ib = convert_fields($d, $m, $N);
+            $ib   = convert_fields($d, $m, $N);
             if ($ib) {
                 $Af[] = substr($ib, 2);
             }
@@ -5640,9 +5640,9 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                         if ($E != '') {
                             $ff++;
                             $Qd[$z] = $E;
-                            $c = idf_escape($z);
-                            $Oc = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($z);
-                            $Ab = '&desc%5B0%5D=1';
+                            $c      = idf_escape($z);
+                            $Oc     = remove_from_uri('(order|desc)[^=]*|page') . '&order%5B0%5D=' . urlencode($z);
+                            $Ab     = '&desc%5B0%5D=1';
                             echo'<th>' . script("mixin(qsl('th'), {onmouseover: partial(columnMouse), onmouseout: partial(columnMouse, ' hidden')});", ''),'<a href="' . h($Oc . ($oe[0] == $c || $oe[0] == $z || (! $oe && $cd && $s[0] == $c) ? $Ab : '')) . '">';
                             echo
                             apply_sql_function($X['fun'], $E) . '</a>';
@@ -5736,9 +5736,9 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                                     $A .= where_link($t++, $fd, $W);
                                 }
                             }
-                            $X = select_value($X, $A, $l, $sg);
-                            $u = h("val[$Pg][" . bracket_escape($z) . ']');
-                            $Y = $_POST['val'][$Pg][bracket_escape($z)];
+                            $X  = select_value($X, $A, $l, $sg);
+                            $u  = h("val[$Pg][" . bracket_escape($z) . ']');
+                            $Y  = $_POST['val'][$Pg][bracket_escape($z)];
                             $Qb = ! is_array($L[$z]) && is_utf8($X) && $M[$Pd][$z] == $L[$z] && ! $Bc[$z];
                             $rg = preg_match('~text|lob~', $l['type']);
                             if (($_GET['modify'] && $Qb) || $Y !== null) {
@@ -5954,7 +5954,7 @@ ON DELETE: ',html_select('on_delete', [-1 => ''] + explode('|', $ge), $L['on_del
                 foreach ($kg
                 as$E => $U) {
                     $fh = ($U !== null && ! preg_match('~table~i', $U));
-                    $u = h('Table-' . $E);
+                    $u  = h('Table-' . $E);
                     echo'<tr' . odd() . '><td>' . checkbox(($fh ? 'views[]' : 'tables[]'), $E, in_array($E, $lg, true), '', '', '', $u),'<th>' . (support('table') || support('indexes') ? "<a href='" . h(ME) . 'table=' . urlencode($E) . "' title='" . 'Show structure' . "' id='$u'>" . h($E) . '</a>' : h($E));
                     if ($fh) {
                         echo'<td colspan="6"><a href="' . h(ME) . 'view=' . urlencode($E) . '" title="' . 'Alter view' . '">' . (preg_match('~materialized~i', $U) ? 'Materialized view' : 'View') . '</a>','<td align="right"><a href="' . h(ME) . 'select=' . urlencode($E) . '" title="' . 'Select data' . '">?</a>';

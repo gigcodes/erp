@@ -31,7 +31,7 @@ class LandingPageProduct extends Model
     const STATUS = [
         'De-active',
         'Active',
-        'APPROVED' => 2,
+        'APPROVED'      => 2,
         'USER_UPLOADED' => 'User Uploaded',
     ];
 
@@ -53,7 +53,7 @@ class LandingPageProduct extends Model
         }
 
         // create a html for submit the file
-        $html = [];
+        $html   = [];
         $html[] = ($product) ? $product->short_description : $this->description;
 
         if (! empty($landingPageProduct->composition)) {
@@ -77,14 +77,14 @@ class LandingPageProduct extends Model
         if ($landingPageProduct) {
             $productData = [
                 'product' => [
-                    'images' => [],
-                    'product_type' => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : '',
+                    'images'          => [],
+                    'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : '',
                     'published_scope' => 'web',
-                    'title' => ($product) ? $product->name : $this->name,
-                    'body_html' => implode('<br>', $html),
-                    'vendor' => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : '',
-                    'tags' => 'Home Page',
-                    'barcode' => $landingPageProduct->id,
+                    'title'           => ($product) ? $product->name : $this->name,
+                    'body_html'       => implode('<br>', $html),
+                    'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : '',
+                    'tags'            => 'Home Page',
+                    'barcode'         => $landingPageProduct->id,
                 ],
             ];
         }
@@ -102,13 +102,13 @@ class LandingPageProduct extends Model
         }
 
         $generalOptions = [
-            'barcode' => (string) ($product) ? $product->id : $this->product_id,
-            'fulfillment_service' => 'manual',
-            'requires_shipping' => true,
-            'sku' => $landingPageProduct->sku,
-            'title' => ($product) ? $product->name : (string) $this->name,
+            'barcode'              => (string) ($product) ? $product->id : $this->product_id,
+            'fulfillment_service'  => 'manual',
+            'requires_shipping'    => true,
+            'sku'                  => $landingPageProduct->sku,
+            'title'                => ($product) ? $product->name : (string) $this->name,
             'inventory_management' => 'shopify',
-            'inventory_policy' => 'deny',
+            'inventory_policy'     => 'deny',
         ];
 
         if ($product) {
@@ -118,23 +118,23 @@ class LandingPageProduct extends Model
         }
 
         if ($this->stock_status != 1) {
-            $productData['product']['published'] = false;
+            $productData['product']['published']       = false;
             $productData['product']['published_scope'] = false;
         } else {
-            $productData['product']['published'] = true;
+            $productData['product']['published']       = true;
             $productData['product']['published_scope'] = 'web';
         }
 
         if (! empty($landingPageProduct->size)) {
             $productSizes = explode(',', $landingPageProduct->size);
-            $values = [];
-            $sizeOptions = [];
+            $values       = [];
+            $sizeOptions  = [];
             foreach ($productSizes as $size) {
                 array_push($values, (string) $size);
                 $sizeOptions[$size] = $this->price;
             }
             $variantsOption = [
-                'name' => 'sizes',
+                'name'   => 'sizes',
                 'values' => $values,
             ];
             $productData['product']['options'][] = $variantsOption;
@@ -150,7 +150,7 @@ class LandingPageProduct extends Model
                 $countryList = [];
                 foreach ($countryGroups as $cg) {
                     array_push($countryList, (string) $cg->name);
-                    $price = $landingPageProduct->getPrice($this->store_website_id, $cg->id);
+                    $price        = $landingPageProduct->getPrice($this->store_website_id, $cg->id);
                     $firstCountry = $cg->groupItems->first();
                     // get the duty price of first country to see
                     $dutyPrice = 0;
@@ -160,7 +160,7 @@ class LandingPageProduct extends Model
                     $countryGroupOptions[$cg->name] = $price['total'] + $dutyPrice;
                 }
                 $variantsOption = [
-                    'name' => 'country',
+                    'name'   => 'country',
                     'values' => $countryList,
                 ];
                 $productData['product']['options'][] = $variantsOption;
@@ -170,14 +170,14 @@ class LandingPageProduct extends Model
         foreach ($countryGroupOptions as $k => $v) {
             if (! empty($sizeOptions)) {
                 foreach ($sizeOptions as $p => $d) {
-                    $generalOptions['option1'] = $p;
-                    $generalOptions['option2'] = $k;
-                    $generalOptions['price'] = $v;
+                    $generalOptions['option1']            = $p;
+                    $generalOptions['option2']            = $k;
+                    $generalOptions['price']              = $v;
                     $productData['product']['variants'][] = $generalOptions;
                 }
             } else {
-                $generalOptions['option1'] = $k;
-                $generalOptions['price'] = $v;
+                $generalOptions['option1']            = $k;
+                $generalOptions['price']              = $v;
                 $productData['product']['variants'][] = $generalOptions;
             }
         }

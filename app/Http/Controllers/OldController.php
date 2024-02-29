@@ -28,7 +28,8 @@ class OldController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  mixed  $old get old model
+     * @param mixed $old get old model
+     *
      * @return void
      */
     public function __construct(protected Old $old)
@@ -83,11 +84,11 @@ class OldController extends Controller
                 }
 
                 $title = 'Old Info';
-                $type = '2';
+                $type  = '2';
             } else {
-                $olds = Old::paginate(10);
+                $olds  = Old::paginate(10);
                 $title = 'Old Info';
-                $type = '2';
+                $type  = '2';
             }
         } elseif ($request->type == 0 && $request->type != null) {
             if ($request->term != null || $request->status != null) {
@@ -123,7 +124,7 @@ class OldController extends Controller
                 $olds = Old::where('is_payable', 0)->paginate(10);
             }
             $title = 'Old Incoming Info';
-            $type = 0;
+            $type  = 0;
         } elseif ($request->type == 1 && $request->type != null) {
             if ($request->term != null || $request->status != null) {
                 if ($request->status && $request->term) {
@@ -158,24 +159,24 @@ class OldController extends Controller
                 $olds = Old::where('is_payable', 1)->paginate(10);
             }
             $title = 'Old Outgoing Info';
-            $type = 1;
+            $type  = 1;
         } else {
-            $olds = Old::paginate(10);
+            $olds  = Old::paginate(10);
             $title = 'Old Info';
-            $type = '2';
+            $type  = '2';
         }
 
         $old_categories = OldCategory::all();
-        $users = User::all();
-        $status = $this->old->getStatus();
+        $users          = User::all();
+        $status         = $this->old->getStatus();
 
         return view('old.index', [
-            'olds' => $olds,
+            'olds'           => $olds,
             'old_categories' => $old_categories,
-            'users' => $users,
-            'title' => $title,
-            'type' => $type,
-            'status' => $status,
+            'users'          => $users,
+            'title'          => $title,
+            'type'           => $type,
+            'status'         => $status,
         ]);
     }
 
@@ -196,8 +197,8 @@ class OldController extends Controller
      */
     public function store(Request $request)
     {
-        $new = new Old();
-        $new->name = $request->name ?? '';
+        $new              = new Old();
+        $new->name        = $request->name ?? '';
         $new->description = $request->description ?? '';
         if ($request->amount == null) {
             $new->amount = 0;
@@ -205,21 +206,21 @@ class OldController extends Controller
             $new->amount = $request->amount;
         }
 
-        $new->email = $request->email ?? '';
-        $new->number = $request->number ?? '';
-        $new->address = $request->address ?? '';
-        $new->phone = $request->phone ?? '';
-        $new->gst = $request->gst ?? '';
-        $new->amount = $request->amount ?? '';
-        $new->account_name = $request->account_name ?? '';
-        $new->account_number = $request->account_number ?? '';
-        $new->account_iban = $request->account_iban ?? '';
-        $new->account_swift = $request->account_swift ?? '';
-        $new->category_id = $request->category_id;
+        $new->email           = $request->email ?? '';
+        $new->number          = $request->number ?? '';
+        $new->address         = $request->address ?? '';
+        $new->phone           = $request->phone ?? '';
+        $new->gst             = $request->gst ?? '';
+        $new->amount          = $request->amount ?? '';
+        $new->account_name    = $request->account_name ?? '';
+        $new->account_number  = $request->account_number ?? '';
+        $new->account_iban    = $request->account_iban ?? '';
+        $new->account_swift   = $request->account_swift ?? '';
+        $new->category_id     = $request->category_id;
         $new->pending_payment = $request->pending_payment ?? '';
-        $new->currency = $request->currency ?? '';
-        $new->is_payable = $request->is_payable ?? '';
-        $new->status = $request->status ?? '';
+        $new->currency        = $request->currency ?? '';
+        $new->is_payable      = $request->is_payable ?? '';
+        $new->status          = $request->status ?? '';
         $new->save();
 
         Session::flash('success', 'Record Created');
@@ -230,37 +231,40 @@ class OldController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $old = Old::find($id);
-        $old_categories = OldCategory::all();
-        $old_show = true;
-        $emails = [];
+        $old              = Old::find($id);
+        $old_categories   = OldCategory::all();
+        $old_show         = true;
+        $emails           = [];
         $reply_categories = ReplyCategory::all();
-        $users_array = Helpers::getUserArray(User::all());
+        $users_array      = Helpers::getUserArray(User::all());
 
         return view('old.show', [
-            'old' => $old,
-            'old_categories' => $old_categories,
-            'old_show' => $old_show,
+            'old'              => $old,
+            'old_categories'   => $old_categories,
+            'old_show'         => $old_show,
             'reply_categories' => $reply_categories,
-            'users_array' => $users_array,
-            'emails' => $emails,
+            'users_array'      => $users_array,
+            'emails'           => $emails,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $serial_no
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($serial_no)
     {
-        $old = $this->old::where('serial_no', $serial_no)->first();
+        $old    = $this->old::where('serial_no', $serial_no)->first();
         $status = $this->old->getStatus();
 
         return view('old.edit', compact('status', 'old'));
@@ -269,13 +273,15 @@ class OldController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $serial_no
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $serial_no)
     {
-        $new = Old::findorfail($serial_no);
-        $new->name = $request->name;
+        $new              = Old::findorfail($serial_no);
+        $new->name        = $request->name;
         $new->description = $request->description;
         if ($request->amount == null) {
             $new->amount = 0;
@@ -283,18 +289,18 @@ class OldController extends Controller
             $new->amount = $request->amount;
         }
 
-        $new->email = $request->email;
-        $new->number = $request->number;
-        $new->address = $request->address;
-        $new->phone = $request->phone;
-        $new->gst = $request->gst;
-        $new->account_name = $request->account_name;
-        $new->account_number = $request->account_number;
-        $new->account_iban = $request->account_iban;
-        $new->account_swift = $request->account_swift;
-        $new->category_id = $request->category_id;
+        $new->email           = $request->email;
+        $new->number          = $request->number;
+        $new->address         = $request->address;
+        $new->phone           = $request->phone;
+        $new->gst             = $request->gst;
+        $new->account_name    = $request->account_name;
+        $new->account_number  = $request->account_number;
+        $new->account_iban    = $request->account_iban;
+        $new->account_swift   = $request->account_swift;
+        $new->category_id     = $request->category_id;
         $new->pending_payment = $request->pending_payment;
-        $new->currency = $request->currency;
+        $new->currency        = $request->currency;
         $new->update();
 
         Session::flash('success', 'Record Updated');
@@ -306,7 +312,8 @@ class OldController extends Controller
      * Remove the specified resource from storage.
      * Destroy Old Issues
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -378,8 +385,8 @@ class OldController extends Controller
     public function addRemark(Request $request)
     {
         $remark = OldRemark::create([
-            'old_id' => $request->id,
-            'remark' => $request->remark,
+            'old_id'    => $request->id,
+            'remark'    => $request->remark,
             'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
         ]);
 
@@ -393,8 +400,8 @@ class OldController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'email.*' => 'required|email',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         $old = Old::find($request->old_id);
@@ -412,7 +419,7 @@ class OldController extends Controller
                 }
             }
 
-            $cc = $bcc = [];
+            $cc     = $bcc = [];
             $emails = $request->email;
 
             if ($request->has('cc')) {
@@ -441,17 +448,17 @@ class OldController extends Controller
             }
 
             $params = [
-                'model_id' => $old->serial_no,
-                'model_type' => Old::class,
-                'from' => 'buying@amourint.com',
-                'to' => $request->email[0],
-                'seen' => 1,
-                'subject' => $request->subject,
-                'message' => $request->message,
-                'template' => 'customer-simple',
+                'model_id'        => $old->serial_no,
+                'model_type'      => Old::class,
+                'from'            => 'buying@amourint.com',
+                'to'              => $request->email[0],
+                'seen'            => 1,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null,
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -466,8 +473,8 @@ class OldController extends Controller
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
-            'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email',
+            'cc.*'    => 'nullable|email',
+            'bcc.*'   => 'nullable|email',
         ]);
 
         if ($request->olds) {
@@ -525,17 +532,17 @@ class OldController extends Controller
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
             $params = [
-                'model_id' => $old->serial_no,
-                'model_type' => Old::class,
-                'from' => 'buying@amourint.com',
-                'seen' => 1,
-                'to' => $old->email,
-                'subject' => $request->subject,
-                'message' => $request->message,
-                'template' => 'customer-simple',
+                'model_id'        => $old->serial_no,
+                'model_type'      => Old::class,
+                'from'            => 'buying@amourint.com',
+                'seen'            => 1,
+                'to'              => $old->email,
+                'subject'         => $request->subject,
+                'message'         => $request->message,
+                'template'        => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null,
+                'cc'              => $cc ?: null,
+                'bcc'             => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -547,15 +554,15 @@ class OldController extends Controller
     //Recieve Email
     public function emailInbox(Request $request)
     {
-        $cm = new ClientManager();
+        $cm   = new ClientManager();
         $imap = $cm->make([
-            'host' => 'mail.myinteriormart.com',
-            'port' => 143,
-            'encryption' => 'tls',
+            'host'          => 'mail.myinteriormart.com',
+            'port'          => 143,
+            'encryption'    => 'tls',
             'validate_cert' => false,
-            'username' => 'suggestion@myinteriormart.com',
-            'password' => 'FIVEthousand',
-            'protocol' => 'imap',
+            'username'      => 'suggestion@myinteriormart.com',
+            'password'      => 'FIVEthousand',
+            'protocol'      => 'imap',
         ]);
 
         $imap->connect();
@@ -564,12 +571,12 @@ class OldController extends Controller
 
         if ($request->type == 'inbox') {
             $inbox_name = 'INBOX';
-            $direction = 'from';
-            $type = 'incoming';
+            $direction  = 'from';
+            $type       = 'incoming';
         } else {
             $inbox_name = 'INBOX.Sent';
-            $direction = 'to';
-            $type = 'outgoing';
+            $direction  = 'to';
+            $type       = 'outgoing';
         }
 
         $inbox = $imap->getFolder($inbox_name);
@@ -608,28 +615,28 @@ class OldController extends Controller
         $db_emails = $old->emails()->with('model')->where('type', $type)->get();
 
         $emails_array = [];
-        $count = 0;
+        $count        = 0;
         foreach ($db_emails as $key2 => $email) {
             $dateCreated = $email->created_at->format('D, d M Y');
             $timeCreated = $email->created_at->format('H:i');
-            $userName = null;
+            $userName    = null;
             if ($email->model instanceof Supplier) {
                 $userName = $email->model->supplier;
             } elseif ($email->model instanceof Customer) {
                 $userName = $email->model->name;
             }
 
-            $emails_array[$count + $key2]['id'] = $email->id;
-            $emails_array[$count + $key2]['subject'] = $email->subject;
-            $emails_array[$count + $key2]['seen'] = $email->seen;
-            $emails_array[$count + $key2]['type'] = $email->type;
-            $emails_array[$count + $key2]['date'] = $email->created_at;
-            $emails_array[$count + $key2]['from'] = $email->from;
-            $emails_array[$count + $key2]['to'] = $email->to;
-            $emails_array[$count + $key2]['message'] = $email->message;
-            $emails_array[$count + $key2]['cc'] = $email->cc;
-            $emails_array[$count + $key2]['bcc'] = $email->bcc;
-            $emails_array[$count + $key2]['replyInfo'] = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
+            $emails_array[$count + $key2]['id']          = $email->id;
+            $emails_array[$count + $key2]['subject']     = $email->subject;
+            $emails_array[$count + $key2]['seen']        = $email->seen;
+            $emails_array[$count + $key2]['type']        = $email->type;
+            $emails_array[$count + $key2]['date']        = $email->created_at;
+            $emails_array[$count + $key2]['from']        = $email->from;
+            $emails_array[$count + $key2]['to']          = $email->to;
+            $emails_array[$count + $key2]['message']     = $email->message;
+            $emails_array[$count + $key2]['cc']          = $email->cc;
+            $emails_array[$count + $key2]['bcc']         = $email->bcc;
+            $emails_array[$count + $key2]['replyInfo']   = "On {$dateCreated} at {$timeCreated}, $userName <{$email->from}> wrote:";
             $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
@@ -640,10 +647,10 @@ class OldController extends Controller
 
         $emails_array = array_reverse($emails_array);
 
-        $perPage = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = 10;
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+        $emails       = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
 
         $view = view('old.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
@@ -658,26 +665,26 @@ class OldController extends Controller
 
             if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
                 $attachments_array = [];
-                $attachments = $email->getAttachments();
+                $attachments       = $email->getAttachments();
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                    $path = 'email-attachments/' . $attachment->name;
+                    $path                = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
                 $params = [
-                    'model_id' => $old->serial_no,
-                    'model_type' => Old::class,
-                    'type' => $type,
-                    'seen' => $email->getFlags()['seen'],
-                    'from' => $email->getFrom()[0]->mail,
-                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                    'subject' => $email->getSubject(),
-                    'message' => $content,
-                    'template' => 'customer-simple',
+                    'model_id'        => $old->serial_no,
+                    'model_type'      => Old::class,
+                    'type'            => $type,
+                    'seen'            => $email->getFlags()['seen'],
+                    'from'            => $email->getFrom()[0]->mail,
+                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject'         => $email->getSubject(),
+                    'message'         => $content,
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $attachments_array]),
-                    'created_at' => $email->getDate(),
+                    'created_at'      => $email->getDate(),
                 ];
 
                 Email::create($params);
@@ -688,12 +695,12 @@ class OldController extends Controller
     // Payment Index
     public function paymentindex($id)
     {
-        $old = Old::findorfail($id);
+        $old      = Old::findorfail($id);
         $payments = $old->payments()->orderBy('payment_date')->paginate(50);
 
         return view('old.payments', [
-            'payments' => $payments,
-            'old' => $old,
+            'payments'   => $payments,
+            'old'        => $old,
             'currencies' => Helpers::currencies(),
         ]);
     }
@@ -703,10 +710,10 @@ class OldController extends Controller
     {
         //dd($request);
         $this->validate($request, [
-            'currency' => 'required|numeric',
+            'currency'     => 'required|numeric',
             'payment_date' => 'required|date',
-            'paid_date' => 'sometimes|nullable|date',
-            'paid_amount' => 'sometimes|nullable|numeric',
+            'paid_date'    => 'sometimes|nullable|date',
+            'paid_amount'  => 'sometimes|nullable|numeric',
         ]);
         try {
             $status = 0;
@@ -723,20 +730,20 @@ class OldController extends Controller
 
             $vendor_payment = $old->payments()->create([
                 'service_provided' => $request->get('service_provided'),
-                'payment_date' => $request->get('payment_date'),
-                'payable_amount' => $old->amount,
-                'paid_date' => $request->get('paid_date'),
-                'paid_amount' => $request->get('paid_amount'),
-                'description' => $request->get('description'),
-                'module' => $request->get('module'),
-                'work_hour' => $request->get('work_hour'),
-                'currency' => $request->get('currency'),
-                'status' => $status,
+                'payment_date'     => $request->get('payment_date'),
+                'payable_amount'   => $old->amount,
+                'paid_date'        => $request->get('paid_date'),
+                'paid_amount'      => $request->get('paid_amount'),
+                'description'      => $request->get('description'),
+                'module'           => $request->get('module'),
+                'work_hour'        => $request->get('work_hour'),
+                'currency'         => $request->get('currency'),
+                'status'           => $status,
             ]);
 
             if ($vendor_payment != null) {
                 if ($old->pending_payment == $request->paid_amount) {
-                    $old->status = 'paid';
+                    $old->status          = 'paid';
                     $old->pending_payment = ($old->pending_payment - $request->paid_amount);
                     $old->update();
 
@@ -772,13 +779,13 @@ class OldController extends Controller
 
     public function updateOld(Request $request)
     {
-        $old = Old::findorfail($request->id);
+        $old         = Old::findorfail($request->id);
         $old->status = $request->value;
         $old->save();
 
         return Response::json([
             'success' => true,
-            'data' => $old,
+            'data'    => $old,
         ]);
     }
 }

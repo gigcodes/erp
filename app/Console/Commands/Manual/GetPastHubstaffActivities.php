@@ -51,13 +51,13 @@ class GetPastHubstaffActivities extends Command
         $now = time();
 
         $startString = $this->argument('start');
-        $endString = $this->argument('end');
-        $userIds = $this->argument('user_ids');
-        $userIds = explode(',', $userIds);
-        $userIds = array_filter($userIds);
+        $endString   = $this->argument('end');
+        $userIds     = $this->argument('user_ids');
+        $userIds     = explode(',', $userIds);
+        $userIds     = array_filter($userIds);
 
         $start = strtotime($startString . ' UTC');
-        $now = strtotime($endString . ' UTC');
+        $now   = strtotime($endString . ' UTC');
 
         while ($start < $now) {
             $end = $start + 7 * 24 * 60 * 60; // 1 week limited by API
@@ -75,13 +75,13 @@ class GetPastHubstaffActivities extends Command
                         'id' => $id,
                     ],
                     [
-                        'user_id' => $data['user_id'],
-                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
+                        'user_id'   => $data['user_id'],
+                        'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
-                        'tracked' => $data['tracked'],
-                        'keyboard' => $data['keyboard'],
-                        'mouse' => $data['mouse'],
-                        'overall' => $data['overall'],
+                        'tracked'   => $data['tracked'],
+                        'keyboard'  => $data['keyboard'],
+                        'mouse'     => $data['mouse'],
+                        'overall'   => $data['overall'],
                     ]
                 );
             }

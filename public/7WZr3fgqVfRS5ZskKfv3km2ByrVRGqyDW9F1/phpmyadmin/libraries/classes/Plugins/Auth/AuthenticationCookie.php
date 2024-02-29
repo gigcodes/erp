@@ -100,24 +100,24 @@ class AuthenticationCookie extends AuthenticationPlugin
         // No recall if blowfish secret is not configured as it would produce
         // garbage
         if ($GLOBALS['cfg']['LoginCookieRecall'] && ! empty($GLOBALS['cfg']['blowfish_secret'])) {
-            $default_user = $this->user;
-            $default_server = $GLOBALS['pma_auth_server'];
+            $default_user    = $this->user;
+            $default_server  = $GLOBALS['pma_auth_server'];
             $hasAutocomplete = true;
         } else {
-            $default_user = '';
-            $default_server = '';
+            $default_user    = '';
+            $default_server  = '';
             $hasAutocomplete = false;
         }
 
         // wrap the login form in a div which overlays the whole page.
         if ($session_expired) {
             $loginHeader = $this->template->render('login/header', [
-                'add_class' => ' modal_form',
+                'add_class'       => ' modal_form',
                 'session_expired' => 1,
             ]);
         } else {
             $loginHeader = $this->template->render('login/header', [
-                'add_class' => '',
+                'add_class'       => '',
                 'session_expired' => 0,
             ]);
         }
@@ -132,14 +132,14 @@ class AuthenticationCookie extends AuthenticationPlugin
             )->getDisplay();
         }
 
-        $languageManager = LanguageManager::getInstance();
+        $languageManager    = LanguageManager::getInstance();
         $availableLanguages = [];
         if (empty($GLOBALS['cfg']['Lang']) && $languageManager->hasChoice()) {
             $availableLanguages = $languageManager->sortedLanguages();
         }
 
         $serversOptions = '';
-        $hasServers = count($GLOBALS['cfg']['Servers']) > 1;
+        $hasServers     = count($GLOBALS['cfg']['Servers']) > 1;
         if ($hasServers) {
             $serversOptions = Select::render(false, false);
         }
@@ -172,34 +172,34 @@ class AuthenticationCookie extends AuthenticationPlugin
         $configFooter = Config::renderFooter();
 
         echo $this->template->render('login/form', [
-            'login_header' => $loginHeader,
-            'is_demo' => $GLOBALS['cfg']['DBG']['demo'],
-            'error_messages' => $errorMessages,
-            'available_languages' => $availableLanguages,
-            'is_session_expired' => $session_expired,
-            'has_autocomplete' => $hasAutocomplete,
-            'session_id' => session_id(),
+            'login_header'                => $loginHeader,
+            'is_demo'                     => $GLOBALS['cfg']['DBG']['demo'],
+            'error_messages'              => $errorMessages,
+            'available_languages'         => $availableLanguages,
+            'is_session_expired'          => $session_expired,
+            'has_autocomplete'            => $hasAutocomplete,
+            'session_id'                  => session_id(),
             'is_arbitrary_server_allowed' => $GLOBALS['cfg']['AllowArbitraryServer'],
-            'default_server' => $default_server,
-            'default_user' => $default_user,
-            'has_servers' => $hasServers,
-            'server_options' => $serversOptions,
-            'server' => $GLOBALS['server'],
-            'lang' => $GLOBALS['lang'],
-            'has_captcha' => ! empty($GLOBALS['cfg']['CaptchaApi'])
+            'default_server'              => $default_server,
+            'default_user'                => $default_user,
+            'has_servers'                 => $hasServers,
+            'server_options'              => $serversOptions,
+            'server'                      => $GLOBALS['server'],
+            'lang'                        => $GLOBALS['lang'],
+            'has_captcha'                 => ! empty($GLOBALS['cfg']['CaptchaApi'])
                 && ! empty($GLOBALS['cfg']['CaptchaRequestParam'])
                 && ! empty($GLOBALS['cfg']['CaptchaResponseParam'])
                 && ! empty($GLOBALS['cfg']['CaptchaLoginPrivateKey'])
                 && ! empty($GLOBALS['cfg']['CaptchaLoginPublicKey']),
             'use_captcha_checkbox' => ($GLOBALS['cfg']['CaptchaMethod'] ?? '') === 'checkbox',
-            'captcha_api' => $GLOBALS['cfg']['CaptchaApi'],
-            'captcha_req' => $GLOBALS['cfg']['CaptchaRequestParam'],
-            'captcha_resp' => $GLOBALS['cfg']['CaptchaResponseParam'],
-            'captcha_key' => $GLOBALS['cfg']['CaptchaLoginPublicKey'],
-            'form_params' => $_form_params,
-            'errors' => $errors,
-            'login_footer' => $loginFooter,
-            'config_footer' => $configFooter,
+            'captcha_api'          => $GLOBALS['cfg']['CaptchaApi'],
+            'captcha_req'          => $GLOBALS['cfg']['CaptchaRequestParam'],
+            'captcha_resp'         => $GLOBALS['cfg']['CaptchaResponseParam'],
+            'captcha_key'          => $GLOBALS['cfg']['CaptchaLoginPublicKey'],
+            'form_params'          => $_form_params,
+            'errors'               => $errors,
+            'login_footer'         => $loginFooter,
+            'config_footer'        => $configFooter,
         ]);
 
         if (! defined('TESTSUITE')) {
@@ -234,7 +234,7 @@ class AuthenticationCookie extends AuthenticationPlugin
          */
         $GLOBALS['pma_auth_server'] = '';
 
-        $this->user = $this->password = '';
+        $this->user             = $this->password = '';
         $GLOBALS['from_cookie'] = false;
 
         if (isset($_POST['pma_username']) && strlen($_POST['pma_username']) > 0) {
@@ -520,7 +520,7 @@ class AuthenticationCookie extends AuthenticationPlugin
     /**
      * Stores username in a cookie.
      *
-     * @param  string  $username User name
+     * @param string $username User name
      */
     public function storeUsernameCookie($username): void
     {
@@ -538,7 +538,7 @@ class AuthenticationCookie extends AuthenticationPlugin
     /**
      * Stores password in a cookie.
      *
-     * @param  string  $password Password
+     * @param string $password Password
      */
     public function storePasswordCookie($password): void
     {
@@ -568,7 +568,7 @@ class AuthenticationCookie extends AuthenticationPlugin
      * this function MUST exit/quit the application,
      * currently done by call to showLoginForm()
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
      */
     public function showFailure($failure): void
     {
@@ -613,7 +613,7 @@ class AuthenticationCookie extends AuthenticationPlugin
             return $key;
         }
 
-        $key = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+        $key                        = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
         $_SESSION['encryption_key'] = $key;
 
         return $key;
@@ -622,7 +622,7 @@ class AuthenticationCookie extends AuthenticationPlugin
     public function cookieEncrypt(string $data, string $secret): string
     {
         try {
-            $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $nonce      = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
             $ciphertext = sodium_crypto_secretbox($data, $nonce, $secret);
         } catch (Throwable $throwable) {
             return '';
@@ -633,8 +633,8 @@ class AuthenticationCookie extends AuthenticationPlugin
 
     public function cookieDecrypt(string $encryptedData, string $secret): ?string
     {
-        $encrypted = base64_decode($encryptedData);
-        $nonce = mb_substr($encrypted, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
+        $encrypted  = base64_decode($encryptedData);
+        $nonce      = mb_substr($encrypted, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
         $ciphertext = mb_substr($encrypted, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, null, '8bit');
         try {
             $decrypted = sodium_crypto_secretbox_open($ciphertext, $nonce, $secret);
@@ -652,7 +652,7 @@ class AuthenticationCookie extends AuthenticationPlugin
     /**
      * Callback when user changes password.
      *
-     * @param  string  $password New password to set
+     * @param string $password New password to set
      */
     public function handlePasswordChange($password): void
     {

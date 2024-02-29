@@ -45,10 +45,10 @@ class MagentoDevServerScriptUpdateAsset extends Command
             foreach ($assetmanager as $asset) {
                 $folder_name = $this->argument('folder_name');
                 if ($folder_name != '' && $asset->ip != '') {
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $asset->ip . ' --site ' . $folder_name;
-                    $allOutput = [];
+                    $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-dev.sh --server ' . $asset->ip . ' --site ' . $folder_name;
+                    $allOutput   = [];
                     $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput);
+                    $result      = exec($cmd, $allOutput);
                     if ($result == '') {
                         $result = 'Not any response';
                     } elseif ($result == 0) {
@@ -62,23 +62,23 @@ class MagentoDevServerScriptUpdateAsset extends Command
                     $create = AssetMagentoDevScripUpdateLog::create(
                         [
                             'asset_manager_id' => $asset->id,
-                            'user_id' => \Auth::user()->id,
-                            'ip' => $asset->ip,
-                            'response' => $result,
-                            'command_name' => $cmd,
-                            'site_folder' => $folder_name,
+                            'user_id'          => \Auth::user()->id,
+                            'ip'               => $asset->ip,
+                            'response'         => $result,
+                            'command_name'     => $cmd,
+                            'site_folder'      => $folder_name,
                         ]
                     );
                 } else {
                     AssetMagentoDevScripUpdateLog::create(
                         [
                             'store_website_id' => $asset->id ?? '',
-                            'ip' => $asset->ip ?? '',
-                            'user_id' => \Auth::user()->id,
-                            'response' => 'Please check Site folder and server ip',
-                            'error' => 'Error',
-                            'command_name' => 'Not run command. Please server Ip and site folder',
-                            'site_folder' => $folder_name ?? '',
+                            'ip'               => $asset->ip ?? '',
+                            'user_id'          => \Auth::user()->id,
+                            'response'         => 'Please check Site folder and server ip',
+                            'error'            => 'Error',
+                            'command_name'     => 'Not run command. Please server Ip and site folder',
+                            'site_folder'      => $folder_name ?? '',
                         ]);
                 }
             } //end website foreach
@@ -86,11 +86,11 @@ class MagentoDevServerScriptUpdateAsset extends Command
             AssetMagentoDevScripUpdateLog::create(
                 [
                     'store_website_id' => $asset[0]->id ?? '',
-                    'user_id' => \Auth::user()->id,
-                    'website' => $asset[0]->ip ?? '',
-                    'error' => $e->getMessage(),
-                    'command_name' => 'Not run command. Please server Ip and site folder',
-                    'site_folder' => $folder_name ?? '',
+                    'user_id'          => \Auth::user()->id,
+                    'website'          => $asset[0]->ip ?? '',
+                    'error'            => $e->getMessage(),
+                    'command_name'     => 'Not run command. Please server Ip and site folder',
+                    'site_folder'      => $folder_name ?? '',
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

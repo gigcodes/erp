@@ -38,12 +38,12 @@ final class DeleteRowsController extends AbstractController
     {
         global $db, $goto, $sql_query, $table, $disp_message, $disp_query, $active_page;
 
-        $mult_btn = $_POST['mult_btn'] ?? '';
+        $mult_btn           = $_POST['mult_btn'] ?? '';
         $original_sql_query = $_POST['original_sql_query'] ?? '';
-        $selected = $_POST['selected'] ?? [];
+        $selected           = $_POST['selected'] ?? [];
 
         $relation = new Relation($this->dbi);
-        $sql = new Sql(
+        $sql      = new Sql(
             $this->dbi,
             $relation,
             new RelationCleanup($this->dbi, $relation),
@@ -54,7 +54,7 @@ final class DeleteRowsController extends AbstractController
 
         if ($mult_btn === __('Yes')) {
             $default_fk_check_value = ForeignKey::handleDisableCheckInit();
-            $sql_query = '';
+            $sql_query              = '';
 
             foreach ($selected as $row) {
                 $query = sprintf(
@@ -74,10 +74,10 @@ final class DeleteRowsController extends AbstractController
             ForeignKey::handleDisableCheckCleanup($default_fk_check_value);
 
             $disp_message = __('Your SQL query has been executed successfully.');
-            $disp_query = $sql_query;
+            $disp_query   = $sql_query;
         }
 
-        $_url_params = $GLOBALS['urlParams'];
+        $_url_params         = $GLOBALS['urlParams'];
         $_url_params['goto'] = Url::getFromRoute('/table/sql');
 
         if (isset($original_sql_query)) {

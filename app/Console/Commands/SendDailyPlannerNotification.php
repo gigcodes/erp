@@ -46,7 +46,7 @@ class SendDailyPlannerNotification extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
@@ -55,13 +55,13 @@ class SendDailyPlannerNotification extends Command
             $events = UserEvent::havingRaw('TIMESTAMPDIFF(MINUTE,now() , start) = 30 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Event query finished.']);
 
-            $userWise = [];
+            $userWise           = [];
             $vendorParticipants = [];
 
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {
                     $userWise[$event->user_id][] = $event;
-                    $participants = $event->attendees;
+                    $participants                = $event->attendees;
                     if (! $participants->isEmpty()) {
                         foreach ($participants as $participant) {
                             if ($participant->object == \App\Vendor::class) {
@@ -79,9 +79,9 @@ class SendDailyPlannerNotification extends Command
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'user query finished.']);
                     // if user exist
                     if (! empty($user)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 30 min';
-                        $no = 1;
+                        $no             = 1;
 
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
@@ -91,8 +91,8 @@ class SendDailyPlannerNotification extends Command
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title' => 'Sent notification',
-                                'description' => 'To ' . $user->name,
+                                'title'               => 'Sent notification',
+                                'description'         => 'To ' . $user->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Daily activity histroy added.']);
@@ -115,9 +115,9 @@ class SendDailyPlannerNotification extends Command
                     $vendor = \App\Vendor::find($id);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'vendor created.']);
                     if (! empty($vendor)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 30 min';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $dailyActivities = DailyActivity::where('id', $event->daily_activity_id)->first();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Daily activities created.']);
@@ -126,15 +126,15 @@ class SendDailyPlannerNotification extends Command
                             $no++;
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title' => 'Sent notification',
-                                'description' => 'To ' . $vendor->name,
+                                'title'               => 'Sent notification',
+                                'description'         => 'To ' . $vendor->name,
                             ];
                             DailyActivitiesHistories::insert($history);
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Daily activities histroy added.']);
                         }
 
                         $params['vendor_id'] = $vendor->id;
-                        $params['message'] = implode("\n", $notification);
+                        $params['message']   = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Chat message added.']);

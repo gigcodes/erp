@@ -25,10 +25,10 @@ class CreateLawyerRequest extends FormRequest
     {
         return [
             'speciality_id' => 'required|numeric',
-            'name' => 'required|string|max:255',
-            'address' => 'sometimes|nullable|string',
-            'phone' => 'sometimes|nullable|numeric',
-            'email' => 'sometimes|nullable|email',
+            'name'          => 'required|string|max:255',
+            'address'       => 'sometimes|nullable|string',
+            'phone'         => 'sometimes|nullable|numeric',
+            'email'         => 'sometimes|nullable|email',
         ];
     }
 }

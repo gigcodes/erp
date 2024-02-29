@@ -79,7 +79,7 @@ class SchemaDia extends SchemaPlugin
     /**
      * Exports the schema into DIA format.
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     public function exportSchema($db): bool
     {

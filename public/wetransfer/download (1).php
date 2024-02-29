@@ -33,11 +33,11 @@ $dataArray = explode('/', $url);
 
 if (count($dataArray) == 2) {
     $securityhash = $dataArray[1];
-    $transferId = $dataArray[0];
+    $transferId   = $dataArray[0];
 } elseif (count($dataArray) == 3) {
     $securityhash = $dataArray[2];
-    $recieptId = $dataArray[1];
-    $transferId = $dataArray[0];
+    $recieptId    = $dataArray[1];
+    $transferId   = $dataArray[0];
 } else {
     exit('Something is wrong with url');
 }
@@ -45,15 +45,15 @@ if (count($dataArray) == 2) {
 $header = getCsrfFromWebsite();
 
 //making post request to get the url
-$data = [];
-$data['intent'] = 'entire_transfer';
+$data                  = [];
+$data['intent']        = 'entire_transfer';
 $data['security_hash'] = $securityhash;
 
 $curlURL = $WETRANSFER_API_URL . $transferId . '/download';
 
 $cookie = 'cookie.txt';
-$url = 'https://wetransfer.com/';
-$ch = curl_init();
+$url    = 'https://wetransfer.com/';
+$ch     = curl_init();
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_COOKIESESSION, true);

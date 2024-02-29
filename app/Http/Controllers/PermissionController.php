@@ -54,12 +54,12 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+            'name'  => 'required|unique:roles,name',
             'route' => 'required|unique:roles,name',
 
         ]);
-        $permission = new Permission();
-        $permission->name = $request->name;
+        $permission        = new Permission();
+        $permission->name  = $request->name;
         $permission->route = $request->route;
         $permission->save();
 
@@ -70,7 +70,8 @@ class PermissionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -83,7 +84,8 @@ class PermissionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -96,19 +98,20 @@ class PermissionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name'  => 'required',
             'route' => 'required',
 
         ]);
 
-        $permission = Permission::find($id);
-        $permission->name = $request->input('name');
+        $permission        = Permission::find($id);
+        $permission->name  = $request->input('name');
         $permission->route = $request->input('route');
         $permission->save();
 
@@ -119,7 +122,8 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -141,11 +145,11 @@ class PermissionController extends Controller
 
     public function users(Request $request)
     {
-        $users = User::where('users.is_active', 1)->orderBy('name', 'asc');
+        $users       = User::where('users.is_active', 1)->orderBy('name', 'asc');
         $permissions = Permission::orderBy('name', 'asc');
 
         $permission_datas = Permission::orderBy('name', 'asc')->get();
-        $user_datas = User::where('is_active', 1)->orderBy('name', 'asc')->get();
+        $user_datas       = User::where('is_active', 1)->orderBy('name', 'asc')->get();
 
         if (! empty($request->assign_permission) && in_array('1', $request->assign_permission) && ! in_array('0', $request->assign_permission)) {
             $users = $users->select('users.*')->join('permission_user', 'permission_user.user_id', '=', 'users.id')->join('permissions', 'permission_user.permission_id', '=', 'permissions.id')->groupBy('permission_user.user_id');
@@ -173,7 +177,7 @@ class PermissionController extends Controller
                     });
             }
             if ($request->search_user) {
-                $where = \DB::table('permission_user')->whereIn('user_id', $request->search_user)->pluck('permission_id');
+                $where       = \DB::table('permission_user')->whereIn('user_id', $request->search_user)->pluck('permission_id');
                 $permissions = \DB::table('permissions')->whereIn('permissions.id', function ($query) {
                     $query->select('permissions.id')->from('permissions')->join('permission_user', 'permissions.id', '!=', 'permission_user.permission_id');
                 })->whereNotIn('permissions.id', $where)->orderBy('permissions.name');
@@ -225,10 +229,10 @@ class PermissionController extends Controller
      */
     public function updatePermission(Request $request)
     {
-        $user_id = $request->user_id;
+        $user_id       = $request->user_id;
         $permission_id = $request->permission_id;
-        $is_Active = $request->is_active;
-        $user = User::findorfail($user_id);
+        $is_Active     = $request->is_active;
+        $user          = User::findorfail($user_id);
         //ADD PERMISSION
         if ($is_Active == 0) {
             $user->permissions()->attach($permission_id);

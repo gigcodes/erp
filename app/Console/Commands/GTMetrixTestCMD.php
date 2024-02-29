@@ -55,7 +55,7 @@ class GTMetrixTestCMD extends Command
                 }
             }
 
-            $cronType = Setting::where('name', 'gtmetrixCronType')->get()->first();
+            $cronType    = Setting::where('name', 'gtmetrixCronType')->get()->first();
             $cronRunTime = Setting::where('name', 'gtmetrixCronRunDate')->get()->first();
 
             if (! empty($cronRunTime) && ! empty($cronType)) {
@@ -78,7 +78,7 @@ class GTMetrixTestCMD extends Command
 
             $this->nextCronRunTime($nextDate);
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -99,17 +99,17 @@ class GTMetrixTestCMD extends Command
                 foreach ($storeViewList as $value) {
                     $webiteUrl = $value['magento_url'];
                     $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    $curl = curl_init();
-                    $url = $webiteUrl . '/pub/sitemap/sitemap_gb_en.xml';
+                    $curl      = curl_init();
+                    $url       = $webiteUrl . '/pub/sitemap/sitemap_gb_en.xml';
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_TIMEOUT => 30000,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
-                        CURLOPT_HTTPHEADER => [
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_TIMEOUT        => 30000,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
+                        CURLOPT_HTTPHEADER     => [
                             // Set Here Your Requesred Headers
                             'Content-Type: application/json',
                         ],
@@ -129,8 +129,8 @@ class GTMetrixTestCMD extends Command
                             $siteData = [
 
                                 'store_view_id' => $value['id'],
-                                'status' => 'not_queued',
-                                'website_url' => $webiteUrl . '/' . $value['code'],
+                                'status'        => 'not_queued',
+                                'website_url'   => $webiteUrl . '/' . $value['code'],
                             ];
 
                             $create[] = $siteData;
@@ -147,8 +147,8 @@ class GTMetrixTestCMD extends Command
                                 $siteData = [
 
                                     'store_view_id' => $value['id'],
-                                    'status' => 'not_queued',
-                                    'website_url' => $webiteUrl . '/' . $value['code'],
+                                    'status'        => 'not_queued',
+                                    'website_url'   => $webiteUrl . '/' . $value['code'],
                                 ];
 
                                 \Log::info(print_r($siteData, true));
@@ -157,8 +157,8 @@ class GTMetrixTestCMD extends Command
                                     $siteData = [
 
                                         'store_view_id' => $value['id'],
-                                        'status' => 'not_queued',
-                                        'website_url' => $valueExtra['loc'],
+                                        'status'        => 'not_queued',
+                                        'website_url'   => $valueExtra['loc'],
                                     ];
 
                                     $create[] = $siteData;
@@ -190,7 +190,7 @@ class GTMetrixTestCMD extends Command
         if (empty($type)) {
             $type['name'] = 'gtmetrixCronRunDate';
             $type['type'] = 'date';
-            $type['val'] = $date;
+            $type['val']  = $date;
             Setting::create($type);
         } else {
             $type->val = $date;

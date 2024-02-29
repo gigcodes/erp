@@ -1634,201 +1634,201 @@ final class Settings
     public $FirstDayOfCalendar;
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     public function __construct(array $settings)
     {
-        $this->PmaAbsoluteUri = $this->setPmaAbsoluteUri($settings);
-        $this->AuthLog = $this->setAuthLog($settings);
-        $this->AuthLogSuccess = $this->setAuthLogSuccess($settings);
-        $this->PmaNoRelation_DisableWarning = $this->setPmaNoRelationDisableWarning($settings);
-        $this->SuhosinDisableWarning = $this->setSuhosinDisableWarning($settings);
-        $this->LoginCookieValidityDisableWarning = $this->setLoginCookieValidityDisableWarning($settings);
-        $this->ReservedWordDisableWarning = $this->setReservedWordDisableWarning($settings);
-        $this->TranslationWarningThreshold = $this->setTranslationWarningThreshold($settings);
-        $this->AllowThirdPartyFraming = $this->setAllowThirdPartyFraming($settings);
-        $this->blowfish_secret = $this->setBlowfishSecret($settings);
-        $this->Servers = $this->setServers($settings);
-        $this->ServerDefault = $this->setServerDefault($settings);
-        $this->VersionCheck = $this->setVersionCheck($settings);
-        $this->ProxyUrl = $this->setProxyUrl($settings);
-        $this->ProxyUser = $this->setProxyUser($settings);
-        $this->ProxyPass = $this->setProxyPass($settings);
-        $this->MaxDbList = $this->setMaxDbList($settings);
-        $this->MaxTableList = $this->setMaxTableList($settings);
-        $this->ShowHint = $this->setShowHint($settings);
-        $this->MaxCharactersInDisplayedSQL = $this->setMaxCharactersInDisplayedSQL($settings);
-        $this->OBGzip = $this->setOBGzip($settings);
-        $this->PersistentConnections = $this->setPersistentConnections($settings);
-        $this->ExecTimeLimit = $this->setExecTimeLimit($settings);
-        $this->SessionSavePath = $this->setSessionSavePath($settings);
-        $this->MysqlSslWarningSafeHosts = $this->setMysqlSslWarningSafeHosts($settings);
-        $this->MemoryLimit = $this->setMemoryLimit($settings);
-        $this->SkipLockedTables = $this->setSkipLockedTables($settings);
-        $this->ShowSQL = $this->setShowSQL($settings);
-        $this->RetainQueryBox = $this->setRetainQueryBox($settings);
-        $this->CodemirrorEnable = $this->setCodemirrorEnable($settings);
-        $this->LintEnable = $this->setLintEnable($settings);
-        $this->AllowUserDropDatabase = $this->setAllowUserDropDatabase($settings);
-        $this->Confirm = $this->setConfirm($settings);
-        $this->CookieSameSite = $this->setCookieSameSite($settings);
-        $this->LoginCookieRecall = $this->setLoginCookieRecall($settings);
-        $this->LoginCookieValidity = $this->setLoginCookieValidity($settings);
-        $this->LoginCookieStore = $this->setLoginCookieStore($settings);
-        $this->LoginCookieDeleteAll = $this->setLoginCookieDeleteAll($settings);
-        $this->UseDbSearch = $this->setUseDbSearch($settings);
-        $this->IgnoreMultiSubmitErrors = $this->setIgnoreMultiSubmitErrors($settings);
-        $this->URLQueryEncryption = $this->setURLQueryEncryption($settings);
-        $this->URLQueryEncryptionSecretKey = $this->setURLQueryEncryptionSecretKey($settings);
-        $this->AllowArbitraryServer = $this->setAllowArbitraryServer($settings);
-        $this->ArbitraryServerRegexp = $this->setArbitraryServerRegexp($settings);
-        $this->CaptchaMethod = $this->setCaptchaMethod($settings);
-        $this->CaptchaApi = $this->setCaptchaApi($settings);
-        $this->CaptchaCsp = $this->setCaptchaCsp($settings);
-        $this->CaptchaRequestParam = $this->setCaptchaRequestParam($settings);
-        $this->CaptchaResponseParam = $this->setCaptchaResponseParam($settings);
-        $this->CaptchaLoginPublicKey = $this->setCaptchaLoginPublicKey($settings);
-        $this->CaptchaLoginPrivateKey = $this->setCaptchaLoginPrivateKey($settings);
-        $this->CaptchaSiteVerifyURL = $this->setCaptchaSiteVerifyURL($settings);
-        $this->enable_drag_drop_import = $this->setEnableDragDropImport($settings);
-        $this->ShowDatabasesNavigationAsTree = $this->setShowDatabasesNavigationAsTree($settings);
-        $this->FirstLevelNavigationItems = $this->setFirstLevelNavigationItems($settings);
-        $this->MaxNavigationItems = $this->setMaxNavigationItems($settings);
-        $this->NavigationTreeEnableGrouping = $this->setNavigationTreeEnableGrouping($settings);
-        $this->NavigationTreeDbSeparator = $this->setNavigationTreeDbSeparator($settings);
-        $this->NavigationTreeTableSeparator = $this->setNavigationTreeTableSeparator($settings);
-        $this->NavigationTreeTableLevel = $this->setNavigationTreeTableLevel($settings);
-        $this->NavigationLinkWithMainPanel = $this->setNavigationLinkWithMainPanel($settings);
-        $this->NavigationDisplayLogo = $this->setNavigationDisplayLogo($settings);
-        $this->NavigationLogoLink = $this->setNavigationLogoLink($settings);
-        $this->NavigationLogoLinkWindow = $this->setNavigationLogoLinkWindow($settings);
-        $this->NumRecentTables = $this->setNumRecentTables($settings);
-        $this->NumFavoriteTables = $this->setNumFavoriteTables($settings);
+        $this->PmaAbsoluteUri                         = $this->setPmaAbsoluteUri($settings);
+        $this->AuthLog                                = $this->setAuthLog($settings);
+        $this->AuthLogSuccess                         = $this->setAuthLogSuccess($settings);
+        $this->PmaNoRelation_DisableWarning           = $this->setPmaNoRelationDisableWarning($settings);
+        $this->SuhosinDisableWarning                  = $this->setSuhosinDisableWarning($settings);
+        $this->LoginCookieValidityDisableWarning      = $this->setLoginCookieValidityDisableWarning($settings);
+        $this->ReservedWordDisableWarning             = $this->setReservedWordDisableWarning($settings);
+        $this->TranslationWarningThreshold            = $this->setTranslationWarningThreshold($settings);
+        $this->AllowThirdPartyFraming                 = $this->setAllowThirdPartyFraming($settings);
+        $this->blowfish_secret                        = $this->setBlowfishSecret($settings);
+        $this->Servers                                = $this->setServers($settings);
+        $this->ServerDefault                          = $this->setServerDefault($settings);
+        $this->VersionCheck                           = $this->setVersionCheck($settings);
+        $this->ProxyUrl                               = $this->setProxyUrl($settings);
+        $this->ProxyUser                              = $this->setProxyUser($settings);
+        $this->ProxyPass                              = $this->setProxyPass($settings);
+        $this->MaxDbList                              = $this->setMaxDbList($settings);
+        $this->MaxTableList                           = $this->setMaxTableList($settings);
+        $this->ShowHint                               = $this->setShowHint($settings);
+        $this->MaxCharactersInDisplayedSQL            = $this->setMaxCharactersInDisplayedSQL($settings);
+        $this->OBGzip                                 = $this->setOBGzip($settings);
+        $this->PersistentConnections                  = $this->setPersistentConnections($settings);
+        $this->ExecTimeLimit                          = $this->setExecTimeLimit($settings);
+        $this->SessionSavePath                        = $this->setSessionSavePath($settings);
+        $this->MysqlSslWarningSafeHosts               = $this->setMysqlSslWarningSafeHosts($settings);
+        $this->MemoryLimit                            = $this->setMemoryLimit($settings);
+        $this->SkipLockedTables                       = $this->setSkipLockedTables($settings);
+        $this->ShowSQL                                = $this->setShowSQL($settings);
+        $this->RetainQueryBox                         = $this->setRetainQueryBox($settings);
+        $this->CodemirrorEnable                       = $this->setCodemirrorEnable($settings);
+        $this->LintEnable                             = $this->setLintEnable($settings);
+        $this->AllowUserDropDatabase                  = $this->setAllowUserDropDatabase($settings);
+        $this->Confirm                                = $this->setConfirm($settings);
+        $this->CookieSameSite                         = $this->setCookieSameSite($settings);
+        $this->LoginCookieRecall                      = $this->setLoginCookieRecall($settings);
+        $this->LoginCookieValidity                    = $this->setLoginCookieValidity($settings);
+        $this->LoginCookieStore                       = $this->setLoginCookieStore($settings);
+        $this->LoginCookieDeleteAll                   = $this->setLoginCookieDeleteAll($settings);
+        $this->UseDbSearch                            = $this->setUseDbSearch($settings);
+        $this->IgnoreMultiSubmitErrors                = $this->setIgnoreMultiSubmitErrors($settings);
+        $this->URLQueryEncryption                     = $this->setURLQueryEncryption($settings);
+        $this->URLQueryEncryptionSecretKey            = $this->setURLQueryEncryptionSecretKey($settings);
+        $this->AllowArbitraryServer                   = $this->setAllowArbitraryServer($settings);
+        $this->ArbitraryServerRegexp                  = $this->setArbitraryServerRegexp($settings);
+        $this->CaptchaMethod                          = $this->setCaptchaMethod($settings);
+        $this->CaptchaApi                             = $this->setCaptchaApi($settings);
+        $this->CaptchaCsp                             = $this->setCaptchaCsp($settings);
+        $this->CaptchaRequestParam                    = $this->setCaptchaRequestParam($settings);
+        $this->CaptchaResponseParam                   = $this->setCaptchaResponseParam($settings);
+        $this->CaptchaLoginPublicKey                  = $this->setCaptchaLoginPublicKey($settings);
+        $this->CaptchaLoginPrivateKey                 = $this->setCaptchaLoginPrivateKey($settings);
+        $this->CaptchaSiteVerifyURL                   = $this->setCaptchaSiteVerifyURL($settings);
+        $this->enable_drag_drop_import                = $this->setEnableDragDropImport($settings);
+        $this->ShowDatabasesNavigationAsTree          = $this->setShowDatabasesNavigationAsTree($settings);
+        $this->FirstLevelNavigationItems              = $this->setFirstLevelNavigationItems($settings);
+        $this->MaxNavigationItems                     = $this->setMaxNavigationItems($settings);
+        $this->NavigationTreeEnableGrouping           = $this->setNavigationTreeEnableGrouping($settings);
+        $this->NavigationTreeDbSeparator              = $this->setNavigationTreeDbSeparator($settings);
+        $this->NavigationTreeTableSeparator           = $this->setNavigationTreeTableSeparator($settings);
+        $this->NavigationTreeTableLevel               = $this->setNavigationTreeTableLevel($settings);
+        $this->NavigationLinkWithMainPanel            = $this->setNavigationLinkWithMainPanel($settings);
+        $this->NavigationDisplayLogo                  = $this->setNavigationDisplayLogo($settings);
+        $this->NavigationLogoLink                     = $this->setNavigationLogoLink($settings);
+        $this->NavigationLogoLinkWindow               = $this->setNavigationLogoLinkWindow($settings);
+        $this->NumRecentTables                        = $this->setNumRecentTables($settings);
+        $this->NumFavoriteTables                      = $this->setNumFavoriteTables($settings);
         $this->NavigationTreeDisplayItemFilterMinimum = $this->setNavigationTreeDisplayItemFilterMinimum($settings);
-        $this->NavigationDisplayServers = $this->setNavigationDisplayServers($settings);
-        $this->DisplayServersList = $this->setDisplayServersList($settings);
-        $this->NavigationTreeDisplayDbFilterMinimum = $this->setNavigationTreeDisplayDbFilterMinimum($settings);
-        $this->NavigationTreeDefaultTabTable = $this->setNavigationTreeDefaultTabTable($settings);
-        $this->NavigationTreeDefaultTabTable2 = $this->setNavigationTreeDefaultTabTable2($settings);
-        $this->NavigationTreeEnableExpansion = $this->setNavigationTreeEnableExpansion($settings);
-        $this->NavigationTreeShowTables = $this->setNavigationTreeShowTables($settings);
-        $this->NavigationTreeShowViews = $this->setNavigationTreeShowViews($settings);
-        $this->NavigationTreeShowFunctions = $this->setNavigationTreeShowFunctions($settings);
-        $this->NavigationTreeShowProcedures = $this->setNavigationTreeShowProcedures($settings);
-        $this->NavigationTreeShowEvents = $this->setNavigationTreeShowEvents($settings);
-        $this->NavigationWidth = $this->setNavigationWidth($settings);
-        $this->NavigationTreeAutoexpandSingleDb = $this->setNavigationTreeAutoexpandSingleDb($settings);
-        $this->ShowStats = $this->setShowStats($settings);
-        $this->ShowPhpInfo = $this->setShowPhpInfo($settings);
-        $this->ShowServerInfo = $this->setShowServerInfo($settings);
-        $this->ShowChgPassword = $this->setShowChgPassword($settings);
-        $this->ShowCreateDb = $this->setShowCreateDb($settings);
-        $this->ShowDbStructureCharset = $this->setShowDbStructureCharset($settings);
-        $this->ShowDbStructureComment = $this->setShowDbStructureComment($settings);
-        $this->ShowDbStructureCreation = $this->setShowDbStructureCreation($settings);
-        $this->ShowDbStructureLastUpdate = $this->setShowDbStructureLastUpdate($settings);
-        $this->ShowDbStructureLastCheck = $this->setShowDbStructureLastCheck($settings);
-        $this->HideStructureActions = $this->setHideStructureActions($settings);
-        $this->ShowColumnComments = $this->setShowColumnComments($settings);
-        $this->TableNavigationLinksMode = $this->setTableNavigationLinksMode($settings);
-        $this->ShowAll = $this->setShowAll($settings);
-        $this->MaxRows = $this->setMaxRows($settings);
-        $this->Order = $this->setOrder($settings);
-        $this->SaveCellsAtOnce = $this->setSaveCellsAtOnce($settings);
-        $this->GridEditing = $this->setGridEditing($settings);
-        $this->RelationalDisplay = $this->setRelationalDisplay($settings);
-        $this->ProtectBinary = $this->setProtectBinary($settings);
-        $this->ShowFunctionFields = $this->setShowFunctionFields($settings);
-        $this->ShowFieldTypesInDataEditView = $this->setShowFieldTypesInDataEditView($settings);
-        $this->CharEditing = $this->setCharEditing($settings);
-        $this->MinSizeForInputField = $this->setMinSizeForInputField($settings);
-        $this->MaxSizeForInputField = $this->setMaxSizeForInputField($settings);
-        $this->InsertRows = $this->setInsertRows($settings);
-        $this->ForeignKeyDropdownOrder = $this->setForeignKeyDropdownOrder($settings);
-        $this->ForeignKeyMaxLimit = $this->setForeignKeyMaxLimit($settings);
-        $this->DefaultForeignKeyChecks = $this->setDefaultForeignKeyChecks($settings);
-        $this->ZipDump = $this->setZipDump($settings);
-        $this->GZipDump = $this->setGZipDump($settings);
-        $this->BZipDump = $this->setBZipDump($settings);
-        $this->CompressOnFly = $this->setCompressOnFly($settings);
-        $this->TabsMode = $this->setTabsMode($settings);
-        $this->ActionLinksMode = $this->setActionLinksMode($settings);
-        $this->PropertiesNumColumns = $this->setPropertiesNumColumns($settings);
-        $this->DefaultTabServer = $this->setDefaultTabServer($settings);
-        $this->DefaultTabDatabase = $this->setDefaultTabDatabase($settings);
-        $this->DefaultTabTable = $this->setDefaultTabTable($settings);
-        $this->RowActionType = $this->setRowActionType($settings);
-        $this->Export = $this->setExport($settings);
-        $this->Import = $this->setImport($settings);
-        $this->Schema = $this->setSchema($settings);
-        $this->PDFPageSizes = $this->setPDFPageSizes($settings);
-        $this->PDFDefaultPageSize = $this->setPDFDefaultPageSize($settings);
-        $this->DefaultLang = $this->setDefaultLang($settings);
-        $this->DefaultConnectionCollation = $this->setDefaultConnectionCollation($settings);
-        $this->Lang = $this->setLang($settings);
-        $this->FilterLanguages = $this->setFilterLanguages($settings);
-        $this->RecodingEngine = $this->setRecodingEngine($settings);
-        $this->IconvExtraParams = $this->setIconvExtraParams($settings);
-        $this->AvailableCharsets = $this->setAvailableCharsets($settings);
-        $this->NavigationTreePointerEnable = $this->setNavigationTreePointerEnable($settings);
-        $this->BrowsePointerEnable = $this->setBrowsePointerEnable($settings);
-        $this->BrowseMarkerEnable = $this->setBrowseMarkerEnable($settings);
-        $this->TextareaCols = $this->setTextareaCols($settings);
-        $this->TextareaRows = $this->setTextareaRows($settings);
-        $this->LongtextDoubleTextarea = $this->setLongtextDoubleTextarea($settings);
-        $this->TextareaAutoSelect = $this->setTextareaAutoSelect($settings);
-        $this->CharTextareaCols = $this->setCharTextareaCols($settings);
-        $this->CharTextareaRows = $this->setCharTextareaRows($settings);
-        $this->LimitChars = $this->setLimitChars($settings);
-        $this->RowActionLinks = $this->setRowActionLinks($settings);
-        $this->RowActionLinksWithoutUnique = $this->setRowActionLinksWithoutUnique($settings);
-        $this->TablePrimaryKeyOrder = $this->setTablePrimaryKeyOrder($settings);
-        $this->RememberSorting = $this->setRememberSorting($settings);
-        $this->ShowBrowseComments = $this->setShowBrowseComments($settings);
-        $this->ShowPropertyComments = $this->setShowPropertyComments($settings);
-        $this->RepeatCells = $this->setRepeatCells($settings);
-        $this->QueryHistoryDB = $this->setQueryHistoryDB($settings);
-        $this->QueryHistoryMax = $this->setQueryHistoryMax($settings);
-        $this->BrowseMIME = $this->setBrowseMIME($settings);
-        $this->MaxExactCount = $this->setMaxExactCount($settings);
-        $this->MaxExactCountViews = $this->setMaxExactCountViews($settings);
-        $this->NaturalOrder = $this->setNaturalOrder($settings);
-        $this->InitialSlidersState = $this->setInitialSlidersState($settings);
-        $this->UserprefsDisallow = $this->setUserprefsDisallow($settings);
-        $this->UserprefsDeveloperTab = $this->setUserprefsDeveloperTab($settings);
-        $this->TitleTable = $this->setTitleTable($settings);
-        $this->TitleDatabase = $this->setTitleDatabase($settings);
-        $this->TitleServer = $this->setTitleServer($settings);
-        $this->TitleDefault = $this->setTitleDefault($settings);
-        $this->ThemeManager = $this->setThemeManager($settings);
-        $this->ThemeDefault = $this->setThemeDefault($settings);
-        $this->ThemePerServer = $this->setThemePerServer($settings);
-        $this->DefaultQueryTable = $this->setDefaultQueryTable($settings);
-        $this->DefaultQueryDatabase = $this->setDefaultQueryDatabase($settings);
-        $this->SQLQuery = $this->setSQLQuery($settings);
-        $this->EnableAutocompleteForTablesAndColumns = $this->setEnableAutocompleteForTablesAndColumns($settings);
-        $this->UploadDir = $this->setUploadDir($settings);
-        $this->SaveDir = $this->setSaveDir($settings);
-        $this->TempDir = $this->setTempDir($settings);
-        $this->GD2Available = $this->setGD2Available($settings);
-        $this->TrustedProxies = $this->setTrustedProxies($settings);
-        $this->CheckConfigurationPermissions = $this->setCheckConfigurationPermissions($settings);
-        $this->LinkLengthLimit = $this->setLinkLengthLimit($settings);
-        $this->CSPAllow = $this->setCSPAllow($settings);
-        $this->DisableMultiTableMaintenance = $this->setDisableMultiTableMaintenance($settings);
-        $this->SendErrorReports = $this->setSendErrorReports($settings);
-        $this->ConsoleEnterExecutes = $this->setConsoleEnterExecutes($settings);
-        $this->ZeroConf = $this->setZeroConf($settings);
-        $this->DBG = $this->setDBG($settings);
-        $this->environment = $this->setEnvironment($settings);
-        $this->DefaultFunctions = $this->setDefaultFunctions($settings);
-        $this->maxRowPlotLimit = $this->setMaxRowPlotLimit($settings);
-        $this->ShowGitRevision = $this->setShowGitRevision($settings);
-        $this->MysqlMinVersion = $this->setMysqlMinVersion($settings);
-        $this->DisableShortcutKeys = $this->setDisableShortcutKeys($settings);
-        $this->Console = $this->setConsole($settings);
-        $this->DefaultTransformations = $this->setDefaultTransformations($settings);
-        $this->FirstDayOfCalendar = $this->setFirstDayOfCalendar($settings);
+        $this->NavigationDisplayServers               = $this->setNavigationDisplayServers($settings);
+        $this->DisplayServersList                     = $this->setDisplayServersList($settings);
+        $this->NavigationTreeDisplayDbFilterMinimum   = $this->setNavigationTreeDisplayDbFilterMinimum($settings);
+        $this->NavigationTreeDefaultTabTable          = $this->setNavigationTreeDefaultTabTable($settings);
+        $this->NavigationTreeDefaultTabTable2         = $this->setNavigationTreeDefaultTabTable2($settings);
+        $this->NavigationTreeEnableExpansion          = $this->setNavigationTreeEnableExpansion($settings);
+        $this->NavigationTreeShowTables               = $this->setNavigationTreeShowTables($settings);
+        $this->NavigationTreeShowViews                = $this->setNavigationTreeShowViews($settings);
+        $this->NavigationTreeShowFunctions            = $this->setNavigationTreeShowFunctions($settings);
+        $this->NavigationTreeShowProcedures           = $this->setNavigationTreeShowProcedures($settings);
+        $this->NavigationTreeShowEvents               = $this->setNavigationTreeShowEvents($settings);
+        $this->NavigationWidth                        = $this->setNavigationWidth($settings);
+        $this->NavigationTreeAutoexpandSingleDb       = $this->setNavigationTreeAutoexpandSingleDb($settings);
+        $this->ShowStats                              = $this->setShowStats($settings);
+        $this->ShowPhpInfo                            = $this->setShowPhpInfo($settings);
+        $this->ShowServerInfo                         = $this->setShowServerInfo($settings);
+        $this->ShowChgPassword                        = $this->setShowChgPassword($settings);
+        $this->ShowCreateDb                           = $this->setShowCreateDb($settings);
+        $this->ShowDbStructureCharset                 = $this->setShowDbStructureCharset($settings);
+        $this->ShowDbStructureComment                 = $this->setShowDbStructureComment($settings);
+        $this->ShowDbStructureCreation                = $this->setShowDbStructureCreation($settings);
+        $this->ShowDbStructureLastUpdate              = $this->setShowDbStructureLastUpdate($settings);
+        $this->ShowDbStructureLastCheck               = $this->setShowDbStructureLastCheck($settings);
+        $this->HideStructureActions                   = $this->setHideStructureActions($settings);
+        $this->ShowColumnComments                     = $this->setShowColumnComments($settings);
+        $this->TableNavigationLinksMode               = $this->setTableNavigationLinksMode($settings);
+        $this->ShowAll                                = $this->setShowAll($settings);
+        $this->MaxRows                                = $this->setMaxRows($settings);
+        $this->Order                                  = $this->setOrder($settings);
+        $this->SaveCellsAtOnce                        = $this->setSaveCellsAtOnce($settings);
+        $this->GridEditing                            = $this->setGridEditing($settings);
+        $this->RelationalDisplay                      = $this->setRelationalDisplay($settings);
+        $this->ProtectBinary                          = $this->setProtectBinary($settings);
+        $this->ShowFunctionFields                     = $this->setShowFunctionFields($settings);
+        $this->ShowFieldTypesInDataEditView           = $this->setShowFieldTypesInDataEditView($settings);
+        $this->CharEditing                            = $this->setCharEditing($settings);
+        $this->MinSizeForInputField                   = $this->setMinSizeForInputField($settings);
+        $this->MaxSizeForInputField                   = $this->setMaxSizeForInputField($settings);
+        $this->InsertRows                             = $this->setInsertRows($settings);
+        $this->ForeignKeyDropdownOrder                = $this->setForeignKeyDropdownOrder($settings);
+        $this->ForeignKeyMaxLimit                     = $this->setForeignKeyMaxLimit($settings);
+        $this->DefaultForeignKeyChecks                = $this->setDefaultForeignKeyChecks($settings);
+        $this->ZipDump                                = $this->setZipDump($settings);
+        $this->GZipDump                               = $this->setGZipDump($settings);
+        $this->BZipDump                               = $this->setBZipDump($settings);
+        $this->CompressOnFly                          = $this->setCompressOnFly($settings);
+        $this->TabsMode                               = $this->setTabsMode($settings);
+        $this->ActionLinksMode                        = $this->setActionLinksMode($settings);
+        $this->PropertiesNumColumns                   = $this->setPropertiesNumColumns($settings);
+        $this->DefaultTabServer                       = $this->setDefaultTabServer($settings);
+        $this->DefaultTabDatabase                     = $this->setDefaultTabDatabase($settings);
+        $this->DefaultTabTable                        = $this->setDefaultTabTable($settings);
+        $this->RowActionType                          = $this->setRowActionType($settings);
+        $this->Export                                 = $this->setExport($settings);
+        $this->Import                                 = $this->setImport($settings);
+        $this->Schema                                 = $this->setSchema($settings);
+        $this->PDFPageSizes                           = $this->setPDFPageSizes($settings);
+        $this->PDFDefaultPageSize                     = $this->setPDFDefaultPageSize($settings);
+        $this->DefaultLang                            = $this->setDefaultLang($settings);
+        $this->DefaultConnectionCollation             = $this->setDefaultConnectionCollation($settings);
+        $this->Lang                                   = $this->setLang($settings);
+        $this->FilterLanguages                        = $this->setFilterLanguages($settings);
+        $this->RecodingEngine                         = $this->setRecodingEngine($settings);
+        $this->IconvExtraParams                       = $this->setIconvExtraParams($settings);
+        $this->AvailableCharsets                      = $this->setAvailableCharsets($settings);
+        $this->NavigationTreePointerEnable            = $this->setNavigationTreePointerEnable($settings);
+        $this->BrowsePointerEnable                    = $this->setBrowsePointerEnable($settings);
+        $this->BrowseMarkerEnable                     = $this->setBrowseMarkerEnable($settings);
+        $this->TextareaCols                           = $this->setTextareaCols($settings);
+        $this->TextareaRows                           = $this->setTextareaRows($settings);
+        $this->LongtextDoubleTextarea                 = $this->setLongtextDoubleTextarea($settings);
+        $this->TextareaAutoSelect                     = $this->setTextareaAutoSelect($settings);
+        $this->CharTextareaCols                       = $this->setCharTextareaCols($settings);
+        $this->CharTextareaRows                       = $this->setCharTextareaRows($settings);
+        $this->LimitChars                             = $this->setLimitChars($settings);
+        $this->RowActionLinks                         = $this->setRowActionLinks($settings);
+        $this->RowActionLinksWithoutUnique            = $this->setRowActionLinksWithoutUnique($settings);
+        $this->TablePrimaryKeyOrder                   = $this->setTablePrimaryKeyOrder($settings);
+        $this->RememberSorting                        = $this->setRememberSorting($settings);
+        $this->ShowBrowseComments                     = $this->setShowBrowseComments($settings);
+        $this->ShowPropertyComments                   = $this->setShowPropertyComments($settings);
+        $this->RepeatCells                            = $this->setRepeatCells($settings);
+        $this->QueryHistoryDB                         = $this->setQueryHistoryDB($settings);
+        $this->QueryHistoryMax                        = $this->setQueryHistoryMax($settings);
+        $this->BrowseMIME                             = $this->setBrowseMIME($settings);
+        $this->MaxExactCount                          = $this->setMaxExactCount($settings);
+        $this->MaxExactCountViews                     = $this->setMaxExactCountViews($settings);
+        $this->NaturalOrder                           = $this->setNaturalOrder($settings);
+        $this->InitialSlidersState                    = $this->setInitialSlidersState($settings);
+        $this->UserprefsDisallow                      = $this->setUserprefsDisallow($settings);
+        $this->UserprefsDeveloperTab                  = $this->setUserprefsDeveloperTab($settings);
+        $this->TitleTable                             = $this->setTitleTable($settings);
+        $this->TitleDatabase                          = $this->setTitleDatabase($settings);
+        $this->TitleServer                            = $this->setTitleServer($settings);
+        $this->TitleDefault                           = $this->setTitleDefault($settings);
+        $this->ThemeManager                           = $this->setThemeManager($settings);
+        $this->ThemeDefault                           = $this->setThemeDefault($settings);
+        $this->ThemePerServer                         = $this->setThemePerServer($settings);
+        $this->DefaultQueryTable                      = $this->setDefaultQueryTable($settings);
+        $this->DefaultQueryDatabase                   = $this->setDefaultQueryDatabase($settings);
+        $this->SQLQuery                               = $this->setSQLQuery($settings);
+        $this->EnableAutocompleteForTablesAndColumns  = $this->setEnableAutocompleteForTablesAndColumns($settings);
+        $this->UploadDir                              = $this->setUploadDir($settings);
+        $this->SaveDir                                = $this->setSaveDir($settings);
+        $this->TempDir                                = $this->setTempDir($settings);
+        $this->GD2Available                           = $this->setGD2Available($settings);
+        $this->TrustedProxies                         = $this->setTrustedProxies($settings);
+        $this->CheckConfigurationPermissions          = $this->setCheckConfigurationPermissions($settings);
+        $this->LinkLengthLimit                        = $this->setLinkLengthLimit($settings);
+        $this->CSPAllow                               = $this->setCSPAllow($settings);
+        $this->DisableMultiTableMaintenance           = $this->setDisableMultiTableMaintenance($settings);
+        $this->SendErrorReports                       = $this->setSendErrorReports($settings);
+        $this->ConsoleEnterExecutes                   = $this->setConsoleEnterExecutes($settings);
+        $this->ZeroConf                               = $this->setZeroConf($settings);
+        $this->DBG                                    = $this->setDBG($settings);
+        $this->environment                            = $this->setEnvironment($settings);
+        $this->DefaultFunctions                       = $this->setDefaultFunctions($settings);
+        $this->maxRowPlotLimit                        = $this->setMaxRowPlotLimit($settings);
+        $this->ShowGitRevision                        = $this->setShowGitRevision($settings);
+        $this->MysqlMinVersion                        = $this->setMysqlMinVersion($settings);
+        $this->DisableShortcutKeys                    = $this->setDisableShortcutKeys($settings);
+        $this->Console                                = $this->setConsole($settings);
+        $this->DefaultTransformations                 = $this->setDefaultTransformations($settings);
+        $this->FirstDayOfCalendar                     = $this->setFirstDayOfCalendar($settings);
     }
 
     /**
@@ -1836,13 +1836,13 @@ final class Settings
      */
     public function toArray(): array
     {
-        $settings = get_object_vars($this);
-        $settings['Console'] = get_object_vars($this->Console);
-        $settings['DBG'] = get_object_vars($this->DBG);
-        $settings['SQLQuery'] = get_object_vars($this->SQLQuery);
-        $settings['Export'] = get_object_vars($this->Export);
-        $settings['Import'] = get_object_vars($this->Import);
-        $settings['Schema'] = get_object_vars($this->Schema);
+        $settings                           = get_object_vars($this);
+        $settings['Console']                = get_object_vars($this->Console);
+        $settings['DBG']                    = get_object_vars($this->DBG);
+        $settings['SQLQuery']               = get_object_vars($this->SQLQuery);
+        $settings['Export']                 = get_object_vars($this->Export);
+        $settings['Import']                 = get_object_vars($this->Import);
+        $settings['Schema']                 = get_object_vars($this->Schema);
         $settings['DefaultTransformations'] = get_object_vars($this->DefaultTransformations);
 
         foreach (array_keys($settings['Servers']) as $key) {
@@ -1853,7 +1853,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setPmaAbsoluteUri(array $settings): string
     {
@@ -1865,7 +1865,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setAuthLog(array $settings): string
     {
@@ -1877,7 +1877,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setAuthLogSuccess(array $settings): bool
     {
@@ -1889,7 +1889,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setPmaNoRelationDisableWarning(array $settings): bool
     {
@@ -1901,7 +1901,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSuhosinDisableWarning(array $settings): bool
     {
@@ -1913,7 +1913,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLoginCookieValidityDisableWarning(array $settings): bool
     {
@@ -1925,7 +1925,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setReservedWordDisableWarning(array $settings): bool
     {
@@ -1937,7 +1937,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTranslationWarningThreshold(array $settings): int
     {
@@ -1954,7 +1954,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return bool|string
      *
      * @psalm-return bool|'sameorigin'
@@ -1973,7 +1974,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setBlowfishSecret(array $settings): string
     {
@@ -1985,7 +1986,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return array<int, Server>
      *
      * @psalm-return array<int<1, max>, Server>
@@ -1999,7 +2001,7 @@ final class Settings
         $servers = [];
         /**
          * @var int|string $key
-         * @var mixed $server
+         * @var mixed      $server
          */
         foreach ($settings['Servers'] as $key => $server) {
             if (! is_int($key) || $key < 1 || ! is_array($server)) {
@@ -2017,7 +2019,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2033,7 +2035,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setVersionCheck(array $settings): bool
     {
@@ -2050,7 +2052,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setProxyUrl(array $settings): string
     {
@@ -2062,7 +2064,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setProxyUser(array $settings): string
     {
@@ -2074,7 +2076,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setProxyPass(array $settings): string
     {
@@ -2086,7 +2088,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2102,7 +2104,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2118,7 +2120,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowHint(array $settings): bool
     {
@@ -2130,7 +2132,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2146,7 +2148,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return bool|string
      *
      * @psalm-return 'auto'|bool
@@ -2161,7 +2164,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setPersistentConnections(array $settings): bool
     {
@@ -2173,7 +2176,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2189,7 +2192,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSessionSavePath(array $settings): string
     {
@@ -2201,7 +2204,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return string[]
      */
     private function setMysqlSslWarningSafeHosts(array $settings): array
@@ -2225,7 +2229,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setMemoryLimit(array $settings): string
     {
@@ -2237,7 +2241,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSkipLockedTables(array $settings): bool
     {
@@ -2249,7 +2253,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowSQL(array $settings): bool
     {
@@ -2261,7 +2265,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setRetainQueryBox(array $settings): bool
     {
@@ -2273,7 +2277,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCodemirrorEnable(array $settings): bool
     {
@@ -2285,7 +2289,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLintEnable(array $settings): bool
     {
@@ -2297,7 +2301,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setAllowUserDropDatabase(array $settings): bool
     {
@@ -2309,7 +2313,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setConfirm(array $settings): bool
     {
@@ -2321,7 +2325,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'Lax'|'Strict'|'None'
      */
@@ -2335,7 +2339,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLoginCookieRecall(array $settings): bool
     {
@@ -2347,7 +2351,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2363,7 +2367,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2379,7 +2383,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLoginCookieDeleteAll(array $settings): bool
     {
@@ -2391,7 +2395,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setUseDbSearch(array $settings): bool
     {
@@ -2403,7 +2407,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setIgnoreMultiSubmitErrors(array $settings): bool
     {
@@ -2415,7 +2419,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setURLQueryEncryption(array $settings): bool
     {
@@ -2427,7 +2431,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setURLQueryEncryptionSecretKey(array $settings): string
     {
@@ -2439,7 +2443,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setAllowArbitraryServer(array $settings): bool
     {
@@ -2451,7 +2455,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setArbitraryServerRegexp(array $settings): string
     {
@@ -2463,7 +2467,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'invisible'|'checkbox'
      */
@@ -2477,7 +2481,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaApi(array $settings): string
     {
@@ -2489,7 +2493,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaCsp(array $settings): string
     {
@@ -2502,7 +2506,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaRequestParam(array $settings): string
     {
@@ -2514,7 +2518,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaResponseParam(array $settings): string
     {
@@ -2526,7 +2530,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaLoginPublicKey(array $settings): string
     {
@@ -2538,7 +2542,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaLoginPrivateKey(array $settings): string
     {
@@ -2550,7 +2554,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCaptchaSiteVerifyURL(array $settings): string
     {
@@ -2562,7 +2566,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setEnableDragDropImport(array $settings): bool
     {
@@ -2574,7 +2578,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDatabasesNavigationAsTree(array $settings): bool
     {
@@ -2586,7 +2590,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2602,7 +2606,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2618,7 +2622,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeEnableGrouping(array $settings): bool
     {
@@ -2630,7 +2634,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeDbSeparator(array $settings): string
     {
@@ -2642,7 +2646,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return false|string|string[]
      */
     private function setNavigationTreeTableSeparator(array $settings)
@@ -2673,7 +2678,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2689,7 +2694,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationLinkWithMainPanel(array $settings): bool
     {
@@ -2701,7 +2706,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationDisplayLogo(array $settings): bool
     {
@@ -2713,7 +2718,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationLogoLink(array $settings): string
     {
@@ -2725,7 +2730,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'main'|'new'
      */
@@ -2739,7 +2744,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2755,7 +2760,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2771,7 +2776,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2787,7 +2792,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationDisplayServers(array $settings): bool
     {
@@ -2799,7 +2804,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDisplayServersList(array $settings): bool
     {
@@ -2811,7 +2816,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -2827,7 +2832,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'structure'|'sql'|'search'|'insert'|'browse'
      */
@@ -2860,7 +2865,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'structure'|'sql'|'search'|'insert'|'browse'|''
      */
@@ -2897,7 +2902,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeEnableExpansion(array $settings): bool
     {
@@ -2909,7 +2914,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeShowTables(array $settings): bool
     {
@@ -2921,7 +2926,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeShowViews(array $settings): bool
     {
@@ -2933,7 +2938,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeShowFunctions(array $settings): bool
     {
@@ -2945,7 +2950,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeShowProcedures(array $settings): bool
     {
@@ -2957,7 +2962,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeShowEvents(array $settings): bool
     {
@@ -2969,7 +2974,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -2985,7 +2990,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreeAutoexpandSingleDb(array $settings): bool
     {
@@ -2997,7 +3002,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowStats(array $settings): bool
     {
@@ -3009,7 +3014,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowPhpInfo(array $settings): bool
     {
@@ -3021,7 +3026,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowServerInfo(array $settings): bool
     {
@@ -3033,7 +3038,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowChgPassword(array $settings): bool
     {
@@ -3045,7 +3050,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowCreateDb(array $settings): bool
     {
@@ -3057,7 +3062,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDbStructureCharset(array $settings): bool
     {
@@ -3069,7 +3074,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDbStructureComment(array $settings): bool
     {
@@ -3081,7 +3086,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDbStructureCreation(array $settings): bool
     {
@@ -3093,7 +3098,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDbStructureLastUpdate(array $settings): bool
     {
@@ -3105,7 +3110,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowDbStructureLastCheck(array $settings): bool
     {
@@ -3117,7 +3122,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setHideStructureActions(array $settings): bool
     {
@@ -3129,7 +3134,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowColumnComments(array $settings): bool
     {
@@ -3141,7 +3146,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'text'|'icons'|'both'
      */
@@ -3158,7 +3163,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowAll(array $settings): bool
     {
@@ -3170,7 +3175,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3186,7 +3191,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'ASC'|'DESC'|'SMART'
      */
@@ -3200,7 +3205,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSaveCellsAtOnce(array $settings): bool
     {
@@ -3212,7 +3217,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'double-click'|'click'|'disabled'
      */
@@ -3226,7 +3231,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'K'|'D'
      */
@@ -3240,7 +3245,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return false|string
      *
      * @psalm-return 'blob'|'noblob'|'all'|false
@@ -3258,7 +3264,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowFunctionFields(array $settings): bool
     {
@@ -3270,7 +3276,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowFieldTypesInDataEditView(array $settings): bool
     {
@@ -3282,7 +3288,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'input'|'textarea'
      */
@@ -3296,7 +3302,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -3312,7 +3318,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3328,7 +3334,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3344,7 +3350,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return string[]
      *
      * @psalm-return array{0: 'content-id'|'id-content', 1?: 'content-id'|'id-content'}
@@ -3371,7 +3378,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3387,7 +3394,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'default'|'enable'|'disable'
      */
@@ -3404,7 +3411,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setZipDump(array $settings): bool
     {
@@ -3416,7 +3423,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setGZipDump(array $settings): bool
     {
@@ -3428,7 +3435,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setBZipDump(array $settings): bool
     {
@@ -3440,7 +3447,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCompressOnFly(array $settings): bool
     {
@@ -3452,7 +3459,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'icons'|'text'|'both'
      */
@@ -3466,7 +3473,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'icons'|'text'|'both'
      */
@@ -3483,7 +3490,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3499,7 +3506,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'welcome'|'databases'|'status'|'variables'|'privileges'
      */
@@ -3532,7 +3539,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'structure'|'sql'|'search'|'operations'
      */
@@ -3561,7 +3568,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'structure'|'sql'|'search'|'insert'|'browse'
      */
@@ -3594,7 +3601,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'icons'|'text'|'both'
      */
@@ -3608,7 +3615,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setExport(array $settings): Export
     {
@@ -3620,7 +3627,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setImport(array $settings): Import
     {
@@ -3632,7 +3639,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSchema(array $settings): Schema
     {
@@ -3644,7 +3651,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return string[]
      */
     private function setPDFPageSizes(array $settings): array
@@ -3667,7 +3675,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setPDFDefaultPageSize(array $settings): string
     {
@@ -3679,7 +3687,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDefaultLang(array $settings): string
     {
@@ -3691,7 +3699,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDefaultConnectionCollation(array $settings): string
     {
@@ -3703,7 +3711,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLang(array $settings): string
     {
@@ -3715,7 +3723,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setFilterLanguages(array $settings): string
     {
@@ -3727,7 +3735,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'auto'|'iconv'|'recode'|'mb'|'none'
      */
@@ -3744,7 +3752,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setIconvExtraParams(array $settings): string
     {
@@ -3756,7 +3764,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return string[]
      */
     private function setAvailableCharsets(array $settings): array
@@ -3809,7 +3818,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNavigationTreePointerEnable(array $settings): bool
     {
@@ -3821,7 +3830,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setBrowsePointerEnable(array $settings): bool
     {
@@ -3833,7 +3842,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setBrowseMarkerEnable(array $settings): bool
     {
@@ -3845,7 +3854,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3861,7 +3870,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3877,7 +3886,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setLongtextDoubleTextarea(array $settings): bool
     {
@@ -3889,7 +3898,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTextareaAutoSelect(array $settings): bool
     {
@@ -3901,7 +3910,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3917,7 +3926,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3933,7 +3942,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -3949,7 +3958,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'left'|'right'|'both'|'none'
      */
@@ -3966,7 +3975,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setRowActionLinksWithoutUnique(array $settings): bool
     {
@@ -3978,7 +3987,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'NONE'|'ASC'|'DESC'
      */
@@ -3995,7 +4004,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setRememberSorting(array $settings): bool
     {
@@ -4007,7 +4016,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowBrowseComments(array $settings): bool
     {
@@ -4019,7 +4028,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowPropertyComments(array $settings): bool
     {
@@ -4031,7 +4040,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -4047,7 +4056,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setQueryHistoryDB(array $settings): bool
     {
@@ -4059,7 +4068,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -4075,7 +4084,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setBrowseMIME(array $settings): bool
     {
@@ -4087,7 +4096,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -4103,7 +4112,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */
@@ -4119,7 +4128,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setNaturalOrder(array $settings): bool
     {
@@ -4131,7 +4140,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'open'|'closed'|'disabled'
      */
@@ -4148,7 +4157,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return string[]
      */
     private function setUserprefsDisallow(array $settings): array
@@ -4167,7 +4177,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setUserprefsDeveloperTab(array $settings): bool
     {
@@ -4179,7 +4189,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTitleTable(array $settings): string
     {
@@ -4191,7 +4201,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTitleDatabase(array $settings): string
     {
@@ -4203,7 +4213,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTitleServer(array $settings): string
     {
@@ -4215,7 +4225,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTitleDefault(array $settings): string
     {
@@ -4227,7 +4237,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setThemeManager(array $settings): bool
     {
@@ -4239,7 +4249,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setThemeDefault(array $settings): string
     {
@@ -4251,7 +4261,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setThemePerServer(array $settings): bool
     {
@@ -4263,7 +4273,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDefaultQueryTable(array $settings): string
     {
@@ -4275,7 +4285,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDefaultQueryDatabase(array $settings): string
     {
@@ -4287,7 +4297,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSQLQuery(array $settings): SqlQueryBox
     {
@@ -4299,7 +4309,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setEnableAutocompleteForTablesAndColumns(array $settings): bool
     {
@@ -4311,7 +4321,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setUploadDir(array $settings): string
     {
@@ -4323,7 +4333,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setSaveDir(array $settings): string
     {
@@ -4335,7 +4345,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setTempDir(array $settings): string
     {
@@ -4352,7 +4362,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'auto'|'yes'|'no'
      */
@@ -4366,7 +4376,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return array<string, string>
      */
     private function setTrustedProxies(array $settings): array
@@ -4378,7 +4389,7 @@ final class Settings
         $trustedProxies = [];
         /**
          * @var int|string $proxy
-         * @var mixed $header
+         * @var mixed      $header
          */
         foreach ($settings['TrustedProxies'] as $proxy => $header) {
             if (! is_string($proxy)) {
@@ -4392,7 +4403,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCheckConfigurationPermissions(array $settings): bool
     {
@@ -4404,7 +4415,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -4420,7 +4431,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setCSPAllow(array $settings): string
     {
@@ -4432,7 +4443,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDisableMultiTableMaintenance(array $settings): bool
     {
@@ -4444,7 +4455,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'ask'|'always'|'never'
      */
@@ -4461,7 +4472,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setConsoleEnterExecutes(array $settings): bool
     {
@@ -4473,7 +4484,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setZeroConf(array $settings): bool
     {
@@ -4485,7 +4496,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDBG(array $settings): Debug
     {
@@ -4497,7 +4508,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 'production'|'development'
      */
@@ -4511,18 +4522,19 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return array<string, string>
      */
     private function setDefaultFunctions(array $settings): array
     {
         if (! isset($settings['DefaultFunctions']) || ! is_array($settings['DefaultFunctions'])) {
             return [
-                'FUNC_CHAR' => '',
-                'FUNC_DATE' => '',
-                'FUNC_NUMBER' => '',
-                'FUNC_SPATIAL' => 'GeomFromText',
-                'FUNC_UUID' => 'UUID',
+                'FUNC_CHAR'       => '',
+                'FUNC_DATE'       => '',
+                'FUNC_NUMBER'     => '',
+                'FUNC_SPATIAL'    => 'GeomFromText',
+                'FUNC_UUID'       => 'UUID',
                 'first_timestamp' => 'NOW',
             ];
         }
@@ -4530,7 +4542,7 @@ final class Settings
         $defaultFunctions = [];
         /**
          * @var int|string $key
-         * @var mixed $value
+         * @var mixed      $value
          */
         foreach ($settings['DefaultFunctions'] as $key => $value) {
             if (! is_string($key)) {
@@ -4544,7 +4556,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return positive-int
      */
@@ -4560,7 +4572,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setShowGitRevision(array $settings): bool
     {
@@ -4572,7 +4584,8 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
+     *
      * @return array<string, int|string>
      *
      * @psalm-return array{internal: int, human: string}
@@ -4598,7 +4611,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDisableShortcutKeys(array $settings): bool
     {
@@ -4610,7 +4623,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setConsole(array $settings): Console
     {
@@ -4622,7 +4635,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      */
     private function setDefaultTransformations(array $settings): Transformations
     {
@@ -4634,7 +4647,7 @@ final class Settings
     }
 
     /**
-     * @param  array<int|string, mixed>  $settings
+     * @param array<int|string, mixed> $settings
      *
      * @psalm-return 0|positive-int
      */

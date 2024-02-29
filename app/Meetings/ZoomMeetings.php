@@ -33,9 +33,10 @@ class ZoomMeetings extends Model
     /**
      * Create a scheduled and instant meeting with zoom based on the params send through form
      *
-     * @param  string  $zoomKey
-     * @param  string  $zoomSecret
-     * @param  array  $data
+     * @param string $zoomKey
+     * @param string $zoomSecret
+     * @param array  $data
+     *
      * @return array $meeting
      *
      * @Rest\Post("LaravelZoom")
@@ -44,8 +45,8 @@ class ZoomMeetings extends Model
      */
     public function createMeeting($zoomKey, $zoomSecret, $data)
     {
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
-        $time = time() + 7200;
+        $zoom  = new LaravelZoom($zoomKey, $zoomSecret);
+        $time  = time() + 7200;
         $token = $zoom->getJWTToken($time);
         if ($token) {
             $meeting = $zoom->createScheduledMeeting($data['user_id'], $data['topic'], $data['startTime'], $data['duration'], $data['timezone'], '', '', $data['agenda'], [], $data['settings']);
@@ -59,8 +60,8 @@ class ZoomMeetings extends Model
 
     public function getMeetings($zoomKey, $zoomSecret, $data)
     {
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
-        $meeting1 = $zoom->getJWTToken(time() + 7200);
+        $zoom       = new LaravelZoom($zoomKey, $zoomSecret);
+        $meeting1   = $zoom->getJWTToken(time() + 7200);
         $meetingAll = $zoom->getMeetings($data['user_id'], $data['type'], 10);
         echo 'reach';
         echo '<pre>';
@@ -71,8 +72,9 @@ class ZoomMeetings extends Model
     /**
      * Getting future meetings
      *
-     * @param  string  $type
-     * @param  carbon  $date
+     * @param string $type
+     * @param carbon $date
+     *
      * @return array $meeting
      *
      * @uses vendors
@@ -123,8 +125,9 @@ class ZoomMeetings extends Model
     /**
      * Getting past meetings with recordings
      *
-     * @param  string  $type
-     * @param  carbon  $date
+     * @param string $type
+     * @param carbon $date
+     *
      * @return array $meeting
      *
      * @uses vendors
@@ -175,18 +178,23 @@ class ZoomMeetings extends Model
     /**
      * Get meeting recordings based on meeting id
      *
-     * @return array $meeting
      *
      * @Rest\Post("LaravelZoom")
      *
      * @uses LaravelZoom
+     *
+     * @param mixed $zoomKey
+     * @param mixed $zoomSecret
+     * @param mixed $date
+     *
+     * @return array $meeting
      */
     public function getRecordings($zoomKey, $zoomSecret, $date)
     {
         \Log::info('Get recording getRecordings ');
         $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();
 
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $zoom  = new LaravelZoom($zoomKey, $zoomSecret);
         $token = $zoom->getJWTToken(time() + 36000);
         \Log::info('Find recording-->' . count($allMeetingRecords));
         if (0 != count($allMeetingRecords)) {
@@ -206,9 +214,9 @@ class ZoomMeetings extends Model
                             foreach ($recordingFiles as $recordings) {
                                 if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
                                     \Log::info('shared_screen_with_speaker_view');
-                                    $fileName = $meetingId . '.mp4';
+                                    $fileName  = $meetingId . '.mp4';
                                     $urlOfFile = $recordings['download_url'];
-                                    $filePath = $folderPath . '/' . $fileName;
+                                    $filePath  = $folderPath . '/' . $fileName;
                                     if (! file_exists($filePath)) {
                                         mkdir($folderPath, 0777, true);
                                     }
@@ -221,7 +229,7 @@ class ZoomMeetings extends Model
                                         if (! isset($filePath) || empty($filePath)) {
                                             $filePath = $folderPath . '/' . $fileNameAudio;
                                         }
-                                        $filePathAudio = $folderPath . '/' . $fileNameAudio;
+                                        $filePathAudio  = $folderPath . '/' . $fileNameAudio;
                                         $urlOfAudioFile = $recordings['download_url'];
                                         if (! file_exists($filePath)) {
                                             mkdir($folderPath, 0777, true);
@@ -244,23 +252,28 @@ class ZoomMeetings extends Model
     /**
      * Delete meeting recordings based on meeting id
      *
-     * @return array $meeting
      *
      * @Rest\Post("LaravelZoom")
      *
      * @uses LaravelZoom
+     *
+     * @param mixed $zoomKey
+     * @param mixed $zoomSecret
+     * @param mixed $date
+     *
+     * @return array $meeting
      */
     public function deleteRecordings($zoomKey, $zoomSecret, $date)
     {
         $allMeetingRecords = ZoomMeetings::where('is_deleted_from_zoom', '!=', 1)->whereNotNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
-        $token = $zoom->getJWTToken(time() + 36000);
+        $zoom              = new LaravelZoom($zoomKey, $zoomSecret);
+        $token             = $zoom->getJWTToken(time() + 36000);
         if (0 != count($allMeetingRecords)) {
             foreach ($allMeetingRecords as $meetings) {
-                $meetingId = $meetings->meeting_id;
-                $folderPath = public_path() . '/zoom/0/' . $meetings->id;
-                $fileName = $meetingId . '.mp4';
-                $filePath = $folderPath . '/' . $fileName;
+                $meetingId     = $meetings->meeting_id;
+                $folderPath    = public_path() . '/zoom/0/' . $meetings->id;
+                $fileName      = $meetingId . '.mp4';
+                $filePath      = $folderPath . '/' . $fileName;
                 $fileNameAudio = $meetingId . '-audio.mp4';
                 $filePathAudio = $folderPath . '/' . $fileNameAudio;
                 if (file_exists($filePath) && file_exists($filePathAudio)) {
@@ -302,7 +315,7 @@ class ZoomMeetings extends Model
         \Log::info('Get recording getRecordings ');
         $allMeetingRecords = ZoomMeetings::WhereNull('zoom_recording')->whereNotNull('meeting_id')->whereDate('start_date_time', '<', $date)->get();
 
-        $zoom = new LaravelZoom($zoomKey, $zoomSecret);
+        $zoom  = new LaravelZoom($zoomKey, $zoomSecret);
         $token = $zoom->getJWTToken(time() + 36000);
         \Log::info('Find recording-->' . count($allMeetingRecords));
         $meetingId = $zoommeetingid;
@@ -312,7 +325,7 @@ class ZoomMeetings extends Model
         if ($recordingAll) {
             if ('200' == $recordingAll['status']) {
                 if ($recordingAll) {
-                    $folderPath = public_path() . '/zoom/0/' . $meetingId;
+                    $folderPath  = public_path() . '/zoom/0/' . $meetingId;
                     $databsePath = '/zoom/0/' . $meetingId;
                     \Log::info('folderPath -->' . $folderPath);
                     foreach ($recordingAll['body']['meetings'] as $meetings) {
@@ -324,16 +337,16 @@ class ZoomMeetings extends Model
                                 if (! $checkfile) {
                                     if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
                                         \Log::info('shared_screen_with_speaker_view');
-                                        $fileName = $meetingId . '_' . time() . '.mp4';
+                                        $fileName  = $meetingId . '_' . time() . '.mp4';
                                         $urlOfFile = $recordings['download_url'];
-                                        $filePath = $folderPath . '/' . $fileName;
+                                        $filePath  = $folderPath . '/' . $fileName;
                                         if (! file_exists($filePath) && ! is_dir($folderPath)) {
                                             mkdir($folderPath, 0777, true);
                                         }
                                         $ch = curl_init($urlOfFile);
                                         curl_exec($ch);
                                         if (! curl_errno($ch)) {
-                                            $info = curl_getinfo($ch);
+                                            $info         = curl_getinfo($ch);
                                             $downloadLink = $info['redirect_url'];
                                         }
                                         curl_close($ch);
@@ -342,9 +355,9 @@ class ZoomMeetings extends Model
                                             copy($downloadLink, $filePath);
                                         }
 
-                                        $zoom_meeting_details = new ZoomMeetingDetails();
-                                        $zoom_meeting_details->file_path = $databsePath . '/' . $fileName;
-                                        $zoom_meeting_details->file_name = $fileName;
+                                        $zoom_meeting_details                  = new ZoomMeetingDetails();
+                                        $zoom_meeting_details->file_path       = $databsePath . '/' . $fileName;
+                                        $zoom_meeting_details->file_name       = $fileName;
                                         $zoom_meeting_details->download_url_id = $recordings['id'];
                                         $zoom_meeting_details->save();
                                     } else {
@@ -353,7 +366,7 @@ class ZoomMeetings extends Model
                                             if (! isset($filePath) || empty($filePath)) {
                                                 $filePath = $folderPath . '/' . $fileNameAudio;
                                             }
-                                            $filePathAudio = $folderPath . '/' . $fileNameAudio;
+                                            $filePathAudio  = $folderPath . '/' . $fileNameAudio;
                                             $urlOfAudioFile = $recordings['download_url'];
                                             if (! file_exists($filePath) && ! is_dir($folderPath)) {
                                                 mkdir($folderPath, 0777, true);
@@ -361,7 +374,7 @@ class ZoomMeetings extends Model
                                             $ch = curl_init($urlOfAudioFile);
                                             curl_exec($ch);
                                             if (! curl_errno($ch)) {
-                                                $info = curl_getinfo($ch);
+                                                $info         = curl_getinfo($ch);
                                                 $downloadLink = $info['redirect_url'];
                                             }
                                             curl_close($ch);

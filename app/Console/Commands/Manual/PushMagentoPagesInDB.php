@@ -41,7 +41,7 @@ class PushMagentoPagesInDB extends Command
         $ids = $this->ask('Enter Website ids');
 
         if (! empty($ids)) {
-            $ids = explode(',', $ids);
+            $ids      = explode(',', $ids);
             $websites = \App\StoreWebsite::whereIn('id', $ids)->where('api_token', '!=', '')->where('remote_software', '2')->where('website_source', 'magento')->get();
         } else {
             $websites = \App\StoreWebsite::where('api_token', '!=', '')->where('remote_software', '2')->where('website_source', 'magento')->get();
@@ -58,17 +58,17 @@ class PushMagentoPagesInDB extends Command
                         }
 
                         $pages->store_website_id = $website->id;
-                        $pages->platform_id = $d->id;
-                        $pages->title = isset($d->title) ? $d->title : '';
-                        $pages->url_key = isset($d->identifier) ? $d->identifier : '';
-                        $pages->layout = isset($d->page_layout) ? $d->page_layout : '';
-                        $pages->meta_title = isset($d->meta_title) ? $d->meta_title : '';
-                        $pages->meta_keywords = isset($d->meta_keywords) ? $d->meta_keywords : '';
+                        $pages->platform_id      = $d->id;
+                        $pages->title            = isset($d->title) ? $d->title : '';
+                        $pages->url_key          = isset($d->identifier) ? $d->identifier : '';
+                        $pages->layout           = isset($d->page_layout) ? $d->page_layout : '';
+                        $pages->meta_title       = isset($d->meta_title) ? $d->meta_title : '';
+                        $pages->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : '';
                         $pages->meta_description = isset($d->meta_description) ? $d->meta_description : '';
-                        $pages->content_heading = isset($d->content_heading) ? $d->content_heading : '';
-                        $pages->content = isset($d->content) ? $d->content : '';
-                        $pages->created_at = isset($d->creation_time) ? $d->creation_time : '';
-                        $pages->updated_at = isset($d->update_time) ? $d->update_time : '';
+                        $pages->content_heading  = isset($d->content_heading) ? $d->content_heading : '';
+                        $pages->content          = isset($d->content) ? $d->content : '';
+                        $pages->created_at       = isset($d->creation_time) ? $d->creation_time : '';
+                        $pages->updated_at       = isset($d->update_time) ? $d->update_time : '';
 
                         $pages->save();
                     }

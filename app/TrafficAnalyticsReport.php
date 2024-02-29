@@ -19,7 +19,7 @@ class TrafficAnalyticsReport extends Model
 
     public function trafficanaliticsReportSemrushApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'traffic_summary' => 'https://api.semrush.com/analytics/ta/api/v3/summary?targets=golang.org,blog.golang.org,tour.golang.org/welcome/&export_columns=target,visits,users&key=' . $key,
 
@@ -115,7 +115,7 @@ ebay.com;2019-01-01;US;desktop;3',
 
     public function trafficanaliticsReportAhrefsApis($domain, $db, $column = null)
     {
-        $key = env('KEY');
+        $key  = env('KEY');
         $apis = [
             'traffic_summary' => '',
 
@@ -156,7 +156,7 @@ ebay.com;2019-01-01;US;desktop;3',
 
             'subdomains' => '',
 
-            'top_pages' => '',
+            'top_pages'       => '',
             'domain_rankings' => '{
     "domain": {
         "domain_rating": 66,

@@ -29,7 +29,7 @@ final class GeneralLogController extends AbstractController
     ) {
         parent::__construct($response, $template, $data);
         $this->monitor = $monitor;
-        $this->dbi = $dbi;
+        $this->dbi     = $dbi;
     }
 
     public function __invoke(): void
@@ -37,9 +37,9 @@ final class GeneralLogController extends AbstractController
         global $errorUrl;
 
         $params = [
-            'time_start' => $_POST['time_start'] ?? null,
-            'time_end' => $_POST['time_end'] ?? null,
-            'limitTypes' => $_POST['limitTypes'] ?? null,
+            'time_start'      => $_POST['time_start'] ?? null,
+            'time_end'        => $_POST['time_end'] ?? null,
+            'limitTypes'      => $_POST['limitTypes'] ?? null,
             'removeVariables' => $_POST['removeVariables'] ?? null,
         ];
         $errorUrl = Url::getFromRoute('/');

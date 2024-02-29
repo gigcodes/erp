@@ -35,7 +35,7 @@ class Key extends TwoFactorPlugin
     /**
      * Creates object
      *
-     * @param  TwoFactor  $twofactor TwoFactor instance
+     * @param TwoFactor $twofactor TwoFactor instance
      */
     public function __construct(TwoFactor $twofactor)
     {
@@ -56,13 +56,13 @@ class Key extends TwoFactorPlugin
     {
         $result = [];
         foreach ($this->twofactor->config['settings']['registrations'] as $index => $data) {
-            $reg = new stdClass();
-            $reg->keyHandle = $data['keyHandle'];
-            $reg->publicKey = $data['publicKey'];
+            $reg              = new stdClass();
+            $reg->keyHandle   = $data['keyHandle'];
+            $reg->publicKey   = $data['publicKey'];
             $reg->certificate = $data['certificate'];
-            $reg->counter = $data['counter'];
-            $reg->index = $index;
-            $result[] = $reg;
+            $reg->counter     = $data['counter'];
+            $reg->index       = $index;
+            $result[]         = $reg;
         }
 
         return $result;
@@ -107,7 +107,7 @@ class Key extends TwoFactorPlugin
     public function loadScripts(): void
     {
         $response = ResponseRenderer::getInstance();
-        $scripts = $response->getHeader()->getScripts();
+        $scripts  = $response->getHeader()->getScripts();
         $scripts->addFile('vendor/u2f-api-polyfill.js');
         $scripts->addFile('u2f.js');
     }
@@ -127,7 +127,7 @@ class Key extends TwoFactorPlugin
         $this->loadScripts();
 
         return $this->template->render('login/twofactor/key', [
-            'request' => json_encode($request),
+            'request'  => json_encode($request),
             'is_https' => $GLOBALS['config']->isHttps(),
         ]);
     }
@@ -154,9 +154,9 @@ class Key extends TwoFactorPlugin
         $this->loadScripts();
 
         return $this->template->render('login/twofactor/key_configure', [
-            'request' => json_encode($registrationData['request']),
+            'request'    => json_encode($registrationData['request']),
             'signatures' => json_encode($registrationData['signatures']),
-            'is_https' => $GLOBALS['config']->isHttps(),
+            'is_https'   => $GLOBALS['config']->isHttps(),
         ]);
     }
 
@@ -177,12 +177,12 @@ class Key extends TwoFactorPlugin
                 return false;
             }
 
-            $registration = U2FServer::register($_SESSION['registrationRequest'], $response);
+            $registration                                           = U2FServer::register($_SESSION['registrationRequest'], $response);
             $this->twofactor->config['settings']['registrations'][] = [
-                'keyHandle' => $registration->getKeyHandle(),
-                'publicKey' => $registration->getPublicKey(),
+                'keyHandle'   => $registration->getKeyHandle(),
+                'publicKey'   => $registration->getPublicKey(),
                 'certificate' => $registration->getCertificate(),
-                'counter' => $registration->getCounter(),
+                'counter'     => $registration->getCounter(),
             ];
 
             return true;

@@ -102,8 +102,8 @@ class SimplyDutyCurrencyController extends Controller
     public function getCurrencyFromApi()
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        $url = 'https://www.api.simplyduty.com/api/Supporting/supported-currencies';
+        $ch        = curl_init();
+        $url       = 'https://www.api.simplyduty.com/api/Supporting/supported-currencies';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -112,7 +112,7 @@ class SimplyDutyCurrencyController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
-        $output = curl_exec($ch);
+        $output   = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCurrencyController::class, 'getCurrencyFromApi');
 
@@ -124,11 +124,11 @@ class SimplyDutyCurrencyController extends Controller
 
         foreach ($currencies as $currency) {
             $currency = $currency->CurrencyType;
-            $cur = SimplyDutyCurrency::where('currency', $currency)->first();
+            $cur      = SimplyDutyCurrency::where('currency', $currency)->first();
             if ($cur != '' && $cur != null) {
                 $cur->touch();
             } else {
-                $currencySave = new SimplyDutyCurrency;
+                $currencySave           = new SimplyDutyCurrency;
                 $currencySave->currency = $currency;
                 $currencySave->save();
             }

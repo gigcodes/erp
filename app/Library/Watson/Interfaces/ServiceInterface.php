@@ -17,7 +17,7 @@ interface ServiceInterface
     /**
      * Set the url for the service api
      *
-     * @param  string  $url
+     * @param string $url
      */
     public function setUrl($url);
 
@@ -29,7 +29,7 @@ interface ServiceInterface
     /**
      * Set the api version
      *
-     * @param  string  $version
+     * @param string $version
      */
     public function setVersion($version);
 

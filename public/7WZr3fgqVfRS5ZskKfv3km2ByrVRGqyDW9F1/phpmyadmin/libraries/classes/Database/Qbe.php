@@ -243,12 +243,12 @@ class Qbe
     public $template;
 
     /**
-     * @param  Relation  $relation        Relation object
-     * @param  Template  $template        Template object
-     * @param  DatabaseInterface  $dbi             DatabaseInterface object
-     * @param  string  $dbname          Database name
-     * @param  array  $savedSearchList List of saved searches
-     * @param  SavedSearches|null  $currentSearch   Current search id
+     * @param Relation           $relation        Relation object
+     * @param Template           $template        Template object
+     * @param DatabaseInterface  $dbi             DatabaseInterface object
+     * @param string             $dbname          Database name
+     * @param array              $savedSearchList List of saved searches
+     * @param SavedSearches|null $currentSearch   Current search id
      */
     public function __construct(
         Relation $relation,
@@ -258,12 +258,12 @@ class Qbe
         array $savedSearchList = [],
         $currentSearch = null
     ) {
-        $this->db = $dbname;
+        $this->db              = $dbname;
         $this->savedSearchList = $savedSearchList;
-        $this->currentSearch = $currentSearch;
-        $this->dbi = $dbi;
-        $this->relation = $relation;
-        $this->template = $template;
+        $this->currentSearch   = $currentSearch;
+        $this->dbi             = $dbi;
+        $this->relation        = $relation;
+        $this->template        = $template;
 
         $this->loadCriterias();
         // Sets criteria parameters
@@ -283,7 +283,7 @@ class Qbe
         }
 
         $criterias = $this->currentSearch->getCriterias();
-        $_POST = $criterias + $_POST;
+        $_POST     = $criterias + $_POST;
 
         return $this;
     }
@@ -313,20 +313,20 @@ class Qbe
             : null;
 
         $this->prevCriteria = $_POST['prev_criteria'] ?? [];
-        $this->criteria = $_POST['criteria'] ?? array_fill(0, $criteriaColumnCount, '');
+        $this->criteria     = $_POST['criteria'] ?? array_fill(0, $criteriaColumnCount, '');
 
-        $this->criteriaRowInsert = $_POST['criteriaRowInsert'] ?? array_fill(0, $criteriaColumnCount, '');
-        $this->criteriaRowDelete = $_POST['criteriaRowDelete'] ?? array_fill(0, $criteriaColumnCount, '');
-        $this->criteriaAndOrRow = $_POST['criteriaAndOrRow'] ?? array_fill(0, $criteriaColumnCount, '');
+        $this->criteriaRowInsert   = $_POST['criteriaRowInsert'] ?? array_fill(0, $criteriaColumnCount, '');
+        $this->criteriaRowDelete   = $_POST['criteriaRowDelete'] ?? array_fill(0, $criteriaColumnCount, '');
+        $this->criteriaAndOrRow    = $_POST['criteriaAndOrRow'] ?? array_fill(0, $criteriaColumnCount, '');
         $this->criteriaAndOrColumn = $_POST['criteriaAndOrColumn'] ?? array_fill(0, $criteriaColumnCount, '');
         // sets minimum width
         $this->formColumnWidth = 12;
-        $this->formColumns = [];
-        $this->formSorts = [];
-        $this->formShows = [];
-        $this->formCriterions = [];
-        $this->formAndOrRows = [];
-        $this->formAndOrCols = [];
+        $this->formColumns     = [];
+        $this->formSorts       = [];
+        $this->formShows       = [];
+        $this->formCriterions  = [];
+        $this->formAndOrRows   = [];
+        $this->formAndOrCols   = [];
     }
 
     /**
@@ -341,7 +341,7 @@ class Qbe
             }
         }
 
-        $allTables = $this->dbi->query('SHOW TABLES FROM ' . Util::backquote($this->db) . ';');
+        $allTables      = $this->dbi->query('SHOW TABLES FROM ' . Util::backquote($this->db) . ';');
         $allTablesCount = $allTables->numRows();
         if ($allTablesCount == 0) {
             echo Message::error(__('No tables found in database.'))->getDisplay();
@@ -363,7 +363,7 @@ class Qbe
                 continue;
             }
 
-            $eachTable = Util::backquote($table);
+            $eachTable           = Util::backquote($table);
             $this->columnNames[] = $eachTable . '.*';
             foreach ($columns as $eachColumn) {
                 $eachColumn = $eachTable . '.'
@@ -384,24 +384,26 @@ class Qbe
     /**
      * Provides select options list containing column names
      *
-     * @param  int  $columnNumber Column Number (0,1,2) or more
-     * @param  string  $selected     Selected criteria column name
+     * @param int    $columnNumber Column Number (0,1,2) or more
+     * @param string $selected     Selected criteria column name
+     *
      * @return string HTML for select options
      */
     private function showColumnSelectCell($columnNumber, $selected = '')
     {
         return $this->template->render('database/qbe/column_select_cell', [
             'column_number' => $columnNumber,
-            'column_names' => $this->columnNames,
-            'selected' => $selected,
+            'column_names'  => $this->columnNames,
+            'selected'      => $selected,
         ]);
     }
 
     /**
      * Provides select options list containing sort options (ASC/DESC)
      *
-     * @param  int  $columnNumber Column Number (0,1,2) or more
-     * @param  string  $selected     Selected criteria 'ASC' or 'DESC'
+     * @param int    $columnNumber Column Number (0,1,2) or more
+     * @param string $selected     Selected criteria 'ASC' or 'DESC'
+     *
      * @return string HTML for select options
      */
     private function getSortSelectCell(
@@ -409,17 +411,18 @@ class Qbe
         $selected = ''
     ) {
         return $this->template->render('database/qbe/sort_select_cell', [
-            'real_width' => $this->realwidth,
+            'real_width'    => $this->realwidth,
             'column_number' => $columnNumber,
-            'selected' => $selected,
+            'selected'      => $selected,
         ]);
     }
 
     /**
      * Provides select options list containing sort order
      *
-     * @param  int  $columnNumber Column Number (0,1,2) or more
-     * @param  int  $sortOrder    Sort order
+     * @param int $columnNumber Column Number (0,1,2) or more
+     * @param int $sortOrder    Sort order
+     *
      * @return string HTML for select options
      */
     private function getSortOrderSelectCell($columnNumber, $sortOrder)
@@ -428,8 +431,8 @@ class Qbe
 
         return $this->template->render('database/qbe/sort_order_select_cell', [
             'total_column_count' => $totalColumnCount,
-            'column_number' => $columnNumber,
-            'sort_order' => $sortOrder,
+            'column_number'      => $columnNumber,
+            'sort_order'         => $sortOrder,
         ]);
     }
 
@@ -481,7 +484,7 @@ class Qbe
 
             $selected = '';
             if (isset($_POST['criteriaColumn'][$columnIndex])) {
-                $selected = $_POST['criteriaColumn'][$columnIndex];
+                $selected                           = $_POST['criteriaColumn'][$columnIndex];
                 $this->formColumns[$newColumnCount] = $_POST['criteriaColumn'][$columnIndex];
             }
 
@@ -673,7 +676,7 @@ class Qbe
             }
 
             if (isset($_POST['criteriaShow'][$columnIndex])) {
-                $checkedOptions = ' checked="checked"';
+                $checkedOptions                   = ' checked="checked"';
                 $this->formShows[$newColumnCount] = $_POST['criteriaShow'][$columnIndex];
             } else {
                 $checkedOptions = '';
@@ -762,9 +765,10 @@ class Qbe
      * Provides And/Or modification cell along with Insert/Delete options
      * (For modifying search form's table columns)
      *
-     * @param  int  $columnNumber Column Number (0,1,2) or more
-     * @param  array|null  $selected     Selected criteria column name
-     * @param  bool  $lastColumn   Whether this is the last column
+     * @param int        $columnNumber Column Number (0,1,2) or more
+     * @param array|null $selected     Selected criteria column name
+     * @param bool       $lastColumn   Whether this is the last column
+     *
      * @return string HTML for modification cell
      */
     private function getAndOrColCell(
@@ -830,11 +834,11 @@ class Qbe
 
             $checkedOptions = [];
             if (isset($this->criteriaAndOrColumn[$columnIndex]) && $this->criteriaAndOrColumn[$columnIndex] === 'or') {
-                $checkedOptions['or'] = ' checked="checked"';
+                $checkedOptions['or']  = ' checked="checked"';
                 $checkedOptions['and'] = '';
             } else {
                 $checkedOptions['and'] = ' checked="checked"';
-                $checkedOptions['or'] = '';
+                $checkedOptions['or']  = '';
             }
 
             $htmlOutput .= $this->getAndOrColCell(
@@ -852,12 +856,13 @@ class Qbe
      * Provides rows for criteria inputbox Insert/Delete options
      * with AND/OR relationship modification options
      *
-     * @param  int  $newRowIndex New row index if rows are added/deleted
+     * @param int $newRowIndex New row index if rows are added/deleted
+     *
      * @return string HTML table rows
      */
     private function getInputboxRow($newRowIndex)
     {
-        $htmlOutput = '';
+        $htmlOutput     = '';
         $newColumnCount = 0;
         for ($columnIndex = 0; $columnIndex < $this->criteriaColumnCount; $columnIndex++) {
             if (
@@ -913,16 +918,16 @@ class Qbe
      */
     private function getInsDelAndOrCriteriaRows()
     {
-        $htmlOutput = '';
-        $newRowCount = 0;
+        $htmlOutput     = '';
+        $newRowCount    = 0;
         $checkedOptions = [];
         for ($rowIndex = 0; $rowIndex <= $this->criteriaRowCount; $rowIndex++) {
             if (isset($this->criteriaRowInsert[$rowIndex]) && $this->criteriaRowInsert[$rowIndex] === 'on') {
-                $checkedOptions['or'] = true;
+                $checkedOptions['or']  = true;
                 $checkedOptions['and'] = false;
                 $htmlOutput .= '<tr class="noclick">';
                 $htmlOutput .= $this->template->render('database/qbe/ins_del_and_or_cell', [
-                    'row_index' => $newRowCount,
+                    'row_index'       => $newRowCount,
                     'checked_options' => $checkedOptions,
                 ]);
                 $htmlOutput .= $this->getInputboxRow($newRowCount);
@@ -940,15 +945,15 @@ class Qbe
 
             if (isset($this->criteriaAndOrRow[$rowIndex]) && $this->criteriaAndOrRow[$rowIndex] === 'and') {
                 $checkedOptions['and'] = true;
-                $checkedOptions['or'] = false;
+                $checkedOptions['or']  = false;
             } else {
-                $checkedOptions['or'] = true;
+                $checkedOptions['or']  = true;
                 $checkedOptions['and'] = false;
             }
 
             $htmlOutput .= '<tr class="noclick">';
             $htmlOutput .= $this->template->render('database/qbe/ins_del_and_or_cell', [
-                'row_index' => $newRowCount,
+                'row_index'       => $newRowCount,
                 'checked_options' => $checkedOptions,
             ]);
             $htmlOutput .= $this->getInputboxRow($newRowCount);
@@ -968,7 +973,7 @@ class Qbe
      */
     private function getSelectClause()
     {
-        $selectClause = '';
+        $selectClause  = '';
         $selectClauses = [];
         for ($columnIndex = 0; $columnIndex < $this->criteriaColumnCount; $columnIndex++) {
             if (
@@ -1003,7 +1008,7 @@ class Qbe
      */
     private function getWhereClause()
     {
-        $whereClause = '';
+        $whereClause   = '';
         $criteriaCount = 0;
         for ($columnIndex = 0; $columnIndex < $this->criteriaColumnCount; $columnIndex++) {
             if (
@@ -1038,8 +1043,8 @@ class Qbe
 
         for ($rowIndex = 0; $rowIndex <= $this->criteriaRowCount; $rowIndex++) {
             $criteriaCount = 0;
-            $queryOrWhere = '';
-            $lastOrWhere = '';
+            $queryOrWhere  = '';
+            $lastOrWhere   = '';
             for ($columnIndex = 0; $columnIndex < $this->criteriaColumnCount; $columnIndex++) {
                 if (
                     ! empty($this->formColumns[$columnIndex])
@@ -1090,12 +1095,12 @@ class Qbe
      */
     private function getOrderByClause()
     {
-        $orderByClause = '';
+        $orderByClause  = '';
         $orderByClauses = [];
 
         // Create copy of instance variables
-        $columns = $this->formColumns;
-        $sort = $this->formSorts;
+        $columns   = $this->formColumns;
+        $sort      = $this->formSorts;
         $sortOrder = $this->formSortOrders;
         if (! empty($sortOrder) && count($sortOrder) == count($sort) && count($sortOrder) == count($columns)) {
             // Sort all three arrays based on sort order
@@ -1133,9 +1138,10 @@ class Qbe
     /**
      * Provides UNIQUE columns and INDEX columns present in criteria tables
      *
-     * @param  array  $searchTables       Tables involved in the search
-     * @param  array  $searchColumns      Columns involved in the search
-     * @param  array  $whereClauseColumns Columns having criteria where clause
+     * @param array $searchTables       Tables involved in the search
+     * @param array $searchColumns      Columns involved in the search
+     * @param array $whereClauseColumns Columns having criteria where clause
+     *
      * @return array having UNIQUE and INDEX columns
      */
     private function getIndexes(
@@ -1144,7 +1150,7 @@ class Qbe
         array $whereClauseColumns
     ) {
         $uniqueColumns = [];
-        $indexColumns = [];
+        $indexColumns  = [];
 
         foreach ($searchTables as $table) {
             $indexes = $this->dbi->getTableIndexes($this->db, $table);
@@ -1172,16 +1178,17 @@ class Qbe
 
         return [
             'unique' => $uniqueColumns,
-            'index' => $indexColumns,
+            'index'  => $indexColumns,
         ];
     }
 
     /**
      * Provides UNIQUE columns and INDEX columns present in criteria tables
      *
-     * @param  array  $searchTables       Tables involved in the search
-     * @param  array  $searchColumns      Columns involved in the search
-     * @param  array  $whereClauseColumns Columns having criteria where clause
+     * @param array $searchTables       Tables involved in the search
+     * @param array $searchColumns      Columns involved in the search
+     * @param array $whereClauseColumns Columns having criteria where clause
+     *
      * @return array having UNIQUE and INDEX columns
      */
     private function getLeftJoinColumnCandidates(
@@ -1192,9 +1199,9 @@ class Qbe
         $this->dbi->selectDb($this->db);
 
         // Get unique columns and index columns
-        $indexes = $this->getIndexes($searchTables, $searchColumns, $whereClauseColumns);
+        $indexes       = $this->getIndexes($searchTables, $searchColumns, $whereClauseColumns);
         $uniqueColumns = $indexes['unique'];
-        $indexColumns = $indexes['index'];
+        $indexColumns  = $indexes['index'];
 
         [$candidateColumns, $needSort] = $this->getLeftJoinColumnCandidatesBest(
             $searchTables,
@@ -1211,7 +1218,7 @@ class Qbe
             return $candidateColumns;
         }
 
-        $veryGood = [];
+        $veryGood  = [];
         $stillGood = [];
         foreach ($candidateColumns as $column => $isWhere) {
             $table = explode('.', $column);
@@ -1237,10 +1244,11 @@ class Qbe
     /**
      * Provides the main table to form the LEFT JOIN clause
      *
-     * @param  array  $searchTables       Tables involved in the search
-     * @param  array  $searchColumns      Columns involved in the search
-     * @param  array  $whereClauseColumns Columns having criteria where clause
-     * @param  array  $whereClauseTables  Tables having criteria where clause
+     * @param array $searchTables       Tables involved in the search
+     * @param array $searchColumns      Columns involved in the search
+     * @param array $whereClauseColumns Columns having criteria where clause
+     * @param array $whereClauseTables  Tables having criteria where clause
+     *
      * @return string table name
      */
     private function getMasterTable(
@@ -1302,13 +1310,13 @@ class Qbe
 
         // Of course we only want to check each table once
         $checkedTables = $candidateColumns;
-        $tsize = [];
-        $maxsize = -1;
-        $result = '';
+        $tsize         = [];
+        $maxsize       = -1;
+        $result        = '';
         foreach ($candidateColumns as $table) {
             if ($checkedTables[$table] != 1) {
-                $tableObj = new Table($table, $this->db);
-                $tsize[$table] = $tableObj->countRecords();
+                $tableObj              = new Table($table, $this->db);
+                $tsize[$table]         = $tableObj->countRecords();
                 $checkedTables[$table] = 1;
             }
 
@@ -1317,7 +1325,7 @@ class Qbe
             }
 
             $maxsize = $tsize[$table];
-            $result = $table;
+            $result  = $table;
         }
 
         // Return largest table
@@ -1332,7 +1340,7 @@ class Qbe
     private function getWhereClauseTablesAndColumns()
     {
         $whereClauseColumns = [];
-        $whereClauseTables = [];
+        $whereClauseTables  = [];
 
         // Now we need all tables that we have in the where clause
         for ($columnIndex = 0, $nb = count($this->criteria); $columnIndex < $nb; $columnIndex++) {
@@ -1341,7 +1349,7 @@ class Qbe
                 continue;
             }
 
-            $table = str_replace('`', '', $currentTable[0]);
+            $table  = str_replace('`', '', $currentTable[0]);
             $column = str_replace('`', '', $currentTable[1]);
             $column = $table . '.' . $column;
             // Now we know that our array has the same numbers as $criteria
@@ -1358,11 +1366,11 @@ class Qbe
             }
 
             $whereClauseColumns[$column] = $column;
-            $whereClauseTables[$table] = $table;
+            $whereClauseTables[$table]   = $table;
         }
 
         return [
-            'where_clause_tables' => $whereClauseTables,
+            'where_clause_tables'  => $whereClauseTables,
             'where_clause_columns' => $whereClauseColumns,
         ];
     }
@@ -1370,7 +1378,8 @@ class Qbe
     /**
      * Provides FROM clause for building SQL query
      *
-     * @param  array  $formColumns List of selected columns in the form
+     * @param array $formColumns List of selected columns in the form
+     *
      * @return string FROM clause
      */
     private function getFromClause(array $formColumns)
@@ -1390,9 +1399,9 @@ class Qbe
                 continue;
             }
 
-            $table = str_replace('`', '', $parts[0]);
+            $table                = str_replace('`', '', $parts[0]);
             $searchTables[$table] = $table;
-            $searchColumns[] = $table . '.' . str_replace('`', '', $parts[1]);
+            $searchColumns[]      = $table . '.' . str_replace('`', '', $parts[1]);
         }
 
         // Create LEFT JOINS out of Relations
@@ -1414,8 +1423,9 @@ class Qbe
     /**
      * Formulates the WHERE clause by JOINing tables
      *
-     * @param  array  $searchTables  Tables involved in the search
-     * @param  array  $searchColumns Columns involved in the search
+     * @param array $searchTables  Tables involved in the search
+     * @param array $searchColumns Columns involved in the search
+     *
      * @return string table name
      */
     private function getJoinForFromClause(array $searchTables, array $searchColumns)
@@ -1429,8 +1439,8 @@ class Qbe
         }
 
         // Get tables and columns with valid where clauses
-        $validWhereClauses = $this->getWhereClauseTablesAndColumns();
-        $whereClauseTables = $validWhereClauses['where_clause_tables'];
+        $validWhereClauses  = $this->getWhereClauseTablesAndColumns();
+        $whereClauseTables  = $validWhereClauses['where_clause_tables'];
         $whereClauseColumns = $validWhereClauses['where_clause_columns'];
 
         // Get master table
@@ -1471,8 +1481,8 @@ class Qbe
                         $this->loadRelationsForTable($relations, $table);
 
                         // Make copies
-                        $tempFinalized = $finalized;
-                        $tempSearchTables = $searchTables;
+                        $tempFinalized      = $finalized;
+                        $tempSearchTables   = $searchTables;
                         $tempSearchTables[] = $table;
 
                         // Try joining with the added table
@@ -1486,7 +1496,7 @@ class Qbe
                         // If the unfinalized count drops we keep the new table
                         // and switch temporary varibles with the original ones
                         if (count($tempUnfinalized) < count($unfinalized)) {
-                            $finalized = $tempFinalized;
+                            $finalized    = $tempFinalized;
                             $searchTables = $tempSearchTables;
                         }
 
@@ -1530,8 +1540,8 @@ class Qbe
     /**
      * Loads relations for a given table into the $relations array
      *
-     * @param  array  $relations array of relations
-     * @param  string  $oneTable  the table
+     * @param array  $relations array of relations
+     * @param string $oneTable  the table
      */
     private function loadRelationsForTable(array &$relations, $oneTable): void
     {
@@ -1566,9 +1576,9 @@ class Qbe
     /**
      * Fills the $finalized arrays with JOIN clauses for each of the tables
      *
-     * @param  array  $finalized    JOIN clauses for each table
-     * @param  array  $relations    Relations among tables
-     * @param  array  $searchTables Tables involved in the search
+     * @param array $finalized    JOIN clauses for each table
+     * @param array $relations    Relations among tables
+     * @param array $searchTables Tables involved in the search
      */
     private function fillJoinClauses(array &$finalized, array $relations, array $searchTables): void
     {
@@ -1579,14 +1589,14 @@ class Qbe
                 foreach ($foreignData as $foreignTable => $clause) {
                     if (! isset($finalized[$masterTable]) && isset($finalized[$foreignTable])) {
                         $finalized[$masterTable] = $clause;
-                        $added = true;
+                        $added                   = true;
                     } elseif (
                         ! isset($finalized[$foreignTable])
                         && isset($finalized[$masterTable])
                         && in_array($foreignTable, $searchTables)
                     ) {
                         $finalized[$foreignTable] = $clause;
-                        $added = true;
+                        $added                    = true;
                     }
 
                     if (! $added) {
@@ -1610,7 +1620,8 @@ class Qbe
     /**
      * Provides the generated SQL query
      *
-     * @param  array  $formColumns List of selected columns in the form
+     * @param array $formColumns List of selected columns in the form
+     *
      * @return string SQL query
      */
     private function getSQLQuery(array $formColumns)
@@ -1639,20 +1650,20 @@ class Qbe
             ? $this->getSavedSearchesField()
             : '';
 
-        $columnNamesRow = $this->getColumnNamesRow();
-        $columnAliasRow = $this->getColumnAliasRow();
-        $showRow = $this->getShowRow();
-        $sortRow = $this->getSortRow();
-        $sortOrder = $this->getSortOrder();
-        $criteriaInputBoxRow = $this->getCriteriaInputboxRow();
+        $columnNamesRow          = $this->getColumnNamesRow();
+        $columnAliasRow          = $this->getColumnAliasRow();
+        $showRow                 = $this->getShowRow();
+        $sortRow                 = $this->getSortRow();
+        $sortOrder               = $this->getSortOrder();
+        $criteriaInputBoxRow     = $this->getCriteriaInputboxRow();
         $insDelAndOrCriteriaRows = $this->getInsDelAndOrCriteriaRows();
-        $modifyColumnsRow = $this->getModifyColumnsRow();
+        $modifyColumnsRow        = $this->getModifyColumnsRow();
 
         $this->newRowCount--;
-        $urlParams = [];
-        $urlParams['db'] = $this->db;
+        $urlParams                        = [];
+        $urlParams['db']                  = $this->db;
         $urlParams['criteriaColumnCount'] = $this->newColumnCount;
-        $urlParams['rows'] = $this->newRowCount;
+        $urlParams['rows']                = $this->newRowCount;
 
         if (empty($this->formColumns)) {
             $this->formColumns = [];
@@ -1661,20 +1672,20 @@ class Qbe
         $sqlQuery = $this->getSQLQuery($this->formColumns);
 
         return $this->template->render('database/qbe/selection_form', [
-            'db' => $this->db,
-            'url_params' => $urlParams,
-            'db_link' => Generator::getDbLink($this->db),
-            'criteria_tables' => $this->criteriaTables,
-            'saved_searches_field' => $savedSearchesField,
-            'column_names_row' => $columnNamesRow,
-            'column_alias_row' => $columnAliasRow,
-            'show_row' => $showRow,
-            'sort_row' => $sortRow,
-            'sort_order' => $sortOrder,
-            'criteria_input_box_row' => $criteriaInputBoxRow,
+            'db'                           => $this->db,
+            'url_params'                   => $urlParams,
+            'db_link'                      => Generator::getDbLink($this->db),
+            'criteria_tables'              => $this->criteriaTables,
+            'saved_searches_field'         => $savedSearchesField,
+            'column_names_row'             => $columnNamesRow,
+            'column_alias_row'             => $columnAliasRow,
+            'show_row'                     => $showRow,
+            'sort_row'                     => $sortRow,
+            'sort_order'                   => $sortOrder,
+            'criteria_input_box_row'       => $criteriaInputBoxRow,
             'ins_del_and_or_criteria_rows' => $insDelAndOrCriteriaRows,
-            'modify_columns_row' => $modifyColumnsRow,
-            'sql_query' => $sqlQuery,
+            'modify_columns_row'           => $modifyColumnsRow,
+            'sql_query'                    => $sqlQuery,
         ]);
     }
 
@@ -1689,11 +1700,11 @@ class Qbe
         $htmlOutput .= ' <select name="searchId" id="searchId">';
         $htmlOutput .= '<option value="">' . __('New bookmark') . '</option>';
 
-        $currentSearch = $this->getCurrentSearch();
-        $currentSearchId = null;
+        $currentSearch     = $this->getCurrentSearch();
+        $currentSearchId   = null;
         $currentSearchName = null;
         if ($currentSearch !== null) {
-            $currentSearchId = $currentSearch->getId();
+            $currentSearchId   = $currentSearch->getId();
             $currentSearchName = $currentSearch->getSearchName();
         }
 
@@ -1742,7 +1753,7 @@ class Qbe
         $this->criteriaColumnCount = max($criteriaColumnCount + $criteriaColumnAdd, 0);
 
         // sets row count
-        $rows = isset($_POST['rows']) && is_numeric($_POST['rows']) ? (int) $_POST['rows'] : 0;
+        $rows           = isset($_POST['rows']) && is_numeric($_POST['rows']) ? (int) $_POST['rows'] : 0;
         $criteriaRowAdd = isset($_POST['criteriaRowAdd']) && is_numeric($_POST['criteriaRowAdd'])
             ? (int) $_POST['criteriaRowAdd']
             : 0;
@@ -1757,10 +1768,11 @@ class Qbe
     /**
      * Get best
      *
-     * @param  array  $searchTables       Tables involved in the search
-     * @param  array|null  $whereClauseColumns Columns with where clause
-     * @param  array|null  $uniqueColumns      Unique columns
-     * @param  array|null  $indexColumns       Indexed columns
+     * @param array      $searchTables       Tables involved in the search
+     * @param array|null $whereClauseColumns Columns with where clause
+     * @param array|null $uniqueColumns      Unique columns
+     * @param array|null $indexColumns       Indexed columns
+     *
      * @return array
      */
     private function getLeftJoinColumnCandidatesBest(
@@ -1772,7 +1784,7 @@ class Qbe
         // now we want to find the best.
         if (isset($uniqueColumns) && count($uniqueColumns) > 0) {
             $candidateColumns = $uniqueColumns;
-            $needSort = 1;
+            $needSort         = 1;
 
             return [
                 $candidateColumns,
@@ -1782,7 +1794,7 @@ class Qbe
 
         if (isset($indexColumns) && count($indexColumns) > 0) {
             $candidateColumns = $indexColumns;
-            $needSort = 1;
+            $needSort         = 1;
 
             return [
                 $candidateColumns,
@@ -1792,7 +1804,7 @@ class Qbe
 
         if (isset($whereClauseColumns) && count($whereClauseColumns) > 0) {
             $candidateColumns = $whereClauseColumns;
-            $needSort = 0;
+            $needSort         = 0;
 
             return [
                 $candidateColumns,
@@ -1801,7 +1813,7 @@ class Qbe
         }
 
         $candidateColumns = $searchTables;
-        $needSort = 0;
+        $needSort         = 0;
 
         return [
             $candidateColumns,

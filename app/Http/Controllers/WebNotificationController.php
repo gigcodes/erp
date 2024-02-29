@@ -22,14 +22,14 @@ class WebNotificationController extends Controller
 
     public function storeToken(Request $request)
     {
-        $token = $request->token;
+        $token   = $request->token;
         $user_id = auth()->user()->id;
         $isExist = NotificationToken::where('device_token', $token)->where('user_id', $user_id)->exists();
         if (! $isExist) {
-            $notificationToken = new NotificationToken();
-            $notificationToken->user_id = $user_id;
+            $notificationToken               = new NotificationToken();
+            $notificationToken->user_id      = $user_id;
             $notificationToken->device_token = $token;
-            $notificationToken->is_enabled = true;
+            $notificationToken->is_enabled   = true;
             $notificationToken->save();
         }
 
@@ -39,12 +39,12 @@ class WebNotificationController extends Controller
     public static function sendWebNotification2($sendTo, $issue_id, $title, $body)
     {
         \Log::info('Notification process start');
-        $url = 'https://fcm.googleapis.com/fcm/send';
-        $issue = DeveloperTask::find($issue_id);
+        $url    = 'https://fcm.googleapis.com/fcm/send';
+        $issue  = DeveloperTask::find($issue_id);
         $userId = $issue->assigned_to;
-        $users = User::get();
+        $users  = User::get();
         \Log::info('User from assign id--->' . json_encode($users));
-        $adminIds = [];
+        $adminIds  = [];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($users as $user) {
@@ -95,9 +95,9 @@ class WebNotificationController extends Controller
         \Log::info('if send to developer--->' . json_encode($serverKey));
         $data = [
             'registration_ids' => $FcmToken,
-            'notification' => [
+            'notification'     => [
                 'title' => $title,
-                'body' => $body,
+                'body'  => $body,
             ],
         ];
         $encodedData = json_encode($data);
@@ -119,7 +119,7 @@ class WebNotificationController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedData);
             // Execute post
-            $result = curl_exec($ch);
+            $result   = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($result === false) {
                 exit('Curl failed: ' . curl_error($ch));
@@ -138,14 +138,14 @@ class WebNotificationController extends Controller
     public static function sendBulkNotification($userId, $title, $body)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = 'https://fcm.googleapis.com/fcm/send';
-        $FcmToken = NotificationToken::whereNotNull('device_token')->where('user_id', $userId)->pluck('device_token')->all();
+        $url       = 'https://fcm.googleapis.com/fcm/send';
+        $FcmToken  = NotificationToken::whereNotNull('device_token')->where('user_id', $userId)->pluck('device_token')->all();
         $serverKey = env('FCM_SECRET_KEY');
-        $data = [
+        $data      = [
             'registration_ids' => $FcmToken,
-            'notification' => [
+            'notification'     => [
                 'title' => $title,
-                'body' => $body,
+                'body'  => $body,
             ],
         ];
         $encodedData = json_encode($data);

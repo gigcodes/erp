@@ -13,7 +13,7 @@ class CommentController extends Controller
             'content' => 'required',
         ]);
 
-        $data = $request->all();
+        $data            = $request->all();
         $data['user_id'] = \Auth::id();
 
         $comment = Comment::create($data);

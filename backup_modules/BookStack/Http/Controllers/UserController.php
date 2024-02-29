@@ -27,10 +27,10 @@ class UserController extends Controller
      */
     public function __construct(User $user, UserRepo $userRepo, UserInviteService $inviteService, ImageRepo $imageRepo)
     {
-        $this->user = $user;
-        $this->userRepo = $userRepo;
+        $this->user          = $user;
+        $this->userRepo      = $userRepo;
         $this->inviteService = $inviteService;
-        $this->imageRepo = $imageRepo;
+        $this->imageRepo     = $imageRepo;
         parent::__construct();
     }
 
@@ -43,9 +43,9 @@ class UserController extends Controller
     {
         $this->checkPermission('users-manage');
         $listDetails = [
-            'order' => $request->get('order', 'asc'),
+            'order'  => $request->get('order', 'asc'),
             'search' => $request->get('search', ''),
-            'sort' => $request->get('sort', 'name'),
+            'sort'   => $request->get('sort', 'name'),
         ];
         $users = $this->userRepo->getAllUsersPaginatedAndSorted(20, $listDetails);
         $this->setPageTitle(trans('settings.users'));
@@ -63,7 +63,7 @@ class UserController extends Controller
     {
         $this->checkPermission('users-manage');
         $authMethod = config('auth.method');
-        $roles = $this->userRepo->getAllRoles();
+        $roles      = $this->userRepo->getAllRoles();
 
         return view('users.create', ['authMethod' => $authMethod, 'roles' => $roles]);
     }
@@ -79,7 +79,7 @@ class UserController extends Controller
     {
         $this->checkPermission('users-manage');
         $validationRules = [
-            'name' => 'required',
+            'name'  => 'required',
             'email' => 'required|email|unique:users,email',
         ];
 
@@ -87,7 +87,7 @@ class UserController extends Controller
         $sendInvite = ($request->get('send_invite', 'false') === 'true');
 
         if ($authMethod === 'standard' && ! $sendInvite) {
-            $validationRules['password'] = 'required|min:6';
+            $validationRules['password']         = 'required|min:6';
             $validationRules['password-confirm'] = 'required|same:password';
         } elseif ($authMethod === 'ldap') {
             $validationRules['external_auth_id'] = 'required';
@@ -121,8 +121,9 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified user.
      *
-     * @param  int  $id
-     * @param  \BookStack\Auth\Access\SocialAuthService  $socialAuthService
+     * @param int                                      $id
+     * @param \BookStack\Auth\Access\SocialAuthService $socialAuthService
+     *
      * @return Response
      */
     public function edit($id, SocialAuthService $socialAuthService)
@@ -143,7 +144,8 @@ class UserController extends Controller
     /**
      * Update the specified user in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return Response
      *
      * @throws UserUpdateException
@@ -155,12 +157,12 @@ class UserController extends Controller
         $this->checkPermissionOrCurrentUser('users-manage', $id);
 
         $this->validate($request, [
-            'name' => 'min:2',
-            'email' => 'min:2|email|unique:users,email,' . $id,
-            'password' => 'min:6|required_with:password_confirm',
+            'name'             => 'min:2',
+            'email'            => 'min:2|email|unique:users,email,' . $id,
+            'password'         => 'min:6|required_with:password_confirm',
             'password-confirm' => 'same:password|required_with:password',
-            'setting' => 'array',
-            'profile_image' => $this->imageRepo->getImageValidationRules(),
+            'setting'          => 'array',
+            'profile_image'    => $this->imageRepo->getImageValidationRules(),
         ]);
 
         $user = $this->userRepo->getById($id);
@@ -179,7 +181,7 @@ class UserController extends Controller
 
         // Password updates
         if ($request->filled('password')) {
-            $password = $request->get('password');
+            $password       = $request->get('password');
             $user->password = bcrypt($password);
         }
 
@@ -199,7 +201,7 @@ class UserController extends Controller
         if ($request->has('profile_image')) {
             $imageUpload = $request->file('profile_image');
             $this->imageRepo->destroyImage($user->avatar);
-            $image = $this->imageRepo->saveNew($imageUpload, 'user', $user->id);
+            $image          = $this->imageRepo->saveNew($imageUpload, 'user', $user->id);
             $user->image_id = $image->id;
         }
 
@@ -219,7 +221,8 @@ class UserController extends Controller
     /**
      * Show the user delete page.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\View\View
      */
     public function delete($id)
@@ -235,7 +238,8 @@ class UserController extends Controller
     /**
      * Remove the specified user from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return Response
      *
      * @throws \Exception
@@ -268,26 +272,30 @@ class UserController extends Controller
     /**
      * Show the user profile page
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showProfilePage($id)
     {
         $user = $this->userRepo->getById($id);
 
-        $userActivity = $this->userRepo->getActivity($user);
+        $userActivity    = $this->userRepo->getActivity($user);
         $recentlyCreated = $this->userRepo->getRecentlyCreated($user, 5, 0);
-        $assetCounts = $this->userRepo->getAssetCounts($user);
+        $assetCounts     = $this->userRepo->getAssetCounts($user);
 
         return view('users.profile', [
-            'user' => $user,
-            'activity' => $userActivity,
+            'user'            => $user,
+            'activity'        => $userActivity,
             'recentlyCreated' => $recentlyCreated,
-            'assetCounts' => $assetCounts,
+            'assetCounts'     => $assetCounts,
         ]);
     }
 
     /**
      * Update the user's preferred book-list display setting.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -299,6 +307,8 @@ class UserController extends Controller
     /**
      * Update the user's preferred shelf-list display setting.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function switchShelfView($id, Request $request)
@@ -309,7 +319,8 @@ class UserController extends Controller
     /**
      * For a type of list, switch with stored view type for a user.
      *
-     * @param  int  $userId
+     * @param int $userId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function switchViewType($userId, Request $request, string $listName)
@@ -322,7 +333,7 @@ class UserController extends Controller
         }
 
         $user = $this->userRepo->getById($userId);
-        $key = $listName . '_view_type';
+        $key  = $listName . '_view_type';
         setting()->putUser($user, $key, $viewType);
 
         return redirect()->back(302, [], "/kb/settings/users/$userId");
@@ -383,8 +394,8 @@ class UserController extends Controller
             $order = 'asc';
         }
 
-        $user = $this->user->findOrFail($userId);
-        $sortKey = $listName . '_sort';
+        $user     = $this->user->findOrFail($userId);
+        $sortKey  = $listName . '_sort';
         $orderKey = $listName . '_sort_order';
         setting()->putUser($user, $sortKey, $sort);
         setting()->putUser($user, $orderKey, $order);

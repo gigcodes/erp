@@ -25,7 +25,8 @@ class FormatConverter
     /**
      * Transforms a binary to an IP
      *
-     * @param  mixed  $buffer Data to transform
+     * @param mixed $buffer Data to transform
+     *
      * @return false|string
      */
     public static function binaryToIp($buffer, bool $isBinary)
@@ -47,7 +48,8 @@ class FormatConverter
     /**
      * Transforms an IP to a binary
      *
-     * @param  mixed  $buffer Data to transform
+     * @param mixed $buffer Data to transform
+     *
      * @return string
      */
     public static function ipToBinary($buffer)
@@ -63,7 +65,8 @@ class FormatConverter
     /**
      * Transforms an IP to a long
      *
-     * @param  string  $buffer Data to transform
+     * @param string $buffer Data to transform
+     *
      * @return int|string
      */
     public static function ipToLong(string $buffer)
@@ -79,7 +82,7 @@ class FormatConverter
     /**
      * Transforms a long to an IP
      *
-     * @param  mixed  $buffer Data to transform
+     * @param mixed $buffer Data to transform
      */
     public static function longToIp($buffer): string
     {

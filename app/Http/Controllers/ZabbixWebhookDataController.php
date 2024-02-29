@@ -24,7 +24,7 @@ class ZabbixWebhookDataController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->get('keyword');
+        $keyword    = $request->get('keyword');
         $eventStart = $request->get('event_start');
 
         $zabbixWebhookDatas = ZabbixWebhookData::latest();
@@ -43,7 +43,7 @@ class ZabbixWebhookDataController extends Controller
 
         $zabbixWebhookDatas = $zabbixWebhookDatas->paginate(10);
 
-        $zabbixStatuses = ZabbixStatus::pluck('name', 'id')->toArray();
+        $zabbixStatuses    = ZabbixStatus::pluck('name', 'id')->toArray();
         $getZabbixStatuses = ZabbixStatus::all();
 
         return view('zabbix-webhook-data.index', compact('zabbixWebhookDatas', 'zabbixStatuses', 'getZabbixStatuses'));
@@ -52,14 +52,14 @@ class ZabbixWebhookDataController extends Controller
     public function storeZabbixStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:zabbix_statuses,name',
+            'name'  => 'required|unique:zabbix_statuses,name',
             'color' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
-                'message' => $validator->errors()->first(),
+                'status'      => false,
+                'message'     => $validator->errors()->first(),
                 'status_name' => 'error',
             ], 422);
         }
@@ -70,15 +70,15 @@ class ZabbixWebhookDataController extends Controller
 
         if ($data) {
             return response()->json([
-                'status' => true,
-                'data' => $data,
-                'message' => 'Stored successfully',
+                'status'      => true,
+                'data'        => $data,
+                'message'     => 'Stored successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'something error occurred',
+                'status'      => false,
+                'message'     => 'something error occurred',
                 'status_name' => 'error',
             ], 500);
         }
@@ -89,16 +89,16 @@ class ZabbixWebhookDataController extends Controller
         $remarks = ZabbixWebhookDataRemarkHistory::with(['user'])->where('zabbix_webhook_data_id', $zabbix_webhook_data)->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $remarks,
-            'message' => 'Remark get successfully',
+            'status'      => true,
+            'data'        => $remarks,
+            'message'     => 'Remark get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function storeRemark(Request $request)
     {
-        $input = $request->except(['_token']);
+        $input            = $request->except(['_token']);
         $input['user_id'] = Auth::user()->id;
 
         $zabbixWebhookDataRemarkHistory = ZabbixWebhookDataRemarkHistory::create($input);
@@ -107,14 +107,14 @@ class ZabbixWebhookDataController extends Controller
             $update = ZabbixWebhookData::where('id', $request->zabbix_webhook_data_id)->update(['remarks' => $request->remarks]);
 
             return response()->json([
-                'status' => true,
-                'message' => 'Remark added successfully',
+                'status'      => true,
+                'message'     => 'Remark added successfully',
                 'status_name' => 'success',
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Remark added unsuccessfully',
+                'status'      => false,
+                'message'     => 'Remark added unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -124,7 +124,7 @@ class ZabbixWebhookDataController extends Controller
     {
         try {
             $zaabbixWebhookData = ZabbixWebhookData::findOrFail($request->zabbix_webhook_data);
-            $old_status = $zaabbixWebhookData->zabbix_status_id;
+            $old_status         = $zaabbixWebhookData->zabbix_status_id;
 
             $zaabbixWebhookData->zabbix_status_id = $request->status;
 
@@ -133,24 +133,24 @@ class ZabbixWebhookDataController extends Controller
             $statusColour = ZabbixStatus::find($zaabbixWebhookData->zabbix_status_id);
             $statusColour = $statusColour->color;
 
-            $history = new ZabbixWebhookDataStatusHistory();
+            $history                         = new ZabbixWebhookDataStatusHistory();
             $history->zabbix_webhook_data_id = $zaabbixWebhookData->id;
-            $history->old_status_id = $old_status;
-            $history->new_status_id = $request->status;
-            $history->user_id = Auth::user()->id;
+            $history->old_status_id          = $old_status;
+            $history->new_status_id          = $request->status;
+            $history->user_id                = Auth::user()->id;
             $history->save();
 
             return response()->json(
                 [
-                    'status' => 'success',
-                    'message' => 'Status updated successfully',
+                    'status'     => 'success',
+                    'message'    => 'Status updated successfully',
                     'colourCode' => $statusColour,
                 ], 200
             );
         } catch (Exception $e) {
             return response()->json(
                 [
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Status not updated.',
                 ], 500
             );
@@ -172,9 +172,9 @@ class ZabbixWebhookDataController extends Controller
     public function StatusColorUpdate(Request $request)
     {
         $statusColor = $request->all();
-        $data = $request->except('_token');
+        $data        = $request->except('_token');
         foreach ($statusColor['color_name'] as $key => $value) {
-            $magentoModuleVerifiedStatus = ZabbixStatus::find($key);
+            $magentoModuleVerifiedStatus        = ZabbixStatus::find($key);
             $magentoModuleVerifiedStatus->color = $value;
             $magentoModuleVerifiedStatus->save();
         }

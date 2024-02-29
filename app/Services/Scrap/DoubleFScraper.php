@@ -11,7 +11,7 @@ class DoubleFScraper extends Scraper
 {
     private const URL = [
         'woman' => 'https://www.thedoublef.com/it_en/woman/designers/',
-        'man' => 'https://www.thedoublef.com/it_en/man/designers/',
+        'man'   => 'https://www.thedoublef.com/it_en/man/designers/',
     ];
 
     public function scrap(): void
@@ -32,10 +32,10 @@ class DoubleFScraper extends Scraper
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
         if (! $scrapEntry) {
-            $scrapEntry = new ScrapEntries();
-            $scrapEntry->title = $url;
+            $scrapEntry            = new ScrapEntries();
+            $scrapEntry->title     = $url;
             $scrapEntry->site_name = 'DoubleF';
-            $scrapEntry->url = $url;
+            $scrapEntry->url       = $url;
             $scrapEntry->save();
         }
 
@@ -47,7 +47,7 @@ class DoubleFScraper extends Scraper
 
         $body = $this->getContent($url);
 
-        $c = new HtmlPageCrawler($body);
+        $c     = new HtmlPageCrawler($body);
         $links = $c->filter('div.designers-list')->filter('ul li a')->getIterator();
 
         $urls = [];
@@ -69,12 +69,12 @@ class DoubleFScraper extends Scraper
 
     private function getProducts(ScrapEntries $scrapEntriy): void
     {
-        $date = date('Y-m-d');
+        $date     = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'DoubleF')->first();
         if (! $allLinks) {
-            $allLinks = new ScrapCounts();
+            $allLinks               = new ScrapCounts();
             $allLinks->scraped_date = $date;
-            $allLinks->website = 'DoubleF';
+            $allLinks->website      = 'DoubleF';
             $allLinks->save();
         }
 
@@ -87,7 +87,7 @@ class DoubleFScraper extends Scraper
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
             $title = $this->getTitleFromProduct($product);
-            $link = $this->getLinkFromProduct($product);
+            $link  = $this->getLinkFromProduct($product);
 
             if (! $title || ! $link) {
                 continue;
@@ -103,10 +103,10 @@ class DoubleFScraper extends Scraper
 
             echo "$link \n";
 
-            $entry = new ScrapEntries();
-            $entry->title = $title;
-            $entry->url = $link;
-            $entry->site_name = 'DoubleF';
+            $entry                  = new ScrapEntries();
+            $entry->title           = $title;
+            $entry->url             = $link;
+            $entry->site_name       = 'DoubleF';
             $entry->is_product_page = 1;
             $entry->save();
         }

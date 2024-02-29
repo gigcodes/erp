@@ -46,14 +46,14 @@ class SendHourlyReports extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now = Carbon::now();
+            $now  = Carbon::now();
             $date = Carbon::now()->format('Y-m-d');
             $nine = Carbon::parse('09:00');
-            $one = Carbon::parse('13:00');
+            $one  = Carbon::parse('13:00');
             $four = Carbon::parse('16:00');
 
             if ($now->between($nine, $one)) {

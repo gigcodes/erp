@@ -5,9 +5,9 @@ use App\StoreWebsite;
 function parseSemrushResponse($response)
 {
     $response1 = explode("\n", $response);
-    $final = [];
+    $final     = [];
     foreach ($response1 as $new) {
-        $new = explode(';', $new);
+        $new     = explode(';', $new);
         $final[] = $new;
     }
 

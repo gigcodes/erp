@@ -21,6 +21,8 @@ class ItemController extends Controller
     }
 
     /**
+     * @param null|mixed $hostId
+     *
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index(Request $request, $hostId = null)
@@ -36,7 +38,7 @@ class ItemController extends Controller
         $templates = $this->trigger->getAllTemplates();
 
         return view('zabbix.item.index', [
-            'items' => $items,
+            'items'     => $items,
             'templates' => $templates,
         ]);
     }
@@ -49,7 +51,7 @@ class ItemController extends Controller
         $data = $request->all();
 
         try {
-            $item = new Item();
+            $item   = new Item();
             $itemId = (int) $data['id'] ?? null;
             if (! empty($data['id'])) {
                 $item = $item->getById($itemId);
@@ -72,19 +74,19 @@ class ItemController extends Controller
         } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500,
+                'code'    => 500,
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500,
+                'code'    => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $item->getName()),
-            'item' => $item,
-            'code' => 200,
+            'item'    => $item,
+            'code'    => 200,
         ]);
     }
 
@@ -93,7 +95,7 @@ class ItemController extends Controller
         $data = $request->all();
 
         try {
-            $user = new Item();
+            $user   = new Item();
             $userId = (int) $data['id'] ?? null;
             if (! empty($data['id'])) {
                 $user = $user->getById($userId);
@@ -105,18 +107,18 @@ class ItemController extends Controller
         } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500,
+                'code'    => 500,
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500,
+                'code'    => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with id: %s was deleted. Reload page.', $userId),
-            'code' => 200,
+            'code'    => 200,
         ]);
     }
 }

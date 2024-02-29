@@ -35,7 +35,7 @@ class RoutinesController extends AbstractController
     ) {
         parent::__construct($response, $template, $db);
         $this->checkUserPrivileges = $checkUserPrivileges;
-        $this->dbi = $dbi;
+        $this->dbi                 = $dbi;
     }
 
     public function __invoke(): void
@@ -58,7 +58,7 @@ class RoutinesController extends AbstractController
                 Util::checkParameters(['db', 'table']);
 
                 $urlParams = ['db' => $db, 'table' => $table];
-                $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+                $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
                 $errorUrl .= Url::getCommon($urlParams, '&');
 
                 DbTableExists::check();
@@ -104,7 +104,7 @@ class RoutinesController extends AbstractController
             $type = null;
         }
 
-        $items = $this->dbi->getRoutines($db, $type);
+        $items  = $this->dbi->getRoutines($db, $type);
         $isAjax = $this->response->isAjax() && empty($_REQUEST['ajax_page_request']);
 
         $rows = '';
@@ -113,10 +113,10 @@ class RoutinesController extends AbstractController
         }
 
         $this->render('database/routines/index', [
-            'db' => $db,
-            'table' => $table,
-            'items' => $items,
-            'rows' => $rows,
+            'db'            => $db,
+            'table'         => $table,
+            'items'         => $items,
+            'rows'          => $rows,
             'has_privilege' => Util::currentUserHasPrivilege('CREATE ROUTINE', $db, $table),
         ]);
     }

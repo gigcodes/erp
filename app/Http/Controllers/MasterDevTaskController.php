@@ -13,7 +13,7 @@ class MasterDevTaskController extends Controller
 {
     public function index(Request $request)
     {
-        $enddate = date('Y-m-d 23:59:59');
+        $enddate   = date('Y-m-d 23:59:59');
         $startdate = date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($enddate)));
 
         $productErrors = \App\ProductPushErrorLog::latest('count')->groupBy('message')->select(\DB::raw('*,COUNT(message) AS count'));
@@ -26,7 +26,7 @@ class MasterDevTaskController extends Controller
             ->first();
 
         $currentSize = \DB::table('database_historical_records')->orderBy('created_at', 'desc')->first();
-        $sizeBefore = null;
+        $sizeBefore  = null;
         if (! empty($currentSize)) {
             $sizeBefore = \DB::table('database_historical_records')
                 ->whereRaw(\DB::raw("DATE(created_at) = DATE('" . $currentSize->created_at . "' - INTERVAL 1 DAY)"))
@@ -35,22 +35,22 @@ class MasterDevTaskController extends Controller
 
         $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at', date('Y-m-d'))->groupBy('database_name')->orderBy('size', 'desc')->limit(5)->get();
         // find the open branches
-        $repoArr = [];
-        $github = new GithubClient;
+        $repoArr    = [];
+        $github     = new GithubClient;
         $repository = $github->getRepository();
 
         if (! empty($repository)) {
             foreach ($repository as $i => $repo) {
-                $repoId = $repo->full_name;
-                $pulls = $github->getPulls($repoId, 'q=is%3Aopen+is%3Apr');
+                $repoId              = $repo->full_name;
+                $pulls               = $github->getPulls($repoId, 'q=is%3Aopen+is%3Apr');
                 $repoArr[$i]['name'] = $repoId;
                 if (! empty($pulls)) {
                     foreach ($pulls as $pull) {
                         $repoArr[$i]['pulls'][] = [
                             'title' => $pull->title,
-                            'no' => $pull->number,
-                            'url' => $pull->html_url,
-                            'user' => $pull->user->login,
+                            'no'    => $pull->number,
+                            'url'   => $pull->html_url,
+                            'user'  => $pull->user->login,
                         ];
                     }
                 }
@@ -73,7 +73,7 @@ class MasterDevTaskController extends Controller
             [\DB::raw('count(*) as cnt')]
         )->first();
 
-        $last3HrsMsg = null;
+        $last3HrsMsg  = null;
         $last24HrsMsg = null;
 
         $last3HrsMsg = \DB::table('chat_messages')->where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 3 HOUR)'))->select(
@@ -84,7 +84,7 @@ class MasterDevTaskController extends Controller
             [\DB::raw('count(*) as cnt')]
         )->first();
 
-        $threehours = strtotime(date('Y-m-d H:i:s', strtotime('-3 hours')));
+        $threehours      = strtotime(date('Y-m-d H:i:s', strtotime('-3 hours')));
         $twentyfourhours = strtotime(date('Y-m-d H:i:s', strtotime('-24 hours')));
 
         $last3HrsJobs = \DB::table('jobs')->where('created_at', '>=', $threehours)->select(
@@ -135,8 +135,8 @@ class MasterDevTaskController extends Controller
 
         $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('started_at', 'DESC')->get()->unique('scraper_id');
         foreach ($scraper_process as $key => $sp) {
-            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
-            $from = \Carbon\Carbon::now();
+            $to            = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+            $from          = \Carbon\Carbon::now();
             $diff_in_hours = $to->diffInMinutes($from);
             if ($diff_in_hours > 1440) {
                 array_push($scraper_proc, $sp);

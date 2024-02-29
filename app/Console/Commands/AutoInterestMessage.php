@@ -48,13 +48,13 @@ class AutoInterestMessage extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $params = [
-                'number' => null,
-                'status' => 7, // message status for auto messaging
+                'number'  => null,
+                'status'  => 7, // message status for auto messaging
                 'user_id' => 6,
             ];
 
@@ -123,11 +123,11 @@ class AutoInterestMessage extends Command
             }
 
             foreach ($customers_orders as $customer) {
-                $brand = (int) $customer['orders'][0]['order__product'][0]['product']['brand'];
+                $brand    = (int) $customer['orders'][0]['order__product'][0]['product']['brand'];
                 $category = (int) $customer['orders'][0]['order__product'][0]['product']['category'];
 
                 if ($category != 0 && $category != 1 && $category != 2 && $category != 3) {
-                    $is_parent = Category::isParent($category);
+                    $is_parent         = Category::isParent($category);
                     $category_children = [];
 
                     if ($is_parent) {

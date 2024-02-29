@@ -35,7 +35,7 @@ class GoogleAdsLogController extends Controller
         }
 
         $paginate = (Setting::get('pagination') * 10);
-        $logs = $logs->paginate($paginate)->appends(request()->except(['page']));
+        $logs     = $logs->paginate($paginate)->appends(request()->except(['page']));
 
         if ($request->ajax()) {
             return response()->json([

@@ -47,7 +47,7 @@ class FindWayBillDue extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-            'signature' => $this->signature,
+            'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 

@@ -53,7 +53,7 @@ class AddDatabaseHistoricalData extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
@@ -87,7 +87,7 @@ class AddDatabaseHistoricalData extends Command
 
                     $database_recent_entry = DatabaseHistoricalRecord::create([
                         'database_name' => $d->db_name,
-                        'size' => $d->db_size,
+                        'size'          => $d->db_size,
                     ]);
                     LogHelper::createCustomLogForCron($this->signature, ['message' => 'Database historical record query was finished.']);
                     $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="' . $d->db_name . '" GROUP  BY TABLE_NAME'
@@ -96,20 +96,20 @@ class AddDatabaseHistoricalData extends Command
                         $databaseTableHistoricalRecord = DatabaseTableHistoricalRecord::where('database_name', $d_table->db_table_name)->where('database_id', $database_recent_entry->id)->orderBy('created_at', 'ASC')->first();
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Database table historical record query was finished.']);
                         if ($databaseTableHistoricalRecord) {
-                            $v1 = $databaseTableHistoricalRecord->size;
-                            $v2 = $d_table->db_size;
+                            $v1         = $databaseTableHistoricalRecord->size;
+                            $v2         = $d_table->db_size;
                             $differance = (($v1 - $v2) / (($v1 + $v2) / 2)) * 100;
                             if ($differance > 10) {
-                                $user_id = 6;
-                                $message = $d->db_name . '.' . $d_table->db_table_name . ' Database table increased size more than 10%.';
-                                $params = [];
-                                $params['message'] = $message;
-                                $params['erp_user'] = $user_id;
-                                $params['user_id'] = $user_id;
-                                $params['approved'] = 1;
-                                $params['status'] = 2;
+                                $user_id                          = 6;
+                                $message                          = $d->db_name . '.' . $d_table->db_table_name . ' Database table increased size more than 10%.';
+                                $params                           = [];
+                                $params['message']                = $message;
+                                $params['erp_user']               = $user_id;
+                                $params['user_id']                = $user_id;
+                                $params['approved']               = 1;
+                                $params['status']                 = 2;
                                 $params['message_application_id'] = 10001;
-                                $chat_message = ChatMessage::create($params);
+                                $chat_message                     = ChatMessage::create($params);
 
                                 LogHelper::createCustomLogForCron($this->signature, ['message' => 'Saved chat message record by ID:' . $chat_message->id]);
 
@@ -123,8 +123,8 @@ class AddDatabaseHistoricalData extends Command
                         }
                         DatabaseTableHistoricalRecord::create([
                             'database_name' => $d_table->db_table_name,
-                            'size' => $d_table->db_size,
-                            'database_id' => $database_recent_entry->id,
+                            'size'          => $d_table->db_size,
+                            'database_id'   => $database_recent_entry->id,
                         ]);
                         LogHelper::createCustomLogForCron($this->signature, ['message' => 'Database table historical record query was finished.']);
                     }

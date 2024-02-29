@@ -126,7 +126,7 @@ class ExportCsv extends ExportPlugin
             }
 
             $csv_enclosed = '"';
-            $csv_escaped = '"';
+            $csv_escaped  = '"';
             if (isset($GLOBALS['excel_columns'])) {
                 $GLOBALS['csv_columns'] = 'yes';
             }
@@ -166,8 +166,8 @@ class ExportCsv extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Alias of db
+     * @param string $db      Database name
+     * @param string $dbAlias Alias of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -177,7 +177,7 @@ class ExportCsv extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -187,9 +187,9 @@ class ExportCsv extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -199,12 +199,12 @@ class ExportCsv extends ExportPlugin
     /**
      * Outputs the content of a table in CSV format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -216,12 +216,12 @@ class ExportCsv extends ExportPlugin
     ): bool {
         global $what, $csv_terminated, $csv_separator, $csv_enclosed, $csv_escaped, $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
         // Gets the data from the database
-        $result = $dbi->query($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
+        $result     = $dbi->query($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
         $fields_cnt = $result->numFields();
 
         // If required, get fields name at the first line
@@ -319,9 +319,9 @@ class ExportCsv extends ExportPlugin
     /**
      * Outputs result of raw query in CSV format
      *
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery the rawquery to output
-     * @param  string  $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery the rawquery to output
+     * @param string $crlf     the end of line sequence
      */
     public function exportRawQuery(string $errorUrl, string $sqlQuery, string $crlf): bool
     {

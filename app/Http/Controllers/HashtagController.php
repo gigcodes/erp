@@ -61,7 +61,8 @@ class HashtagController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -71,9 +72,11 @@ class HashtagController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int   $id
+     * @param mixed $hashtag
+     *
      * @return \Illuminate\Http\Response
-     * Show hashtag
+     *                                   Show hashtag
      */
     public function edit($hashtag, Request $request)
     {
@@ -82,7 +85,8 @@ class HashtagController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -93,7 +97,8 @@ class HashtagController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -121,7 +126,7 @@ class HashtagController extends Controller
      */
     public function rumCommand(Request $request)
     {
-        $id = $request->id;
+        $id      = $request->id;
         $account = $request->account;
 
         try {
@@ -131,11 +136,11 @@ class HashtagController extends Controller
                 $hashTag->save();
             }
 
-            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
+            $cmd    = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
-            $cmd = 'echo $USER';
+            $cmd      = 'echo $USER';
             $username = shell_exec($cmd);
             $username = trim($username);
 
@@ -144,7 +149,7 @@ class HashtagController extends Controller
             preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
 
             if (count($matches) == 0 || count($matches) == 1 || count($matches) == 2) {
-                $cmd = 'php ' . base_path() . '/artisan competitors:process-local-users ' . $id . ' &';
+                $cmd    = 'php ' . base_path() . '/artisan competitors:process-local-users ' . $id . ' &';
                 $export = shell_exec($cmd);
 
                 return ['success' => true, 'message' => 'Process Started Running'];
@@ -161,12 +166,12 @@ class HashtagController extends Controller
     public function killCommand(Request $request)
     {
         try {
-            $id = $request->id;
-            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
+            $id     = $request->id;
+            $cmd    = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
-            $cmd = 'echo $USER';
+            $cmd      = 'echo $USER';
             $username = shell_exec($cmd);
             $username = trim($username);
 
@@ -179,7 +184,7 @@ class HashtagController extends Controller
             } elseif (count($matches) == 3 || count($matches) == 4) {
                 foreach ($matches as $match) {
                     if (isset($match[2])) {
-                        $cmd = 'kill -9 ' . $match[2];
+                        $cmd    = 'kill -9 ' . $match[2];
                         $export = shell_exec($cmd);
                     }
                 }
@@ -194,12 +199,12 @@ class HashtagController extends Controller
     public function checkStatusCommand(Request $request)
     {
         try {
-            $id = $request->id;
-            $cmd = 'ps waux | grep competitors:process-local-users\ ' . $id;
+            $id     = $request->id;
+            $cmd    = 'ps waux | grep competitors:process-local-users\ ' . $id;
             $export = shell_exec($cmd);
             $export = trim($export);
             //getting username
-            $cmd = 'echo $USER';
+            $cmd      = 'echo $USER';
             $username = shell_exec($cmd);
             $username = trim($username);
 
@@ -221,11 +226,11 @@ class HashtagController extends Controller
 
     public function influencer(Request $request)
     {
-        $request->posts ? $posts = $request->posts : $posts = null;
+        $request->posts ? $posts         = $request->posts : $posts = null;
         $request->followers ? $followers = $request->followers : $followers = null;
         $request->following ? $following = $request->following : $following = null;
-        $request->term ? $term = $request->term : $term = null;
-        $influencers = ScrapInfluencer::query();
+        $request->term ? $term           = $request->term : $term = null;
+        $influencers                     = ScrapInfluencer::query();
         if ($posts) {
             $influencers = $influencers->where('posts', '>=', $posts);
         }
@@ -247,8 +252,8 @@ class HashtagController extends Controller
             });
         }
         $influencers = $influencers->orderBy('created_at', 'desc')->paginate(25);
-        $keywords = InfluencerKeyword::all();
-        $accounts = Account::where('status', 1)->where('platform', 'instagram')->pluck('last_name', 'id');
+        $keywords    = InfluencerKeyword::all();
+        $accounts    = Account::where('status', 1)->where('platform', 'instagram')->pluck('last_name', 'id');
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers', 'posts', 'followers', 'following', 'term'))->render(),
@@ -257,7 +262,7 @@ class HashtagController extends Controller
             ], 200);
         }
 
-        $replies = \App\Reply::where('model', 'influencers')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
+        $replies              = \App\Reply::where('model', 'influencers')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
         $mailingListTemplates = MailinglistTemplate::pluck('name', 'id')->toArray();
 
         return view('instagram.hashtags.influencers', compact('accounts', 'replies', 'influencers', 'keywords', 'posts', 'followers', 'mailingListTemplates', 'following', 'term'));
@@ -267,38 +272,38 @@ class HashtagController extends Controller
     {
         $ids = explode(',', $request->selectedInfluencers);
         foreach ($ids as $id) {
-            $customer = ScrapInfluencer::find($id);
+            $customer     = ScrapInfluencer::find($id);
             $templateData = MailinglistTemplate::where('id', $request->mailing_list)->first();
             if ($templateData->static_template) {
                 $arrToReplace = ['{FIRST_NAME}'];
                 $valToReplace = [$customer->name];
-                $bodyText = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
+                $bodyText     = str_replace($arrToReplace, $valToReplace, $templateData->static_template);
             } else {
                 $bodyText = @(string) view($templateData->mail_tpl);
             }
 
-            $storeEmailAddress = \App\EmailAddress::first();
-            $emailData['subject'] = $templateData->subject;
+            $storeEmailAddress     = \App\EmailAddress::first();
+            $emailData['subject']  = $templateData->subject;
             $emailData['template'] = $bodyText;
-            $emailData['from'] = $storeEmailAddress->from_address;
+            $emailData['from']     = $storeEmailAddress->from_address;
 
             $emailClass = (new  \App\Mail\SendInfluencerEmail($emailData))->build();
-            $email = \App\Email::create([
-                'model_id' => $customer->id,
-                'model_type' => \App\ScrapInfluencer::class,
-                'from' => $emailClass->fromMailer,
-                'to' => $customer->email,
-                'subject' => $templateData->subject,
-                'message' => $emailClass->render(),
-                'template' => 'scrapper-email',
+            $email      = \App\Email::create([
+                'model_id'        => $customer->id,
+                'model_type'      => \App\ScrapInfluencer::class,
+                'from'            => $emailClass->fromMailer,
+                'to'              => $customer->email,
+                'subject'         => $templateData->subject,
+                'message'         => $emailClass->render(),
+                'template'        => 'scrapper-email',
                 'additional_data' => '',
-                'status' => 'pre-send',
-                'is_draft' => 1,
+                'status'          => 'pre-send',
+                'is_draft'        => 1,
             ]);
             \App\EmailLog::create([
-                'email_id' => $email->id,
+                'email_id'  => $email->id,
                 'email_log' => 'Email initiated',
-                'message' => $email->to,
+                'message'   => $email->to,
             ]);
             \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
         }
@@ -308,7 +313,7 @@ class HashtagController extends Controller
 
     public function addReply(Request $request)
     {
-        $reply = $request->get('reply');
+        $reply     = $request->get('reply');
         $autoReply = [];
         if (! empty($reply)) {
             $autoReply = \App\Reply::updateOrCreate(
@@ -350,20 +355,20 @@ class HashtagController extends Controller
 
     public function addmailinglist(Request $request)
     {
-        $services = \App\Service::first();
-        $service_id = $services->id;
+        $services    = \App\Service::first();
+        $service_id  = $services->id;
         $influencers = \App\ScrapInfluencer::where('email', '!=', '')->get();
-        $websites = \App\StoreWebsite::select('id', 'title', 'send_in_blue_api', 'send_in_blue_account')->orderBy('id', 'desc')->get();
+        $websites    = \App\StoreWebsite::select('id', 'title', 'send_in_blue_api', 'send_in_blue_account')->orderBy('id', 'desc')->get();
 
-        $email_list = [];
+        $email_list  = [];
         $email_list2 = [];
-        $listIds = [];
+        $listIds     = [];
         foreach ($influencers as $influencer) {
             $email_list[] = ['email' => $influencer->email, 'name' => $influencer->name, 'platform' => $influencer->platform];
         }
 
         foreach ($websites as $website) {
-            $name = $website->title;
+            $name    = $website->title;
             $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
 
             if ($name != '') {
@@ -378,11 +383,11 @@ class HashtagController extends Controller
                 if (! Mailinglist::where('email', $email)->where('website_id', $website->id)->first()) {
                     if (! isset($res->id)) {
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $data = [
+                        $data      = [
                             'folderId' => 1,
-                            'name' => $name,
+                            'name'     => $name,
                         ];
-                        $url = "'https://api.sendinblue.com/v3/contacts/lists'";
+                        $url      = "'https://api.sendinblue.com/v3/contacts/lists'";
                         $response = Http::withHeaders([
                             'api-key' => $api_key,
                         ])->post($url, $data);
@@ -391,12 +396,12 @@ class HashtagController extends Controller
                         LogRequest::log($startTime, $url, 'POST', json_encode($data), $res, $response->status(), HashtagController::class, 'addmailinglist');
 
                         Mailinglist::create([
-                            'name' => $name,
-                            'website_id' => $website->id,
-                            'service_id' => $service_id,
-                            'email' => $email,
-                            'remote_id' => $res->id,
-                            'send_in_blue_api' => $website->send_in_blue_api,
+                            'name'                 => $name,
+                            'website_id'           => $website->id,
+                            'service_id'           => $service_id,
+                            'email'                => $email,
+                            'remote_id'            => $res->id,
+                            'send_in_blue_api'     => $website->send_in_blue_api,
                             'send_in_blue_account' => $website->send_in_blue_account,
                         ]);
                         $listIds[] = $res->id;
@@ -407,8 +412,8 @@ class HashtagController extends Controller
                         if (! \App\Customer::where('email', $email)->first()) {
                             $customer = new Customer;
 
-                            $customer->email = $email;
-                            $customer->name = $email_list[$count]['name'];
+                            $customer->email            = $email;
+                            $customer->name             = $email_list[$count]['name'];
                             $customer->store_website_id = $website->id;
                             $customer->save();
                         }
@@ -418,11 +423,11 @@ class HashtagController extends Controller
         }
 
         for ($count = 0; $count < count($email_list2); $count++) {
-            $email = $email_list2[$count]['email'];
+            $email     = $email_list2[$count]['email'];
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $data = [
-                'email' => $email,
-                'listIds' => $listIds,
+            $data      = [
+                'email'      => $email,
+                'listIds'    => $listIds,
                 'attributes' => ['firstname' => $email_list2[$count]['name']],
             ];
             $url = 'https://api.sendinblue.com/v3/contacts';
@@ -442,15 +447,15 @@ class HashtagController extends Controller
     public function loginstance(Request $request)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-logs';
-        $date = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
-        $id = $request->id;
+        $url       = env('INFLUENCER_SCRIPT_URL') . ':' . env('INFLUENCER_SCRIPT_PORT') . '/get-logs';
+        $date      = ($request->date != '') ? \Carbon\Carbon::parse($request->date)->format('m-d-Y') : '';
+        $id        = $request->id;
 
         if (! empty($date)) {
             $data = ['name' => $id, 'date' => $date];
         } else {
             return response()->json([
-                'type' => 'error',
+                'type'     => 'error',
                 'response' => 'Please select Date',
             ], 200);
         }
@@ -467,12 +472,12 @@ class HashtagController extends Controller
 
         if (count($result) > 1) {
             return response()->json([
-                'type' => 'success',
+                'type'     => 'success',
                 'response' => view('instagram.hashtags.partials.get_status', compact('result'))->render(),
             ], 200);
         } else {
             return response()->json([
-                'type' => 'error',
+                'type'     => 'error',
                 'response' => ($result[0] == '') ? 'Please select Date' : "Instagram Scrapter for $id not found",
             ], 200);
         }
@@ -481,8 +486,8 @@ class HashtagController extends Controller
     public function changeCronSetting(Request $request)
     {
         $setting = Setting::get('run_mailing_command');
-        $value = ($setting == 1) ? 0 : 1;
-        $action = ($setting == 1) ? 'Stopped' : 'Started';
+        $value   = ($setting == 1) ? 0 : 1;
+        $action  = ($setting == 1) ? 'Stopped' : 'Started';
         Setting::set('run_mailing_command', $value, $type = 'int');
 
         return redirect()->back()->with('message', "Maillist command has  $action successfully.");

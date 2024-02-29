@@ -25,10 +25,10 @@ class MessageQueueController extends Controller
             'is_queue' => 1,
         ]);
 
-        $sendingLimit = ChatMessage::getQueueLimit();
-        $sendingTime = ChatMessage::getQueueTime();
+        $sendingLimit  = ChatMessage::getQueueLimit();
+        $sendingTime   = ChatMessage::getQueueTime();
         $sendStartTime = ChatMessage::getStartTime();
-        $sendEndTime = ChatMessage::getEndTime();
+        $sendEndTime   = ChatMessage::getEndTime();
 
         $allWhatsappNo = config('apiwha.instances');
 
@@ -36,9 +36,9 @@ class MessageQueueController extends Controller
         //if(env("APP_ENV") != "local") {
         if (! empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no = ($no == 0) ? $dataInstance['number'] : $no;
-                $chatApi = new ChatApi;
-                $waitingMessage = $chatApi->waitingLimit($no);
+                $no                   = ($no == 0) ? $dataInstance['number'] : $no;
+                $chatApi              = new ChatApi;
+                $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
             }
         }
@@ -60,9 +60,9 @@ class MessageQueueController extends Controller
      */
     public function approve(Request $request)
     {
-        $group_id = $request->group_id;
+        $group_id      = $request->group_id;
         $customer_name = $request->customer_name;
-        $groupList = ChatMessage::select('group_id')->distinct('group_id')->where('is_queue', 0)->where('group_id', '!=', '')->get();
+        $groupList     = ChatMessage::select('group_id')->distinct('group_id')->where('is_queue', 0)->where('group_id', '!=', '')->get();
 
         $messageData = ChatMessage::select('c.name', 'chat_messages.*')->join('customers as c', 'c.id', 'chat_messages.customer_id')->where('is_queue', '=', 0)
             ->where('group_id', '!=', null)
@@ -89,7 +89,7 @@ class MessageQueueController extends Controller
     public function deleteMessageQueue(Request $request)
     {
         try {
-            $idArr = explode(',', $request->ids);
+            $idArr    = explode(',', $request->ids);
             $chatMess = ChatMessage::whereIn('id', $idArr)->delete();
             if ($chatMess != 0) {
                 return response()->json(['code' => 200, 'message' => 'Successfully Deleted']);
@@ -107,10 +107,10 @@ class MessageQueueController extends Controller
             'is_queue' => 1,
         ]);
 
-        $sendingLimit = ChatMessage::getQueueLimit();
-        $sendingTime = ChatMessage::getQueueTime();
+        $sendingLimit  = ChatMessage::getQueueLimit();
+        $sendingTime   = ChatMessage::getQueueTime();
         $sendStartTime = ChatMessage::getStartTime();
-        $sendEndTime = ChatMessage::getEndTime();
+        $sendEndTime   = ChatMessage::getEndTime();
 
         $allWhatsappNo = config('apiwha.instances');
 
@@ -118,9 +118,9 @@ class MessageQueueController extends Controller
         //if(env("APP_ENV") != "local") {
         if (! empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no = ($no == 0) ? $dataInstance['number'] : $no;
-                $chatApi = new ChatApi;
-                $waitingMessage = $chatApi->waitingLimit($no);
+                $no                   = ($no == 0) ? $dataInstance['number'] : $no;
+                $chatApi              = new ChatApi;
+                $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
             }
         }
@@ -150,10 +150,10 @@ class MessageQueueController extends Controller
 
         $data = [];
         foreach ($tempData as $list) {
-            $row = null;
-            $row[] = '[' . $list->number . ']';
-            $row[] = (int) $list->counter;
-            $row[] = date('Y-m-d', strtotime($list->time));
+            $row    = null;
+            $row[]  = '[' . $list->number . ']';
+            $row[]  = (int) $list->counter;
+            $row[]  = date('Y-m-d', strtotime($list->time));
             $data[] = $row;
         }
 
@@ -164,7 +164,7 @@ class MessageQueueController extends Controller
 
     private function getMessgeCounterDetail()
     {
-        $data = null;
+        $data     = null;
         $tempData = DB::table('message_queue_history')->get();
 
         foreach ($tempData as $list) {
@@ -183,11 +183,11 @@ class MessageQueueController extends Controller
 
     public function records()
     {
-        $from = request('from', '');
-        $to = request('to', '');
-        $limit = request('limit', config('erp-customer.pagination'));
+        $from         = request('from', '');
+        $to           = request('to', '');
+        $limit        = request('limit', config('erp-customer.pagination'));
         $customerName = request('customer_name', '');
-        $groupId = request('group_id', 0);
+        $groupId      = request('group_id', 0);
 
         $chatMessage = ChatMessage::join('customers as c', 'c.id', 'chat_messages.customer_id')
             ->where('chat_messages.is_queue', '>', 0)
@@ -236,15 +236,15 @@ class MessageQueueController extends Controller
                 }
             }
             $items->mediaList = $media;
-            $itemsList[] = $items;
+            $itemsList[]      = $items;
         }
 
         return response()->json([
-            'code' => 200,
-            'data' => $itemsList,
+            'code'       => 200,
+            'data'       => $itemsList,
             'pagination' => (string) $chatMessage->links(),
-            'total' => $chatMessage->total(),
-            'page' => $chatMessage->currentPage(),
+            'total'      => $chatMessage->total(),
+            'page'       => $chatMessage->currentPage(),
         ]);
     }
 
@@ -264,7 +264,7 @@ class MessageQueueController extends Controller
     public function actionHandler(Request $request)
     {
         $action = $request->get('action', '');
-        $ids = $request->get('ids', []);
+        $ids    = $request->get('ids', []);
 
         switch ($action) {
             case 'change_to_broadcast':
@@ -316,9 +316,9 @@ class MessageQueueController extends Controller
 
     public function updateLimit(Request $request)
     {
-        $limit = $request->get('message_sending_limit', []);
+        $limit     = $request->get('message_sending_limit', []);
         $startTime = $request->get('send_start_time', '');
-        $endTime = $request->get('send_end_time', '');
+        $endTime   = $request->get('send_end_time', '');
 
         \App\Setting::updateOrCreate(
             ['name' => 'is_queue_sending_limit'],
@@ -357,7 +357,7 @@ class MessageQueueController extends Controller
     public function report(Request $request)
     {
         $customerRange = request('customrange');
-        $starRange = explode(' - ', $customerRange);
+        $starRange     = explode(' - ', $customerRange);
 
         $chatMessage = new ChatMessage;
 
@@ -383,7 +383,7 @@ class MessageQueueController extends Controller
     public function recall(Request $request)
     {
         $no = $request->get('send_number');
-        $i = 0;
+        $i  = 0;
         if (! empty($no)) {
             $queue = ChatApi::chatQueue($no);
             if (! empty($queue) && ! empty($queue['first100'])) {
@@ -409,10 +409,10 @@ class MessageQueueController extends Controller
     public function status()
     {
         $waitingMessages = [];
-        $allWhatsappNo = config('apiwha.instances');
+        $allWhatsappNo   = config('apiwha.instances');
         if (! empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no = ($no == 0) ? $dataInstance['number'] : $no;
+                $no    = ($no == 0) ? $dataInstance['number'] : $no;
                 $limit = (new ChatApi)->waitingLimit($no);
                 if ($limit > config('apiwha.message_queue_limit')) {
                     $waitingMessages[$no] = $limit;

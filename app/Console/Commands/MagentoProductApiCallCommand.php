@@ -57,25 +57,25 @@ class MagentoProductApiCallCommand extends Command
 
         if (! $produts->isEmpty()) {
             foreach ($produts as $p) {
-                $sku = $p->sku . '-' . $p->color;
-                $websiteId = $p->store_website_id;
+                $sku            = $p->sku . '-' . $p->color;
+                $websiteId      = $p->store_website_id;
                 $product_ref_id = uniqid();
                 LogMagentoApi::create([
                     'magento_api_search_product_id' => $product_ref_id,
-                    'api_log' => 'success',
-                    'message' => 'Product Unique id Generated: ',
+                    'api_log'                       => 'success',
+                    'message'                       => 'Product Unique id Generated: ',
                 ]);
                 try {
                     $get_store_website = \App\StoreWebsite::find($websiteId);
-                    $result = $magentoHelper->getProductBySku($sku, $get_store_website, null, $product_ref_id);
+                    $result            = $magentoHelper->getProductBySku($sku, $get_store_website, null, $product_ref_id);
                     LogMagentoApi::create([
                         'magento_api_search_product_id' => $product_ref_id,
-                        'api_log' => 'helper_output',
-                        'message' => $result,
+                        'api_log'                       => 'helper_output',
+                        'message'                       => $result,
                     ]);
                     if (isset($result->id)) {
-                        $result->success = true;
-                        $result->log_refid = $product_ref_id;
+                        $result->success        = true;
+                        $result->log_refid      = $product_ref_id;
                         $result->size_chart_url = '';
 
                         $englishDescription = '';
@@ -86,7 +86,7 @@ class MagentoProductApiCallCommand extends Command
                                 }
                                 if ($attributes->attribute_code == 'description') {
                                     $englishDescription = $attributes->value;
-                                    $result->english = 'Yes';
+                                    $result->english    = 'Yes';
                                 }
                             }
                         }
@@ -122,17 +122,17 @@ class MagentoProductApiCallCommand extends Command
                                 }
                             }
                         }
-                        $result->skuid = $sku;
+                        $result->skuid            = $sku;
                         $result->store_website_id = $websiteId;
-                        $products[] = $result;
+                        $products[]               = $result;
                     } else {
                         $result->success = false;
                     }
                 } catch (\Exception $e) {
                     LogMagentoApi::create([
                         'magento_api_search_product_id' => $product_ref_id,
-                        'api_log' => 'exception',
-                        'message' => $p . ' Exception : ' . $e->getMessage(),
+                        'api_log'                       => 'exception',
+                        'message'                       => $p . ' Exception : ' . $e->getMessage(),
                     ]);
                     \Log::info('Error from LogListMagentoController 448' . $e->getMessage());
                 }
@@ -142,72 +142,72 @@ class MagentoProductApiCallCommand extends Command
                 foreach ($data as $value) {
                     $StoreMagentoApiSearchProduct = new StoreMagentoApiSearchProduct;
 
-                    $StoreMagentoApiSearchProduct->website_id = $value['store_website_id'];
-                    $StoreMagentoApiSearchProduct->website = implode(',', $value['websites']);
-                    $StoreMagentoApiSearchProduct->sku = $value['sku'];
-                    $StoreMagentoApiSearchProduct->size = $value['size'];
-                    $StoreMagentoApiSearchProduct->brands = $value['brands'];
-                    $StoreMagentoApiSearchProduct->dimensions = $value['dimensions'];
-                    $StoreMagentoApiSearchProduct->composition = $value['composition'];
+                    $StoreMagentoApiSearchProduct->website_id     = $value['store_website_id'];
+                    $StoreMagentoApiSearchProduct->website        = implode(',', $value['websites']);
+                    $StoreMagentoApiSearchProduct->sku            = $value['sku'];
+                    $StoreMagentoApiSearchProduct->size           = $value['size'];
+                    $StoreMagentoApiSearchProduct->brands         = $value['brands'];
+                    $StoreMagentoApiSearchProduct->dimensions     = $value['dimensions'];
+                    $StoreMagentoApiSearchProduct->composition    = $value['composition'];
                     $StoreMagentoApiSearchProduct->category_names = implode(',', $value['category_names']);
                     $StoreMagentoApiSearchProduct->size_chart_url = $value['size_chart_url'];
-                    $StoreMagentoApiSearchProduct->status = $value['success'] ? 'Success' : 'Product not found in Website.';
-                    $StoreMagentoApiSearchProduct->images = ! empty($value['media_gallery_entries']) ? $value['media_gallery_entries'][0] : null;
-                    $StoreMagentoApiSearchProduct->english = ! empty($value['english']) ? $value['english'] : 'No';
-                    $StoreMagentoApiSearchProduct->arabic = ! empty($value['arabic']) ? $value['arabic'] : 'No';
-                    $StoreMagentoApiSearchProduct->german = ! empty($value['german']) ? $value['german'] : 'No';
-                    $StoreMagentoApiSearchProduct->spanish = ! empty($value['spanish']) ? $value['spanish'] : 'No';
-                    $StoreMagentoApiSearchProduct->french = ! empty($value['french']) ? $value['french'] : 'No';
-                    $StoreMagentoApiSearchProduct->italian = ! empty($value['italian']) ? $value['italian'] : 'No';
-                    $StoreMagentoApiSearchProduct->japanese = ! empty($value['japanese']) ? $value['japanese'] : 'No';
-                    $StoreMagentoApiSearchProduct->korean = ! empty($value['korean']) ? $value['korean'] : 'No';
-                    $StoreMagentoApiSearchProduct->russian = ! empty($value['russian']) ? $value['russian'] : 'No';
-                    $StoreMagentoApiSearchProduct->chinese = ! empty($value['chinese']) ? $value['chinese'] : 'No';
-                    $StoreMagentoApiSearchProduct->log_refid = $value['log_refid'];
+                    $StoreMagentoApiSearchProduct->status         = $value['success'] ? 'Success' : 'Product not found in Website.';
+                    $StoreMagentoApiSearchProduct->images         = ! empty($value['media_gallery_entries']) ? $value['media_gallery_entries'][0] : null;
+                    $StoreMagentoApiSearchProduct->english        = ! empty($value['english']) ? $value['english'] : 'No';
+                    $StoreMagentoApiSearchProduct->arabic         = ! empty($value['arabic']) ? $value['arabic'] : 'No';
+                    $StoreMagentoApiSearchProduct->german         = ! empty($value['german']) ? $value['german'] : 'No';
+                    $StoreMagentoApiSearchProduct->spanish        = ! empty($value['spanish']) ? $value['spanish'] : 'No';
+                    $StoreMagentoApiSearchProduct->french         = ! empty($value['french']) ? $value['french'] : 'No';
+                    $StoreMagentoApiSearchProduct->italian        = ! empty($value['italian']) ? $value['italian'] : 'No';
+                    $StoreMagentoApiSearchProduct->japanese       = ! empty($value['japanese']) ? $value['japanese'] : 'No';
+                    $StoreMagentoApiSearchProduct->korean         = ! empty($value['korean']) ? $value['korean'] : 'No';
+                    $StoreMagentoApiSearchProduct->russian        = ! empty($value['russian']) ? $value['russian'] : 'No';
+                    $StoreMagentoApiSearchProduct->chinese        = ! empty($value['chinese']) ? $value['chinese'] : 'No';
+                    $StoreMagentoApiSearchProduct->log_refid      = $value['log_refid'];
 
                     $StoreMagentoApiSearchProduct->save();
 
                     LogMagentoApi::create([
                         'magento_api_search_product_id' => $value['log_refid'],
-                        'api_log' => 'product stored',
-                        'message' => 'Product stored in Magento API Search Product',
+                        'api_log'                       => 'product stored',
+                        'message'                       => 'Product stored in Magento API Search Product',
                     ]);
 
                     if ($value['success']) {
                         $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::where('website_id', $value['store_website_id'])->first();
-                        $addItem = [
-                            'website_id' => $value['store_website_id'],
-                            'website' => implode(',', $value['websites']),
-                            'sku' => $value['sku'],
-                            'size' => $value['size'],
-                            'brands' => $value['brands'],
-                            'dimensions' => $value['dimensions'],
+                        $addItem                  = [
+                            'website_id'  => $value['store_website_id'],
+                            'website'     => implode(',', $value['websites']),
+                            'sku'         => $value['sku'],
+                            'size'        => $value['size'],
+                            'brands'      => $value['brands'],
+                            'dimensions'  => $value['dimensions'],
                             'composition' => $value['composition'],
-                            'english' => ! empty($value['english']) ? $value['english'] : 'No',
-                            'arabic' => ! empty($value['arabic']) ? $value['arabic'] : 'No',
-                            'german' => ! empty($value['german']) ? $value['german'] : 'No',
-                            'spanish' => ! empty($value['spanish']) ? $value['spanish'] : 'No',
-                            'french' => ! empty($value['french']) ? $value['french'] : 'No',
-                            'italian' => ! empty($value['italian']) ? $value['italian'] : 'No',
-                            'japanese' => ! empty($value['japanese']) ? $value['japanese'] : 'No',
-                            'korean' => ! empty($value['korean']) ? $value['korean'] : 'No',
-                            'russian' => ! empty($value['russian']) ? $value['russian'] : 'No',
-                            'chinese' => ! empty($value['chinese']) ? $value['chinese'] : 'No',
+                            'english'     => ! empty($value['english']) ? $value['english'] : 'No',
+                            'arabic'      => ! empty($value['arabic']) ? $value['arabic'] : 'No',
+                            'german'      => ! empty($value['german']) ? $value['german'] : 'No',
+                            'spanish'     => ! empty($value['spanish']) ? $value['spanish'] : 'No',
+                            'french'      => ! empty($value['french']) ? $value['french'] : 'No',
+                            'italian'     => ! empty($value['italian']) ? $value['italian'] : 'No',
+                            'japanese'    => ! empty($value['japanese']) ? $value['japanese'] : 'No',
+                            'korean'      => ! empty($value['korean']) ? $value['korean'] : 'No',
+                            'russian'     => ! empty($value['russian']) ? $value['russian'] : 'No',
+                            'chinese'     => ! empty($value['chinese']) ? $value['chinese'] : 'No',
                         ];
 
                         if ($StoreWebsiteProductCheck == null) {
                             LogMagentoApi::create([
                                 'magento_api_search_product_id' => $value['log_refid'],
-                                'api_log' => 'add store website',
-                                'message' => $value,
+                                'api_log'                       => 'add store website',
+                                'message'                       => $value,
                             ]);
                             $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
                         } else {
                             $StoreWebsiteProductCheck->where('website_id', $value['store_website_id'])->update($addItem);
                             LogMagentoApi::create([
                                 'magento_api_search_product_id' => $value['log_refid'],
-                                'api_log' => 'upate store website',
-                                'message' => $value,
+                                'api_log'                       => 'upate store website',
+                                'message'                       => $value,
                             ]);
                         }
                     }
@@ -219,14 +219,14 @@ class MagentoProductApiCallCommand extends Command
     protected function processProductAPIResponce($products)
     {
         $prepared_products_data = [];
-        $websites = [];
-        $category_names = [];
-        $size = '';
-        $brands = '';
-        $composition = '';
-        $brand = '';
-        $dimensions = 'N/A';
-        $size = 'N/A';
+        $websites               = [];
+        $category_names         = [];
+        $size                   = '';
+        $brands                 = '';
+        $composition            = '';
+        $brand                  = '';
+        $dimensions             = 'N/A';
+        $size                   = 'N/A';
         foreach ($products as $value) {
             $websites[] = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
             if (isset($value->extension_attributes)) {
@@ -272,29 +272,29 @@ class MagentoProductApiCallCommand extends Command
             }
 
             $prepared_products_data[$value->sku] = [
-                'store_website_id' => $value->store_website_id,
-                'magento_id' => $value->id,
-                'sku' => $value->sku,
-                'product_name' => $value->name,
+                'store_website_id'      => $value->store_website_id,
+                'magento_id'            => $value->id,
+                'sku'                   => $value->sku,
+                'product_name'          => $value->name,
                 'media_gallery_entries' => $value->media_gallery_entries,
-                'websites' => array_filter($websites),
-                'category_names' => $category_names,
-                'size' => $size,
-                'brands' => $brand,
-                'composition' => $composition,
-                'dimensions' => $dimensions,
-                'english' => ! empty($value->english) ? $value->english : 'No',
-                'arabic' => ! empty($value->arabic) ? $value->arabic : 'No',
-                'german' => ! empty($value->german) ? $value->german : 'No',
-                'spanish' => ! empty($value->spanish) ? $value->spanish : 'No',
-                'french' => ! empty($value->french) ? $value->french : 'No',
-                'italian' => ! empty($value->italian) ? $value->italian : 'No',
-                'japanese' => ! empty($value->japanese) ? $value->japanese : 'No',
-                'korean' => ! empty($value->korean) ? $value->korean : 'No',
-                'russian' => ! empty($value->russian) ? $value->russian : 'No',
-                'chinese' => ! empty($value->chinese) ? $value->chinese : 'No',
-                'size_chart_url' => ! empty($value->size_chart_url) ? 'Yes' : 'No',
-                'success' => true,
+                'websites'              => array_filter($websites),
+                'category_names'        => $category_names,
+                'size'                  => $size,
+                'brands'                => $brand,
+                'composition'           => $composition,
+                'dimensions'            => $dimensions,
+                'english'               => ! empty($value->english) ? $value->english : 'No',
+                'arabic'                => ! empty($value->arabic) ? $value->arabic : 'No',
+                'german'                => ! empty($value->german) ? $value->german : 'No',
+                'spanish'               => ! empty($value->spanish) ? $value->spanish : 'No',
+                'french'                => ! empty($value->french) ? $value->french : 'No',
+                'italian'               => ! empty($value->italian) ? $value->italian : 'No',
+                'japanese'              => ! empty($value->japanese) ? $value->japanese : 'No',
+                'korean'                => ! empty($value->korean) ? $value->korean : 'No',
+                'russian'               => ! empty($value->russian) ? $value->russian : 'No',
+                'chinese'               => ! empty($value->chinese) ? $value->chinese : 'No',
+                'size_chart_url'        => ! empty($value->size_chart_url) ? 'Yes' : 'No',
+                'success'               => true,
             ];
             if (! $value->success) {
                 $product_name = \App\Product::with('product_category', 'brands')->where('sku', $value->skuid)->first();
@@ -303,39 +303,39 @@ class MagentoProductApiCallCommand extends Command
                         $category_names[] = $product_name->product_category->title;
                     }
                 }
-                $brand = isset($product_name->brands) ? $product_name->brands->name : '';
+                $brand                                 = isset($product_name->brands) ? $product_name->brands->name : '';
                 $prepared_products_data[$value->skuid] = [
-                    'store_website_id' => $value->store_website_id,
-                    'magento_id' => '',
-                    'sku' => $value->skuid,
-                    'product_name' => $product_name != null ? $product_name->name : '',
+                    'store_website_id'      => $value->store_website_id,
+                    'magento_id'            => '',
+                    'sku'                   => $value->skuid,
+                    'product_name'          => $product_name != null ? $product_name->name : '',
                     'media_gallery_entries' => '',
-                    'websites' => $websites,
-                    'category_names' => $category_names,
-                    'size' => $product_name != null ? $product_name->size : '',
-                    'brands' => $brand,
-                    'composition' => $product_name != null ? $product_name->composition : '',
-                    'dimensions' => $product_name != null ? $product_name->lmeasurement . ',' . $product_name->hmeasurement . ',' . $product_name->dmeasurement : '',
-                    'english' => 'No',
-                    'arabic' => 'No',
-                    'german' => 'No',
-                    'spanish' => 'No',
-                    'french' => 'No',
-                    'italian' => 'No',
-                    'japanese' => 'No',
-                    'korean' => 'No',
-                    'russian' => 'No',
-                    'chinese' => 'No',
-                    'size_chart_url' => 'No',
-                    'success' => false,
+                    'websites'              => $websites,
+                    'category_names'        => $category_names,
+                    'size'                  => $product_name != null ? $product_name->size : '',
+                    'brands'                => $brand,
+                    'composition'           => $product_name != null ? $product_name->composition : '',
+                    'dimensions'            => $product_name != null ? $product_name->lmeasurement . ',' . $product_name->hmeasurement . ',' . $product_name->dmeasurement : '',
+                    'english'               => 'No',
+                    'arabic'                => 'No',
+                    'german'                => 'No',
+                    'spanish'               => 'No',
+                    'french'                => 'No',
+                    'italian'               => 'No',
+                    'japanese'              => 'No',
+                    'korean'                => 'No',
+                    'russian'               => 'No',
+                    'chinese'               => 'No',
+                    'size_chart_url'        => 'No',
+                    'success'               => false,
                 ];
             }
 
             $category_names = [];
-            $websites = [];
-            $size = '';
-            $brands = '';
-            $composition = '';
+            $websites       = [];
+            $size           = '';
+            $brands         = '';
+            $composition    = '';
         }
 
         return $prepared_products_data;

@@ -126,23 +126,24 @@ final class Transformations
     public $TextLink;
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
      */
     public function __construct(array $transformations = [])
     {
-        $this->Substring = $this->setSubstring($transformations);
-        $this->Bool2Text = $this->setBool2Text($transformations);
-        $this->External = $this->setExternal($transformations);
-        $this->PreApPend = $this->setPreApPend($transformations);
-        $this->Hex = $this->setHex($transformations);
-        $this->DateFormat = $this->setDateFormat($transformations);
-        $this->Inline = $this->setInline($transformations);
+        $this->Substring     = $this->setSubstring($transformations);
+        $this->Bool2Text     = $this->setBool2Text($transformations);
+        $this->External      = $this->setExternal($transformations);
+        $this->PreApPend     = $this->setPreApPend($transformations);
+        $this->Hex           = $this->setHex($transformations);
+        $this->DateFormat    = $this->setDateFormat($transformations);
+        $this->Inline        = $this->setInline($transformations);
         $this->TextImageLink = $this->setTextImageLink($transformations);
-        $this->TextLink = $this->setTextLink($transformations);
+        $this->TextLink      = $this->setTextLink($transformations);
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<int, int|string>
      *
      * @psalm-return array{0: int, 1: 'all'|int, 2: string}
@@ -168,7 +169,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return string[]
      *
      * @psalm-return array{0: string, 1: string}
@@ -190,7 +192,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<int, int|string>
      *
      * @psalm-return array{0: int, 1: string, 2: int, 3: int}
@@ -220,7 +223,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return string[]
      *
      * @psalm-return array{0: string, 1: string}
@@ -242,7 +246,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return string[]
      *
      * @psalm-return array{0: 0|positive-int}
@@ -262,7 +267,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<int, int|string>
      *
      * @psalm-return array{0: 0|positive-int, 1: string, 2: 'local'|'utc'}
@@ -291,7 +297,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<(int|string), (int|string|array<string, string>|null)>
      *
      * @psalm-return array{
@@ -329,7 +336,7 @@ final class Transformations
             ) {
                 /**
                  * @var int|string $key
-                 * @var mixed $value
+                 * @var mixed      $value
                  */
                 foreach ($transformations['Inline']['wrapper_params'] as $key => $value) {
                     $inline['wrapper_params'][$key] = (string) $value;
@@ -341,7 +348,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<int, int|string|null>
      *
      * @psalm-return array{0: string|null, 1: 0|positive-int, 2: 0|positive-int}
@@ -373,7 +381,8 @@ final class Transformations
     }
 
     /**
-     * @param  array<int|string, mixed>  $transformations
+     * @param array<int|string, mixed> $transformations
+     *
      * @return array<int, string|null>
      *
      * @psalm-return array{0: string|null, 1: string|null, 2: bool|null}

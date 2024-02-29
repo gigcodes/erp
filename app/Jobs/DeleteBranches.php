@@ -22,6 +22,9 @@ class DeleteBranches implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param private $branches
+     * @param private $repositoryId
+     *
      * @return void
      */
     public function __construct(private $branches, private $repositoryId)
@@ -41,10 +44,10 @@ class DeleteBranches implements ShouldQueue
             if ($this->response['status']) {
                 \Log::info('Branch ' . $branch . ' has been deleted successfully.');
                 DeletedGithubBranchLog::create([
-                    'branch_name' => $branch,
+                    'branch_name'   => $branch,
                     'repository_id' => $this->repositoryId,
-                    'deleted_by' => \Auth::id(),
-                    'status' => 'success',
+                    'deleted_by'    => \Auth::id(),
+                    'status'        => 'success',
                 ]);
             }
 
@@ -54,10 +57,10 @@ class DeleteBranches implements ShouldQueue
             } else {
                 \Log::info('ERROR : while delete the branch - ' . $branch);
                 DeletedGithubBranchLog::create([
-                    'branch_name' => $branch,
+                    'branch_name'   => $branch,
                     'repository_id' => $this->repositoryId,
-                    'deleted_by' => \Auth::id(),
-                    'status' => 'failed',
+                    'deleted_by'    => \Auth::id(),
+                    'status'        => 'failed',
                     'error_message' => $this->response['error'],
                 ]);
                 $this->error .= $this->response['error'] . ',';

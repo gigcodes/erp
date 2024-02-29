@@ -22,17 +22,17 @@ class NodeTableContainer extends NodeDatabaseChildContainer
     public function __construct()
     {
         parent::__construct(__('Tables'), Node::CONTAINER);
-        $this->icon = ['image' => 'b_browse', 'title' => __('Tables')];
+        $this->icon  = ['image' => 'b_browse', 'title' => __('Tables')];
         $this->links = [
             'text' => ['route' => '/database/structure', 'params' => ['tbl_type' => 'table', 'db' => null]],
             'icon' => ['route' => '/database/structure', 'params' => ['tbl_type' => 'table', 'db' => null]],
         ];
         $this->realName = 'tables';
-        $this->classes = 'tableContainer subContainer';
+        $this->classes  = 'tableContainer subContainer';
 
-        $newLabel = _pgettext('Create new table', 'New');
-        $new = NodeFactory::getInstanceForNewNode($newLabel, 'new_table italics');
-        $new->icon = ['image' => 'b_table_add', 'title' => $newLabel];
+        $newLabel   = _pgettext('Create new table', 'New');
+        $new        = NodeFactory::getInstanceForNewNode($newLabel, 'new_table italics');
+        $new->icon  = ['image' => 'b_table_add', 'title' => $newLabel];
         $new->links = [
             'text' => ['route' => '/table/create', 'params' => ['db' => null]],
             'icon' => ['route' => '/table/create', 'params' => ['db' => null]],

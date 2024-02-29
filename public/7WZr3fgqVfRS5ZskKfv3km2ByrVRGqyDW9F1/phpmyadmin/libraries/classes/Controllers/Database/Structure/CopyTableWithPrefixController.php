@@ -33,14 +33,14 @@ final class CopyTableWithPrefixController extends AbstractController
     {
         global $db, $message;
 
-        $selected = $_POST['selected'] ?? [];
+        $selected   = $_POST['selected'] ?? [];
         $fromPrefix = $_POST['from_prefix'] ?? null;
-        $toPrefix = $_POST['to_prefix'] ?? null;
+        $toPrefix   = $_POST['to_prefix'] ?? null;
 
         $selectedCount = count($selected);
 
         for ($i = 0; $i < $selectedCount; $i++) {
-            $current = $selected[$i];
+            $current      = $selected[$i];
             $newTableName = $toPrefix . mb_substr($current, mb_strlen((string) $fromPrefix));
 
             Table::moveCopy(

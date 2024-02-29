@@ -45,11 +45,11 @@ class ResourceCategory extends Model
 
     public static function create($input)
     {
-        $resourceimg = new ResourceCategory;
-        $input['parent_id'] = $input['parent_id'] ?? 1;
-        $resourceimg->parent_id = ($input['parent_id'] == 1 ? 0 : $input['parent_id']);
-        $resourceimg->title = $input['title'];
-        $resourceimg->is_active = 'Y';
+        $resourceimg             = new ResourceCategory;
+        $input['parent_id']      = $input['parent_id'] ?? 1;
+        $resourceimg->parent_id  = ($input['parent_id'] == 1 ? 0 : $input['parent_id']);
+        $resourceimg->title      = $input['title'];
+        $resourceimg->is_active  = 'Y';
         $resourceimg->created_at = date('Y-m-d H:i:s');
         $resourceimg->updated_at = date('Y-m-d H:i:s');
         $resourceimg->created_by = Auth::user()->name;

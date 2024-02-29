@@ -70,7 +70,9 @@ class HashtagPostsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\HashtagPosts  $hashtagPosts
+     * @param \App\HashtagPosts $hashtagPosts
+     * @param mixed             $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

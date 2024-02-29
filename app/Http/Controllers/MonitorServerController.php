@@ -21,7 +21,7 @@ class MonitorServerController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('keyword');
-        $status = $request->get('status');
+        $status  = $request->get('status');
 
         $monitorServers = MonitorServer::latest();
 
@@ -61,7 +61,7 @@ class MonitorServerController extends Controller
 
     public function getServerUptimes(Request $request, $id)
     {
-        $data = MonitorServersUptime::where('server_id', $id)->orderby('created_at', 'desc')->paginate(20);
+        $data         = MonitorServersUptime::where('server_id', $id)->orderby('created_at', 'desc')->paginate(20);
         $paginateHtml = $data->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $data, 'message' => 'Server uptimes found']);
@@ -70,15 +70,15 @@ class MonitorServerController extends Controller
     public function getServerUsers(Request $request, $id)
     {
         $monitorServer = MonitorServer::findOrFail($id);
-        $serverUsers = $monitorServer->monitorUsers()->paginate(20);
-        $paginateHtml = $serverUsers->links()->render();
+        $serverUsers   = $monitorServer->monitorUsers()->paginate(20);
+        $paginateHtml  = $serverUsers->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $serverUsers, 'message' => 'Server users found']);
     }
 
     public function getServerHistory(Request $request, $id)
     {
-        $logHistory = MonitorLog::where('server_id', $id)->paginate(25);
+        $logHistory   = MonitorLog::where('server_id', $id)->paginate(25);
         $paginateHtml = $logHistory->links()->render();
 
         return response()->json(['code' => 200, 'paginate' => $paginateHtml, 'data' => $logHistory, 'message' => 'Server history found']);

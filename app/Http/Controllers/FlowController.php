@@ -44,7 +44,7 @@ class FlowController extends Controller
             $status = 0;
         }
 
-        $updateflowcondition = FlowCondition::find($request->get('id'));
+        $updateflowcondition         = FlowCondition::find($request->get('id'));
         $updateflowcondition->status = $status;
         $updateflowcondition->update();
 
@@ -58,7 +58,7 @@ class FlowController extends Controller
         $messages = \App\ChatMessage::where('scheduled_at', '>', $current_date)->where('flow_exit', 1)
             ->leftJoin('customers', 'customers.id', 'chat_messages.customer_id')
             ->leftJoin('users', 'users.id', 'chat_messages.user_id');
-        $types = ['0' => 'Whatsapp', '3' => 'SMS'];
+        $types     = ['0' => 'Whatsapp', '3' => 'SMS'];
         $is_queues = ['1' => 'Yes', '0' => 'No'];
         if (request()->message) {
             $messages->where('message', 'LIKE', '%' . request()->message . '%');
@@ -75,7 +75,7 @@ class FlowController extends Controller
         $messages = $messages->select('chat_messages.*', 'customers.name', 'users.name as user_name')->orderBy('chat_messages.id', 'desc')->paginate(20);
 
         $message = request()->message;
-        $type = request()->message_application_id;
+        $type    = request()->message_application_id;
 
         return view('flow.scheduled-messages', compact('messages', 'types', 'message', 'type', 'is_queues'));
     }
@@ -97,7 +97,7 @@ class FlowController extends Controller
         $emails = $emails->paginate(10);
 
         $from = request()->from;
-        $to = request()->to;
+        $to   = request()->to;
 
         return view('flow.scheduled-emails', compact('emails', 'from', 'to'));
     }
@@ -138,13 +138,13 @@ class FlowController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'store_website_id' => 'required',
-            'flow_name' => 'required',
+            'flow_name'        => 'required',
             'flow_description' => 'required',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -172,8 +172,8 @@ class FlowController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -189,7 +189,7 @@ class FlowController extends Controller
 
     public function updateFlow(Request $request)
     {
-        $inputs = $request->input();
+        $inputs     = $request->input();
         $flowDetail = Flow::where('id', $inputs['flow_id'])->first();
         $flowTypeId = FlowType::where('type', $inputs['action_type'])->pluck('id')->first();
         if ($flowTypeId == null) {
@@ -208,7 +208,7 @@ class FlowController extends Controller
             FlowPath::create(['flow_id' => $inputs['flow_id'], 'parent_action_id' => $flowAction['id'], 'path_for' => 'yes']);
             FlowPath::create(['flow_id' => $inputs['flow_id'], 'parent_action_id' => $flowAction['id'], 'path_for' => 'no']);
         }
-        $flowPathId = FlowPath::where('flow_id', $inputs['flow_id'])->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
+        $flowPathId  = FlowPath::where('flow_id', $inputs['flow_id'])->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
         $flowActions = $this->getFlowActions($flowPathId);
 
         $html = view('flow.create', compact('flowDetail', 'flowActions', 'flowPathId'))->render();
@@ -225,7 +225,7 @@ class FlowController extends Controller
 
     public function updateCondition(Request $request)
     {
-        $id = $request->action_id;
+        $id        = $request->action_id;
         $condition = $request->condition;
         FlowAction::where('id', $id)->update(['condition' => $condition]);
 
@@ -255,8 +255,8 @@ class FlowController extends Controller
 
     public function flowDetail($flowId)
     {
-        $flowDetail = Flow::where('id', $flowId)->first();
-        $flowPathId = FlowPath::where('flow_id', $flowId)->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
+        $flowDetail  = Flow::where('id', $flowId)->first();
+        $flowPathId  = FlowPath::where('flow_id', $flowId)->whereNull('parent_action_id')->orderBy('id', 'desc')->pluck('id')->first();
         $flowActions = $this->getFlowActions($flowPathId);
 
         return view('flow.create', compact('flowDetail', 'flowActions', 'flowPathId'));
@@ -264,7 +264,7 @@ class FlowController extends Controller
 
     public function randomFlowCode()
     {
-        $random = Str::random(6);
+        $random    = Str::random(6);
         $codeExist = Flow::where('flow_code', $random)->first();
         if ($codeExist) {
             $this->randomFlowCode();
@@ -316,10 +316,10 @@ class FlowController extends Controller
         }
 
         $mailEclipseTpl = MailEclipse::getTemplates();
-        $rViewMail = [];
+        $rViewMail      = [];
         if (! empty($mailEclipseTpl)) {
             foreach ($mailEclipseTpl as $mTpl) {
-                $v = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
+                $v             = MailEclipse::$view_namespace . '::templates.' . $mTpl->template_slug;
                 $rViewMail[$v] = $mTpl->template_name . ' [' . $mTpl->template_description . ']';
             }
         }
@@ -330,19 +330,19 @@ class FlowController extends Controller
     public function updateActionMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'sender_name' => 'required',
+            'sender_name'          => 'required',
             'sender_email_address' => 'required',
-            'mail_tpl' => 'required_without:html_content',
-            'html_content' => 'required_without:mail_tpl',
-            'subject' => 'required',
+            'mail_tpl'             => 'required_without:html_content',
+            'html_content'         => 'required_without:mail_tpl',
+            'subject'              => 'required',
         ], [
-            'mail_tpl.required_without' => 'Please provide email content or select Email Template.',
+            'mail_tpl.required_without'     => 'Please provide email content or select Email Template.',
             'html_content.required_without' => 'Please provide email content or select Email Template.',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->getMessageBag();
-            $errors = $errors->toArray();
+            $errors  = $validator->getMessageBag();
+            $errors  = $errors->toArray();
             $message = '';
             foreach ($errors as $error) {
                 $message .= $error[0] . '<br>';
@@ -359,7 +359,7 @@ class FlowController extends Controller
     public function flowDelete(Request $request)
     {
         $input = $request->input();
-        $flow = Flow::find($input['id']);
+        $flow  = Flow::find($input['id']);
         $paths = FlowPath::where('flow_id', $flow->id)->get();
         foreach ($paths as $path) {
             $flowActions = FlowAction::where('path_id', $path->id)->get();

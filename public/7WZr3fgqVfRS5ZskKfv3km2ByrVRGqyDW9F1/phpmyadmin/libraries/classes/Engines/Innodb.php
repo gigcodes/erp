@@ -21,62 +21,62 @@ class Innodb extends StorageEngine
     /**
      * Returns array with variable names related to InnoDB storage engine
      *
-     * @return array   variable names
+     * @return array variable names
      */
     public function getVariables()
     {
         return [
             'innodb_data_home_dir' => [
                 'title' => __('Data home directory'),
-                'desc' => __('The common part of the directory path for all InnoDB data files.'),
+                'desc'  => __('The common part of the directory path for all InnoDB data files.'),
             ],
             'innodb_data_file_path' => [
                 'title' => __('Data files'),
             ],
             'innodb_autoextend_increment' => [
                 'title' => __('Autoextend increment'),
-                'desc' => __(
+                'desc'  => __(
                     'The increment size for extending the size of an autoextending tablespace when it becomes full.'
                 ),
                 'type' => StorageEngine::DETAILS_TYPE_NUMERIC,
             ],
             'innodb_buffer_pool_size' => [
                 'title' => __('Buffer pool size'),
-                'desc' => __('The size of the memory buffer InnoDB uses to cache data and indexes of its tables.'),
-                'type' => StorageEngine::DETAILS_TYPE_SIZE,
+                'desc'  => __('The size of the memory buffer InnoDB uses to cache data and indexes of its tables.'),
+                'type'  => StorageEngine::DETAILS_TYPE_SIZE,
             ],
             'innodb_additional_mem_pool_size' => [
                 'title' => 'innodb_additional_mem_pool_size',
-                'type' => StorageEngine::DETAILS_TYPE_SIZE,
+                'type'  => StorageEngine::DETAILS_TYPE_SIZE,
             ],
-            'innodb_buffer_pool_awe_mem_mb' => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
-            'innodb_checksums' => [],
-            'innodb_commit_concurrency' => [],
-            'innodb_concurrency_tickets' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_doublewrite' => [],
-            'innodb_fast_shutdown' => [],
-            'innodb_file_io_threads' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_file_per_table' => [],
+            'innodb_buffer_pool_awe_mem_mb'  => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
+            'innodb_checksums'               => [],
+            'innodb_commit_concurrency'      => [],
+            'innodb_concurrency_tickets'     => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_doublewrite'             => [],
+            'innodb_fast_shutdown'           => [],
+            'innodb_file_io_threads'         => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_file_per_table'          => [],
             'innodb_flush_log_at_trx_commit' => [],
-            'innodb_flush_method' => [],
-            'innodb_force_recovery' => [],
-            'innodb_lock_wait_timeout' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_flush_method'            => [],
+            'innodb_force_recovery'          => [],
+            'innodb_lock_wait_timeout'       => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
             'innodb_locks_unsafe_for_binlog' => [],
-            'innodb_log_arch_dir' => [],
-            'innodb_log_archive' => [],
-            'innodb_log_buffer_size' => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
-            'innodb_log_file_size' => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
-            'innodb_log_files_in_group' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_log_group_home_dir' => [],
-            'innodb_max_dirty_pages_pct' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_max_purge_lag' => [],
-            'innodb_mirrored_log_groups' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_open_files' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_support_xa' => [],
-            'innodb_sync_spin_loops' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_table_locks' => ['type' => StorageEngine::DETAILS_TYPE_BOOLEAN],
-            'innodb_thread_concurrency' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
-            'innodb_thread_sleep_delay' => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_log_arch_dir'            => [],
+            'innodb_log_archive'             => [],
+            'innodb_log_buffer_size'         => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
+            'innodb_log_file_size'           => ['type' => StorageEngine::DETAILS_TYPE_SIZE],
+            'innodb_log_files_in_group'      => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_log_group_home_dir'      => [],
+            'innodb_max_dirty_pages_pct'     => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_max_purge_lag'           => [],
+            'innodb_mirrored_log_groups'     => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_open_files'              => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_support_xa'              => [],
+            'innodb_sync_spin_loops'         => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_table_locks'             => ['type' => StorageEngine::DETAILS_TYPE_BOOLEAN],
+            'innodb_thread_concurrency'      => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
+            'innodb_thread_sleep_delay'      => ['type' => StorageEngine::DETAILS_TYPE_NUMERIC],
         ];
     }
 
@@ -84,7 +84,7 @@ class Innodb extends StorageEngine
      * Returns the pattern to be used in the query for SQL variables
      * related to InnoDb storage engine
      *
-     * @return string  SQL query LIKE pattern
+     * @return string SQL query LIKE pattern
      */
     public function getVariablesLikePattern()
     {
@@ -102,9 +102,9 @@ class Innodb extends StorageEngine
             return [];
         }
 
-        $pages = [];
+        $pages               = [];
         $pages['Bufferpool'] = __('Buffer Pool');
-        $pages['Status'] = __('InnoDB Status');
+        $pages['Status']     = __('InnoDB Status');
 
         return $pages;
     }
@@ -112,7 +112,7 @@ class Innodb extends StorageEngine
     /**
      * returns html tables with stats over inno db buffer pool
      *
-     * @return string  html table with stats
+     * @return string html table with stats
      */
     public function getPageBufferpool()
     {
@@ -256,7 +256,7 @@ class Innodb extends StorageEngine
     /**
      * returns InnoDB status
      *
-     * @return string  result of SHOW ENGINE INNODB STATUS inside pre tags
+     * @return string result of SHOW ENGINE INNODB STATUS inside pre tags
      */
     public function getPageStatus()
     {
@@ -273,7 +273,7 @@ class Innodb extends StorageEngine
      * returns string with filename for the MySQL helppage
      * about this storage engine
      *
-     * @return string  mysql helppage filename
+     * @return string mysql helppage filename
      */
     public function getMysqlHelpPage()
     {

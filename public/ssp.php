@@ -22,6 +22,7 @@ class SSP
      *
      *  @param  array  $columns Column information array
      *  @param  array  $data    Data from the SQL get
+     *
      *  @return array          Formatted data in a row based format
      */
     public static function data_output($columns, $data)
@@ -59,6 +60,7 @@ class SSP
      *     * db   - database name
      *     * user - user name
      *     * pass - user password
+     *
      *  @return resource PDO connection
      */
     public static function db($conn)
@@ -77,6 +79,7 @@ class SSP
      *
      *  @param  array  $request Data sent to server by DataTables
      *  @param  array  $columns Column information array
+     *
      *  @return string SQL limit clause
      */
     public static function limit($request, $columns)
@@ -97,6 +100,7 @@ class SSP
      *
      *  @param  array  $request Data sent to server by DataTables
      *  @param  array  $columns Column information array
+     *
      *  @return string SQL order by clause
      */
     public static function order($request, $columns)
@@ -104,16 +108,16 @@ class SSP
         $order = '';
 
         if (isset($request['order']) && count($request['order'])) {
-            $orderBy = [];
+            $orderBy   = [];
             $dtColumns = self::pluck($columns, 'dt');
 
             for ($i = 0, $ien = count($request['order']); $i < $ien; $i++) {
                 // Convert the column index into the column data property
-                $columnIdx = intval($request['order'][$i]['column']);
+                $columnIdx     = intval($request['order'][$i]['column']);
                 $requestColumn = $request['columns'][$columnIdx];
 
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $column = $columns[$columnIdx];
+                $column    = $columns[$columnIdx];
 
                 if ($requestColumn['orderable'] == 'true') {
                     $dir = $request['order'][$i]['dir'] === 'asc' ?
@@ -145,24 +149,25 @@ class SSP
      *  @param  array  $columns Column information array
      *  @param  array  $bindings Array of values for PDO bindings, used in the
      *    sql_exec() function
+     *
      *  @return string SQL where clause
      */
     public static function filter($request, $columns, &$bindings)
     {
         $globalSearch = [];
         $columnSearch = [];
-        $dtColumns = self::pluck($columns, 'dt');
+        $dtColumns    = self::pluck($columns, 'dt');
 
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
 
             for ($i = 0, $ien = count($request['columns']); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
-                $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $column = $columns[$columnIdx];
+                $columnIdx     = array_search($requestColumn['data'], $dtColumns);
+                $column        = $columns[$columnIdx];
 
                 if ($requestColumn['searchable'] == 'true') {
-                    $binding = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
+                    $binding        = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
                     $globalSearch[] = '`' . $column['db'] . '` LIKE ' . $binding;
                 }
             }
@@ -172,14 +177,14 @@ class SSP
         if (isset($request['columns'])) {
             for ($i = 0, $ien = count($request['columns']); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
-                $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $column = $columns[$columnIdx];
+                $columnIdx     = array_search($requestColumn['data'], $dtColumns);
+                $column        = $columns[$columnIdx];
 
                 $str = $requestColumn['search']['value'];
 
                 if ($requestColumn['searchable'] == 'true' &&
                  $str != '') {
-                    $binding = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
+                    $binding        = self::bind($bindings, '%' . $str . '%', PDO::PARAM_STR);
                     $columnSearch[] = '`' . $column['db'] . '` LIKE ' . $binding;
                 }
             }
@@ -217,12 +222,13 @@ class SSP
      *  @param  string  $table SQL table to query
      *  @param  string  $primaryKey Primary key of the table
      *  @param  array  $columns Column information array
+     *
      *  @return array          Server-side processing response array
      */
     public static function simple($request, $conn, $table, $primaryKey, $columns)
     {
         $bindings = [];
-        $db = self::db($conn);
+        $db       = self::db($conn);
 
         // Build the SQL query string from the request
         $limit = self::limit($request, $columns);
@@ -260,9 +266,9 @@ class SSP
             'draw' => isset($request['draw']) ?
                 intval($request['draw']) :
                 0,
-            'recordsTotal' => intval($recordsTotal),
+            'recordsTotal'    => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::data_output($columns, $data),
+            'data'            => self::data_output($columns, $data),
         ];
     }
 
@@ -287,15 +293,16 @@ class SSP
      *  @param  array  $columns Column information array
      *  @param  string  $whereResult WHERE condition to apply to the result set
      *  @param  string  $whereAll WHERE condition to apply to all queries
+     *
      *  @return array          Server-side processing response array
      */
     public static function complex($request, $conn, $table, $primaryKey, $columns, $whereResult = null, $whereAll = null)
     {
-        $bindings = [];
-        $db = self::db($conn);
+        $bindings         = [];
+        $db               = self::db($conn);
         $localWhereResult = [];
-        $localWhereAll = [];
-        $whereAllSql = '';
+        $localWhereAll    = [];
+        $whereAllSql      = '';
 
         // Build the SQL query string from the request
         $limit = self::limit($request, $columns);
@@ -303,7 +310,7 @@ class SSP
         $where = self::filter($request, $columns, $bindings);
 
         $whereResult = self::_flatten($whereResult);
-        $whereAll = self::_flatten($whereAll);
+        $whereAll    = self::_flatten($whereAll);
 
         if ($whereResult) {
             $where = $where ?
@@ -351,21 +358,22 @@ class SSP
             'draw' => isset($request['draw']) ?
                 intval($request['draw']) :
                 0,
-            'recordsTotal' => intval($recordsTotal),
+            'recordsTotal'    => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::data_output($columns, $data),
+            'data'            => self::data_output($columns, $data),
         ];
     }
 
     /**
      * Connect to the database
      *
-     * @param  array  $sql_details SQL server connection details array, with the
-     *   properties:
-     *     * host - host name
-     *     * db   - database name
-     *     * user - user name
-     *     * pass - user password
+     * @param array $sql_details SQL server connection details array, with the
+     *                           properties:
+     *                           * host - host name
+     *                           * db   - database name
+     *                           * user - user name
+     *                           * pass - user password
+     *
      * @return resource Database connection handle
      */
     public static function sql_connect($sql_details)
@@ -390,12 +398,13 @@ class SSP
     /**
      * Execute an SQL query on the database
      *
-     * @param  resource  $db  Database handler
-     * @param  array  $bindings Array of PDO binding values from bind() to be
-     *   used for safely escaping strings. Note that this can be given as the
-     *   SQL query string if no bindings are required.
-     * @param  string  $sql SQL query to execute.
-     * @return array         Result from the query (all rows)
+     * @param resource $db       Database handler
+     * @param array    $bindings Array of PDO binding values from bind() to be
+     *                           used for safely escaping strings. Note that this can be given as the
+     *                           SQL query string if no bindings are required.
+     * @param string   $sql      SQL query to execute.
+     *
+     * @return array Result from the query (all rows)
      */
     public static function sql_exec($db, $bindings, $sql = null)
     {
@@ -436,7 +445,7 @@ class SSP
      * This writes out an error message in a JSON string which DataTables will
      * see and show to the user in the browser.
      *
-     * @param  string  $msg Message to send to the client
+     * @param string $msg Message to send to the client
      */
     public static function fatal($msg)
     {
@@ -451,19 +460,20 @@ class SSP
      * Create a PDO binding key which can be used for escaping variables safely
      * when executing a query with sql_exec()
      *
-     * @param  array  &$a    Array of bindings
+     * @param array &$a Array of bindings
      * @param  *      $val  Value to bind
-     * @param  int  $type PDO field type
-     * @return string       Bound key to be used in the SQL where this parameter
-     *   would be used.
+     * @param int $type PDO field type
+     *
+     * @return string Bound key to be used in the SQL where this parameter
+     *                would be used.
      */
     public static function bind(&$a, $val, $type)
     {
         $key = ':binding_' . count($a);
 
         $a[] = [
-            'key' => $key,
-            'val' => $val,
+            'key'  => $key,
+            'val'  => $val,
             'type' => $type,
         ];
 
@@ -476,6 +486,7 @@ class SSP
      *
      *  @param  array  $a    Array to get data from
      *  @param  string  $prop Property to read
+     *
      *  @return array        Array of property values
      */
     public static function pluck($a, $prop)
@@ -492,8 +503,9 @@ class SSP
     /**
      * Return a string from an array or a string
      *
-     * @param  array|string  $a Array to join
-     * @param  string  $join Glue for the concatenation
+     * @param array|string $a    Array to join
+     * @param string       $join Glue for the concatenation
+     *
      * @return string Joined string
      */
     public static function _flatten($a, $join = ' AND ')

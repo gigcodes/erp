@@ -41,6 +41,8 @@ class Trigger implements JsonSerializable
     }
 
     /**
+     * @param ?int $id
+     *
      * @return $this
      */
     public function setId(?int $id): self
@@ -89,7 +91,8 @@ class Trigger implements JsonSerializable
     }
 
     /**
-     * @param  int  $severity
+     * @param int $severity
+     *
      * @return $this
      */
     public function setSeverity(string $severity): self
@@ -105,7 +108,8 @@ class Trigger implements JsonSerializable
     }
 
     /**
-     * @param  int|null  $expression
+     * @param int|null $expression
+     *
      * @return $this
      */
     public function setExpression(?string $expression): self
@@ -175,7 +179,7 @@ class Trigger implements JsonSerializable
     {
         $this->zabbix->changeStatusTrigger([
             'triggerid' => $this->getId(),
-            'status' => (int) ! $isActive,
+            'status'    => (int) ! $isActive,
         ]);
     }
 
@@ -184,17 +188,17 @@ class Trigger implements JsonSerializable
         if (! $this->getId()) {
             $this->zabbix->saveTrigger([
                 'description' => $this->getName(),
-                'expression' => $this->getExpression(),
-                'event_name' => $this->getEventName(),
-                'priority' => $this->getSeverity(),
+                'expression'  => $this->getExpression(),
+                'event_name'  => $this->getEventName(),
+                'priority'    => $this->getSeverity(),
             ]);
         } else {
             $this->zabbix->updateTrigger([
-                'triggerid' => $this->getId(),
+                'triggerid'   => $this->getId(),
                 'description' => $this->getName(),
-                'expression' => $this->getExpression(),
-                'event_name' => $this->getEventName(),
-                'priority' => $this->getSeverity(),
+                'expression'  => $this->getExpression(),
+                'event_name'  => $this->getEventName(),
+                'priority'    => $this->getSeverity(),
             ]);
         }
     }
@@ -218,13 +222,13 @@ class Trigger implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'expression' => $this->getExpression(),
-            'event_name' => $this->getEventName(),
-            'template_id' => $this->getTemplateId(),
-            'is_active' => $this->isActive(),
-            'priority' => $this->getSeverity(),
+            'id'            => $this->getId(),
+            'name'          => $this->getName(),
+            'expression'    => $this->getExpression(),
+            'event_name'    => $this->getEventName(),
+            'template_id'   => $this->getTemplateId(),
+            'is_active'     => $this->isActive(),
+            'priority'      => $this->getSeverity(),
             'template_name' => $this->getTemplateName(),
         ];
     }

@@ -17,8 +17,8 @@ class UpdateEmailsTableSeeder extends Seeder
         $emails = Email::all();
 
         foreach ($emails as $email) {
-            $data = explode('@', $email->from);
-            $name = $data[0];
+            $data        = explode('@', $email->from);
+            $name        = $data[0];
             $email->name = $name;
             $email->save();
         }

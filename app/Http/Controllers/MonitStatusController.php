@@ -13,7 +13,7 @@ class MonitStatusController extends Controller
     {
         $assetsmanager = AssetsManager::where('monit_api_url', '!=', '')->get();
 
-        $iii = 0;
+        $iii              = 0;
         $monitStatusArray = [];
         if (! empty($assetsmanager)) {
             foreach ($assetsmanager as $key => $value) {
@@ -40,10 +40,10 @@ class MonitStatusController extends Controller
                 } else {
                     // Parse and process the XML data
                     $xmlString = str_replace('&quot;', '&amp;quot;', $response);
-                    $xml = simplexml_load_string($xmlString);
+                    $xml       = simplexml_load_string($xmlString);
 
                     if (! empty($xml)) {
-                        $json = json_encode($xml);
+                        $json     = json_encode($xml);
                         $xmlArray = json_decode($json, true);
 
                         MonitStatus::where('monit_api_id', $xmlArray['server']['id'])->delete();
@@ -145,8 +145,8 @@ class MonitStatusController extends Controller
 
             $parameters = [
                 'command' => $request->command,
-                'server' => $ipString,
-                'dir' => '/home/prod-1-1/current/',
+                'server'  => $ipString,
+                'dir'     => '/home/prod-1-1/current/',
             ];
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
@@ -179,9 +179,9 @@ class MonitStatusController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }

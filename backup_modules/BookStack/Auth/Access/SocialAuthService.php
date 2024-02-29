@@ -24,19 +24,20 @@ class SocialAuthService
     /**
      * SocialAuthService constructor.
      *
-     * @param  \BookStack\Auth\UserRepo  $userRepo
+     * @param \BookStack\Auth\UserRepo $userRepo
      */
     public function __construct(UserRepo $userRepo, Socialite $socialite, SocialAccount $socialAccount)
     {
-        $this->userRepo = $userRepo;
-        $this->socialite = $socialite;
+        $this->userRepo      = $userRepo;
+        $this->socialite     = $socialite;
         $this->socialAccount = $socialAccount;
     }
 
     /**
      * Start the social login path.
      *
-     * @param  string  $socialDriver
+     * @param string $socialDriver
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws SocialDriverNotConfigured
@@ -51,7 +52,8 @@ class SocialAuthService
     /**
      * Start the social registration process
      *
-     * @param  string  $socialDriver
+     * @param string $socialDriver
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws SocialDriverNotConfigured
@@ -102,6 +104,9 @@ class SocialAuthService
     /**
      * Handle the login process on a oAuth callback.
      *
+     *
+     * @param mixed $socialDriver
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      *
      * @throws SocialSignInAccountNotUsed
@@ -112,8 +117,8 @@ class SocialAuthService
 
         // Get any attached social accounts or users
         $socialAccount = $this->socialAccount->where('driver_id', '=', $socialId)->first();
-        $isLoggedIn = auth()->check();
-        $currentUser = user();
+        $isLoggedIn    = auth()->check();
+        $currentUser   = user();
 
         // When a user is not logged in and a matching SocialAccount exists,
         // Simply log the user into the application.
@@ -159,6 +164,9 @@ class SocialAuthService
     /**
      * Ensure the social driver is correct and supported.
      *
+     *
+     * @param mixed $socialDriver
+     *
      * @return string
      *
      * @throws SocialDriverNotConfigured
@@ -180,13 +188,15 @@ class SocialAuthService
     /**
      * Check a social driver has been configured correctly.
      *
+     * @param mixed $driver
+     *
      * @return bool
      */
     private function checkDriverConfigured($driver)
     {
-        $lowerName = strtolower($driver);
+        $lowerName    = strtolower($driver);
         $configPrefix = 'services.' . $lowerName . '.';
-        $config = [config($configPrefix . 'client_id'), config($configPrefix . 'client_secret'), config('services.callback_url')];
+        $config       = [config($configPrefix . 'client_id'), config($configPrefix . 'client_secret'), config('services.callback_url')];
 
         return ! in_array(false, $config) && ! in_array(null, $config);
     }
@@ -210,6 +220,8 @@ class SocialAuthService
 
     /**
      * Get the presentational name for a driver.
+     *
+     * @param mixed $driver
      *
      * @return mixed
      */
@@ -239,16 +251,17 @@ class SocialAuthService
     }
 
     /**
-     * @param  string  $socialDriver
-     * @param  SocialUser  $socialUser
+     * @param string     $socialDriver
+     * @param SocialUser $socialUser
+     *
      * @return SocialAccount
      */
     public function fillSocialAccount($socialDriver, $socialUser)
     {
         $this->socialAccount->fill([
-            'driver' => $socialDriver,
+            'driver'    => $socialDriver,
             'driver_id' => $socialUser->getId(),
-            'avatar' => $socialUser->getAvatar(),
+            'avatar'    => $socialUser->getAvatar(),
         ]);
 
         return $this->socialAccount;
@@ -256,6 +269,8 @@ class SocialAuthService
 
     /**
      * Detach a social account from a user.
+     *
+     * @param mixed $socialDriver
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */

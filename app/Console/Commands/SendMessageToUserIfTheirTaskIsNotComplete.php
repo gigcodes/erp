@@ -45,7 +45,7 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,9 +67,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message' => $message,
+                    'message'           => $message,
                     'developer_task_id' => $task->id,
-                    'status' => 2,
+                    'status'            => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
             }
@@ -88,9 +88,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message' => $message,
+                    'message'           => $message,
                     'developer_task_id' => $task->id,
-                    'status' => 2,
+                    'status'            => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
             }
@@ -107,9 +107,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
                 $myRequest = new Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add([
-                    'message' => $message,
+                    'message'           => $message,
                     'developer_task_id' => $task->id,
-                    'status' => 2,
+                    'status'            => 2,
                 ]);
                 app(WhatsAppController::class)->sendMessage($myRequest, 'developer_task');
             }
@@ -136,9 +136,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $message,
+                'message'  => $message,
                 'issue_id' => $task->id,
-                'status' => 2,
+                'status'   => 2,
             ]);
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
         }
@@ -157,9 +157,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $message,
+                'message'  => $message,
                 'issue_id' => $task->id,
-                'status' => 2,
+                'status'   => 2,
             ]);
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');
         }
@@ -176,9 +176,9 @@ class SendMessageToUserIfTheirTaskIsNotComplete extends Command
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $message,
+                'message'  => $message,
                 'issue_id' => $task->id,
-                'status' => 2,
+                'status'   => 2,
             ]);
 
             app(WhatsAppController::class)->sendMessage($myRequest, 'issue');

@@ -17,8 +17,8 @@ class OutOfStockSubscribeController extends Controller
         $params = request()->all();
         // validate incoming request
         $validator = Validator::make($params, [
-            'email' => 'required',
-            'sku' => 'required',
+            'email'   => 'required',
+            'sku'     => 'required',
             'website' => 'required',
         ]);
 
@@ -36,9 +36,9 @@ class OutOfStockSubscribeController extends Controller
 
         if ($storeWebsite) {
             $website_id = $storeWebsite->id;
-            $data = $params;
-            $sku = explode('-', $request->get('sku'));
-            $product = Product::where('sku', $sku[0])->first();
+            $data       = $params;
+            $sku        = explode('-', $request->get('sku'));
+            $product    = Product::where('sku', $sku[0])->first();
             if ($product) {
                 $customer = Customer::where('email', $data['email'])->where('store_website_id', $website_id)->first();
                 if ($customer == null) {
@@ -80,7 +80,7 @@ class OutOfStockSubscribeController extends Controller
         if ($attributes['action'] == 'track-order') {
             $order_data = \App\Order::where('order_id', $attributes['trackingNumber'])->first();
             if ($order_data) {
-                $status = \App\OrderStatus::where('id', $order_data->order_status_id)->first();
+                $status        = \App\OrderStatus::where('id', $order_data->order_status_id)->first();
                 $statusMessage = $order_data->order_status;
                 if ($status) {
                     $statusMessage = $status->status;
@@ -88,8 +88,8 @@ class OutOfStockSubscribeController extends Controller
                 $response = [
                     'responses' => [
                         [
-                            'type' => 'text',
-                            'delay' => 1000,
+                            'type'    => 'text',
+                            'delay'   => 1000,
                             'message' => 'Thanks for contacting us Your order is right now on ' . ucwords($statusMessage),
                         ],
                     ],
@@ -98,8 +98,8 @@ class OutOfStockSubscribeController extends Controller
                 $response = [
                     'responses' => [
                         [
-                            'type' => 'text',
-                            'delay' => 1000,
+                            'type'    => 'text',
+                            'delay'   => 1000,
                             'message' => 'Sorry, We could not found your order number in our system please contact administrator',
                         ],
                     ],

@@ -8,7 +8,7 @@ class TextController extends Controller
 {
     public function index()
     {
-        $sku = '590716WA6F01000';
+        $sku       = '590716WA6F01000';
         $skuFormat = SkuFormat::where('brand_id', 2)->first();
 
         // Run brand regex on sku

@@ -23,7 +23,7 @@ class WebsiteStoreController extends Controller
         $websites = Website::join('store_websites', 'store_websites.id', '=', 'websites.store_website_id')->select('websites.*', \DB::raw('CONCAT(websites.name, " (", store_websites.title,")") AS full_name'))->get()->pluck('full_name', 'id')->toArray();
 
         return view('storewebsite::website-store.index', [
-            'title' => $title,
+            'title'    => $title,
             'websites' => $websites,
         ]);
     }
@@ -51,16 +51,16 @@ class WebsiteStoreController extends Controller
 
     public function store(Request $request)
     {
-        $post = $request->all();
+        $post      = $request->all();
         $validator = Validator::make($post, [
-            'name' => 'required',
-            'code' => 'required',
+            'name'       => 'required',
+            'code'       => 'required',
             'website_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -91,7 +91,8 @@ class WebsiteStoreController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -107,7 +108,8 @@ class WebsiteStoreController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -130,9 +132,9 @@ class WebsiteStoreController extends Controller
             // check that store store has the platform id exist
             if ($website->website && $website->website->platform_id > 0) {
                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
-                    'type' => 'store',
-                    'name' => $website->name,
-                    'code' => replace_dash(strtolower($website->code)),
+                    'type'       => 'store',
+                    'name'       => $website->name,
+                    'code'       => replace_dash(strtolower($website->code)),
                     'website_id' => $website->website->platform_id,
                 ], $website->website->storeWebsite);
 

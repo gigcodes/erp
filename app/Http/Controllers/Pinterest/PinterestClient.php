@@ -95,7 +95,7 @@ class PinterestClient
     }
 
     /**
-     * @param  mixed|null  $clientId
+     * @param mixed|null $clientId
      */
     public function setClientId($clientId): void
     {
@@ -111,7 +111,7 @@ class PinterestClient
     }
 
     /**
-     * @param  mixed|null  $clientSecret
+     * @param mixed|null $clientSecret
      */
     public function setClientSecret($clientSecret): void
     {
@@ -127,7 +127,7 @@ class PinterestClient
     }
 
     /**
-     * @param  mixed|null  $accountId
+     * @param mixed|null $accountId
      */
     public function setAccountId($accountId): void
     {
@@ -135,17 +135,19 @@ class PinterestClient
     }
 
     /**
+     * @param mixed $accessToken
+     *
      * @throws \Exception
      */
     public function updateAccessToken($accessToken)
     {
         $accessAccount = PinterestBusinessAccountMails::where('pinterest_access_token', $accessToken)->first();
-        $expireDate = (strtotime($accessAccount->updated_at) + $accessAccount->expires_in);
+        $expireDate    = (strtotime($accessAccount->updated_at) + $accessAccount->expires_in);
         if (strtotime(date('d-m-Y h:i:s')) > $expireDate) {
             $response = $this->validateAccessTokenAndRefreshToken(['refresh_token' => $accessAccount->pinterest_refresh_token], true);
             if ($response['status']) {
                 $accessAccount->pinterest_access_token = $response['data']['access_token'];
-                $accessAccount->expires_in = $response['data']['expires_in'];
+                $accessAccount->expires_in             = $response['data']['expires_in'];
                 $accessAccount->save();
                 $this->setAccessToken($accessAccount->pinterest_access_token);
             } else {
@@ -162,11 +164,11 @@ class PinterestClient
     public function getAuthURL(): string
     {
         $params = [
-            'client_id' => $this->getClientId(),
-            'redirect_uri' => str_replace('http://', 'https://', route('pinterest.accounts.connect.login')),
+            'client_id'     => $this->getClientId(),
+            'redirect_uri'  => str_replace('http://', 'https://', route('pinterest.accounts.connect.login')),
             'response_type' => 'code',
-            'scope' => implode(',', $this->getScopes()),
-            'state' => base64_encode($this->getAccountId()),
+            'scope'         => implode(',', $this->getScopes()),
+            'state'         => base64_encode($this->getAccountId()),
         ];
         $url = $this->getBASEAUTHAPIURL() . '?';
         foreach ($params as $key => $param) {
@@ -424,6 +426,9 @@ class PinterestClient
 
     /**
      * Validate and get access token from given code
+     *
+     * @param mixed $params
+     * @param mixed $isRefresh
      */
     public function validateAccessTokenAndRefreshToken($params, $isRefresh = false): array
     {
@@ -433,18 +438,18 @@ class PinterestClient
             $postFields = 'grant_type=authorization_code&code=' . $params['code'] . '&redirect_uri=' . str_replace('http://', 'https://', route('pinterest.accounts.connect.login'));
         }
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->getBASEAPI() . 'oauth/token',
+            CURLOPT_URL            => $this->getBASEAPI() . 'oauth/token',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $postFields,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => $postFields,
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/x-www-form-urlencoded',
                 'Authorization: Basic ' . base64_encode($this->getClientId() . ':' . $this->getClientSecret()),
             ],
@@ -467,22 +472,25 @@ class PinterestClient
 
     /**
      * Common function to fetch data from API using CURL.
+     *
+     * @param mixed $method
+     * @param mixed $url
      */
     public function callApi($method, $url, array $params = []): array
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
+        $curl      = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->getBASEAPI() . $url,
+            CURLOPT_URL            => $this->getBASEAPI() . $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLINFO_HEADER_OUT => true,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLINFO_HEADER_OUT    => true,
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $this->getAccessToken(),
             ],
@@ -493,7 +501,7 @@ class PinterestClient
         }
 
         $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $err      = curl_error($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, $method, json_encode($params), json_decode($response), $httpcode, \App\Http\Controllers\Pinterest\PinterestClient::class, 'callApi');
         curl_close($curl);

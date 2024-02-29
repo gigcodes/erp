@@ -13,10 +13,10 @@ class FaqPlatformDetails extends Model
     {
         $result = $this->where(
             [
-                'reply_id' => $id,
-                'type' => $type,
+                'reply_id'         => $id,
+                'type'             => $type,
                 'store_website_id' => $store_website_id,
-                'store_code' => $storeValue,
+                'store_code'       => $storeValue,
             ])->first();
 
         if (! empty($result->platform_id)) {

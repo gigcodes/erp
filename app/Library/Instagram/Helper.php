@@ -19,8 +19,8 @@ class Helper
     {
         if ($seconds) {
             $hours = floor($seconds / 3600);
-            $mins = floor($seconds / 60 % 60);
-            $secs = floor($seconds % 60);
+            $mins  = floor($seconds / 60 % 60);
+            $secs  = floor($seconds % 60);
 
             return sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
         }
@@ -30,7 +30,7 @@ class Helper
 
     public static function calc_bar($completed, $max)
     {
-        $max = ($max <= 0 ? 1 : $max);
+        $max       = ($max <= 0 ? 1 : $max);
         $completed = ($completed > $max ? $max : $completed);
 
         return round($completed * 100 / $max);
@@ -55,7 +55,7 @@ class Helper
                 // Check if new or old key
                 if ($entry[0] == $data_key) {
                     $env[$env_key] = $data_key . '=' . $data_value;
-                    $updated = true;
+                    $updated       = true;
                 } else {
                     $env[$env_key] = $env_value;
                 }

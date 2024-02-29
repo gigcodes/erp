@@ -37,7 +37,7 @@ class BrandController extends Controller
 
         $category_segments = CategorySegment::where('status', 1)->get();
 
-        $storeWebsite = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
+        $storeWebsite   = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
         $attachedBrands = \App\StoreWebsiteBrand::groupBy('store_website_id')->select(
             [\DB::raw('count(brand_id) as total_brand'), 'store_website_id']
         )->get()->toArray();
@@ -49,8 +49,8 @@ class BrandController extends Controller
     public function scrap_brand(Request $request)
     {
         // Set dates
-        $keyWord = $request->get('term', '');
-        $dev = $request->get('dev', '');
+        $keyWord      = $request->get('term', '');
+        $dev          = $request->get('dev', '');
         $devCheckboxs = $request->get('devCheckboxs');
 
         $brands = Brand::leftJoin('products as p', 'p.brand', 'brands.id')
@@ -79,7 +79,7 @@ class BrandController extends Controller
             ->groupBy('brands.id')
             ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
 
-        $alldevs = [];
+        $alldevs    = [];
         $developers = $allbrands->get();
         if ($developers) {
             foreach ($developers as $_developer) {
@@ -96,29 +96,29 @@ class BrandController extends Controller
 
     public function create()
     {
-        $data['name'] = '';
-        $data['euro_to_inr'] = '';
+        $data['name']                 = '';
+        $data['euro_to_inr']          = '';
         $data['deduction_percentage'] = '';
-        $data['magento_id'] = '';
-        $data['brand_segment'] = '';
-        $data['category_segments'] = CategorySegment::where('status', 1)->get();
-        $data['amount'] = '';
-        $data['modify'] = 0;
+        $data['magento_id']           = '';
+        $data['brand_segment']        = '';
+        $data['category_segments']    = CategorySegment::where('status', 1)->get();
+        $data['amount']               = '';
+        $data['modify']               = 0;
 
         return view('brand.form', $data);
     }
 
     public function edit(Brand $brand)
     {
-        $data = $brand->toArray();
+        $data                      = $brand->toArray();
         $data['category_segments'] = CategorySegment::where('status', 1)->get();
         $category_segment_discount = DB::table('category_segment_discounts')->where('brand_id', $brand->id)->first();
         if ($category_segment_discount) {
             $data['category_segment_id'] = $category_segment_discount->id;
-            $data['amount'] = $category_segment_discount->amount;
+            $data['amount']              = $category_segment_discount->amount;
         } else {
             $data['category_segment_id'] = '';
-            $data['amount'] = '';
+            $data['amount']              = '';
         }
         $data['modify'] = 1;
 
@@ -130,12 +130,12 @@ class BrandController extends Controller
         $this->validate($request, [
             'name' => 'required',
         ]);
-        $euro_to_inr = $request->euro_to_inr;
+        $euro_to_inr          = $request->euro_to_inr;
         $deduction_percentage = $request->deduction_percentage;
-        $brand_segment = $request->brand_segment;
-        $magento_id = $request->magento_id;
-        $amount = $request->amount;
-        $category_segment_id = $request->category_segment_id;
+        $brand_segment        = $request->brand_segment;
+        $magento_id           = $request->magento_id;
+        $amount               = $request->amount;
+        $category_segment_id  = $request->category_segment_id;
         if ($euro_to_inr === null) {
             $euro_to_inr = 0.0;
         }
@@ -156,17 +156,17 @@ class BrandController extends Controller
         }
 
         $data = [
-            'name' => $request->name,
-            'euro_to_inr' => $euro_to_inr,
-            'deduction_percentage' => $deduction_percentage,
-            'sales_discount' => $request->sales_discount,
+            'name'                     => $request->name,
+            'euro_to_inr'              => $euro_to_inr,
+            'deduction_percentage'     => $deduction_percentage,
+            'sales_discount'           => $request->sales_discount,
             'apply_b2b_discount_above' => $request->apply_b2b_discount_above,
-            'b2b_sales_discount' => $request->b2b_sales_discount,
-            'magento_id' => $magento_id,
-            'brand_segment' => $brand_segment,
-            'sku_strip_last' => $request->sku_strip_last,
-            'sku_add' => $request->sku_add,
-            'references' => $request->references,
+            'b2b_sales_discount'       => $request->b2b_sales_discount,
+            'magento_id'               => $magento_id,
+            'brand_segment'            => $brand_segment,
+            'sku_strip_last'           => $request->sku_strip_last,
+            'sku_add'                  => $request->sku_add,
+            'references'               => $request->references,
         ];
 
         $brand = $brand->create($data);
@@ -198,7 +198,7 @@ class BrandController extends Controller
 
     /**
      * @return \Illuminate\Http\JsonResponse
-     * Function for fetch brand list using AJAX request
+     *                                       Function for fetch brand list using AJAX request
      */
     public function show(Request $request)
     {
@@ -223,7 +223,7 @@ class BrandController extends Controller
 
     public static function getBrandName($id)
     {
-        $brand = new Brand();
+        $brand          = new Brand();
         $brand_instance = $brand->find($id);
 
         return $brand_instance ? $brand_instance->name : '';
@@ -238,7 +238,7 @@ class BrandController extends Controller
 
     public static function getEuroToInr($id)
     {
-        $brand = new Brand();
+        $brand          = new Brand();
         $brand_instance = $brand->find($id);
 
         return $brand_instance ? $brand_instance->euro_to_inr : 0;
@@ -246,7 +246,7 @@ class BrandController extends Controller
 
     public static function getDeductionPercentage($id)
     {
-        $brand = new Brand();
+        $brand          = new Brand();
         $brand_instance = $brand->find($id);
 
         return $brand_instance ? $brand_instance->deduction_percentage : 0;
@@ -273,7 +273,7 @@ class BrandController extends Controller
      */
     public function brandReference()
     {
-        $brands = Brand::select('name', 'references')->get();
+        $brands         = Brand::select('name', 'references')->get();
         $referenceArray = []; // Got undifined referenceArray error so assigne array here
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
@@ -306,8 +306,8 @@ class BrandController extends Controller
                         ->first();
 
                     if (! $sbrands) {
-                        $sbrands = new StoreWebsiteBrand;
-                        $sbrands->brand_id = $brandId;
+                        $sbrands                   = new StoreWebsiteBrand;
+                        $sbrands->brand_id         = $brandId;
                         $sbrands->store_website_id = $web;
                         $sbrands->save();
                     }
@@ -342,13 +342,13 @@ class BrandController extends Controller
 
     public function changeSegment(Request $request)
     {
-        $id = $request->get('brand_id', 0);
-        $brand = \App\Brand::where('id', $id)->first();
+        $id      = $request->get('brand_id', 0);
+        $brand   = \App\Brand::where('id', $id)->first();
         $segment = $request->get('segment');
 
         if ($brand) {
             $brand->brand_segment = $segment;
-            $brand->status = 0;
+            $brand->status        = 0;
             $brand->save();
 
             return response()->json(['code' => 200, 'data' => []]);
@@ -359,13 +359,13 @@ class BrandController extends Controller
 
     public function changeNextStep(Request $request)
     {
-        $id = $request->get('brand_id', 0);
-        $brand = \App\Brand::where('id', $id)->first();
+        $id        = $request->get('brand_id', 0);
+        $brand     = \App\Brand::where('id', $id)->first();
         $next_step = $request->get('next_step');
 
         if ($brand) {
             $brand->next_step = $next_step;
-            $brand->status = 0;
+            $brand->status    = 0;
             $brand->save();
 
             return response()->json(['code' => 200, 'data' => []]);
@@ -378,7 +378,7 @@ class BrandController extends Controller
     {
         if ($request->from_brand && $request->to_brand) {
             $fromBrand = \App\Brand::find($request->from_brand);
-            $toBrand = \App\Brand::find($request->to_brand);
+            $toBrand   = \App\Brand::find($request->to_brand);
 
             if ($fromBrand && $toBrand) {
                 $product = \App\Product::where('brand', $fromBrand->id)->get();
@@ -393,7 +393,7 @@ class BrandController extends Controller
                 $freferenceBrand = explode(',', $fromBrand->references);
                 $treferenceBrand = explode(',', $toBrand->references);
 
-                $mReference = array_merge($freferenceBrand, $treferenceBrand);
+                $mReference          = array_merge($freferenceBrand, $treferenceBrand);
                 $toBrand->references = implode(',', array_unique($mReference));
                 $toBrand->save();
                 $fromBrand->delete();
@@ -408,7 +408,7 @@ class BrandController extends Controller
     public function unMergeBrand(Request $request)
     {
         $this->validate($request, [
-            'brand_name' => 'required',
+            'brand_name'    => 'required',
             'from_brand_id' => 'required',
         ]);
 
@@ -441,11 +441,11 @@ class BrandController extends Controller
                         }
                     }
                 } else {
-                    $newBrand = new Brand();
-                    $newBrand->name = $request->brand_name;
-                    $newBrand->euro_to_inr = 0;
+                    $newBrand                       = new Brand();
+                    $newBrand->name                 = $request->brand_name;
+                    $newBrand->euro_to_inr          = 0;
                     $newBrand->deduction_percentage = 0;
-                    $newBrand->magento_id = 0;
+                    $newBrand->magento_id           = 0;
                     $newBrand->save();
                 }
             } else {
@@ -480,9 +480,9 @@ class BrandController extends Controller
         $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
         if ($category_segment) {
             return $catSegment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
-                'amount' => $request->amount,
+                'amount'      => $request->amount,
                 'amount_type' => 'percentage',
-                'updated_at' => now(),
+                'updated_at'  => now(),
             ]);
         } else {
             return $catSegment = DB::table('category_segment_discounts')->insert([
@@ -500,7 +500,7 @@ class BrandController extends Controller
 
     public function priority(Request $request)
     {
-        $brand = Brand::find($request->id);
+        $brand           = Brand::find($request->id);
         $brand->priority = $request->priority;
         if ($brand->save()) {
             return response()->json(['message' => 'Brand priority updated'], 200);
@@ -509,12 +509,12 @@ class BrandController extends Controller
 
     public function fetchNewBrands(Request $request)
     {
-        $path = public_path('brands');
+        $path  = public_path('brands');
         $files = File::allFiles($path);
         if ($request->hasfile('files')) {
             foreach ($request->file('files') as $files) {
-                $image_name = $files->getClientOriginalName();
-                $brand_name = strtoupper(pathinfo($image_name, PATHINFO_FILENAME));
+                $image_name  = $files->getClientOriginalName();
+                $brand_name  = strtoupper(pathinfo($image_name, PATHINFO_FILENAME));
                 $brand_found = Brand::where('name', $brand_name)->get();
                 if (! $brand_found->isEmpty()) {
                     $media = MediaUploader::fromSource($files)
@@ -540,11 +540,11 @@ class BrandController extends Controller
                 ->orderBy('brands.name', 'asc');
 
             if ($request->brand_name) {
-                $search = '%' . $request->brand_name . '%';
+                $search     = '%' . $request->brand_name . '%';
                 $brand_data = $brand_data->where('brands.name', 'like', $search);
             }
             $brand_data = $brand_data->paginate(Setting::get('pagination'));
-            $data = Brand::all();
+            $data       = Brand::all();
 
             return view('brand.brand_logo', compact('brand_data', 'data'))->with('i', (request()->input('page', 1) - 1) * 10);
         } catch (\Exception $e) {
@@ -554,14 +554,14 @@ class BrandController extends Controller
     public function uploadlogo(Request $request)
     {
         try {
-            $files = $request->file('file');
+            $files         = $request->file('file');
             $fileNameArray = [];
             foreach ($files as $key => $file) {
-                $fileName = $file->hashName();
+                $fileName        = $file->hashName();
                 $fileNameArray[] = $fileName;
 
                 $params['logo_image_name'] = $fileName;
-                $params['user_id'] = Auth::id();
+                $params['user_id']         = Auth::id();
 
                 BrandLogo::create($params);
 
@@ -589,7 +589,7 @@ class BrandController extends Controller
     public function set_logo_with_brand(Request $request)
     {
         try {
-            $brand_id = $request->logo_id;
+            $brand_id      = $request->logo_id;
             $logo_image_id = $request->logo_image_id;
 
             $brand_logo_data = BrandWithLogo::updateOrCreate(
@@ -597,9 +597,9 @@ class BrandController extends Controller
                     'brand_id' => $brand_id,
                 ],
                 [
-                    'brand_id' => $brand_id,
+                    'brand_id'            => $brand_id,
                     'brand_logo_image_id' => $logo_image_id,
-                    'user_id' => Auth::id(),
+                    'user_id'             => Auth::id(),
                 ]
             );
 
@@ -626,9 +626,9 @@ class BrandController extends Controller
     public function assignDefaultValue(Request $request)
     {
         $category_segments = $request->category_segments;
-        $brand_segment = $request->brand_segment;
-        $segments = CategorySegment::where('id', $category_segments)->get();
-        $brands = \App\Brand::where('brand_segment', $brand_segment)->get();
+        $brand_segment     = $request->brand_segment;
+        $segments          = CategorySegment::where('id', $category_segments)->get();
+        $brands            = \App\Brand::where('brand_segment', $brand_segment)->get();
         if (! $brands->isEmpty()) {
             foreach ($brands as $b) {
                 if (! $segments->isEmpty()) {
@@ -639,10 +639,10 @@ class BrandController extends Controller
                             $catDiscount->save();
                         } else {
                             \App\CategorySegmentDiscount::create([
-                                'brand_id' => $b->id,
+                                'brand_id'            => $b->id,
                                 'category_segment_id' => $segment->id,
-                                'amount' => $request->value,
-                                'amount_type' => 'percentage',
+                                'amount'              => $request->value,
+                                'amount_type'         => 'percentage',
                             ]);
                         }
 

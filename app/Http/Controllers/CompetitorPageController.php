@@ -38,13 +38,13 @@ class CompetitorPageController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name'     => 'required',
             'username' => 'required',
             'platform' => 'required',
         ]);
 
-        $com = new CompetitorPage();
-        $com->name = $request->get('name');
+        $com           = new CompetitorPage();
+        $com->name     = $request->get('name');
         $com->username = $request->get('username');
         $com->platform = $request->get('platform');
         $com->save();
@@ -69,7 +69,9 @@ class CompetitorPageController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\CompetitorPage  $competitorPage
+     * @param \App\CompetitorPage $competitorPage
+     * @param mixed               $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -87,7 +89,7 @@ class CompetitorPageController extends Controller
 
     public function hideLead($id)
     {
-        $c = CompetitorFollowers::findOrFail($id);
+        $c         = CompetitorFollowers::findOrFail($id);
         $c->status = 0;
         $c->save();
 
@@ -98,7 +100,7 @@ class CompetitorPageController extends Controller
 
     public function approveLead($id)
     {
-        $c = CompetitorFollowers::findOrFail($id);
+        $c         = CompetitorFollowers::findOrFail($id);
         $c->status = 2;
         $c->save();
 

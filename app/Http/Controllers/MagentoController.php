@@ -52,7 +52,8 @@ class MagentoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -63,7 +64,8 @@ class MagentoController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -74,7 +76,8 @@ class MagentoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -85,7 +88,8 @@ class MagentoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -109,18 +113,18 @@ class MagentoController extends Controller
     public static function get_magento_orders()
     {
         $options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
-        $size = '';
-        $proxy = new \SoapClient(config('magentoapi.url'), $options);
+        $size      = '';
+        $proxy     = new \SoapClient(config('magentoapi.url'), $options);
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
-        $lastid = Setting::get('lastid');
-        $filter = [
+        $lastid    = Setting::get('lastid');
+        $filter    = [
             'complex_filter' => [
                 [
-                    'key' => 'order_id',
+                    'key'   => 'order_id',
                     'value' => ['key' => 'gt', 'value' => $lastid],
                 ],
             ],
@@ -129,7 +133,7 @@ class MagentoController extends Controller
 
         for ($j = 0; $j < count($orderlist); $j++) {
             $results = json_decode(json_encode($proxy->salesOrderInfo($sessionId, $orderlist[$j]->increment_id)), true);
-            $atts = unserialize($results['items'][0]['product_options']);
+            $atts    = unserialize($results['items'][0]['product_options']);
 
             if (! empty($results['total_paid'])) {
                 $paid = $results['total_paid'];
@@ -142,7 +146,7 @@ class MagentoController extends Controller
             $full_name = $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'];
 
             $customer_phone = (int) str_replace(' ', '', $results['billing_address']['telephone']);
-            $final_phone = '';
+            $final_phone    = '';
 
             if ($customer_phone != null) {
                 if ($results['billing_address']['country_id'] == 'IN') {
@@ -165,8 +169,8 @@ class MagentoController extends Controller
 
                 if ($customer->credit > 0) {
                     if (($balance_amount - $customer->credit) < 0) {
-                        $left_credit = ($balance_amount - $customer->credit) * -1;
-                        $balance_amount = 0;
+                        $left_credit      = ($balance_amount - $customer->credit) * -1;
+                        $balance_amount   = 0;
                         $customer->credit = $left_credit;
                     } else {
                         $balance_amount -= $customer->credit;
@@ -174,24 +178,24 @@ class MagentoController extends Controller
                     }
                 }
 
-                $customer->name = $full_name;
-                $customer->email = $results['customer_email'];
+                $customer->name    = $full_name;
+                $customer->email   = $results['customer_email'];
                 $customer->address = $results['billing_address']['street'];
-                $customer->city = $results['billing_address']['city'];
+                $customer->city    = $results['billing_address']['city'];
                 $customer->country = $results['billing_address']['country_id'];
                 $customer->pincode = $results['billing_address']['postcode'];
-                $customer->phone = $final_phone;
+                $customer->phone   = $final_phone;
 
                 $customer->save();
             } else {
-                $customer = new Customer;
-                $customer->name = $full_name;
-                $customer->email = $results['customer_email'];
+                $customer          = new Customer;
+                $customer->name    = $full_name;
+                $customer->email   = $results['customer_email'];
                 $customer->address = $results['billing_address']['street'];
-                $customer->city = $results['billing_address']['city'];
+                $customer->city    = $results['billing_address']['city'];
                 $customer->country = $results['billing_address']['country_id'];
                 $customer->pincode = $results['billing_address']['postcode'];
-                $temp_number = [];
+                $temp_number       = [];
 
                 if ($customer_phone != null) {
                     $temp_number['phone'] = $customer_phone;
@@ -199,7 +203,7 @@ class MagentoController extends Controller
                     $temp_number['phone'] = self::generateRandomString();
                 }
 
-                $final_phone = self::validatePhone($temp_number);
+                $final_phone     = self::validatePhone($temp_number);
                 $customer->phone = $final_phone;
 
                 $customer->save();
@@ -207,51 +211,51 @@ class MagentoController extends Controller
                 $customer_id = $customer->id;
             }
 
-            $order_status = '';
+            $order_status    = '';
             $order_status_id = null;
-            $payment_method = '';
+            $payment_method  = '';
             if ($results['payment']['method'] == 'paytm_cc') {
                 if ($results['state'] == 'processing') {
-                    $order_status = 'Prepaid';
+                    $order_status    = 'Prepaid';
                     $order_status_id = \App\Helpers\OrderHelper::$prepaid;
                 } else {
-                    $order_status = 'Follow up for advance';
+                    $order_status    = 'Follow up for advance';
                     $order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
                 }
 
                 $payment_method = 'paytm';
             } elseif ($results['payment']['method'] == 'zestmoney_zestpay') {
                 if ($results['state'] == 'processing') {
-                    $order_status = 'Prepaid';
+                    $order_status    = 'Prepaid';
                     $order_status_id = \App\Helpers\OrderHelper::$prepaid;
                 } else {
-                    $order_status = 'Follow up for advance';
+                    $order_status    = 'Follow up for advance';
                     $order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
                 }
 
                 $payment_method = 'zestpay';
             } elseif ($results['payment']['method'] == 'cashondelivery') {
-                $order_status = 'Follow up for advance';
-                $payment_method = 'cash on delivery';
+                $order_status    = 'Follow up for advance';
+                $payment_method  = 'cash on delivery';
                 $order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
             }
 
             $id = DB::table('orders')->insertGetId(
                 [
-                    'customer_id' => $customer_id,
-                    'order_id' => $results['increment_id'],
-                    'order_type' => 'online',
-                    'order_status' => $order_status,
+                    'customer_id'     => $customer_id,
+                    'order_id'        => $results['increment_id'],
+                    'order_type'      => 'online',
+                    'order_status'    => $order_status,
                     'order_status_id' => $order_status_id,
-                    'payment_mode' => $payment_method,
-                    'order_date' => $results['created_at'],
-                    'client_name' => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
-                    'city' => $results['billing_address']['city'],
-                    'advance_detail' => $paid,
-                    'contact_detail' => $final_phone,
-                    'balance_amount' => $balance_amount,
-                    'created_at' => $results['created_at'],
-                    'updated_at' => $results['created_at'],
+                    'payment_mode'    => $payment_method,
+                    'order_date'      => $results['created_at'],
+                    'client_name'     => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
+                    'city'            => $results['billing_address']['city'],
+                    'advance_detail'  => $paid,
+                    'contact_detail'  => $final_phone,
+                    'balance_amount'  => $balance_amount,
+                    'created_at'      => $results['created_at'],
+                    'updated_at'      => $results['created_at'],
                 ]);
 
             $noproducts = count($results['items']);
@@ -268,14 +272,14 @@ class MagentoController extends Controller
 
                     DB::table('order_products')->insert(
                         [
-                            'order_id' => $id,
-                            'sku' => $skuAndColor['sku'],
+                            'order_id'      => $id,
+                            'sku'           => $skuAndColor['sku'],
                             'product_price' => round($results['items'][$i]['price']),
-                            'qty' => round($results['items'][$i]['qty_ordered']),
-                            'size' => $size,
-                            'color' => $skuAndColor['color'],
-                            'created_at' => $results['created_at'],
-                            'updated_at' => $results['created_at'],
+                            'qty'           => round($results['items'][$i]['qty_ordered']),
+                            'size'          => $size,
+                            'color'         => $skuAndColor['color'],
+                            'created_at'    => $results['created_at'],
+                            'updated_at'    => $results['created_at'],
                         ]);
                 }
             }
@@ -296,12 +300,12 @@ class MagentoController extends Controller
                 $auto_message = preg_replace('/{delivery_time}/i', $delivery_time, $auto_message);
 
                 $params = [
-                    'number' => null,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 2,
+                    'number'      => null,
+                    'user_id'     => 6,
+                    'approved'    => 1,
+                    'status'      => 2,
                     'customer_id' => $order->customer->id,
-                    'message' => $auto_message,
+                    'message'     => $auto_message,
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -317,19 +321,19 @@ class MagentoController extends Controller
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], false, $chat_message->id);
 
                 CommunicationHistory::create([
-                    'model_id' => $order->id,
+                    'model_id'   => $order->id,
                     'model_type' => Order::class,
-                    'type' => 'initial-advance',
-                    'method' => 'whatsapp',
+                    'type'       => 'initial-advance',
+                    'method'     => 'whatsapp',
                 ]);
             } elseif ($order->order_status == \App\Helpers\OrderHelper::$prepaid && $results['state'] == 'processing') {
                 $params = [
-                    'number' => null,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 2,
+                    'number'      => null,
+                    'user_id'     => 6,
+                    'approved'    => 1,
+                    'status'      => 2,
                     'customer_id' => $order->customer->id,
-                    'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply,
+                    'message'     => AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply,
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -339,21 +343,21 @@ class MagentoController extends Controller
                 app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($order->customer->phone, $whatsapp_number, $params['message'], false, $chat_message->id);
 
                 CommunicationHistory::create([
-                    'model_id' => $order->id,
+                    'model_id'   => $order->id,
                     'model_type' => Order::class,
-                    'type' => 'online-confirmation',
-                    'method' => 'whatsapp',
+                    'type'       => 'online-confirmation',
+                    'method'     => 'whatsapp',
                 ]);
             }
 
             if ($results['state'] != 'processing' && $results['payment']['method'] != 'cashondelivery') {
                 $params = [
-                    'number' => null,
-                    'user_id' => 6,
-                    'approved' => 1,
-                    'status' => 2,
+                    'number'      => null,
+                    'user_id'     => 6,
+                    'approved'    => 1,
+                    'status'      => 2,
                     'customer_id' => $order->customer->id,
-                    'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'order-payment-not-processed')->first()->reply,
+                    'message'     => AutoReply::where('type', 'auto-reply')->where('keyword', 'order-payment-not-processed')->first()->reply,
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -367,9 +371,9 @@ class MagentoController extends Controller
 
     public static function generateRandomString($length = 10)
     {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
-        $randomString = '';
+        $randomString     = '';
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
@@ -402,7 +406,7 @@ class MagentoController extends Controller
         foreach ($colors as $color) {
             if (strpos($splitted_sku[0], $color)) {
                 $result['color'] = $color;
-                $sku = str_replace($color, '', $splitted_sku[0]);
+                $sku             = str_replace($color, '', $splitted_sku[0]);
 
                 $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
@@ -417,7 +421,7 @@ class MagentoController extends Controller
         }
 
         $result['color'] = null;
-        $sku = $splitted_sku[0];
+        $sku             = $splitted_sku[0];
 
         $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
@@ -439,8 +443,8 @@ class MagentoController extends Controller
 
     public function saveStatus(Request $request)
     {
-        $status = OrderStatus::find($request->id);
-        $status->magento_status = $request->status;
+        $status                   = OrderStatus::find($request->id);
+        $status->magento_status   = $request->status;
         $status->message_text_tpl = $request->message_text_tpl;
         $status->save();
 

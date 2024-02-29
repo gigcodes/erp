@@ -21,7 +21,7 @@ class GmailData extends Model
 
     protected $casts = [
         'images' => 'array',
-        'tags' => 'array',
+        'tags'   => 'array',
     ];
 
     public function gmailDataMedia()

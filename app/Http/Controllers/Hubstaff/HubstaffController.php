@@ -97,8 +97,8 @@ class HubstaffController extends Controller
 
         $curl->get($url, [
             'authorization_memberships' => $request->authorization_memberships,
-            'project_memberships' => $request->project_memberships,
-            'offset' => $request->offset,
+            'project_memberships'       => $request->project_memberships,
+            'offset'                    => $request->offset,
         ]);
 
         if ($curl->http_status_code == 401) {
@@ -180,7 +180,7 @@ class HubstaffController extends Controller
         $curl->setHeader('App-Token', $this->appToken);
 
         $curl->get($url, [
-            'id' => $request->id,
+            'id'     => $request->id,
             'offset' => $request->offset,
         ]);
 
@@ -267,7 +267,7 @@ class HubstaffController extends Controller
 
         $curl->get($url, [
             'projects' => $request->projects,
-            'offset' => $request->offset,
+            'offset'   => $request->offset,
         ]);
 
         if ($curl->http_status_code == 401) {
@@ -307,7 +307,7 @@ class HubstaffController extends Controller
 
         $curl->get($url, [
             'projects' => $request->projects,
-            'offset' => $request->offset,
+            'offset'   => $request->offset,
         ]);
 
         if ($curl->http_status_code == 401) {
@@ -346,12 +346,12 @@ class HubstaffController extends Controller
         $curl->setHeader('App-Token', $this->appToken);
 
         $curl->get($url, [
-            'start_time' => $request->start_time,
-            'stop_time' => $request->stop_time,
+            'start_time'    => $request->start_time,
+            'stop_time'     => $request->stop_time,
             'organizations' => $request->organizations,
-            'projects' => $request->projects,
-            'users' => $request->users,
-            'offset' => $request->offset,
+            'projects'      => $request->projects,
+            'users'         => $request->users,
+            'offset'        => $request->offset,
         ]);
 
         if ($curl->http_status_code == 401) {
@@ -468,12 +468,12 @@ class HubstaffController extends Controller
         $curl->setHeader('App-Token', $this->appToken);
 
         $curl->get($url, [
-            'start_time' => $request->start_time,
-            'stop_time' => $request->stop_time,
+            'start_time'    => $request->start_time,
+            'stop_time'     => $request->stop_time,
             'organizations' => $request->organizations,
-            'projects' => $request->projects,
-            'users' => $request->users,
-            'offset' => $request->offset,
+            'projects'      => $request->projects,
+            'users'         => $request->users,
+            'offset'        => $request->offset,
         ]);
 
         if ($curl->http_status_code == 401) {

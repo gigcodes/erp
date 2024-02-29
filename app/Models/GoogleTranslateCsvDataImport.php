@@ -26,9 +26,9 @@ class GoogleTranslateCsvDataImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new GoogleTranslateCsvData([
-            'key' => reset($row),
-            'value' => next($row),
-            'lang_id' => $this->param1,
+            'key'                      => reset($row),
+            'value'                    => next($row),
+            'lang_id'                  => $this->param1,
             'google_file_translate_id' => $this->param2,
         ]);
     }

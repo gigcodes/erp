@@ -38,7 +38,7 @@ class CouponController extends Controller
     {
         $website_stores = WebsiteStore::with('storeView')->get();
         $store_websites = StoreWebsite::all();
-        $customers = [];
+        $customers      = [];
 
         $q = CouponCodeRules::query();
         $q->with('users');
@@ -67,7 +67,7 @@ class CouponController extends Controller
         }
         if (request('flt_start_date') && request('flt_end_date')) {
             $startDate = request('flt_start_date');
-            $endDate = request('flt_end_date');
+            $endDate   = request('flt_end_date');
 
             $q->where(function ($query) use ($startDate, $endDate) {
                 if ($startDate) {
@@ -92,7 +92,7 @@ class CouponController extends Controller
 
             // Make Website Related Data
             $websites = [];
-            $temp = Website::orderBy('name')->select(['id', 'name', 'platform_id', 'store_website_id'])->get();
+            $temp     = Website::orderBy('name')->select(['id', 'name', 'platform_id', 'store_website_id'])->get();
             if ($temp->count()) {
                 foreach ($temp as $t) {
                     $websites[$t->store_website_id][$t->platform_id][$t->id] = $t->name;
@@ -121,7 +121,7 @@ class CouponController extends Controller
 
         $dynamicColumnsToShowccr = [];
         if (! empty($datatableModel->column_name)) {
-            $hideColumns = $datatableModel->column_name ?? '';
+            $hideColumns             = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowccr = json_decode($hideColumns, true);
         }
 
@@ -142,15 +142,15 @@ class CouponController extends Controller
         $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'checkout-coupons-code-rules')->first();
 
         if ($userCheck) {
-            $column = DataTableColumn::find($userCheck->id);
+            $column               = DataTableColumn::find($userCheck->id);
             $column->section_name = 'checkout-coupons-code-rules';
-            $column->column_name = json_encode($request->column_ccr);
+            $column->column_name  = json_encode($request->column_ccr);
             $column->save();
         } else {
-            $column = new DataTableColumn();
+            $column               = new DataTableColumn();
             $column->section_name = 'checkout-coupons-code-rules';
-            $column->column_name = json_encode($request->column_ccr);
-            $column->user_id = auth()->user()->id;
+            $column->column_name  = json_encode($request->column_ccr);
+            $column->user_id      = auth()->user()->id;
             $column->save();
         }
 
@@ -160,9 +160,9 @@ class CouponController extends Controller
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();
-        $data = $request->except('_token');
+        $data         = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = CouponCodeRulesStatus::find($key);
+            $bugstatus               = CouponCodeRulesStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
         }
@@ -176,10 +176,10 @@ class CouponController extends Controller
 
         $this->validate($request, [
             'coupon_code_rules_id' => 'required',
-            'remarks' => 'required',
+            'remarks'              => 'required',
         ]);
 
-        $input = $request->except(['_token']);
+        $input             = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         CouponCodeRulesRemarks::create($input);
 
@@ -194,25 +194,25 @@ class CouponController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function loadData()
     {
-        $tableName = with(new Coupon)->getTable();
+        $tableName  = with(new Coupon)->getTable();
         $primaryKey = 'id';
-        $columns = [
+        $columns    = [
             ['db' => 'id', 'dt' => $this->DATA_COLUMN_KEY],
             ['db' => 'start', 'dt' => 1],
             ['db' => 'code', 'dt' => 0],
             ['db' => 'expiration', 'dt' => 2],
             [
-                'db' => 'currency',
-                'dt' => 3,
+                'db'        => 'currency',
+                'dt'        => 3,
                 'formatter' => function ($d, $row) {
                     $discount = '';
                     if ($row['currency']) {
@@ -225,11 +225,11 @@ class CouponController extends Controller
             ['db' => 'uses', 'dt' => 3],
             ['db' => 'usage_count', 'dt' => 4],
             [
-                'db' => 'id',
-                'dt' => 9,
+                'db'        => 'id',
+                'dt'        => 9,
                 'formatter' => function ($d, $row) {
-                    $id = $row['id'];
-                    $code = $row['code'];
+                    $id    = $row['id'];
+                    $code  = $row['code'];
                     $start = date('Y-m-d H:i', strtotime($row['start']));
                     if ($row['expiration']) {
                         $expiration = date('Y-m-d H:i', strtotime($row['expiration']));
@@ -251,7 +251,7 @@ class CouponController extends Controller
         $sql_details = [
             'user' => config('database.connections.mysql.username'),
             'pass' => config('database.connections.mysql.password'),
-            'db' => config('database.connections.mysql.database'),
+            'db'   => config('database.connections.mysql.database'),
             'host' => config('database.connections.mysql.host'),
         ];
 
@@ -299,7 +299,8 @@ class CouponController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(CreateCouponRequest $request)
@@ -307,21 +308,21 @@ class CouponController extends Controller
         $httpClient = new Client;
 
         $data = [
-            'name' => $request->get('code'),
-            'description' => $request->get('description'),
-            'code' => $request->get('code'),
-            'start' => $request->get('start'),
-            'expiration' => $request->get('expiration'),
-            'fixed_discount' => $request->get('discount_fixed'),
+            'name'                => $request->get('code'),
+            'description'         => $request->get('description'),
+            'code'                => $request->get('code'),
+            'start'               => $request->get('start'),
+            'expiration'          => $request->get('expiration'),
+            'fixed_discount'      => $request->get('discount_fixed'),
             'percentage_discount' => $request->get('discount_percentage'),
-            'minimum_order' => $request->get('minimum_order_amount'),
-            'maximum_usage' => $request->get('maximum_usage'),
+            'minimum_order'       => $request->get('minimum_order_amount'),
+            'maximum_usage'       => $request->get('maximum_usage'),
 
         ];
         $queryString = http_build_query($data);
 
         try {
-            $url = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString;
+            $url      = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString;
             $response = $httpClient->get($url);
 
             Coupon::create($request->all());
@@ -329,16 +330,16 @@ class CouponController extends Controller
             return response(
                 json_encode([
                     'message' => 'Created new coupon',
-                    'body' => $response->getBody(),
-                    'code' => $response->getStatusCode(),
-                    'url' => $url,
+                    'body'    => $response->getBody(),
+                    'code'    => $response->getStatusCode(),
+                    'url'     => $url,
                 ])
             );
         } catch (Exception $e) {
             return response()->json(
                 [
                     'message' => 'Unable to create coupon',
-                    'error' => $e->getMessage(),
+                    'error'   => $e->getMessage(),
                 ],
                 500
             );
@@ -348,7 +349,8 @@ class CouponController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -359,7 +361,8 @@ class CouponController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -370,36 +373,37 @@ class CouponController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'code' => 'required',
-            'description' => 'required',
-            'start' => 'required|date_format:Y-m-d H:i',
-            'expiration' => 'sometimes|nullable|date_format:Y-m-d H:i|after:start',
-            'discount_fixed' => 'nullable|numeric',
-            'discount_percentage' => 'sometimes|nullable|numeric',
+            'code'                 => 'required',
+            'description'          => 'required',
+            'start'                => 'required|date_format:Y-m-d H:i',
+            'expiration'           => 'sometimes|nullable|date_format:Y-m-d H:i|after:start',
+            'discount_fixed'       => 'nullable|numeric',
+            'discount_percentage'  => 'sometimes|nullable|numeric',
             'minimum_order_amount' => 'sometimes|nullable|integer',
-            'maximum_usage' => 'sometimes|nullable|integer',
+            'maximum_usage'        => 'sometimes|nullable|integer',
         ]);
 
         $validated = $request->all();
 
         try {
-            $coupon = Coupon::findOrFail($id);
-            $coupon->code = $validated['code'];
-            $coupon->description = $validated['description'];
-            $coupon->start = $validated['start'];
-            $coupon->expiration = $validated['expiration'];
-            $coupon->discount_fixed = $validated['discount_fixed'];
-            $coupon->discount_percentage = $validated['discount_percentage'];
+            $coupon                       = Coupon::findOrFail($id);
+            $coupon->code                 = $validated['code'];
+            $coupon->description          = $validated['description'];
+            $coupon->start                = $validated['start'];
+            $coupon->expiration           = $validated['expiration'];
+            $coupon->discount_fixed       = $validated['discount_fixed'];
+            $coupon->discount_percentage  = $validated['discount_percentage'];
             $coupon->minimum_order_amount = $validated['minimum_order_amount'];
-            $coupon->maximum_usage = $validated['maximum_usage'];
-            $coupon->initial_amount = $validated['initialAmount'];
-            $coupon->email = $validated['email'];
+            $coupon->maximum_usage        = $validated['maximum_usage'];
+            $coupon->initial_amount       = $validated['initialAmount'];
+            $coupon->email                = $validated['email'];
             $coupon->save();
 
             return response(
@@ -420,7 +424,8 @@ class CouponController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -445,7 +450,7 @@ class CouponController extends Controller
     public function showReport($couponId, Request $request)
     {
         $start = $request->start;
-        $end = $request->end;
+        $end   = $request->end;
 
         if (isset($couponId) && $couponId != 0) {
             $orders = Order::where('coupon_id', $couponId)
@@ -474,7 +479,7 @@ class CouponController extends Controller
         foreach ($couponWithOrders as $couponId => $orders) {
             $response[] = [
                 'coupon_id' => $couponId,
-                'orders' => $orders,
+                'orders'    => $orders,
             ];
         }
 
@@ -495,79 +500,79 @@ class CouponController extends Controller
         }
 
         $startDate = ! empty($request->start) ? $request->start : date('Y-m-d');
-        $endDate = $request->expiration;
-        $timeUsed = 6;
+        $endDate   = $request->expiration;
+        $timeUsed  = 6;
 
         $count = 0;
         foreach ($storeWebsites as $key => $storeWebsite) {
             $authorization = 'Authorization: Bearer ' . $storeWebsite->api_token;
-            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            $startTime     = date('Y-m-d H:i:s', LARAVEL_START);
 
-            $parameters = [];
+            $parameters         = [];
             $parameters['rule'] = [
-                'name' => $request->name,
-                'store_labels' => $store_lables,
-                'description' => $request->description,
-                'website_ids' => array_unique($request->website_ids),
+                'name'               => $request->name,
+                'store_labels'       => $store_lables,
+                'description'        => $request->description,
+                'website_ids'        => array_unique($request->website_ids),
                 'customer_group_ids' => $request->customer_groups,
-                'from_date' => $startDate,
-                'to_date' => $endDate,
-                'uses_per_customer' => $request->uses_per_coustomer,
-                'is_active' => $request->active == '1' ? true : false,
-                'condition' => [
+                'from_date'          => $startDate,
+                'to_date'            => $endDate,
+                'uses_per_customer'  => $request->uses_per_coustomer,
+                'is_active'          => $request->active == '1' ? true : false,
+                'condition'          => [
                     'condition_type' => '',
-                    'conditions' => [
+                    'conditions'     => [
                         [
                             'condition_type' => '',
-                            'operator' => '',
+                            'operator'       => '',
                             'attribute_name' => '',
-                            'value' => '',
+                            'value'          => '',
                         ],
                     ],
                     'aggregator_type' => '',
-                    'operator' => null,
-                    'value' => '',
+                    'operator'        => null,
+                    'value'           => '',
                 ],
                 'action_condition' => [
                     'condition_type' => '',
-                    'conditions' => [
+                    'conditions'     => [
                         [
-                            'condition_type' => '',
-                            'conditions' => [],
+                            'condition_type'  => '',
+                            'conditions'      => [],
                             'aggregator_type' => '',
-                            'operator' => null,
-                            'value' => '',
+                            'operator'        => null,
+                            'value'           => '',
                         ],
                     ],
                     'aggregator_type' => '',
-                    'operator' => null,
-                    'value' => '',
+                    'operator'        => null,
+                    'value'           => '',
                 ],
                 'stop_rules_processing' => $request->stop_rules_processing,
-                'is_advanced' => true,
-                'sort_order' => 0,
-                'simple_action' => $request->simple_action,
-                'discount_amount' => $request->discount_amount,
-                'discount_step' => $request->discount_step,
-                'discount_qty' => $request->discount_qty,
-                'apply_to_shipping' => $request->apply_to_shipping,
-                'times_used' => $timeUsed,
-                'is_rss' => $request->rss,
-                'coupon_type' => $request->coupon_type, // or "coupon_type" => "SPECIFIC_COUPON",
-                'use_auto_generation' => isset($request->auto_generate) ? true : false, // use true if want to generate multiple codes for same rule
-                'uses_per_coupon' => $request->uses_per_coupon,
-                'simple_free_shipping' => '0',
+                'is_advanced'           => true,
+                'sort_order'            => 0,
+                'simple_action'         => $request->simple_action,
+                'discount_amount'       => $request->discount_amount,
+                'discount_step'         => $request->discount_step,
+                'discount_qty'          => $request->discount_qty,
+                'apply_to_shipping'     => $request->apply_to_shipping,
+                'times_used'            => $timeUsed,
+                'is_rss'                => $request->rss,
+                'coupon_type'           => $request->coupon_type, // or "coupon_type" => "SPECIFIC_COUPON",
+                'use_auto_generation'   => isset($request->auto_generate) ? true : false, // use true if want to generate multiple codes for same rule
+                'uses_per_coupon'       => $request->uses_per_coupon,
+                'simple_free_shipping'  => '0',
             ];
 
             $url = $storeWebsite->magento_url . '/rest/V1/salesRules/';
-            $ch = curl_init();
+            $ch  = curl_init();
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
             $response = curl_exec($ch);
-            $result = json_decode($response);
+            $result   = json_decode($response);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesAdd');
@@ -590,45 +595,45 @@ class CouponController extends Controller
                     }
                 }
 
-                $local_rules = new CouponCodeRules();
-                $local_rules->magento_rule_id = $result->rule_id;
-                $local_rules->name = $request->name;
-                $local_rules->description = $request->description;
-                $local_rules->is_active = $request->active == '1' ? true : false;
-                $local_rules->times_used = $timeUsed;
-                $local_rules->website_ids = implode(',', $request->website_ids);
-                $local_rules->customer_group_ids = implode(',', $request->customer_groups);
-                $local_rules->coupon_type = $request->coupon_type;
-                $local_rules->coupon_code = $request->code;
-                $local_rules->use_auto_generation = isset($request->auto_generate) ? 1 : 0;
-                $local_rules->uses_per_coupon = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : 0;
-                $local_rules->uses_per_coustomer = ! empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 0;
-                $local_rules->store_website_id = $request->store_website_id;
-                $local_rules->is_rss = isset($request->rss) ? $request->rss : 0;
-                $local_rules->priority = isset($request->priority) ? $request->priority : 0;
-                $local_rules->from_date = $startDate;
-                $local_rules->to_date = $endDate;
+                $local_rules                        = new CouponCodeRules();
+                $local_rules->magento_rule_id       = $result->rule_id;
+                $local_rules->name                  = $request->name;
+                $local_rules->description           = $request->description;
+                $local_rules->is_active             = $request->active == '1' ? true : false;
+                $local_rules->times_used            = $timeUsed;
+                $local_rules->website_ids           = implode(',', $request->website_ids);
+                $local_rules->customer_group_ids    = implode(',', $request->customer_groups);
+                $local_rules->coupon_type           = $request->coupon_type;
+                $local_rules->coupon_code           = $request->code;
+                $local_rules->use_auto_generation   = isset($request->auto_generate) ? 1 : 0;
+                $local_rules->uses_per_coupon       = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : 0;
+                $local_rules->uses_per_coustomer    = ! empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 0;
+                $local_rules->store_website_id      = $request->store_website_id;
+                $local_rules->is_rss                = isset($request->rss) ? $request->rss : 0;
+                $local_rules->priority              = isset($request->priority) ? $request->priority : 0;
+                $local_rules->from_date             = $startDate;
+                $local_rules->to_date               = $endDate;
                 $local_rules->stop_rules_processing = $request->stop_rules_processing;
-                $local_rules->simple_action = $request->simple_action;
-                $local_rules->discount_amount = $request->discount_amount;
-                $local_rules->discount_step = $request->discount_step;
-                $local_rules->discount_qty = $request->discount_qty;
-                $local_rules->apply_to_shipping = $request->apply_to_shipping;
-                $local_rules->simple_free_shipping = 0;
-                $local_rules->created_by = Auth::User()->id;
+                $local_rules->simple_action         = $request->simple_action;
+                $local_rules->discount_amount       = $request->discount_amount;
+                $local_rules->discount_step         = $request->discount_step;
+                $local_rules->discount_qty          = $request->discount_qty;
+                $local_rules->apply_to_shipping     = $request->apply_to_shipping;
+                $local_rules->simple_free_shipping  = 0;
+                $local_rules->created_by            = Auth::User()->id;
                 if ($local_rules->save()) {
                     CouponCodeRuleLog::create([
-                        'rule_id' => $local_rules->id,
+                        'rule_id'     => $local_rules->id,
                         'coupon_code' => $local_rules->coupon_code,
-                        'log_type' => 'store_success',
-                        'message' => 'Rule id is created',
+                        'log_type'    => 'store_success',
+                        'message'     => 'Rule id is created',
                     ]);
                     if (! empty($request->store_labels)) {
                         foreach ($request->store_labels as $key => $label) {
-                            $store_view_value = new WebsiteStoreViewValue();
-                            $store_view_value->rule_id = $local_rules->id;
+                            $store_view_value                = new WebsiteStoreViewValue();
+                            $store_view_value->rule_id       = $local_rules->id;
                             $store_view_value->store_view_id = $key;
-                            $store_view_value->value = $label;
+                            $store_view_value->value         = $label;
                             $store_view_value->save();
                         }
                     }
@@ -647,23 +652,23 @@ class CouponController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        $authorization = 'Authorization: Bearer ' . $store_website_id->api_token;
-        $parameters = [];
+        $authorization        = 'Authorization: Bearer ' . $store_website_id->api_token;
+        $parameters           = [];
         $parameters['coupon'] = [
-            'code' => $code,
-            'rule_id' => $magento_rule_id,
-            'usage_limit' => 0,
-            'usage_per_customer' => $uses_per_customer,
-            'expiration_date' => $end_date,
-            'is_primary' => true,
-            'times_used' => 6,
-            'created_at' => date('Y-m-d H:i:s'),
-            'type' => 0,
+            'code'                 => $code,
+            'rule_id'              => $magento_rule_id,
+            'usage_limit'          => 0,
+            'usage_per_customer'   => $uses_per_customer,
+            'expiration_date'      => $end_date,
+            'is_primary'           => true,
+            'times_used'           => 6,
+            'created_at'           => date('Y-m-d H:i:s'),
+            'type'                 => 0,
             'extension_attributes' => json_encode('{}'),
         ];
 
         $url = $store_website_id->magento_url . '/rest/V1/coupons';
-        $ch = curl_init();
+        $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -683,14 +688,14 @@ class CouponController extends Controller
 
     public function getCouponCodeRuleById(Request $request)
     {
-        $result = CouponCodeRules::with(['store_labels'])->where('id', $request->rule_id)->first();
-        $codes = Coupon::where('rule_id', $result->magento_rule_id)->orderBy('created_at', 'desc')->get();
+        $result  = CouponCodeRules::with(['store_labels'])->where('id', $request->rule_id)->first();
+        $codes   = Coupon::where('rule_id', $result->magento_rule_id)->orderBy('created_at', 'desc')->get();
         $web_ids = explode(',', $result->website_ids);
         if (isset($result->id)) {
-            $websites = Website::where('store_website_id', $result->store_website_id)->get();
+            $websites       = Website::where('store_website_id', $result->store_website_id)->get();
             $website_stores = WebsiteStore::with('storeView')->get();
             $store_websites = StoreWebsite::all();
-            $returnHTML = view('coupon.editModal')->with('result', $result)->with('websites', $websites)->with('website_stores', $website_stores)->with('web_ids', $web_ids)->with('store_websites', $store_websites)->with('codes', $codes)->render();
+            $returnHTML     = view('coupon.editModal')->with('result', $result)->with('websites', $websites)->with('website_stores', $website_stores)->with('web_ids', $web_ids)->with('store_websites', $store_websites)->with('codes', $codes)->render();
 
             return response()->json(['status' => 'success', 'data' => ['html' => $returnHTML], 'message' => 'Rule details'], 200);
         } else {
@@ -704,15 +709,15 @@ class CouponController extends Controller
 
         $store_website = StoreWebsite::where('id', $storeWebsiteID)->first();
         $authorization = 'Authorization: Bearer ' . $store_website->api_token;
-        $url = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $id;
-        $ch = curl_init();
+        $url           = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $id;
+        $ch            = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $result = json_decode($response);
+        $result   = json_decode($response);
         LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponCodeRuleByWebsiteId');
 
         return true;
@@ -722,21 +727,21 @@ class CouponController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        $rule_lists = CouponCodeRules::where('id', $id)->first();
+        $rule_lists    = CouponCodeRules::where('id', $id)->first();
         $store_website = StoreWebsite::where('id', $rule_lists->store_website_id)->first();
         $authorization = 'Authorization: Bearer ' . $store_website->api_token;
-        $url = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $rule_lists->magento_rule_id;
-        $ch = curl_init();
+        $url           = $store_website->magento_url . '/rest/V1/salesRules/salesRules/' . $rule_lists->magento_rule_id;
+        $ch            = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
-        $result = json_decode($response);
+        $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'DELETE', [], json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponCodeRuleById');
 
-        $coupon = Coupon::where('rule_id', $rule_lists->magento_rule_id)->delete();
+        $coupon     = Coupon::where('rule_id', $rule_lists->magento_rule_id)->delete();
         $rule_lists = CouponCodeRules::where('id', $id)->delete();
 
         return redirect()->route('coupons.index');
@@ -747,7 +752,7 @@ class CouponController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $rule_id = CouponCodeRules::where('id', $request->rule_id)->first();
-        $format = 'alphanum';
+        $format  = 'alphanum';
 
         if ($request->format == 1) {
             $format = 'alphanum';
@@ -763,14 +768,14 @@ class CouponController extends Controller
 
         $parameters = [
             'couponSpec' => [
-                'rule_id' => $rule_id->magento_rule_id,
-                'format' => $format,
-                'quantity' => $request->qty,
-                'length' => $request->length,
-                'prefix' => $request->prefix,
-                'suffix' => $request->suffix,
+                'rule_id'            => $rule_id->magento_rule_id,
+                'format'             => $format,
+                'quantity'           => $request->qty,
+                'length'             => $request->length,
+                'prefix'             => $request->prefix,
+                'suffix'             => $request->suffix,
                 'delimiter_at_every' => $request->dash,
-                'delimiter' => '-',
+                'delimiter'          => '-',
             ],
         ];
 
@@ -778,14 +783,14 @@ class CouponController extends Controller
         $authorization = 'Authorization: Bearer ' . $store_website->api_token;
 
         $url = $store_website->magento_url . '/rest/V1/coupons/generate';
-        $ch = curl_init();
+        $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
-        $result = json_decode($response);
+        $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesGenerateCouponCode');
 
@@ -795,16 +800,16 @@ class CouponController extends Controller
         }
 
         foreach ($result as $re) {
-            $coupon = new Coupon();
-            $coupon->start = date('Y-m-d H:i:s');
-            $coupon->magento_id = 0;
-            $coupon->rule_id = $rule_id->magento_rule_id;
-            $coupon->code = $re;
-            $coupon->usage_count = $rule_id->times_used;
+            $coupon                       = new Coupon();
+            $coupon->start                = date('Y-m-d H:i:s');
+            $coupon->magento_id           = 0;
+            $coupon->rule_id              = $rule_id->magento_rule_id;
+            $coupon->code                 = $re;
+            $coupon->usage_count          = $rule_id->times_used;
             $coupon->minimum_order_amount = 0;
-            $coupon->discount_fixed = 0.0;
-            $coupon->discount_percentage = 0.0;
-            $coupon->uses = $rule_id->uses_per_coupon;
+            $coupon->discount_fixed       = 0.0;
+            $coupon->discount_percentage  = 0.0;
+            $coupon->uses                 = $rule_id->uses_per_coupon;
             $coupon->save();
         }
 
@@ -822,63 +827,63 @@ class CouponController extends Controller
             }
         }
 
-        $local_rules = CouponCodeRules::where('id', $request->rule_id)->first();
-        $store_website = StoreWebsite::where('id', $local_rules->store_website_id)->first();
-        $authorization = 'Authorization: Bearer ' . $store_website->api_token;
-        $parameters = [];
+        $local_rules        = CouponCodeRules::where('id', $request->rule_id)->first();
+        $store_website      = StoreWebsite::where('id', $local_rules->store_website_id)->first();
+        $authorization      = 'Authorization: Bearer ' . $store_website->api_token;
+        $parameters         = [];
         $parameters['rule'] = [
-            'name' => $request->name_edit,
-            'store_labels' => $store_lables,
-            'description' => $request->description_edit,
-            'website_ids' => array_unique($request->website_ids_edit),
+            'name'               => $request->name_edit,
+            'store_labels'       => $store_lables,
+            'description'        => $request->description_edit,
+            'website_ids'        => array_unique($request->website_ids_edit),
             'customer_group_ids' => $request->customer_groups_edit,
-            'from_date' => $request->start_edit,
-            'to_date' => $request->expiration_edit,
-            'uses_per_customer' => $request->uses_per_coustomer_edit,
-            'is_active' => $request->active_edit == 1 ? true : false,
-            'condition' => [
+            'from_date'          => $request->start_edit,
+            'to_date'            => $request->expiration_edit,
+            'uses_per_customer'  => $request->uses_per_coustomer_edit,
+            'is_active'          => $request->active_edit == 1 ? true : false,
+            'condition'          => [
                 'condition_type' => '',
-                'conditions' => [
+                'conditions'     => [
                     [
                         'condition_type' => '',
-                        'operator' => '',
+                        'operator'       => '',
                         'attribute_name' => '',
-                        'value' => '',
+                        'value'          => '',
                     ],
                 ],
                 'aggregator_type' => '',
-                'operator' => null,
-                'value' => '',
+                'operator'        => null,
+                'value'           => '',
             ],
             'action_condition' => [
                 'condition_type' => '',
-                'conditions' => [
+                'conditions'     => [
                     [
-                        'condition_type' => '',
-                        'conditions' => [],
+                        'condition_type'  => '',
+                        'conditions'      => [],
                         'aggregator_type' => '',
-                        'operator' => null,
-                        'value' => '',
+                        'operator'        => null,
+                        'value'           => '',
                     ],
                 ],
                 'aggregator_type' => '',
-                'operator' => null,
-                'value' => '',
+                'operator'        => null,
+                'value'           => '',
             ],
             'stop_rules_processing' => $request->stop_rules_processing,
-            'is_advanced' => true,
-            'sort_order' => 0,
-            'simple_action' => $request->simple_action,
-            'discount_amount' => $request->discount_amount,
-            'discount_step' => $request->discount_step,
-            'discount_qty' => $request->discount_qty,
-            'apply_to_shipping' => $request->apply_to_shipping,
-            'times_used' => 6,
-            'is_rss' => isset($request->rss_edit) ? true : false,
-            'coupon_type' => $request->coupon_type_edit, // or "coupon_type" => "SPECIFIC_COUPON",
-            'use_auto_generation' => isset($request->auto_generate_edit) ? true : false, // use true if want to generate multiple codes for same rule
-            'uses_per_coupon' => $request->uses_per_coupon_edit,
-            'simple_free_shipping' => '0',
+            'is_advanced'           => true,
+            'sort_order'            => 0,
+            'simple_action'         => $request->simple_action,
+            'discount_amount'       => $request->discount_amount,
+            'discount_step'         => $request->discount_step,
+            'discount_qty'          => $request->discount_qty,
+            'apply_to_shipping'     => $request->apply_to_shipping,
+            'times_used'            => 6,
+            'is_rss'                => isset($request->rss_edit) ? true : false,
+            'coupon_type'           => $request->coupon_type_edit, // or "coupon_type" => "SPECIFIC_COUPON",
+            'use_auto_generation'   => isset($request->auto_generate_edit) ? true : false, // use true if want to generate multiple codes for same rule
+            'uses_per_coupon'       => $request->uses_per_coupon_edit,
+            'simple_free_shipping'  => '0',
         ];
 
         $url = $store_website->magento_url . '/rest/V1/salesRules/' . $local_rules->magento_rule_id;
@@ -891,7 +896,7 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         $response = curl_exec($ch);
-        $result = json_decode($response);
+        $result   = json_decode($response);
 
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesUpdate');
@@ -907,45 +912,45 @@ class CouponController extends Controller
             $this->geteratePrimaryCouponCode($request->code, $result->rule_id, $request->uses_per_coustomer, $request->expiration, $store_website);
         }
 
-        $local_rules->name = $request->name_edit;
-        $local_rules->description = $request->description_edit;
-        $local_rules->is_active = $request->active_edit == 1 ? true : false;
-        $local_rules->times_used = 6;
-        $local_rules->website_ids = implode(',', array_unique($request->website_ids_edit));
-        $local_rules->customer_group_ids = implode(',', array_unique($request->customer_groups_edit));
-        $local_rules->coupon_type = $request->coupon_type_edit;
+        $local_rules->name                = $request->name_edit;
+        $local_rules->description         = $request->description_edit;
+        $local_rules->is_active           = $request->active_edit == 1 ? true : false;
+        $local_rules->times_used          = 6;
+        $local_rules->website_ids         = implode(',', array_unique($request->website_ids_edit));
+        $local_rules->customer_group_ids  = implode(',', array_unique($request->customer_groups_edit));
+        $local_rules->coupon_type         = $request->coupon_type_edit;
         $local_rules->use_auto_generation = isset($request->auto_generate_edit) ? 1 : 0;
 
-        $local_rules->uses_per_coupon = ! empty($request->uses_per_coupon_edit) ? $request->uses_per_coupon_edit : 0;
+        $local_rules->uses_per_coupon    = ! empty($request->uses_per_coupon_edit) ? $request->uses_per_coupon_edit : 0;
         $local_rules->uses_per_coustomer = ! empty($request->uses_per_coustomer_edit) ? $request->uses_per_coustomer_edit : 0;
 
-        $local_rules->store_website_id = $request->store_website_id_edit;
-        $local_rules->is_rss = isset($request->rss_edit) ? 1 : 0;
-        $local_rules->coupon_code = $request->code_edit;
-        $local_rules->priority = $request->priority_edit;
-        $local_rules->from_date = ! empty($request->start_edit) ? $request->start_edit : date('Y-m-d H:i:s');
-        $local_rules->to_date = ! empty($request->expiration_edit) ? $request->expiration_edit : null;
+        $local_rules->store_website_id      = $request->store_website_id_edit;
+        $local_rules->is_rss                = isset($request->rss_edit) ? 1 : 0;
+        $local_rules->coupon_code           = $request->code_edit;
+        $local_rules->priority              = $request->priority_edit;
+        $local_rules->from_date             = ! empty($request->start_edit) ? $request->start_edit : date('Y-m-d H:i:s');
+        $local_rules->to_date               = ! empty($request->expiration_edit) ? $request->expiration_edit : null;
         $local_rules->stop_rules_processing = $request->stop_rules_processing;
-        $local_rules->simple_action = $request->simple_action;
-        $local_rules->discount_amount = $request->discount_amount;
-        $local_rules->discount_step = $request->discount_step;
-        $local_rules->discount_qty = $request->discount_qty;
-        $local_rules->apply_to_shipping = $request->apply_to_shipping;
-        $local_rules->simple_free_shipping = 0;
+        $local_rules->simple_action         = $request->simple_action;
+        $local_rules->discount_amount       = $request->discount_amount;
+        $local_rules->discount_step         = $request->discount_step;
+        $local_rules->discount_qty          = $request->discount_qty;
+        $local_rules->apply_to_shipping     = $request->apply_to_shipping;
+        $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
             CouponCodeRuleLog::create([
-                'rule_id' => $local_rules->id,
+                'rule_id'     => $local_rules->id,
                 'coupon_code' => $local_rules->coupon_code,
-                'log_type' => 'update_success',
-                'message' => 'Rule id is updated',
+                'log_type'    => 'update_success',
+                'message'     => 'Rule id is updated',
             ]);
             WebsiteStoreViewValue::where('rule_id', $request->rule_id)->delete();
             if (! empty($request->store_labels)) {
                 foreach ($request->store_labels as $key => $label) {
-                    $store_view_value = new WebsiteStoreViewValue();
-                    $store_view_value->rule_id = $local_rules->id;
+                    $store_view_value                = new WebsiteStoreViewValue();
+                    $store_view_value->rule_id       = $local_rules->id;
                     $store_view_value->store_view_id = $key;
-                    $store_view_value->value = $label;
+                    $store_view_value->value         = $label;
                     $store_view_value->save();
                 }
             }
@@ -956,8 +961,8 @@ class CouponController extends Controller
 
     public function getWebsiteByStore(Request $request)
     {
-        $store_id = $request->store_id;
-        $websites = Website::where('store_website_id', $store_id)->get();
+        $store_id   = $request->store_id;
+        $websites   = Website::where('store_website_id', $store_id)->get();
         $returnHTML = view('coupon.wepsiteDrpDwn')->with('websites', $websites)->render();
 
         return response()->json(['type' => 'success', 'data' => $returnHTML, 'message' => ''], 200);
@@ -967,13 +972,13 @@ class CouponController extends Controller
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-        $coupon = Coupon::where('id', $request->id)->first();
-        $local_rules = CouponCodeRules::where('id', $coupon->rule_id)->first();
+        $coupon        = Coupon::where('id', $request->id)->first();
+        $local_rules   = CouponCodeRules::where('id', $coupon->rule_id)->first();
         $store_website = StoreWebsite::where('id', $local_rules->store_website_id)->first();
 
         $authorization = 'Authorization: Bearer ' . $store_website->api_token;
-        $parameters = ['codes' => [$coupon->code], 'ignoreInvalidCoupons' => true];
-        $url = $store_website->magento_url . '/rest/V1/coupons/deleteByCodes';
+        $parameters    = ['codes' => [$coupon->code], 'ignoreInvalidCoupons' => true];
+        $url           = $store_website->magento_url . '/rest/V1/coupons/deleteByCodes';
 
         $ch = curl_init();
 
@@ -985,7 +990,7 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
         $response = curl_exec($ch);
-        $result = json_decode($response);
+        $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesDeleteCouponByCode');
 
@@ -993,10 +998,10 @@ class CouponController extends Controller
         curl_close($ch); // Close the connection
 
         CouponCodeRuleLog::create([
-            'rule_id' => $coupon->rule_id,
+            'rule_id'     => $coupon->rule_id,
             'coupon_code' => $local_rules->coupon_code,
-            'log_type' => 'delete_success',
-            'message' => 'Rule id is deleted',
+            'log_type'    => 'delete_success',
+            'message'     => 'Rule id is deleted',
         ]);
 
         return response()->json(['type' => 'success', 'data' => [], 'message' => 'Coupon deleted successfully'], 200);
@@ -1007,33 +1012,33 @@ class CouponController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $store_website_id = ! empty($request->store_website_id) ? $request->store_website_id : 1;
-        $website_ids = ! empty($request->website_ids) ? $request->website_ids : ['1', '2'];
-        $store_labels = ! empty($request->store_labels) ? $request->store_labels : ['Quck Created Coupon'];
-        $startDate = date('Y-m-d h:i');
-        $endDate = date('Y-m-d h:i', strtotime('+1 months', strtotime($startDate)));
-        $name = ! empty($request->name) ? $request->name : 'Quick created coupon';
-        $description = ! empty($request->description) ? $request->description : 'Quick created coupon';
+        $website_ids      = ! empty($request->website_ids) ? $request->website_ids : ['1', '2'];
+        $store_labels     = ! empty($request->store_labels) ? $request->store_labels : ['Quck Created Coupon'];
+        $startDate        = date('Y-m-d h:i');
+        $endDate          = date('Y-m-d h:i', strtotime('+1 months', strtotime($startDate)));
+        $name             = ! empty($request->name) ? $request->name : 'Quick created coupon';
+        $description      = ! empty($request->description) ? $request->description : 'Quick created coupon';
 
-        $customer_groups = ! empty($request->customer_groups) ? $request->customer_groups : [1];
-        $uses_per_coustomer = ! empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 1;
-        $is_active = true;
-        $timeUsed = 6;
+        $customer_groups       = ! empty($request->customer_groups) ? $request->customer_groups : [1];
+        $uses_per_coustomer    = ! empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 1;
+        $is_active             = true;
+        $timeUsed              = 6;
         $stop_rules_processing = ! empty($request->stop_rules_processing) ? $request->stop_rules_processing : true;
-        $simple_action = ! empty($request->simple_action) ? $request->simple_action : 'by_percent';
-        $discount_amount = ! empty($request->discount_amount) ? $request->discount_amount : '10';
-        $discount_step = ! empty($request->discount_step) ? $request->discount_step : '1';
-        $discount_qty = ! empty($request->discount_qty) ? $request->discount_qty : '10';
-        $apply_to_shipping = ! empty($request->apply_to_shipping) ? $request->apply_to_shipping : true;
-        $rss = isset($request->rss) ? $request->rss : 0;
-        $coupon_type = ! empty($request->coupon_type) ? $request->coupon_type : 'SPECIFIC_COUPON';
-        $auto_generate = isset($request->auto_generate) ? true : false; // use true if want to generate multiple codes for same rule
-        $uses_per_coupon = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : '1';
-        $code = ! empty($request->code) ? $request->code : '36PxZ';
-        $rule_id = ! empty($request->rule_id) ? $request->rule_id : '';
-        $priority = isset($request->priority) ? $request->priority : 0;
+        $simple_action         = ! empty($request->simple_action) ? $request->simple_action : 'by_percent';
+        $discount_amount       = ! empty($request->discount_amount) ? $request->discount_amount : '10';
+        $discount_step         = ! empty($request->discount_step) ? $request->discount_step : '1';
+        $discount_qty          = ! empty($request->discount_qty) ? $request->discount_qty : '10';
+        $apply_to_shipping     = ! empty($request->apply_to_shipping) ? $request->apply_to_shipping : true;
+        $rss                   = isset($request->rss) ? $request->rss : 0;
+        $coupon_type           = ! empty($request->coupon_type) ? $request->coupon_type : 'SPECIFIC_COUPON';
+        $auto_generate         = isset($request->auto_generate) ? true : false; // use true if want to generate multiple codes for same rule
+        $uses_per_coupon       = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : '1';
+        $code                  = ! empty($request->code) ? $request->code : '36PxZ';
+        $rule_id               = ! empty($request->rule_id) ? $request->rule_id : '';
+        $priority              = isset($request->priority) ? $request->priority : 0;
 
         $store_website = StoreWebsite::where('id', $request->store_website_id)->first();
-        $store_lables = [];
+        $store_lables  = [];
         if (! empty($request->store_labels)) {
             foreach ($request->store_labels as $key => $lables) {
                 array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
@@ -1041,69 +1046,69 @@ class CouponController extends Controller
         }
 
         $startDate = ! empty($request->start) ? $request->start : date('Y-m-d');
-        $endDate = $request->expiration;
-        $timeUsed = 6;
+        $endDate   = $request->expiration;
+        $timeUsed  = 6;
 
         $authorization = 'Authorization: Bearer ' . $store_website->api_token;
 
-        $parameters = [];
+        $parameters         = [];
         $parameters['rule'] = [
-            'name' => $request->name,
-            'store_labels' => $store_lables,
-            'description' => $request->description,
-            'website_ids' => array_unique($request->website_ids),
+            'name'               => $request->name,
+            'store_labels'       => $store_lables,
+            'description'        => $request->description,
+            'website_ids'        => array_unique($request->website_ids),
             'customer_group_ids' => $request->customer_groups,
-            'from_date' => $startDate,
-            'to_date' => $endDate,
-            'uses_per_customer' => $request->uses_per_coustomer,
-            'is_active' => $request->active == '1' ? true : false,
-            'condition' => [
+            'from_date'          => $startDate,
+            'to_date'            => $endDate,
+            'uses_per_customer'  => $request->uses_per_coustomer,
+            'is_active'          => $request->active == '1' ? true : false,
+            'condition'          => [
                 'condition_type' => '',
-                'conditions' => [
+                'conditions'     => [
                     [
                         'condition_type' => '',
-                        'operator' => '',
+                        'operator'       => '',
                         'attribute_name' => '',
-                        'value' => '',
+                        'value'          => '',
                     ],
                 ],
                 'aggregator_type' => '',
-                'operator' => null,
-                'value' => '',
+                'operator'        => null,
+                'value'           => '',
             ],
             'action_condition' => [
                 'condition_type' => '',
-                'conditions' => [
+                'conditions'     => [
                     [
-                        'condition_type' => '',
-                        'conditions' => [],
+                        'condition_type'  => '',
+                        'conditions'      => [],
                         'aggregator_type' => '',
-                        'operator' => null,
-                        'value' => '',
+                        'operator'        => null,
+                        'value'           => '',
                     ],
                 ],
                 'aggregator_type' => '',
-                'operator' => null,
-                'value' => '',
+                'operator'        => null,
+                'value'           => '',
             ],
             'stop_rules_processing' => $request->stop_rules_processing,
-            'is_advanced' => true,
-            'sort_order' => 0,
-            'simple_action' => $request->simple_action,
-            'discount_amount' => $request->discount_amount,
-            'discount_step' => $request->discount_step,
-            'discount_qty' => $request->discount_qty,
-            'apply_to_shipping' => $request->apply_to_shipping,
-            'times_used' => $timeUsed,
-            'is_rss' => $request->rss,
-            'coupon_type' => $request->coupon_type, // or "coupon_type" => "SPECIFIC_COUPON",
-            'use_auto_generation' => isset($request->auto_generate) ? true : false, // use true if want to generate multiple codes for same rule
-            'uses_per_coupon' => $request->uses_per_coupon,
-            'simple_free_shipping' => '0',
+            'is_advanced'           => true,
+            'sort_order'            => 0,
+            'simple_action'         => $request->simple_action,
+            'discount_amount'       => $request->discount_amount,
+            'discount_step'         => $request->discount_step,
+            'discount_qty'          => $request->discount_qty,
+            'apply_to_shipping'     => $request->apply_to_shipping,
+            'times_used'            => $timeUsed,
+            'is_rss'                => $request->rss,
+            'coupon_type'           => $request->coupon_type, // or "coupon_type" => "SPECIFIC_COUPON",
+            'use_auto_generation'   => isset($request->auto_generate) ? true : false, // use true if want to generate multiple codes for same rule
+            'uses_per_coupon'       => $request->uses_per_coupon,
+            'simple_free_shipping'  => '0',
         ];
 
         $url = $store_website->magento_url . '/rest/V1/salesRules/';
-        $ch = curl_init();
+        $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', $authorization]);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1111,7 +1116,7 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
         \Log::channel('listMagento')->info(print_r([$url, $store_website->api_token, json_encode($parameters)], true));
         $response = curl_exec($ch);
-        $result = json_decode($response);
+        $result   = json_decode($response);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Http\Controllers\CouponController::class, 'CouponRulesShortCutFroCreateCoupn');
 
@@ -1132,40 +1137,40 @@ class CouponController extends Controller
             }
         }
 
-        $local_rules = new CouponCodeRules();
-        $local_rules->magento_rule_id = $result->rule_id;
-        $local_rules->name = $request->name;
-        $local_rules->description = $request->description;
-        $local_rules->is_active = $request->active == '1' ? true : false;
-        $local_rules->times_used = $timeUsed;
-        $local_rules->website_ids = implode(',', $request->website_ids);
-        $local_rules->customer_group_ids = implode(',', $request->customer_groups);
-        $local_rules->coupon_type = $request->coupon_type;
-        $local_rules->coupon_code = $request->code;
+        $local_rules                      = new CouponCodeRules();
+        $local_rules->magento_rule_id     = $result->rule_id;
+        $local_rules->name                = $request->name;
+        $local_rules->description         = $request->description;
+        $local_rules->is_active           = $request->active == '1' ? true : false;
+        $local_rules->times_used          = $timeUsed;
+        $local_rules->website_ids         = implode(',', $request->website_ids);
+        $local_rules->customer_group_ids  = implode(',', $request->customer_groups);
+        $local_rules->coupon_type         = $request->coupon_type;
+        $local_rules->coupon_code         = $request->code;
         $local_rules->use_auto_generation = isset($request->auto_generate) ? 1 : 0;
 
-        $local_rules->uses_per_coupon = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : 0;
+        $local_rules->uses_per_coupon    = ! empty($request->uses_per_coupon) ? $request->uses_per_coupon : 0;
         $local_rules->uses_per_coustomer = ! empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 0;
 
-        $local_rules->store_website_id = $request->store_website_id;
-        $local_rules->is_rss = isset($request->rss) ? $request->rss : 0;
-        $local_rules->priority = isset($request->priority) ? $request->priority : 0;
-        $local_rules->from_date = $startDate;
-        $local_rules->to_date = $endDate;
+        $local_rules->store_website_id      = $request->store_website_id;
+        $local_rules->is_rss                = isset($request->rss) ? $request->rss : 0;
+        $local_rules->priority              = isset($request->priority) ? $request->priority : 0;
+        $local_rules->from_date             = $startDate;
+        $local_rules->to_date               = $endDate;
         $local_rules->stop_rules_processing = $request->stop_rules_processing;
-        $local_rules->simple_action = $request->simple_action;
-        $local_rules->discount_amount = $request->discount_amount;
-        $local_rules->discount_step = $request->discount_step;
-        $local_rules->discount_qty = $request->discount_qty;
-        $local_rules->apply_to_shipping = $request->apply_to_shipping;
-        $local_rules->simple_free_shipping = 0;
+        $local_rules->simple_action         = $request->simple_action;
+        $local_rules->discount_amount       = $request->discount_amount;
+        $local_rules->discount_step         = $request->discount_step;
+        $local_rules->discount_qty          = $request->discount_qty;
+        $local_rules->apply_to_shipping     = $request->apply_to_shipping;
+        $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
             if (! empty($request->store_labels)) {
                 foreach ($request->store_labels as $key => $label) {
-                    $store_view_value = new WebsiteStoreViewValue();
-                    $store_view_value->rule_id = $local_rules->id;
+                    $store_view_value                = new WebsiteStoreViewValue();
+                    $store_view_value->rule_id       = $local_rules->id;
                     $store_view_value->store_view_id = $key;
-                    $store_view_value->value = $label;
+                    $store_view_value->value         = $label;
                     $store_view_value->save();
                 }
             }
@@ -1179,48 +1184,48 @@ class CouponController extends Controller
     */
     public function sendCoupons(Request $request)
     {
-        $ruleId = $request->send_rule_id;
+        $ruleId         = $request->send_rule_id;
         $couponCodeRule = CouponCodeRules::find($ruleId);
-        $customerId = $request->customer;
-        $customerData = Customer::find($customerId);
+        $customerId     = $request->customer;
+        $customerData   = Customer::find($customerId);
         CouponCodeRuleLog::create([
-            'rule_id' => $ruleId,
+            'rule_id'     => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
-            'log_type' => 'send_to_user_intiate',
-            'message' => 'Sending coupon mail to ' . $customerData->email,
+            'log_type'    => 'send_to_user_intiate',
+            'message'     => 'Sending coupon mail to ' . $customerData->email,
         ]);
-        $emailAddress = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
-        $mailData['receiver_email'] = $customerData->email;
-        $mailData['sender_email'] = $emailAddress->from_address;
-        $mailData['coupon'] = $couponCodeRule->coupon_code;
-        $mailData['model_id'] = $ruleId;
-        $mailData['model_class'] = CouponCodeRules::class;
+        $emailAddress                 = \App\EmailAddress::where('store_website_id', $couponCodeRule->store_website_id)->first();
+        $mailData['receiver_email']   = $customerData->email;
+        $mailData['sender_email']     = $emailAddress->from_address;
+        $mailData['coupon']           = $couponCodeRule->coupon_code;
+        $mailData['model_id']         = $ruleId;
+        $mailData['model_class']      = CouponCodeRules::class;
         $mailData['store_website_id'] = $couponCodeRule->store_website_id;
-        $emailClass = (new AddCoupon($mailData))->build();
-        $email = \App\Email::create([
-            'model_id' => $ruleId,
-            'model_type' => CouponCodeRules::class,
-            'from' => $emailAddress->from_address,
-            'to' => $customerData->email,
-            'subject' => $emailClass->subject,
-            'message' => $emailClass->render(),
-            'template' => 'coupons',
-            'additional_data' => '',
-            'status' => 'pre-send',
+        $emailClass                   = (new AddCoupon($mailData))->build();
+        $email                        = \App\Email::create([
+            'model_id'         => $ruleId,
+            'model_type'       => CouponCodeRules::class,
+            'from'             => $emailAddress->from_address,
+            'to'               => $customerData->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'coupons',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
             'store_website_id' => $couponCodeRule->store_website_id,
-            'is_draft' => 0,
+            'is_draft'         => 0,
         ]);
         \App\EmailLog::create([
-            'email_id' => $email->id,
+            'email_id'  => $email->id,
             'email_log' => 'Email initiated',
-            'message' => $email->to,
+            'message'   => $email->to,
         ]);
         \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
         CouponCodeRuleLog::create([
-            'rule_id' => $ruleId,
+            'rule_id'     => $ruleId,
             'coupon_code' => $couponCodeRule->coupon_code,
-            'log_type' => 'send_mail',
-            'message' => 'Mail was sent to ' . $customerData->email,
+            'log_type'    => 'send_mail',
+            'message'     => 'Mail was sent to ' . $customerData->email,
         ]);
 
         return redirect()->route('coupons.index')->with('success', 'Email is send to the user');

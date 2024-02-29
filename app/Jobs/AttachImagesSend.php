@@ -40,21 +40,23 @@ class AttachImagesSend implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param mixed $data
+     *
      * @return void
      */
     public function __construct($data)
     {
         // Set product
-        $this->_token = $data['_token'];
-        $this->send_pdf = $data['send_pdf'];
-        $this->pdf_file_name = ! empty($data['pdf_file_name']) ? $data['pdf_file_name'] : '';
-        $this->images = $data['images'];
-        $this->image = $data['image'];
+        $this->_token          = $data['_token'];
+        $this->send_pdf        = $data['send_pdf'];
+        $this->pdf_file_name   = ! empty($data['pdf_file_name']) ? $data['pdf_file_name'] : '';
+        $this->images          = $data['images'];
+        $this->image           = $data['image'];
         $this->screenshot_path = $data['screenshot_path'];
-        $this->message = $data['message'];
-        $this->customer_id = $data['customer_id'];
-        $this->status = $data['status'];
-        $this->type = $data['type'];
+        $this->message         = $data['message'];
+        $this->customer_id     = $data['customer_id'];
+        $this->status          = $data['status'];
+        $this->type            = $data['type'];
     }
 
     /**
@@ -71,16 +73,16 @@ class AttachImagesSend implements ShouldQueue
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                '_token' => $this->_token,
-                'send_pdf' => $this->send_pdf,
-                'pdf_file_name' => $this->pdf_file_name,
-                'images' => $this->images,
-                'image' => $this->image,
+                '_token'          => $this->_token,
+                'send_pdf'        => $this->send_pdf,
+                'pdf_file_name'   => $this->pdf_file_name,
+                'images'          => $this->images,
+                'image'           => $this->image,
                 'screenshot_path' => $this->screenshot_path,
-                'message' => $this->message,
-                'customer_id' => $this->customer_id,
-                'status' => $this->status,
-                'type' => $this->type,
+                'message'         => $this->message,
+                'customer_id'     => $this->customer_id,
+                'status'          => $this->status,
+                'type'            => $this->type,
             ]);
             app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'customer');
         } catch (\Exception $e) {

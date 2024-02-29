@@ -7,7 +7,8 @@ class RedisJobRepository extends \Laravel\Horizon\Repositories\RedisJobRepositor
     /**
      * Delete pending and reserved jobs for a queue.
      *
-     * @param  string  $queue
+     * @param string $queue
+     *
      * @return int
      */
     public function purge($queue)

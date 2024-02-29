@@ -19,20 +19,21 @@ class AddSignatureToMail
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
+     *
      * @return void
      */
     public function handle($event)
     {
-        $message = $event->message;
+        $message   = $event->message;
         $fromemail = $message->getFrom('email');
         foreach ($fromemail as $key => $val) {
             $femail = $key;
         }
 
-        $body = $message->getBody();
+        $body      = $message->getBody();
         $signature = '';
-        $email = EmailAddress::where('from_address', $femail)->first();
+        $email     = EmailAddress::where('from_address', $femail)->first();
         if ($email) {
             if ($email->signature_name != '') {
                 $signature .= '<br>' . $email->signature_name;

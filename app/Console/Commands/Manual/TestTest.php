@@ -38,8 +38,8 @@ class TestTest extends Command
      */
     public function handle()
     {
-        $skuColorReferences = new SkuColorReferences;
-        $skuColorReferences->brand_id = 1;
+        $skuColorReferences             = new SkuColorReferences;
+        $skuColorReferences->brand_id   = 1;
         $skuColorReferences->color_code = '1000';
         $skuColorReferences->color_name = 'Black';
         $skuColorReferences->save();

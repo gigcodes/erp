@@ -30,7 +30,7 @@ final class Crypto
             return $key;
         }
 
-        $key = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+        $key                                     = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
         $_SESSION['URLQueryEncryptionSecretKey'] = $key;
 
         return $key;
@@ -38,8 +38,8 @@ final class Crypto
 
     public function encrypt(string $plaintext): string
     {
-        $key = $this->getEncryptionKey();
-        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+        $key        = $this->getEncryptionKey();
+        $nonce      = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, $key);
 
         return $nonce . $ciphertext;
@@ -47,8 +47,8 @@ final class Crypto
 
     public function decrypt(string $encrypted): ?string
     {
-        $key = $this->getEncryptionKey();
-        $nonce = mb_substr($encrypted, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
+        $key        = $this->getEncryptionKey();
+        $nonce      = mb_substr($encrypted, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
         $ciphertext = mb_substr($encrypted, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, null, '8bit');
         try {
             $decrypted = sodium_crypto_secretbox_open($ciphertext, $nonce, $key);

@@ -37,7 +37,7 @@ final class DestroyController extends AbstractController
         RelationCleanup $relationCleanup
     ) {
         parent::__construct($response, $template);
-        $this->dbi = $dbi;
+        $this->dbi             = $dbi;
         $this->transformations = $transformations;
         $this->relationCleanup = $relationCleanup;
     }
@@ -53,7 +53,7 @@ final class DestroyController extends AbstractController
             || (! $this->dbi->isSuperUser() && ! $cfg['AllowUserDropDatabase'])
         ) {
             $message = Message::error();
-            $json = ['message' => $message];
+            $json    = ['message' => $message];
             $this->response->setRequestStatus($message->isSuccess());
             $this->response->addJSON($json);
 
@@ -65,15 +65,15 @@ final class DestroyController extends AbstractController
             || $selected_dbs === []
         ) {
             $message = Message::error(__('No databases selected.'));
-            $json = ['message' => $message];
+            $json    = ['message' => $message];
             $this->response->setRequestStatus($message->isSuccess());
             $this->response->addJSON($json);
 
             return;
         }
 
-        $errorUrl = Url::getFromRoute('/server/databases');
-        $selected = $selected_dbs;
+        $errorUrl          = Url::getFromRoute('/server/databases');
+        $selected          = $selected_dbs;
         $numberOfDatabases = count($selected_dbs);
 
         foreach ($selected_dbs as $database) {

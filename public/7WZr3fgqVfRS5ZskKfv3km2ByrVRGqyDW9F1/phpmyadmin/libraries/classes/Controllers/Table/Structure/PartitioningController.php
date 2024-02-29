@@ -47,8 +47,8 @@ final class PartitioningController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->dbi = $dbi;
-        $this->createAddField = $createAddField;
+        $this->dbi                 = $dbi;
+        $this->createAddField      = $createAddField;
         $this->structureController = $structureController;
     }
 
@@ -77,10 +77,10 @@ final class PartitioningController extends AbstractController
 
         $partitionDetails = TablePartitionDefinition::getDetails($partitionDetails);
         $this->render('table/structure/partition_definition_form', [
-            'db' => $this->db,
-            'table' => $this->table,
+            'db'                => $this->db,
+            'table'             => $this->table,
             'partition_details' => $partitionDetails,
-            'storage_engines' => $storageEngines,
+            'storage_engines'   => $storageEngines,
         ]);
     }
 
@@ -104,16 +104,16 @@ final class PartitioningController extends AbstractController
 
         $partitionDetails = [];
 
-        $partitionDetails['partition_by'] = '';
-        $partitionDetails['partition_expr'] = '';
+        $partitionDetails['partition_by']    = '';
+        $partitionDetails['partition_expr']  = '';
         $partitionDetails['partition_count'] = 0;
 
         if (! empty($stmt->partitionBy)) {
-            $openPos = strpos($stmt->partitionBy, '(');
+            $openPos  = strpos($stmt->partitionBy, '(');
             $closePos = strrpos($stmt->partitionBy, ')');
 
             if ($openPos !== false && $closePos !== false) {
-                $partitionDetails['partition_by'] = trim(substr($stmt->partitionBy, 0, $openPos));
+                $partitionDetails['partition_by']   = trim(substr($stmt->partitionBy, 0, $openPos));
                 $partitionDetails['partition_expr'] = trim(substr(
                     $stmt->partitionBy,
                     $openPos + 1,
@@ -126,16 +126,16 @@ final class PartitioningController extends AbstractController
             }
         }
 
-        $partitionDetails['subpartition_by'] = '';
-        $partitionDetails['subpartition_expr'] = '';
+        $partitionDetails['subpartition_by']    = '';
+        $partitionDetails['subpartition_expr']  = '';
         $partitionDetails['subpartition_count'] = 0;
 
         if (! empty($stmt->subpartitionBy)) {
-            $openPos = strpos($stmt->subpartitionBy, '(');
+            $openPos  = strpos($stmt->subpartitionBy, '(');
             $closePos = strrpos($stmt->subpartitionBy, ')');
 
             if ($openPos !== false && $closePos !== false) {
-                $partitionDetails['subpartition_by'] = trim(substr($stmt->subpartitionBy, 0, $openPos));
+                $partitionDetails['subpartition_by']   = trim(substr($stmt->subpartitionBy, 0, $openPos));
                 $partitionDetails['subpartition_expr'] = trim(substr(
                     $stmt->subpartitionBy,
                     $openPos + 1,
@@ -167,20 +167,20 @@ final class PartitioningController extends AbstractController
         for ($i = 0, $iMax = $partitionDetails['partition_count']; $i < $iMax; $i++) {
             if (! isset($stmt->partitions[$i])) {
                 $partitionDetails['partitions'][$i] = [
-                    'name' => 'p' . $i,
-                    'value_type' => '',
-                    'value' => '',
-                    'engine' => '',
-                    'comment' => '',
-                    'data_directory' => '',
+                    'name'            => 'p' . $i,
+                    'value_type'      => '',
+                    'value'           => '',
+                    'engine'          => '',
+                    'comment'         => '',
+                    'data_directory'  => '',
                     'index_directory' => '',
-                    'max_rows' => '',
-                    'min_rows' => '',
-                    'tablespace' => '',
-                    'node_group' => '',
+                    'max_rows'        => '',
+                    'min_rows'        => '',
+                    'tablespace'      => '',
+                    'node_group'      => '',
                 ];
             } else {
-                $p = $stmt->partitions[$i];
+                $p    = $stmt->partitions[$i];
                 $type = $p->type;
                 $expr = trim((string) $p->expr, '()');
                 if ($expr === 'MAXVALUE') {
@@ -189,21 +189,21 @@ final class PartitioningController extends AbstractController
                 }
 
                 $partitionDetails['partitions'][$i] = [
-                    'name' => $p->name,
-                    'value_type' => $type,
-                    'value' => $expr,
-                    'engine' => $p->options->has('ENGINE', true),
-                    'comment' => trim((string) $p->options->has('COMMENT', true), "'"),
-                    'data_directory' => trim((string) $p->options->has('DATA DIRECTORY', true), "'"),
+                    'name'            => $p->name,
+                    'value_type'      => $type,
+                    'value'           => $expr,
+                    'engine'          => $p->options->has('ENGINE', true),
+                    'comment'         => trim((string) $p->options->has('COMMENT', true), "'"),
+                    'data_directory'  => trim((string) $p->options->has('DATA DIRECTORY', true), "'"),
                     'index_directory' => trim((string) $p->options->has('INDEX_DIRECTORY', true), "'"),
-                    'max_rows' => $p->options->has('MAX_ROWS', true),
-                    'min_rows' => $p->options->has('MIN_ROWS', true),
-                    'tablespace' => $p->options->has('TABLESPACE', true),
-                    'node_group' => $p->options->has('NODEGROUP', true),
+                    'max_rows'        => $p->options->has('MAX_ROWS', true),
+                    'min_rows'        => $p->options->has('MIN_ROWS', true),
+                    'tablespace'      => $p->options->has('TABLESPACE', true),
+                    'node_group'      => $p->options->has('NODEGROUP', true),
                 ];
             }
 
-            $partition = &$partitionDetails['partitions'][$i];
+            $partition           = &$partitionDetails['partitions'][$i];
             $partition['prefix'] = 'partitions[' . $i . ']';
 
             if ($partitionDetails['subpartition_count'] <= 1) {
@@ -211,37 +211,37 @@ final class PartitioningController extends AbstractController
             }
 
             $partition['subpartition_count'] = $partitionDetails['subpartition_count'];
-            $partition['subpartitions'] = [];
+            $partition['subpartitions']      = [];
 
             for ($j = 0, $jMax = $partitionDetails['subpartition_count']; $j < $jMax; $j++) {
                 if (! isset($stmt->partitions[$i]->subpartitions[$j])) {
                     $partition['subpartitions'][$j] = [
-                        'name' => $partition['name'] . '_s' . $j,
-                        'engine' => '',
-                        'comment' => '',
-                        'data_directory' => '',
+                        'name'            => $partition['name'] . '_s' . $j,
+                        'engine'          => '',
+                        'comment'         => '',
+                        'data_directory'  => '',
                         'index_directory' => '',
-                        'max_rows' => '',
-                        'min_rows' => '',
-                        'tablespace' => '',
-                        'node_group' => '',
+                        'max_rows'        => '',
+                        'min_rows'        => '',
+                        'tablespace'      => '',
+                        'node_group'      => '',
                     ];
                 } else {
-                    $sp = $stmt->partitions[$i]->subpartitions[$j];
+                    $sp                             = $stmt->partitions[$i]->subpartitions[$j];
                     $partition['subpartitions'][$j] = [
-                        'name' => $sp->name,
-                        'engine' => $sp->options->has('ENGINE', true),
-                        'comment' => trim((string) $sp->options->has('COMMENT', true), "'"),
-                        'data_directory' => trim((string) $sp->options->has('DATA DIRECTORY', true), "'"),
+                        'name'            => $sp->name,
+                        'engine'          => $sp->options->has('ENGINE', true),
+                        'comment'         => trim((string) $sp->options->has('COMMENT', true), "'"),
+                        'data_directory'  => trim((string) $sp->options->has('DATA DIRECTORY', true), "'"),
                         'index_directory' => trim((string) $sp->options->has('INDEX_DIRECTORY', true), "'"),
-                        'max_rows' => $sp->options->has('MAX_ROWS', true),
-                        'min_rows' => $sp->options->has('MIN_ROWS', true),
-                        'tablespace' => $sp->options->has('TABLESPACE', true),
-                        'node_group' => $sp->options->has('NODEGROUP', true),
+                        'max_rows'        => $sp->options->has('MAX_ROWS', true),
+                        'min_rows'        => $sp->options->has('MIN_ROWS', true),
+                        'tablespace'      => $sp->options->has('TABLESPACE', true),
+                        'node_group'      => $sp->options->has('NODEGROUP', true),
                     ];
                 }
 
-                $subpartition = &$partition['subpartitions'][$j];
+                $subpartition           = &$partition['subpartitions'][$j];
                 $subpartition['prefix'] = 'partitions[' . $i . ']'
                     . '[subpartitions][' . $j . ']';
             }

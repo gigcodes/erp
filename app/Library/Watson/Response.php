@@ -73,7 +73,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param  array  $headers
+     * @param array $headers
      */
     public function setHeaders($headers)
     {
@@ -89,7 +89,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param  string  $content
+     * @param string $content
      */
     public function setContent($content)
     {
@@ -105,7 +105,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param  int  $statusCode
+     * @param int $statusCode
      */
     public function setStatusCode($statusCode)
     {
@@ -113,7 +113,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param  bool  $isError
+     * @param bool $isError
      */
     public function setIsError($isError)
     {

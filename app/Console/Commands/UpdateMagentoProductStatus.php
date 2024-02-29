@@ -30,7 +30,7 @@ class UpdateMagentoProductStatus extends Command
     /**
      * Create a new command instance.
      *
-     * @param  GebnegozionlineProductDetailsScraper  $scraper
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct()
     {
@@ -46,25 +46,25 @@ class UpdateMagentoProductStatus extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $options = [
-                'trace' => true,
+                'trace'              => true,
                 'connection_timeout' => 120,
-                'wsdl_cache' => WSDL_CACHE_NONE,
+                'wsdl_cache'         => WSDL_CACHE_NONE,
             ];
 
-            $proxy = new \SoapClient(config('magentoapi.url'), $options);
+            $proxy     = new \SoapClient(config('magentoapi.url'), $options);
             $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
             $products = Product::all();
 
             foreach ($products as $key => $product) {
-                $error_message = '';
+                $error_message        = '';
                 $second_error_message = '';
-                $sku = $product->sku . $product->color;
+                $sku                  = $product->sku . $product->color;
 
                 try {
                     $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
@@ -75,7 +75,7 @@ class UpdateMagentoProductStatus extends Command
                 // CONFIGURABLE PRODUCT DOESNT EXIST
                 if ($error_message == 'Product not exists.') {
                     $product->isUploaded = 0;
-                    $product->isFinal = 0;
+                    $product->isFinal    = 0;
 
                     dump("$key Product Doesnt Exist - $product->sku - status ($product->isUploaded)");
 
@@ -116,9 +116,9 @@ class UpdateMagentoProductStatus extends Command
                         // THERE ARE SIZES
 
                         $associated_skus = [];
-                        $new_variations = 0;
-                        $sizes_array = explode(',', $product->size);
-                        $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
+                        $new_variations  = 0;
+                        $sizes_array     = explode(',', $product->size);
+                        $categories      = CategoryController::getCategoryTreeMagentoIds($product->category);
 
                         foreach ($sizes_array as $key2 => $size) {
                             $error_message = '';
@@ -136,11 +136,11 @@ class UpdateMagentoProductStatus extends Command
                                 // CREATE VARIATION
 
                                 $productData = [
-                                    'categories' => $categories,
-                                    'name' => $product->name,
-                                    'description' => '<p></p>',
+                                    'categories'        => $categories,
+                                    'name'              => $product->name,
+                                    'description'       => '<p></p>',
                                     'short_description' => $product->short_description,
-                                    'website_ids' => [1],
+                                    'website_ids'       => [1],
                                     // Id or code of website
                                     'status' => $magento_product['status'],
                                     // 1 = Enabled, 2 = Disabled
@@ -148,14 +148,14 @@ class UpdateMagentoProductStatus extends Command
                                     // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
                                     'tax_class_id' => 2,
                                     // Default VAT
-                                    'weight' => 0,
+                                    'weight'     => 0,
                                     'stock_data' => [
                                         'use_config_manage_stock' => 1,
-                                        'manage_stock' => 1,
+                                        'manage_stock'            => 1,
                                     ],
                                     'price' => $product->price_eur_special,
                                     // Same price than configurable product, no price change
-                                    'special_price' => $product->price_eur_discounted,
+                                    'special_price'         => $product->price_eur_discounted,
                                     'additional_attributes' => [
                                         'single_data' => [
                                             ['key' => 'msrp', 'value' => $product->price],
@@ -168,7 +168,7 @@ class UpdateMagentoProductStatus extends Command
                                     ],
                                 ];
                                 // Creation of product simple
-                                $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
+                                $result         = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
                                 $new_variations = 1;
                             } else {
                                 // SIMPLE PRODUCT EXISTS

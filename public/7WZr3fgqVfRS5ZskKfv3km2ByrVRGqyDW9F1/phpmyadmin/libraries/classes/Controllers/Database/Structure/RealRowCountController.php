@@ -32,7 +32,7 @@ final class RealRowCountController extends AbstractController
 
         $parameters = [
             'real_row_count_all' => $_REQUEST['real_row_count_all'] ?? null,
-            'table' => $_REQUEST['table'] ?? null,
+            'table'              => $_REQUEST['table'] ?? null,
         ];
 
         Util::checkParameters(['db']);
@@ -68,7 +68,7 @@ final class RealRowCountController extends AbstractController
                 ->getTable($this->db, $table['TABLE_NAME'])
                 ->getRealRowCountTable();
             $realRowCountAll[] = [
-                'table' => $table['TABLE_NAME'],
+                'table'     => $table['TABLE_NAME'],
                 'row_count' => $rowCount,
             ];
         }

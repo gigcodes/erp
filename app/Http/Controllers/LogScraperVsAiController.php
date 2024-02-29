@@ -29,7 +29,7 @@ class LogScraperVsAiController extends Controller
 
             // Update product
             $product->category = $request->category == 'dropdown' ? (int) $request->category_dropdown : $request->category;
-            $product->color = $request->color == 'dropdown' ? ucwords(strtolower($request->color_dropdown)) : ucwords(strtolower($request->color));
+            $product->color    = $request->color == 'dropdown' ? ucwords(strtolower($request->color_dropdown)) : ucwords(strtolower($request->color));
             $product->save();
 
             // Redirect back to opener page

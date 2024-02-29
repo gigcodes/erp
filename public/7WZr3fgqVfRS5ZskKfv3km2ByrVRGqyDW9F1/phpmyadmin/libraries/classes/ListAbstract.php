@@ -19,7 +19,7 @@ abstract class ListAbstract extends ArrayObject
     /**
      * defines what is an empty item (0, '', false or null)
      *
-     * @return mixed   an empty item
+     * @return mixed an empty item
      */
     public function getEmpty()
     {
@@ -30,7 +30,7 @@ abstract class ListAbstract extends ArrayObject
      * checks if the given db names exists in the current list, if there is
      * missing at least one item it returns false otherwise true
      *
-     * @param  mixed[]  ...$params params
+     * @param mixed[] ...$params params
      */
     public function exists(...$params): bool
     {
@@ -58,7 +58,7 @@ abstract class ListAbstract extends ArrayObject
             }
 
             $list[] = [
-                'name' => $eachItem,
+                'name'        => $eachItem,
                 'is_selected' => $selected === $eachItem,
             ];
         }
@@ -69,7 +69,7 @@ abstract class ListAbstract extends ArrayObject
     /**
      * returns default item
      *
-     * @return string  default item
+     * @return string default item
      */
     public function getDefault()
     {

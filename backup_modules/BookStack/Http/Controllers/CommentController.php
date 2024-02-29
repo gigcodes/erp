@@ -17,12 +17,12 @@ class CommentController extends Controller
     /**
      * CommentController constructor.
      *
-     * @param  \BookStack\Entities\Repos\EntityRepo  $entityRepo
-     * @param  \BookStack\Actions\CommentRepo  $commentRepo
+     * @param \BookStack\Entities\Repos\EntityRepo $entityRepo
+     * @param \BookStack\Actions\CommentRepo       $commentRepo
      */
     public function __construct(EntityRepo $entityRepo, CommentRepo $commentRepo)
     {
-        $this->entityRepo = $entityRepo;
+        $this->entityRepo  = $entityRepo;
         $this->commentRepo = $commentRepo;
         parent::__construct();
     }
@@ -30,8 +30,9 @@ class CommentController extends Controller
     /**
      * Save a new comment for a Page
      *
-     * @param  int  $pageId
-     * @param  null|int  $commentId
+     * @param int      $pageId
+     * @param null|int $commentId
+     *
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function savePageComment(Request $request, $pageId, $commentId = null)
@@ -65,7 +66,8 @@ class CommentController extends Controller
     /**
      * Update an existing comment.
      *
-     * @param  int  $commentId
+     * @param int $commentId
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function update(Request $request, $commentId)
@@ -87,7 +89,8 @@ class CommentController extends Controller
     /**
      * Delete a comment from the system.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)

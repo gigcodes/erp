@@ -49,11 +49,11 @@ class StoreLogScraper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $dateToCheck = date('jMy', strtotime('-1 days'));
+            $dateToCheck        = date('jMy', strtotime('-1 days'));
             $dateBeforeSevenday = date('Y-m-d', strtotime('-7 day'));
 
             ScrapRemark::where('scrap_field', 'last_line_error')->whereDate('created_at', '<=', $dateBeforeSevenday)->delete();
@@ -67,17 +67,17 @@ class StoreLogScraper extends Command
                     if (isset($needed[1])) {
                         $filePath = $file->getPathName();
                         if ($needed[1] === $dateToCheck) {
-                            $result = File::get($filePath);
-                            $lines = array_filter(explode("\n", $result));
+                            $result   = File::get($filePath);
+                            $lines    = array_filter(explode("\n", $result));
                             $lastLine = end($lines);
-                            $scraper = \App\Scraper::where('scraper_name', $needed[0])->first();
+                            $scraper  = \App\Scraper::where('scraper_name', $needed[0])->first();
                             if (! is_null($scraper)) {
                                 ScrapRemark::create([
                                     'scraper_name' => $needed[0],
-                                    'scrap_id' => $scraper->id,
-                                    'module_type' => '',
-                                    'scrap_field' => 'last_line_error',
-                                    'remark' => $lastLine,
+                                    'scrap_id'     => $scraper->id,
+                                    'module_type'  => '',
+                                    'scrap_field'  => 'last_line_error',
+                                    'remark'       => $lastLine,
                                 ]);
                             }
                         }

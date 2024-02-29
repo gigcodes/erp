@@ -185,13 +185,13 @@ class MagentoModuleCareers extends Model
     public function jsonSerialize()
     {
         return [
-            self::ID => $this->getId(),
-            self::TITLE => $this->getTitle(),
-            self::TYPE => $this->getType(),
-            self::DESCRIPTION => $this->getDescription(),
-            self::LOCATION => $this->getLocation(),
-            self::IS_ACTIVE => $this->getIsActive(),
-            self::CREATED_AT => $this->getCreatedAt(),
+            self::ID               => $this->getId(),
+            self::TITLE            => $this->getTitle(),
+            self::TYPE             => $this->getType(),
+            self::DESCRIPTION      => $this->getDescription(),
+            self::LOCATION         => $this->getLocation(),
+            self::IS_ACTIVE        => $this->getIsActive(),
+            self::CREATED_AT       => $this->getCreatedAt(),
             self::STORE_WEBSITE_ID => $this->getStoreWebsitesIds(),
         ];
     }
@@ -202,11 +202,11 @@ class MagentoModuleCareers extends Model
     public function toArrayCareer()
     {
         return [
-            self::TYPE => $this->getType(),
+            self::TYPE        => $this->getType(),
             self::DESCRIPTION => $this->getDescription(),
-            self::LOCATION => $this->getLocation(),
-            self::CREATED_AT => $this->getCreatedAt(),
-            self::TITLE => $this->getTitle(),
+            self::LOCATION    => $this->getLocation(),
+            self::CREATED_AT  => $this->getCreatedAt(),
+            self::TITLE       => $this->getTitle(),
         ];
     }
 }

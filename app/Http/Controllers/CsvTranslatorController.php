@@ -13,9 +13,9 @@ class CsvTranslatorController extends Controller
 {
     public function index(Request $request)
     {
-        $cols = [];
+        $cols             = [];
         $allCsvPermission = CsvPermissions::where('user_id', \Auth::user()->id)->get();
-        $lang = [];
+        $lang             = [];
 
         array_push($lang, ['data' => 'id']);
         array_push($lang, ['data' => 'key']);
@@ -29,7 +29,7 @@ class CsvTranslatorController extends Controller
             $permissions[$permission['lang_id']][] = $permission['action'];
         }
 
-        $lang = json_encode($lang);
+        $lang   = json_encode($lang);
         $colums = implode(',', $cols);
         $colums = str_replace(',', "','", $colums);
 
@@ -177,9 +177,9 @@ class CsvTranslatorController extends Controller
 
     public function commonServiceCheck($permissions, $data, $lang, $status = '')
     {
-        $data = $data->toArray();
-        $key = $data['key'];
-        $id = $data['id'];
+        $data     = $data->toArray();
+        $key      = $data['key'];
+        $id       = $data['id'];
         $language = $data[$lang];
         if (count($permissions[$lang]) == 1) {
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
@@ -234,69 +234,69 @@ class CsvTranslatorController extends Controller
 
     public function update(Request $request)
     {
-        $record = CsvTranslator::find($request->record_id);
-        $oldRecord = $record->{$request->lang_id};
-        $oldStatus = $record->status;
-        $key = $record->key;
+        $record                     = CsvTranslator::find($request->record_id);
+        $oldRecord                  = $record->{$request->lang_id};
+        $oldStatus                  = $record->status;
+        $key                        = $record->key;
         $record->updated_by_user_id = $request->update_by_user_id;
 
         if ($request->lang_id == 'en') {
-            $record->en = $request->update_record;
+            $record->en        = $request->update_record;
             $record->status_en = 'new';
         }
         if ($request->lang_id == 'es') {
-            $record->es = $request->update_record;
+            $record->es        = $request->update_record;
             $record->status_es = 'new';
         }
         if ($request->lang_id == 'ru') {
-            $record->ru = $request->update_record;
+            $record->ru        = $request->update_record;
             $record->status_ru = 'new';
         }
         if ($request->lang_id == 'ko') {
-            $record->ko = $request->update_record;
+            $record->ko        = $request->update_record;
             $record->status_ko = 'new';
         }
         if ($request->lang_ja == 'ja') {
-            $record->en = $request->update_record;
+            $record->en        = $request->update_record;
             $record->status_ja = 'new';
         }
         if ($request->lang_id == 'it') {
-            $record->it = $request->update_record;
+            $record->it        = $request->update_record;
             $record->status_it = 'new';
         }
         if ($request->lang_id == 'de') {
-            $record->de = $request->update_record;
+            $record->de        = $request->update_record;
             $record->status_de = 'new';
         }
         if ($request->lang_id == 'fr') {
-            $record->fr = $request->update_record;
+            $record->fr        = $request->update_record;
             $record->status_fr = 'new';
         }
         if ($request->lang_id == 'nl') {
-            $record->nl = $request->update_record;
+            $record->nl        = $request->update_record;
             $record->status_nl = 'new';
         }
         if ($request->lang_id == 'zh') {
-            $record->zh = $request->update_record;
+            $record->zh        = $request->update_record;
             $record->status_zh = 'new';
         }
         if ($request->lang_id == 'ar') {
-            $record->ar = $request->update_record;
+            $record->ar        = $request->update_record;
             $record->status_ar = 'new';
         }
         if ($request->lang_id == 'ur') {
-            $record->ur = $request->update_record;
+            $record->ur        = $request->update_record;
             $record->status_ur = 'new';
         }
         $record->update();
 
-        $historyData = [];
-        $historyData['csv_translator_id'] = $record->id;
-        $historyData['updated_by_user_id'] = $request->update_by_user_id;
-        $historyData['key'] = $key;
+        $historyData                                = [];
+        $historyData['csv_translator_id']           = $record->id;
+        $historyData['updated_by_user_id']          = $request->update_by_user_id;
+        $historyData['key']                         = $key;
         $historyData['status_' . $request->lang_id] = 'new';
-        $historyData[$request->lang_id] = $oldRecord;
-        $historyData['created_at'] = \Carbon\Carbon::now();
+        $historyData[$request->lang_id]             = $oldRecord;
+        $historyData['created_at']                  = \Carbon\Carbon::now();
         CsvTranslatorHistory::insert($historyData);
 
         // If User has advance permission type - Then auto approve
@@ -304,12 +304,12 @@ class CsvTranslatorController extends Controller
 
         if ($csvPermissionAdvance) {
             $record['status_' . $request->lang_id] = 'checked';
-            $record['approved_by_user_id'] = \Auth::user()->id;
+            $record['approved_by_user_id']         = \Auth::user()->id;
             $record->update();
 
-            $record_history = CsvTranslatorHistory::where('csv_translator_id', $record->id)->where($request->lang_id, '!=', '')->orderBy('id', 'desc')->first();
+            $record_history                                = CsvTranslatorHistory::where('csv_translator_id', $record->id)->where($request->lang_id, '!=', '')->orderBy('id', 'desc')->first();
             $record_history['status_' . $request->lang_id] = 'checked';
-            $record_history['approved_by_user_id'] = \Auth::user()->id;
+            $record_history['approved_by_user_id']         = \Auth::user()->id;
             $record_history->update();
         }
 
@@ -318,14 +318,14 @@ class CsvTranslatorController extends Controller
 
     public function approvedByAdmin(Request $request)
     {
-        $record = CsvTranslator::where('id', $request->id)->first();
+        $record                             = CsvTranslator::where('id', $request->id)->first();
         $record['status_' . $request->lang] = $request->status;
-        $record['approved_by_user_id'] = \Auth::user()->id;
+        $record['approved_by_user_id']      = \Auth::user()->id;
         $record->update();
 
-        $record_history = CsvTranslatorHistory::where('csv_translator_id', $request->id)->where($request->lang, '!=', '')->orderBy('id', 'desc')->first();
+        $record_history                             = CsvTranslatorHistory::where('csv_translator_id', $request->id)->where($request->lang, '!=', '')->orderBy('id', 'desc')->first();
         $record_history['status_' . $request->lang] = $request->status;
-        $record_history['approved_by_user_id'] = \Auth::user()->id;
+        $record_history['approved_by_user_id']      = \Auth::user()->id;
         $record_history->update();
 
         return response()->json(['status' => 200]);
@@ -333,15 +333,15 @@ class CsvTranslatorController extends Controller
 
     public function history(Request $request)
     {
-        $key = $request->key;
+        $key      = $request->key;
         $language = $request->language;
-        $history = CsvTranslatorHistory::where([
+        $history  = CsvTranslatorHistory::where([
             'csv_translator_id' => $request->id,
-            'key' => $request->key,
+            'key'               => $request->key,
         ])->whereRaw('status_' . $request->language . ' is not null')->get();
         if (count($history) > 0) {
             foreach ($history as $key => $historyData) {
-                $history[$key]['updater'] = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
+                $history[$key]['updater']  = User::where('id', $historyData['updated_by_user_id'])->pluck('name')->first();
                 $history[$key]['approver'] = User::where('id', $historyData['approved_by_user_id'])->pluck('name')->first();
             }
         }
@@ -354,11 +354,11 @@ class CsvTranslatorController extends Controller
     public function filterCsvTranslator(Request $request)
     {
         if ($request->ajax()) {
-            $userId = $request->user;
+            $userId   = $request->user;
             $language = $request->lang;
-            $status = $request->status;
-            $lang = [];
-            $query = CsvTranslator::select('*');
+            $status   = $request->status;
+            $lang     = [];
+            $query    = CsvTranslator::select('*');
 
             if (isset($userId)) {
                 $query->where('updated_by_user_id', $userId);
@@ -372,7 +372,7 @@ class CsvTranslatorController extends Controller
 
             $data = $query->get();
 
-            $cols = [];
+            $cols             = [];
             $allCsvPermission = CsvPermissions::where('user_id', \Auth::user()->id)->get();
 
             array_push($lang, ['data' => 'id']);
@@ -380,8 +380,8 @@ class CsvTranslatorController extends Controller
             $permissions = [];
 
             foreach ($allCsvPermission as $permission) {
-                $cols[] = $permission['lang_id'];
-                $lang[] = ['data' => $permission['lang_id']];
+                $cols[]                                = $permission['lang_id'];
+                $lang[]                                = ['data' => $permission['lang_id']];
                 $permissions[$permission['lang_id']][] = $permission['action'];
             }
 
@@ -401,7 +401,7 @@ class CsvTranslatorController extends Controller
     public function userPermissions(Request $request)
     {
         if ($request->ajax()) {
-            $data = $request->only('user_id', 'lang_id', 'action', 'type');
+            $data        = $request->only('user_id', 'lang_id', 'action', 'type');
             $checkExists = CsvPermissions::where('user_id', $data['user_id'])->where('lang_id', $data['lang_id'])->where('action', $data['action'])->first();
 
             if ($checkExists) {

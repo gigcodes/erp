@@ -38,7 +38,7 @@ class UpdateInventoryHistory extends Command
     {
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
-            $date = date('Y-m-d');
+            $date         = date('Y-m-d');
             $totalProduct = \App\Supplier::join('scrapers as sc', 'sc.supplier_id', 'suppliers.id')
                 ->join('scraped_products as sp', 'sp.website', 'sc.scraper_name')
                 ->join('products as p', 'p.id', 'sp.product_id')
@@ -46,7 +46,7 @@ class UpdateInventoryHistory extends Command
                 ->select(\DB::raw('count(distinct p.id) as total'))->first();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier query finished.']);
 
-            $totalProduct = ($totalProduct) ? $totalProduct->total : 0;
+            $totalProduct       = ($totalProduct) ? $totalProduct->total : 0;
             $noofProductInStock = \App\Product::where('stock', '>', 0)->count();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'product stock count query finished.']);
 
@@ -54,10 +54,10 @@ class UpdateInventoryHistory extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory status history query finished.']);
 
             $data = [
-                'date' => $date,
-                'total_product' => $totalProduct,
+                'date'            => $date,
+                'total_product'   => $totalProduct,
                 'updated_product' => ($updated_product) ? $updated_product->total : 0,
-                'in_stock' => $noofProductInStock,
+                'in_stock'        => $noofProductInStock,
             ];
             $history = \App\InventoryHistory::whereDate('date', '=', $date)->first();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory history query finished.']);

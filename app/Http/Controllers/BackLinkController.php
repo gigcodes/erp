@@ -16,8 +16,8 @@ class BackLinkController extends Controller
     public function displayBackLinkDetails(Request $request)
     {
         if (! empty($_GET['title'])) {
-            $title = $_GET['title'];
-            $details = BackLinking::where('title', $title)->paginate(50)->setPath('');
+            $title      = $_GET['title'];
+            $details    = BackLinking::where('title', $title)->paginate(50)->setPath('');
             $pagination = $details->appends(
                 [
                     'title' => $request->title,
@@ -40,12 +40,12 @@ class BackLinkController extends Controller
      */
     public function updateTitle(Request $request)
     {
-        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking        = BackLinking::findOrFail($request['id']);
         $back_linking->title = $request['title'];
         $back_linking->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Title Updated',
         ]);
     }
@@ -58,12 +58,12 @@ class BackLinkController extends Controller
      */
     public function updateDesc(Request $request)
     {
-        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking              = BackLinking::findOrFail($request['id']);
         $back_linking->description = $request['desc'];
         $back_linking->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Title Updated',
         ]);
     }
@@ -76,12 +76,12 @@ class BackLinkController extends Controller
      */
     public function updateURL(Request $request)
     {
-        $back_linking = BackLinking::findOrFail($request['id']);
+        $back_linking      = BackLinking::findOrFail($request['id']);
         $back_linking->url = $request['url'];
         $back_linking->save();
 
         return response()->json([
-            'type' => 'success',
+            'type'    => 'success',
             'message' => 'Title Updated',
         ]);
     }

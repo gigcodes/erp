@@ -11,10 +11,10 @@ class Organization
     private $authToken;
 
     private $urls = [
-        'allOrgs' => 'https://api.hubstaff.com/v1/organizations',
-        'orgDetail' => 'https://api.hubstaff.com/v1/organizations/{orgId}',
-        'orgProjects' => 'https://api.hubstaff.com/v2/organizations/{orgId}/projects',
-        'orgUsers' => 'https://api.hubstaff.com/v2/organizations/{orgId}/members',
+        'allOrgs'                => 'https://api.hubstaff.com/v1/organizations',
+        'orgDetail'              => 'https://api.hubstaff.com/v1/organizations/{orgId}',
+        'orgProjects'            => 'https://api.hubstaff.com/v2/organizations/{orgId}/projects',
+        'orgUsers'               => 'https://api.hubstaff.com/v2/organizations/{orgId}/members',
         'organizations-activity' => 'https://api.hubstaff.com/v2/organizations/{orgId}/activities',
     ];
 
@@ -22,6 +22,8 @@ class Organization
      * Constructor to initialize appToken and authToken
      *
      * @param appToken [string]  authToken [string]
+     * @param mixed $accessToken
+     *
      * @return object this
      */
     public function __construct($accessToken)
@@ -35,6 +37,8 @@ class Organization
      * Get all users list
      *
      * @param offset [numetric & optional]
+     * @param mixed $offset
+     *
      * @return object organizations
      */
     public function getAllOrgs($offset = 0)
@@ -61,6 +65,8 @@ class Organization
      * Get organization detail from organization Id
      *
      * @param orgId [integer]
+     * @param null|mixed $orgId
+     *
      * @return object organization
      */
     public function getOrgDetail($orgId = null)
@@ -87,6 +93,9 @@ class Organization
      * Retrieve projects for an organization
      *
      * @param orgId [integer], offset [numetric & optional]
+     * @param null|mixed $orgId
+     * @param mixed      $offset
+     *
      * @return object user
      */
     public function getOrgProjects($orgId = null, $offset = 0)
@@ -136,6 +145,10 @@ class Organization
      * Retrieve users for an organization
      *
      * @param orgId [integer], offset [numetric & optional]
+     * @param null|mixed $orgId
+     * @param mixed      $offset
+     * @param mixed      $pagestartId
+     *
      * @return object organizationusers
      */
     public function getOrgUsers($orgId = null, $offset = 0, $pagestartId = 0)
@@ -173,6 +186,9 @@ class Organization
      * Get activitiy
      *
      * @param orgId [integer]
+     * @param mixed $orgId
+     * @param mixed $startTime
+     * @param mixed $stopTime
      */
     public function getActivity($orgId, $startTime, $stopTime)
     {
@@ -182,7 +198,7 @@ class Organization
         $url = str_replace('{orgId}', $orgId, $this->urls['organizations-activity']);
         $curl->get($url, [
             'time_slot[start]' => date(DATE_ISO8601, strtotime($startTime)),
-            'time_slot[stop]' => date(DATE_ISO8601, strtotime($stopTime)),
+            'time_slot[stop]'  => date(DATE_ISO8601, strtotime($stopTime)),
         ]);
 
         if ($curl->error) {

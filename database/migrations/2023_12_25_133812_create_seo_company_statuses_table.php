@@ -21,17 +21,17 @@ class CreateSeoCompanyStatusesTable extends Migration
         });
 
         \Illuminate\Support\Facades\DB::table('seo_company_statuses')->insert([
-            'status_name' => 'pending',
+            'status_name'  => 'pending',
             'status_color' => '',
         ]);
 
         \Illuminate\Support\Facades\DB::table('seo_company_statuses')->insert([
-            'status_name' => 'approved',
+            'status_name'  => 'approved',
             'status_color' => '',
         ]);
 
         \Illuminate\Support\Facades\DB::table('seo_company_statuses')->insert([
-            'status_name' => 'rejected',
+            'status_name'  => 'rejected',
             'status_color' => '',
         ]);
     }

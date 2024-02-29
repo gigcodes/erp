@@ -33,13 +33,13 @@ class FailedJobController extends Controller
 
         if ($request->failed_at != '') {
             $available_start = \Carbon\Carbon::Parse($request->failed_at)->startOfDay()->getTimeStamp();
-            $available_end = \Carbon\Carbon::Parse($request->failed_at)->endOfDay()->getTimeStamp();
+            $available_end   = \Carbon\Carbon::Parse($request->failed_at)->endOfDay()->getTimeStamp();
             $jobs->where('failed_at', '>=', $request->failed_at);
             $jobs->where('failed_at', '<=', $request->failed_at);
         }
         $checkbox = $jobs->pluck('id');
-        $jobs = $jobs->paginate();
-        $count = $jobs->total();
+        $jobs     = $jobs->paginate();
+        $count    = $jobs->total();
 
         return view('failedjob.list', compact('jobs', 'filters', 'count', 'checkbox'))
             ->withInput($request->all());
@@ -65,9 +65,9 @@ class FailedJobController extends Controller
 
     public function alldelete(Request $request, $id)
     {
-        $trim = trim($id, '[]');
+        $trim    = trim($id, '[]');
         $myArray = explode(',', $trim);
-        $jobs = \App\FailedJob::whereIn('id', $myArray)->delete();
+        $jobs    = \App\FailedJob::whereIn('id', $myArray)->delete();
 
         return response()->json(['code' => 200, 'data' => []]);
     }

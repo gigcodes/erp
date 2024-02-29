@@ -16,13 +16,13 @@ class MailinglistEmailController extends Controller
 {
     public function index(Request $request)
     {
-        $audience = Mailinglist::all();
-        $templates = MailinglistTemplate::all();
-        $images = Image::all();
+        $audience     = Mailinglist::all();
+        $templates    = MailinglistTemplate::all();
+        $images       = Image::all();
         $images_gmail = GmailDataList::all();
-        $query = MailinglistEmail::with('audience', 'template');
-        $term = $request->term;
-        $date = $request->date;
+        $query        = MailinglistEmail::with('audience', 'template');
+        $term         = $request->term;
+        $date         = $request->date;
         if ($request->term != null) {
             $query = $query->where(function ($q) use ($request) {
                 $q->where('subject', 'like', '%' . $request->term . '%')
@@ -44,7 +44,7 @@ class MailinglistEmailController extends Controller
 
     public function ajaxIndex(Request $request)
     {
-        $data = $request->all();
+        $data    = $request->all();
         $content = null;
 
         $mtemplate = MailinglistTemplate::find($request->id);
@@ -60,32 +60,32 @@ class MailinglistEmailController extends Controller
         $data = $request->all();
 
         $validator = Validator::make($request->all(), [
-            'template_id' => 'required',
+            'template_id'    => 'required',
             'scheduled_date' => 'required',
             'mailinglist_id' => 'required',
-            'subject' => 'required',
+            'subject'        => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->getMessageBag()->toArray()]);
         }
         //getting mailing list
 
-        $mailing_item = new MailinglistEmail();
+        $mailing_item                 = new MailinglistEmail();
         $mailing_item->mailinglist_id = $data['mailinglist_id'];
-        $mailing_item->template_id = $data['template_id'];
-        $mailing_item->html = $data['html'];
-        $mailing_item->subject = $data['subject'];
+        $mailing_item->template_id    = $data['template_id'];
+        $mailing_item->html           = $data['html'];
+        $mailing_item->subject        = $data['subject'];
         $mailing_item->scheduled_date = $data['scheduled_date'];
-        $mailing_item->html = $data['html'];
+        $mailing_item->html           = $data['html'];
 
-        $list = Mailinglist::find($data['mailinglist_id']);
-        $website = \App\StoreWebsite::where('id', $list->website_id)->first();
-        $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : config('env.SEND_IN_BLUE_API');
+        $list      = Mailinglist::find($data['mailinglist_id']);
+        $website   = \App\StoreWebsite::where('id', $list->website_id)->first();
+        $api_key   = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : config('env.SEND_IN_BLUE_API');
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $paramters = [
-            'name' => $mailing_item->subject,
-            'subject' => $mailing_item->subject,
-            'run_at' => $mailing_item->scheduled_date,
+            'name'             => $mailing_item->subject,
+            'subject'          => $mailing_item->subject,
+            'run_at'           => $mailing_item->scheduled_date,
             'template_content' => $mailing_item->html,
         ];
 
@@ -93,23 +93,23 @@ class MailinglistEmailController extends Controller
             if ($list->service && isset($list->service->name)) {
                 if ($list->service->name == 'AcelleMail') {
                     $curl = curl_init();
-                    $url = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
+                    $url  = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 0,
                         CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'POST',
-                        CURLOPT_POSTFIELDS => $paramters,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'POST',
+                        CURLOPT_POSTFIELDS     => $paramters,
                     ]);
 
-                    $response = curl_exec($curl);
-                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $response = json_decode($response); //decode response
+                    $response  = curl_exec($curl);
+                    $httpcode  = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    $response  = json_decode($response); //decode response
                     $paramters = [];
 
                     LogRequest::log($startTime, $url, 'POST', json_encode($paramters), $response, $httpcode, \App\Http\Controllers\MailinglistEmailController::class, 'store');
@@ -123,24 +123,24 @@ class MailinglistEmailController extends Controller
                         $data = [
                             'sender' => [
                                 'name' => 'Luxury Unlimited',
-                                'id' => 1,
+                                'id'   => 1,
                             ],
-                            'htmlContent' => $this->utf8ize($mailing_item->html),
+                            'htmlContent'  => $this->utf8ize($mailing_item->html),
                             'templateName' => $mailing_item->subject,
-                            'subject' => $mailing_item->subject,
+                            'subject'      => $mailing_item->subject,
                         ];
 
                         $url = 'https://api.sendinblue.com/v3/smtp/templates';
                         curl_setopt_array($curl, [
-                            CURLOPT_URL => $url,
+                            CURLOPT_URL            => $url,
                             CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 30,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'POST',
-                            CURLOPT_POSTFIELDS => json_encode($data),
-                            CURLOPT_HTTPHEADER => [
+                            CURLOPT_ENCODING       => '',
+                            CURLOPT_MAXREDIRS      => 10,
+                            CURLOPT_TIMEOUT        => 30,
+                            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST  => 'POST',
+                            CURLOPT_POSTFIELDS     => json_encode($data),
+                            CURLOPT_HTTPHEADER     => [
                                 'api-key: ' . $api_key,
                                 'Content-Type: application/json',
                             ],

@@ -45,7 +45,7 @@ class SocialTagsController extends Controller
             'name' => 'required',
         ]);
 
-        $tag = new SocialTags();
+        $tag       = new SocialTags();
         $tag->name = $request->get('name');
         $tag->save();
 
@@ -55,7 +55,8 @@ class SocialTagsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -72,7 +73,8 @@ class SocialTagsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -85,7 +87,8 @@ class SocialTagsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -94,7 +97,7 @@ class SocialTagsController extends Controller
             'name' => 'required',
         ]);
 
-        $tag = SocialTags::findOrFail($id);
+        $tag       = SocialTags::findOrFail($id);
         $tag->name = $request->get('name');
         $tag->save();
 
@@ -104,7 +107,8 @@ class SocialTagsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

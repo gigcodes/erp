@@ -28,8 +28,8 @@ class AutoRefreshController extends Controller
         ]);
 
         $params = [
-            'page' => $request->get('page'),
-            'time' => $request->get('time'),
+            'page'    => $request->get('page'),
+            'time'    => $request->get('time'),
             'user_id' => \Auth::user()->id,
         ];
 

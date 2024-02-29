@@ -26,10 +26,10 @@ class VisitorController extends Controller
             }
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
+            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
         } else {
             $paginate = (Setting::get('pagination') * 10);
-            $logs = VisitorLog::orderby('created_at', 'desc')->paginate($paginate);
+            $logs     = VisitorLog::orderby('created_at', 'desc')->paginate($paginate);
         }
 
         if ($request->ajax()) {

@@ -4,8 +4,8 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $analytics = initializeReportingAnalytics();
-$response = getReport($analytics);
-$results = printReportingResults($response);
+$response  = getReport($analytics);
+$results   = printReportingResults($response);
 
 /**
  * Initializes an Analytics Reporting API V4 service object.
@@ -33,6 +33,8 @@ function initializeReportingAnalytics()
  * Queries the Analytics Reporting API V4.
  *
  * @param service An authorized Analytics Reporting API V4 service object.
+ * @param mixed $analytics
+ *
  * @return The Analytics Reporting API V4 response.
  */
 function getReport($analytics)
@@ -66,20 +68,21 @@ function getReport($analytics)
  * Parses and prints the Analytics Reporting API V4 response.
  *
  * @param An Analytics Reporting API V4 response.
+ * @param mixed $reports
  */
 function printReportingResults($reports)
 {
     for ($reportIndex = 0; $reportIndex < count($reports); $reportIndex++) {
-        $report = $reports[$reportIndex];
-        $header = $report->getColumnHeader();
+        $report           = $reports[$reportIndex];
+        $header           = $report->getColumnHeader();
         $dimensionHeaders = $header->getDimensions();
-        $metricHeaders = $header->getMetricHeader()->getMetricHeaderEntries();
-        $rows = $report->getData()->getRows();
+        $metricHeaders    = $header->getMetricHeader()->getMetricHeaderEntries();
+        $rows             = $report->getData()->getRows();
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
-            $row = $rows[$rowIndex];
+            $row        = $rows[$rowIndex];
             $dimensions = $row->getDimensions();
-            $metrics = $row->getMetrics();
+            $metrics    = $row->getMetrics();
             for ($i = 0; $i < count($dimensionHeaders) && $i < $dimensions->count(); $i++) {
                 echo $dimensionHeaders[$i] . ': ' . $dimensions[$i] . "\n";
             }

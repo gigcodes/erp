@@ -44,7 +44,7 @@ class DailyHubstaffActivityLevel extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
 
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -73,12 +73,12 @@ class DailyHubstaffActivityLevel extends Command
                 foreach ($activities as $act) {
                     $hsn = new \App\Hubstaff\HubstaffActivityNotification;
                     $hsn->fill([
-                        'user_id' => $act->erp_user_id,
-                        'hubstaff_user_id' => $act->hubstaff_user_id,
-                        'total_track' => $act->total_track,
-                        'start_date' => $checkDate,
-                        'end_date' => $checkDate,
-                        'min_percentage' => (float) $act->min_activity_percentage,
+                        'user_id'           => $act->erp_user_id,
+                        'hubstaff_user_id'  => $act->hubstaff_user_id,
+                        'total_track'       => $act->total_track,
+                        'start_date'        => $checkDate,
+                        'end_date'          => $checkDate,
+                        'min_percentage'    => (float) $act->min_activity_percentage,
                         'actual_percentage' => (float) ($act->total_spent * 100) / $act->total_track,
                     ]);
                     $hsn->save();

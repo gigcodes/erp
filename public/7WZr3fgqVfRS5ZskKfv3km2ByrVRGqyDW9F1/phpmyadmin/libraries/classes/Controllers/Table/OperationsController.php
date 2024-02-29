@@ -56,10 +56,10 @@ class OperationsController extends AbstractController
         DatabaseInterface $dbi
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->operations = $operations;
+        $this->operations          = $operations;
         $this->checkUserPrivileges = $checkUserPrivileges;
-        $this->relation = $relation;
-        $this->dbi = $dbi;
+        $this->relation            = $relation;
+        $this->dbi                 = $dbi;
     }
 
     public function __invoke(): void
@@ -86,8 +86,8 @@ class OperationsController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $isSystemSchema = Utilities::isSystemSchema($db);
-        $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $urlParams      = ['db' => $db, 'table' => $table];
+        $errorUrl       = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
@@ -101,23 +101,23 @@ class OperationsController extends AbstractController
          */
         $this->dbi->selectDb($db);
 
-        $reread_info = $pma_table->getStatusInfo(null, false);
+        $reread_info          = $pma_table->getStatusInfo(null, false);
         $GLOBALS['showtable'] = $pma_table->getStatusInfo(null, (isset($reread_info) && $reread_info));
         if ($pma_table->isView()) {
-            $tbl_is_view = true;
+            $tbl_is_view        = true;
             $tbl_storage_engine = __('View');
-            $show_comment = null;
+            $show_comment       = null;
         } else {
-            $tbl_is_view = false;
+            $tbl_is_view        = false;
             $tbl_storage_engine = $pma_table->getStorageEngine();
-            $show_comment = $pma_table->getComment();
+            $show_comment       = $pma_table->getComment();
         }
 
-        $tbl_collation = $pma_table->getCollation();
+        $tbl_collation       = $pma_table->getCollation();
         $table_info_num_rows = $pma_table->getNumRows();
-        $row_format = $pma_table->getRowFormat();
-        $auto_increment = $pma_table->getAutoIncrement();
-        $create_options = $pma_table->getCreateOptions();
+        $row_format          = $pma_table->getRowFormat();
+        $auto_increment      = $pma_table->getAutoIncrement();
+        $create_options      = $pma_table->getCreateOptions();
 
         // set initial value of these variables, based on the current table engine
         if ($pma_table->isEngine('ARIA')) {
@@ -132,8 +132,8 @@ class OperationsController extends AbstractController
             $create_options['page_checksum'] = $create_options['page_checksum'] ?? '';
         }
 
-        $pma_table = $this->dbi->getTable($db, $table);
-        $reread_info = false;
+        $pma_table    = $this->dbi->getTable($db, $table);
+        $reread_info  = false;
         $table_alters = [];
 
         /**
@@ -167,7 +167,7 @@ class OperationsController extends AbstractController
          * Updates table comment, type and options if required
          */
         if (isset($_POST['submitoptions'])) {
-            $_message = '';
+            $_message         = '';
             $warning_messages = [];
 
             if (isset($_POST['new_name'])) {
@@ -178,7 +178,7 @@ class OperationsController extends AbstractController
 
                 // Get original names before rename operation
                 $oldTable = $pma_table->getName();
-                $oldDb = $pma_table->getDbName();
+                $oldDb    = $pma_table->getDbName();
 
                 if ($pma_table->rename($_POST['new_name'])) {
                     if (isset($_POST['adjust_privileges']) && ! empty($_POST['adjust_privileges'])) {
@@ -194,10 +194,10 @@ class OperationsController extends AbstractController
                     $db = $oldDb;
                     $this->dbi->selectDb($oldDb);
                     $_message .= $pma_table->getLastMessage();
-                    $result = true;
-                    $table = $pma_table->getName();
+                    $result      = true;
+                    $table       = $pma_table->getName();
                     $reread_info = true;
-                    $reload = true;
+                    $reload      = true;
                 } else {
                     $_message .= $pma_table->getLastError();
                     $result = false;
@@ -239,7 +239,7 @@ class OperationsController extends AbstractController
                     . Util::backquote($table);
                 $sql_query .= "\r\n" . implode("\r\n", $table_alters);
                 $sql_query .= ';';
-                $result = (bool) $this->dbi->query($sql_query);
+                $result      = (bool) $this->dbi->query($sql_query);
                 $reread_info = true;
                 unset($table_alters);
                 $warning_messages = $this->operations->getWarningMessagesArray();
@@ -293,20 +293,20 @@ class OperationsController extends AbstractController
             $this->dbi->selectDb($db);
             $GLOBALS['showtable'] = $pma_table->getStatusInfo(null, true);
             if ($pma_table->isView()) {
-                $tbl_is_view = true;
+                $tbl_is_view        = true;
                 $tbl_storage_engine = __('View');
-                $show_comment = null;
+                $show_comment       = null;
             } else {
-                $tbl_is_view = false;
+                $tbl_is_view        = false;
                 $tbl_storage_engine = $pma_table->getStorageEngine();
-                $show_comment = $pma_table->getComment();
+                $show_comment       = $pma_table->getComment();
             }
 
-            $tbl_collation = $pma_table->getCollation();
+            $tbl_collation       = $pma_table->getCollation();
             $table_info_num_rows = $pma_table->getNumRows();
-            $row_format = $pma_table->getRowFormat();
-            $auto_increment = $pma_table->getAutoIncrement();
-            $create_options = $pma_table->getCreateOptions();
+            $row_format          = $pma_table->getRowFormat();
+            $auto_increment      = $pma_table->getAutoIncrement();
+            $create_options      = $pma_table->getCreateOptions();
         }
 
         unset($reread_info);
@@ -423,14 +423,14 @@ class OperationsController extends AbstractController
 
         $storageEngines = StorageEngine::getArray();
 
-        $charsets = Charsets::getCharsets($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
+        $charsets   = Charsets::getCharsets($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
         $collations = Charsets::getCollations($this->dbi, $GLOBALS['cfg']['Server']['DisableIS']);
 
         $hasPackKeys = isset($create_options['pack_keys'])
             && $pma_table->isEngine(['MYISAM', 'ARIA', 'ISAM']);
-        $hasChecksumAndDelayKeyWrite = $pma_table->isEngine(['MYISAM', 'ARIA']);
+        $hasChecksumAndDelayKeyWrite     = $pma_table->isEngine(['MYISAM', 'ARIA']);
         $hasTransactionalAndPageChecksum = $pma_table->isEngine('ARIA');
-        $hasAutoIncrement = strlen((string) $auto_increment) > 0
+        $hasAutoIncrement                = strlen((string) $auto_increment) > 0
             && $pma_table->isEngine(['MYISAM', 'ARIA', 'INNODB', 'PBXT', 'ROCKSDB']);
 
         $possibleRowFormats = $this->operations->getPossibleRowFormat();
@@ -441,16 +441,16 @@ class OperationsController extends AbstractController
         }
 
         $hasForeignKeys = ! empty($this->relation->getForeigners($db, $table, '', 'foreign'));
-        $hasPrivileges = $GLOBALS['table_priv'] && $GLOBALS['col_priv'] && $GLOBALS['is_reload_priv'];
-        $switchToNew = isset($_SESSION['pma_switch_to_new']) && $_SESSION['pma_switch_to_new'];
+        $hasPrivileges  = $GLOBALS['table_priv'] && $GLOBALS['col_priv'] && $GLOBALS['is_reload_priv'];
+        $switchToNew    = isset($_SESSION['pma_switch_to_new']) && $_SESSION['pma_switch_to_new'];
 
-        $partitions = [];
+        $partitions        = [];
         $partitionsChoices = [];
 
         if (Partition::havePartitioning()) {
             $partitionNames = Partition::getPartitionNames($db, $table);
             if ($partitionNames[0] !== null) {
-                $partitions = $partitionNames;
+                $partitions        = $partitionNames;
                 $partitionsChoices = $this->operations->getPartitionMaintenanceChoices();
             }
         }
@@ -461,38 +461,38 @@ class OperationsController extends AbstractController
         );
 
         $this->render('table/operations/index', [
-            'db' => $db,
-            'table' => $table,
-            'url_params' => $urlParams,
-            'columns' => $columns,
-            'hide_order_table' => $hideOrderTable,
-            'table_comment' => $comment,
-            'storage_engine' => $tbl_storage_engine,
-            'storage_engines' => $storageEngines,
-            'charsets' => $charsets,
-            'collations' => $collations,
-            'tbl_collation' => $tbl_collation,
-            'row_formats' => $possibleRowFormats[$tbl_storage_engine] ?? [],
-            'row_format_current' => $GLOBALS['showtable']['Row_format'],
-            'has_auto_increment' => $hasAutoIncrement,
-            'auto_increment' => $auto_increment,
-            'has_pack_keys' => $hasPackKeys,
-            'pack_keys' => $create_options['pack_keys'] ?? '',
+            'db'                                  => $db,
+            'table'                               => $table,
+            'url_params'                          => $urlParams,
+            'columns'                             => $columns,
+            'hide_order_table'                    => $hideOrderTable,
+            'table_comment'                       => $comment,
+            'storage_engine'                      => $tbl_storage_engine,
+            'storage_engines'                     => $storageEngines,
+            'charsets'                            => $charsets,
+            'collations'                          => $collations,
+            'tbl_collation'                       => $tbl_collation,
+            'row_formats'                         => $possibleRowFormats[$tbl_storage_engine] ?? [],
+            'row_format_current'                  => $GLOBALS['showtable']['Row_format'],
+            'has_auto_increment'                  => $hasAutoIncrement,
+            'auto_increment'                      => $auto_increment,
+            'has_pack_keys'                       => $hasPackKeys,
+            'pack_keys'                           => $create_options['pack_keys'] ?? '',
             'has_transactional_and_page_checksum' => $hasTransactionalAndPageChecksum,
-            'has_checksum_and_delay_key_write' => $hasChecksumAndDelayKeyWrite,
-            'delay_key_write' => empty($create_options['delay_key_write']) ? '0' : '1',
-            'transactional' => ($create_options['transactional'] ?? '') == '0' ? '0' : '1',
-            'page_checksum' => $create_options['page_checksum'] ?? '',
-            'checksum' => empty($create_options['checksum']) ? '0' : '1',
-            'database_list' => $databaseList,
-            'has_foreign_keys' => $hasForeignKeys,
-            'has_privileges' => $hasPrivileges,
-            'switch_to_new' => $switchToNew,
-            'is_system_schema' => $isSystemSchema,
-            'is_view' => $tbl_is_view,
-            'partitions' => $partitions,
-            'partitions_choices' => $partitionsChoices,
-            'foreigners' => $foreigners,
+            'has_checksum_and_delay_key_write'    => $hasChecksumAndDelayKeyWrite,
+            'delay_key_write'                     => empty($create_options['delay_key_write']) ? '0' : '1',
+            'transactional'                       => ($create_options['transactional'] ?? '') == '0' ? '0' : '1',
+            'page_checksum'                       => $create_options['page_checksum'] ?? '',
+            'checksum'                            => empty($create_options['checksum']) ? '0' : '1',
+            'database_list'                       => $databaseList,
+            'has_foreign_keys'                    => $hasForeignKeys,
+            'has_privileges'                      => $hasPrivileges,
+            'switch_to_new'                       => $switchToNew,
+            'is_system_schema'                    => $isSystemSchema,
+            'is_view'                             => $tbl_is_view,
+            'partitions'                          => $partitions,
+            'partitions_choices'                  => $partitionsChoices,
+            'foreigners'                          => $foreigners,
         ]);
     }
 }

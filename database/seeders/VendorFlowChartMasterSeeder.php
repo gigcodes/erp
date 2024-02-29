@@ -16,7 +16,7 @@ class VendorFlowChartMasterSeeder extends Seeder
     public function run()
     {
         for ($i = 1; $i <= 2; $i++) {
-            $masterRec = new VendorFlowChartMaster();
+            $masterRec        = new VendorFlowChartMaster();
             $masterRec->title = 'Flow Chart ' . $i;
             $masterRec->save();
         }

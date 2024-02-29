@@ -39,6 +39,8 @@ class Role extends Model
     /**
      * Check if this role has a permission.
      *
+     * @param mixed $permissionName
+     *
      * @return bool
      */
     public function hasPermission($permissionName)
@@ -72,6 +74,8 @@ class Role extends Model
     /**
      * Get the role object for the specified role.
      *
+     * @param mixed $roleName
+     *
      * @return Role
      */
     public static function getRole($roleName)
@@ -81,6 +85,8 @@ class Role extends Model
 
     /**
      * Get the role object for the specified system role.
+     *
+     * @param mixed $roleName
      *
      * @return Role
      */

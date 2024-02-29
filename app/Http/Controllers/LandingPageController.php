@@ -28,10 +28,10 @@ class LandingPageController extends Controller
 
     public function index(Request $request)
     {
-        $title = 'Landing Page';
-        $status = \App\LandingPageProduct::STATUS;
+        $title          = 'Landing Page';
+        $status         = \App\LandingPageProduct::STATUS;
         $store_websites = null;
-        $statuses = \App\LandingPageStatus::all()->pluck('name')->toArray();
+        $statuses       = \App\LandingPageStatus::all()->pluck('name')->toArray();
 
         return view('landing-page.index', compact(['title', 'status', 'store_websites', 'statuses']));
     }
@@ -40,7 +40,7 @@ class LandingPageController extends Controller
     {
         $brandName = request('brand');
         if ($brandName != null) {
-            $brand = Brand::where('name', 'like', "%$brandName%")->first();
+            $brand   = Brand::where('name', 'like', "%$brandName%")->first();
             $brandId = isset($brand) ? $brand->id : null;
 
             $records = \App\LandingPageProduct::with(['landing_page_status'])->join('products as p', function ($query) use ($brandId) {
@@ -84,10 +84,10 @@ class LandingPageController extends Controller
             $records = $records->where('landing_page_products.created_at', '<=', $dateTo);
         }
 
-        $records = $records->select(['landing_page_products.*', 'p.status_id', 'p.stock'])->latest()->paginate();
+        $records        = $records->select(['landing_page_products.*', 'p.status_id', 'p.stock'])->latest()->paginate();
         $store_websites = StoreWebsite::where('website_source', '=', 'shopify')->get();
 
-        $items = [];
+        $items     = [];
         $allStatus = StatusHelper::getStatus();
         foreach ($records->items() as &$rec) {
             $landingPageProduct = $rec->product;
@@ -118,17 +118,17 @@ class LandingPageController extends Controller
                     }
                 }
             }
-            $rec->images = $productData['images'];
-            $previousVal = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
+            $rec->images      = $productData['images'];
+            $previousVal      = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $rec->status_name = isset($rec->landing_page_status) ? $rec->landing_page_status->name : $previousVal;
-            $rec->brand_name = isset($rec->product->brands->name) ? $rec->product->brands->name : null;
-            $rec['stores'] = $store_websites;
-            $rec->short_dec = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15) . '..' : $rec->description;
-            $rec->short_dec = utf8_encode($rec->short_dec);
-            $rec->created = explode(' ', $rec->created_at)[0];
-            $rec->start_date = Carbon::parse($rec->start_date)->format('Y-m-d');
-            $rec->end_date = Carbon::parse($rec->end_date)->format('Y-m-d');
-            $items[] = $rec;
+            $rec->brand_name  = isset($rec->product->brands->name) ? $rec->product->brands->name : null;
+            $rec['stores']    = $store_websites;
+            $rec->short_dec   = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15) . '..' : $rec->description;
+            $rec->short_dec   = utf8_encode($rec->short_dec);
+            $rec->created     = explode(' ', $rec->created_at)[0];
+            $rec->start_date  = Carbon::parse($rec->start_date)->format('Y-m-d');
+            $rec->end_date    = Carbon::parse($rec->end_date)->format('Y-m-d');
+            $items[]          = $rec;
         }
 
         return response()->json(['code' => 200, 'data' => $items, 'total' => $records->total(), 'pagination' => (string) $records->render()]);
@@ -136,7 +136,7 @@ class LandingPageController extends Controller
 
     public function save(Request $request)
     {
-        $params = $request->all();
+        $params     = $request->all();
         $productIds = json_decode($request->get('images'), true);
 
         $errorMessage = [];
@@ -155,7 +155,7 @@ class LandingPageController extends Controller
                                 }
                             }
                         }
-                        $product->status_id = StatusHelper::$autoCrop;
+                        $product->status_id      = StatusHelper::$autoCrop;
                         $product->scrap_priority = 1;
                         // save product
                         $product->save();
@@ -186,12 +186,12 @@ class LandingPageController extends Controller
         $validator = Validator::make($post, [
             'product_id' => 'required',
             'start_date' => 'required',
-            'end_date' => 'required',
+            'end_date'   => 'required',
         ]);
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -210,7 +210,7 @@ class LandingPageController extends Controller
         }
 
         if (! Auth::user()->isAdmin) {
-            $userUploadedStatus = LandingPageStatus::where('name', LandingPageProduct::STATUS['USER_UPLOADED'])->first();
+            $userUploadedStatus             = LandingPageStatus::where('name', LandingPageProduct::STATUS['USER_UPLOADED'])->first();
             $post['landing_page_status_id'] = isset($userUploadedStatus) ? $userUploadedStatus->id : null;
         } else {
             $post['landing_page_status_id'] = $post['status'] + 1; //plus 1 because of comes with array keys, which equal key + 1
@@ -227,7 +227,8 @@ class LandingPageController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -243,7 +244,8 @@ class LandingPageController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -267,14 +269,14 @@ class LandingPageController extends Controller
                 $landingPage->stock_status = $request->stock_status;
                 if ($landingPage->stock_status == 1) {
                     $landingPage->start_date = date('Y-m-d H:i:s');
-                    $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
+                    $landingPage->end_date   = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
                 }
                 $landingPage->save();
             }
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
-            $productData = $landingPage->getShopifyPushData();
+            $productData        = $landingPage->getShopifyPushData();
             LogListMagento::log($landingPageProduct->id, 'Product started to push' . $landingPageProduct->id, 'info', $landingPage->store_website_id, 'started');
 
             if ($productData == false) {
@@ -312,7 +314,7 @@ class LandingPageController extends Controller
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
 
-                $selfProduct = Product::find($landingPage->product_id);
+                $selfProduct  = Product::find($landingPage->product_id);
                 $selfCategory = Category::find($selfProduct->category);
 
                 if ($selfProduct) {
@@ -339,7 +341,7 @@ class LandingPageController extends Controller
     public function pushToMagentoPro(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where('id', $id)->first();
-        $queueName = [
+        $queueName   = [
             '1' => 'mageone',
             '2' => 'magetwo',
             '3' => 'magethree',
@@ -347,7 +349,7 @@ class LandingPageController extends Controller
         $i = 1;
         if (! empty($landingPage) && $landingPage->store_website_id > 0) {
             // Get product by ID
-            $product = Product::find($landingPage->product_id);
+            $product       = Product::find($landingPage->product_id);
             $websiteArrays = StoreWebsite::where('id', $landingPage->store_website_id)->first();
             if ($websiteArrays) {
                 \Log::info('Product started website found For website' . $websiteArrays->website);
@@ -369,7 +371,7 @@ class LandingPageController extends Controller
             $landingPage->stock_status = $request->stock_status;
             if ($landingPage->stock_status == 1) {
                 $landingPage->start_date = date('Y-m-d H:i:s');
-                $landingPage->end_date = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
+                $landingPage->end_date   = date('Y-m-d H:i:s', strtotime($landingPage->start_date . ' + 1 days'));
             }
             $landingPage->save();
 
@@ -405,7 +407,7 @@ class LandingPageController extends Controller
 
         if ($landing && $request->get('store_website_id') != null) {
             $landing->store_website_id = $request->get('store_website_id');
-            $landing->shopify_id = null;
+            $landing->shopify_id       = null;
             $landing->save();
 
             return response()->json(['code' => 200, 'data' => '', 'message' => 'Success!']);
@@ -423,7 +425,7 @@ class LandingPageController extends Controller
         if ($validator->fails()) {
             return response()->json(['code' => 422, 'message' => 'Incorrect input!']);
         } else {
-            $status = new LandingPageStatus();
+            $status       = new LandingPageStatus();
             $status->name = $request->status;
             $status->save();
 

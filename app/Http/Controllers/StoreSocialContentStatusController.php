@@ -16,7 +16,7 @@ class StoreSocialContentStatusController extends Controller
      */
     public function index()
     {
-        $title = 'Content management Status';
+        $title   = 'Content management Status';
         $records = \App\StoreSocialContentStatus::query();
 
         $keyword = request('keyword');
@@ -41,7 +41,7 @@ class StoreSocialContentStatusController extends Controller
 
         if ($validator->fails()) {
             $outputString = '';
-            $messages = $validator->errors()->getMessages();
+            $messages     = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
                     $outputString .= "$k : " . $er . '<br>';
@@ -105,11 +105,11 @@ class StoreSocialContentStatusController extends Controller
         if (! $request->name) {
             return redirect()->back()->with('error', 'Name required');
         }
-        $name = $request->name;
-        $name = ucfirst($name);
+        $name    = $request->name;
+        $name    = ucfirst($name);
         $isExtst = StoreSocialContentStatus::where('name', $name)->first();
         if (! $isExtst) {
-            $status = new StoreSocialContentStatus;
+            $status       = new StoreSocialContentStatus;
             $status->name = $name;
             $status->save();
         }
@@ -120,7 +120,8 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -131,7 +132,8 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function edit(Request $request, $id)
     {
@@ -147,7 +149,8 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -158,7 +161,8 @@ class StoreSocialContentStatusController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -169,7 +173,8 @@ class StoreSocialContentStatusController extends Controller
     /**
      * delete Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request [description]
+     * @param mixed   $id
      */
     public function delete(Request $request, $id)
     {
@@ -191,7 +196,7 @@ class StoreSocialContentStatusController extends Controller
 
     public function mergeStatus(Request $request)
     {
-        $toStatus = $request->get('to_status');
+        $toStatus   = $request->get('to_status');
         $fromStatus = $request->get('from_status');
 
         if (empty($toStatus)) {
@@ -206,7 +211,7 @@ class StoreSocialContentStatusController extends Controller
             return response()->json(['code' => 500, 'error' => 'Merge status can not be same']);
         }
 
-        $status = \App\SiteDevelopmentStatus::where('id', $toStatus)->first();
+        $status         = \App\SiteDevelopmentStatus::where('id', $toStatus)->first();
         $allMergeStatus = \App\SiteDevelopment::whereIn('status', $fromStatus)->get();
 
         if ($status) {

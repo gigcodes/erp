@@ -40,22 +40,22 @@ class MagentoReportLog extends Command
     {
         try {
             $storewebsite = \App\StoreWebsite::whereNotNull('server_ip')->get();
-            $types = ['unit', 'integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default'];
+            $types        = ['unit', 'integration', 'integration-all', 'static', 'static-all', 'integrity', 'legacy', 'default'];
             foreach ($storewebsite as $stroewebsite) {
                 foreach ($types as $type) {
                     $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh --server ' . $stroewebsite->server_ip . ' --type tests --test ' . $type;
 
-                    $allOutput = [];
+                    $allOutput   = [];
                     $allOutput[] = $cmd;
-                    $result = exec($cmd, $allOutput); //Execute command
-                    $status = 'Error';
+                    $result      = exec($cmd, $allOutput); //Execute command
+                    $status      = 'Error';
                     //Storing data to log table
                     if (! empty($result)) {
-                        $ins = new WebsiteLog;
-                        $ins->sql_query = json_encode($result);
-                        $ins->time = date('Y-m-d H:s:i');
+                        $ins             = new WebsiteLog;
+                        $ins->sql_query  = json_encode($result);
+                        $ins->time       = date('Y-m-d H:s:i');
                         $ins->website_id = $storewebsite->id ?? '';
-                        $ins->type = 'MagentoLog-' . $type;
+                        $ins->type       = 'MagentoLog-' . $type;
                         $ins->save();
                     }
                 }

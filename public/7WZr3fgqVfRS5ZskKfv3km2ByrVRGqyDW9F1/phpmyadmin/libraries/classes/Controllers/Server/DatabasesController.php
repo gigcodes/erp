@@ -67,7 +67,7 @@ class DatabasesController extends AbstractController
         parent::__construct($response, $template);
         $this->transformations = $transformations;
         $this->relationCleanup = $relationCleanup;
-        $this->dbi = $dbi;
+        $this->dbi             = $dbi;
 
         $checkUserPrivileges = new CheckUserPrivileges($dbi);
         $checkUserPrivileges->getPrivileges();
@@ -80,8 +80,8 @@ class DatabasesController extends AbstractController
 
         $params = [
             'statistics' => $_REQUEST['statistics'] ?? null,
-            'pos' => $_REQUEST['pos'] ?? null,
-            'sort_by' => $_REQUEST['sort_by'] ?? null,
+            'pos'        => $_REQUEST['pos'] ?? null,
+            'sort_by'    => $_REQUEST['sort_by'] ?? null,
             'sort_order' => $_REQUEST['sort_order'] ?? null,
         ];
 
@@ -100,7 +100,7 @@ class DatabasesController extends AbstractController
 
         $this->setSortDetails($params['sort_by'], $params['sort_order']);
         $this->hasStatistics = ! empty($params['statistics']);
-        $this->position = ! empty($params['pos']) ? (int) $params['pos'] : 0;
+        $this->position      = ! empty($params['pos']) ? (int) $params['pos'] : 0;
 
         /**
          * Gets the databases list
@@ -120,8 +120,8 @@ class DatabasesController extends AbstractController
 
         $urlParams = [
             'statistics' => $this->hasStatistics,
-            'pos' => $this->position,
-            'sort_by' => $this->sortBy,
+            'pos'        => $this->position,
+            'sort_by'    => $this->sortBy,
             'sort_order' => $this->sortOrder,
         ];
 
@@ -129,23 +129,23 @@ class DatabasesController extends AbstractController
 
         $charsetsList = [];
         if ($cfg['ShowCreateDb'] && $is_create_db_priv) {
-            $charsets = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
-            $collations = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
+            $charsets        = Charsets::getCharsets($this->dbi, $cfg['Server']['DisableIS']);
+            $collations      = Charsets::getCollations($this->dbi, $cfg['Server']['DisableIS']);
             $serverCollation = $this->dbi->getServerCollation();
             foreach ($charsets as $charset) {
                 $collationsList = [];
                 foreach ($collations[$charset->getName()] as $collation) {
                     $collationsList[] = [
-                        'name' => $collation->getName(),
+                        'name'        => $collation->getName(),
                         'description' => $collation->getDescription(),
                         'is_selected' => $serverCollation === $collation->getName(),
                     ];
                 }
 
                 $charsetsList[] = [
-                    'name' => $charset->getName(),
+                    'name'        => $charset->getName(),
                     'description' => $charset->getDescription(),
-                    'collations' => $collationsList,
+                    'collations'  => $collationsList,
                 ];
             }
         }
@@ -153,30 +153,30 @@ class DatabasesController extends AbstractController
         $headerStatistics = $this->getStatisticsColumns();
 
         $this->render('server/databases/index', [
-            'is_create_database_shown' => $cfg['ShowCreateDb'],
+            'is_create_database_shown'       => $cfg['ShowCreateDb'],
             'has_create_database_privileges' => $is_create_db_priv,
-            'has_statistics' => $this->hasStatistics,
-            'database_to_create' => $db_to_create,
-            'databases' => $databases['databases'],
-            'total_statistics' => $databases['total_statistics'],
-            'header_statistics' => $headerStatistics,
-            'charsets' => $charsetsList,
-            'database_count' => $this->databaseCount,
-            'pos' => $this->position,
-            'url_params' => $urlParams,
-            'max_db_list' => $cfg['MaxDbList'],
-            'has_primary_replication' => $primaryInfo['status'],
-            'has_replica_replication' => $replicaInfo['status'],
-            'is_drop_allowed' => $this->dbi->isSuperUser() || $cfg['AllowUserDropDatabase'],
-            'text_dir' => $text_dir,
+            'has_statistics'                 => $this->hasStatistics,
+            'database_to_create'             => $db_to_create,
+            'databases'                      => $databases['databases'],
+            'total_statistics'               => $databases['total_statistics'],
+            'header_statistics'              => $headerStatistics,
+            'charsets'                       => $charsetsList,
+            'database_count'                 => $this->databaseCount,
+            'pos'                            => $this->position,
+            'url_params'                     => $urlParams,
+            'max_db_list'                    => $cfg['MaxDbList'],
+            'has_primary_replication'        => $primaryInfo['status'],
+            'has_replica_replication'        => $replicaInfo['status'],
+            'is_drop_allowed'                => $this->dbi->isSuperUser() || $cfg['AllowUserDropDatabase'],
+            'text_dir'                       => $text_dir,
         ]);
     }
 
     /**
      * Extracts parameters sort order and sort by
      *
-     * @param  string|null  $sortBy    sort by
-     * @param  string|null  $sortOrder sort order
+     * @param string|null $sortBy    sort by
+     * @param string|null $sortOrder sort order
      */
     private function setSortDetails(?string $sortBy, ?string $sortOrder): void
     {
@@ -208,14 +208,14 @@ class DatabasesController extends AbstractController
     }
 
     /**
-     * @param  array  $primaryInfo
-     * @param  array  $replicaInfo
+     * @param array $primaryInfo
+     * @param array $replicaInfo
      */
     private function getDatabases($primaryInfo, $replicaInfo): array
     {
         global $cfg;
 
-        $databases = [];
+        $databases       = [];
         $totalStatistics = $this->getStatisticsColumns();
         foreach ($this->databases as $database) {
             $replication = [
@@ -224,7 +224,7 @@ class DatabasesController extends AbstractController
             ];
 
             if ($primaryInfo['status']) {
-                $key = array_search($database['SCHEMA_NAME'], $primaryInfo['Ignore_DB']);
+                $key                                     = array_search($database['SCHEMA_NAME'], $primaryInfo['Ignore_DB']);
                 $replication['primary']['is_replicated'] = false;
 
                 if (strlen((string) $key) === 0) {
@@ -237,7 +237,7 @@ class DatabasesController extends AbstractController
             }
 
             if ($replicaInfo['status']) {
-                $key = array_search($database['SCHEMA_NAME'], $replicaInfo['Ignore_DB']);
+                $key                                     = array_search($database['SCHEMA_NAME'], $replicaInfo['Ignore_DB']);
                 $replication['replica']['is_replicated'] = false;
 
                 if (strlen((string) $key) === 0) {
@@ -263,13 +263,13 @@ class DatabasesController extends AbstractController
                 ! str_contains($url, '?') ? '?' : '&'
             );
             $databases[$database['SCHEMA_NAME']] = [
-                'name' => $database['SCHEMA_NAME'],
-                'collation' => [],
-                'statistics' => $statistics,
-                'replication' => $replication,
+                'name'             => $database['SCHEMA_NAME'],
+                'collation'        => [],
+                'statistics'       => $statistics,
+                'replication'      => $replication,
                 'is_system_schema' => Utilities::isSystemSchema($database['SCHEMA_NAME'], true),
-                'is_pmadb' => $database['SCHEMA_NAME'] === ($cfg['Server']['pmadb'] ?? ''),
-                'url' => $url,
+                'is_pmadb'         => $database['SCHEMA_NAME'] === ($cfg['Server']['pmadb'] ?? ''),
+                'url'              => $url,
             ];
             $collation = Charsets::findCollationByName(
                 $this->dbi,
@@ -281,13 +281,13 @@ class DatabasesController extends AbstractController
             }
 
             $databases[$database['SCHEMA_NAME']]['collation'] = [
-                'name' => $collation->getName(),
+                'name'        => $collation->getName(),
                 'description' => $collation->getDescription(),
             ];
         }
 
         return [
-            'databases' => $databases,
+            'databases'        => $databases,
             'total_statistics' => $totalStatistics,
         ];
     }
@@ -299,34 +299,34 @@ class DatabasesController extends AbstractController
     {
         return [
             'SCHEMA_TABLES' => [
-                'title' => __('Tables'),
+                'title'  => __('Tables'),
                 'format' => 'number',
-                'raw' => 0,
+                'raw'    => 0,
             ],
             'SCHEMA_TABLE_ROWS' => [
-                'title' => __('Rows'),
+                'title'  => __('Rows'),
                 'format' => 'number',
-                'raw' => 0,
+                'raw'    => 0,
             ],
             'SCHEMA_DATA_LENGTH' => [
-                'title' => __('Data'),
+                'title'  => __('Data'),
                 'format' => 'byte',
-                'raw' => 0,
+                'raw'    => 0,
             ],
             'SCHEMA_INDEX_LENGTH' => [
-                'title' => __('Indexes'),
+                'title'  => __('Indexes'),
                 'format' => 'byte',
-                'raw' => 0,
+                'raw'    => 0,
             ],
             'SCHEMA_LENGTH' => [
-                'title' => __('Total'),
+                'title'  => __('Total'),
                 'format' => 'byte',
-                'raw' => 0,
+                'raw'    => 0,
             ],
             'SCHEMA_DATA_FREE' => [
-                'title' => __('Overhead'),
+                'title'  => __('Overhead'),
                 'format' => 'byte',
-                'raw' => 0,
+                'raw'    => 0,
             ],
         ];
     }

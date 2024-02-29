@@ -61,7 +61,7 @@ class MagentoCssVariableController extends Controller
 
         $magentoCssVariables = $magentoCssVariables->paginate(50);
 
-        $projects = Project::get()->pluck('name', 'id');
+        $projects   = Project::get()->pluck('name', 'id');
         $file_paths = MagentoCssVariable::groupBy('file_path')
             ->orderBy('file_path')
             ->select(DB::raw('TRIM(file_path) as trimmed_file_path'))
@@ -83,28 +83,28 @@ class MagentoCssVariableController extends Controller
         $this->validate(
             $request, [
                 'project_id' => 'required',
-                'filename' => 'required',
-                'file_path' => 'required',
-                'variable' => 'required',
-                'value' => 'required',
+                'filename'   => 'required',
+                'file_path'  => 'required',
+                'variable'   => 'required',
+                'value'      => 'required',
             ]
         );
 
         $data = $request->except('_token');
 
         // Save
-        $magentoCssVariable = new MagentoCssVariable();
+        $magentoCssVariable             = new MagentoCssVariable();
         $magentoCssVariable->project_id = $data['project_id'];
-        $magentoCssVariable->filename = $data['filename'];
-        $magentoCssVariable->file_path = $data['file_path'];
-        $magentoCssVariable->variable = $data['variable'];
-        $magentoCssVariable->value = $data['value'];
-        $magentoCssVariable->create_by = Auth::user()->id;
+        $magentoCssVariable->filename   = $data['filename'];
+        $magentoCssVariable->file_path  = $data['file_path'];
+        $magentoCssVariable->variable   = $data['variable'];
+        $magentoCssVariable->value      = $data['value'];
+        $magentoCssVariable->create_by  = Auth::user()->id;
         $magentoCssVariable->save();
 
-        $action = 'Add';
-        $projectName = $magentoCssVariable->project->name;
-        $filepath = $data['file_path'];
+        $action               = 'Add';
+        $projectName          = $magentoCssVariable->project->name;
+        $filepath             = $data['file_path'];
         $magentoCssVariableId = $magentoCssVariable->id;
 
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
@@ -119,10 +119,10 @@ class MagentoCssVariableController extends Controller
 
         if (! isset($output[0])) {
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Error',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
@@ -135,10 +135,10 @@ class MagentoCssVariableController extends Controller
                 $message = $response->message;
             }
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Success',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Success',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
@@ -149,17 +149,17 @@ class MagentoCssVariableController extends Controller
                 $message = $response->message;
             }
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Error',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
             return response()->json(
                 [
-                    'code' => 500,
-                    'data' => [],
+                    'code'    => 500,
+                    'data'    => [],
                     'message' => $message,
                 ]
             );
@@ -183,10 +183,10 @@ class MagentoCssVariableController extends Controller
         $this->validate(
             $request, [
                 'project_id' => 'required',
-                'filename' => 'required',
-                'file_path' => 'required',
-                'variable' => 'required',
-                'value' => 'required',
+                'filename'   => 'required',
+                'file_path'  => 'required',
+                'variable'   => 'required',
+                'value'      => 'required',
             ]
         );
 
@@ -198,10 +198,10 @@ class MagentoCssVariableController extends Controller
 
         // Save
         $magentoCssVariable->project_id = $data['project_id'];
-        $magentoCssVariable->filename = $data['filename'];
-        $magentoCssVariable->file_path = $data['file_path'];
-        $magentoCssVariable->variable = $data['variable'];
-        $magentoCssVariable->value = $data['value'];
+        $magentoCssVariable->filename   = $data['filename'];
+        $magentoCssVariable->file_path  = $data['file_path'];
+        $magentoCssVariable->variable   = $data['variable'];
+        $magentoCssVariable->value      = $data['value'];
         $magentoCssVariable->save();
 
         // Maintain history here
@@ -210,17 +210,17 @@ class MagentoCssVariableController extends Controller
             $magentoCssVariable->is_verified = 0;
             $magentoCssVariable->save();
 
-            $history = new MagentoCssVariableValueHistory();
+            $history                          = new MagentoCssVariableValueHistory();
             $history->magento_css_variable_id = $magentoCssVariable->id;
-            $history->old_value = $oldValue;
-            $history->new_value = $magentoCssVariable->value;
-            $history->user_id = Auth::user()->id;
+            $history->old_value               = $oldValue;
+            $history->new_value               = $magentoCssVariable->value;
+            $history->user_id                 = Auth::user()->id;
             $history->save();
         }
 
-        $action = 'update';
-        $projectName = $magentoCssVariable->project->name;
-        $filepath = $data['file_path'];
+        $action               = 'update';
+        $projectName          = $magentoCssVariable->project->name;
+        $filepath             = $data['file_path'];
         $magentoCssVariableId = $magentoCssVariable->id;
 
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -p ' . $projectName . ' -f ' . $filepath . ' -k ' . $data['variable'] . ' -v ' . $data['value'];
@@ -235,10 +235,10 @@ class MagentoCssVariableController extends Controller
 
         if (! isset($output[0])) {
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Error',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
@@ -251,10 +251,10 @@ class MagentoCssVariableController extends Controller
                 $message = $response->message;
             }
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Success',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Success',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
@@ -265,17 +265,17 @@ class MagentoCssVariableController extends Controller
                 $message = $response->message;
             }
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Error',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
 
             return response()->json(
                 [
-                    'code' => 500,
-                    'data' => [],
+                    'code'    => 500,
+                    'data'    => [],
                     'message' => $message,
                 ]
             );
@@ -286,12 +286,12 @@ class MagentoCssVariableController extends Controller
     {
         $magentoCssVariable = MagentoCssVariable::findOrFail($id);
 
-        $action = 'delete';
-        $projectName = $magentoCssVariable->project->name;
-        $filepath = $magentoCssVariable->file_path;
+        $action               = 'delete';
+        $projectName          = $magentoCssVariable->project->name;
+        $filepath             = $magentoCssVariable->file_path;
         $magentoCssVariableId = $magentoCssVariable->id;
-        $variable = $magentoCssVariable->variable;
-        $value = $magentoCssVariable->value;
+        $variable             = $magentoCssVariable->variable;
+        $value                = $magentoCssVariable->value;
 
         $magentoCssVariable->delete();
 
@@ -307,10 +307,10 @@ class MagentoCssVariableController extends Controller
 
         if (! isset($output[0])) {
             MagentoCssVariableJobLog::create([
-                'command' => $command,
-                'message' => json_encode($output),
-                'status' => 'Error',
-                'csv_file_path' => $filepath,
+                'command'                 => $command,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
+                'csv_file_path'           => $filepath,
                 'magento_css_variable_id' => $magentoCssVariableId,
             ]);
         }
@@ -322,10 +322,10 @@ class MagentoCssVariableController extends Controller
                     $message = $response->message;
                 }
                 MagentoCssVariableJobLog::create([
-                    'command' => $command,
-                    'message' => json_encode($output),
-                    'status' => 'Success',
-                    'csv_file_path' => $filepath,
+                    'command'                 => $command,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Success',
+                    'csv_file_path'           => $filepath,
                     'magento_css_variable_id' => $magentoCssVariableId,
                 ]);
             } else {
@@ -334,10 +334,10 @@ class MagentoCssVariableController extends Controller
                     $message = $response->message;
                 }
                 MagentoCssVariableJobLog::create([
-                    'command' => $command,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
-                    'csv_file_path' => $filepath,
+                    'command'                 => $command,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Error',
+                    'csv_file_path'           => $filepath,
                     'magento_css_variable_id' => $magentoCssVariableId,
                 ]);
             }
@@ -349,16 +349,16 @@ class MagentoCssVariableController extends Controller
 
     public function verify(Request $request, $id)
     {
-        $magentoCssVariable = MagentoCssVariable::findOrFail($id);
+        $magentoCssVariable              = MagentoCssVariable::findOrFail($id);
         $magentoCssVariable->is_verified = $request->verfied;
         $magentoCssVariable->save();
 
         // Maintain history here
-        $history = new MagentoCssVariableVerifyHistory();
+        $history                          = new MagentoCssVariableVerifyHistory();
         $history->magento_css_variable_id = $magentoCssVariable->id;
-        $history->value = $magentoCssVariable->value;
-        $history->is_verified = $request->verfied;
-        $history->user_id = Auth::user()->id;
+        $history->value                   = $magentoCssVariable->value;
+        $history->is_verified             = $request->verfied;
+        $history->user_id                 = Auth::user()->id;
         $history->save();
 
         return response()->json(['code' => 500, 'message' => 'Verifed status Update Successfully!']);
@@ -372,9 +372,9 @@ class MagentoCssVariableController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -387,9 +387,9 @@ class MagentoCssVariableController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -401,9 +401,9 @@ class MagentoCssVariableController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -413,10 +413,10 @@ class MagentoCssVariableController extends Controller
         $magentoCssVariableJobLogs = new MagentoCssVariableJobLog();
 
         $project = $request->search_project;
-        $error = $request->search_error;
+        $error   = $request->search_error;
         $message = $request->search_message;
         $command = $request->search_command;
-        $date = $request->date;
+        $date    = $request->date;
 
         if ($project) {
             $magentoCssVariableJobLogs = MagentoCssVariableJobLog::whereHas('magentoCssVariable.project', function ($query) use ($project) {
@@ -443,16 +443,16 @@ class MagentoCssVariableController extends Controller
 
     public function updateValue(Request $request)
     {
-        $id = $request->id;
+        $id                 = $request->id;
         $magentoCssVariable = MagentoCssVariable::where('id', $id)->first();
         if (! $magentoCssVariable) {
             return response()->json(['code' => 500, 'message' => 'Variable data is not found!']);
         }
         $project_name = optional($magentoCssVariable->project)->name;
-        $filepath = $magentoCssVariable->file_path;
-        $key = $magentoCssVariable->variable;
-        $oldValue = $magentoCssVariable->value;
-        $value = $request->value;
+        $filepath     = $magentoCssVariable->file_path;
+        $key          = $magentoCssVariable->variable;
+        $oldValue     = $magentoCssVariable->value;
+        $value        = $request->value;
         // Update new value in DB
         $magentoCssVariable->value = $value;
         if ($oldValue != $value) {
@@ -462,11 +462,11 @@ class MagentoCssVariableController extends Controller
         $magentoCssVariable->save();
 
         // Maintain history here
-        $history = new MagentoCssVariableValueHistory();
+        $history                          = new MagentoCssVariableValueHistory();
         $history->magento_css_variable_id = $magentoCssVariable->id;
-        $history->old_value = $oldValue;
-        $history->new_value = $value;
-        $history->user_id = Auth::user()->id;
+        $history->old_value               = $oldValue;
+        $history->new_value               = $value;
+        $history->user_id                 = Auth::user()->id;
         $history->save();
 
         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-cssvariable-update.sh -p "' . $project_name . '" -f "' . $filepath . '" -k "' . $key . '" -v "' . $value . '" 2>&1';
@@ -484,9 +484,9 @@ class MagentoCssVariableController extends Controller
             // Maintain Error Log here in new table.
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'                 => $cmd,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'The response is not found!']);
@@ -500,9 +500,9 @@ class MagentoCssVariableController extends Controller
             // Maintain Success Log here in new table.
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Success',
+                'command'                 => $cmd,
+                'message'                 => json_encode($output),
+                'status'                  => 'Success',
             ]);
 
             return response()->json(['code' => 200, 'message' => $message]);
@@ -514,9 +514,9 @@ class MagentoCssVariableController extends Controller
             // Maintain Error Log here in new table.
             MagentoCssVariableJobLog::create([
                 'magento_css_variable_id' => $magentoCssVariable->id,
-                'command' => $cmd,
-                'message' => json_encode($output),
-                'status' => 'Error',
+                'command'                 => $cmd,
+                'message'                 => json_encode($output),
+                'status'                  => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => $message]);
@@ -537,7 +537,7 @@ class MagentoCssVariableController extends Controller
     public function updateSelectedValues(Request $request)
     {
         if ($request->has('selectedIds') && $request->selectedIds != '') {
-            $selectedIds = $request->selectedIds;
+            $selectedIds         = $request->selectedIds;
             $magentoCssVariables = MagentoCssVariable::whereIn('id', $selectedIds)->get();
             // Create a new CSV file content
             $csvContent = '"Project","variable","value","filepath"' . "\n";
@@ -558,7 +558,7 @@ class MagentoCssVariableController extends Controller
             $fullFilePath = Storage::disk('public')->path($filePath);
 
             $action = 'bulk';
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
+            $cmd    = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');
 
@@ -574,10 +574,10 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
-                    'csv_file_path' => $fullFilePath,
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Error',
+                    'csv_file_path'           => $fullFilePath,
                     'magento_css_variable_id' => $selectedIds,
                 ]);
 
@@ -593,10 +593,10 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Success',
-                    'csv_file_path' => $fullFilePath,
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Success',
+                    'csv_file_path'           => $fullFilePath,
                     'magento_css_variable_id' => $selectedIds,
                 ]);
 
@@ -610,10 +610,10 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
-                    'csv_file_path' => $fullFilePath,
+                    'command'                 => $cmd,
+                    'message'                 => json_encode($output),
+                    'status'                  => 'Error',
+                    'csv_file_path'           => $fullFilePath,
                     'magento_css_variable_id' => $selectedIds,
                 ]);
 
@@ -627,7 +627,7 @@ class MagentoCssVariableController extends Controller
     public function updateValuesForProject(Request $request)
     {
         if ($request->has('project_id') && $request->project_id != '') {
-            $projectId = $request->project_id;
+            $projectId           = $request->project_id;
             $magentoCssVariables = MagentoCssVariable::where('project_id', $projectId)->get();
 
             // CSV concept (NEW)
@@ -650,7 +650,7 @@ class MagentoCssVariableController extends Controller
             $fullFilePath = Storage::disk('public')->path($filePath);
 
             $action = 'signleUpdate';
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
+            $cmd    = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action . ' -f ' . $fullFilePath . ' -B ' . $fullFilePath;
 
             \Log::info('Start Magento Css Variable Update Vaule');
 
@@ -665,9 +665,9 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'       => $cmd,
+                    'message'       => json_encode($output),
+                    'status'        => 'Error',
                     'csv_file_path' => $fullFilePath,
                 ]);
 
@@ -682,9 +682,9 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Success',
+                    'command'       => $cmd,
+                    'message'       => json_encode($output),
+                    'status'        => 'Success',
                     'csv_file_path' => $fullFilePath,
                 ]);
 
@@ -697,9 +697,9 @@ class MagentoCssVariableController extends Controller
                 // Maintain Error Log here in new table.
                 // ToDo: How to maintain log here ?
                 MagentoCssVariableJobLog::create([
-                    'command' => $cmd,
-                    'message' => json_encode($output),
-                    'status' => 'Error',
+                    'command'       => $cmd,
+                    'message'       => json_encode($output),
+                    'status'        => 'Error',
                     'csv_file_path' => $fullFilePath,
                 ]);
 
@@ -729,16 +729,16 @@ class MagentoCssVariableController extends Controller
     {
         if ($request->has('selectedIds') && $request->selectedIds != '') {
             foreach ($request->selectedIds as $selectId) {
-                $magentoCssVariable = MagentoCssVariable::findOrFail($selectId);
+                $magentoCssVariable              = MagentoCssVariable::findOrFail($selectId);
                 $magentoCssVariable->is_verified = 1;
                 $magentoCssVariable->save();
 
                 // Maintain history here
-                $history = new MagentoCssVariableVerifyHistory();
+                $history                          = new MagentoCssVariableVerifyHistory();
                 $history->magento_css_variable_id = $magentoCssVariable->id;
-                $history->value = $magentoCssVariable->value;
-                $history->is_verified = 1;
-                $history->user_id = Auth::user()->id;
+                $history->value                   = $magentoCssVariable->value;
+                $history->is_verified             = 1;
+                $history->user_id                 = Auth::user()->id;
                 $history->save();
             }
 
@@ -748,7 +748,7 @@ class MagentoCssVariableController extends Controller
 
     public function syncVariables(Request $request)
     {
-        $action = $request->sync;
+        $action  = $request->sync;
         $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-css-variables.sh ' . '-a ' . $action;
 
         \Log::info('Start Magento Css Variable Update Vaule');
@@ -765,7 +765,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'command' => $command,
                 'message' => json_encode($output),
-                'status' => 'Error',
+                'status'  => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => 'The script response is not found!']);
@@ -780,7 +780,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'command' => $command,
                 'message' => json_encode($output),
-                'status' => 'Success',
+                'status'  => 'Success',
             ]);
 
             return response()->json(['code' => 200, 'message' => $message]);
@@ -793,7 +793,7 @@ class MagentoCssVariableController extends Controller
             MagentoCssVariableJobLog::create([
                 'command' => $command,
                 'message' => json_encode($output),
-                'status' => 'Error',
+                'status'  => 'Error',
             ]);
 
             return response()->json(['code' => 500, 'message' => $message]);

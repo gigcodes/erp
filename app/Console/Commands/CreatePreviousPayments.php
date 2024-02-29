@@ -59,10 +59,10 @@ class CreatePreviousPayments extends Command
             $paidCounts = 0;
 
             foreach ($activityRecords as $record) {
-                $total = 0;
-                $minutes = 0;
+                $total      = 0;
+                $minutes    = 0;
                 $start_date = $bigining;
-                $end_date = date('Y-m-d', strtotime('-1 days'));
+                $end_date   = date('Y-m-d', strtotime('-1 days'));
 
                 // Get user rate connected with start date.
                 $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at, $record->hm_user_id);
@@ -77,8 +77,8 @@ class CreatePreviousPayments extends Command
 
                 // Make hubstaff activity paid.
                 if ($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
-                    $total = $total + ($record->tracked / 60) / 60 * $latestRatesOnDate->hourly_rate;
-                    $minutes = $minutes + $record->tracked / 60;
+                    $total        = $total + ($record->tracked / 60) / 60 * $latestRatesOnDate->hourly_rate;
+                    $minutes      = $minutes + $record->tracked / 60;
                     $record->paid = 1;
                     $record->save();
                     $paidCounts += 1;
@@ -86,16 +86,16 @@ class CreatePreviousPayments extends Command
 
                 // Create new payment receipt.
                 if ($total > 0) {
-                    $total = number_format($total, 2);
-                    $paymentReceipt = new PaymentReceipt;
-                    $paymentReceipt->worked_minutes = $minutes;
-                    $paymentReceipt->status = 'Pending';
-                    $paymentReceipt->rate_estimated = $total;
-                    $paymentReceipt->date = $end_date;
-                    $paymentReceipt->user_id = $record->hm_user_id;
+                    $total                              = number_format($total, 2);
+                    $paymentReceipt                     = new PaymentReceipt;
+                    $paymentReceipt->worked_minutes     = $minutes;
+                    $paymentReceipt->status             = 'Pending';
+                    $paymentReceipt->rate_estimated     = $total;
+                    $paymentReceipt->date               = $end_date;
+                    $paymentReceipt->user_id            = $record->hm_user_id;
                     $paymentReceipt->billing_start_date = $start_date;
-                    $paymentReceipt->billing_end_date = $end_date;
-                    $paymentReceipt->currency = ''; //we need to change this.
+                    $paymentReceipt->billing_end_date   = $end_date;
+                    $paymentReceipt->currency           = ''; //we need to change this.
                     $paymentReceipt->save();
                 }
             }

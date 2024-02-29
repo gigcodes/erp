@@ -33,8 +33,8 @@ class Twilio extends Model
      */
     public function missedCallStatus()
     {
-        $sid = \Config::get('twilio.account_sid');
-        $token = \Config::get('twilio.auth_token');
+        $sid    = \Config::get('twilio.account_sid');
+        $token  = \Config::get('twilio.auth_token');
         $twilio = new Client($sid, $token);
         //Get the total number of records from CallBusyMessage which already saved
         $totalSavedCallLogs = CallBusyMessage::count();
@@ -42,8 +42,8 @@ class Twilio extends Model
         $noOfRecords = $totalSavedCallLogs + 50;
         // Getting all the call records
         $calls = $twilio->calls->read([], $noOfRecords);
-        $data = [];
-        $i = 0;
+        $data  = [];
+        $i     = 0;
         foreach ($calls as $record) {
             // Check if Sid id already there
             $checkSidExists = CallBusyMessage::checkSidAlreadyExist($record->sid);
@@ -59,8 +59,8 @@ class Twilio extends Model
                 // If recording array is not empty then get the recording url
                 if (! empty($recordings)) {
                     foreach ($recordings as $recording) {
-                        $recordingId = $recording->sid;
-                        $recordingLink = 'https://api.twilio.com/' . $apiVersion . '/Accounts/' . $sid . '/Recordings/' . $recordingId . '.mp3';
+                        $recordingId               = $recording->sid;
+                        $recordingLink             = 'https://api.twilio.com/' . $apiVersion . '/Accounts/' . $sid . '/Recordings/' . $recordingId . '.mp3';
                         $data[$i]['recording_url'] = $recordingLink;
                     }
                 } else {
@@ -70,8 +70,8 @@ class Twilio extends Model
                 $messages = $twilio->messages
                     ->read([
                         'dateSent' => $record->dateCreated,
-                        'from' => $record->from,
-                        'to' => $record->to,
+                        'from'     => $record->from,
+                        'to'       => $record->to,
                     ],
                         1
                     );
@@ -84,9 +84,9 @@ class Twilio extends Model
                     $data[$i]['message'] = '';
                 }
                 $data[$i]['twilio_call_sid'] = $record->from;
-                $data[$i]['caller_sid'] = $record->sid;
-                $data[$i]['created_at'] = $record->startTime;
-                $data[$i]['updated_at'] = $record->endTime;
+                $data[$i]['caller_sid']      = $record->sid;
+                $data[$i]['created_at']      = $record->startTime;
+                $data[$i]['updated_at']      = $record->endTime;
                 // Checking the status if call is completed or no-answer
                 if ('completed' == $record->status) {
                     $data[$i]['status'] = 1;
@@ -101,10 +101,10 @@ class Twilio extends Model
                     // Getting customer data based on phone no.
                     $customerData = Customer::where('phone', 'LIKE', "%$formatted_phone%")->get()->toArray();
                     if (! empty($customerData)) {
-                        $customerId = $customerData[0]['id'];
+                        $customerId   = $customerData[0]['id'];
                         $customerName = $customerData[0]['name'];
                         if (! empty($customerData[0]['lead'])) {
-                            $leadId = $customerData[0]['lead']['id'];
+                            $leadId              = $customerData[0]['lead']['id'];
                             $data[$i]['lead_id'] = $leadId;
                         }
                     }

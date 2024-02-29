@@ -20,14 +20,15 @@ class LogLastUserActivity
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
             $expiresAt = Carbon::now()->addMinutes(5);
-            $cacheKey = 'user-is-online-' . Auth::user()->id;
+            $cacheKey  = 'user-is-online-' . Auth::user()->id;
 
             // cache with 5 min expiry.
             $lastLogin = Cache::has($cacheKey, true, $expiresAt);
@@ -38,7 +39,7 @@ class LogLastUserActivity
                 Cache::put($cacheKey, true, $expiresAt);
 
                 UserLogin::create([
-                    'user_id' => Auth::id(),
+                    'user_id'  => Auth::id(),
                     'login_at' => Carbon::now(),
                 ]);
             }
@@ -54,7 +55,7 @@ class LogLastUserActivity
                     $user_login->update(['logout_at' => Carbon::now()]);
                 } else {
                     UserLogin::create([
-                        'user_id' => Auth::id(),
+                        'user_id'   => Auth::id(),
                         'logout_at' => Carbon::now(),
                     ]);
                 }

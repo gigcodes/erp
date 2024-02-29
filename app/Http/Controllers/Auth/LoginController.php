@@ -53,13 +53,13 @@ class LoginController extends Controller
         $credentials = ['email' => $request->email, 'password' => $request->password];
         if ($this->guard()->attempt($credentials, $request->has('remember'))) {
             $this->validateLogin($request);
-            $user = auth()->user();
+            $user    = auth()->user();
             $user_ip = UserLoginIp::where('ip', $request->getClientIp())->where('user_id', $user->id)->orderBy('created_at', 'DESC')->first();
 
             if (is_null($user_ip)) {
-                $user_ip_add = new UserLoginIp();
-                $user_ip_add->user_id = $user->id;
-                $user_ip_add->ip = $request->getClientIp();
+                $user_ip_add            = new UserLoginIp();
+                $user_ip_add->user_id   = $user->id;
+                $user_ip_add->ip        = $request->getClientIp();
                 $user_ip_add->is_active = (auth()->user()->isAdmin()) ? 0 : 1;
                 $user_ip_add->save();
             }
@@ -71,7 +71,7 @@ class LoginController extends Controller
                     ->withErrors(['email' => 'Your account is inactive. You are not authorized to access this erp']);
             }
             if (! $user->isAdmin() && $user->is_auto_approval != 1) {
-                $date = date('Y-m-d', strtotime('-2 days'));
+                $date                = date('Y-m-d', strtotime('-2 days'));
                 $hubstaff_activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', $date)->where('hubstaff_members.user_id', $user->id)->count();
 
                 if ($user_ip) {
@@ -97,7 +97,7 @@ class LoginController extends Controller
                 }
             }
 
-            $userData = User::find($user->id);
+            $userData                 = User::find($user->id);
             $userData->is_online_flag = 1;
             $userData->save();
 

@@ -51,9 +51,9 @@ class CustomerImport implements ToModel, WithHeadingRow, WithBatchInserts, WithC
             }
 
             return new Customer([
-                'name' => $row['name'],
-                'phone' => $row['contact_no'],
-                'city' => $row['cities'],
+                'name'            => $row['name'],
+                'phone'           => $row['contact_no'],
+                'city'            => $row['cities'],
                 'whatsapp_number' => $row['mobile'],
             ]);
         }

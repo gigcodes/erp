@@ -13,6 +13,8 @@ class DatabaseTableController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param mixed $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request, $id)
@@ -48,7 +50,7 @@ class DatabaseTableController extends Controller
     {
         if ($request->table_name) {
             //table_name
-            $date = \Carbon\Carbon::today()->subDays(7);
+            $date    = \Carbon\Carbon::today()->subDays(7);
             $history = DB::table('database_table_historical_records')->where('database_name', $request->table_name)->where('created_at', '>=', $date)->get();
 
             return response()->json(['code' => 200, 'data' => $history]);
@@ -70,16 +72,16 @@ class DatabaseTableController extends Controller
             foreach ($request->ids as $key => $value) {
                 DB::statement('TRUNCATE TABLE ' . $value);
 
-                $tth = new TruncateTableHistory();
-                $tth->user_id = \Auth::user()->id;
+                $tth             = new TruncateTableHistory();
+                $tth->user_id    = \Auth::user()->id;
                 $tth->table_name = $value;
                 $tth->save();
             }
         }
 
         return response()->json([
-            'status' => true,
-            'message' => ' column visiblity Added Successfully',
+            'status'      => true,
+            'message'     => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -92,9 +94,9 @@ class DatabaseTableController extends Controller
             ->get();
 
         return response()->json([
-            'status' => true,
-            'data' => $datas,
-            'message' => 'History get successfully',
+            'status'      => true,
+            'data'        => $datas,
+            'message'     => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }

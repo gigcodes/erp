@@ -55,8 +55,8 @@ class ErrorAlertMessage extends Command
         try {
             $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
-            $path = storage_path('logs');
-            $fullPath = $path . $filename;
+            $path         = storage_path('logs');
+            $fullPath     = $path . $filename;
             $errSelection = [];
 
             $content = File::get($fullPath);
@@ -68,7 +68,7 @@ class ErrorAlertMessage extends Command
                         if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
                             $message = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $message .= ' | ' . $value;
-                            $subject = "You have error which matched the keyword  '" . $logKeyword->text . "'";
+                            $subject          = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $hasAssignedIssue = DeveloperTask::where('subject', 'like', "%{$subject}%")->whereDate('created_at', date('Y-m-d'))->where('is_resolved', 0)->first();
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'developer task query finished.']);
                             if (! $hasAssignedIssue) {
@@ -76,12 +76,12 @@ class ErrorAlertMessage extends Command
                                 $requestData->setMethod('POST');
                                 $requestData->request->add([
                                     'log_keyword_id' => $logKeyword->id,
-                                    'priority' => self::CRON_ISSUE_PRIORITY,
-                                    'issue' => $message,
-                                    'status' => self::CRON_ISSUE_STATUS,
-                                    'module' => self::CRON_ISSUE_MODULE_NAME,
-                                    'subject' => $subject,
-                                    'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
+                                    'priority'       => self::CRON_ISSUE_PRIORITY,
+                                    'issue'          => $message,
+                                    'status'         => self::CRON_ISSUE_STATUS,
+                                    'module'         => self::CRON_ISSUE_MODULE_NAME,
+                                    'subject'        => $subject,
+                                    'assigned_to'    => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
                                 ]);
                                 app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                             }

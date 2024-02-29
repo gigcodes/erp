@@ -14,6 +14,8 @@ class MailingListMails extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param publicMailinglistTemplate $template
+     *
      * @return void
      */
     public function __construct(public MailinglistTemplate $template)

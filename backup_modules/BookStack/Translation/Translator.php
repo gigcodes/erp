@@ -16,8 +16,9 @@ class Translator extends \Illuminate\Translation\Translator
     /**
      * Get the translation for a given key.
      *
-     * @param  string  $key
-     * @param  string  $locale
+     * @param string $key
+     * @param string $locale
+     *
      * @return string|array|null
      */
     public function trans($key, array $replace = [], $locale = null)
@@ -35,13 +36,14 @@ class Translator extends \Illuminate\Translation\Translator
      * Merge the fallback translations, and base translations if existing,
      * into the provided core key => value array of translations content.
      *
-     * @param  null  $locale
+     * @param null $locale
+     *
      * @return array
      */
     protected function mergeBackupTranslations(array $translationArray, string $key, $locale = null)
     {
-        $fallback = $this->get($key, [], $this->fallback);
-        $baseLocale = $this->getBaseLocale($locale ?? $this->locale);
+        $fallback         = $this->get($key, [], $this->fallback);
+        $baseLocale       = $this->getBaseLocale($locale ?? $this->locale);
         $baseTranslations = $baseLocale ? $this->get($key, [], $baseLocale) : [];
 
         return array_replace_recursive($fallback, $baseTranslations, $translationArray);
@@ -50,7 +52,8 @@ class Translator extends \Illuminate\Translation\Translator
     /**
      * Get the array of locales to be checked.
      *
-     * @param  string|null  $locale
+     * @param string|null $locale
+     *
      * @return array
      */
     protected function localeArray($locale)
@@ -63,7 +66,8 @@ class Translator extends \Illuminate\Translation\Translator
     /**
      * Get the locale to extend for the given locale.
      *
-     * @param  string  $locale
+     * @param string $locale
+     *
      * @return string|null
      */
     protected function getBaseLocale($locale)

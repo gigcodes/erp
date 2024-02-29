@@ -44,7 +44,7 @@ class UploadProductsToMagento extends Command
         return false;
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

@@ -113,7 +113,7 @@ class SiteDevelopmentDesignCategoriesInsertSeeder extends Seeder
         foreach ($lists as $list) {
             SiteDevelopmentCategory::firstOrCreate([
                 'master_category_id' => $siteDevelopmentMasterCategory->id,
-                'title' => $list,
+                'title'              => $list,
             ]);
         }
     }

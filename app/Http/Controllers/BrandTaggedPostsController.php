@@ -19,7 +19,7 @@ class BrandTaggedPostsController extends Controller
     {
         $this->validate($request, [
             'account_id' => 'required',
-            'receipts' => 'required|array',
+            'receipts'   => 'required|array',
         ]);
 
         $account = Account::find($request->get('account_id'));
@@ -30,7 +30,7 @@ class BrandTaggedPostsController extends Controller
 
         foreach ($usernames as $username) {
             if ($request->hasFile('image')) {
-                $file = $request->file('image');
+                $file  = $request->file('image');
                 $photo = new InstagramPhoto($file);
             }
         }

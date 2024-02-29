@@ -24,7 +24,7 @@ class VersionCheckController extends AbstractController
         Core::headerJSON();
 
         $versionInformation = new VersionInformation();
-        $versionDetails = $versionInformation->getLatestVersion();
+        $versionDetails     = $versionInformation->getLatestVersion();
 
         if (empty($versionDetails)) {
             echo json_encode([]);
@@ -33,16 +33,16 @@ class VersionCheckController extends AbstractController
         }
 
         $latestCompatible = $versionInformation->getLatestCompatibleVersion($versionDetails->releases);
-        $version = '';
-        $date = '';
+        $version          = '';
+        $date             = '';
         if ($latestCompatible != null) {
             $version = $latestCompatible['version'];
-            $date = $latestCompatible['date'];
+            $date    = $latestCompatible['date'];
         }
 
         echo json_encode([
             'version' => ! empty($version) ? $version : '',
-            'date' => ! empty($date) ? $date : '',
+            'date'    => ! empty($date) ? $date : '',
         ]);
     }
 }

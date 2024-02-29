@@ -25,9 +25,9 @@ class MagentoSoapHelper
     {
         // Set options
         $this->_options = [
-            'trace' => true,
+            'trace'              => true,
             'connection_timeout' => 120,
-            'wsdl_cache' => WSDL_CACHE_NONE,
+            'wsdl_cache'         => WSDL_CACHE_NONE,
         ];
 
         // Connect
@@ -93,10 +93,10 @@ class MagentoSoapHelper
         }
 
         // Create a new product reference (without sizes)
-        $reference = new ProductReference;
+        $reference             = new ProductReference;
         $reference->product_id = $product->id;
-        $reference->sku = $product->sku;
-        $reference->color = $product->color;
+        $reference->sku        = $product->sku;
+        $reference->color      = $product->color;
         $reference->save();
 
         // Check for brand name
@@ -106,13 +106,13 @@ class MagentoSoapHelper
         }
 
         // Create meta description
-        $meta = [];
+        $meta                = [];
         $meta['description'] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
         if (! empty($product->size) && $product->size == 'OS') {
             $product->size = null;
-            $result = $this->_pushSingleProduct($product, $categories, $meta);
+            $result        = $this->_pushSingleProduct($product, $categories, $meta);
         } elseif (! empty($product->size)) {
             $result = $this->_pushConfigurableProductWithChildren($product, $categories, $meta);
         } else {
@@ -125,10 +125,10 @@ class MagentoSoapHelper
             $this->_pushImages($product, $result);
 
             // Set product to uploaded and listed
-            $product->status_id = StatusHelper::$inMagento;
-            $product->isUploaded = 1;
+            $product->status_id        = StatusHelper::$inMagento;
+            $product->isUploaded       = 1;
             $product->is_uploaded_date = Carbon::now();
-            $product->isListed = 1;
+            $product->isListed         = 1;
             $product->save();
 
             // Return true
@@ -143,13 +143,13 @@ class MagentoSoapHelper
     {
         // Create empty array to store SKUs
         $associatedSkus = [];
-        $productId = $product->id;
+        $productId      = $product->id;
         // Get all the sizes
-        $arrSizes = explode(',', $product->size);
+        $arrSizes  = explode(',', $product->size);
         $hasEuSize = false;
         $euArrSize = explode(',', $product->size_eu);
         if (! empty($euArrSize)) {
-            $arrSizes = $euArrSize;
+            $arrSizes  = $euArrSize;
             $hasEuSize = true;
         }
 
@@ -168,32 +168,32 @@ class MagentoSoapHelper
             //Getting Hscode Attribute
 
             // Create a new product reference for this size
-            $reference = new ProductReference;
+            $reference             = new ProductReference;
             $reference->product_id = $product->id;
-            $reference->sku = $product->sku;
-            $reference->color = $product->color;
-            $reference->size = $size;
+            $reference->sku        = $product->sku;
+            $reference->color      = $product->color;
+            $reference->size       = $size;
             $reference->save();
 
             // Set product data for Magento
             $productData = [
-                'categories' => $categories,
-                'name' => $product->name,
-                'description' => $meta['description'],
+                'categories'        => $categories,
+                'name'              => $product->name,
+                'description'       => $meta['description'],
                 'short_description' => $product->short_description,
-                'website_ids' => [1], // ID or code of website
-                'status' => 1, // 1 = Enabled, 2 = Disabled
-                'visibility' => 1, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-                'tax_class_id' => 2, // Default VAT setting
-                'weight' => 0,
-                'stock_data' => [
+                'website_ids'       => [1], // ID or code of website
+                'status'            => 1, // 1 = Enabled, 2 = Disabled
+                'visibility'        => 1, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+                'tax_class_id'      => 2, // Default VAT setting
+                'weight'            => 0,
+                'stock_data'        => [
                     'use_config_manage_stock' => 1,
-                    'manage_stock' => 1,
-                    'qty' => 1,
-                    'is_in_stock' => 1,
+                    'manage_stock'            => 1,
+                    'qty'                     => 1,
+                    'is_in_stock'             => 1,
                 ],
-                'price' => $product->price, // Same price as configurable product, no price change
-                'special_price' => $product->price_eur_special,
+                'price'                 => $product->price, // Same price as configurable product, no price change
+                'special_price'         => $product->price_eur_special,
                 'additional_attributes' => [
                     'single_data' => [
                         ['key' => 'composition', 'value' => $product->commonComposition($product->category, $product->composition)],
@@ -226,26 +226,26 @@ class MagentoSoapHelper
          * Set product data for configurable product
          */
         $productData = [
-            'categories' => $categories,
-            'name' => $product->name,
-            'description' => '<p></p>',
+            'categories'        => $categories,
+            'name'              => $product->name,
+            'description'       => '<p></p>',
             'short_description' => $product->short_description,
-            'website_ids' => [1], // Id or code of website
-            'status' => 1, // 1 = Enabled, 2 = Disabled
-            'visibility' => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-            'tax_class_id' => 2, // Default VAT setting
-            'weight' => 0,
-            'stock_data' => [
+            'website_ids'       => [1], // Id or code of website
+            'status'            => 1, // 1 = Enabled, 2 = Disabled
+            'visibility'        => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+            'tax_class_id'      => 2, // Default VAT setting
+            'weight'            => 0,
+            'stock_data'        => [
                 'use_config_manage_stock' => 1,
-                'manage_stock' => 1,
-                'qty' => 1,
-                'is_in_stock' => 1,
+                'manage_stock'            => 1,
+                'qty'                     => 1,
+                'is_in_stock'             => 1,
             ],
-            'price' => $product->price, // Same price as configurable product, no price change
-            'special_price' => $product->price_eur_special,
-            'associated_skus' => $associatedSkus, // Simple products to associate
+            'price'                   => $product->price, // Same price as configurable product, no price change
+            'special_price'           => $product->price_eur_special,
+            'associated_skus'         => $associatedSkus, // Simple products to associate
             'configurable_attributes' => [155],
-            'additional_attributes' => [
+            'additional_attributes'   => [
                 'single_data' => [
                     ['key' => 'composition', 'value' => $product->commonComposition($product->category, $product->composition)],
                     ['key' => 'color', 'value' => $product->color],
@@ -278,23 +278,23 @@ class MagentoSoapHelper
 
         // Set product data
         $productData = [
-            'categories' => $categories,
-            'name' => strtoupper($product->name),
-            'description' => '<p></p>',
+            'categories'        => $categories,
+            'name'              => strtoupper($product->name),
+            'description'       => '<p></p>',
             'short_description' => ucwords(strtolower($product->short_description)),
-            'website_ids' => [1], // Id or code of website
-            'status' => 1, // 1 = Enabled, 2 = Disabled
-            'visibility' => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-            'tax_class_id' => 2, // Default VAT setting
-            'weight' => 0,
-            'stock_data' => [
+            'website_ids'       => [1], // Id or code of website
+            'status'            => 1, // 1 = Enabled, 2 = Disabled
+            'visibility'        => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
+            'tax_class_id'      => 2, // Default VAT setting
+            'weight'            => 0,
+            'stock_data'        => [
                 'use_config_manage_stock' => 1,
-                'manage_stock' => 1,
-                'qty' => 1,
-                'is_in_stock' => 1,
+                'manage_stock'            => 1,
+                'qty'                     => 1,
+                'is_in_stock'             => 1,
             ],
-            'price' => $product->price,
-            'special_price' => $product->price_eur_special,
+            'price'                 => $product->price,
+            'special_price'         => $product->price_eur_special,
             'additional_attributes' => [
                 'single_data' => [
                     ['key' => 'composition', 'value' => ucwords($product->commonComposition($product->category, $product->composition))],
@@ -374,9 +374,9 @@ class MagentoSoapHelper
             if (file_exists($image->getAbsolutePath()) && stristr($image->getAbsolutePath(), 'cropped')) {
                 // Set file attributes
                 $file = [
-                    'name' => $image->getBasenameAttribute(),
+                    'name'    => $image->getBasenameAttribute(),
                     'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-                    'mime' => mime_content_type($image->getAbsolutePath()),
+                    'mime'    => mime_content_type($image->getAbsolutePath()),
                 ];
 
                 // Set image type
@@ -464,17 +464,17 @@ class MagentoSoapHelper
             $product = Product::find($productId);
 
             //Insert data into translation table
-            $translated = new TranslatedProduct;
-            $translated->product_id = $product->id;
-            $translated->description = $description;
+            $translated                    = new TranslatedProduct;
+            $translated->product_id        = $product->id;
+            $translated->description       = $description;
             $translated->short_description = $shortDescription;
-            $translated->name = $name;
-            $translated->language_id = $language->id;
+            $translated->name              = $name;
+            $translated->language_id       = $language->id;
             $translated->save();
 
             $updateProductData = [
-                'name' => $name,
-                'description' => $description,
+                'name'              => $name,
+                'description'       => $description,
                 'short_description' => $shortDescription,
             ];
 

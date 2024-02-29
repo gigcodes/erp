@@ -42,7 +42,7 @@ class GetColorsFromScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,8 +55,8 @@ class GetColorsFromScrapedProducts extends Command
 
                     foreach ($scrapedProducts as $scrapedProduct) {
                         $properties = $scrapedProduct->properties;
-                        $color1 = $properties['color'] ?? null;
-                        $color2 = $properties['colors'] ?? null;
+                        $color1     = $properties['color'] ?? null;
+                        $color2     = $properties['colors'] ?? null;
                         if ($color1 !== 'null' && $color1 !== null && $color1 !== '') {
                             $product->color = $color1;
                             $product->save();

@@ -41,17 +41,17 @@ class UpdateGroups extends Command
     {
         //Delete Old Groups
         $existing_themes_ids = [];
-        $websiteStoreView = WebsiteStoreView::whereNotNull('store_group_id')->update(['store_group_id' => null]);
-        $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
-        $postData = [
+        $websiteStoreView    = WebsiteStoreView::whereNotNull('store_group_id')->update(['store_group_id' => null]);
+        $postURL             = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
+        $postData            = [
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
-            $response = json_decode($result['response']);
+            $response        = json_decode($result['response']);
             $existing_themes = ['General', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'ShadesShop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau', 'o-labels.com', 'Luxury Space', 'TheFitEdit', 'Italybrandoutlets', 'Lussolicious'];
             foreach ($response as $g) {
                 if (in_array(str_replace('theme_', '', $g->name), $existing_themes)) {
@@ -63,7 +63,7 @@ class UpdateGroups extends Command
                         'id' => $g->id,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
                     if ($result['err']) {
                         return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
@@ -86,7 +86,7 @@ class UpdateGroups extends Command
         dump('gropud deete part -- ended');
 
         // Create New Groups
-        $group_array = [];
+        $group_array       = [];
         $websiteStoreViews = WebsiteStoreView::get();
         foreach ($websiteStoreViews as $w) {
             if ($w->websiteStore == null) {
@@ -103,8 +103,8 @@ class UpdateGroups extends Command
             }
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
-            $code = explode('-', $w->code)[1];
-            $web_name = $store_web->title . '_' . $code;
+            $code      = explode('-', $w->code)[1];
+            $web_name  = $store_web->title . '_' . $code;
 
             if (in_array($web_name, array_keys($group_array))) {
                 dump($web_name . ' group already exist');
@@ -114,14 +114,14 @@ class UpdateGroups extends Command
             $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
 
             $postData = [
-                'name' => $web_name,
+                'name'             => $web_name,
                 'agent_priorities' => [
                     'buying@amourint.com' => 'normal',
                 ],
             ];
 
             $postData = json_encode($postData, true);
-            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             if ($result['err']) {
                 dump(['name' => $web_name, 'status' => 'errors', 'errorMsg' => $result['err']], 403);
             } else {
@@ -129,7 +129,7 @@ class UpdateGroups extends Command
                 if (isset($response->error)) {
                     dump(['name' => $web_name, 'status' => 'errors', $response], 403);
                 } else {
-                    $websiteStoreView = WebsiteStoreView::where('id', $w->id)->first();
+                    $websiteStoreView       = WebsiteStoreView::where('id', $w->id)->first();
                     $group_array[$web_name] = $response->id;
                     if ($websiteStoreView) {
                         $websiteStoreView->store_group_id = $response->id;
@@ -158,8 +158,8 @@ class UpdateGroups extends Command
             }
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
-            $code = explode('-', $w->code)[1];
-            $web_name = $store_web->title . '_' . $code;
+            $code      = explode('-', $w->code)[1];
+            $web_name  = $store_web->title . '_' . $code;
             dump($web_name);
             if (in_array($web_name, array_keys($group_array))) {
                 $websiteStoreView = WebsiteStoreView::where('id', $w->id)->update(['store_group_id' => $group_array[$web_name]]);
@@ -186,16 +186,16 @@ class UpdateGroups extends Command
             }
             $web_title = $w->websiteStore->website->store_website_id;
             $store_web = StoreWebsite::withTrashed()->find($w->websiteStore->website->store_website_id);
-            $code = explode('-', $w->code)[1];
-            $web_name = ucwords(strtolower($store_web->title)) . '_' . $code;
+            $code      = explode('-', $w->code)[1];
+            $web_name  = ucwords(strtolower($store_web->title)) . '_' . $code;
             if (in_array($web_name, array_keys($group_array))) {
                 $existing_themes_ids = [];
-                $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
-                $postData = [
+                $postURL             = 'https://api.livechatinc.com/v3.2/configuration/action/list_groups';
+                $postData            = [
                     'fields' => ['agent_priorities', 'routing_status'],
                 ];
                 $postData = json_encode($postData, true);
-                $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+                $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
                 if ($result['err']) {
                     dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);

@@ -40,17 +40,17 @@ class UserActionsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'url' => 'required',
+            'url'  => 'required',
             'type' => 'required',
             'data' => 'required',
         ]);
 
-        $action = new UserActions();
+        $action          = new UserActions();
         $action->user_id = Auth::user()->id;
-        $action->page = $request->get('url');
+        $action->page    = $request->get('url');
         $action->details = strip_tags($request->get('data'));
-        $action->action = $request->get('type');
-        $action->date = date('Y-m-d');
+        $action->action  = $request->get('type');
+        $action->date    = date('Y-m-d');
         $action->save();
 
         return response()->json('success');
@@ -59,29 +59,31 @@ class UserActionsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\UserActions  $userActions
+     * @param \App\UserActions $userActions
+     * @param mixed            $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user    = User::find($id);
         $actions = $user->actions()->orderBy('created_at', 'DESC')->get();
 
         $tracks = Session::where('user_id', $id)->orderBy('created_at', 'DESC')->get();
 
         $routeActions = [
-            'users.index' => 'Viewed Users Page',
-            'users.show' => 'Viewed A User',
-            'customer.index' => 'Viewed Customer Page',
-            'customer.show' => 'Viewed A Customer Page',
+            'users.index'      => 'Viewed Users Page',
+            'users.show'       => 'Viewed A User',
+            'customer.index'   => 'Viewed Customer Page',
+            'customer.show'    => 'Viewed A Customer Page',
             'cold-leads.index' => 'Viewed Cold Leads Page',
-            'home' => 'Landed Homepage',
-            'purchase.index' => 'Viewed Purchase Page',
+            'home'             => 'Landed Homepage',
+            'purchase.index'   => 'Viewed Purchase Page',
         ];
 
         $models = [
-            'users.show' => new User(),
-            'customer.show' => new Customer(),
+            'users.show'      => new User(),
+            'customer.show'   => new Customer(),
             'cold-leads.show' => new ColdLeads(),
         ];
 

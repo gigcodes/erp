@@ -12,7 +12,6 @@ class GoogleAdsCampaign extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="google_campaign_id",type="integer")
      * @SWG\Property(property="default_phone",type="integer")
@@ -66,22 +65,22 @@ class GoogleAdsCampaign extends Model
     ];
 
     const CAHANNEL_TYPE = [
-        'UNKNOWN' => 'Unknown',
-        'SEARCH' => 'SEARCH',
-        'DISPLAY' => 'DISPLAY',
-        'SHOPPING' => 'SHOPPING',
+        'UNKNOWN'       => 'Unknown',
+        'SEARCH'        => 'SEARCH',
+        'DISPLAY'       => 'DISPLAY',
+        'SHOPPING'      => 'SHOPPING',
         'MULTI_CHANNEL' => 'MULTI_CHANNEL',
     ];
 
     const CAHANNEL_SUB_TYPE = [
-        'UNKNOWN' => 'Unknown',
-        'SEARCH_MOBILE_APP' => 'Search mobile app',
-        'DISPLAY_MOBILE_APP' => 'Display mobile app',
-        'SEARCH_EXPRESS' => 'Search Express',
-        'DISPLAY_EXPRESS' => 'Display Express',
+        'UNKNOWN'                => 'Unknown',
+        'SEARCH_MOBILE_APP'      => 'Search mobile app',
+        'DISPLAY_MOBILE_APP'     => 'Display mobile app',
+        'SEARCH_EXPRESS'         => 'Search Express',
+        'DISPLAY_EXPRESS'        => 'Display Express',
         'UNIVERSAL_APP_CAMPAIGN' => 'Universal app campaign',
         'DISPLAY_SMART_CAMPAIGN' => 'Display smart campaign',
-        'DISPLAY_GMAIL_AD' => 'Display gmail ad',
+        'DISPLAY_GMAIL_AD'       => 'Display gmail ad',
     ];
 
     public function googleAccount()

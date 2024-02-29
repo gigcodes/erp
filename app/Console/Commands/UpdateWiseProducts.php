@@ -28,7 +28,7 @@ class UpdateWiseProducts extends Command
     /**
      * Create a new command instance.
      *
-     * @param  GebnegozionlineProductDetailsScraper  $scraper
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct(WiseBoutiqueProductDetailsScraper $scraper)
     {
@@ -45,7 +45,7 @@ class UpdateWiseProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

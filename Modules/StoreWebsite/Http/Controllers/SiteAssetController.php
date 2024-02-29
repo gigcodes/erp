@@ -24,20 +24,20 @@ class SiteAssetController extends Controller
      */
     public function index(Request $request)
     {
-        $data = [];
+        $data                       = [];
         $data['all_store_websites'] = StoreWebsite::all();
-        $data['categories'] = SiteDevelopmentCategory::all();
-        $data['master_categories'] = SiteDevelopmentMasterCategory::all();
-        $data['search_website'] = $request->store_webs ?? '';
-        $data['master_cat'] = $request->master_cat ?? '';
+        $data['categories']         = SiteDevelopmentCategory::all();
+        $data['master_categories']  = SiteDevelopmentMasterCategory::all();
+        $data['search_website']     = $request->store_webs ?? '';
+        $data['master_cat']         = $request->master_cat ?? '';
 
-        $data['search_category'] = isset($request->categories) ? $request->categories : '';
+        $data['search_category']            = isset($request->categories) ? $request->categories : '';
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
-        $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
+        $store_websites                     = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
         if ($data['search_website'] != '') {
             $store_websites = $store_websites->whereIn('store_websites.id', $data['search_website']);
         }
-        $data['store_websites'] = $store_websites->where('is_site_asset', 1)->groupBy('store_websites.id')->get();
+        $data['store_websites']      = $store_websites->where('is_site_asset', 1)->groupBy('store_websites.id')->get();
         $site_development_categories = SiteDevelopmentCategory::select('site_development_categories.*')
             ->join('site_developments', 'site_development_categories.id', '=', 'site_developments.site_development_category_id')
             ->where('is_site_asset', 1);
@@ -54,7 +54,7 @@ class SiteAssetController extends Controller
             $site_development_categories = $site_development_categories->where('site_developments.status', $data['site_development_status_id']);
         }
         $data['site_development_categories'] = $site_development_categories->groupBy('site_development_categories.id')->get();
-        $data['allUsers'] = User::select('id', 'name')->get();
+        $data['allUsers']                    = User::select('id', 'name')->get();
 
         return view('storewebsite::site-asset.index', $data);
     }
@@ -67,13 +67,13 @@ class SiteAssetController extends Controller
     public function downaloadSiteAssetData(Request $request)
     {
         $store_website = json_decode($request->download_website_id);
-        $media_type = $request->media_type;
-        $dir = public_path() . '/download_asset';
+        $media_type    = $request->media_type;
+        $dir           = public_path() . '/download_asset';
         if (! is_dir($dir)) {
             mkdir($dir);
         }
         $file_name = 'asset_' . uniqid() . '.zip';
-        $dir = public_path() . '/download_asset/' . $file_name;
+        $dir       = public_path() . '/download_asset/' . $file_name;
 
         $images = \App\StoreWebsiteImage::leftJoin('media', 'store_website_images.media_id', '=', 'media.id')->whereIn('store_website_images.store_website_id', $store_website)->where('store_website_images.media_type', $media_type)->get();
         if (empty($images)) {
@@ -94,15 +94,15 @@ class SiteAssetController extends Controller
     public function siteCheckList(Request $request)
     {
         //dd('sdfdsf');
-        $data = [];
-        $data['allStatus'] = \App\SiteDevelopmentStatus::pluck('name', 'id')->toArray();
-        $data['all_store_websites'] = StoreWebsite::all()->pluck('title', 'id');
-        $data['categories'] = SiteDevelopmentCategory::all()->pluck('title', 'id');
-        $data['search_website'] = isset($request->store_webs) ? $request->store_webs : ['1', '2', '3', '5', '9'];
-        $data['search_website_string'] = implode(',', $data['search_website']);
-        $data['search_category'] = isset($request->categories) ? $request->categories : [];
+        $data                               = [];
+        $data['allStatus']                  = \App\SiteDevelopmentStatus::pluck('name', 'id')->toArray();
+        $data['all_store_websites']         = StoreWebsite::all()->pluck('title', 'id');
+        $data['categories']                 = SiteDevelopmentCategory::all()->pluck('title', 'id');
+        $data['search_website']             = isset($request->store_webs) ? $request->store_webs : ['1', '2', '3', '5', '9'];
+        $data['search_website_string']      = implode(',', $data['search_website']);
+        $data['search_category']            = isset($request->categories) ? $request->categories : [];
         $data['site_development_status_id'] = isset($request->site_development_status_id) ? $request->site_development_status_id : [];
-        $store_websites = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
+        $store_websites                     = StoreWebsite::select('store_websites.*')->join('site_developments', 'store_websites.id', '=', 'site_developments.website_id');
         if (is_array($data['search_website'])) {
             if (isset($request->store_webs) && $request->store_webs[0] == '') {
                 //$store_websites =  $store_websites->get();
@@ -143,11 +143,11 @@ class SiteAssetController extends Controller
     public function uploadDocument(Request $request)
     {
         $site_development_category_id = $request->get('site_development_category_id', 0);
-        $store_website_id = $request->get('store_website_id', 0);
-        $site_development_id = $request->get('site_development_id', 0);
-        $subject = $request->get('subject', null);
-        $message = '';
-        $loggedUser = $request->user();
+        $store_website_id             = $request->get('store_website_id', 0);
+        $site_development_id          = $request->get('site_development_id', 0);
+        $subject                      = $request->get('subject', null);
+        $message                      = '';
+        $loggedUser                   = $request->user();
 
         if ($store_website_id > 0 && ! empty($subject)) {
             $store_website = StoreWebsite::find($store_website_id);
@@ -185,14 +185,14 @@ class SiteAssetController extends Controller
         // $id = $request->get("id", 0);
 
         $site_development_category_id = $request->get('site_development_category_id', 0);
-        $store_website_id = $request->get('store_website_id', 0);
-        $site_development_id = $request->get('site_development_id', 0);
+        $store_website_id             = $request->get('store_website_id', 0);
+        $site_development_id          = $request->get('site_development_id', 0);
 
         if (($site_development_category_id > 0) && ($store_website_id > 0)) {
             $devDocuments = SiteDevelopmentDocument::where(
                 [
                     'site_development_category_id' => $site_development_category_id,
-                    'store_website_id' => $store_website_id,
+                    'store_website_id'             => $store_website_id,
                 ]
             )->with(['creator'])->latest()->get();
 
@@ -225,7 +225,7 @@ class SiteAssetController extends Controller
 
         $pdf = PDF::loadView('storewebsite::site-check-list.partials.export-pdf-data', [
             'site_developments' => $site_developments,
-            'title' => 'Site Check List Download',
+            'title'             => 'Site Check List Download',
         ]);
 
         return $pdf->download('Site-Check-List.pdf');

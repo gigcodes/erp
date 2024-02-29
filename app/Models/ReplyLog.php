@@ -12,8 +12,8 @@ class ReplyLog extends Model
     public function addToLog($reply_id, $text, $type)
     {
         $this->reply_id = $reply_id;
-        $this->message = $text;
-        $this->type = $type;
+        $this->message  = $text;
+        $this->type     = $type;
         $this->save();
     }
 }

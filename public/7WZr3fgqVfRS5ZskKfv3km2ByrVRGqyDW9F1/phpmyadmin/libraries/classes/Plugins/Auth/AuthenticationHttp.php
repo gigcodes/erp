@@ -165,7 +165,7 @@ class AuthenticationHttp extends AuthenticationPlugin
             if (! empty($usr_pass)) {
                 $colon = strpos($usr_pass, ':');
                 if ($colon) {
-                    $this->user = substr($usr_pass, 0, $colon);
+                    $this->user     = substr($usr_pass, 0, $colon);
                     $this->password = substr($usr_pass, $colon + 1);
                 }
 
@@ -191,7 +191,7 @@ class AuthenticationHttp extends AuthenticationPlugin
     /**
      * User is not allowed to login to MySQL -> authentication failed
      *
-     * @param  string  $failure String describing why authentication has failed
+     * @param string $failure String describing why authentication has failed
      */
     public function showFailure($failure): void
     {

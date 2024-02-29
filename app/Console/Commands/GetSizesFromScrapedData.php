@@ -42,7 +42,7 @@ class GetSizesFromScrapedData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,7 +55,7 @@ class GetSizesFromScrapedData extends Command
                     $scrapedProducts = $product->many_scraped_products;
                     foreach ($scrapedProducts as $scrapedProduct) {
                         $properties = $scrapedProduct->properties;
-                        $size = $properties['size'] ?? '';
+                        $size       = $properties['size'] ?? '';
                         if (is_array($size)) {
                             $size = implode(',', $size);
                         }

@@ -18,7 +18,7 @@ class TranslationHelper
     protected static function getSentencesFromJSON($json)
     {
         $sentencesArray = json_decode($json, true);
-        $sentences = '';
+        $sentences      = '';
         if (! $sentencesArray) {
             throw new \Exception('Google detected unusual traffic from your computer network, try again later (2 - 48 hours)');
         }
@@ -32,11 +32,11 @@ class TranslationHelper
     protected static function requestTranslation($source, $target, $text)
     {
         //Free Google Translate Api
-        $url = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&ie=UTF-8'; //
+        $url    = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&ie=UTF-8'; //
         $fields = [
             'sl' => urlencode($source),
             'tl' => urlencode($target),
-            'q' => urlencode($text),
+            'q'  => urlencode($text),
         ];
 
         if (strlen($fields['q']) >= 5000) {

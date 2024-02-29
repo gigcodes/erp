@@ -20,7 +20,7 @@ final class DatabaseDesignerSettingsFeature
 
     public function __construct(DatabaseName $database, TableName $designerSettings)
     {
-        $this->database = $database;
+        $this->database         = $database;
         $this->designerSettings = $designerSettings;
     }
 }

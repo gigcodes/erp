@@ -75,7 +75,7 @@ class FixErpSizeIssue extends Command
                         if (! empty($scrapedProduct->size)) {
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'product size data found']);
 
-                            $sizes = explode(',', $scrapedProduct->size);
+                            $sizes  = explode(',', $scrapedProduct->size);
                             $euSize = [];
                             // Loop over sizes and redactText
                             $allSize = [];
@@ -89,7 +89,7 @@ class FixErpSizeIssue extends Command
                             $product->size = implode(',', $allSize);
                             // get size system
                             $supplierSizeSystem = ProductSupplier::getSizeSystem($product->id, $product->supplier_id);
-                            $euSize = ProductHelper::getEuSize($product, $allSize, ! empty($supplierSizeSystem) ? $supplierSizeSystem : $scrapedProduct->size_system);
+                            $euSize             = ProductHelper::getEuSize($product, $allSize, ! empty($supplierSizeSystem) ? $supplierSizeSystem : $scrapedProduct->size_system);
                             LogHelper::createCustomLogForCron($this->signature, ['message' => 'get product sizes of product id:' . $product->id]);
 
                             $product->size_eu = implode(',', $euSize);

@@ -8,7 +8,7 @@ use Modules\BookStack\Auth\Permissions\PermissionService;
 /**
  * Get the path to a versioned file.
  *
- * @param  string  $file
+ * @param string $file
  *
  * @throws Exception
  */
@@ -18,7 +18,7 @@ function versioned_asset($file = ''): string
 
     if (is_null($version)) {
         $versionFile = base_path('version');
-        $version = trim(file_get_contents($versionFile));
+        $version     = trim(file_get_contents($versionFile));
     }
 
     $additional = '';
@@ -61,7 +61,7 @@ function hasAppAccess(): bool
  * If an ownable element is passed in the jointPermissions are checked against
  * that particular item.
  *
- * @param  Ownable  $ownable
+ * @param Ownable $ownable
  */
 function userCan(string $permission, Ownable $ownable = null): bool
 {
@@ -89,7 +89,9 @@ function userCanOnAny(string $permission, string $entityClass = null): bool
 /**
  * Helper to access system settings.
  *
- * @param  bool  $default
+ * @param bool       $default
+ * @param null|mixed $key
+ *
  * @return bool|string|SettingService
  */
 function setting($key = null, $default = false)
@@ -105,7 +107,7 @@ function setting($key = null, $default = false)
 /**
  * Get a path to a theme resource.
  *
- * @param  string  $path
+ * @param string $path
  */
 function theme_path($path = ''): string
 {
@@ -124,22 +126,24 @@ function theme_path($path = ''): string
  *
  * Returns an empty string if icon file not found.
  *
- * @param  array  $attrs
+ * @param array $attrs
+ * @param mixed $name
+ *
  * @return mixed
  */
 function icon($name, $attrs = [])
 {
     $attrs = array_merge([
-        'class' => 'svg-icon',
+        'class'     => 'svg-icon',
         'data-icon' => $name,
-        'role' => 'presentation',
+        'role'      => 'presentation',
     ], $attrs);
     $attrString = ' ';
     foreach ($attrs as $attrName => $attr) {
         $attrString .= $attrName . '="' . $attr . '" ';
     }
 
-    $iconPath = resource_path('icons/' . $name . '.svg');
+    $iconPath      = resource_path('icons/' . $name . '.svg');
     $themeIconPath = theme_path('icons/' . $name . '.svg');
     if ($themeIconPath && file_exists($themeIconPath)) {
         $iconPath = $themeIconPath;
@@ -157,14 +161,16 @@ function icon($name, $attrs = [])
  * Works out the logic to set the correct sorting direction
  * Discards empty parameters and allows overriding.
  *
- * @param  array  $data
- * @param  array  $overrideData
+ * @param array $data
+ * @param array $overrideData
+ * @param mixed $path
+ *
  * @return string
  */
 function sortUrl($path, $data, $overrideData = [])
 {
     $queryStringSections = [];
-    $queryData = array_merge($data, $overrideData);
+    $queryData           = array_merge($data, $overrideData);
 
     // Change sorting direction is already sorted on current attribute
     if (isset($overrideData['sort']) && $overrideData['sort'] === $data['sort']) {

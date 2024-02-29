@@ -42,13 +42,15 @@ class SalesItemController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SalesItem  $salesItem
+     * @param \App\SalesItem $salesItem
+     * @param mixed          $supplier
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($supplier)
     {
         $products = SalesItem::where('supplier', $supplier)->paginate(25);
-        $title = $supplier;
+        $title    = $supplier;
 
         return view('scrap.sale.show', compact('products', 'title'));
     }

@@ -70,13 +70,13 @@ class SocialAdsetController extends Controller
 
     public function socialPostLog($config_id, $post_id, $platform, $title, $description)
     {
-        $Log = new SocialPostLog();
-        $Log->config_id = $config_id;
-        $Log->post_id = $post_id;
-        $Log->platform = $platform;
-        $Log->log_title = $title;
+        $Log                  = new SocialPostLog();
+        $Log->config_id       = $config_id;
+        $Log->post_id         = $post_id;
+        $Log->platform        = $platform;
+        $Log->log_title       = $title;
         $Log->log_description = $description;
-        $Log->modal = 'SocialAdset';
+        $Log->modal           = 'SocialAdset';
         $Log->save();
 
         return true;
@@ -89,7 +89,7 @@ class SocialAdsetController extends Controller
      */
     public function create()
     {
-        $configs = SocialAdAccount::pluck('name', 'id');
+        $configs    = SocialAdAccount::pluck('name', 'id');
         $campaingns = SocialCampaign::where('ref_campaign_id', '!=', '')->get();
 
         return view('social.adsets.create', compact('configs', 'campaingns'));
@@ -105,32 +105,32 @@ class SocialAdsetController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'config_id' => 'required',
-            'campaign_id' => 'required',
-            'name' => 'required',
+            'config_id'     => 'required',
+            'campaign_id'   => 'required',
+            'name'          => 'required',
             'billing_event' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'daily_budget' => 'required',
-            'bid_amount' => 'nullable',
-            'status' => 'required',
+            'start_time'    => 'required',
+            'end_time'      => 'required',
+            'daily_budget'  => 'required',
+            'bid_amount'    => 'nullable',
+            'status'        => 'required',
         ]);
 
         $adset = SocialAdset::create([
-            'config_id' => $request->get('config_id'),
-            'campaign_id' => $request->get('campaign_id'),
-            'name' => $request->get('name'),
+            'config_id'     => $request->get('config_id'),
+            'campaign_id'   => $request->get('campaign_id'),
+            'name'          => $request->get('name'),
             'billing_event' => $request->get('billing_event'),
-            'start_time' => $request->get('start_time'),
-            'end_time' => $request->get('end_time'),
-            'daily_budget' => $request->get('daily_budget'),
-            'bid_amount' => $request->get('bid_amount'),
-            'status' => $request->get('status'),
+            'start_time'    => $request->get('start_time'),
+            'end_time'      => $request->get('end_time'),
+            'daily_budget'  => $request->get('daily_budget'),
+            'bid_amount'    => $request->get('bid_amount'),
+            'status'        => $request->get('status'),
         ]);
 
-        $data['name'] = $request->input('name');
-        $data['objective'] = $request->input('objective');
-        $data['status'] = $request->input('status');
+        $data['name']                   = $request->input('name');
+        $data['objective']              = $request->input('objective');
+        $data['status']                 = $request->input('status');
         $data['special_ad_categories '] = json_encode(['NONE']);
 
         if ($request->has('buying_type')) {
@@ -143,25 +143,25 @@ class SocialAdsetController extends Controller
             $data['daily_budget'] = $request->input('daily_budget');
         }
 
-        $config = SocialAdAccount::find($adset->config_id);
+        $config  = SocialAdAccount::find($adset->config_id);
         $page_id = $config->page_id;
-        $fb = new FB($config->page_token);
+        $fb      = new FB($config->page_token);
         $this->socialPostLog($config->id, $adset->id, $config->platform, 'message', 'get page access token');
 
         try {
-            $data['name'] = $request->input('name');
-            $data['campaign_id'] = $adset->campaign->ref_campaign_id;
+            $data['name']          = $request->input('name');
+            $data['campaign_id']   = $adset->campaign->ref_campaign_id;
             $data['billing_event'] = $request->input('billing_event');
-            $data['bid_amount'] = 100;
+            $data['bid_amount']    = 100;
 
             $data['OPTIMIZATION_GOAL'] = 'REACH';
-            $data['targeting'] = json_encode(['geo_locations' => ['countries' => ['US']]]);
+            $data['targeting']         = json_encode(['geo_locations' => ['countries' => ['US']]]);
             if ($request->has('daily_budget')) {
                 $data['daily_budget'] = (int) $request->input('daily_budget');
             }
-            $data['bid_amount'] = $request->input('bid_amount');
-            $data['daily_budget'] = $request->input('daily_budget');
-            $data['status'] = $request->input('status');
+            $data['bid_amount']      = $request->input('bid_amount');
+            $data['daily_budget']    = $request->input('daily_budget');
+            $data['status']          = $request->input('status');
             $data['promoted_object'] = json_encode(['page_id' => $page_id]);
 
             $response = $fb->createAdsets($config->ad_account_id, $data);
@@ -169,7 +169,7 @@ class SocialAdsetController extends Controller
             $this->socialPostLog($config->id, $adset->id, $config->platform, 'response->create adset', $response);
             $adset->update([
                 'live_status' => 'ACTIVE',
-                'status' => 'ACTIVE',
+                'status'      => 'ACTIVE',
             ]);
             Session::flash('message', 'adset created  successfully');
 
@@ -188,21 +188,22 @@ class SocialAdsetController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  SocialAdset  $SocialAdset
+     * @param SocialAdset $SocialAdset
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
         $this->validate($request, [
             'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
+            'platform'         => 'required',
+            'name'             => 'required',
+            'email'            => 'required',
+            'password'         => 'required',
+            'status'           => 'required',
         ]);
-        $config = SocialAdset::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+        $config           = SocialAdset::findorfail($request->id);
+        $data             = $request->except('_token', 'id');
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();

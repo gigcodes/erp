@@ -51,7 +51,8 @@ class PurchaseStatusController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -64,7 +65,8 @@ class PurchaseStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -73,7 +75,7 @@ class PurchaseStatusController extends Controller
             'name' => 'required',
         ]);
 
-        $purchaseStatus = PurchaseStatus::find($id);
+        $purchaseStatus       = PurchaseStatus::find($id);
         $purchaseStatus->name = $request->input('name');
         $purchaseStatus->save();
 
@@ -84,7 +86,8 @@ class PurchaseStatusController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

@@ -21,7 +21,7 @@ class CreateMonitorLog extends Migration
             $table->enum('type', ['status', 'email', 'sms', 'pushover', 'telegram', 'jabber']);
             $table->text('message');
             $table->timestamp('datetime')->default(now());
-            $table->charset = 'utf8';
+            $table->charset   = 'utf8';
             $table->collation = 'utf8_general_ci';
             $table->timestamps();
         });

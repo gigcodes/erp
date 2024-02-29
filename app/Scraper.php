@@ -32,16 +32,16 @@ class Scraper extends Model
      * @SWG\Property(property="last_started_at",type="datetime")
      */
     const STATUS = [
-        '' => 'N/A',
-        'Ok' => 'Ok',
-        'Rework' => 'Rework',
-        'In Process' => 'In Process',
-        'Scrapper Fixed' => 'Scrapper Fixed',
-        'Process Complete' => 'Process Complete',
-        'Categories' => 'Categories',
-        'Logs Checked' => 'Logs Checked',
-        'Scrapper Checked' => 'Scrapper Checked',
-        'All brands Scrapped' => 'All brands Scrapped',
+        ''                        => 'N/A',
+        'Ok'                      => 'Ok',
+        'Rework'                  => 'Rework',
+        'In Process'              => 'In Process',
+        'Scrapper Fixed'          => 'Scrapper Fixed',
+        'Process Complete'        => 'Process Complete',
+        'Categories'              => 'Categories',
+        'Logs Checked'            => 'Logs Checked',
+        'Scrapper Checked'        => 'Scrapper Checked',
+        'All brands Scrapped'     => 'All brands Scrapped',
         'All Categories Scrapped' => 'All Categories Scrapped',
     ];
 

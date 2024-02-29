@@ -32,7 +32,7 @@ class ZoomMeetingDeleteRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->zoomkey = config('env.ZOOM_API_KEY');
+        $this->zoomkey    = config('env.ZOOM_API_KEY');
         $this->zoomsecret = config('env.ZOOM_API_SECRET');
     }
 
@@ -46,15 +46,15 @@ class ZoomMeetingDeleteRecordings extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
 
-            $zoomKey = $this->zoomkey;
+            $zoomKey    = $this->zoomkey;
             $zoomSecret = $this->zoomsecret;
-            $meetings = new ZoomMeetings();
-            $date = Carbon::yesterday();
+            $meetings   = new ZoomMeetings();
+            $date       = Carbon::yesterday();
             $meetings->deleteRecordings($zoomKey, $zoomSecret, $date);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'delete meeting recordings.']);
             $report->update(['end_time' => Carbon::now()]);

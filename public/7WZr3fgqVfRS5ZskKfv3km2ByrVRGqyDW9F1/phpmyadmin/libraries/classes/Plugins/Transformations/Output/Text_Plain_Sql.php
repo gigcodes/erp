@@ -22,7 +22,7 @@ class Text_Plain_Sql extends SQLTransformationsPlugin
         }
 
         $response = ResponseRenderer::getInstance();
-        $scripts = $response->getHeader()
+        $scripts  = $response->getHeader()
             ->getScripts();
         $scripts->addFile('vendor/codemirror/lib/codemirror.js');
         $scripts->addFile('vendor/codemirror/mode/sql/sql.js');

@@ -24,7 +24,7 @@ class CheckUserPrivileges
     private $dbi;
 
     /**
-     * @param  DatabaseInterface  $dbi DatabaseInterface object
+     * @param DatabaseInterface $dbi DatabaseInterface object
      */
     public function __construct(DatabaseInterface $dbi)
     {
@@ -34,14 +34,14 @@ class CheckUserPrivileges
     /**
      * Extracts details from a result row of a SHOW GRANT query
      *
-     * @param  string  $row grant row
+     * @param string $row grant row
      */
     public function getItemsFromShowGrantsRow(string $row): array
     {
         $dbNameOffset = mb_strpos($row, ' ON ') + 4;
 
-        $tableNameEndOffset = mb_strpos($row, ' TO ');
-        $tableNameStartOffset = false;
+        $tableNameEndOffset    = mb_strpos($row, ' TO ');
+        $tableNameStartOffset  = false;
         $tableNameStartOffset2 = mb_strpos($row, '`.', $dbNameOffset);
 
         if ($tableNameStartOffset2 && $tableNameStartOffset2 < $tableNameEndOffset) {
@@ -80,9 +80,9 @@ class CheckUserPrivileges
      * Check if user has required privileges for
      * performing 'Adjust privileges' operations
      *
-     * @param  string  $showGrantsString    string containing grants for user
-     * @param  string  $showGrantsDbName    name of db extracted from grant string
-     * @param  string  $showGrantsTableName name of table extracted from grant string
+     * @param string $showGrantsString    string containing grants for user
+     * @param string $showGrantsDbName    name of db extracted from grant string
+     * @param string $showGrantsTableName name of table extracted from grant string
      */
     public function checkRequiredPrivilegesForAdjust(
         string $showGrantsString,
@@ -101,9 +101,9 @@ class CheckUserPrivileges
         }
 
         if ($showGrantsDbName === '*' && $showGrantsTableName === '*') {
-            $GLOBALS['col_priv'] = true;
-            $GLOBALS['db_priv'] = true;
-            $GLOBALS['proc_priv'] = true;
+            $GLOBALS['col_priv']   = true;
+            $GLOBALS['db_priv']    = true;
+            $GLOBALS['proc_priv']  = true;
             $GLOBALS['table_priv'] = true;
 
             if ($showGrantsString === 'ALL PRIVILEGES' || $showGrantsString === 'ALL') {
@@ -131,9 +131,9 @@ class CheckUserPrivileges
                 $GLOBALS['table_priv'] = true;
                 break;
             case '*':
-                $GLOBALS['col_priv'] = true;
-                $GLOBALS['db_priv'] = true;
-                $GLOBALS['proc_priv'] = true;
+                $GLOBALS['col_priv']   = true;
+                $GLOBALS['db_priv']    = true;
+                $GLOBALS['proc_priv']  = true;
                 $GLOBALS['table_priv'] = true;
                 break;
             default:
@@ -159,30 +159,30 @@ class CheckUserPrivileges
     private function analyseShowGrant(): void
     {
         if (SessionCache::has('is_create_db_priv')) {
-            $GLOBALS['is_create_db_priv'] = SessionCache::get('is_create_db_priv');
-            $GLOBALS['is_reload_priv'] = SessionCache::get('is_reload_priv');
-            $GLOBALS['db_to_create'] = SessionCache::get('db_to_create');
+            $GLOBALS['is_create_db_priv']              = SessionCache::get('is_create_db_priv');
+            $GLOBALS['is_reload_priv']                 = SessionCache::get('is_reload_priv');
+            $GLOBALS['db_to_create']                   = SessionCache::get('db_to_create');
             $GLOBALS['dbs_where_create_table_allowed'] = SessionCache::get('dbs_where_create_table_allowed');
-            $GLOBALS['dbs_to_test'] = SessionCache::get('dbs_to_test');
+            $GLOBALS['dbs_to_test']                    = SessionCache::get('dbs_to_test');
 
-            $GLOBALS['db_priv'] = SessionCache::get('db_priv');
-            $GLOBALS['col_priv'] = SessionCache::get('col_priv');
+            $GLOBALS['db_priv']    = SessionCache::get('db_priv');
+            $GLOBALS['col_priv']   = SessionCache::get('col_priv');
             $GLOBALS['table_priv'] = SessionCache::get('table_priv');
-            $GLOBALS['proc_priv'] = SessionCache::get('proc_priv');
+            $GLOBALS['proc_priv']  = SessionCache::get('proc_priv');
 
             return;
         }
 
         // defaults
-        $GLOBALS['is_create_db_priv'] = false;
-        $GLOBALS['is_reload_priv'] = false;
-        $GLOBALS['db_to_create'] = '';
+        $GLOBALS['is_create_db_priv']              = false;
+        $GLOBALS['is_reload_priv']                 = false;
+        $GLOBALS['db_to_create']                   = '';
         $GLOBALS['dbs_where_create_table_allowed'] = [];
-        $GLOBALS['dbs_to_test'] = Utilities::getSystemSchemas();
-        $GLOBALS['proc_priv'] = false;
-        $GLOBALS['db_priv'] = false;
-        $GLOBALS['col_priv'] = false;
-        $GLOBALS['table_priv'] = false;
+        $GLOBALS['dbs_to_test']                    = Utilities::getSystemSchemas();
+        $GLOBALS['proc_priv']                      = false;
+        $GLOBALS['db_priv']                        = false;
+        $GLOBALS['col_priv']                       = false;
+        $GLOBALS['table_priv']                     = false;
 
         $showGrantsResult = $this->dbi->tryQuery('SHOW GRANTS');
 
@@ -230,9 +230,9 @@ class CheckUserPrivileges
 
             if ($showGrantsDbName === '*') {
                 // a global CREATE privilege
-                $GLOBALS['is_create_db_priv'] = true;
-                $GLOBALS['is_reload_priv'] = true;
-                $GLOBALS['db_to_create'] = '';
+                $GLOBALS['is_create_db_priv']                = true;
+                $GLOBALS['is_reload_priv']                   = true;
+                $GLOBALS['db_to_create']                     = '';
                 $GLOBALS['dbs_where_create_table_allowed'][] = '*';
                 // @todo we should not break here, cause GRANT ALL *.*
                 // could be revoked by a later rule like GRANT SELECT ON db.*
@@ -269,8 +269,8 @@ class CheckUserPrivileges
              * Do not handle the underscore wildcard
              * (this case must be rare anyway)
              */
-            $GLOBALS['db_to_create'] = preg_replace('/' . $re0 . '%/', '\\1', $showGrantsDbName);
-            $GLOBALS['db_to_create'] = preg_replace('/' . $re1 . '(%|_)/', '\\1\\3', $GLOBALS['db_to_create']);
+            $GLOBALS['db_to_create']      = preg_replace('/' . $re0 . '%/', '\\1', $showGrantsDbName);
+            $GLOBALS['db_to_create']      = preg_replace('/' . $re1 . '(%|_)/', '\\1\\3', $GLOBALS['db_to_create']);
             $GLOBALS['is_create_db_priv'] = true;
 
             /**
@@ -309,15 +309,15 @@ class CheckUserPrivileges
 
         // If MySQL is started with --skip-grant-tables
         if ($username === '') {
-            $GLOBALS['is_create_db_priv'] = true;
-            $GLOBALS['is_reload_priv'] = true;
-            $GLOBALS['db_to_create'] = '';
+            $GLOBALS['is_create_db_priv']              = true;
+            $GLOBALS['is_reload_priv']                 = true;
+            $GLOBALS['db_to_create']                   = '';
             $GLOBALS['dbs_where_create_table_allowed'] = ['*'];
-            $GLOBALS['dbs_to_test'] = false;
-            $GLOBALS['db_priv'] = true;
-            $GLOBALS['col_priv'] = true;
-            $GLOBALS['table_priv'] = true;
-            $GLOBALS['proc_priv'] = true;
+            $GLOBALS['dbs_to_test']                    = false;
+            $GLOBALS['db_priv']                        = true;
+            $GLOBALS['col_priv']                       = true;
+            $GLOBALS['table_priv']                     = true;
+            $GLOBALS['proc_priv']                      = true;
 
             return;
         }

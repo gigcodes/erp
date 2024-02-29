@@ -83,8 +83,8 @@ class ScrapApiLogCommand extends Command
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $response   = curl_exec($curl);
+            $httpcode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $parameters = [];
             LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\ScrapApiLogCommand::class, 'handle');
 
@@ -95,9 +95,9 @@ class ScrapApiLogCommand extends Command
                     $log = base64_decode($response->log);
 
                     if (! empty($log)) {
-                        $api_log = new ScrapApiLog;
-                        $api_log->scraper_id = $scraper->id;
-                        $api_log->server_id = $scraper->server_id;
+                        $api_log               = new ScrapApiLog;
+                        $api_log->scraper_id   = $scraper->id;
+                        $api_log->server_id    = $scraper->server_id;
                         $api_log->log_messages = $log;
                         $api_log->save();
                     }

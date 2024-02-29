@@ -11,7 +11,8 @@ class ProductObserver
     /**
      * Handle the out of stock subscribe "created" event.
      *
-     * @param  \App\OutOfStockSubscribe  $outOfStockSubscribe
+     * @param \App\OutOfStockSubscribe $outOfStockSubscribe
+     *
      * @return void
      */
     public function created(Product $product)
@@ -22,7 +23,8 @@ class ProductObserver
     /**
      * Handle the out of stock subscribe "updated" event.
      *
-     * @param  \App\OutOfStockSubscribe  $outOfStockSubscribe
+     * @param \App\OutOfStockSubscribe $outOfStockSubscribe
+     *
      * @return void
      */
     public function updated(Product $product)
@@ -31,7 +33,7 @@ class ProductObserver
             $customerIds = OutOfStockSubscribe::where('product_id', $product->id)->where('status', 0)
             ->pluck('customer_id');
             $data['productName'] = $product['name'];
-            $customerEmails = Customer::whereIn('id', $customerIds)->pluck('email')->toArray();
+            $customerEmails      = Customer::whereIn('id', $customerIds)->pluck('email')->toArray();
             foreach ($customerEmails as $customerEmail) {
                 $email_to = $customerEmail;
                 \Mail::send('emails.product_in_stock', $data, function ($message) use ($email_to) {

@@ -44,9 +44,9 @@ class RejectDuplicateImages extends Command
      */
     public function handle()
     {
-        $media_id = $this->argument('media_id');
+        $media_id   = $this->argument('media_id');
         $product_id = $this->argument('product_id');
-        $query = CroppedImageReference::query();
+        $query      = CroppedImageReference::query();
 
         $query->where('original_media_id', $media_id);
         $query->where('product_id', $product_id);
@@ -68,7 +68,7 @@ class RejectDuplicateImages extends Command
 
                     // Get last image cropper
                     $lastImageCropper = $products->crop_approved_by;
-                    $user = \App\User::find($lastImageCropper);
+                    $user             = \App\User::find($lastImageCropper);
 
                     foreach ($data->differentWebsiteImages as $key) {
                         if (empty($key)) {
@@ -95,34 +95,34 @@ class RejectDuplicateImages extends Command
 
                         // delete duplicate
                         if (in_array($hash, $checksums)) {
-                            $products->status_id = StatusHelper::$autoReject;
-                            $products->is_crop_rejected = 1;
-                            $products->crop_remark = 'Auto rejected';
-                            $products->crop_rejected_by = 0;
-                            $products->is_approved = 0;
-                            $products->is_crop_approved = 0;
-                            $products->is_crop_ordered = 0;
+                            $products->status_id              = StatusHelper::$autoReject;
+                            $products->is_crop_rejected       = 1;
+                            $products->crop_remark            = 'Auto rejected';
+                            $products->crop_rejected_by       = 0;
+                            $products->is_approved            = 0;
+                            $products->is_crop_approved       = 0;
+                            $products->is_crop_ordered        = 0;
                             $products->is_crop_being_verified = 0;
-                            $products->crop_rejected_at = Carbon::now()->toDateTimeString();
+                            $products->crop_rejected_at       = Carbon::now()->toDateTimeString();
                             $products->save();
 
                             if ($user) {
                                 if ((int) $lastImageCropper > 0) {
-                                    $e = new ListingHistory();
-                                    $e->user_id = $lastImageCropper;
+                                    $e             = new ListingHistory();
+                                    $e->user_id    = $lastImageCropper;
                                     $e->product_id = $products->id;
-                                    $e->content = ['action' => 'CROP_APPROVAL_DENIED', 'page' => 'Approved Listing Page'];
-                                    $e->action = 'CROP_APPROVAL_DENIED';
+                                    $e->content    = ['action' => 'CROP_APPROVAL_DENIED', 'page' => 'Approved Listing Page'];
+                                    $e->action     = 'CROP_APPROVAL_DENIED';
                                     $e->save();
                                 }
                             }
 
                             // Log crop rejected
-                            $e = new ListingHistory();
-                            $e->user_id = 0;
+                            $e             = new ListingHistory();
+                            $e->user_id    = 0;
                             $e->product_id = $products->id;
-                            $e->content = ['action' => 'CROP_REJECTED', 'page' => 'Approved Listing Page'];
-                            $e->action = 'CROP_REJECTED';
+                            $e->content    = ['action' => 'CROP_REJECTED', 'page' => 'Approved Listing Page'];
+                            $e->action     = 'CROP_REJECTED';
                             $e->save();
                         } // add hash to list
                         else {

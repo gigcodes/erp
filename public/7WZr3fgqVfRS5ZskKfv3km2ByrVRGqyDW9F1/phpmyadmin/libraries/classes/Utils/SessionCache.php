@@ -25,6 +25,8 @@ final class SessionCache
     }
 
     /**
+     * @param ?callable $defaultValueCallback
+     *
      * @return mixed|null
      */
     public static function get(string $name, ?callable $defaultValueCallback = null)
@@ -44,7 +46,7 @@ final class SessionCache
     }
 
     /**
-     * @param  mixed  $value
+     * @param mixed $value
      */
     public static function set(string $name, $value): void
     {

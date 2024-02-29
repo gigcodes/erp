@@ -21,12 +21,12 @@ class TriggerController extends Controller
 
     public function index(Request $request)
     {
-        $page = $request->get('page', 1);
+        $page    = $request->get('page', 1);
         $trigger = new Trigger();
 
-        $triggers = array_reverse($trigger->getAll());
-        $count = count($triggers);
-        $triggers = array_slice($triggers, $page * 20, 20);
+        $triggers  = array_reverse($trigger->getAll());
+        $count     = count($triggers);
+        $triggers  = array_slice($triggers, $page * 20, 20);
         $templates = $trigger->getAllTemplates();
 
         array_map(function ($trigger) {
@@ -38,17 +38,17 @@ class TriggerController extends Controller
         }, $triggers);
         if ($request->ajax()) {
             return view('zabbix.trigger.index', [
-                'triggers' => $triggers,
-                'count' => $count,
-                'page' => $page,
+                'triggers'  => $triggers,
+                'count'     => $count,
+                'page'      => $page,
                 'templates' => $templates,
             ]);
         }
 
         return view('zabbix.trigger.index', [
-            'triggers' => $triggers,
-            'count' => $count,
-            'page' => $page,
+            'triggers'  => $triggers,
+            'count'     => $count,
+            'page'      => $page,
             'templates' => $templates,
         ]);
     }
@@ -61,7 +61,7 @@ class TriggerController extends Controller
         $data = $request->all();
 
         try {
-            $item = new Trigger();
+            $item   = new Trigger();
             $itemId = (int) $data['id'] ?? null;
             if (! empty($data['id'])) {
                 $item = $item->getById($itemId);
@@ -76,19 +76,19 @@ class TriggerController extends Controller
         } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500,
+                'code'    => 500,
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500,
+                'code'    => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $item->getName()),
-            'item' => $item,
-            'code' => 200,
+            'item'    => $item,
+            'code'    => 200,
         ]);
     }
 
@@ -97,7 +97,7 @@ class TriggerController extends Controller
         $data = $request->all();
 
         try {
-            $trigger = new Trigger();
+            $trigger   = new Trigger();
             $triggerId = (int) $data['id'] ?? null;
             if (! empty($data['id'])) {
                 $trigger = $trigger->getById($triggerId);
@@ -109,19 +109,19 @@ class TriggerController extends Controller
         } catch (ZabbixException $zabbixException) {
             return response()->json([
                 'message' => $zabbixException->getMessage(),
-                'code' => 500,
+                'code'    => 500,
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Something went wrong.',
-                'code' => 500,
+                'code'    => 500,
             ]);
         }
 
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $trigger->getName()),
             'trigger' => $trigger,
-            'code' => 200,
+            'code'    => 200,
         ]);
     }
 }

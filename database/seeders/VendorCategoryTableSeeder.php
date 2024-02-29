@@ -19,7 +19,7 @@ class VendorCategoryTableSeeder extends Seeder
 
         // Create 1000 customers
         for ($i = 0; $i < 100; $i++) {
-            $vendorCategory = new VendorCategory();
+            $vendorCategory        = new VendorCategory();
             $vendorCategory->title = $faker->jobTitle;
             $vendorCategory->save();
         }

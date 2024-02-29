@@ -22,9 +22,9 @@ require ROOT_PATH . 'setup/lib/common.inc.php';
 
 Core::headerJSON();
 
-$ids = isset($_POST['id']) && is_scalar($_POST['id']) ? (string) $_POST['id'] : '';
-$vids = explode(',', $ids);
-$vals = isset($_POST['values']) && is_scalar($_POST['values']) ? (string) $_POST['values'] : '';
+$ids    = isset($_POST['id']) && is_scalar($_POST['id']) ? (string) $_POST['id'] : '';
+$vids   = explode(',', $ids);
+$vals   = isset($_POST['values']) && is_scalar($_POST['values']) ? (string) $_POST['values'] : '';
 $values = json_decode($vals);
 if (! ($values instanceof stdClass)) {
     Core::fatalError(__('Wrong data'));

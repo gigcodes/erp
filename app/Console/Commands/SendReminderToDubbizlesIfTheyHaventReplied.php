@@ -48,7 +48,7 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was updated.']);
@@ -110,12 +110,12 @@ class SendReminderToDubbizlesIfTheyHaventReplied extends Command
     private function sendMessage($dubbizle, $message): void
     {
         $params = [
-            'number' => null,
-            'user_id' => 6,
-            'approved' => 1,
-            'status' => 1,
+            'number'      => null,
+            'user_id'     => 6,
+            'approved'    => 1,
+            'status'      => 1,
             'dubbizle_id' => $dubbizle,
-            'message' => $message,
+            'message'     => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

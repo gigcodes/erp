@@ -146,9 +146,9 @@ class Node
     /**
      * Initialises the class by setting the mandatory variables
      *
-     * @param  string  $name    An identifier for the new node
-     * @param  int  $type    Type of node, may be one of CONTAINER or OBJECT
-     * @param  bool  $isGroup Whether this object has been created
+     * @param string $name    An identifier for the new node
+     * @param int    $type    Type of node, may be one of CONTAINER or OBJECT
+     * @param bool   $isGroup Whether this object has been created
      *                        while grouping nodes
      */
     public function __construct($name, $type = self::OBJECT, $isGroup = false)
@@ -156,7 +156,7 @@ class Node
         global $dbi;
 
         if (strlen((string) $name)) {
-            $this->name = $name;
+            $this->name     = $name;
             $this->realName = $name;
         }
 
@@ -164,27 +164,28 @@ class Node
             $this->type = self::CONTAINER;
         }
 
-        $this->isGroup = (bool) $isGroup;
+        $this->isGroup  = (bool) $isGroup;
         $this->relation = new Relation($dbi);
     }
 
     /**
      * Adds a child node to this node
      *
-     * @param  Node  $child A child node
+     * @param Node $child A child node
      */
     public function addChild($child): void
     {
         $this->children[] = $child;
-        $child->parent = $this;
+        $child->parent    = $this;
     }
 
     /**
      * Returns a child node given it's name
      *
-     * @param  string  $name     The name of requested child
-     * @param  bool  $realName Whether to use the "realName"
+     * @param string $name     The name of requested child
+     * @param bool   $realName Whether to use the "realName"
      *                         instead of "name" in comparisons
+     *
      * @return Node|null The requested child node or null,
      *                   if the requested node cannot be found
      */
@@ -210,7 +211,7 @@ class Node
     /**
      * Removes a child node from this node
      *
-     * @param  string  $name The name of child to be removed
+     * @param string $name The name of child to be removed
      */
     public function removeChild($name): void
     {
@@ -225,9 +226,10 @@ class Node
     /**
      * Retrieves the parents for a node
      *
-     * @param  bool  $self       Whether to include the Node itself in the results
-     * @param  bool  $containers Whether to include nodes of type CONTAINER
-     * @param  bool  $groups     Whether to include nodes which have $group == true
+     * @param bool $self       Whether to include the Node itself in the results
+     * @param bool $containers Whether to include nodes of type CONTAINER
+     * @param bool $groups     Whether to include nodes which have $group == true
+     *
      * @return Node[] An array of parent Nodes
      */
     public function parents($self = false, $containers = false, $groups = false): array
@@ -269,7 +271,7 @@ class Node
     /**
      * This function checks if the node has children nodes associated with it
      *
-     * @param  bool  $countEmptyContainers Whether to count empty child
+     * @param bool $countEmptyContainers Whether to count empty child
      *                                   containers as valid children
      */
     public function hasChildren($countEmptyContainers = true): bool
@@ -302,7 +304,7 @@ class Node
     public function hasSiblings(): bool
     {
         $retval = false;
-        $paths = $this->getPaths();
+        $paths  = $this->getPaths();
         if (count($paths['aPath_clean']) > 3) {
             return true;
         }
@@ -342,30 +344,30 @@ class Node
      */
     public function getPaths(): array
     {
-        $aPath = [];
+        $aPath      = [];
         $aPathClean = [];
         foreach ($this->parents(true, true, false) as $parent) {
-            $aPath[] = base64_encode($parent->realName);
+            $aPath[]      = base64_encode($parent->realName);
             $aPathClean[] = $parent->realName;
         }
 
-        $aPath = implode('.', array_reverse($aPath));
+        $aPath      = implode('.', array_reverse($aPath));
         $aPathClean = array_reverse($aPathClean);
 
-        $vPath = [];
+        $vPath      = [];
         $vPathClean = [];
         foreach ($this->parents(true, true, true) as $parent) {
-            $vPath[] = base64_encode((string) $parent->name);
+            $vPath[]      = base64_encode((string) $parent->name);
             $vPathClean[] = $parent->name;
         }
 
-        $vPath = implode('.', array_reverse($vPath));
+        $vPath      = implode('.', array_reverse($vPath));
         $vPathClean = array_reverse($vPathClean);
 
         return [
-            'aPath' => $aPath,
+            'aPath'       => $aPath,
             'aPath_clean' => $aPathClean,
-            'vPath' => $vPath,
+            'vPath'       => $vPath,
             'vPath_clean' => $vPathClean,
         ];
     }
@@ -375,10 +377,11 @@ class Node
      * This method is overridden by the PhpMyAdmin\Navigation\Nodes\NodeDatabase
      * and PhpMyAdmin\Navigation\Nodes\NodeTable classes
      *
-     * @param  string  $type         The type of item we are looking for
+     * @param string $type         The type of item we are looking for
      *                             ('tables', 'views', etc)
-     * @param  int  $pos          The offset of the list within the results
-     * @param  string  $searchClause A string used to filter the results of the query
+     * @param int    $pos          The offset of the list within the results
+     * @param string $searchClause A string used to filter the results of the query
+     *
      * @return array
      */
     public function getData($type, $pos, $searchClause = '')
@@ -399,9 +402,10 @@ class Node
      * This method is overridden by the PhpMyAdmin\Navigation\Nodes\NodeDatabase
      * and PhpMyAdmin\Navigation\Nodes\NodeTable classes
      *
-     * @param  string  $type         The type of item we are looking for
+     * @param string $type         The type of item we are looking for
      *                             ('tables', 'views', etc)
-     * @param  string  $searchClause A string used to filter the results of the query
+     * @param string $searchClause A string used to filter the results of the query
+     *
      * @return int
      */
     public function getPresence($type = '', $searchClause = '')
@@ -450,7 +454,7 @@ class Node
         if ($GLOBALS['dbs_to_test'] !== false) {
             $prefixMap = [];
             foreach ($this->getDatabasesToSearch($searchClause) as $db) {
-                $query = "SHOW DATABASES LIKE '" . $db . "'";
+                $query  = "SHOW DATABASES LIKE '" . $db . "'";
                 $handle = $dbi->tryQuery($query);
                 if ($handle === false) {
                     continue;
@@ -474,7 +478,7 @@ class Node
         }
 
         $prefixMap = [];
-        $query = 'SHOW DATABASES ';
+        $query     = 'SHOW DATABASES ';
         $query .= $this->getWhereClause('Database', $searchClause);
         $handle = $dbi->tryQuery($query);
         if ($handle !== false) {
@@ -494,7 +498,7 @@ class Node
     /**
      * Detemines whether a given database should be hidden according to 'hide_db'
      *
-     * @param  string  $db database name
+     * @param string $db database name
      */
     private function isHideDb($db): bool
     {
@@ -508,7 +512,8 @@ class Node
      * the next priority. In case both are empty list of databases determined by
      * GRANTs are used
      *
-     * @param  string  $searchClause search clause
+     * @param string $searchClause search clause
+     *
      * @return array array of databases
      */
     private function getDatabasesToSearch($searchClause)
@@ -535,8 +540,9 @@ class Node
      * Returns the WHERE clause depending on the $searchClause parameter
      * and the hide_db directive
      *
-     * @param  string  $columnName   Column name of the column having database names
-     * @param  string  $searchClause A string used to filter the results of the query
+     * @param string $columnName   Column name of the column having database names
+     * @param string $searchClause A string used to filter the results of the query
+     *
      * @return string
      */
     private function getWhereClause($columnName, $searchClause = '')
@@ -592,7 +598,8 @@ class Node
     /**
      * Returns CSS classes for a node
      *
-     * @param  bool  $match Whether the node matched loaded tree
+     * @param bool $match Whether the node matched loaded tree
+     *
      * @return string with html classes.
      */
     public function getCssClasses($match): string
@@ -617,7 +624,8 @@ class Node
     /**
      * Returns icon for the node
      *
-     * @param  bool  $match Whether the node matched loaded tree
+     * @param bool $match Whether the node matched loaded tree
+     *
      * @return string with image name
      */
     public function getIcon($match): string
@@ -660,8 +668,9 @@ class Node
     }
 
     /**
-     * @param  int  $pos          The offset of the list within the results.
-     * @param  string  $searchClause A string used to filter the results of the query.
+     * @param int    $pos          The offset of the list within the results.
+     * @param string $searchClause A string used to filter the results of the query.
+     *
      * @return array
      */
     private function getDataFromInfoSchema($pos, $searchClause)
@@ -681,7 +690,7 @@ class Node
         }
 
         $dbSeparator = $cfg['NavigationTreeDbSeparator'];
-        $query = sprintf(
+        $query       = sprintf(
             'SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level'
                 . ' FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, \'%1$s\', 1) DB_first_level'
                 . ' FROM INFORMATION_SCHEMA.SCHEMATA %2$s) t'
@@ -698,8 +707,9 @@ class Node
     }
 
     /**
-     * @param  int  $pos          The offset of the list within the results.
-     * @param  string  $searchClause A string used to filter the results of the query.
+     * @param int    $pos          The offset of the list within the results.
+     * @param string $searchClause A string used to filter the results of the query.
+     *
      * @return array
      */
     private function getDataFromShowDatabases($pos, $searchClause)
@@ -735,14 +745,14 @@ class Node
         }
 
         $dbSeparator = $cfg['NavigationTreeDbSeparator'];
-        $handle = $dbi->tryQuery(sprintf(
+        $handle      = $dbi->tryQuery(sprintf(
             'SHOW DATABASES %s',
             $this->getWhereClause('Database', $searchClause)
         ));
         $prefixes = [];
         if ($handle !== false) {
             $prefixMap = [];
-            $total = $pos + $maxItems;
+            $total     = $pos + $maxItems;
             while ($arr = $handle->fetchRow()) {
                 $prefix = strstr($arr[0], $dbSeparator, true);
                 if ($prefix === false) {
@@ -777,8 +787,9 @@ class Node
     }
 
     /**
-     * @param  int  $pos          The offset of the list within the results.
-     * @param  string  $searchClause A string used to filter the results of the query.
+     * @param int    $pos          The offset of the list within the results.
+     * @param string $searchClause A string used to filter the results of the query.
+     *
      * @return array
      */
     private function getDataFromShowDatabasesLike($pos, $searchClause)
@@ -788,7 +799,7 @@ class Node
         $maxItems = $cfg['FirstLevelNavigationItems'];
         if (! $cfg['NavigationTreeEnableGrouping'] || ! $cfg['ShowDatabasesNavigationAsTree']) {
             $retval = [];
-            $count = 0;
+            $count  = 0;
             foreach ($this->getDatabasesToSearch($searchClause) as $db) {
                 $handle = $dbi->tryQuery(sprintf('SHOW DATABASES LIKE \'%s\'', $db));
                 if ($handle === false) {
@@ -819,9 +830,9 @@ class Node
         }
 
         $dbSeparator = $cfg['NavigationTreeDbSeparator'];
-        $retval = [];
-        $prefixMap = [];
-        $total = $pos + $maxItems;
+        $retval      = [];
+        $prefixMap   = [];
+        $total       = $pos + $maxItems;
         foreach ($this->getDatabasesToSearch($searchClause) as $db) {
             $handle = $dbi->tryQuery(sprintf('SHOW DATABASES LIKE \'%s\'', $db));
             if ($handle === false) {

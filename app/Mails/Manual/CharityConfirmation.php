@@ -24,7 +24,7 @@ class CharityConfirmation extends Mailable
 
     public function __construct(Order $order)
     {
-        $this->order = $order;
+        $this->order      = $order;
         $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
@@ -35,9 +35,9 @@ class CharityConfirmation extends Mailable
      */
     public function build()
     {
-        $subject = 'Charity Confirmation # ' . $this->order->order_id;
-        $order = $this->order;
-        $customer = $order->customer;
+        $subject        = 'Charity Confirmation # ' . $this->order->order_id;
+        $order          = $this->order;
+        $customer       = $order->customer;
         $order_products = $order->order_products;
 
         $this->subject = $subject;

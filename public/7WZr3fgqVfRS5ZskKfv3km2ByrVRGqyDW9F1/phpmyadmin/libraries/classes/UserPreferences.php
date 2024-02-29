@@ -46,7 +46,7 @@ class UserPreferences
     /**
      * Common initialization for user preferences modification pages
      *
-     * @param  ConfigFile  $cf Config file instance
+     * @param ConfigFile $cf Config file instance
      */
     public function pageInit(ConfigFile $cf): void
     {
@@ -84,12 +84,12 @@ class UserPreferences
             }
 
             $configData = $_SESSION['userconfig']['db'] ?? null;
-            $timestamp = $_SESSION['userconfig']['ts'] ?? null;
+            $timestamp  = $_SESSION['userconfig']['ts'] ?? null;
 
             return [
                 'config_data' => is_array($configData) ? $configData : [],
-                'mtime' => is_int($timestamp) ? $timestamp : time(),
-                'type' => 'session',
+                'mtime'       => is_int($timestamp) ? $timestamp : time(),
+                'type'        => 'session',
             ];
         }
 
@@ -110,15 +110,16 @@ class UserPreferences
 
         return [
             'config_data' => is_array($configData) ? $configData : [],
-            'mtime' => is_numeric($row['ts']) ? (int) $row['ts'] : time(),
-            'type' => 'db',
+            'mtime'       => is_numeric($row['ts']) ? (int) $row['ts'] : time(),
+            'type'        => 'db',
         ];
     }
 
     /**
      * Saves user preferences
      *
-     * @param  array  $config_array configuration array
+     * @param array $config_array configuration array
+     *
      * @return true|Message
      */
     public function save(array $config_array)
@@ -126,8 +127,8 @@ class UserPreferences
         global $dbi;
 
         $relationParameters = $this->relation->getRelationParameters();
-        $server = $GLOBALS['server'] ?? $GLOBALS['cfg']['ServerDefault'];
-        $cache_key = 'server_' . $server;
+        $server             = $GLOBALS['server'] ?? $GLOBALS['cfg']['ServerDefault'];
+        $cache_key          = 'server_' . $server;
         if (
             $relationParameters->userPreferencesFeature === null
             || $relationParameters->user === null
@@ -153,7 +154,7 @@ class UserPreferences
             . $dbi->escapeString($relationParameters->user)
             . '\'';
 
-        $has_config = $dbi->fetchValue($query, 0, DatabaseInterface::CONNECT_CONTROL);
+        $has_config  = $dbi->fetchValue($query, 0, DatabaseInterface::CONNECT_CONTROL);
         $config_data = json_encode($config_array);
         if ($has_config) {
             $query = 'UPDATE ' . $query_table
@@ -200,7 +201,7 @@ class UserPreferences
     private function hasAccessToDatabase(DatabaseName $database): bool
     {
         $escapedDb = $GLOBALS['dbi']->escapeString($database->getName());
-        $query = 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'' . $escapedDb . '\';';
+        $query     = 'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'' . $escapedDb . '\';';
         if ($GLOBALS['cfg']['Server']['DisableIS']) {
             $query = 'SHOW DATABASES LIKE \'' . Util::escapeMysqlWildcards($escapedDb) . '\';';
         }
@@ -212,20 +213,21 @@ class UserPreferences
      * Returns a user preferences array filtered by $cfg['UserprefsDisallow']
      * (exclude list) and keys from user preferences form (allow list)
      *
-     * @param  array  $config_data path => value pairs
+     * @param array $config_data path => value pairs
+     *
      * @return array
      */
     public function apply(array $config_data)
     {
-        $cfg = [];
+        $cfg         = [];
         $excludeList = array_flip($GLOBALS['cfg']['UserprefsDisallow']);
-        $allowList = array_flip(UserFormList::getFields());
+        $allowList   = array_flip(UserFormList::getFields());
         // allow some additional fields which are custom handled
-        $allowList['ThemeDefault'] = true;
-        $allowList['lang'] = true;
+        $allowList['ThemeDefault']   = true;
+        $allowList['lang']           = true;
         $allowList['Server/hide_db'] = true;
         $allowList['Server/only_db'] = true;
-        $allowList['2fa'] = true;
+        $allowList['2fa']            = true;
         foreach ($config_data as $path => $value) {
             if (! isset($allowList[$path]) || isset($excludeList[$path])) {
                 continue;
@@ -242,9 +244,10 @@ class UserPreferences
      *
      * No validation is done!
      *
-     * @param  string  $path          configuration
-     * @param  mixed  $value         value
-     * @param  mixed  $default_value default value
+     * @param string $path          configuration
+     * @param mixed  $value         value
+     * @param mixed  $default_value default value
+     *
      * @return true|Message
      */
     public function persistOption($path, $value, $default_value)
@@ -266,9 +269,9 @@ class UserPreferences
     /**
      * Redirects after saving new user preferences
      *
-     * @param  string  $file_name Filename
-     * @param  array|null  $params    URL parameters
-     * @param  string  $hash      Hash value
+     * @param string     $file_name Filename
+     * @param array|null $params    URL parameters
+     * @param string     $hash      Hash value
      */
     public function redirect(
         $file_name,
@@ -304,11 +307,11 @@ class UserPreferences
         }
 
         $script_name = basename(basename($GLOBALS['PMA_PHP_SELF']));
-        $return_url = $script_name . '?' . http_build_query($_GET, '', '&');
+        $return_url  = $script_name . '?' . http_build_query($_GET, '', '&');
 
         return $this->template->render('preferences/autoload', [
             'hidden_inputs' => Url::getHiddenInputs(),
-            'return_url' => $return_url,
+            'return_url'    => $return_url,
         ]);
     }
 }

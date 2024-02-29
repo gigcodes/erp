@@ -48,7 +48,7 @@ class UpdateCurrencyNames extends Command
         }
 
         $client = new Client;
-        $url = 'http://data.fixer.io/api/symbols?access_key=' . $fixerApiKey;
+        $url    = 'http://data.fixer.io/api/symbols?access_key=' . $fixerApiKey;
 
         $response = $client->get($url);
 

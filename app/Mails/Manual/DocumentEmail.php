@@ -23,8 +23,8 @@ class DocumentEmail extends Mailable
 
     public function __construct(string $subject, string $message, array $file_paths)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subject    = $subject;
+        $this->message    = $message;
         $this->file_paths = $file_paths;
         $this->fromMailer = 'documents@amourint.com';
     }

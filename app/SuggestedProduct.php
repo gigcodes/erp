@@ -11,7 +11,6 @@ class SuggestedProduct extends Model
 {
     /**
      * @var string
-
      *
      * @SWG\Property(property="brands",type="string")
      * @SWG\Property(property="categories",type="string")
@@ -77,32 +76,32 @@ class SuggestedProduct extends Model
                     $excludedProductIDs = $suggestion->suggestionProducts->pluck('product_id')->toArray();
                 }
 
-                $brands = json_decode($suggestion->brands);
+                $brands     = json_decode($suggestion->brands);
                 $categories = json_decode($suggestion->categories);
-                $sizes = json_decode($suggestion->size);
-                $suppliers = json_decode($suggestion->supplier);
+                $sizes      = json_decode($suggestion->size);
+                $suppliers  = json_decode($suggestion->supplier);
 
                 $needToBeRun = false;
-                $products = new Product;
+                $products    = new Product;
 
                 // check with brands
                 if (! empty($brands) && is_array($brands)) {
                     $needToBeRun = true;
-                    $products = $products->whereIn('products.brand', $brands);
+                    $products    = $products->whereIn('products.brand', $brands);
                 }
 
                 // check with categories
                 if (! empty($categories) && is_array($categories)) {
                     $needToBeRun = true;
-                    $category = \App\Category::whereIn('parent_id', $categories)->get()->pluck('id')->toArray();
-                    $categories = array_merge($categories, $category);
-                    $products = $products->whereIn('products.category', $categories);
+                    $category    = \App\Category::whereIn('parent_id', $categories)->get()->pluck('id')->toArray();
+                    $categories  = array_merge($categories, $category);
+                    $products    = $products->whereIn('products.category', $categories);
                 }
 
                 // check with sizes
                 if (! empty($sizes) && is_array($sizes)) {
                     $needToBeRun = true;
-                    $products = $products->where(function ($query) use ($sizes) {
+                    $products    = $products->where(function ($query) use ($sizes) {
                         foreach ($sizes as $size) {
                             $query->orWhere('products.size', 'LIKE', "%$size%");
                         }
@@ -114,9 +113,9 @@ class SuggestedProduct extends Model
                 // check with suppliers
                 if (! empty($suppliers) && is_array($suppliers)) {
                     $needToBeRun = true;
-                    $products = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
-                    $products = $products->whereIn('ps.supplier_id', $suppliers);
-                    $products = $products->groupBy('products.id');
+                    $products    = $products->join('product_suppliers as ps', 'ps.sku', 'products.sku');
+                    $products    = $products->whereIn('ps.supplier_id', $suppliers);
+                    $products    = $products->groupBy('products.id');
                 }
 
                 // now check the params and start getting result
@@ -124,11 +123,11 @@ class SuggestedProduct extends Model
                     $products = $products->where('category', '!=', 1)->whereNotIn('products.id', $excludedProductIDs)->select(['products.*'])->latest()->take($suggestion->number)->get();
                     if (! $products->isEmpty()) {
                         $params = [
-                            'number' => null,
-                            'user_id' => 6,
-                            'approved' => 0,
-                            'status' => ChatMessage::CHAT_SUGGESTED_IMAGES,
-                            'message' => 'Suggested images',
+                            'number'      => null,
+                            'user_id'     => 6,
+                            'approved'    => 0,
+                            'status'      => ChatMessage::CHAT_SUGGESTED_IMAGES,
+                            'message'     => 'Suggested images',
                             'customer_id' => $customer->id,
                         ];
 
@@ -149,9 +148,9 @@ class SuggestedProduct extends Model
 
                                     $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
                                     $data[] = [
-                                        'id' => $image->id,
+                                        'id'          => $image->id,
                                         'mediable_id' => $chat_message->id,
-                                        'url' => getMediaUrl($image),
+                                        'url'         => getMediaUrl($image),
                                     ];
 
                                     $count++;

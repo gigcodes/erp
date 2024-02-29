@@ -25,10 +25,10 @@ class EventEmail extends Mailable
 
     public function __construct(string $subject, string $message, string $from, string $link)
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        $this->subject     = $subject;
+        $this->message     = $message;
         $this->fromAddress = $from;
-        $this->link = $link;
+        $this->link        = $link;
     }
 
     /**

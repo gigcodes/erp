@@ -41,7 +41,8 @@ final class ShowCreateController extends AbstractController
     }
 
     /**
-     * @param  string[]  $selected Selected tables.
+     * @param string[] $selected Selected tables.
+     *
      * @return array<string, array<int, array<string, string>>>
      */
     private function getShowCreateTables(array $selected): array
@@ -52,7 +53,7 @@ final class ShowCreateController extends AbstractController
             $object = $this->dbi->getTable($this->db, $table);
 
             $tables[$object->isView() ? 'views' : 'tables'][] = [
-                'name' => Core::mimeDefaultFunction($table),
+                'name'        => Core::mimeDefaultFunction($table),
                 'show_create' => Core::mimeDefaultFunction($object->showCreate()),
             ];
         }

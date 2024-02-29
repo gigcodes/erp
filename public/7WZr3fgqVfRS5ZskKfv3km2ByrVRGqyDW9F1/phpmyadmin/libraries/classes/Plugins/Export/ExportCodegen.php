@@ -52,7 +52,7 @@ class ExportCodegen extends ExportPlugin
     protected function init(): void
     {
         $this->setCgFormats([
-            self::HANDLER_NHIBERNATE_CS => 'NHibernate C# DO',
+            self::HANDLER_NHIBERNATE_CS  => 'NHibernate C# DO',
             self::HANDLER_NHIBERNATE_XML => 'NHibernate XML',
         ]);
     }
@@ -109,8 +109,8 @@ class ExportCodegen extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Aliases of db
+     * @param string $db      Database name
+     * @param string $dbAlias Aliases of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -120,7 +120,7 @@ class ExportCodegen extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -130,9 +130,9 @@ class ExportCodegen extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -142,12 +142,12 @@ class ExportCodegen extends ExportPlugin
     /**
      * Outputs the content of a table in NHibernate format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -173,8 +173,9 @@ class ExportCodegen extends ExportPlugin
     /**
      * Used to make identifiers (from table or database names)
      *
-     * @param  string  $str     name to be converted
-     * @param  bool  $ucfirst whether to make the first character uppercase
+     * @param string $str     name to be converted
+     * @param bool   $ucfirst whether to make the first character uppercase
+     *
      * @return string identifier
      */
     public static function cgMakeIdentifier($str, $ucfirst = true)
@@ -196,17 +197,18 @@ class ExportCodegen extends ExportPlugin
     /**
      * C# Handler
      *
-     * @param  string  $db      database name
-     * @param  string  $table   table name
-     * @param  string  $crlf    line separator
-     * @param  array  $aliases Aliases of db/table/columns
+     * @param string $db      database name
+     * @param string $table   table name
+     * @param string $crlf    line separator
+     * @param array  $aliases Aliases of db/table/columns
+     *
      * @return string containing C# code lines, separated by "\n"
      */
     private function handleNHibernateCSBody($db, $table, $crlf, array $aliases = [])
     {
         global $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
 
@@ -231,7 +233,7 @@ class ExportCodegen extends ExportPlugin
 
         unset($result);
 
-        $lines = [];
+        $lines   = [];
         $lines[] = 'using System;';
         $lines[] = 'using System.Collections;';
         $lines[] = 'using System.Collections.Generic;';
@@ -300,10 +302,11 @@ class ExportCodegen extends ExportPlugin
     /**
      * XML Handler
      *
-     * @param  string  $db      database name
-     * @param  string  $table   table name
-     * @param  string  $crlf    line separator
-     * @param  array  $aliases Aliases of db/table/columns
+     * @param string $db      database name
+     * @param string $table   table name
+     * @param string $crlf    line separator
+     * @param array  $aliases Aliases of db/table/columns
+     *
      * @return string containing XML code lines, separated by "\n"
      */
     private function handleNHibernateXMLBody(
@@ -314,10 +317,10 @@ class ExportCodegen extends ExportPlugin
     ) {
         global $dbi;
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
-        $lines = [];
+        $lines   = [];
         $lines[] = '<?xml version="1.0" encoding="utf-8" ?>';
         $lines[] = '<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" '
             . 'namespace="' . self::cgMakeIdentifier($db_alias) . '" '
@@ -380,7 +383,7 @@ class ExportCodegen extends ExportPlugin
     /**
      * Setter for CodeGen formats
      *
-     * @param  array  $CG_FORMATS contains CodeGen Formats
+     * @param array $CG_FORMATS contains CodeGen Formats
      */
     private function setCgFormats(array $CG_FORMATS): void
     {

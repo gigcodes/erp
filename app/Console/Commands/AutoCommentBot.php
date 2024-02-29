@@ -46,7 +46,7 @@ class AutoCommentBot extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -81,9 +81,9 @@ class AutoCommentBot extends Command
 
                 $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
-                $post->status = 0;
+                $post->status     = 0;
                 $post->account_id = $account->id;
-                $post->comment = $comment->comment;
+                $post->comment    = $comment->comment;
                 $post->save();
 
                 sleep(5);

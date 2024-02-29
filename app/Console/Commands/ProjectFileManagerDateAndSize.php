@@ -43,10 +43,10 @@ class ProjectFileManagerDateAndSize extends Command
     public function handle()
     {
         $fileInformation = ProjectFileManager::all();
-        $param = [];
+        $param           = [];
 
         foreach ($fileInformation as $key => $val) {
-            $path = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $val->name));
+            $path      = base_path() . DIRECTORY_SEPARATOR . (str_replace('./', '', $val->name));
             $file_size = 0;
             if (is_dir($path)) {
                 if (file_exists($path)) {
@@ -62,11 +62,11 @@ class ProjectFileManagerDateAndSize extends Command
 
                     $increase_size = (($old_size * $limit_rec) / 100);
 
-                    $id = $val->id;
+                    $id   = $val->id;
                     $name = $val->name;
 
-                    $io = popen('/usr/bin/du -sk ' . $path, 'r');
-                    $size = fgets($io, 4096);
+                    $io       = popen('/usr/bin/du -sk ' . $path, 'r');
+                    $size     = fgets($io, 4096);
                     $new_size = substr($size, 0, strpos($size, "\t"));
 
                     $new_size = round($new_size, 2);
@@ -76,9 +76,9 @@ class ProjectFileManagerDateAndSize extends Command
 
                         $param = [
                             'project_id' => $id,
-                            'name' => $name,
-                            'old_size' => $old_size . 'MB',
-                            'new_size' => $new_size . 'MB',
+                            'name'       => $name,
+                            'old_size'   => $old_size . 'MB',
+                            'new_size'   => $new_size . 'MB',
                         ];
 
                         ProjectFileManagerHistory::create($param);
@@ -104,7 +104,7 @@ class ProjectFileManagerDateAndSize extends Command
                 }
             } else {
                 if (file_exists($path)) {
-                    $old_size = $val->size;
+                    $old_size   = $val->size;
                     $limit_data = Setting::get('project_file_managers');
 
                     if ($limit_data) {
@@ -114,8 +114,8 @@ class ProjectFileManagerDateAndSize extends Command
                     }
 
                     $increase_size = (($old_size * $limit_rec) / 100);
-                    $id = $val->id;
-                    $name = $val->name;
+                    $id            = $val->id;
+                    $name          = $val->name;
 
                     $new_size = filesize($path) / 1024;
                     $new_size = round($new_size, 2);
@@ -125,9 +125,9 @@ class ProjectFileManagerDateAndSize extends Command
 
                         $param = [
                             'project_id' => $id,
-                            'name' => $name,
-                            'old_size' => $old_size . 'MB',
-                            'new_size' => $new_size . 'MB',
+                            'name'       => $name,
+                            'old_size'   => $old_size . 'MB',
+                            'new_size'   => $new_size . 'MB',
                         ];
 
                         ProjectFileManagerHistory::create($param);

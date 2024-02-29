@@ -64,7 +64,7 @@ class Bookmark
 
     public function __construct(DatabaseInterface $dbi, Relation $relation)
     {
-        $this->dbi = $dbi;
+        $this->dbi      = $dbi;
         $this->relation = $relation;
     }
 
@@ -162,7 +162,8 @@ class Bookmark
     /**
      * Replace the placeholders in the bookmark query with variables
      *
-     * @param  array  $variables array of variables
+     * @param array $variables array of variables
+     *
      * @return string query with variables applied
      */
     public function applyVariables(array $variables): string
@@ -192,8 +193,9 @@ class Bookmark
     /**
      * Creates a Bookmark object from the parameters
      *
-     * @param  array  $bkm_fields the properties of the bookmark to add; here, $bkm_fields['bkm_sql_query'] is urlencoded
-     * @param  bool  $all_users  whether to make the bookmark available for all users
+     * @param array $bkm_fields the properties of the bookmark to add; here, $bkm_fields['bkm_sql_query'] is urlencoded
+     * @param bool  $all_users  whether to make the bookmark available for all users
+     *
      * @return Bookmark|false
      */
     public static function createBookmark(DatabaseInterface $dbi, array $bkm_fields, bool $all_users = false)
@@ -206,26 +208,26 @@ class Bookmark
             return false;
         }
 
-        $bookmark = new Bookmark($dbi, new Relation($dbi));
-        $bookmark->database = $bkm_fields['bkm_database'];
-        $bookmark->label = $bkm_fields['bkm_label'];
-        $bookmark->query = $bkm_fields['bkm_sql_query'];
+        $bookmark              = new Bookmark($dbi, new Relation($dbi));
+        $bookmark->database    = $bkm_fields['bkm_database'];
+        $bookmark->label       = $bkm_fields['bkm_label'];
+        $bookmark->query       = $bkm_fields['bkm_sql_query'];
         $bookmark->currentUser = $all_users ? '' : $bkm_fields['bkm_user'];
 
         return $bookmark;
     }
 
     /**
-     * @param  array  $row Resource used to build the bookmark
+     * @param array $row Resource used to build the bookmark
      */
     protected static function createFromRow(DatabaseInterface $dbi, $row): Bookmark
     {
-        $bookmark = new Bookmark($dbi, new Relation($dbi));
-        $bookmark->id = $row['id'];
-        $bookmark->database = $row['dbase'];
+        $bookmark              = new Bookmark($dbi, new Relation($dbi));
+        $bookmark->id          = $row['id'];
+        $bookmark->database    = $row['dbase'];
         $bookmark->currentUser = $row['user'];
-        $bookmark->label = $row['label'];
-        $bookmark->query = $row['query'];
+        $bookmark->label       = $row['label'];
+        $bookmark->query       = $row['query'];
 
         return $bookmark;
     }
@@ -233,9 +235,10 @@ class Bookmark
     /**
      * Gets the list of bookmarks defined for the current database
      *
-     * @param  DatabaseInterface  $dbi  DatabaseInterface object
-     * @param  string  $user Current user
-     * @param  string|false  $db   the current database name or false
+     * @param DatabaseInterface $dbi  DatabaseInterface object
+     * @param string            $user Current user
+     * @param string|false      $db   the current database name or false
+     *
      * @return Bookmark[] the bookmarks list
      */
     public static function getList(
@@ -276,14 +279,15 @@ class Bookmark
     /**
      * Retrieve a specific bookmark
      *
-     * @param  DatabaseInterface  $dbi                 DatabaseInterface object
-     * @param  string  $user                Current user
-     * @param  string  $db                  the current database name
-     * @param  int|string  $id                  an identifier of the bookmark to get
-     * @param  string  $id_field            which field to look up the identifier
-     * @param  bool  $action_bookmark_all true: get all bookmarks regardless
+     * @param DatabaseInterface $dbi                 DatabaseInterface object
+     * @param string            $user                Current user
+     * @param string            $db                  the current database name
+     * @param int|string        $id                  an identifier of the bookmark to get
+     * @param string            $id_field            which field to look up the identifier
+     * @param bool              $action_bookmark_all true: get all bookmarks regardless
      *                                               of the owning user
-     * @param  bool  $exact_user_match    whether to ignore bookmarks with no user
+     * @param bool              $exact_user_match    whether to ignore bookmarks with no user
+     *
      * @return Bookmark|null the bookmark
      */
     public static function get(
@@ -295,7 +299,7 @@ class Bookmark
         bool $action_bookmark_all = false,
         bool $exact_user_match = false
     ): ?self {
-        $relation = new Relation($dbi);
+        $relation        = new Relation($dbi);
         $bookmarkFeature = $relation->getRelationParameters()->bookmarkFeature;
         if ($bookmarkFeature === null) {
             return null;

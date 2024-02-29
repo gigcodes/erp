@@ -43,7 +43,7 @@ class UpdateGnbImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -57,7 +57,7 @@ class UpdateGnbImages extends Command
                         $images = $scraped_product->images;
 
                         foreach ($images as $image_name) {
-                            $path = public_path('uploads') . '/social-media/' . $image_name;
+                            $path  = public_path('uploads') . '/social-media/' . $image_name;
                             $media = MediaUploader::fromSource($path)
                                 ->toDirectory('product/' . floor($scraped_product->product->id / config('constants.image_per_folder')))
                                 ->upload();

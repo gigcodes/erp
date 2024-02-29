@@ -46,21 +46,21 @@ class MakeApprovedImagesSchedule extends Command
             $images = $this->getImages();
 
             foreach ($images as $image) {
-                $schedule = new ImageSchedule();
-                $schedule->image_id = $image;
-                $schedule->facebook = 1;
-                $schedule->instagram = 1;
-                $schedule->description = 'Auto Scheduled';
+                $schedule                = new ImageSchedule();
+                $schedule->image_id      = $image;
+                $schedule->facebook      = 1;
+                $schedule->instagram     = 1;
+                $schedule->description   = 'Auto Scheduled';
                 $schedule->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
-                $schedule->status = 0;
+                $schedule->status        = 0;
                 $schedule->save();
             }
 
-            $scheduleGroup = new ScheduleGroup();
-            $scheduleGroup->images = $images;
+            $scheduleGroup                = new ScheduleGroup();
+            $scheduleGroup->images        = $images;
             $scheduleGroup->scheduled_for = Carbon::tomorrow()->toDateString() . ' ' . date('H:i:00');
-            $scheduleGroup->description = 'Auto Scheduled';
-            $scheduleGroup->status = 1;
+            $scheduleGroup->description   = 'Auto Scheduled';
+            $scheduleGroup->status        = 1;
             $scheduleGroup->save();
 
             Image::whereIn('id', $images)->update([
@@ -74,7 +74,7 @@ class MakeApprovedImagesSchedule extends Command
     private function getImages($count = 10)
     {
         $report = CronJobReport::create([
-            'signature' => $this->signature,
+            'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 

@@ -53,7 +53,7 @@ class FixCategoryNameBySupplier extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -62,7 +62,7 @@ class FixCategoryNameBySupplier extends Command
             if (! $this->category->isEmpty()) {
                 foreach ($this->category as $i => $crt) {
                     $this->categoryRefrences[$i]['original_name'] = $crt->title;
-                    $references = explode(',', $crt->references);
+                    $references                                   = explode(',', $crt->references);
                     if (! empty($references)) {
                         foreach ($references as $reference) {
                             $this->categoryRefrences[$i]['refrence'][] = $reference;
@@ -92,7 +92,7 @@ class FixCategoryNameBySupplier extends Command
 
     public function getCategories($ids = [])
     {
-        $category = Category::whereIn('id', $ids)->get();
+        $category   = Category::whereIn('id', $ids)->get();
         $categories = [];
 
         if (! $category->isEmpty()) {
@@ -100,7 +100,7 @@ class FixCategoryNameBySupplier extends Command
                 $childrenCategories = $c->childs;
                 foreach ($childrenCategories as $childrenCategory) {
                     $categories[$c->id][$childrenCategory->id] = $childrenCategory->title;
-                    $grandChildren = $childrenCategory->childs;
+                    $grandChildren                             = $childrenCategory->childs;
                     foreach ($grandChildren as $grandChild) {
                         $categories[$c->id][$grandChild->id] = $grandChild->title;
                     }
@@ -113,7 +113,7 @@ class FixCategoryNameBySupplier extends Command
 
     private function classify2($product)
     {
-        $records = $this->category;
+        $records    = $this->category;
         $categories = $this->categories;
 
         // this is optimized code

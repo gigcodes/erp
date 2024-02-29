@@ -12,14 +12,16 @@ class SeoController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param mixed $id
+     *
      * @return Response
      */
     public function index(Request $request, $id)
     {
-        $title = 'Seo | Store Website';
+        $title     = 'Seo | Store Website';
         $seoFormat = StoreWebsiteSeoFormat::where('store_website_id', $id)->first();
         if (! $seoFormat) {
-            $seoFormat = new StoreWebsiteSeoFormat;
+            $seoFormat                   = new StoreWebsiteSeoFormat;
             $seoFormat->store_website_id = $id;
         }
 
@@ -77,7 +79,8 @@ class SeoController extends Controller
     /**
      * Edit Page
      *
-     * @param  Request  $request [description]
+     * @param Request $request        [description]
+     * @param mixed   $storeWebsiteId
      */
     public function edit(Request $request, $storeWebsiteId)
     {

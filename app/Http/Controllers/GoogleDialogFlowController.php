@@ -20,7 +20,7 @@ class GoogleDialogFlowController extends Controller
     public function index(Request $request)
     {
         $google_dialog_accounts = GoogleDialogAccount::with(['storeWebsite'])->orderBy('id', 'desc')->get();
-        $store_websites = StoreWebsite::all();
+        $store_websites         = StoreWebsite::all();
 
         return view('google-dialogflow.index', compact('google_dialog_accounts', 'store_websites'));
     }
@@ -32,10 +32,10 @@ class GoogleDialogFlowController extends Controller
     {
         try {
             $validator = \Validator::make($request->all(), [
-                'site_id' => 'required|integer',
-                'project_id' => 'required|string',
+                'site_id'      => 'required|integer',
+                'project_id'   => 'required|string',
                 'service_file' => 'required|mimes:json',
-                'email' => 'required|email',
+                'email'        => 'required|email',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
@@ -46,11 +46,11 @@ class GoogleDialogFlowController extends Controller
                 $defaultAccount = GoogleDialogAccount::where('default_selected', true)->update(['default_selected' => false]);
             }
             GoogleDialogAccount::create([
-                'service_file' => $serviceFile->getAbsolutePath(),
-                'site_id' => $request->get('site_id'),
-                'project_id' => $request->get('project_id'),
+                'service_file'     => $serviceFile->getAbsolutePath(),
+                'site_id'          => $request->get('site_id'),
+                'project_id'       => $request->get('project_id'),
                 'default_selected' => $request->get('default_account'),
-                'email' => $request->get('email'),
+                'email'            => $request->get('email'),
             ]);
 
             return Redirect::route('google-chatbot-accounts')->with('success', 'google dialog account added successfully!');
@@ -66,11 +66,11 @@ class GoogleDialogFlowController extends Controller
     {
         try {
             $validator = \Validator::make($request->all(), [
-                'account_id' => 'required|integer',
-                'edit_site_id' => 'required|integer',
-                'edit_project_id' => 'required|string',
+                'account_id'        => 'required|integer',
+                'edit_site_id'      => 'required|integer',
+                'edit_project_id'   => 'required|string',
                 'edit_service_file' => 'sometimes|mimes:json',
-                'edit_email' => 'required|email',
+                'edit_email'        => 'required|email',
             ]);
             if ($validator->fails()) {
                 return Redirect::route('google-chatbot-accounts')->withInput()->withErrors($validator);
@@ -82,10 +82,10 @@ class GoogleDialogFlowController extends Controller
             if ($request->get('default_account')) {
                 $defaultAccount = GoogleDialogAccount::where('default_selected', true)->update(['default_selected' => false]);
             }
-            $googleAccount->site_id = $request->get('edit_site_id');
-            $googleAccount->project_id = $request->get('edit_project_id');
+            $googleAccount->site_id          = $request->get('edit_site_id');
+            $googleAccount->project_id       = $request->get('edit_project_id');
             $googleAccount->default_selected = $request->get('default_account');
-            $googleAccount->email = $request->get('edit_email');
+            $googleAccount->email            = $request->get('edit_email');
             if ($request->hasFile('edit_service_file')) {
                 $serviceFile = MediaUploader::fromSource($request->file('edit_service_file'))
                     ->toDirectory('googleDialogService/')->upload();
@@ -101,6 +101,8 @@ class GoogleDialogFlowController extends Controller
 
     /**
      * Delete a account in ERP with client Id & Secret.
+     *
+     * @param mixed $id
      */
     public function delete(Request $request, $id): RedirectResponse
     {
@@ -119,6 +121,8 @@ class GoogleDialogFlowController extends Controller
 
     /**
      * Get account details
+     *
+     * @param mixed $id
      */
     public function get(Request $request, $id): JsonResponse
     {

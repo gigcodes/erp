@@ -60,7 +60,7 @@ class ProductEnhancementController extends Controller
         $product->save();
 
         return response()->json([
-            'id' => $product->id,
+            'id'     => $product->id,
             'images' => $productImageUrls,
         ]);
     }
@@ -95,7 +95,7 @@ class ProductEnhancementController extends Controller
         // Vaidate the request
         $this->validate($request, [
             'images' => 'required',
-            'id' => 'required',
+            'id'     => 'required',
         ]);
 
         // Find product
@@ -112,11 +112,11 @@ class ProductEnhancementController extends Controller
 
         //sets initial status pending for finalApproval in product status histroy
         $data = [
-            'product_id' => $product->id,
-            'old_status' => $product->status_id,
-            'new_status' => StatusHelper::$finalApproval,
+            'product_id'     => $product->id,
+            'old_status'     => $product->status_id,
+            'new_status'     => StatusHelper::$finalApproval,
             'pending_status' => 1,
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at'     => date('Y-m-d H:i:s'),
         ];
         \App\ProductStatusHistory::addStatusToProduct($data);
 

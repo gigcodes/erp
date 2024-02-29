@@ -54,7 +54,7 @@ class Template
         }
 
         /** @var Config|null $config */
-        $config = $GLOBALS['config'];
+        $config   = $GLOBALS['config'];
         $cacheDir = $config !== null ? $config->getTempDir('twig') : null;
 
         static::$twig = self::getTwigEnvironment($cacheDir);
@@ -70,9 +70,9 @@ class Template
         }
 
         $loader = new FilesystemLoader(self::TEMPLATES_FOLDER);
-        $twig = new Environment($loader, [
+        $twig   = new Environment($loader, [
             'auto_reload' => true,
-            'cache' => $cacheDir,
+            'cache'       => $cacheDir,
         ]);
 
         $twig->addRuntimeLoader(new ContainerRuntimeLoader($containerBuilder));
@@ -109,7 +109,7 @@ class Template
     /**
      * Loads a template.
      *
-     * @param  string  $templateName Template path name
+     * @param string $templateName Template path name
      *
      * @throws LoaderError
      * @throws RuntimeError
@@ -141,8 +141,8 @@ class Template
     }
 
     /**
-     * @param  string  $template Template path name
-     * @param  array  $data     Associative array of template variables
+     * @param string $template Template path name
+     * @param array  $data     Associative array of template variables
      *
      * @throws Throwable
      * @throws LoaderError

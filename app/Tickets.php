@@ -48,7 +48,7 @@ class Tickets extends Model
     public function getTicketList($params = [])
     {
         $selectArray[] = $this->table . '.*';
-        $query = DB::table($this->table);
+        $query         = DB::table($this->table);
 
         $query->select($selectArray);
 

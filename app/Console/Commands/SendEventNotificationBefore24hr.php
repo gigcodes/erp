@@ -43,19 +43,19 @@ class SendEventNotificationBefore24hr extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // get the events which has 24 hr left
             $events = UserEvent::havingRaw('TIMESTAMPDIFF(HOUR,now() , start) = 24')->get();
 
-            $userWise = [];
+            $userWise           = [];
             $vendorParticipants = [];
             if (! $events->isEmpty()) {
                 foreach ($events as $event) {
                     $userWise[$event->user_id][] = $event;
-                    $participants = $event->attendees;
+                    $participants                = $event->attendees;
                     if (! $participants->isEmpty()) {
                         foreach ($participants as $participant) {
                             if ($participant->object == \App\Vendor::class) {
@@ -72,9 +72,9 @@ class SendEventNotificationBefore24hr extends Command
                     $user = \App\User::find($id);
                     // if user exist
                     if (! empty($user)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 24 hours';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
@@ -95,16 +95,16 @@ class SendEventNotificationBefore24hr extends Command
                 foreach ($vendorParticipants as $id => $vendorParticipant) {
                     $vendor = \App\Vendor::find($id);
                     if (! empty($vendor)) {
-                        $notification = [];
+                        $notification   = [];
                         $notification[] = 'Following Event Schedule on within the next 24 hours';
-                        $no = 1;
+                        $no             = 1;
                         foreach ($events as $event) {
                             $notification[] = $no . ') [' . $event->start . '] => ' . $event->subject;
                             $no++;
                         }
 
                         $params['vendor_id'] = $vendor->id;
-                        $params['message'] = implode("\n", $notification);
+                        $params['message']   = implode("\n", $notification);
                         // send chat message
                         $chat_message = \App\ChatMessage::create($params);
                         // send

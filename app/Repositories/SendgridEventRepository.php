@@ -37,11 +37,11 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
     {
         \Log::info('Send grid repo In');
 
-        $newEvent = new SendgridEvent();
-        $newEvent->timestamp = $event['timestamp'];
-        $newEvent->email = $event['email'];
-        $newEvent->event = $event['event'];
-        $newEvent->sg_event_id = $event['sg_event_id'];
+        $newEvent                = new SendgridEvent();
+        $newEvent->timestamp     = $event['timestamp'];
+        $newEvent->email         = $event['email'];
+        $newEvent->event         = $event['event'];
+        $newEvent->sg_event_id   = $event['sg_event_id'];
         $newEvent->sg_message_id = $event['sg_message_id'];
         if (isset($event['email_id'])) {
             $newEvent->email_id = $event['email_id'];
@@ -61,7 +61,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
             }
             if ($email) {
                 \Log::info('Record found => ' . json_encode($email));
-                $email->status = $event['event'];
+                $email->status     = $event['event'];
                 $email->message_id = $event['sg_message_id'];
                 $email->save();
             }
@@ -77,7 +77,7 @@ class SendgridEventRepository implements SendgridEventRepositoryInterface
 
             if ($email) {
                 \Log::info('Record found => ' . json_encode($email));
-                $email->status = $event['event'];
+                $email->status     = $event['event'];
                 $email->message_id = $event['sg_message_id'];
                 $email->save();
             }

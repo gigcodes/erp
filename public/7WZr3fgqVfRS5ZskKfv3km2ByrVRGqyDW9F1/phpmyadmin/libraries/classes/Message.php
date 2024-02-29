@@ -70,8 +70,8 @@ class Message implements Stringable
      */
     public static $level = [
         self::SUCCESS => 'success',
-        self::NOTICE => 'notice',
-        self::ERROR => 'error',
+        self::NOTICE  => 'notice',
+        self::ERROR   => 'error',
     ];
 
     /**
@@ -84,14 +84,14 @@ class Message implements Stringable
     /**
      * The locale string identifier
      *
-     * @var    string
+     * @var string
      */
     protected $string = '';
 
     /**
      * The formatted message
      *
-     * @var    string
+     * @var string
      */
     protected $message = '';
 
@@ -119,22 +119,22 @@ class Message implements Stringable
     /**
      * holds parameters
      *
-     * @var    array
+     * @var array
      */
     protected $params = [];
 
     /**
      * holds additional messages
      *
-     * @var    array
+     * @var array
      */
     protected $addedMessages = [];
 
     /**
-     * @param  string  $string   The message to be displayed
-     * @param  int  $number   A numeric representation of the type of message
-     * @param  array  $params   An array of parameters to use in the message
-     * @param  int  $sanitize A flag to indicate what to sanitize, see
+     * @param string $string   The message to be displayed
+     * @param int    $number   A numeric representation of the type of message
+     * @param array  $params   An array of parameters to use in the message
+     * @param int    $sanitize A flag to indicate what to sanitize, see
      *                         constant definitions above
      */
     public function __construct(
@@ -161,7 +161,7 @@ class Message implements Stringable
      *
      * shorthand for getting a simple success message
      *
-     * @param  string  $string A localized string
+     * @param string $string A localized string
      *                       e.g. __('Your SQL query has been
      *                       executed successfully')
      *
@@ -181,7 +181,7 @@ class Message implements Stringable
      *
      * shorthand for getting a simple error message
      *
-     * @param  string  $string A localized string e.g. __('Error')
+     * @param string $string A localized string e.g. __('Error')
      *
      * @static
      */
@@ -199,7 +199,7 @@ class Message implements Stringable
      *
      * shorthand for getting a simple notice message
      *
-     * @param  string  $string A localized string
+     * @param string $string A localized string
      *                       e.g. __('The additional features for working with
      *                       linked tables have been deactivated. To find out
      *                       why click %shere%s.')
@@ -216,8 +216,8 @@ class Message implements Stringable
      *
      * shorthand for getting a customized message
      *
-     * @param  string  $message A localized string
-     * @param  int  $type    A numeric representation of the type of message
+     * @param string $message A localized string
+     * @param int    $type    A numeric representation of the type of message
      *
      * @static
      */
@@ -235,7 +235,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized message
      *
-     * @param  int  $rows Number of rows
+     * @param int $rows Number of rows
      *
      * @static
      */
@@ -254,7 +254,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized message
      *
-     * @param  int  $rows Number of rows
+     * @param int $rows Number of rows
      *
      * @static
      */
@@ -273,7 +273,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized message
      *
-     * @param  int  $rows Number of rows
+     * @param int $rows Number of rows
      *
      * @static
      */
@@ -292,7 +292,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized error message
      *
-     * @param  string  $message A localized string
+     * @param string $message A localized string
      *
      * @static
      */
@@ -306,7 +306,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized notice message
      *
-     * @param  string  $message A localized string
+     * @param string $message A localized string
      *
      * @static
      */
@@ -320,7 +320,7 @@ class Message implements Stringable
      *
      * shorthand for getting a customized success message
      *
-     * @param  string  $message A localized string
+     * @param string $message A localized string
      *
      * @static
      */
@@ -333,7 +333,7 @@ class Message implements Stringable
      * returns whether this message is a success message or not
      * and optionally makes this message a success message
      *
-     * @param  bool  $set Whether to make this message of SUCCESS type
+     * @param bool $set Whether to make this message of SUCCESS type
      */
     public function isSuccess(bool $set = false): bool
     {
@@ -348,7 +348,7 @@ class Message implements Stringable
      * returns whether this message is a notice message or not
      * and optionally makes this message a notice message
      *
-     * @param  bool  $set Whether to make this message of NOTICE type
+     * @param bool $set Whether to make this message of NOTICE type
      */
     public function isNotice(bool $set = false): bool
     {
@@ -363,7 +363,7 @@ class Message implements Stringable
      * returns whether this message is an error message or not
      * and optionally makes this message an error message
      *
-     * @param  bool  $set Whether to make this message of ERROR type
+     * @param bool $set Whether to make this message of ERROR type
      */
     public function isError(bool $set = false): bool
     {
@@ -377,7 +377,7 @@ class Message implements Stringable
     /**
      * Set whether we should use BB Code when rendering.
      *
-     * @param  bool  $useBBCode Use BB Code?
+     * @param bool $useBBCode Use BB Code?
      */
     public function setBBCode(bool $useBBCode): void
     {
@@ -387,8 +387,8 @@ class Message implements Stringable
     /**
      * set raw message (overrides string)
      *
-     * @param  string  $message  A localized string
-     * @param  bool  $sanitize Whether to sanitize $message or not
+     * @param string $message  A localized string
+     * @param bool   $sanitize Whether to sanitize $message or not
      */
     public function setMessage(string $message, bool $sanitize = false): void
     {
@@ -402,8 +402,8 @@ class Message implements Stringable
     /**
      * set string (does not take effect if raw message is set)
      *
-     * @param  string  $string   string to set
-     * @param  bool|int  $sanitize whether to sanitize $string or not
+     * @param string   $string   string to set
+     * @param bool|int $sanitize whether to sanitize $string or not
      */
     public function setString(string $string, $sanitize = true): void
     {
@@ -417,7 +417,7 @@ class Message implements Stringable
     /**
      * set message type number
      *
-     * @param  int  $number message type number to set
+     * @param int $number message type number to set
      */
     public function setNumber(int $number): void
     {
@@ -432,7 +432,7 @@ class Message implements Stringable
      * $message->addParam('[em]some string[/em]');
      * </code>
      *
-     * @param  mixed  $param parameter to add
+     * @param mixed $param parameter to add
      */
     public function addParam($param): void
     {
@@ -451,7 +451,7 @@ class Message implements Stringable
      * $message->addParamHtml('<img src="img">');
      * </code>
      *
-     * @param  string  $param parameter to add
+     * @param string $param parameter to add
      */
     public function addParamHtml(string $param): void
     {
@@ -461,8 +461,8 @@ class Message implements Stringable
     /**
      * add a bunch of messages at once
      *
-     * @param  Message[]  $messages  to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param Message[] $messages  to be added
+     * @param string    $separator to use between this and previous string/message
      */
     public function addMessages(array $messages, string $separator = ' '): void
     {
@@ -474,8 +474,8 @@ class Message implements Stringable
     /**
      * add a bunch of messages at once
      *
-     * @param  string[]  $messages  to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param string[] $messages  to be added
+     * @param string   $separator to use between this and previous string/message
      */
     public function addMessagesString(array $messages, string $separator = ' '): void
     {
@@ -487,8 +487,8 @@ class Message implements Stringable
     /**
      * Real implementation of adding message
      *
-     * @param  Message  $message   to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param Message $message   to be added
+     * @param string  $separator to use between this and previous string/message
      */
     private function addMessageToList(self $message, string $separator): void
     {
@@ -502,8 +502,8 @@ class Message implements Stringable
     /**
      * add another raw message to be concatenated on displaying
      *
-     * @param  self  $message   to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param self   $message   to be added
+     * @param string $separator to use between this and previous string/message
      */
     public function addMessage(self $message, string $separator = ' '): void
     {
@@ -513,8 +513,8 @@ class Message implements Stringable
     /**
      * add another raw message to be concatenated on displaying
      *
-     * @param  string  $message   to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param string $message   to be added
+     * @param string $separator to use between this and previous string/message
      */
     public function addText(string $message, string $separator = ' '): void
     {
@@ -524,8 +524,8 @@ class Message implements Stringable
     /**
      * add another html message to be concatenated on displaying
      *
-     * @param  string  $message   to be added
-     * @param  string  $separator to use between this and previous string/message
+     * @param string $message   to be added
+     * @param string $separator to use between this and previous string/message
      */
     public function addHtml(string $message, string $separator = ' '): void
     {
@@ -535,8 +535,8 @@ class Message implements Stringable
     /**
      * set all params at once, usually used in conjunction with string
      *
-     * @param  array  $params   parameters to set
-     * @param  bool|int  $sanitize whether to sanitize params
+     * @param array    $params   parameters to set
+     * @param bool|int $sanitize whether to sanitize params
      */
     public function setParams(array $params, $sanitize = false): void
     {
@@ -566,8 +566,9 @@ class Message implements Stringable
     /**
      * Sanitizes $message
      *
-     * @param  mixed  $message the message(s)
-     * @return mixed  the sanitized message(s)
+     * @param mixed $message the message(s)
+     *
+     * @return mixed the sanitized message(s)
      *
      * @static
      */
@@ -588,8 +589,9 @@ class Message implements Stringable
      * decode $message, taking into account our special codes
      * for formatting
      *
-     * @param  string  $message the message
-     * @return string  the decoded message
+     * @param string $message the message
+     *
+     * @return string the decoded message
      *
      * @static
      */
@@ -601,7 +603,8 @@ class Message implements Stringable
     /**
      * wrapper for sprintf()
      *
-     * @param  mixed[]  ...$params Params
+     * @param mixed[] ...$params Params
+     *
      * @return string formatted
      */
     public static function format(...$params): string
@@ -717,7 +720,7 @@ class Message implements Stringable
         $this->isDisplayed(true);
 
         $context = 'primary';
-        $level = $this->getLevel();
+        $level   = $this->getLevel();
         if ($level === 'error') {
             $context = 'danger';
         } elseif ($level === 'success') {
@@ -735,7 +738,7 @@ class Message implements Stringable
     /**
      * sets and returns whether the message was displayed or not
      *
-     * @param  bool  $isDisplayed whether to set displayed flag
+     * @param bool $isDisplayed whether to set displayed flag
      */
     public function isDisplayed(bool $isDisplayed = false): bool
     {
@@ -749,7 +752,8 @@ class Message implements Stringable
     /**
      * Returns the message with corresponding image icon
      *
-     * @param  string  $message the message(s)
+     * @param string $message the message(s)
+     *
      * @return string message with icon
      */
     public function getMessageWithIcon(string $message): string

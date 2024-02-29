@@ -24,8 +24,8 @@ class TimeDoctorActivity extends Model
     public static function getActivitiesForWeek($week, $year)
     {
         $result = getStartAndEndDate($week, $year);
-        $start = $result['week_start'];
-        $end = $result['week_end'];
+        $start  = $result['week_start'];
+        $end    = $result['week_end'];
 
         return self::leftJoin('time_doctor_members', 'time_doctor_members.hubstaff_user_id', '=', 'time_doctor_activities.user_id')
             ->where('starts_at', '>=', $start)
@@ -36,6 +36,9 @@ class TimeDoctorActivity extends Model
 
     /**
      * get the activities between start (inclusive)
+     *
+     * @param mixed $start
+     * @param mixed $end
      */
     public static function getActivitiesBetween($start, $end)
     {

@@ -17,7 +17,7 @@ class VendorSupplierController extends Controller
     public function supplierForm()
     {
         $suppliercategory = \App\SupplierCategory::pluck('name', 'id')->toArray();
-        $supplierstatus = \App\SupplierStatus::pluck('name', 'id')->toArray();
+        $supplierstatus   = \App\SupplierStatus::pluck('name', 'id')->toArray();
 
         return view('vendor-supplier.supplier-form', compact(['suppliercategory', 'supplierstatus']));
     }

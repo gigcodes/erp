@@ -48,13 +48,13 @@ class RefreshTimeDoctorTasks extends Command
      */
     public function handle()
     {
-        $time_doctor_account = TimeDoctorAccount::find($this->argument('id'));
-        $this->TIME_DOCTOR_USER_ID = $time_doctor_account->id;
+        $time_doctor_account          = TimeDoctorAccount::find($this->argument('id'));
+        $this->TIME_DOCTOR_USER_ID    = $time_doctor_account->id;
         $this->TIME_DOCTOR_AUTH_TOKEN = $time_doctor_account->auth_token;
         $this->TIME_DOCTOR_COMPANY_ID = $time_doctor_account->company_id;
         try {
             $report = \App\CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $this->refreshTaskList();
@@ -91,19 +91,19 @@ class RefreshTimeDoctorTasks extends Command
                             if (isset($task->project) && isset($task->project->id)) {
                                 $project = TimeDoctorProject::where('time_doctor_project_id', $task->project->id)->first();
                                 TimeDoctorTask::create([
-                                    'time_doctor_task_id' => $task->id,
-                                    'project_id' => $project ? $project->id : 1,
+                                    'time_doctor_task_id'    => $task->id,
+                                    'project_id'             => $project ? $project->id : 1,
                                     'time_doctor_project_id' => $task->project->id,
                                     'time_doctor_company_id' => $this->TIME_DOCTOR_COMPANY_ID,
-                                    'summery' => $task->name,
-                                    'description' => (isset($task->description) && $task->description != '') ? $task->description : '',
+                                    'summery'                => $task->name,
+                                    'description'            => (isset($task->description) && $task->description != '') ? $task->description : '',
                                     'time_doctor_account_id' => $this->TIME_DOCTOR_USER_ID,
                                 ]);
                             }
                         }
                     } else {
-                        $taskExist->summery = $task->name;
-                        $taskExist->description = (isset($task->description) && $task->description != '') ? $task->description : '';
+                        $taskExist->summery                = $task->name;
+                        $taskExist->description            = (isset($task->description) && $task->description != '') ? $task->description : '';
                         $taskExist->time_doctor_account_id = $this->TIME_DOCTOR_USER_ID;
                         $taskExist->save();
                     }

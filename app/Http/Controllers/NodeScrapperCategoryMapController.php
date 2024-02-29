@@ -41,27 +41,27 @@ class NodeScrapperCategoryMapController extends Controller
 
         foreach ($existing_categories as $key => $cat) {
             $category_array[$key] = [
-                'id' => $cat->id,
+                'id'   => $cat->id,
                 'name' => $cat->title,
             ];
 
             foreach ($cat->childsOrderByTitle as $key1 => $firstChild) {
                 $category_array[$key]['child'][$key1] = [
-                    'id' => $firstChild->id,
+                    'id'   => $firstChild->id,
                     'name' => $firstChild->title,
                 ];
 
                 if ($firstChild->childsOrderByTitle->count()) {
                     foreach ($firstChild->childsOrderByTitle as $key2 => $secondChild) {
                         $category_array[$key]['child'][$key1]['child'][$key2] = [
-                            'id' => $secondChild->id,
+                            'id'   => $secondChild->id,
                             'name' => $secondChild->title,
                         ];
 
                         if ($secondChild->childsOrderByTitle->count()) {
                             foreach ($secondChild->childsOrderByTitle as $key3 => $thirdChild) {
                                 $category_array[$key]['child'][$key1]['child'][$key2]['child'][$key3] = [
-                                    'id' => $thirdChild->id,
+                                    'id'   => $thirdChild->id,
                                     'name' => $thirdChild->title,
                                 ];
                             }
@@ -93,10 +93,10 @@ class NodeScrapperCategoryMapController extends Controller
     public function store(StoreNodeScrapperCategoryMapRequest $request)
     {
         try {
-            $nodeScrapper = new NodeScrapperCategoryMap();
+            $nodeScrapper                 = new NodeScrapperCategoryMap();
             $nodeScrapper->category_stack = $request->category_stack;
-            $nodeScrapper->product_urls = $request->product_urls;
-            $nodeScrapper->supplier = $request->supplier;
+            $nodeScrapper->product_urls   = $request->product_urls;
+            $nodeScrapper->supplier       = $request->supplier;
             $nodeScrapper->save();
 
             return response()->json(['message' => 'Category stored successfully'], 200);
@@ -151,15 +151,15 @@ class NodeScrapperCategoryMapController extends Controller
     public function list(Request $request)
     {
         $unmapped_categories = NodeScrapperCategoryMap::all()->whereNotNull('mapped_categories')->sortByDesc('id');
-        $retun_array = [];
+        $retun_array         = [];
         foreach ($unmapped_categories as $unmapped_category) {
             $disp_cat = $unmapped_category->categories();
             if ($disp_cat) {
                 $retun_array[] = [
                     'mapped_category' => $disp_cat,
-                    'category_stack' => $unmapped_category->category_stack,
-                    'product_urls' => $unmapped_category->product_urls,
-                    'supplier' => $unmapped_category->supplier,
+                    'category_stack'  => $unmapped_category->category_stack,
+                    'product_urls'    => $unmapped_category->product_urls,
+                    'supplier'        => $unmapped_category->supplier,
 
                 ];
             }
@@ -168,29 +168,28 @@ class NodeScrapperCategoryMapController extends Controller
         return response()->json(['status' => true, 'data' => $retun_array], 200);
     }
 
-
     public function getRecord(Request $request)
     {
         $request->validate([
-            'category_stack'=> 'required|array',
+            'category_stack' => 'required|array',
         ]);
         $unmapped_category = NodeScrapperCategoryMap::whereJsonContains('category_stack', ($request->category_stack))->latest('updated_at')->first();
-        if($unmapped_category) {
+        if ($unmapped_category) {
             $retun_array = [
                 'mapped_category' => [],
-                'category_stack' => $unmapped_category->category_stack,
-                'product_urls' => $unmapped_category->product_urls,
-                'supplier' => $unmapped_category->supplier,
+                'category_stack'  => $unmapped_category->category_stack,
+                'product_urls'    => $unmapped_category->product_urls,
+                'supplier'        => $unmapped_category->supplier,
 
             ];
             $disp_cat = $unmapped_category->categories();
             if ($disp_cat) {
                 $retun_array['mapped_category'] = $disp_cat;
             }
+
             return response()->json(['status' => true, 'data' => $retun_array], 200);
         } else {
-            return response()->json(['status' => false, 'message'=>'Category Stack not found'], 404);
+            return response()->json(['status' => false, 'message' => 'Category Stack not found'], 404);
         }
-
     }
 }

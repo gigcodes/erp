@@ -2,7 +2,7 @@
 
 // Load the Google API PHP Client Library.
 require_once __DIR__ . '/../../vendor/autoload.php';
-$data = [];
+$data      = [];
 $analytics = initializeAnalytics();
 
 if (! empty($analytics)) {
@@ -28,6 +28,9 @@ function initializeAnalytics()
  * Queries the Analytics Reporting API V4.
  *
  * @param service An authorized Analytics Reporting API V4 service object.
+ * @param mixed $analytics
+ * @param mixed $request
+ *
  * @return The Analytics Reporting API V4 response.
  */
 function getReportRequest($analytics, $request)
@@ -199,31 +202,33 @@ function getAudiencesData($analytics, $request)
  * Parses and prints the Analytics Reporting API V4 response.
  *
  * @param An Analytics Reporting API V4 response.
+ * @param mixed $reports
+ * @param mixed $websiteAnalyticsId
  */
 function printResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
-        $report = $reports[$reportIndex];
-        $header = $report->getColumnHeader();
+        $report           = $reports[$reportIndex];
+        $header           = $report->getColumnHeader();
         $dimensionHeaders = $header->getDimensions();
-        $metricHeaders = $header->getMetricHeader()->getMetricHeaderEntries();
-        $rows = $report->getData()->getRows();
+        $metricHeaders    = $header->getMetricHeader()->getMetricHeaderEntries();
+        $rows             = $report->getData()->getRows();
 
         for ($rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
-            $row = $rows[$rowIndex];
+            $row        = $rows[$rowIndex];
             $dimensions = $row->getDimensions();
-            $metrics = $row->getMetrics();
+            $metrics    = $row->getMetrics();
 
             for ($i = 0; $i < count($dimensionHeaders) && $i < count($dimensions); $i++) {
-                $data[$rowIndex]['dimensions'] = str_replace('ga:', '', $dimensionHeaders[$i]);
-                $data[$rowIndex]['dimensions_name'] = $dimensions[$i];
+                $data[$rowIndex]['dimensions']           = str_replace('ga:', '', $dimensionHeaders[$i]);
+                $data[$rowIndex]['dimensions_name']      = $dimensions[$i];
                 $data[$rowIndex]['website_analytics_id'] = $websiteAnalyticsId;
             }
 
             for ($j = 0; $j < count($metrics); $j++) {
                 $values = $metrics[$j]->getValues();
                 for ($k = 0; $k < count($values); $k++) {
-                    $entry = $metricHeaders[$k];
+                    $entry                               = $metricHeaders[$k];
                     $data[$rowIndex]['dimensions_value'] = $values[$k];
                 }
             }
@@ -241,17 +246,17 @@ function printPageTrackingResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['page'] = $value['dimensions']['0'];
+            $data[$key]['page']                 = $value['dimensions']['0'];
             foreach ($value['metrics'] as $m_key => $m_value) {
-                $data[$key]['avg_time_page'] = $m_value['values'][0];
+                $data[$key]['avg_time_page']     = $m_value['values'][0];
                 $data[$key]['unique_page_views'] = $m_value['values'][1];
-                $data[$key]['page_views'] = $m_value['values'][2];
-                $data[$key]['exit_rate'] = $m_value['values'][3];
-                $data[$key]['entrances'] = $m_value['values'][4];
-                $data[$key]['entrance_rate'] = $m_value['values'][5];
+                $data[$key]['page_views']        = $m_value['values'][2];
+                $data[$key]['exit_rate']         = $m_value['values'][3];
+                $data[$key]['entrances']         = $m_value['values'][4];
+                $data[$key]['entrance_rate']     = $m_value['values'][5];
             }
 
             \App\GoogleAnalyticsPageTracking::insert($data);
@@ -266,11 +271,11 @@ function printPlatformDeviceResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['browser'] = $value['dimensions']['0'];
-            $data[$key]['os'] = $value['dimensions']['1'];
+            $data[$key]['browser']              = $value['dimensions']['0'];
+            $data[$key]['os']                   = $value['dimensions']['1'];
 
             foreach ($value['metrics'] as $m_key => $m_value) {
                 $data[$key]['session'] = $m_value['values'][0];
@@ -288,11 +293,11 @@ function printGeoNetworkResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['country'] = $value['dimensions']['0'];
-            $data[$key]['iso_code'] = $value['dimensions']['1'];
+            $data[$key]['country']              = $value['dimensions']['0'];
+            $data[$key]['iso_code']             = $value['dimensions']['1'];
 
             foreach ($value['metrics'] as $m_key => $m_value) {
                 $data[$key]['session'] = $m_value['values'][0];
@@ -310,10 +315,10 @@ function printUsersResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['user_type'] = $value['dimensions']['0'];
+            $data[$key]['user_type']            = $value['dimensions']['0'];
 
             foreach ($value['metrics'] as $m_key => $m_value) {
                 $data[$key]['session'] = $m_value['values'][0];
@@ -331,11 +336,11 @@ function printAudienceResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['age'] = $value['dimensions']['0'];
-            $data[$key]['gender'] = $value['dimensions']['1'];
+            $data[$key]['age']                  = $value['dimensions']['0'];
+            $data[$key]['gender']               = $value['dimensions']['1'];
 
             foreach ($value['metrics'] as $m_key => $m_value) {
                 $data[$key]['session'] = $m_value['values'][0];
@@ -421,25 +426,25 @@ function printGoogleAnalyticResults($reports, $websiteAnalyticsId)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
-            $data[$key]['user_type'] = $value['dimensions']['0'];
-            $data[$key]['page'] = $value['dimensions']['1'];
-            $data[$key]['browser'] = $value['dimensions']['2'];
-            $data[$key]['os'] = $value['dimensions']['3'];
-            $data[$key]['country'] = $value['dimensions']['4'];
-            $data[$key]['iso_code'] = $value['dimensions']['5'];
-            $data[$key]['device'] = $value['dimensions']['6'];
-            $data[$key]['created_at'] = now();
+            $data[$key]['user_type']            = $value['dimensions']['0'];
+            $data[$key]['page']                 = $value['dimensions']['1'];
+            $data[$key]['browser']              = $value['dimensions']['2'];
+            $data[$key]['os']                   = $value['dimensions']['3'];
+            $data[$key]['country']              = $value['dimensions']['4'];
+            $data[$key]['iso_code']             = $value['dimensions']['5'];
+            $data[$key]['device']               = $value['dimensions']['6'];
+            $data[$key]['created_at']           = now();
             foreach ($value['metrics'] as $m_key => $m_value) {
-                $data[$key]['avg_time_page'] = $m_value['values'][0];
+                $data[$key]['avg_time_page']     = $m_value['values'][0];
                 $data[$key]['unique_page_views'] = $m_value['values'][1];
-                $data[$key]['page_view'] = $m_value['values'][2];
-                $data[$key]['exit_rate'] = $m_value['values'][3];
-                $data[$key]['entrances'] = $m_value['values'][4];
-                $data[$key]['entrance_rate'] = $m_value['values'][5];
-                $data[$key]['session'] = $m_value['values'][6];
+                $data[$key]['page_view']         = $m_value['values'][2];
+                $data[$key]['exit_rate']         = $m_value['values'][3];
+                $data[$key]['entrances']         = $m_value['values'][4];
+                $data[$key]['entrance_rate']     = $m_value['values'][5];
+                $data[$key]['session']           = $m_value['values'][6];
             }
 
             \App\GoogleAnalyticData::insert($data);

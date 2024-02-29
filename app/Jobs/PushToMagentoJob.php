@@ -22,9 +22,9 @@ class PushToMagentoJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  null  $category
-     * @param  null  $log
-     * @param  null  $mode
+     * @param null $category
+     * @param null $log
+     * @param null $mode
      */
     public function __construct(Product $product, StoreWebsite $website, protected $log = null, protected $mode = null)
     {

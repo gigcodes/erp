@@ -24,6 +24,12 @@ class SendMessageToAll implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param protectedint      $userId
+     * @param protectedCustomer $customer
+     * @param protectedarray    $content
+     * @param protectedint      $messageQueueId
+     * @param null|protected    $groupId
      */
     public function __construct(protected int $userId, protected Customer $customer, protected array $content, protected int $messageQueueId, protected $groupId = null)
     {
@@ -37,12 +43,12 @@ class SendMessageToAll implements ShouldQueue
         try {
             // Set default params
             $params = [
-                'number' => null,
-                'user_id' => $this->userId,
+                'number'      => null,
+                'user_id'     => $this->userId,
                 'customer_id' => $this->customer->id,
-                'approved' => 0,
-                'status' => 8, // status for Broadcast messages
-                'group_id' => $this->groupId,
+                'approved'    => 0,
+                'status'      => 8, // status for Broadcast messages
+                'group_id'    => $this->groupId,
             ];
 
             // Check for phone number
@@ -58,7 +64,7 @@ class SendMessageToAll implements ShouldQueue
                     // Attach all linked images
                     foreach ($this->content['linked_images'] as $image) {
                         if (is_array($image)) {
-                            $image_key = $image['key'];
+                            $image_key     = $image['key'];
                             $mediable_type = 'BroadcastImage';
 
                             // Find broadcast image
@@ -70,7 +76,7 @@ class SendMessageToAll implements ShouldQueue
                             $productIds = json_decode($broadcast->products, true);
                         } else {
                             $broadcast_image = BroadcastImage::find($image);
-                            $productIds = json_decode($broadcast_image->products, true);
+                            $productIds      = json_decode($broadcast_image->products, true);
                         }
 
                         // Loop over products
@@ -90,7 +96,7 @@ class SendMessageToAll implements ShouldQueue
                 if ($this->content['message']) {
                     // Set params
                     $params['message'] = $this->content['message'];
-                    $message = $this->content['message'];
+                    $message           = $this->content['message'];
 
                     // Create chatmessage
                     $chatMessage = ChatMessage::create($params);
@@ -173,9 +179,9 @@ class SendMessageToAll implements ShouldQueue
                     'approved' => 1,
                 ]);
 
-                $message_queue = MessageQueue::find($this->messageQueueId);
+                $message_queue                  = MessageQueue::find($this->messageQueueId);
                 $message_queue->chat_message_id = $chatMessage->id;
-                $message_queue->sent = 1;
+                $message_queue->sent            = 1;
                 $message_queue->save();
             } else {
                 MessageQueue::where('customer_id', $this->customer->id)->delete();

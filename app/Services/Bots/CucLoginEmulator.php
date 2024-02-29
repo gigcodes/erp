@@ -23,7 +23,7 @@ class CucLoginEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-            'ip' => '123.136.62.162',
+            'ip'   => '123.136.62.162',
             'port' => '8080',
         ];
     }
@@ -33,7 +33,7 @@ class CucLoginEmulator
     public function emulate($command, $url, $commands = null)
     {
         $this->data = ['', ''];
-        $self = $this;
+        $self       = $this;
         try {
             $this->manager->browse($command, static function ($browser) use ($url, $self) {
                 try {
@@ -55,10 +55,10 @@ class CucLoginEmulator
                     $brands = Brand::whereNull('deleted_at')->get();
 
                     $pages = [
-                        'male' => 'http://shop.cuccuini.it/it/shop_man_designer_all_all_',
-                        'female' => 'http://shop.cuccuini.it/it/shop_woman_designer_all_all_',
+                        'male'       => 'http://shop.cuccuini.it/it/shop_man_designer_all_all_',
+                        'female'     => 'http://shop.cuccuini.it/it/shop_woman_designer_all_all_',
                         'pagination' => 'http://shop.cuccuini.it/it/shop_woman_designer_all_all?temi={BRAND_NAME}&page={PAGE_NUMBER}',
-                        'base' => 'http://shop.cuccuini.it/it/',
+                        'base'       => 'http://shop.cuccuini.it/it/',
                     ];
 
                     $allUrls = [];
@@ -67,10 +67,10 @@ class CucLoginEmulator
                         if ($brand->name == 'TODS') {
                             $brand->name = 'tod%27s';
                         }
-                        $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
+                        $brandName      = str_replace(' ', '+', strtolower(trim($brand->name)));
                         $productListUrl = $pages['female'] . $brandName;
                         $browser->visit($productListUrl);
-                        $c = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
+                        $c                = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
                         $paginationFilter = $c->filter('div.bloccopagine .pagine:last-child a');
 
                         if (count($paginationFilter) > 0) {
@@ -82,7 +82,7 @@ class CucLoginEmulator
                                     $allUrls[$brand->name][] = $productListUrl;
                                 }
                                 for ($i = 1; $i <= $pageNumber; $i++) {
-                                    $brandNameForPagination = str_replace(' ', '+', strtoupper($brand->name));
+                                    $brandNameForPagination  = str_replace(' ', '+', strtoupper($brand->name));
                                     $allUrls[$brand->name][] = str_replace('{PAGE_NUMBER}', $i, str_replace('{BRAND_NAME}', $brandNameForPagination, $pages['pagination']));
                                 }
                                 break;
@@ -96,10 +96,10 @@ class CucLoginEmulator
                         if ($brand->name == 'TODS') {
                             $brand->name = 'tod%27s';
                         }
-                        $brandName = str_replace(' ', '+', strtolower(trim($brand->name)));
+                        $brandName      = str_replace(' ', '+', strtolower(trim($brand->name)));
                         $productListUrl = $pages['male'] . $brandName;
                         $browser->visit($productListUrl);
-                        $c = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
+                        $c                = new HtmlPageCrawler($browser->element('.colonna_shop')->getAttribute('innerHTML'));
                         $paginationFilter = $c->filter('div.bloccopagine .pagine:last-child a');
 
                         if (count($paginationFilter) > 0) {
@@ -111,7 +111,7 @@ class CucLoginEmulator
                                     $allUrls[$brand->name][] = $productListUrl;
                                 }
                                 for ($i = 1; $i <= $pageNumber; $i++) {
-                                    $brandNameForPagination = str_replace(' ', '+', strtoupper($brand->name));
+                                    $brandNameForPagination  = str_replace(' ', '+', strtoupper($brand->name));
                                     $allUrls[$brand->name][] = str_replace('{PAGE_NUMBER}', $i, str_replace('{BRAND_NAME}', $brandNameForPagination, $pages['pagination']));
                                 }
                                 break;
@@ -125,8 +125,8 @@ class CucLoginEmulator
                         foreach ($allUrlWithBrand as $productsUrl) {
                             $browser->visit($productsUrl);
                             $htmlData = $browser->element('.colonna_shop')->getAttribute('innerHTML');
-                            $c = new HtmlPageCrawler($htmlData);
-                            $data = $c->filter('div.contfoto a')->getIterator();
+                            $c        = new HtmlPageCrawler($htmlData);
+                            $data     = $c->filter('div.contfoto a')->getIterator();
 
                             if (count($data) === 0) {
                                 $allUrls[$key] = [];
@@ -136,14 +136,14 @@ class CucLoginEmulator
 
                             foreach ($data as $datum) {
                                 $productUrl = $datum->getAttribute('href');
-                                $entry = ScrapEntries::where('url', $productUrl)->first();
+                                $entry      = ScrapEntries::where('url', $productUrl)->first();
                                 if (! $entry) {
                                     $entry = new ScrapEntries();
                                 }
-                                $entry->url = $pages['base'] . $productUrl;
-                                $entry->title = $productUrl;
+                                $entry->url             = $pages['base'] . $productUrl;
+                                $entry->title           = $productUrl;
                                 $entry->is_product_page = 1;
-                                $entry->site_name = 'cuccuini';
+                                $entry->site_name       = 'cuccuini';
                                 $entry->save();
                             }
                         }

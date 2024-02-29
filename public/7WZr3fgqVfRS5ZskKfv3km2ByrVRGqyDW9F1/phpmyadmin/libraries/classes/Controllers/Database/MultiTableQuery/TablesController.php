@@ -26,7 +26,7 @@ final class TablesController extends AbstractController
     {
         $params = [
             'tables' => $_GET['tables'] ?? [],
-            'db' => $_GET['db'] ?? '',
+            'db'     => $_GET['db'] ?? '',
         ];
 
         $tablesListForQuery = '';

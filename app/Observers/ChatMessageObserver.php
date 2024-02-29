@@ -17,7 +17,8 @@ class ChatMessageObserver
     /**
      * Handle the ChatMessage "created" event.
      *
-     * @param  \App\Models\ChatMessage  $chatMessage
+     * @param \App\Models\ChatMessage $chatMessage
+     *
      * @return void
      */
     public function created(ChatMessage $chatMessage)
@@ -28,17 +29,17 @@ class ChatMessageObserver
                 $session = uniqid();
                 \Cache::set('chatbot-session', $session);
             }
-            $object = '';
+            $object     = '';
             $objectType = '';
             if ($chatMessage->vendor_id > 0) {
                 $objectType = 'vendor';
-                $object = Vendor::find($chatMessage->vendor_id);
+                $object     = Vendor::find($chatMessage->vendor_id);
             } elseif ($chatMessage->customer_id > 0) {
                 $objectType = 'customer';
-                $object = Customer::find($chatMessage->customer_id);
+                $object     = Customer::find($chatMessage->customer_id);
             } elseif ($chatMessage->supplier_id) {
                 $objectType = 'supplier';
-                $object = Supplier::find($chatMessage->supplier_id);
+                $object     = Supplier::find($chatMessage->supplier_id);
             }
             if (($chatMessage->vendor_id || $chatMessage->customer_id || $chatMessage->supplier_id)) {
                 if ($chatMessage->customer_id > 0) {
@@ -58,8 +59,8 @@ class ChatMessageObserver
                         ->orderBy('chatbot_questions.id', 'desc')
                         ->first();
                     $requestData = [
-                        'chat_id' => $chatMessage->id,
-                        'status' => 2,
+                        'chat_id'          => $chatMessage->id,
+                        'status'           => 2,
                         'add_autocomplete' => false,
                     ];
                     if ($chatMessage->vendor_id > 0) {
@@ -75,7 +76,7 @@ class ChatMessageObserver
                     if ($chatQuestions) {
                         if ($chatQuestions->auto_approve == 1) {
                             $requestData['message'] = $dialogFlowService->purifyResponse($chatQuestions->suggested_reply, $objectType == 'customer' ? $object : null);
-                            $request = \Request::create('/', 'POST', $requestData);
+                            $request                = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
                         }
@@ -87,14 +88,14 @@ class ChatMessageObserver
 
                         if ($replay) {
                             $requestData['message'] = $dialogFlowService->purifyResponse($replay->replay, $objectType == 'customer' ? $object : null);
-                            $request = \Request::create('/', 'POST', $requestData);
+                            $request                = \Request::create('/', 'POST', $requestData);
                             app('App\Http\Controllers\WhatsAppController')->sendMessage($request, $objectType);
                             $getFromGoogle = false;
                         }
                     }
 
                     if ($getFromGoogle) {
-                        $response = $dialogFlowService->detectIntent($session, $chatMessage->message);
+                        $response   = $dialogFlowService->detectIntent($session, $chatMessage->message);
                         $intentName = $response->getIntent()->getName();
                         $intentName = explode('/', $intentName);
                         $intentName = $intentName[count($intentName) - 1];
@@ -105,29 +106,29 @@ class ChatMessageObserver
                             if (! $question) {
                                 $question = ChatbotQuestion::create([
                                     'keyword_or_question' => 'intent',
-                                    'is_active' => true,
-                                    'google_account_id' => $googleAccount->id,
-                                    'google_status' => 'google sended',
-                                    'google_response_id' => $intentName,
-                                    'value' => $response->getIntent()->getDisplayName(),
-                                    'suggested_reply' => $response->getFulfillmentText(),
+                                    'is_active'           => true,
+                                    'google_account_id'   => $googleAccount->id,
+                                    'google_status'       => 'google sended',
+                                    'google_response_id'  => $intentName,
+                                    'value'               => $response->getIntent()->getDisplayName(),
+                                    'suggested_reply'     => $response->getFulfillmentText(),
                                 ]);
                             }
                         }
 
                         $questionsR = ChatbotQuestionReply::where('suggested_reply', 'like', '%' . $response->getFulfillmentText() . '%')->first();
                         if (! $questionsR) {
-                            $chatRply = new  ChatbotQuestionReply();
-                            $chatRply->suggested_reply = $response->getFulfillmentText();
-                            $chatRply->store_website_id = $googleAccount->site_id;
+                            $chatRply                      = new  ChatbotQuestionReply();
+                            $chatRply->suggested_reply     = $response->getFulfillmentText();
+                            $chatRply->store_website_id    = $googleAccount->site_id;
                             $chatRply->chatbot_question_id = $question->id;
                             $chatRply->save();
                         }
-                        $store_replay = new TmpReplay();
-                        $store_replay->chat_message_id = $chatMessage->id;
+                        $store_replay                   = new TmpReplay();
+                        $store_replay->chat_message_id  = $chatMessage->id;
                         $store_replay->suggested_replay = $dialogFlowService->purifyResponse($response->getFulfillmentText(), $objectType == 'customer' ? $object : null);
-                        $store_replay->type = $objectType;
-                        $store_replay->type_id = $object->id;
+                        $store_replay->type             = $objectType;
+                        $store_replay->type_id          = $object->id;
                         $store_replay->save();
                     }
                 }
@@ -141,7 +142,8 @@ class ChatMessageObserver
     /**
      * Handle the ChatMessage "updated" event.
      *
-     * @param  \App\Models\ChatMessage  $chatMessage
+     * @param \App\Models\ChatMessage $chatMessage
+     *
      * @return void
      */
     public function updated(ChatMessage $chatMessage)
@@ -151,7 +153,8 @@ class ChatMessageObserver
     /**
      * Handle the ChatMessage "deleted" event.
      *
-     * @param  \App\Models\ChatMessage  $chatMessage
+     * @param \App\Models\ChatMessage $chatMessage
+     *
      * @return void
      */
     public function deleting(ChatMessage $chatMessage)

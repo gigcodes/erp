@@ -114,27 +114,27 @@ class FindByNumberController extends Controller
                 ->where('customer_id', $customer->id)
                 ->select(['orders.*', \DB::raw('group_concat(b.name) as brand_name_list'), 'swo.website_id'])->orderBy('created_at', 'desc')->get();
             [$leads_total, $leads] = $this->getLeadsInformation($customer->id);
-            $exchanges_return = $customer->return_exchanges;
+            $exchanges_return      = $customer->return_exchanges;
             if ($orders->count()) {
                 foreach ($orders as &$value) {
-                    $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite ?? 'N/A') : 'N/A';
-                    $value->order_date = Carbon::parse($value->order_date)->format('d-m-y');
-                    $totalBrands = explode(',', $value->brand_name_list);
+                    $value->storeWebsite    = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite ?? 'N/A') : 'N/A';
+                    $value->order_date      = Carbon::parse($value->order_date)->format('d-m-y');
+                    $totalBrands            = explode(',', $value->brand_name_list);
                     $value->brand_name_list = (count($totalBrands) > 1) ? 'Multi' : $value->brand_name_list;
-                    $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+                    $value->status          = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
                 }
             }
 
             return [
                 true,
                 [
-                    'orders_total' => $orders->count(),
-                    'leads_total' => $leads_total,
+                    'orders_total'           => $orders->count(),
+                    'leads_total'            => $leads_total,
                     'exchanges_return_total' => $exchanges_return->count(),
-                    'exchanges_return' => $exchanges_return,
-                    'leads' => $leads,
-                    'orders' => $orders,
-                    'customer' => $customer,
+                    'exchanges_return'       => $exchanges_return,
+                    'leads'                  => $leads,
+                    'orders'                 => $orders,
+                    'customer'               => $customer,
                 ],
             ];
         }
@@ -153,12 +153,12 @@ class FindByNumberController extends Controller
             ->orderBy('erp_leads.id', 'desc')
             ->select(['erp_leads.*', 'products.name as product_name', 'cat.title as cat_title', 'br.name as brand_name', 'els.name as status_name', 'c.name as customer_name', 'c.id as customer_id']);
 
-        $total = $source->count();
+        $total  = $source->count();
         $source = $source->get();
 
         foreach ($source as $key => $value) {
             $source[$key]->media_url = null;
-            $media = $value->getMedia(config('constants.media_tags'))->first();
+            $media                   = $value->getMedia(config('constants.media_tags'))->first();
             if ($media) {
                 $source[$key]->media_url = getMediaUrl($media);
             }

@@ -36,16 +36,17 @@ abstract class TextImageLinkTransformationsPlugin extends TransformationsPlugin
     /**
      * Does the actual work of each specific transformations plugin.
      *
-     * @param  string  $buffer  text to be transformed
-     * @param  array  $options transformation options
-     * @param  FieldMetadata|null  $meta    meta information
+     * @param string             $buffer  text to be transformed
+     * @param array              $options transformation options
+     * @param FieldMetadata|null $meta    meta information
+     *
      * @return string
      */
     public function applyTransformation($buffer, array $options = [], ?FieldMetadata $meta = null)
     {
-        $cfg = $GLOBALS['cfg'];
+        $cfg     = $GLOBALS['cfg'];
         $options = $this->getOptions($options, $cfg['DefaultTransformations']['TextImageLink']);
-        $url = $options[0] . $buffer;
+        $url     = $options[0] . $buffer;
         /* Do not allow javascript links */
         if (! Sanitize::checkLink($url, true, true)) {
             return htmlspecialchars($url);
@@ -54,8 +55,8 @@ abstract class TextImageLinkTransformationsPlugin extends TransformationsPlugin
         $template = new Template();
 
         return $template->render('plugins/text_image_link_transformations', [
-            'url' => $url,
-            'width' => (int) $options[1],
+            'url'    => $url,
+            'width'  => (int) $options[1],
             'height' => (int) $options[2],
             'buffer' => $buffer,
         ]);

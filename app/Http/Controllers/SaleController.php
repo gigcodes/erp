@@ -33,45 +33,45 @@ class SaleController extends Controller
     {
         $data = [];
 
-        $data['date_of_request'] = '';
-        $data['sale_persons'] = $this->getUserArray($this->getUsersByRoleName());
-        $data['sales_person_name'] = '';
-        $data['client_name'] = '';
-        $data['client_phone'] = '';
-        $data['instagram_handle'] = '';
-        $data['description'] = '';
-        $data['selected_product'] = '';
+        $data['date_of_request']         = '';
+        $data['sale_persons']            = $this->getUserArray($this->getUsersByRoleName());
+        $data['sales_person_name']       = '';
+        $data['client_name']             = '';
+        $data['client_phone']            = '';
+        $data['instagram_handle']        = '';
+        $data['description']             = '';
+        $data['selected_product']        = '';
         $data['selected_products_array'] = [];
-        $data['products_array'] = [];
+        $data['products_array']          = [];
 
-        $data['allocated_to'] = '';
-        $data['users'] = $this->getUserArray(User::all());
-        $data['finished_at'] = '';
-        $data['check_1'] = '';
-        $data['check_2'] = '';
-        $data['check_3'] = '';
+        $data['allocated_to']   = '';
+        $data['users']          = $this->getUserArray(User::all());
+        $data['finished_at']    = '';
+        $data['check_1']        = '';
+        $data['check_2']        = '';
+        $data['check_3']        = '';
         $data['sent_to_client'] = '';
-        $data['remark'] = '';
-        $data['modify'] = 0;
-        $data['img_url'] = '';
-        $data['img_id'] = '';
+        $data['remark']         = '';
+        $data['modify']         = 0;
+        $data['img_url']        = '';
+        $data['img_id']         = '';
 
         return view('sales.form', $data);
     }
 
     public function show(Sale $sale)
     {
-        $data = $sale->toArray();
+        $data                 = $sale->toArray();
         $data['sale_persons'] = $this->getUserArray($this->getUsersByRoleName());
-        $data['users'] = $this->getUserArray(User::all());
+        $data['users']        = $this->getUserArray(User::all());
 
         $data['selected_products_array'] = json_decode($sale->selected_product);
-        $data['products_array'] = [];
-        $data['sale'] = $sale;
+        $data['products_array']          = [];
+        $data['sale']                    = $sale;
 
         if (! empty($data['selected_products_array'])) {
             foreach ($data['selected_products_array'] as $product_id) {
-                $skuOrName = $this->getProductNameSkuById($product_id);
+                $skuOrName                           = $this->getProductNameSkuById($product_id);
                 $data['products_array'][$product_id] = $skuOrName;
             }
         }
@@ -85,16 +85,16 @@ class SaleController extends Controller
 
         $this->validate($request, [
             'sales_person_name' => 'required',
-            'allocated_to' => 'required',
-            'description' => 'required',
-            'image' => 'mimes:jpeg,bmp,png,jpg',
+            'allocated_to'      => 'required',
+            'description'       => 'required',
+            'image'             => 'mimes:jpeg,bmp,png,jpg',
         ]);
 
-        $data = $request->except('_token', 'image');
-        $data['author_id'] = Auth::id();
-        $data['date_of_request'] = date('Y-m-d');
-        $data['created_at'] = date('Y-m-d H:i:s');
-        $data['updated_at'] = date('Y-m-d H:i:s');
+        $data                     = $request->except('_token', 'image');
+        $data['author_id']        = Auth::id();
+        $data['date_of_request']  = date('Y-m-d');
+        $data['created_at']       = date('Y-m-d H:i:s');
+        $data['updated_at']       = date('Y-m-d H:i:s');
         $data['selected_product'] = json_encode($request->input('selected_product'));
 
         $sale->insert($data);
@@ -103,7 +103,7 @@ class SaleController extends Controller
 
         if ($request->has('image')) {
             $sale_instance = $sale->find($sale_id);
-            $media = MediaUploader::fromSource($request->file('image'))
+            $media         = MediaUploader::fromSource($request->file('image'))
                 ->toDirectory('sale/' . floor($sale_instance->id / config('constants.image_per_folder')))
                 ->upload();
             $sale_instance->attachMedia($media, config('constants.media_tags'));
@@ -116,16 +116,16 @@ class SaleController extends Controller
 
     public function edit(Sale $sale)
     {
-        $data = $sale->toArray();
+        $data                 = $sale->toArray();
         $data['sale_persons'] = $this->getUserArray($this->getUsersByRoleName());
-        $data['users'] = $this->getUserArray(User::all());
+        $data['users']        = $this->getUserArray(User::all());
 
         $data['selected_products_array'] = json_decode($sale->selected_product);
-        $data['products_array'] = [];
+        $data['products_array']          = [];
 
         if (! empty($data['selected_products_array'])) {
             foreach ($data['selected_products_array'] as $product_id) {
-                $skuOrName = $this->getProductNameSkuById($product_id);
+                $skuOrName                           = $this->getProductNameSkuById($product_id);
                 $data['products_array'][$product_id] = $skuOrName;
             }
         }
@@ -137,10 +137,10 @@ class SaleController extends Controller
         if (empty($image)) {
             // nothing
             $data['img_url'] = '';
-            $data['img_id'] = '';
+            $data['img_id']  = '';
         } else {
             $data['img_url'] = getMediaUrl($image);
-            $data['img_id'] = $image->id;
+            $data['img_id']  = $image->id;
         }
 
         return view('sales.form', $data);
@@ -150,27 +150,27 @@ class SaleController extends Controller
     {
         $this->validate($request, [
             'sales_person_name' => 'required',
-            'allocated_to' => 'required',
-            'description' => 'required',
-            'image' => 'mimes:jpeg,bmp,png,jpg',
+            'allocated_to'      => 'required',
+            'description'       => 'required',
+            'image'             => 'mimes:jpeg,bmp,png,jpg',
         ]);
 
         ActivityConroller::create($sale->id, 'sales', 'update');
         NotificaitonContoller::store('Sale Updated', '', '', $sale->id, $sale->author_id);
 
         $sale->sales_person_name = $request->input('sales_person_name');
-        $sale->client_name = $request->input('client_name');
-        $sale->client_phone = $request->input('client_phone');
-        $sale->instagram_handle = $request->input('instagram_handle');
-        $sale->description = $request->input('description');
-        $sale->selected_product = json_encode($request->input('selected_product'));
-        $sale->allocated_to = $request->input('allocated_to');
-        $sale->finished_at = $request->input('finished_at');
-        $sale->check_1 = $request->input('check_1') ? $request->input('check_1') : 0;
-        $sale->check_2 = $request->input('check_2') ? $request->input('check_2') : 0;
-        $sale->check_3 = $request->input('check_3') ? $request->input('check_3') : 0;
-        $sale->sent_to_client = $request->input('sent_to_client');
-        $sale->remark = $request->input('remark');
+        $sale->client_name       = $request->input('client_name');
+        $sale->client_phone      = $request->input('client_phone');
+        $sale->instagram_handle  = $request->input('instagram_handle');
+        $sale->description       = $request->input('description');
+        $sale->selected_product  = json_encode($request->input('selected_product'));
+        $sale->allocated_to      = $request->input('allocated_to');
+        $sale->finished_at       = $request->input('finished_at');
+        $sale->check_1           = $request->input('check_1') ? $request->input('check_1') : 0;
+        $sale->check_2           = $request->input('check_2') ? $request->input('check_2') : 0;
+        $sale->check_3           = $request->input('check_3') ? $request->input('check_3') : 0;
+        $sale->sent_to_client    = $request->input('sent_to_client');
+        $sale->remark            = $request->input('remark');
 
         self::replaceImage($request, $sale);
 
@@ -191,7 +191,7 @@ class SaleController extends Controller
     {
         $products = Product::latest()->paginate(Setting::get('pagination'));
         $roletype = 'Sale';
-        $sale_id = $sale->id;
+        $sale_id  = $sale->id;
 
         $selected_products = json_decode($sale->selected_product, true) ?? [];
 

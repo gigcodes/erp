@@ -43,14 +43,14 @@ class UpdateLanguageToGroup extends Command
             'fields' => ['agent_priorities', 'routing_status'],
         ];
         $postData = json_encode($postData, true);
-        $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
+        $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
 
         if ($result['err']) {
             dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
-            $response = json_decode($result['response']);
+            $response        = json_decode($result['response']);
             $existing_themes = ['General', 'Lussolicious', 'o-labels.com', 'Luxury Space', 'Italybrandoutlets', 'AvoirChic', 'Brands & Labels', 'Shades Shop', 'Sololuxury', 'VeraLusso', 'Suv&Nat', 'TheFitEdit', 'Upeau'];
-            $changed_themes = [];
+            $changed_themes  = [];
             foreach ($response as $g) {
                 dump($g->name);
                 $all_themes_ids[$g->name] = $g->id;
@@ -69,12 +69,12 @@ class UpdateLanguageToGroup extends Command
                     } elseif ($lang_code == 'ge') {
                         $lang_code = 'ka';
                     }
-                    $postURL = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
+                    $postURL  = 'https://api.livechatinc.com/v2/properties/group/' . $g->id;
                     $postData = [
                         'language' => $lang_code,
                     ];
                     $postData = json_encode($postData, true);
-                    $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
+                    $result   = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'PUT');
                     $response = json_decode($result['response']);
                     if (! isset($response->error)) {
                         dump($g->id . ' ' . $g->name . ' == ' . $lang_code . ' lang updated. ', $response);

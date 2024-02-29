@@ -9,7 +9,7 @@ class GoogleDeveloperLogsController extends Controller
 {
     public static function index()
     {
-        $id = 0;
+        $id         = 0;
         $anrcrashes = GoogleDeveloperLogs::get();
 
         return view('google.developer-api.logs', ['anrcrashes' => $anrcrashes, 'id' => $id]);
@@ -19,14 +19,14 @@ class GoogleDeveloperLogsController extends Controller
     {
         $anrcrashes = new GoogleDeveloperLogs();
         if ($request->input('app_name')) {
-            $app_name = $request->input('app_name');
+            $app_name   = $request->input('app_name');
             $anrcrashes = $anrcrashes->Where('log_name', 'like', '%' . $app_name . '%');
         }
         if ($request->input('date')) {
-            $date = $request->input('date');
+            $date       = $request->input('date');
             $anrcrashes = $anrcrashes->Where('created_at', 'like', '%' . $date . '%');
         }
-        $id = 0;
+        $id         = 0;
         $anrcrashes = $anrcrashes->get();
 
         return view('google.developer-api.logs', ['anrcrashes' => $anrcrashes, 'id' => $id]);

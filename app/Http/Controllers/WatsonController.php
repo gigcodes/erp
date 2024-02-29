@@ -17,7 +17,7 @@ class WatsonController extends Controller
     public function index()
     {
         $store_websites = StoreWebsite::all();
-        $accounts = WatsonAccount::all();
+        $accounts       = WatsonAccount::all();
 
         return view('watson.index', compact('store_websites', 'accounts'));
     }
@@ -40,15 +40,15 @@ class WatsonController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'store_website_id' => 'required|integer',
-            'api_key' => 'required|string',
-            'work_space_id' => 'required|string',
-            'assistant_id' => 'required|string',
-            'url' => 'required|string',
+            'store_website_id'       => 'required|integer',
+            'api_key'                => 'required|string',
+            'work_space_id'          => 'required|string',
+            'assistant_id'           => 'required|string',
+            'url'                    => 'required|string',
             'speech_to_text_api_key' => 'required|string',
-            'speech_to_text_url' => 'required|string',
-            'user_name' => 'required|string',
-            'password' => 'required|string',
+            'speech_to_text_url'     => 'required|string',
+            'user_name'              => 'required|string',
+            'password'               => 'required|string',
         ]);
         WatsonAccount::create($request->all());
 
@@ -58,12 +58,13 @@ class WatsonController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $account = WatsonAccount::find($id);
+        $account        = WatsonAccount::find($id);
         $store_websites = StoreWebsite::all();
 
         return response()->json(['account' => $account, 'store_websites' => $store_websites]);
@@ -72,7 +73,8 @@ class WatsonController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -83,13 +85,14 @@ class WatsonController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $account = WatsonAccount::find($id);
-        $params = $request->except('_token');
+        $params  = $request->except('_token');
         if (array_key_exists('is_active', $params)) {
             $params['is_active'] = 1;
         } else {
@@ -103,7 +106,8 @@ class WatsonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

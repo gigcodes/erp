@@ -41,13 +41,13 @@ class CheckLandingProductsMagento extends Command
      */
     public function handle()
     {
-        $magentoHelper = new MagentoHelper;
+        $magentoHelper   = new MagentoHelper;
         $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere('status', 0)->get();
         foreach ($landingProducts as $product) {
             $productData = Product::where('id', $product->product_id)->first();
-            $sku = $productData->sku;
-            $status = $product->status;
-            $website = StoreWebsite::where('id', $product->store_website_id)->first();
+            $sku         = $productData->sku;
+            $status      = $product->status;
+            $website     = StoreWebsite::where('id', $product->store_website_id)->first();
             if ($productData) {
                 $response = $magentoHelper->updateStockEnableStatus($productData, $sku, $status, $website);
                 echo 'Product Updated successfully!';

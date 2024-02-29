@@ -35,7 +35,7 @@ class UpdateCucciniProducts extends Command
     /**
      * Create a new command instance.
      *
-     * @param  GebnegozionlineProductDetailsScraper  $scraper
+     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct()
     {
@@ -51,7 +51,7 @@ class UpdateCucciniProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -59,7 +59,7 @@ class UpdateCucciniProducts extends Command
 
             foreach ($products as $image) {
                 $data['sku'] = str_replace(' ', '', $image->sku);
-                $validator = Validator::make($data, [
+                $validator   = Validator::make($data, [
                     'sku' => 'unique:products,sku',
                 ]);
 
@@ -90,14 +90,14 @@ class UpdateCucciniProducts extends Command
 
                 dump($supplier);
 
-                $product->sku = str_replace(' ', '', $image->sku);
-                $product->brand = $image->brand_id;
-                $product->supplier = $supplier;
-                $product->name = $image->title;
+                $product->sku               = str_replace(' ', '', $image->sku);
+                $product->brand             = $image->brand_id;
+                $product->supplier          = $supplier;
+                $product->name              = $image->title;
                 $product->short_description = $image->description;
-                $product->supplier_link = $image->url;
-                $product->stage = 3;
-                $product->is_scraped = 1;
+                $product->supplier_link     = $image->url;
+                $product->stage             = 3;
+                $product->is_scraped        = 1;
 
                 $properties_array = $image->properties;
 
@@ -123,7 +123,7 @@ class UpdateCucciniProducts extends Command
                 }
 
                 if (array_key_exists('Category', $properties_array)) {
-                    $categories = Category::all();
+                    $categories  = Category::all();
                     $category_id = 1;
 
                     foreach ($properties_array['Category'] as $cat) {
@@ -161,7 +161,7 @@ class UpdateCucciniProducts extends Command
                     $final_price = $image->price;
                 }
 
-                $price = round(preg_replace('/[\&euro;€,]/', '', $final_price));
+                $price          = round(preg_replace('/[\&euro;€,]/', '', $final_price));
                 $product->price = $price;
 
                 if (! empty($brand->euro_to_inr)) {
@@ -170,7 +170,7 @@ class UpdateCucciniProducts extends Command
                     $product->price_inr = Setting::get('euro_to_inr') * $product->price;
                 }
 
-                $product->price_inr = round($product->price_inr, -3);
+                $product->price_inr         = round($product->price_inr, -3);
                 $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
                 $product->price_inr_special = round($product->price_inr_special, -3);
@@ -189,7 +189,7 @@ class UpdateCucciniProducts extends Command
 
                 if ($images) {
                     foreach ($images as $image_name) {
-                        $path = public_path('uploads') . '/social-media/' . $image_name;
+                        $path  = public_path('uploads') . '/social-media/' . $image_name;
                         $media = MediaUploader::fromSource($path)
                             ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                             ->upload();

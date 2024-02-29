@@ -31,7 +31,7 @@ final class MysqliResult implements ResultInterface
     private $result;
 
     /**
-     * @param  mysqli_result|bool  $result
+     * @param mysqli_result|bool $result
      */
     public function __construct($result)
     {
@@ -92,7 +92,8 @@ final class MysqliResult implements ResultInterface
     /**
      * Returns a single value from the given result; false on error
      *
-     * @param  int|string  $field
+     * @param int|string $field
+     *
      * @return string|false|null
      */
     public function fetchValue($field = 0)
@@ -223,7 +224,8 @@ final class MysqliResult implements ResultInterface
     /**
      * Adjusts the result pointer to an arbitrary row in the result
      *
-     * @param  int  $offset offset to seek
+     * @param int $offset offset to seek
+     *
      * @return bool True if the offset exists, false otherwise
      */
     public function seek(int $offset): bool

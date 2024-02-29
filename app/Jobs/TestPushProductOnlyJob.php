@@ -21,9 +21,9 @@ class TestPushProductOnlyJob
     /**
      * Create a new job instance.
      *
-     * @param  StoreWebsite  $website
-     * @param  null  $log
-     * @param  null  $mode
+     * @param StoreWebsite $website
+     * @param null         $log
+     * @param null         $mode
      */
     public function __construct(Product $product)
     {
@@ -58,9 +58,9 @@ class TestPushProductOnlyJob
                     try {
                         TestPushToMagento::dispatch($product, $website, $log, null)->onQueue($log->queue);
                     } catch (\Exception $e) {
-                        $error_msg = 'TestPushToMagento failed: ' . $e->getMessage();
+                        $error_msg        = 'TestPushToMagento failed: ' . $e->getMessage();
                         $log->sync_status = 'error';
-                        $log->message = $error_msg;
+                        $log->message     = $error_msg;
                         $log->save();
                         ProductPushErrorLog::log('', $product->id, $error_msg, 'error', $website->id, null, null, $log->id, null);
                     }

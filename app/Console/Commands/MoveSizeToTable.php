@@ -39,12 +39,12 @@ class MoveSizeToTable extends Command
     public function handle()
     {
         $allsizes = \DB::table('products')->where('stock', '>', 0)->where('size', '!=', '')->groupBy('size')->select('size')->get();
-        $sizes = [];
+        $sizes    = [];
 
         if (! empty($allsizes)) {
             foreach ($allsizes as $s) {
                 $isJson = self::isJson($s->size);
-                $ex = null;
+                $ex     = null;
 
                 if ($isJson) {
                     $ex = json_decode($s->size, true);
@@ -66,14 +66,14 @@ class MoveSizeToTable extends Command
                             }
 
                             if (strpos($e, '½') !== false) {
-                                $parts = explode('½', $e);
+                                $parts   = explode('½', $e);
                                 $sizes[] = (int) trim($parts[0]) + 0.5;
 
                                 continue;
                             }
 
                             if (strpos($e, '/2') !== false) {
-                                $parts = explode(' ', $e);
+                                $parts   = explode(' ', $e);
                                 $sizes[] = (int) trim($parts[0]) + 0.5;
 
                                 continue;
@@ -89,7 +89,7 @@ class MoveSizeToTable extends Command
                             }
 
                             if (strpos($e, '+') !== false) {
-                                $parts = explode('+', $e);
+                                $parts   = explode('+', $e);
                                 $sizes[] = (int) trim($parts[0]) + 0.5;
 
                                 continue;
@@ -104,7 +104,7 @@ class MoveSizeToTable extends Command
                             if (strpos($e, 'IT') !== false) {
                                 $parts = explode(' ', $e);
                                 if (isset($parts[1])) {
-                                    $parts = explode('/', $parts[1]);
+                                    $parts   = explode('/', $parts[1]);
                                     $sizes[] = $parts[0] + 0.5;
                                 }
 
@@ -162,16 +162,16 @@ class MoveSizeToTable extends Command
     private function romanToNumber($e)
     {
         $convertions = [
-            'I' => 1,
-            'II' => 2,
-            'III' => 3,
-            'IV' => 4,
-            'V' => 5,
-            'VI' => 6,
-            'VII' => 7,
+            'I'    => 1,
+            'II'   => 2,
+            'III'  => 3,
+            'IV'   => 4,
+            'V'    => 5,
+            'VI'   => 6,
+            'VII'  => 7,
             'VIII' => 8,
-            'IX' => 9,
-            'X' => 10,
+            'IX'   => 9,
+            'X'    => 10,
         ];
 
         return $convertions[trim($e)];

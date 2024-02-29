@@ -23,11 +23,11 @@ use PhpMyAdmin\Plugins\Schema\RelationStats;
 class RelationStatsEps extends RelationStats
 {
     /**
-     * @param  Eps  $diagram       The EPS diagram
-     * @param  string  $master_table  The master table name
-     * @param  string  $master_field  The relation field in the master table
-     * @param  string  $foreign_table The foreign table name
-     * @param  string  $foreign_field The relation field in the foreign table
+     * @param Eps    $diagram       The EPS diagram
+     * @param string $master_table  The master table name
+     * @param string $master_field  The relation field in the master table
+     * @param string $foreign_table The foreign table name
+     * @param string $foreign_field The relation field in the foreign table
      */
     public function __construct(
         $diagram,

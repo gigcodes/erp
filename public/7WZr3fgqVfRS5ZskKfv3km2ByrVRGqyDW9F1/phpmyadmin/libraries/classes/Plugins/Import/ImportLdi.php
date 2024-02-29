@@ -85,7 +85,8 @@ class ImportLdi extends AbstractImportCsv
     /**
      * Handles the whole import logic
      *
-     * @param  array  $sql_data 2-element array with sql data
+     * @param array $sql_data     2-element array with sql data
+     * @param ?File $importHandle
      */
     public function doImport(?File $importHandle = null, array &$sql_data = []): void
     {
@@ -193,7 +194,7 @@ class ImportLdi extends AbstractImportCsv
         global $dbi;
 
         $GLOBALS['cfg']['Import']['ldi_local_option'] = false;
-        $result = $dbi->tryQuery('SELECT @@local_infile;');
+        $result                                       = $dbi->tryQuery('SELECT @@local_infile;');
 
         if ($result === false || $result->numRows() <= 0) {
             return;

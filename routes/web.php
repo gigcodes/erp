@@ -986,7 +986,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::group(['prefix' => 'postman'],function (){
+    Route::group(['prefix' => 'postman'], function () {
         Route::get('/', [PostmanRequestCreateController::class, 'index']);
         Route::get('search', [PostmanRequestCreateController::class, 'search']);
         Route::post('/create', [PostmanRequestCreateController::class, 'store']);
@@ -1041,7 +1041,6 @@ Route::middleware('auth')->group(function () {
     });
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
 
-
     Route::post('run-request-url', [PostmanRequestCreateController::class, 'postmanRunRequestUrl'])->name('postman.runrequesturl');
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
@@ -1052,7 +1051,7 @@ Route::middleware('auth')->group(function () {
     Route::get('appointment-request-remarks/{id}', [AppointmentRequestController::class, 'AppointmentRequestRemarks'])->name('appointment-request.remarks');
     Route::post('appointment-decline-remarks', [EventController::class, 'declineRemarks'])->name('appointment-request.declien.remarks');
 
-    Route::group(['prefix' => 'script-documents'],function (){
+    Route::group(['prefix' => 'script-documents'], function () {
         Route::get('/', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
         Route::get('records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
         Route::get('create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');

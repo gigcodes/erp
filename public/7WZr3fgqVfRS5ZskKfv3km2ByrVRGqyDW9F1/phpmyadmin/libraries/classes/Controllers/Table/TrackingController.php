@@ -49,7 +49,7 @@ final class TrackingController extends AbstractController
         Util::checkParameters(['db', 'table']);
 
         $urlParams = ['db' => $db, 'table' => $table];
-        $errorUrl = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
+        $errorUrl  = Util::getScriptNameForOption($cfg['DefaultTabTable'], 'table');
         $errorUrl .= Url::getCommon($urlParams, '&');
 
         DbTableExists::check();
@@ -75,14 +75,14 @@ final class TrackingController extends AbstractController
         $urlParams['goto'] = Url::getFromRoute('/table/tracking');
         $urlParams['back'] = Url::getFromRoute('/table/tracking');
 
-        $data = [];
-        $entries = [];
-        $filter_ts_from = null;
-        $filter_ts_to = null;
-        $filter_users = [];
+        $data             = [];
+        $entries          = [];
+        $filter_ts_from   = null;
+        $filter_ts_to     = null;
+        $filter_users     = [];
         $selection_schema = false;
-        $selection_data = false;
-        $selection_both = false;
+        $selection_data   = false;
+        $selection_both   = false;
 
         // Init vars for tracking report
         if (isset($_POST['report']) || isset($_POST['report_export'])) {
@@ -113,8 +113,8 @@ final class TrackingController extends AbstractController
             }
 
             $filter_ts_from = strtotime($_POST['date_from']);
-            $filter_ts_to = strtotime($_POST['date_to']);
-            $filter_users = array_map('trim', explode(',', $_POST['users']));
+            $filter_ts_to   = strtotime($_POST['date_to']);
+            $filter_users   = array_map('trim', explode(',', $_POST['users']));
         }
 
         // Prepare export
@@ -170,7 +170,7 @@ final class TrackingController extends AbstractController
         $message = '';
         if (isset($_POST['report_export']) && $_POST['export_type'] === 'execution') {
             $this->tracking->exportAsSqlExecution($entries);
-            $msg = Message::success(__('SQL statements executed.'));
+            $msg     = Message::success(__('SQL statements executed.'));
             $message = $msg->getDisplay();
         }
 
@@ -206,18 +206,18 @@ final class TrackingController extends AbstractController
         $main = $this->tracking->getHtmlForMainPage($db, $table, $urlParams, $text_dir);
 
         $this->render('table/tracking/index', [
-            'active_message' => $activeMessage,
-            'action_message' => $actionMessage,
-            'delete_version' => $deleteVersion,
-            'create_version' => $createVersion,
-            'deactivate_tracking' => $deactivateTracking,
-            'activate_tracking' => $activateTracking,
-            'message' => $message,
-            'sql_dump' => $sqlDump,
-            'schema_snapshot' => $schemaSnapshot,
+            'active_message'       => $activeMessage,
+            'action_message'       => $actionMessage,
+            'delete_version'       => $deleteVersion,
+            'create_version'       => $createVersion,
+            'deactivate_tracking'  => $deactivateTracking,
+            'activate_tracking'    => $activateTracking,
+            'message'              => $message,
+            'sql_dump'             => $sqlDump,
+            'schema_snapshot'      => $schemaSnapshot,
             'tracking_report_rows' => $trackingReportRows,
-            'tracking_report' => $trackingReport,
-            'main' => $main,
+            'tracking_report'      => $trackingReport,
+            'main'                 => $main,
         ]);
     }
 }

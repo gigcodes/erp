@@ -43,37 +43,37 @@ class GTMetrixAccount extends Command
     {
         \Log::info('GTMetrix :: Report cron start ');
         $report = CronJobReport::create([
-            'signature' => $this->signature,
+            'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
         // Get site report
         $AccountData = StoreGTMetrixAccount::all();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $startTime   = date('Y-m-d H:i:s', LARAVEL_START);
 
         foreach ($AccountData as $value) {
             if (! empty($value->account_id)) {
                 try {
                     $curl = curl_init();
-                    $url = 'https://gtmetrix.com/api/2.0/status';
+                    $url  = 'https://gtmetrix.com/api/2.0/status';
 
                     curl_setopt_array($curl, [
-                        CURLOPT_URL => $url,
+                        CURLOPT_URL            => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_USERPWD => $value->account_id . ':' . '',
-                        CURLOPT_ENCODING => '',
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_USERPWD        => $value->account_id . ':' . '',
+                        CURLOPT_ENCODING       => '',
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 0,
                         CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => 'GET',
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => 'GET',
                     ]);
 
                     $response = curl_exec($curl);
                     $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixAccount::class, 'handle');
                     curl_close($curl);
-                    $data = json_decode($response);
+                    $data    = json_decode($response);
                     $credits = $data->data->attributes->api_credits;
                     if ($credits != 0) {
                         StoreGTMetrixAccount::where('account_id', $value->account_id)
@@ -86,7 +86,7 @@ class GTMetrixAccount extends Command
                     }
                 } catch (\Exception $e) {
                     $value->status = 'error';
-                    $value->error = $e->getMessage();
+                    $value->error  = $e->getMessage();
                     $value->save();
                 }
             }

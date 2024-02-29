@@ -19,6 +19,8 @@ class CreateHashTags implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param publicarray $data
      */
     public function __construct(public array $data)
     {
@@ -35,8 +37,8 @@ class CreateHashTags implements ShouldQueue
             switch ($this->data['type']) {
                 case 'brand':
 
-                    $brand_list = $this->data['data'];
-                    $user_id = $this->data['user_id'];
+                    $brand_list                   = $this->data['data'];
+                    $user_id                      = $this->data['user_id'];
                     $category_postfix_string_list = $this->data['category_postfix_string_list'];
                     if (count($brand_list) > 0) {
                         $processed_brand_id_array = [];
@@ -44,18 +46,18 @@ class CreateHashTags implements ShouldQueue
                         foreach ($brand_list as $id => $name) {
                             foreach ($category_postfix_string_list as $string) {
                                 $generated_string = $name . ' ' . $string->combined_string;
-                                $check_exist = HashTag::where('hashtag', $generated_string)->count();
+                                $check_exist      = HashTag::where('hashtag', $generated_string)->count();
                                 if ($check_exist > 0) {
                                     continue;
                                 }
-                                $hashtag = new HashTag();
-                                $hashtag->hashtag = $generated_string;
+                                $hashtag               = new HashTag();
+                                $hashtag->hashtag      = $generated_string;
                                 $hashtag->platforms_id = 2;
-                                $hashtag->rating = 8;
-                                $hashtag->created_at = date('Y-m-d h:i:s');
-                                $hashtag->updated_at = date('Y-m-d h:i:s');
-                                $hashtag->created_by = $user_id;
-                                $insert_data = $hashtag->toArray();
+                                $hashtag->rating       = 8;
+                                $hashtag->created_at   = date('Y-m-d h:i:s');
+                                $hashtag->updated_at   = date('Y-m-d h:i:s');
+                                $hashtag->created_by   = $user_id;
+                                $insert_data           = $hashtag->toArray();
                                 if (isset($insert_data['hashtag'])) {
                                     \DB::table('hash_tags')->insert($insert_data);
                                     CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));
@@ -71,10 +73,10 @@ class CreateHashTags implements ShouldQueue
 
                 case 'category':
 
-                    $brandList = $this->data['brand_list'];
+                    $brandList           = $this->data['brand_list'];
                     $keywordVariantsList = $this->data['keyword_variants'];
-                    $categoryList = $this->data['data'];
-                    $user_id = $this->data['user_id'];
+                    $categoryList        = $this->data['data'];
+                    $user_id             = $this->data['user_id'];
 
                     if (! empty($brandList)) {
                         $processed_category_id_array = [];
@@ -82,18 +84,18 @@ class CreateHashTags implements ShouldQueue
                             foreach ($brandList as $brand) {
                                 foreach ($keywordVariantsList as $keywordVariant) {
                                     $generated_string = $brand . ' ' . $category . ' ' . $keywordVariant;
-                                    $check_exist = HashTag::where('hashtag', $generated_string)->count();
+                                    $check_exist      = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
                                     }
-                                    $hashtag = new HashTag();
-                                    $hashtag->hashtag = $generated_string;
+                                    $hashtag               = new HashTag();
+                                    $hashtag->hashtag      = $generated_string;
                                     $hashtag->platforms_id = 2;
-                                    $hashtag->rating = 8;
-                                    $hashtag->created_at = date('Y-m-d h:i:s');
-                                    $hashtag->updated_at = date('Y-m-d h:i:s');
-                                    $hashtag->created_by = $user_id;
-                                    $insert_data = $hashtag->toArray();
+                                    $hashtag->rating       = 8;
+                                    $hashtag->created_at   = date('Y-m-d h:i:s');
+                                    $hashtag->updated_at   = date('Y-m-d h:i:s');
+                                    $hashtag->created_by   = $user_id;
+                                    $insert_data           = $hashtag->toArray();
                                     if (isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
                                         CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));
@@ -109,27 +111,27 @@ class CreateHashTags implements ShouldQueue
 
                 case 'keyword_variant':
                     $keywordVariants = $this->data['data'];
-                    $brands = $this->data['brand_list'];
-                    $categories = $this->data['category_list'];
-                    $user_id = $this->data['user_id'];
+                    $brands          = $this->data['brand_list'];
+                    $categories      = $this->data['category_list'];
+                    $user_id         = $this->data['user_id'];
                     if (! empty($brands)) {
                         $processed_variant_id_array = [];
                         foreach ($keywordVariants as $keywordId => $keywordVariant) {
                             foreach ($brands as $brand) {
                                 foreach ($categories as $category) {
                                     $generated_string = $brand . ' ' . $category['title'] . ' ' . $keywordVariant;
-                                    $check_exist = HashTag::where('hashtag', $generated_string)->count();
+                                    $check_exist      = HashTag::where('hashtag', $generated_string)->count();
                                     if ($check_exist > 0) {
                                         continue;
                                     }
-                                    $hashtag = new HashTag();
-                                    $hashtag->hashtag = $generated_string;
+                                    $hashtag               = new HashTag();
+                                    $hashtag->hashtag      = $generated_string;
                                     $hashtag->platforms_id = 2;
-                                    $hashtag->rating = 8;
-                                    $hashtag->created_at = date('Y-m-d h:i:s');
-                                    $hashtag->updated_at = date('Y-m-d h:i:s');
-                                    $hashtag->created_by = $user_id;
-                                    $insert_data = $hashtag->toArray();
+                                    $hashtag->rating       = 8;
+                                    $hashtag->created_at   = date('Y-m-d h:i:s');
+                                    $hashtag->updated_at   = date('Y-m-d h:i:s');
+                                    $hashtag->created_by   = $user_id;
+                                    $insert_data           = $hashtag->toArray();
                                     if (isset($insert_data['hashtag'])) {
                                         \DB::table('hash_tags')->insert($insert_data);
                                         CreateKeywordScrapperQueue::dispatch(['keyword' => $generated_string])->onQueue('rungooglescrapperforkeywords')->delay(Carbon::now()->addMinutes(rand(1, 4)));

@@ -26,16 +26,16 @@ class TaskHistoryForStartDate extends Model
     public static function historySave($taskId, $old, $new, $approved)
     {
         $single = self::create([
-            'task_id' => $taskId,
-            'task_type' => 'TASK',
+            'task_id'    => $taskId,
+            'task_type'  => 'TASK',
             'updated_by' => loginId(),
-            'old_value' => $old,
-            'new_value' => $new,
-            'approved' => $approved ? 1 : 0,
+            'old_value'  => $old,
+            'new_value'  => $new,
+            'approved'   => $approved ? 1 : 0,
         ]);
         if ($approved) {
             TaskHistoryForStartDateApprovals::create([
-                'parent_id' => $single->id,
+                'parent_id'   => $single->id,
                 'approved_by' => loginId(),
             ]);
         }
@@ -49,7 +49,7 @@ class TaskHistoryForStartDate extends Model
         Task::where('id', $single->task_id)->update(['start_date' => $single->new_value]);
 
         TaskHistoryForStartDateApprovals::create([
-            'parent_id' => $single->id,
+            'parent_id'   => $single->id,
             'approved_by' => loginId(),
         ]);
     }

@@ -30,7 +30,7 @@ class BenchmarkController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data             = $request->all();
         $data['for_date'] = date('Y-m-d');
 
         Benchmark::updateOrCreate(['for_date' => date('Y-m-d')], $data);

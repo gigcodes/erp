@@ -12,6 +12,8 @@ class SendgridEventCreated
 {
     /**
      * SendgridEventCreated constructor.
+     *
+     * @param privateSendgridEvent $sendgridEvent
      */
     public function __construct(private SendgridEvent $sendgridEvent)
     {

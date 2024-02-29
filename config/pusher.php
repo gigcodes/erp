@@ -41,25 +41,25 @@ return [
 
         'main' => [
             'auth_key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
-            'app_id' => env('PUSHER_APP_ID'),
-            'options' => [
+            'secret'   => env('PUSHER_APP_SECRET'),
+            'app_id'   => env('PUSHER_APP_ID'),
+            'options'  => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 // 'encryption_master_key' => env('PUSHER_ENCRYPTION_MASTER_KEY'),
             ],
-            'host' => null,
-            'port' => null,
+            'host'    => null,
+            'port'    => null,
             'timeout' => null,
         ],
 
         'alternative' => [
             'auth_key' => 'your-auth-key',
-            'secret' => 'your-secret',
-            'app_id' => 'your-app-id',
-            'options' => [],
-            'host' => null,
-            'port' => null,
-            'timeout' => null,
+            'secret'   => 'your-secret',
+            'app_id'   => 'your-app-id',
+            'options'  => [],
+            'host'     => null,
+            'port'     => null,
+            'timeout'  => null,
         ],
 
     ],

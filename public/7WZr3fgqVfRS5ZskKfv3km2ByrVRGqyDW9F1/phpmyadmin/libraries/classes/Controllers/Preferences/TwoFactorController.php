@@ -31,8 +31,8 @@ class TwoFactorController extends AbstractController
         $relationParameters = $this->relation->getRelationParameters();
 
         echo $this->template->render('preferences/header', [
-            'route' => $route,
-            'is_saved' => ! empty($_GET['saved']),
+            'route'              => $route,
+            'is_saved'           => ! empty($_GET['saved']),
             'has_config_storage' => $relationParameters->userPreferencesFeature !== null,
         ]);
 
@@ -52,7 +52,7 @@ class TwoFactorController extends AbstractController
         } elseif (isset($_POST['2fa_configure'])) {
             if (! $twoFactor->configure($_POST['2fa_configure'])) {
                 echo $this->template->render('preferences/two_factor/configure', [
-                    'form' => $twoFactor->setup(),
+                    'form'      => $twoFactor->setup(),
                     'configure' => $_POST['2fa_configure'],
                 ]);
 
@@ -64,13 +64,13 @@ class TwoFactorController extends AbstractController
 
         $backend = $twoFactor->getBackend();
         echo $this->template->render('preferences/two_factor/main', [
-            'enabled' => $twoFactor->isWritable(),
-            'num_backends' => count($twoFactor->getAvailable()),
-            'backend_id' => $backend::$id,
-            'backend_name' => $backend::getName(),
+            'enabled'             => $twoFactor->isWritable(),
+            'num_backends'        => count($twoFactor->getAvailable()),
+            'backend_id'          => $backend::$id,
+            'backend_name'        => $backend::getName(),
             'backend_description' => $backend::getDescription(),
-            'backends' => $twoFactor->getAllBackends(),
-            'missing' => $twoFactor->getMissingDeps(),
+            'backends'            => $twoFactor->getAllBackends(),
+            'missing'             => $twoFactor->getMissingDeps(),
         ]);
     }
 }

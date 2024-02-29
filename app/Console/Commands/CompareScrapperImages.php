@@ -62,16 +62,16 @@ class CompareScrapperImages extends Command
 
                                 // Calculate hashes for both images
                                 $imageHash = new ImageHash(new DifferenceHash());
-                                $hash1 = $imageHash->hash($image1);
-                                $hash2 = $imageHash->hash($image2);
+                                $hash1     = $imageHash->hash($image1);
+                                $hash2     = $imageHash->hash($image2);
 
                                 // Compare the hashes
-                                $hammingDistance = $hash1->distance($hash2);
+                                $hammingDistance     = $hash1->distance($hash2);
                                 $similarityThreshold = 5; // Set a threshold for similarity
 
                                 if ($hammingDistance <= $similarityThreshold) {
                                     $scraperImagscData->manually_approve_flag = 0;
-                                    $scraperImagscData->si_status = 2;
+                                    $scraperImagscData->si_status             = 2;
                                 } else {
                                     $scraperImagscData->manually_approve_flag = 1;
                                 }

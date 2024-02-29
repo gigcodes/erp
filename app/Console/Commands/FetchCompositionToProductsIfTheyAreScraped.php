@@ -42,7 +42,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature' => $this->signature,
+                'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,7 +56,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                     }
 
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $property = $scrapedProduct->properties;
+                        $property    = $scrapedProduct->properties;
                         $composition = $property['composition'] ?? '';
                         if ($composition) {
                             dump($composition);
@@ -123,7 +123,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                         foreach ($scrapedProducts as $scrapedProduct) {
                             dump('here..color..');
                             $property = $scrapedProduct->properties;
-                            $color = $property['color'] ?? '';
+                            $color    = $property['color'] ?? '';
                             if ($color && strlen($color) < 16) {
                                 dump($color);
                                 $product->color = $color;

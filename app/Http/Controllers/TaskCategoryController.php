@@ -21,8 +21,8 @@ class TaskCategoryController extends Controller
 
     public function create()
     {
-        $data = [];
-        $data['title'] = '';
+        $data           = [];
+        $data['title']  = '';
         $data['modify'] = 0;
 
         return view('task-module.category.form', $data);
@@ -30,7 +30,7 @@ class TaskCategoryController extends Controller
 
     public function edit(TaskCategory $task_category)
     {
-        $data = $task_category->toArray();
+        $data           = $task_category->toArray();
         $data['modify'] = 1;
 
         return view('task-module.category.form', $data);
@@ -81,7 +81,7 @@ class TaskCategoryController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $task_category = TaskCategory::find($id);
+        $task_category              = TaskCategory::find($id);
         $task_category->is_approved = 1;
         $task_category->save();
 
@@ -101,7 +101,7 @@ class TaskCategoryController extends Controller
 
     public static function getAllTaskCategory()
     {
-        $task_category = TaskCategory::all()->toArray();
+        $task_category     = TaskCategory::all()->toArray();
         $task_category_new = [];
 
         foreach ($task_category as $item) {

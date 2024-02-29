@@ -25,9 +25,9 @@ class ProductSupplierExport implements FromArray, WithHeadings, ShouldAutoSize, 
         foreach ($this->supplier_not_exist_product_supplier_table as $k => $v) {
             $arr = [];
 
-            $arr['product_id'] = $v['product_id'];
+            $arr['product_id']   = $v['product_id'];
             $arr['product_name'] = $v['product_name'];
-            $arr['supplier_id'] = $v['supplier_id'];
+            $arr['supplier_id']  = $v['supplier_id'];
 
             $products_array[] = $arr;
         }

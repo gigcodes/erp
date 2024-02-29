@@ -41,7 +41,7 @@ class UserController extends Controller
         return view(
             'github.org_users',
             [
-                'users' => $users,
+                'users'         => $users,
                 'platformUsers' => $platformUsers,
             ]
         );
@@ -50,13 +50,13 @@ class UserController extends Controller
     public function listUsersOfRepository($repoId)
     {
         $githubRepository = GithubRepository::with('users')->where('id', $repoId)->first();
-        $users = $githubRepository->users;
+        $users            = $githubRepository->users;
 
         return view(
             'github.repository_users',
             [
-                'users' => $users,
-                'repoId' => $repoId,
+                'users'            => $users,
+                'repoId'           => $repoId,
                 'githubRepository' => $githubRepository,
             ]
         );
@@ -64,10 +64,10 @@ class UserController extends Controller
 
     public function linkUser(Request $request)
     {
-        $bodyContent = $request->getContent();
+        $bodyContent     = $request->getContent();
         $jsonDecodedBody = json_decode($bodyContent);
 
-        $userId = $jsonDecodedBody->user_id;
+        $userId       = $jsonDecodedBody->user_id;
         $githubUserId = $jsonDecodedBody->github_user_id;
 
         if (! $userId || ! $githubUserId) {
@@ -101,11 +101,11 @@ class UserController extends Controller
 
     public function modifyUserAccess(Request $request)
     {
-        $bodyContent = $request->getContent();
+        $bodyContent     = $request->getContent();
         $jsonDecodedBody = json_decode($bodyContent);
 
         $userName = $jsonDecodedBody->user_name;
-        $access = $jsonDecodedBody->access;
+        $access   = $jsonDecodedBody->access;
         $repoName = $jsonDecodedBody->repository_name;
 
         if (! $userName || ! $access || ! $repoName) {
@@ -142,8 +142,8 @@ class UserController extends Controller
 
         $repositoryUser = GithubRepositoryUser::find($id);
 
-        $user = $repositoryUser->githubUser;
-        $repository = $repositoryUser->githubRepository;
+        $user         = $repositoryUser->githubUser;
+        $repository   = $repositoryUser->githubRepository;
         $organization = $repository->organization;
 
         $url = 'https://api.github.com/repos/' . $organization->name . '/' . $repository->name . '/collaborators/' . $user->username;
@@ -182,12 +182,12 @@ class UserController extends Controller
 
     public function addUserToRepository(Request $request)
     {
-        $repoId = $request->repoId;
-        $username = $request->username;
+        $repoId     = $request->repoId;
+        $username   = $request->username;
         $permission = $request->permission;
 
         $githubRepository = GithubRepository::find($repoId);
-        $organization = $githubRepository->organization;
+        $organization     = $githubRepository->organization;
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
         $url = 'https://api.github.com/repos/' . $organization->name . '/' . $githubRepository->name . '/collaborators/' . $username;

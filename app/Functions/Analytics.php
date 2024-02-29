@@ -2,12 +2,12 @@
 
 // Load the Google API PHP Client Library.
 require_once __DIR__ . '/../../vendor/autoload.php';
-$data = [];
+$data      = [];
 $analytics = initializeAnalytics();
 
 if (! empty($analytics)) {
     $response = getReport($analytics, $request = '');
-    $data = printResults($response);
+    $data     = printResults($response);
 }
 
 /**
@@ -21,7 +21,7 @@ function initializeAnalytics()
     // credentials in JSON format. Place them in this directory or
     // change the key file location if necessary.
     $KEY_FILE_LOCATION = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
-    $analytics = '';
+    $analytics         = '';
     if (file_exists($KEY_FILE_LOCATION)) {
         // Create and configure a new client object.
         $client = new Google_Client();
@@ -37,6 +37,9 @@ function initializeAnalytics()
  * Queries the Analytics Reporting API V4.
  *
  * @param service An authorized Analytics Reporting API V4 service object.
+ * @param mixed $analytics
+ * @param mixed $request
+ *
  * @return The Analytics Reporting API V4 response.
  */
 function getReport($analytics, $request)
@@ -137,33 +140,34 @@ function getReport($analytics, $request)
  * Parses and prints the Analytics Reporting API V4 response.
  *
  * @param An Analytics Reporting API V4 response.
+ * @param mixed $reports
  */
 function printResults($reports)
 {
     for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
         $report = $reports[$reportIndex];
-        $rows = $report->getData()->getRows();
+        $rows   = $report->getData()->getRows();
         foreach ($rows as $key => $value) {
             $data[$key]['operatingSystem'] = $value['dimensions']['0'];
-            $data[$key]['user_type'] = $value['dimensions']['1'];
-            $data[$key]['time'] = $value['dimensions']['2'];
-            $data[$key]['page_path'] = $value['dimensions']['3'];
-            $data[$key]['country'] = $value['dimensions']['4'];
-            $data[$key]['city'] = $value['dimensions']['5'];
-            $data[$key]['social_network'] = $value['dimensions']['6'];
-            $data[$key]['date'] = $value['dimensions']['7'];
-            $data[$key]['device_info'] = $value['dimensions']['8'];
+            $data[$key]['user_type']       = $value['dimensions']['1'];
+            $data[$key]['time']            = $value['dimensions']['2'];
+            $data[$key]['page_path']       = $value['dimensions']['3'];
+            $data[$key]['country']         = $value['dimensions']['4'];
+            $data[$key]['city']            = $value['dimensions']['5'];
+            $data[$key]['social_network']  = $value['dimensions']['6'];
+            $data[$key]['date']            = $value['dimensions']['7'];
+            $data[$key]['device_info']     = $value['dimensions']['8'];
             foreach ($value['metrics'] as $m_key => $m_value) {
-                $data[$key]['sessions'] = $m_value['values'][0];
-                $data[$key]['pageviews'] = $m_value['values'][1];
-                $data[$key]['bounceRate'] = $m_value['values'][2];
+                $data[$key]['sessions']           = $m_value['values'][0];
+                $data[$key]['pageviews']          = $m_value['values'][1];
+                $data[$key]['bounceRate']         = $m_value['values'][2];
                 $data[$key]['avgSessionDuration'] = $m_value['values'][3];
-                $data[$key]['timeOnPage'] = $m_value['values'][4];
-                $data[$key]['uniquePageviews'] = $m_value['values'][5];
-                $data[$key]['entrances'] = $m_value['values'][6];
-                $data[$key]['exitRate'] = $m_value['values'][7];
-                $data[$key]['avgTimeOnPage'] = $m_value['values'][8];
-                $data[$key]['pageValue'] = $m_value['values'][9];
+                $data[$key]['timeOnPage']         = $m_value['values'][4];
+                $data[$key]['uniquePageviews']    = $m_value['values'][5];
+                $data[$key]['entrances']          = $m_value['values'][6];
+                $data[$key]['exitRate']           = $m_value['values'][7];
+                $data[$key]['avgTimeOnPage']      = $m_value['values'][8];
+                $data[$key]['pageValue']          = $m_value['values'][9];
             }
         }
         if (! empty($data)) {

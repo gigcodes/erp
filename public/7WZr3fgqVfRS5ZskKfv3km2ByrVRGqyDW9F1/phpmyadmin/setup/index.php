@@ -50,7 +50,7 @@ if ($page === 'form') {
 if ($page === 'config') {
     echo (new ConfigController($GLOBALS['ConfigFile'], new Template()))([
         'formset' => $_GET['formset'] ?? null,
-        'eol' => $_GET['eol'] ?? null,
+        'eol'     => $_GET['eol'] ?? null,
     ]);
 
     return;
@@ -69,14 +69,14 @@ if ($page === 'servers') {
 
     echo $controller->index([
         'formset' => $_GET['formset'] ?? null,
-        'mode' => $_GET['mode'] ?? null,
-        'id' => $_GET['id'] ?? null,
+        'mode'    => $_GET['mode'] ?? null,
+        'id'      => $_GET['id'] ?? null,
     ]);
 
     return;
 }
 
 echo (new HomeController($GLOBALS['ConfigFile'], new Template()))([
-    'formset' => $_GET['formset'] ?? null,
+    'formset'       => $_GET['formset'] ?? null,
     'version_check' => $_GET['version_check'] ?? null,
 ]);

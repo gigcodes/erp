@@ -26,7 +26,7 @@ class SendInfluencerEmail extends Mailable
     public function __construct()
     {
         $this->subject = isset($data['subject']) ? $data['subject'] : '';
-        $this->body = isset($data['template']) ? $data['template'] : '';
+        $this->body    = isset($data['template']) ? $data['template'] : '';
         if (isset($data['from'])) {
             $this->fromMailer = $data['from'];
         } else {

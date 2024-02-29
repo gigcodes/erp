@@ -29,7 +29,7 @@ final class CentralColumnsRemoveController extends AbstractController
         StructureController $structureController
     ) {
         parent::__construct($response, $template, $db, $table);
-        $this->centralColumns = $centralColumns;
+        $this->centralColumns      = $centralColumns;
         $this->structureController = $structureController;
     }
 

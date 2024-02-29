@@ -148,9 +148,10 @@ class ExportXml extends ExportPlugin
     /**
      * Generates output for SQL defintions of routines
      *
-     * @param  string  $db      Database name
-     * @param  string  $type    Item type to be used in XML output
-     * @param  string  $dbitype Item type used in DBI queries
+     * @param string $db      Database name
+     * @param string $type    Item type to be used in XML output
+     * @param string $dbitype Item type used in DBI queries
+     *
      * @return string XML with definitions
      */
     private function exportRoutinesDefinition($db, $type, $dbitype)
@@ -166,10 +167,11 @@ class ExportXml extends ExportPlugin
     /**
      * Generates output for SQL defintions
      *
-     * @param  string  $db      Database name
-     * @param  string  $type    Item type to be used in XML output
-     * @param  string  $dbitype Item type used in DBI queries
-     * @param  array  $names   Names of items to export
+     * @param string $db      Database name
+     * @param string $type    Item type to be used in XML output
+     * @param string $dbitype Item type used in DBI queries
+     * @param array  $names   Names of items to export
+     *
      * @return string XML with definitions
      */
     private function exportDefinitions($db, $type, $dbitype, array $names)
@@ -204,7 +206,7 @@ class ExportXml extends ExportPlugin
     {
         $this->initSpecificVariables();
         global $crlf, $cfg, $db, $dbi;
-        $table = $this->getTable();
+        $table  = $this->getTable();
         $tables = $this->getTables();
 
         $export_struct = isset($GLOBALS['xml_export_functions'])
@@ -251,7 +253,7 @@ class ExportXml extends ExportPlugin
                 . ' = \'' . $dbi->escapeString($db) . '\' LIMIT 1'
             );
             $db_collation = $result[0]['DEFAULT_COLLATION_NAME'];
-            $db_charset = $result[0]['DEFAULT_CHARACTER_SET_NAME'];
+            $db_charset   = $result[0]['DEFAULT_CHARACTER_SET_NAME'];
 
             $head .= '    <!--' . $crlf;
             $head .= '    - Structure schemas' . $crlf;
@@ -371,8 +373,8 @@ class ExportXml extends ExportPlugin
     /**
      * Outputs database header
      *
-     * @param  string  $db      Database name
-     * @param  string  $dbAlias Aliases of db
+     * @param string $db      Database name
+     * @param string $dbAlias Aliases of db
      */
     public function exportDBHeader($db, $dbAlias = ''): bool
     {
@@ -398,7 +400,7 @@ class ExportXml extends ExportPlugin
     /**
      * Outputs database footer
      *
-     * @param  string  $db Database name
+     * @param string $db Database name
      */
     public function exportDBFooter($db): bool
     {
@@ -414,9 +416,9 @@ class ExportXml extends ExportPlugin
     /**
      * Outputs CREATE DATABASE statement
      *
-     * @param  string  $db         Database name
-     * @param  string  $exportType 'server', 'database', 'table'
-     * @param  string  $dbAlias    Aliases of db
+     * @param string $db         Database name
+     * @param string $exportType 'server', 'database', 'table'
+     * @param string $dbAlias    Aliases of db
      */
     public function exportDBCreate($db, $exportType, $dbAlias = ''): bool
     {
@@ -426,12 +428,12 @@ class ExportXml extends ExportPlugin
     /**
      * Outputs the content of a table in XML format
      *
-     * @param  string  $db       database name
-     * @param  string  $table    table name
-     * @param  string  $crlf     the end of line sequence
-     * @param  string  $errorUrl the url to go back in case of error
-     * @param  string  $sqlQuery SQL query for obtaining data
-     * @param  array  $aliases  Aliases of db/table/columns
+     * @param string $db       database name
+     * @param string $table    table name
+     * @param string $crlf     the end of line sequence
+     * @param string $errorUrl the url to go back in case of error
+     * @param string $sqlQuery SQL query for obtaining data
+     * @param array  $aliases  Aliases of db/table/columns
      */
     public function exportData(
         $db,
@@ -448,14 +450,14 @@ class ExportXml extends ExportPlugin
             return true;
         }
 
-        $db_alias = $db;
+        $db_alias    = $db;
         $table_alias = $table;
         $this->initAlias($aliases, $db_alias, $table_alias);
         if (isset($GLOBALS['xml_export_contents']) && $GLOBALS['xml_export_contents']) {
             $result = $dbi->query($sqlQuery, DatabaseInterface::CONNECT_USER, DatabaseInterface::QUERY_UNBUFFERED);
 
             $columns_cnt = $result->numFields();
-            $columns = [];
+            $columns     = [];
             foreach ($result->getFieldNames() as $column) {
                 $columns[] = stripslashes($column);
             }
@@ -513,7 +515,7 @@ class ExportXml extends ExportPlugin
     /**
      * Sets the table name
      *
-     * @param  string  $table table name
+     * @param string $table table name
      */
     private function setTable($table): void
     {
@@ -533,7 +535,7 @@ class ExportXml extends ExportPlugin
     /**
      * Sets the table names
      *
-     * @param  array  $tables table names
+     * @param array $tables table names
      */
     private function setTables(array $tables): void
     {

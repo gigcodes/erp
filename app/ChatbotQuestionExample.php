@@ -35,8 +35,8 @@ class ChatbotQuestionExample extends Model
     public function highLightQuestion()
     {
         $getAllLengths = $this->annotations;
-        $question = $this->question;
-        $selectedAn = [];
+        $question      = $this->question;
+        $selectedAn    = [];
         if (! $getAllLengths->isEmpty()) {
             foreach ($getAllLengths as $lengths) {
                 $selectedAn[$lengths->id] = substr($question, $lengths->start_char_range, $lengths->end_char_range);

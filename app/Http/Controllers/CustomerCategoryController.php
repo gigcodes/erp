@@ -40,8 +40,8 @@ class CustomerCategoryController extends Controller
             'name' => 'required|unique:customer_categories,name',
         ]);
 
-        $category = new CustomerCategory();
-        $category->name = $request->get('name');
+        $category          = new CustomerCategory();
+        $category->name    = $request->get('name');
         $category->message = $request->get('message');
         $category->save();
 
@@ -61,7 +61,9 @@ class CustomerCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\CustomerCategory  $customerCategory
+     * @param \App\CustomerCategory $customerCategory
+     * @param mixed                 $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -78,7 +80,9 @@ class CustomerCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\CustomerCategory  $customerCategory
+     * @param \App\CustomerCategory $customerCategory
+     * @param mixed                 $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -93,7 +97,7 @@ class CustomerCategoryController extends Controller
             'name' => 'required|unique:customer_categories,id,' . $id,
         ]);
 
-        $category->name = $request->get('name');
+        $category->name    = $request->get('name');
         $category->message = $request->get('message');
         $category->save();
 
@@ -103,7 +107,9 @@ class CustomerCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\CustomerCategory  $customerCategory
+     * @param \App\CustomerCategory $customerCategory
+     * @param mixed                 $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

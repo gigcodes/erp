@@ -33,7 +33,7 @@ final class ExportController extends AbstractController
         Options $exportOptions
     ) {
         parent::__construct($response, $template, $db);
-        $this->export = $export;
+        $this->export        = $export;
         $this->exportOptions = $exportOptions;
     }
 
@@ -43,9 +43,9 @@ final class ExportController extends AbstractController
         global $tables, $num_tables, $total_num_tables, $tooltip_truename;
         global $tooltip_aliasname, $pos, $table_select, $unlim_num_rows, $cfg, $errorUrl;
 
-        $pageSettings = new PageSettings('Export');
+        $pageSettings          = new PageSettings('Export');
         $pageSettingsErrorHtml = $pageSettings->getErrorHTML();
-        $pageSettingsHtml = $pageSettings->getHTML();
+        $pageSettingsHtml      = $pageSettings->getHTML();
 
         $this->addScriptFiles(['export.js']);
 
@@ -111,10 +111,10 @@ final class ExportController extends AbstractController
             }
 
             $tablesForMultiValues[] = [
-                'name' => $each_table['Name'],
-                'is_checked_select' => $is_checked,
+                'name'                 => $each_table['Name'],
+                'is_checked_select'    => $is_checked,
                 'is_checked_structure' => $structure_checked,
-                'is_checked_data' => $data_checked,
+                'is_checked_data'      => $data_checked,
             ];
         }
 
@@ -157,9 +157,9 @@ final class ExportController extends AbstractController
 
         $this->render('database/export/index', array_merge($options, [
             'page_settings_error_html' => $pageSettingsErrorHtml,
-            'page_settings_html' => $pageSettingsHtml,
+            'page_settings_html'       => $pageSettingsHtml,
             'structure_or_data_forced' => $_POST['structure_or_data_forced'] ?? 0,
-            'tables' => $tablesForMultiValues,
+            'tables'                   => $tablesForMultiValues,
         ]));
     }
 }

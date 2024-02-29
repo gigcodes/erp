@@ -12,8 +12,6 @@ class SuggestedProductList extends Model
 {
     /**
      * @var string
-
-
      * @SWG\Property(property="suggested_products_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")

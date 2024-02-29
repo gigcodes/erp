@@ -24,9 +24,9 @@ class StatusMappingController extends Controller
      */
     public function index()
     {
-        $data['orderStatuses'] = OrderStatus::pluck('status', 'id')->all();
-        $data['purchaseStatuses'] = PurchaseStatus::pluck('name', 'id')->all();
-        $data['shippingStatuses'] = (new ShippingStatus)->all();
+        $data['orderStatuses']          = OrderStatus::pluck('status', 'id')->all();
+        $data['purchaseStatuses']       = PurchaseStatus::pluck('name', 'id')->all();
+        $data['shippingStatuses']       = (new ShippingStatus)->all();
         $data['returnExchangeStatuses'] = ReturnExchangeStatus::pluck('status_name', 'id')->all();
 
         $data['statusMappings'] = StatusMapping::latest()->get();
@@ -42,25 +42,25 @@ class StatusMappingController extends Controller
 
         if ($statusMapping) {
             return response()->json([
-                'status' => false,
-                'message' => 'Order status mapping already created',
+                'status'      => false,
+                'message'     => 'Order status mapping already created',
                 'status_name' => 'error',
             ], 500);
         } else {
-            $statusMapping = new StatusMapping;
+            $statusMapping                  = new StatusMapping;
             $statusMapping->order_status_id = $input['orderStatusId'];
             $statusMapping->save();
 
             if ($statusMapping) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Mapping created successfully',
+                    'status'      => true,
+                    'message'     => 'Mapping created successfully',
                     'status_name' => 'success',
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'something error occurred',
+                    'status'      => false,
+                    'message'     => 'something error occurred',
                     'status_name' => 'error',
                 ], 500);
             }
@@ -75,8 +75,8 @@ class StatusMappingController extends Controller
 
         if (! $statusMapping) {
             return response()->json([
-                'status' => false,
-                'message' => 'Record not exists',
+                'status'      => false,
+                'message'     => 'Record not exists',
                 'status_name' => 'error',
             ], 500);
         } else {
@@ -84,40 +84,40 @@ class StatusMappingController extends Controller
                 $purchaseStatusMapping = StatusMapping::where('purchase_status_id', $input['purchaseStatusId'])->first();
                 if ($purchaseStatusMapping) {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'This purchase status already mapped with other Order status, Please choose different one',
+                        'status'      => false,
+                        'message'     => 'This purchase status already mapped with other Order status, Please choose different one',
                         'status_name' => 'error',
                     ], 500);
                 }
 
-                $oldStatusId = $statusMapping->purchase_status_id;
-                $newStatusId = $input['purchaseStatusId'];
+                $oldStatusId                       = $statusMapping->purchase_status_id;
+                $newStatusId                       = $input['purchaseStatusId'];
                 $statusMapping->purchase_status_id = $newStatusId;
             } elseif ($input['statusType'] == StatusMappingHistory::STATUS_TYPE_SHIPPING) {
                 $shippingStatusMapping = StatusMapping::where('shipping_status_id', $input['shippingStatusId'])->first();
                 if ($shippingStatusMapping) {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'This shipping status already mapped with other Order status, Please choose different one',
+                        'status'      => false,
+                        'message'     => 'This shipping status already mapped with other Order status, Please choose different one',
                         'status_name' => 'error',
                     ], 500);
                 }
 
-                $oldStatusId = $statusMapping->shipping_status_id;
-                $newStatusId = $input['shippingStatusId'];
+                $oldStatusId                       = $statusMapping->shipping_status_id;
+                $newStatusId                       = $input['shippingStatusId'];
                 $statusMapping->shipping_status_id = $newStatusId;
             } elseif ($input['statusType'] == StatusMappingHistory::STATUS_TYPE_RETURN_EXCHANGE) {
                 $returnExchangeStatusMapping = StatusMapping::where('return_exchange_status_id', $input['returnExchangeStatusId'])->first();
                 if ($returnExchangeStatusMapping) {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'This return exchange status already mapped with other Order status, Please choose different one',
+                        'status'      => false,
+                        'message'     => 'This return exchange status already mapped with other Order status, Please choose different one',
                         'status_name' => 'error',
                     ], 500);
                 }
 
-                $oldStatusId = $statusMapping->return_exchange_status_id;
-                $newStatusId = $input['returnExchangeStatusId'];
+                $oldStatusId                              = $statusMapping->return_exchange_status_id;
+                $newStatusId                              = $input['returnExchangeStatusId'];
                 $statusMapping->return_exchange_status_id = $newStatusId;
             }
 
@@ -127,17 +127,17 @@ class StatusMappingController extends Controller
 
             if ($statusMapping) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Mapping updated successfully',
+                    'status'      => true,
+                    'message'     => 'Mapping updated successfully',
                     'status_name' => 'success',
-                    'data' => [
+                    'data'        => [
                         'lastUpdatedUser' => $lastUpdatedUser,
                     ],
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'something error occurred',
+                    'status'      => false,
+                    'message'     => 'something error occurred',
                     'status_name' => 'error',
                 ], 500);
             }
@@ -147,7 +147,8 @@ class StatusMappingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -155,12 +156,12 @@ class StatusMappingController extends Controller
         $statusMapping = StatusMapping::where('id', $id)->first();
 
         if ($statusMapping) {
-            $oldPurchaseStatusId = $statusMapping->purchase_status_id;
-            $oldShippingStatusId = $statusMapping->shipping_status_id;
+            $oldPurchaseStatusId       = $statusMapping->purchase_status_id;
+            $oldShippingStatusId       = $statusMapping->shipping_status_id;
             $oldReturnExchangeStatusId = $statusMapping->return_exchange_status_id;
 
-            $statusMapping->purchase_status_id = '';
-            $statusMapping->shipping_status_id = '';
+            $statusMapping->purchase_status_id        = '';
+            $statusMapping->shipping_status_id        = '';
             $statusMapping->return_exchange_status_id = '';
             $statusMapping->save();
 
@@ -169,17 +170,17 @@ class StatusMappingController extends Controller
             $lastUpdatedUser = $this->saveStatusMappingHistory($statusMapping, $oldReturnExchangeStatusId, '', StatusMappingHistory::STATUS_TYPE_RETURN_EXCHANGE);
 
             return response()->json([
-                'status' => true,
-                'message' => 'Mapping Deleted successfully',
+                'status'      => true,
+                'message'     => 'Mapping Deleted successfully',
                 'status_name' => 'success',
-                'data' => [
+                'data'        => [
                     'lastUpdatedUser' => $lastUpdatedUser,
                 ],
             ], 200);
         } else {
             return response()->json([
-                'status' => false,
-                'message' => 'Deleted unsuccessfully',
+                'status'      => false,
+                'message'     => 'Deleted unsuccessfully',
                 'status_name' => 'error',
             ], 500);
         }
@@ -187,12 +188,12 @@ class StatusMappingController extends Controller
 
     protected function saveStatusMappingHistory($statusMapping, $oldStatusId, $newStatusId, $statusType)
     {
-        $history = new StatusMappingHistory();
+        $history                    = new StatusMappingHistory();
         $history->status_mapping_id = $statusMapping->id;
-        $history->old_status_id = $oldStatusId;
-        $history->new_status_id = $newStatusId;
-        $history->status_type = $statusType;
-        $history->user_id = Auth::user()->id;
+        $history->old_status_id     = $oldStatusId;
+        $history->new_status_id     = $newStatusId;
+        $history->status_type       = $statusType;
+        $history->user_id           = Auth::user()->id;
         $history->save();
 
         return $history->user->name;

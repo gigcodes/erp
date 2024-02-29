@@ -11,7 +11,7 @@ class GoogleDeveloperController extends Controller
     {
         $anrs = GoogleDeveloper::where('report', 'anr');
 
-        $id = 0;
+        $id   = 0;
         $anrs = $anrs->get();
 
         return view('google.developer-api.anr', ['anrs' => $anrs, 'id' => $id]);
@@ -22,13 +22,13 @@ class GoogleDeveloperController extends Controller
         $anrs = GoogleDeveloper::where('report', 'anr');
         if ($request->input('app_name')) {
             $app_name = $request->input('app_name');
-            $anrs = $anrs->Where('name', 'like', '%' . $app_name . '%');
+            $anrs     = $anrs->Where('name', 'like', '%' . $app_name . '%');
         }
         if ($request->input('date')) {
             $date = $request->input('date');
             $anrs = $anrs->Where('latestEndTime', 'like', '%' . $date . '%');
         }
-        $id = 0;
+        $id   = 0;
         $anrs = $anrs->get();
 
         return view('google.developer-api.anr', ['anrs' => $anrs, 'id' => $id]);
@@ -36,7 +36,7 @@ class GoogleDeveloperController extends Controller
 
     public function getDeveloperApicrash()
     {
-        $id = 0;
+        $id      = 0;
         $crashes = GoogleDeveloper::where('report', 'crash')->get();
 
         return view('google.developer-api.crash', ['crashes' => $crashes, 'id' => $id]);
@@ -47,13 +47,13 @@ class GoogleDeveloperController extends Controller
         $crashes = GoogleDeveloper::where('report', 'crash');
         if ($request->input('app_name')) {
             $app_name = $request->input('app_name');
-            $crashes = $crashes->Where('name', 'like', '%' . $app_name . '%');
+            $crashes  = $crashes->Where('name', 'like', '%' . $app_name . '%');
         }
         if ($request->input('date')) {
-            $date = $request->input('date');
+            $date    = $request->input('date');
             $crashes = $crashes->Where('latestEndTime', 'like', '%' . $date . '%');
         }
-        $id = 0;
+        $id      = 0;
         $crashes = $crashes->get();
 
         return view('google.developer-api.crash', ['crashes' => $crashes, 'id' => $id]);

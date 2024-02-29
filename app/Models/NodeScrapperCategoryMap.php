@@ -7,10 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class NodeScrapperCategoryMap extends Model
 {
-
     protected $casts = [
-        'category_stack' => 'array',
-        'product_urls' => 'array',
+        'category_stack'    => 'array',
+        'product_urls'      => 'array',
         'mapped_categories' => 'array',
     ];
 

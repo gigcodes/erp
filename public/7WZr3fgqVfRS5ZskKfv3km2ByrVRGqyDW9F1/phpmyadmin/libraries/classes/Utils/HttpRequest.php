@@ -58,7 +58,7 @@ class HttpRequest
     {
         global $cfg;
 
-        $this->proxyUrl = $cfg['ProxyUrl'];
+        $this->proxyUrl  = $cfg['ProxyUrl'];
         $this->proxyUser = $cfg['ProxyUser'];
         $this->proxyPass = $cfg['ProxyPass'];
     }
@@ -68,7 +68,7 @@ class HttpRequest
         global $cfg;
 
         $httpProxy = getenv('http_proxy');
-        $urlInfo = parse_url((string) $httpProxy);
+        $urlInfo   = parse_url((string) $httpProxy);
         if (PHP_SAPI !== 'cli' || ! is_array($urlInfo)) {
             return;
         }
@@ -82,19 +82,20 @@ class HttpRequest
     /**
      * Returns information with regards to handling the http request
      *
-     * @param  array  $context Data about the context for which
+     * @param array $context Data about the context for which
      *                       to http request is sent
+     *
      * @return array of updated context information
      */
     private function handleContext(array $context)
     {
         if (strlen($this->proxyUrl) > 0) {
             $context['http'] = [
-                'proxy' => $this->proxyUrl,
+                'proxy'           => $this->proxyUrl,
                 'request_fulluri' => true,
             ];
             if (strlen($this->proxyUser) > 0) {
-                $auth = base64_encode($this->proxyUser . ':' . $this->proxyPass);
+                $auth                      = base64_encode($this->proxyUser . ':' . $this->proxyPass);
                 $context['http']['header'] = 'Proxy-Authorization: Basic '
                     . $auth . "\r\n";
             }
@@ -106,9 +107,10 @@ class HttpRequest
     /**
      * Creates HTTP request using curl
      *
-     * @param  mixed  $response         HTTP response
-     * @param  int  $httpStatus       HTTP response status code
-     * @param  bool  $returnOnlyStatus If set to true, the method would only return response status
+     * @param mixed $response         HTTP response
+     * @param int   $httpStatus       HTTP response status code
+     * @param bool  $returnOnlyStatus If set to true, the method would only return response status
+     *
      * @return string|bool|null
      */
     private function response(
@@ -134,11 +136,12 @@ class HttpRequest
     /**
      * Creates HTTP request using curl
      *
-     * @param  string  $url              Url to send the request
-     * @param  string  $method           HTTP request method (GET, POST, PUT, DELETE, etc)
-     * @param  bool  $returnOnlyStatus If set to true, the method would only return response status
-     * @param  mixed  $content          Content to be sent with HTTP request
-     * @param  string  $header           Header to be set for the HTTP request
+     * @param string $url              Url to send the request
+     * @param string $method           HTTP request method (GET, POST, PUT, DELETE, etc)
+     * @param bool   $returnOnlyStatus If set to true, the method would only return response status
+     * @param mixed  $content          Content to be sent with HTTP request
+     * @param string $header           Header to be set for the HTTP request
+     *
      * @return string|bool|null
      */
     private function curl(
@@ -212,11 +215,12 @@ class HttpRequest
     /**
      * Creates HTTP request using file_get_contents
      *
-     * @param  string  $url              Url to send the request
-     * @param  string  $method           HTTP request method (GET, POST, PUT, DELETE, etc)
-     * @param  bool  $returnOnlyStatus If set to true, the method would only return response status
-     * @param  mixed  $content          Content to be sent with HTTP request
-     * @param  string  $header           Header to be set for the HTTP request
+     * @param string $url              Url to send the request
+     * @param string $method           HTTP request method (GET, POST, PUT, DELETE, etc)
+     * @param bool   $returnOnlyStatus If set to true, the method would only return response status
+     * @param mixed  $content          Content to be sent with HTTP request
+     * @param string $header           Header to be set for the HTTP request
+     *
      * @return string|bool|null
      */
     private function fopen(
@@ -228,14 +232,14 @@ class HttpRequest
     ) {
         $context = [
             'http' => [
-                'method' => $method,
+                'method'          => $method,
                 'request_fulluri' => true,
-                'timeout' => 10,
-                'user_agent' => 'phpMyAdmin',
-                'header' => 'Accept: */*',
+                'timeout'         => 10,
+                'user_agent'      => 'phpMyAdmin',
+                'header'          => 'Accept: */*',
             ],
             'ssl' => [
-                'verify_peer' => true,
+                'verify_peer'      => true,
                 'verify_peer_name' => true,
             ],
         ];
@@ -254,7 +258,7 @@ class HttpRequest
             $context['ssl']['cafile'] = $caPathOrFile;
         }
 
-        $context = $this->handleContext($context);
+        $context  = $this->handleContext($context);
         $response = @file_get_contents(
             $url,
             false,
@@ -274,11 +278,12 @@ class HttpRequest
     /**
      * Creates HTTP request
      *
-     * @param  string  $url              Url to send the request
-     * @param  string  $method           HTTP request method (GET, POST, PUT, DELETE, etc)
-     * @param  bool  $returnOnlyStatus If set to true, the method would only return response status
-     * @param  mixed  $content          Content to be sent with HTTP request
-     * @param  string  $header           Header to be set for the HTTP request
+     * @param string $url              Url to send the request
+     * @param string $method           HTTP request method (GET, POST, PUT, DELETE, etc)
+     * @param bool   $returnOnlyStatus If set to true, the method would only return response status
+     * @param mixed  $content          Content to be sent with HTTP request
+     * @param string $header           Header to be set for the HTTP request
+     *
      * @return string|bool|null
      */
     public function create(

@@ -18,8 +18,8 @@ class EmailLeadsSeeder extends Seeder
         $customer = Customer::all();
 
         foreach ($customer as $val) {
-            $emailLead = new EmailLead();
-            $emailLead->email = $val->email;
+            $emailLead             = new EmailLead();
+            $emailLead->email      = $val->email;
             $emailLead->created_at = date('Y-m-d H:i:s');
 
             $emailLead->save();

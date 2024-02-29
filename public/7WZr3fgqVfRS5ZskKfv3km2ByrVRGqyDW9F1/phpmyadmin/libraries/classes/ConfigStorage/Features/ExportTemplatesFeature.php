@@ -20,7 +20,7 @@ final class ExportTemplatesFeature
 
     public function __construct(DatabaseName $database, TableName $exportTemplates)
     {
-        $this->database = $database;
+        $this->database        = $database;
         $this->exportTemplates = $exportTemplates;
     }
 }

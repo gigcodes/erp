@@ -27,7 +27,7 @@ class WebhookController extends Controller
     /**
      * WebhookController constructor.
      *
-     * @param  SendgridEvent  $sendgridEvent
+     * @param SendgridEvent $sendgridEvent
      */
     public function __construct(SendgridEventRepositoryInterface $sendgridEventRepository)
     {
@@ -51,12 +51,12 @@ class WebhookController extends Controller
         $validator = Validator::make(
             $payload,
             [
-                '*.email' => 'required|email',
-                '*.timestamp' => 'required|integer',
-                '*.event' => 'required|in:' . implode(',', EventEnum::getAll()),
-                '*.sg_event_id' => 'required|string',
+                '*.email'         => 'required|email',
+                '*.timestamp'     => 'required|integer',
+                '*.event'         => 'required|in:' . implode(',', EventEnum::getAll()),
+                '*.sg_event_id'   => 'required|string',
                 '*.sg_message_id' => 'required|string',
-                '*.category' => function ($attribute, $value, $fail) {
+                '*.category'      => function ($attribute, $value, $fail) {
                     if (! is_null($value) && ! in_array(gettype($value), ['string', 'array'])) {
                         $fail($attribute . ' must be a string or array.');
                     }
@@ -130,7 +130,8 @@ class WebhookController extends Controller
      * Note: there is no way of validating that this webhook was actually sent by Sendgrid, so the malformation could
      * be the result of a malicious third party.
      *
-     * @param  array  $event
+     * @param array $event
+     * @param mixed $payload
      */
     private function logMalformedPayload($payload, array $validationErrors)
     {
@@ -139,7 +140,7 @@ class WebhookController extends Controller
                 config('sendgridevents.log_malformed_payload_level'),
                 'Malformed Sendgrid webhook received',
                 [
-                    'payload' => $payload,
+                    'payload'           => $payload,
                     'validation_errors' => $validationErrors,
                 ]
             );

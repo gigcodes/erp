@@ -26,17 +26,17 @@ class GoogleDriveController extends Controller
 
     public function create(Request $request)
     {
-        $drive_data = new GoogleDrive();
-        $drive_data->date = $request->google_drive_date;
+        $drive_data              = new GoogleDrive();
+        $drive_data->date        = $request->google_drive_date;
         $drive_data->user_module = $request->user_module;
-        $drive_data->remarks = $request->remarks;
-        $drive_data->dev_task = $request->dev_task;
+        $drive_data->remarks     = $request->remarks;
+        $drive_data->dev_task    = $request->dev_task;
 
-        $i = 0;
+        $i     = 0;
         $image = [];
         foreach ($request->file('upload_file') as $file) {
-            $name = $file->getClientOriginalName();
-            $filename = pathinfo($name, PATHINFO_FILENAME);
+            $name      = $file->getClientOriginalName();
+            $filename  = pathinfo($name, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
             $full_name = 'googledrive/' . $filename . '/' . $filename . '.' . $extension;
@@ -44,7 +44,7 @@ class GoogleDriveController extends Controller
             $file->move(public_path('/googledrive/' . $filename), $name);
             $image[] = $full_name;
         }
-        $string = implode(',', $image);
+        $string                  = implode(',', $image);
         $drive_data->upload_file = $string;
         $drive_data->save();
 

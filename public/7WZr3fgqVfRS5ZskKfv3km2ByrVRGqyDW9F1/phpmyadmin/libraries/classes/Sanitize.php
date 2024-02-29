@@ -36,13 +36,13 @@ class Sanitize
     /**
      * Checks whether given link is valid
      *
-     * @param  string  $url   URL to check
-     * @param  bool  $http  Whether to allow http links
-     * @param  bool  $other Whether to allow ftp and mailto links
+     * @param string $url   URL to check
+     * @param bool   $http  Whether to allow http links
+     * @param bool   $other Whether to allow ftp and mailto links
      */
     public static function checkLink($url, $http = false, $other = false): bool
     {
-        $url = strtolower($url);
+        $url          = strtolower($url);
         $valid_starts = [
             'https://',
             './url.php?url=https%3a%2f%2f',
@@ -95,7 +95,8 @@ class Sanitize
     /**
      * Callback function for replacing [a@link@target] links in bb code.
      *
-     * @param  array  $found Array of preg matches
+     * @param array $found Array of preg matches
+     *
      * @return string Replaced string
      */
     public static function replaceBBLink(array $found)
@@ -132,13 +133,13 @@ class Sanitize
     /**
      * Callback function for replacing [doc@anchor] links in bb code.
      *
-     * @param  string[]  $found Array of preg matches
+     * @param string[] $found Array of preg matches
      */
     public static function replaceDocLink(array $found): string
     {
         if (count($found) >= 4) {
             /* doc@page@anchor pattern */
-            $page = $found[1];
+            $page   = $found[1];
             $anchor = $found[3];
         } else {
             /* doc@anchor pattern */
@@ -170,9 +171,9 @@ class Sanitize
      *
      * <a title="<?php echo Sanitize::sanitizeMessage($foo, true); ?>">bar</a>
      *
-     * @param  string  $message the message
-     * @param  bool  $escape  whether to escape html in result
-     * @param  bool  $safe    whether string is safe (can keep < and > chars)
+     * @param string $message the message
+     * @param bool   $escape  whether to escape html in result
+     * @param bool   $safe    whether string is safe (can keep < and > chars)
      */
     public static function sanitizeMessage(string $message, $escape = false, $safe = false): string
     {
@@ -182,19 +183,19 @@ class Sanitize
 
         /* Interpret bb code */
         $replace_pairs = [
-            '[em]' => '<em>',
-            '[/em]' => '</em>',
-            '[strong]' => '<strong>',
+            '[em]'      => '<em>',
+            '[/em]'     => '</em>',
+            '[strong]'  => '<strong>',
             '[/strong]' => '</strong>',
-            '[code]' => '<code>',
-            '[/code]' => '</code>',
-            '[kbd]' => '<kbd>',
-            '[/kbd]' => '</kbd>',
-            '[br]' => '<br>',
-            '[/a]' => '</a>',
-            '[/doc]' => '</a>',
-            '[sup]' => '<sup>',
-            '[/sup]' => '</sup>',
+            '[code]'    => '<code>',
+            '[/code]'   => '</code>',
+            '[kbd]'     => '<kbd>',
+            '[/kbd]'    => '</kbd>',
+            '[br]'      => '<br>',
+            '[/a]'      => '</a>',
+            '[/doc]'    => '</a>',
+            '[sup]'     => '<sup>',
+            '[/sup]'    => '</sup>',
             '[conferr]' => '<iframe src="show_config_errors.php"><a href='
                 . '"show_config_errors.php">show_config_errors.php</a></iframe>',
             // used in libraries/Util.php
@@ -238,9 +239,10 @@ class Sanitize
      *
      *    When exporting, avoiding generation of an unexpected double-extension file
      *
-     * @param  string  $filename    The filename
-     * @param  bool  $replaceDots Whether to also replace dots
-     * @return string  the sanitized filename
+     * @param string $filename    The filename
+     * @param bool   $replaceDots Whether to also replace dots
+     *
+     * @return string the sanitized filename
      */
     public static function sanitizeFilename($filename, $replaceDots = false)
     {
@@ -263,9 +265,10 @@ class Sanitize
      * This function is used to displays a javascript confirmation box for
      * "DROP/DELETE/ALTER" queries.
      *
-     * @param  string  $a_string       the string to format
-     * @param  bool  $add_backquotes whether to add backquotes to the string or not
-     * @return string   the formatted string
+     * @param string $a_string       the string to format
+     * @param bool   $add_backquotes whether to add backquotes to the string or not
+     *
+     * @return string the formatted string
      */
     public static function jsFormat($a_string = '', $add_backquotes = true)
     {
@@ -288,8 +291,9 @@ class Sanitize
      * We also remove NUL byte as some browsers (namely MSIE) ignore it and
      * inserting it anywhere inside </script would allow to bypass this check.
      *
-     * @param  string  $string the string to be escaped
-     * @return string  the escaped string
+     * @param string $string the string to be escaped
+     *
+     * @return string the escaped string
      */
     public static function escapeJsString($string)
     {
@@ -300,11 +304,11 @@ class Sanitize
                 (string) $string,
                 [
                     "\000" => '',
-                    '\\' => '\\\\',
-                    '\'' => '\\\'',
-                    '"' => '\"',
-                    "\n" => '\n',
-                    "\r" => '\r',
+                    '\\'   => '\\\\',
+                    '\''   => '\\\'',
+                    '"'    => '\"',
+                    "\n"   => '\n',
+                    "\r"   => '\r',
                 ]
             )
         );
@@ -313,7 +317,8 @@ class Sanitize
     /**
      * Formats a value for javascript code.
      *
-     * @param  string|bool|int  $value String to be formatted.
+     * @param string|bool|int $value String to be formatted.
+     *
      * @return int|string formatted value.
      */
     public static function formatJsVal($value)
@@ -337,10 +342,11 @@ class Sanitize
      * Formats an javascript assignment with proper escaping of a value
      * and support for assigning array of strings.
      *
-     * @param  string  $key    Name of value to set
-     * @param  mixed  $value  Value to set, can be either string or array of strings
-     * @param  bool  $escape Whether to escape value or keep it as it is
+     * @param string $key    Name of value to set
+     * @param mixed  $value  Value to set, can be either string or array of strings
+     * @param bool   $escape Whether to escape value or keep it as it is
      *                       (for inclusion of js code)
+     *
      * @return string Javascript code.
      */
     public static function getJsValue($key, $value, $escape = true)
@@ -365,7 +371,7 @@ class Sanitize
     /**
      * Removes all variables from request except allowed ones.
      *
-     * @param  string[]  $allowList list of variables to allow
+     * @param string[] $allowList list of variables to allow
      */
     public static function removeRequestVars(&$allowList): void
     {
